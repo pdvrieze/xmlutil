@@ -1,15 +1,58 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 
+
+configurations {
+    main.transitive true
+    webCompile.extendsFrom compile
+    webCompile.transitive true
+    tomcatCompile
+    tomcatCompile.extendsFrom webCompile
+}
+
+
+dependencies {
+    compile project(':java-common')
+    compile project(':PE-common')
+
+    webCompile 'org.apache.tomcat:servlet-api:6.0.44'
+
+    tomcatCompile 'org.apache.tomcat:catalina:6.0.44'
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
-
 
 sourceSets {
     main {
         java {
-            srcDir 'src'
+            srcDir 'src/main'
         }
+    }
+    web {
+        java {
+            srcDir 'src/web'
+        }
+        compileClasspath = compileClasspath+files(main.runtimeClasspath)
+        runtimeClasspath = runtimeClasspath+files(main.runtimeClasspath)
+    }
+
+    tomcat {
+        java {
+            srcDir 'src/tomcat'
+        }
+        compileClasspath = compileClasspath+files(web.runtimeClasspath)
+        compileClasspath.each({ println ("Tomcat compile classpath: $it")})
+        runtimeClasspath = runtimeClasspath+files(web.runtimeClasspath)
     }
 
 }
+/*
+compileWebJava {
+    doFirst {
+        println("webJava")
+        configurations.tomcatCompile.allDependencies.each({ println("Dependency: $it")})
+        sourceSets.tomcat.compileClasspath.each({ println("CompileClasspath: $it") })
+    }
+}
+*/
