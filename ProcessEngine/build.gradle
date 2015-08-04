@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'com.bmuschko.tomcat'
 apply plugin: 'idea'
 
 
@@ -15,9 +15,13 @@ dependencies {
     compile project(':java-common')
     compile project(':PE-common')
 
-    webCompile 'org.apache.tomcat:servlet-api:6.0.44'
+    webCompile "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
-    tomcatCompile 'org.apache.tomcat:catalina:6.0.44'
+    tomcatCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+
+    tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
+            "org.apache.tomcat:coyote:${tomcatVersion}",
+            "org.apache.tomcat:jasper:${tomcatVersion}"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -47,6 +51,13 @@ sourceSets {
     }
 
 }
+
+task run(dependsOn: ["tomcatRun"]) {
+    doFirst {
+        println("Run Tomcat")
+    }
+}
+
 /*
 compileWebJava {
     doFirst {
