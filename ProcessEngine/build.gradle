@@ -3,11 +3,19 @@ apply plugin: 'idea'
 
 
 configurations {
-    main.transitive true
-    webCompile.extendsFrom compile
-    webCompile.transitive true
-    tomcatCompile.transitive true
-    tomcatCompile.extendsFrom(webCompile)
+    main {
+        description = "The main source that is not dependend on servlet api's"
+        transitive = true
+    }
+    webCompile {
+        description = "The web version that is not dependent on tomcat as a host"
+        extendsFrom compile
+        transitive = true
+    }
+    tomcatCompile {
+        description = "Those classes that depend on tomcat as webhost"
+        extendsFrom webCompile
+    }
 }
 
 
