@@ -1,4 +1,4 @@
-apply plugin: 'com.bmuschko.tomcat'
+apply plugin: 'java'
 apply plugin: 'idea'
 
 
@@ -6,12 +6,13 @@ configurations {
     main.transitive true
     webCompile.extendsFrom compile
     webCompile.transitive true
-    tomcatCompile
-    tomcatCompile.extendsFrom webCompile
+    tomcatCompile.transitive true
+    tomcatCompile.extendsFrom(webCompile)
 }
 
 
 dependencies {
+//    def tomcatVersion = '6.0.44'
     compile project(':java-common')
     compile project(':PE-common')
 
@@ -19,9 +20,9 @@ dependencies {
 
     tomcatCompile "org.apache.tomcat:catalina:${tomcatVersion}"
 
-    tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
+/*    tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
             "org.apache.tomcat:coyote:${tomcatVersion}",
-            "org.apache.tomcat:jasper:${tomcatVersion}"
+            "org.apache.tomcat:jasper:${tomcatVersion}"*/
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
