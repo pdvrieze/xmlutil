@@ -1,4 +1,5 @@
-apply plugin: 'java'
+//apply plugin: 'java'
+apply plugin: 'war'
 apply plugin: 'idea'
 
 
@@ -9,10 +10,10 @@ configurations {
     }
     webCompile {
         description = "The web version that is not dependent on tomcat as a host"
-        extendsFrom compile
+        extendsFrom main
         transitive = true
     }
-    tomcatCompile {
+    tomcatExtCompile {
         description = "Those classes that depend on tomcat as webhost"
         extendsFrom webCompile
     }
@@ -26,12 +27,15 @@ dependencies {
 
     webCompile "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
-    tomcatCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+    tomcatExtCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+
+    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 
 /*    tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
             "org.apache.tomcat:coyote:${tomcatVersion}",
             "org.apache.tomcat:jasper:${tomcatVersion}"*/
 }
+
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -50,7 +54,7 @@ sourceSets {
         runtimeClasspath = runtimeClasspath+files(main.runtimeClasspath)
     }
 
-    tomcat {
+    tomcatExt {
         java {
             srcDir 'src/tomcat'
         }
@@ -61,18 +65,30 @@ sourceSets {
 
 }
 
-task run(dependsOn: ["tomcatRun"]) {
-    doFirst {
-        println("Run Tomcat")
-    }
+war {
+    from sourceSets.main.output
+    from sourceSets.web.output
+    from sourceSets.tomcatExt.output
 }
 
+jar {
+    from sourceSets.main.output
+    from sourceSets.web.output
+    from sourceSets.tomcatExt.output
+}
+
+/*
+task tomcatRun(dependsOn: [war, sourceSets.tomcat.runtimeClasspath]) {
+    group='web application'
+    description = "Do everything needed to be able to run as embedded tomcat"
+
+}*/
 /*
 compileWebJava {
     doFirst {
         println("webJava")
-        configurations.tomcatCompile.allDependencies.each({ println("Dependency: $it")})
-        sourceSets.tomcat.compileClasspath.each({ println("CompileClasspath: $it") })
+        configurations.tomcatExtCompile.allDependencies.each({ println("Dependency: $it")})
+        sourceSets.tomcatExt.compileClasspath.each({ println("CompileClasspath: $it") })
     }
 }
 */
