@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/DarwinClients" />
+            <option value="$PROJECT_DIR$/DarwinCommon" />
+            <option value="$PROJECT_DIR$/DarwinGenerators" />
+            <option value="$PROJECT_DIR$/DarwinJavaApi" />
+            <option value="$PROJECT_DIR$/DarwinRealm" />
+            <option value="$PROJECT_DIR$/DarwinServices" />
+            <option value="$PROJECT_DIR$/JavaCommonApi" />
+            <option value="$PROJECT_DIR$/PE-common" />
+            <option value="$PROJECT_DIR$/PE-dataservices" />
+            <option value="$PROJECT_DIR$/PE-diagram" />
+            <option value="$PROJECT_DIR$/PE-server" />
+            <option value="$PROJECT_DIR$/PEUserMessageHandler" />
+            <option value="$PROJECT_DIR$/PMEditor" />
+            <option value="$PROJECT_DIR$/ProcessEngine" />
+            <option value="$PROJECT_DIR$/darwinlib" />
+            <option value="$PROJECT_DIR$/java-common" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

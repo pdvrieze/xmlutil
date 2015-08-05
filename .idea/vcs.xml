@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/PE-common" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/PEUserMessageHandler" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ProcessEngine" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/java-common" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/DarwinClients" vcs="svn" />
+    <mapping directory="$USER_HOME$/workspace/DarwinCommon" vcs="svn" />
+    <mapping directory="$USER_HOME$/workspace/DarwinJavaApi" vcs="svn" />
+    <mapping directory="$USER_HOME$/workspace/PE-common" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/PE-common" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/PE-diagram" vcs="svn" />
+    <mapping directory="$USER_HOME$/workspace/PEUserMessageHandler" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/PEUserMessageHandler" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/PMEditor" vcs="svn" />
+    <mapping directory="$USER_HOME$/workspace/ProcessEngine" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/ProcessEngine" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/java-common" vcs="Git" />
+    <mapping directory="$USER_HOME$/workspace/java-common" vcs="Git" />
+  </component>
+</project>

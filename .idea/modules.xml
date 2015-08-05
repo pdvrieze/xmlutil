@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/DarwinClients/DarwinClients.iml" filepath="$PROJECT_DIR$/DarwinClients/DarwinClients.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DarwinCommon/DarwinCommon.iml" filepath="$PROJECT_DIR$/DarwinCommon/DarwinCommon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DarwinGenerators/DarwinGenerators.iml" filepath="$PROJECT_DIR$/DarwinGenerators/DarwinGenerators.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DarwinJavaApi/DarwinJavaApi.iml" filepath="$PROJECT_DIR$/DarwinJavaApi/DarwinJavaApi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DarwinRealm/DarwinRealm.iml" filepath="$PROJECT_DIR$/DarwinRealm/DarwinRealm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DarwinServices/DarwinServices.iml" filepath="$PROJECT_DIR$/DarwinServices/DarwinServices.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JavaCommonApi/JavaCommonApi.iml" filepath="$PROJECT_DIR$/JavaCommonApi/JavaCommonApi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PE-common/PE-common.iml" filepath="$PROJECT_DIR$/PE-common/PE-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PE-dataservices/PE-dataservices.iml" filepath="$PROJECT_DIR$/PE-dataservices/PE-dataservices.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PE-diagram/PE-diagram.iml" filepath="$PROJECT_DIR$/PE-diagram/PE-diagram.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PE-server/PE-server.iml" filepath="$PROJECT_DIR$/PE-server/PE-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PEUserMessageHandler/PEUserMessageHandler.iml" filepath="$PROJECT_DIR$/PEUserMessageHandler/PEUserMessageHandler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PMEditor/PMEditor.iml" filepath="$PROJECT_DIR$/PMEditor/PMEditor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ProcessEngine/ProcessEngine.iml" filepath="$PROJECT_DIR$/ProcessEngine/ProcessEngine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ProcessManager.iml" filepath="$PROJECT_DIR$/ProcessManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/darwinlib/darwinlib.iml" filepath="$PROJECT_DIR$/darwinlib/darwinlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java-common/java-common.iml" filepath="$PROJECT_DIR$/java-common/java-common.iml" />
+    </modules>
+  </component>
+</project>
