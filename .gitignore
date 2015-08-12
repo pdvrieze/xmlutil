@@ -5,3 +5,12 @@ build
 darwinlib
 PE-server
 PMEditor
+DarwinClients
+DarwinCommon
+DarwinGenerators
+DarwinJavaApi
+DarwinRealm
+DarwinServices
+JavaCommonApi
+PE-dataservices
+PE-diagram
