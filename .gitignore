@@ -3,3 +3,5 @@ build
 .gradle
 .idea/libraries
 darwinlib
+PE-server
+PMEditor
