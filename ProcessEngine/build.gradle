@@ -64,7 +64,7 @@ sourceSets {
             srcDir 'src/tomcat'
         }
         compileClasspath = compileClasspath+files(web.runtimeClasspath)
-        compileClasspath.each({ println ("Tomcat compile classpath: $it")})
+        compileClasspath.each({ logger.debug("Tomcat compile classpath: $it")})
         runtimeClasspath = runtimeClasspath+files(web.runtimeClasspath)
     }
 
