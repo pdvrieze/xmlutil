@@ -50,6 +50,20 @@
             </SvnBranchConfiguration>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/DarwinRealm">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/darwinrealm" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/DarwinServices">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinServices/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/JavaCommonApi">
           <value>
             <SvnBranchConfiguration>
@@ -68,6 +82,13 @@
           <value>
             <SvnBranchConfiguration>
               <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PE-diagram/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/PE-server">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PE-server/trunk" />
             </SvnBranchConfiguration>
           </value>
         </entry>
