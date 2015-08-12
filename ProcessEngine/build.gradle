@@ -1,6 +1,10 @@
-//apply plugin: 'java'
+apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'idea'
+
+version = '1.0.0'
+description = 'The service that provides the process coordination system'
+group = ['server', 'service' ]
 
 
 configurations {
@@ -15,6 +19,7 @@ configurations {
     }
     tomcatExtCompile {
         description = "Those classes that depend on tomcat as webhost"
+        transitive = true
         extendsFrom webCompile
     }
 }
