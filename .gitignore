@@ -2,3 +2,4 @@ out
 build
 .gradle
 .idea/libraries
+darwinlib
