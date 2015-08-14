@@ -4,16 +4,20 @@ apply plugin: 'idea'
 
 version = '1.0.0'
 description = 'The service that provides the process coordination system'
-group = ['server', 'service' ]
+//group = ['server', 'service' ]
 
 
 configurations {
     main {
+        // This combines base, web and tomcat but this is needed for intellij tomcat support
+        description = "The main compilation sources that just take all sources to put into the war"
+    }
+    baseCompile {
         description = "The main source that is not dependend on servlet api's"
     }
     webCompile {
         description = "The web version that is not dependent on tomcat as a host"
-        extendsFrom main
+        extendsFrom baseCompile
     }
     webProvided {
        description = "Compile time only dependencies - not included in war"
@@ -29,45 +33,58 @@ configurations {
     }
 }
 
+artifacts {
+    main war
+}
 
 dependencies {
-//    def tomcatVersion = '6.0.44'
     compile project(':java-common')
     compile project(':PE-common')
+
+    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+
+
+    baseCompile project(':java-common')
+    baseCompile project(':PE-common')
 
     webProvided "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
     tomcatExtProvided "org.apache.tomcat:catalina:${tomcatVersion}"
 
-    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
-
-/*    tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
-            "org.apache.tomcat:coyote:${tomcatVersion}",
-            "org.apache.tomcat:jasper:${tomcatVersion}"*/
+//    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 }
-
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
+webAppDirName = 'src/base/webapp'
+
 sourceSets {
+    base {
+        java {
+            srcDir 'src/base/java'
+        }
+    }
     main {
         java {
-            srcDir 'src/main'
+            srcDir 'src/main/java'
+            srcDir 'src/base/java'
+            srcDir 'src/web/java'
+            srcDir 'src/tomcat/java'
         }
     }
     web {
         java {
-            srcDir 'src/web'
+            srcDir 'src/web/java'
         }
-        compileClasspath += files(main.runtimeClasspath)
-        compileClasspath += configurations.webProvided
-        runtimeClasspath += files(main.runtimeClasspath)
     }
+    web.compileClasspath += files(base.runtimeClasspath)
+    web.compileClasspath += configurations.webProvided
+    web.runtimeClasspath += files(base.runtimeClasspath)
 
     tomcatExt {
         java {
-            srcDir 'src/tomcat'
+            srcDir 'src/tomcat/java'
         }
         compileClasspath += files (web.compileClasspath)
         compileClasspath += configurations.tomcatExtProvided
@@ -78,16 +95,17 @@ sourceSets {
 }
 
 war {
-    classpath sourceSets.web.output
+//    classpath sourceSets.web.output
 //    classpath sourceSets.tomcatExt.output
-    classpath configurations.tomcatExtCompile
+//    classpath sourceSets.main.output
 }
 
+war.dependsOn(task('baseCompile'))
 war.dependsOn(task('webCompile'))
 war.dependsOn(task('tomcatExtCompile'))
 
 jar {
-    from sourceSets.main.output
+    from sourceSets.base.output
     from sourceSets.web.output
     from sourceSets.tomcatExt.output
 }
