@@ -10,17 +10,22 @@ group = ['server', 'service' ]
 configurations {
     main {
         description = "The main source that is not dependend on servlet api's"
-        transitive = true
     }
     webCompile {
         description = "The web version that is not dependent on tomcat as a host"
         extendsFrom main
-        transitive = true
+    }
+    webProvided {
+       description = "Compile time only dependencies - not included in war"
+    }
+    tomcatExtProvided {
+        description = "Tomcat compile time only dependencies - not included in war"
+        transitive false
     }
     tomcatExtCompile {
         description = "Those classes that depend on tomcat as webhost"
-        transitive = true
         extendsFrom webCompile
+        transitive false
     }
 }
 
@@ -30,9 +35,9 @@ dependencies {
     compile project(':java-common')
     compile project(':PE-common')
 
-    webCompile "org.apache.tomcat:servlet-api:${tomcatVersion}"
+    webProvided "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
-    tomcatExtCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+    tomcatExtProvided "org.apache.tomcat:catalina:${tomcatVersion}"
 
     configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 
@@ -55,26 +60,31 @@ sourceSets {
         java {
             srcDir 'src/web'
         }
-        compileClasspath = compileClasspath+files(main.runtimeClasspath)
-        runtimeClasspath = runtimeClasspath+files(main.runtimeClasspath)
+        compileClasspath += files(main.runtimeClasspath)
+        compileClasspath += configurations.webProvided
+        runtimeClasspath += files(main.runtimeClasspath)
     }
 
     tomcatExt {
         java {
             srcDir 'src/tomcat'
         }
-        compileClasspath = compileClasspath+files(web.runtimeClasspath)
+        compileClasspath += files (web.compileClasspath)
+        compileClasspath += configurations.tomcatExtProvided
         compileClasspath.each({ logger.debug("Tomcat compile classpath: $it")})
-        runtimeClasspath = runtimeClasspath+files(web.runtimeClasspath)
+        runtimeClasspath += files(web.runtimeClasspath)
     }
 
 }
 
 war {
-    from sourceSets.main.output
-    from sourceSets.web.output
-    from sourceSets.tomcatExt.output
+    classpath sourceSets.web.output
+//    classpath sourceSets.tomcatExt.output
+    classpath configurations.tomcatExtCompile
 }
+
+war.dependsOn(task('webCompile'))
+war.dependsOn(task('tomcatExtCompile'))
 
 jar {
     from sourceSets.main.output
