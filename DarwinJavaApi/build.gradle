@@ -6,7 +6,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 version = '1.1.0'
 description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-group = ['server', 'serverclasspath']
+//group = ['server', 'serverclasspath']
 
 
 sourceSets {
