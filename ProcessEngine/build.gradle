@@ -15,6 +15,9 @@ configurations {
     baseCompile {
         description = "The main source that is not dependend on servlet api's"
     }
+    baseProvided {
+        description = "Compile time only dependencies for the base"
+    }
     webCompile {
         description = "The web version that is not dependent on tomcat as a host"
         extendsFrom baseCompile
@@ -41,11 +44,16 @@ dependencies {
     compile project(':java-common')
     compile project(':PE-common')
 
-    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+    runtime 'com.fasterxml.woodstox:woodstox-core:5.0.1'
+
+//    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+//    providedCompile project(path: ':PE-common', configuration:'providedCompile')
 
 
     baseCompile project(':java-common')
     baseCompile project(':PE-common')
+    baseProvided project(path: ':PE-common', configuration:'providedCompile')
+//    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
 
     webProvided "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
@@ -64,6 +72,7 @@ sourceSets {
         java {
             srcDir 'src/base/java'
         }
+        compileClasspath += configurations.baseProvided
     }
     main {
         java {
@@ -72,6 +81,7 @@ sourceSets {
             srcDir 'src/web/java'
             srcDir 'src/tomcat/java'
         }
+        compileClasspath+=configurations.baseProvided+configurations.webProvided+configurations.tomcatExtProvided
     }
     web {
         java {
@@ -79,6 +89,7 @@ sourceSets {
         }
     }
     web.compileClasspath += files(base.runtimeClasspath)
+    web.compileClasspath += configurations.baseProvided
     web.compileClasspath += configurations.webProvided
     web.runtimeClasspath += files(base.runtimeClasspath)
 
@@ -108,6 +119,13 @@ jar {
     from sourceSets.base.output
     from sourceSets.web.output
     from sourceSets.tomcatExt.output
+}
+
+idea {
+    module {
+        scopes.COMPILE.minus += [configurations.providedCompile, configurations.baseProvided, configurations.webProvided, configurations.tomcatExtCompile]
+        scopes.PROVIDED.plus += [configurations.providedCompile, configurations.baseProvided, configurations.webProvided, configurations.tomcatExtCompile, configurations.tomcatExtProvided]
+    }
 }
 
 /*
