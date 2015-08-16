@@ -6,7 +6,12 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 version = '1.0.0'
 description = 'A library that contains the shared code for diagrams that is not specific for a output system'
-group = ['shared', 'process' ]
+//group = ['shared', 'process' ]
+
+
+configurations {
+    providedCompile
+}
 
 
 sourceSets {
@@ -14,6 +19,7 @@ sourceSets {
         java {
             srcDir 'src'
         }
+        compileClasspath += configurations.providedCompile
     }
 
 }
@@ -21,4 +27,5 @@ sourceSets {
 
 dependencies {
     compile project(':PE-common')
+    providedCompile project(path: ':PE-common', configuration:'providedCompile')
 }
