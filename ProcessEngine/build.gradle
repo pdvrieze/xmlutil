@@ -44,6 +44,10 @@ dependencies {
     compile project(':java-common')
     compile project(':PE-common')
 
+    testCompile project(':DarwinJavaApi')
+    testCompile 'junit:junit:4.12'
+    testCompile 'xmlunit:xmlunit:1.6'
+
     runtime 'com.fasterxml.woodstox:woodstox-core:5.0.1'
 
 //    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
@@ -52,7 +56,7 @@ dependencies {
 
     baseCompile project(':java-common')
     baseCompile project(':PE-common')
-    baseProvided project(path: ':PE-common', configuration:'providedCompile')
+    baseProvided project(':DarwinJavaApi')
 //    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
 
     webProvided "org.apache.tomcat:servlet-api:${tomcatVersion}"
