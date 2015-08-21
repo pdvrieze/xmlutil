@@ -26,6 +26,27 @@
             <option value="$PROJECT_DIR$/java-common" />
           </set>
         </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/DarwinClients" />
+            <option value="$PROJECT_DIR$/DarwinCommon" />
+            <option value="$PROJECT_DIR$/DarwinGenerators" />
+            <option value="$PROJECT_DIR$/DarwinJavaApi" />
+            <option value="$PROJECT_DIR$/DarwinRealm" />
+            <option value="$PROJECT_DIR$/DarwinServices" />
+            <option value="$PROJECT_DIR$/JavaCommonApi" />
+            <option value="$PROJECT_DIR$/PE-common" />
+            <option value="$PROJECT_DIR$/PE-dataservices" />
+            <option value="$PROJECT_DIR$/PE-diagram" />
+            <option value="$PROJECT_DIR$/PE-server" />
+            <option value="$PROJECT_DIR$/PEUserMessageHandler" />
+            <option value="$PROJECT_DIR$/PMEditor" />
+            <option value="$PROJECT_DIR$/ProcessEngine" />
+            <option value="$PROJECT_DIR$/darwinlib" />
+            <option value="$PROJECT_DIR$/java-common" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>
