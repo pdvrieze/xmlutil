@@ -1,25 +1,31 @@
 package nl.adaptivity.util.xml;
 
+import net.devrieze.annotations.NotNull;
 import org.w3c.dom.*;
 
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 public interface XmlSerializable {
 
   @XmlAccessorType(XmlAccessType.PROPERTY)
   public static class SimpleAdapter {
+
+    QName name;
 
     public Map<QName, Object> getAttributes() {
       return attributes;
@@ -42,6 +48,52 @@ public interface XmlSerializable {
         }
       }
     }
+
+    public void beforeUnmarshal(Unmarshaller unmarshaller, Object parent) {
+      if (parent instanceof JAXBElement) {
+        name=((JAXBElement) parent).getName();
+      }
+    }
+  }
+
+  public static class JAXBUnmarshallingAdapter extends JAXBAdapter {
+
+    @NotNull
+    private final XmlDeserializerFactory<?> mFactory;
+
+    public JAXBUnmarshallingAdapter(Class<? extends XmlSerializable> targetType) {
+      XmlDeserializer factoryTypeAnn = targetType.getAnnotation(XmlDeserializer.class);
+      if (factoryTypeAnn==null || factoryTypeAnn.value()==null) {
+        throw new IllegalArgumentException("For unmarshalling with this adapter to work, the type must have the "+XmlDeserializer.class.getName()+" annotation");
+      }
+      try {
+        mFactory = factoryTypeAnn.value().newInstance();
+      } catch (InstantiationException|IllegalAccessException e) {
+        throw new IllegalArgumentException("The factory must have a visible no-arg constructor",e);
+      }
+    }
+
+    @Override
+    public XmlSerializable unmarshal(final SimpleAdapter v) throws Exception {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      Document document = dbf.newDocumentBuilder().newDocument();
+
+      QName outerName = v.name==null ? new QName("value") : v.name;
+      Element root;
+      root = XmlUtil.createElement(document, outerName);
+      for (Entry<QName, Object> attr: v.attributes.entrySet()) {
+        XmlUtil.setAttribute(root, attr.getKey(),(String) attr.getValue());
+      }
+      for (Object child:v.children) {
+        root.appendChild((Node) child);
+      }
+
+      XMLInputFactory xif = XMLInputFactory.newFactory();
+      XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
+      return (XmlSerializable) mFactory.deserialize(xsr);
+    }
+
   }
 
   public static class JAXBAdapter extends XmlAdapter<SimpleAdapter, XmlSerializable> {
