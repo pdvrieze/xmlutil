@@ -3,6 +3,8 @@ local.properties
 build
 .gradle
 .idea/libraries
+.idea/dataSources.ids
+.idea/dataSources.local.xml
 darwinlib
 PE-server
 PMEditor
