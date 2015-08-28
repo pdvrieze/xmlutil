@@ -122,35 +122,45 @@ public interface XmlSerializable {
 
     @Override
     public T unmarshal(final SimpleAdapter v) throws Exception {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      dbf.setNamespaceAware(true);
-      Document document = dbf.newDocumentBuilder().newDocument();
+      try {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        Document document = dbf.newDocumentBuilder().newDocument();
 
-      QName outerName = v.name==null ? new QName("value") : v.name;
-      Element root;
-      root = XmlUtil.createElement(document, outerName);
+        QName outerName = v.name == null ? new QName("value") : v.name;
+        Element root;
+        root = XmlUtil.createElement(document, outerName);
 
-      SimpleNamespaceContext namespaceContext = v.namespaceContext;
-      for(int i = ((SimpleNamespaceContext) namespaceContext).size()-1; i>=0; --i) {
-        String prefix = namespaceContext.getPrefix(i);
-        String namespace = namespaceContext.getNamespaceURI(i);
-        if (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix)) {
-          root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns" , namespace);
-        } else {
-          root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + prefix, namespace);
+        SimpleNamespaceContext namespaceContext = v.namespaceContext;
+        for (int i = ((SimpleNamespaceContext) namespaceContext).size() - 1; i >= 0; --i) {
+          String prefix = namespaceContext.getPrefix(i);
+          String namespace = namespaceContext.getNamespaceURI(i);
+          if (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix)) {
+            if (! XMLConstants.NULL_NS_URI.equals(namespace)) {
+              root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns", namespace);
+            }
+          } else {
+            root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + prefix, namespace);
+          }
         }
-      }
 
 
-      for (Entry<QName, Object> attr: v.attributes.entrySet()) {
-        XmlUtil.setAttribute(root, attr.getKey(),(String) attr.getValue());
+        for (Entry<QName, Object> attr : v.attributes.entrySet()) {
+          XmlUtil.setAttribute(root, attr.getKey(), (String) attr.getValue());
+        }
+        for (Object child : v.children) {
+          if (child instanceof Node) {
+            root.appendChild(document.importNode((Node) child, true));
+          }
+        }
+        XMLInputFactory xif = XMLInputFactory.newFactory();
+        XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
+        xsr.nextTag();
+        return mFactory.deserialize(xsr);
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
       }
-      for (Object child:v.children) {
-        root.appendChild((Node) child);
-      }
-      XMLInputFactory xif = XMLInputFactory.newFactory();
-      XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
-      return mFactory.deserialize(xsr);
     }
 
   }
