@@ -18,10 +18,7 @@ import javax.xml.transform.dom.DOMSource;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +52,7 @@ public interface XmlSerializable {
         String prefix = attr.getPrefix();
         if (prefix==null) {
           attributes.put(new QName(attr.getLocalName()), attr.getValue());
-        } else {
+        } else if (! XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)){
           attributes.put(new QName(attr.getNamespaceURI(), attr.getLocalName(), prefix), attr.getValue());
         }
       }
@@ -131,15 +128,25 @@ public interface XmlSerializable {
         Element root;
         root = XmlUtil.createElement(document, outerName);
 
-        SimpleNamespaceContext namespaceContext = v.namespaceContext;
-        for (int i = ((SimpleNamespaceContext) namespaceContext).size() - 1; i >= 0; --i) {
-          String prefix = namespaceContext.getPrefix(i);
-          String namespace = namespaceContext.getNamespaceURI(i);
-          if (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix)) {
+
+        SimpleNamespaceContext sourceNamespaceContext = v.namespaceContext;
+
+
+
+        for (int i = ((SimpleNamespaceContext) sourceNamespaceContext).size() - 1; i >= 0; --i) {
+          String prefix = sourceNamespaceContext.getPrefix(i);
+          String namespace = sourceNamespaceContext.getNamespaceURI(i);
+          if (! (XMLConstants.NULL_NS_URI.equals(namespace)|| // Not null namespace
+                 XMLConstants.XML_NS_PREFIX.equals(prefix)|| // or xml prefix
+                 XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))) { // or xmlns prefix
+
+          }
+
+          if (XMLConstants.DEFAULT_NS_PREFIX.equals(prefix)) { // Set the default namespace, unless it is the null namespace
             if (! XMLConstants.NULL_NS_URI.equals(namespace)) {
               root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns", namespace);
             }
-          } else {
+          } else if (! XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) { // Bind the prefix, except for xmlns itself
             root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + prefix, namespace);
           }
         }
@@ -212,4 +219,5 @@ public interface XmlSerializable {
    * @throws XMLStreamException When something breaks.
    */
   void serialize(XMLStreamWriter out) throws XMLStreamException;
+
 }
