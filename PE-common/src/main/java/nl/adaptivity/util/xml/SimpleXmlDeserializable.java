@@ -9,7 +9,7 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface SimpleXmlDeserializable extends XmlDeserializable {
 
-  public boolean deserializeChild(final XMLStreamReader pIn) throws XMLStreamException;
+  boolean deserializeChild(final XMLStreamReader pIn) throws XMLStreamException;
 
   boolean deserializeChildText(String pElementText);
 }
