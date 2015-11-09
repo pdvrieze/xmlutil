@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.*;
@@ -18,7 +17,10 @@ import javax.xml.transform.dom.DOMSource;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
 public interface XmlSerializable {
 
   @XmlAccessorType(XmlAccessType.PROPERTY)
-  public static class SimpleAdapter {
+  class SimpleAdapter {
     private volatile static MethodHandle _getContext;
     private volatile static boolean _failedReflection = false;
     private static MethodHandle _getAllDeclaredPrefixes;
@@ -40,10 +42,10 @@ public interface XmlSerializable {
       return attributes;
     }
 
-    @XmlAnyAttribute
+    @XmlAnyAttribute final
     Map<QName, Object> attributes = new HashMap<>();
 
-    @XmlAnyElement(lax = true, value= W3CDomHandler.class)
+    @XmlAnyElement(lax = true, value= W3CDomHandler.class) final
     List<Object> children = new ArrayList<>();
 
     public void setAttributes(final NamedNodeMap pAttributes) {
@@ -100,7 +102,7 @@ public interface XmlSerializable {
 
   }
 
-  public static class JAXBUnmarshallingAdapter<T extends XmlSerializable> extends JAXBAdapter {
+  class JAXBUnmarshallingAdapter<T extends XmlSerializable> extends JAXBAdapter {
 
     @NotNull
     private final XmlDeserializerFactory<T> mFactory;
@@ -111,7 +113,8 @@ public interface XmlSerializable {
         throw new IllegalArgumentException("For unmarshalling with this adapter to work, the type "+targetType.getName()+" must have the "+XmlDeserializer.class.getName()+" annotation");
       }
       try {
-        mFactory = factoryTypeAnn.value().newInstance();
+        @SuppressWarnings("unchecked") XmlDeserializerFactory<T> factory = factoryTypeAnn.value().newInstance();
+        mFactory = factory;
       } catch (InstantiationException|IllegalAccessException e) {
         throw new IllegalArgumentException("The factory must have a visible no-arg constructor",e);
       }
@@ -137,8 +140,8 @@ public interface XmlSerializable {
           String prefix = sourceNamespaceContext.getPrefix(i);
           String namespace = sourceNamespaceContext.getNamespaceURI(i);
           if (! (XMLConstants.NULL_NS_URI.equals(namespace)|| // Not null namespace
-                 XMLConstants.XML_NS_PREFIX.equals(prefix)|| // or xml prefix
-                 XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))) { // or xmlns prefix
+                 XMLConstants.XML_NS_PREFIX.equals(prefix)|| // or xml mPrefix
+                 XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))) { // or xmlns mPrefix
 
           }
 
@@ -146,7 +149,7 @@ public interface XmlSerializable {
             if (! XMLConstants.NULL_NS_URI.equals(namespace)) {
               root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns", namespace);
             }
-          } else if (! XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) { // Bind the prefix, except for xmlns itself
+          } else if (! XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)) { // Bind the mPrefix, except for xmlns itself
             root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + prefix, namespace);
           }
         }
@@ -172,7 +175,7 @@ public interface XmlSerializable {
 
   }
 
-  public static class JAXBAdapter extends XmlAdapter<SimpleAdapter, XmlSerializable> {
+  class JAXBAdapter extends XmlAdapter<SimpleAdapter, XmlSerializable> {
 
     @Override
     public XmlSerializable unmarshal(final SimpleAdapter v) throws Exception {
