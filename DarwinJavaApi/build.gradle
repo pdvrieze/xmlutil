@@ -9,11 +9,16 @@ description = 'The api library for the Darwin system - Preferably this is loaded
 //group = ['server', 'serverclasspath']
 
 
+configurations {
+    providedCompile
+}
+
 sourceSets {
     main {
         java {
             srcDir 'src'
         }
+        compileClasspath+=configurations.providedCompile
     }
 
 }
@@ -21,4 +26,5 @@ sourceSets {
 
 dependencies {
     compile project(':JavaCommonApi')
+    providedCompile "com.intellij:annotations:12.0"
 }
