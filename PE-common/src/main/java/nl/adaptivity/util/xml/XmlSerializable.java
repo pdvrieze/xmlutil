@@ -1,6 +1,6 @@
 package nl.adaptivity.util.xml;
 
-import net.devrieze.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
@@ -38,6 +38,7 @@ public interface XmlSerializable {
     QName name;
     private SimpleNamespaceContext namespaceContext;
 
+    @NotNull
     public Map<QName, Object> getAttributes() {
       return attributes;
     }
@@ -48,19 +49,19 @@ public interface XmlSerializable {
     @XmlAnyElement(lax = true, value= W3CDomHandler.class) final
     List<Object> children = new ArrayList<>();
 
-    public void setAttributes(final NamedNodeMap pAttributes) {
-      for(int i=pAttributes.getLength()-1; i>=0; --i) {
-        Attr attr = (Attr) pAttributes.item(i);
-        String prefix = attr.getPrefix();
+    public void setAttributes(@NotNull final NamedNodeMap attributes) {
+      for(int i=attributes.getLength()-1; i>=0; --i) {
+        final Attr attr = (Attr) attributes.item(i);
+        final String prefix = attr.getPrefix();
         if (prefix==null) {
-          attributes.put(new QName(attr.getLocalName()), attr.getValue());
+          this.attributes.put(new QName(attr.getLocalName()), attr.getValue());
         } else if (! XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)){
-          attributes.put(new QName(attr.getNamespaceURI(), attr.getLocalName(), prefix), attr.getValue());
+          this.attributes.put(new QName(attr.getNamespaceURI(), attr.getLocalName(), prefix), attr.getValue());
         }
       }
     }
 
-    public void beforeUnmarshal(Unmarshaller unmarshaller, Object parent) {
+    public void beforeUnmarshal(@NotNull final Unmarshaller unmarshaller, final Object parent) {
       if (parent instanceof JAXBElement) {
         name = ((JAXBElement) parent).getName();
       }
@@ -68,11 +69,11 @@ public interface XmlSerializable {
       if (_failedReflection) {
         return;
       }
-      Object context;
+      final Object context;
       try {
         if (_getContext == null) {
           synchronized (getClass()) {
-            Lookup lookup = MethodHandles.lookup();
+            final Lookup lookup = MethodHandles.lookup();
             _getContext = lookup.unreflect(unmarshaller.getClass().getMethod("getContext"));
             context = _getContext.invoke(unmarshaller);
             _getAllDeclaredPrefixes = lookup.unreflect(context.getClass().getMethod("getAllDeclaredPrefixes"));
@@ -84,9 +85,9 @@ public interface XmlSerializable {
         }
 
         if (context != null) {
-          String[] prefixes = (String[]) _getAllDeclaredPrefixes.invoke(context);
+          final String[] prefixes = (String[]) _getAllDeclaredPrefixes.invoke(context);
           if (prefixes != null && prefixes.length > 0) {
-            String[] namespaces = new String[prefixes.length];
+            final String[] namespaces = new String[prefixes.length];
             for (int i = prefixes.length - 1; i >= 0; --i) {
               namespaces[i] = (String) _getNamespaceURI.invoke(context, prefixes[i]);
             }
@@ -94,7 +95,7 @@ public interface XmlSerializable {
           }
         }
 
-      } catch (Throwable e) {
+      } catch (@NotNull final Throwable e) {
         Logger.getAnonymousLogger().log(Level.FINE, "Could not retrieve namespace context from marshaller", e);
         _failedReflection = true;
       }
@@ -107,38 +108,38 @@ public interface XmlSerializable {
     @NotNull
     private final XmlDeserializerFactory<T> mFactory;
 
-    public JAXBUnmarshallingAdapter(Class<T> targetType) {
-      XmlDeserializer factoryTypeAnn = targetType.getAnnotation(XmlDeserializer.class);
+    public JAXBUnmarshallingAdapter(@NotNull final Class<T> targetType) {
+      final XmlDeserializer factoryTypeAnn = targetType.getAnnotation(XmlDeserializer.class);
       if (factoryTypeAnn==null || factoryTypeAnn.value()==null) {
         throw new IllegalArgumentException("For unmarshalling with this adapter to work, the type "+targetType.getName()+" must have the "+XmlDeserializer.class.getName()+" annotation");
       }
       try {
-        @SuppressWarnings("unchecked") XmlDeserializerFactory<T> factory = factoryTypeAnn.value().newInstance();
+        @SuppressWarnings("unchecked") final XmlDeserializerFactory<T> factory = factoryTypeAnn.value().newInstance();
         mFactory = factory;
-      } catch (InstantiationException|IllegalAccessException e) {
+      } catch (@NotNull InstantiationException|IllegalAccessException e) {
         throw new IllegalArgumentException("The factory must have a visible no-arg constructor",e);
       }
     }
 
     @Override
-    public T unmarshal(final SimpleAdapter v) throws Exception {
+    public T unmarshal(@NotNull final SimpleAdapter v) throws Exception {
       try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
-        Document document = dbf.newDocumentBuilder().newDocument();
+        final Document document = dbf.newDocumentBuilder().newDocument();
 
-        QName outerName = v.name == null ? new QName("value") : v.name;
-        Element root;
+        final QName outerName = v.name == null ? new QName("value") : v.name;
+        final Element root;
         root = XmlUtil.createElement(document, outerName);
 
 
-        SimpleNamespaceContext sourceNamespaceContext = v.namespaceContext;
+        final SimpleNamespaceContext sourceNamespaceContext = v.namespaceContext;
 
 
 
         for (int i = ((SimpleNamespaceContext) sourceNamespaceContext).size() - 1; i >= 0; --i) {
-          String prefix = sourceNamespaceContext.getPrefix(i);
-          String namespace = sourceNamespaceContext.getNamespaceURI(i);
+          final String prefix = sourceNamespaceContext.getPrefix(i);
+          final String namespace = sourceNamespaceContext.getNamespaceURI(i);
           if (! (XMLConstants.NULL_NS_URI.equals(namespace)|| // Not null namespace
                  XMLConstants.XML_NS_PREFIX.equals(prefix)|| // or xml mPrefix
                  XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))) { // or xmlns mPrefix
@@ -155,19 +156,19 @@ public interface XmlSerializable {
         }
 
 
-        for (Entry<QName, Object> attr : v.attributes.entrySet()) {
+        for (final Entry<QName, Object> attr : v.attributes.entrySet()) {
           XmlUtil.setAttribute(root, attr.getKey(), (String) attr.getValue());
         }
-        for (Object child : v.children) {
+        for (final Object child : v.children) {
           if (child instanceof Node) {
             root.appendChild(document.importNode((Node) child, true));
           }
         }
-        XMLInputFactory xif = XMLInputFactory.newFactory();
-        XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
+        final XMLInputFactory xif = XMLInputFactory.newFactory();
+        final XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
         xsr.nextTag();
         return mFactory.deserialize(xsr);
-      } catch (Exception e) {
+      } catch (@NotNull final Exception e) {
         e.printStackTrace();
         throw e;
       }
@@ -182,21 +183,22 @@ public interface XmlSerializable {
       throw new UnsupportedOperationException();
     }
 
+    @NotNull
     @Override
-    public SimpleAdapter marshal(final XmlSerializable v) throws Exception {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    public SimpleAdapter marshal(@NotNull final XmlSerializable v) throws Exception {
+      final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(true);
-      Document document = dbf.newDocumentBuilder().newDocument();
-      DocumentFragment content = document.createDocumentFragment();
-      XMLOutputFactory xof = XMLOutputFactory.newFactory();
-      XMLStreamWriter out = xof.createXMLStreamWriter(new DOMResult(content));
+      final Document document = dbf.newDocumentBuilder().newDocument();
+      final DocumentFragment content = document.createDocumentFragment();
+      final XMLOutputFactory xof = XMLOutputFactory.newFactory();
+      final XMLStreamWriter out = xof.createXMLStreamWriter(new DOMResult(content));
       v.serialize(out);
-      int childCount = content.getChildNodes().getLength();
+      final int childCount = content.getChildNodes().getLength();
       if (childCount==0) {
         return new SimpleAdapter();
       } else if (childCount==1) {
-        SimpleAdapter result = new SimpleAdapter();
-        Node child = content.getFirstChild();
+        final SimpleAdapter result = new SimpleAdapter();
+        final Node child = content.getFirstChild();
         if (child instanceof Element) {
           result.setAttributes(child.getAttributes());
           for(Node child2=child.getFirstChild(); child2!=null; child2=child2.getNextSibling()) {
@@ -207,7 +209,7 @@ public interface XmlSerializable {
         }
         return result;
       } else { // More than one child
-        SimpleAdapter result = new SimpleAdapter();
+        final SimpleAdapter result = new SimpleAdapter();
         for(Node child=content.getFirstChild(); child!=null; child=child.getNextSibling()) {
           result.children.add(child);
         }

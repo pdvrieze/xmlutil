@@ -9,10 +9,10 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface XmlDeserializable extends XmlSerializable {
 
-  boolean deserializeAttribute(String pAttributeNamespace, String pAttributeLocalName, String pAttributeValue);
+  boolean deserializeAttribute(String attributeNamespace, String attributeLocalName, String attributeValue);
 
   /** Listener called just before the children are deserialized. After attributes have been processed. */
-  void onBeforeDeserializeChildren(XMLStreamReader pIn);
+  void onBeforeDeserializeChildren(XMLStreamReader in);
 
   QName getElementName();
 }

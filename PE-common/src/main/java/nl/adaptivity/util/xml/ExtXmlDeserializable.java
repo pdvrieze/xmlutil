@@ -13,7 +13,7 @@ public interface ExtXmlDeserializable extends XmlDeserializable{
   /**
    * Called to have all children of the current node deserialized. The attributes have already been parsed. The expected
    * end state is that the streamreader is at the corresponding endElement.
-   * @param pIn The streamreader that is the source of the events.
+   * @param in The streamreader that is the source of the events.
    */
-  void deserializeChildren(XMLStreamReader pIn) throws XMLStreamException;
+  void deserializeChildren(XMLStreamReader in) throws XMLStreamException;
 }
