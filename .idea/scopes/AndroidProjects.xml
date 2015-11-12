@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="AndroidProjects" pattern="(file[PMEditor]:*/||file[darwinlib]:*/)&amp;&amp;!file:build//*&amp;&amp;!file:.idea//*&amp;&amp;!file:gen//*" />
+</component>
