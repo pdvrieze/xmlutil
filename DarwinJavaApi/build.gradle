@@ -15,12 +15,8 @@ configurations {
 
 sourceSets {
     main {
-        java {
-            srcDir 'src'
-        }
         compileClasspath+=configurations.providedCompile
     }
-
 }
 
 
