@@ -15,7 +15,8 @@
     <mapping directory="$PROJECT_DIR$/PEUserMessageHandler" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/PMEditor" vcs="svn" />
     <mapping directory="$PROJECT_DIR$/ProcessEngine" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/darwinlib" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/android-auth" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/darwinlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/java-common" vcs="Git" />
   </component>
 </project>

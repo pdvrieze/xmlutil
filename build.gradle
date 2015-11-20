@@ -20,7 +20,7 @@ ext {
 
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.8'
 }
 
 task run(dependsOn: [':PE-server:tomcatRun'], type:DefaultTask) {

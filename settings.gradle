@@ -1,4 +1,5 @@
 include ':DarwinGenerators'
+include ':android-auth'
 include ':PMEditor'
 include ':DarwinClients'
 include ':DarwinCommon'
