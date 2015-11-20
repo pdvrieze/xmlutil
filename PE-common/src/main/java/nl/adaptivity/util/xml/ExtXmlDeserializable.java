@@ -1,7 +1,7 @@
 package nl.adaptivity.util.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import nl.adaptivity.xml.XmlException;
+import nl.adaptivity.xml.XmlReader;
 
 
 /**
@@ -15,5 +15,5 @@ public interface ExtXmlDeserializable extends XmlDeserializable{
    * end state is that the streamreader is at the corresponding endElement.
    * @param in The streamreader that is the source of the events.
    */
-  void deserializeChildren(XMLStreamReader in) throws XMLStreamException;
+  void deserializeChildren(XmlReader in) throws XmlException;
 }

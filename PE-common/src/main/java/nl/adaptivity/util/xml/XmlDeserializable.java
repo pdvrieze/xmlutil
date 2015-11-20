@@ -1,7 +1,9 @@
 package nl.adaptivity.util.xml;
 
+import nl.adaptivity.xml.XmlException;
+import nl.adaptivity.xml.XmlReader;
+
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 
 /**
@@ -9,10 +11,10 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface XmlDeserializable extends XmlSerializable {
 
-  boolean deserializeAttribute(String attributeNamespace, String attributeLocalName, String attributeValue);
+  boolean deserializeAttribute(CharSequence attributeNamespace, CharSequence attributeLocalName, CharSequence attributeValue);
 
   /** Listener called just before the children are deserialized. After attributes have been processed. */
-  void onBeforeDeserializeChildren(XMLStreamReader in);
+  void onBeforeDeserializeChildren(XmlReader in) throws XmlException;
 
   QName getElementName();
 }

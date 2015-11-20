@@ -1,7 +1,7 @@
 package nl.adaptivity.util.xml;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import nl.adaptivity.xml.XmlException;
+import nl.adaptivity.xml.XmlReader;
 
 
 /**
@@ -9,7 +9,7 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface SimpleXmlDeserializable extends XmlDeserializable {
 
-  boolean deserializeChild(final XMLStreamReader in) throws XMLStreamException;
+  boolean deserializeChild(final XmlReader in) throws XmlException;
 
-  boolean deserializeChildText(String elementText);
+  boolean deserializeChildText(CharSequence elementText);
 }

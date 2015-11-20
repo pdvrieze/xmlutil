@@ -1,5 +1,6 @@
 package nl.adaptivity.util.xml;
 
+import nl.adaptivity.xml.*;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.*;
 
@@ -165,9 +166,10 @@ public interface XmlSerializable {
           }
         }
         final XMLInputFactory xif = XMLInputFactory.newFactory();
-        final XMLStreamReader xsr = xif.createXMLStreamReader(new DOMSource(root));
-        xsr.nextTag();
-        return mFactory.deserialize(xsr);
+        final XmlReader reader = XmlStreaming.newReader(new DOMSource(root));
+        reader.nextTag();
+        // XXX remove temporary cast
+        return mFactory.deserialize((StAXReader) reader);
       } catch (@NotNull final Exception e) {
         e.printStackTrace();
         throw e;
@@ -186,13 +188,16 @@ public interface XmlSerializable {
     @NotNull
     @Override
     public SimpleAdapter marshal(@NotNull final XmlSerializable v) throws Exception {
+
+
       final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(true);
       final Document document = dbf.newDocumentBuilder().newDocument();
       final DocumentFragment content = document.createDocumentFragment();
       final XMLOutputFactory xof = XMLOutputFactory.newFactory();
       final XMLStreamWriter out = xof.createXMLStreamWriter(new DOMResult(content));
-      v.serialize(out);
+      // XXX Fix this temporary cast
+      v.serialize((StAXWriter) XmlStreaming.newWriter(new DOMResult(content)));
       final int childCount = content.getChildNodes().getLength();
       if (childCount==0) {
         return new SimpleAdapter();
@@ -218,11 +223,11 @@ public interface XmlSerializable {
     }
   }
 
-  /**
+  /** XXX Get rid of StAXWriter
    * Write the object to an xml stream. The object is expected to write itself and its children.
    * @param out The stream to write to.
    * @throws XMLStreamException When something breaks.
    */
-  void serialize(XMLStreamWriter out) throws XMLStreamException;
+  void serialize(XmlWriter out) throws XmlException;
 
 }
