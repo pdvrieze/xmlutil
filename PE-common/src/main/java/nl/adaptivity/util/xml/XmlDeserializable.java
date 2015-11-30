@@ -9,7 +9,7 @@ import javax.xml.namespace.QName;
 /**
  * Created by pdvrieze on 04/11/15.
  */
-public interface XmlDeserializable extends XmlSerializable {
+public interface XmlDeserializable {
 
   boolean deserializeAttribute(CharSequence attributeNamespace, CharSequence attributeLocalName, CharSequence attributeValue);
 
