@@ -16,6 +16,7 @@
     <mapping directory="$PROJECT_DIR$/PMEditor" vcs="svn" />
     <mapping directory="$PROJECT_DIR$/ProcessEngine" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/android-auth" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/darwin-sql" vcs="svn" />
     <mapping directory="$PROJECT_DIR$/darwinlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/java-common" vcs="Git" />
   </component>

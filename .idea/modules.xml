@@ -18,6 +18,7 @@
       <module fileurl="file://$PROJECT_DIR$/ProcessEngine/ProcessEngine.iml" filepath="$PROJECT_DIR$/ProcessEngine/ProcessEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/ProcessManager.iml" filepath="$PROJECT_DIR$/ProcessManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/android-auth/android-auth.iml" filepath="$PROJECT_DIR$/android-auth/android-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/darwin-sql/darwin-sql.iml" filepath="$PROJECT_DIR$/darwin-sql/darwin-sql.iml" />
       <module fileurl="file://$PROJECT_DIR$/darwinlib/darwinlib.iml" filepath="$PROJECT_DIR$/darwinlib/darwinlib.iml" />
       <module fileurl="file://$PROJECT_DIR$/java-common/java-common.iml" filepath="$PROJECT_DIR$/java-common/java-common.iml" />
     </modules>

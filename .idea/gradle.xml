@@ -24,6 +24,7 @@
             <option value="$PROJECT_DIR$/PMEditor" />
             <option value="$PROJECT_DIR$/ProcessEngine" />
             <option value="$PROJECT_DIR$/android-auth" />
+            <option value="$PROJECT_DIR$/darwin-sql" />
             <option value="$PROJECT_DIR$/darwinlib" />
             <option value="$PROJECT_DIR$/java-common" />
           </set>
@@ -46,6 +47,7 @@
             <option value="$PROJECT_DIR$/PMEditor" />
             <option value="$PROJECT_DIR$/ProcessEngine" />
             <option value="$PROJECT_DIR$/android-auth" />
+            <option value="$PROJECT_DIR$/darwin-sql" />
             <option value="$PROJECT_DIR$/darwinlib" />
             <option value="$PROJECT_DIR$/java-common" />
           </set>
