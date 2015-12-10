@@ -36,8 +36,14 @@ configurations {
     }
 }
 
+task testJar(type: Jar) {
+    baseName = "${project.name}-test"
+    from sourceSets.test.output
+}
+
 artifacts {
     main war
+    testRuntime testJar
 }
 
 dependencies {
@@ -45,8 +51,10 @@ dependencies {
     compile project(':PE-common')
 
     testCompile project(':DarwinJavaApi')
-    testCompile 'junit:junit:4.12'
+    testCompile 'org.testng:testng:6.9.9'
     testCompile 'xmlunit:xmlunit:1.6'
+    testCompile project(path: ':PE-common', configuration:"testRuntime")
+    testCompile "org.apache.tomcat:servlet-api:${tomcatVersion}"
 
     runtime 'com.fasterxml.woodstox:woodstox-core:5.0.1'
 
@@ -64,6 +72,10 @@ dependencies {
     tomcatExtProvided "org.apache.tomcat:catalina:${tomcatVersion}"
 
 //    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
+}
+
+test {
+    useTestNG()
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
