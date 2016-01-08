@@ -1,0 +1,45 @@
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:1.5.0" // 2.0.0-alpha3
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.2'
+    }
+}
+apply plugin: 'idea'
+
+ext {
+    tomcatVersion = '6.0.44'
+    androidCompatVersion = '23.1.1'
+    androidPluginVersion = '1.5.0'
+    androidBuildToolsVersion = '23.0.2'
+    dbcpSpec = "com.zaxxer:HikariCP:2.4.0"
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.8'
+}
+
+task run(dependsOn: [':PE-server:tomcatRun'], type:DefaultTask) {
+    group='application'
+    description='Run the server in a simple configuration'
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
+
+idea{
+    project {
+        languageLevel = '1.7'
+    }
+    module {
+        downloadSources = true
+    }
+}
