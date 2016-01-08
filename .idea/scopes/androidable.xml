@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="androidable" pattern="file[java-common]:*/||file[PE-diagram]:*/" />
+</component>
