@@ -134,6 +134,20 @@
             </SvnBranchConfiguration>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/darwin-sql">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/branches" />
+                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/misc" />
+                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/darwinlib">
           <value>
             <SvnBranchConfiguration>

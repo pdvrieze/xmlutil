@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Imported" pattern="file[android-auth]:*/||file[darwinlib]:*/" />
+</component>
