@@ -27,6 +27,13 @@ import javax.xml.namespace.QName;
  */
 public interface XmlDeserializable {
 
+  /**
+   * Handle the given attribue.
+   * @param attributeNamespace The namespace of the the attribute.
+   * @param attributeLocalName The local name of the attribute
+   * @param attributeValue The value of the attribute
+   * @return <code>true</code> if handled, <code>false</code> if not. (The caller may use this for errors)
+   */
   boolean deserializeAttribute(CharSequence attributeNamespace, CharSequence attributeLocalName, CharSequence attributeValue);
 
   /** Listener called just before the children are deserialized. After attributes have been processed. */
