@@ -8,3 +8,4 @@ build
 */*.iml
 *.iml
 .idea/gradle.xml
+captures
