@@ -38,5 +38,5 @@ sourceSets {
 
 dependencies {
     compile project(':JavaCommonApi')
-    providedCompile "com.intellij:annotations:12.0"
+    providedCompile "org.jetbrains:annotations:15.0"
 }
