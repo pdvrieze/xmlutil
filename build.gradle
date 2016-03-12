@@ -16,20 +16,27 @@
  */
 
 buildscript {
+    ext.androidPluginVersion = '1.5.0'
+    ext.kotlin_version = '1.0.0'
     repositories {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:2.0.0-beta5" //1.5.0
+        classpath "com.android.tools.build:gradle:$androidPluginVersion" //1.5.0
         classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.2'
     }
+
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+
 }
 apply plugin: 'idea'
 
 ext {
     tomcatVersion = '6.0.44'
     androidCompatVersion = '23.1.1'
-    androidPluginVersion = '1.5.0'
     androidBuildToolsVersion = '23.0.2'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.0"
 }
@@ -48,6 +55,9 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven() {
+            url="http://dl.bintray.com/kotlinx/kotlinx"
+        }
     }
 }
 
