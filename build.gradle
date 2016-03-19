@@ -35,7 +35,7 @@ buildscript {
 apply plugin: 'idea'
 
 ext {
-    tomcatVersion = '6.0.44'
+    tomcatVersion = '7.0.68'
     androidCompatVersion = '23.1.1'
     androidBuildToolsVersion = '23.0.2'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.0"

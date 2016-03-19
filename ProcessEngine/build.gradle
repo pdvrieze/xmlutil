@@ -70,11 +70,11 @@ dependencies {
     testCompile 'org.testng:testng:6.9.9'
     testCompile 'xmlunit:xmlunit:1.6'
     testCompile project(path: ':PE-common', configuration:"testRuntime")
-    testCompile "org.apache.tomcat:servlet-api:${tomcatVersion}"
+    testCompile "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
 
     runtime 'com.fasterxml.woodstox:woodstox-core:5.0.1'
 
-//    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
+//    providedCompile "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
 //    providedCompile project(path: ':PE-common', configuration:'providedCompile')
 
 
@@ -83,9 +83,9 @@ dependencies {
     baseProvided project(':DarwinJavaApi')
 //    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
 
-    webProvided "org.apache.tomcat:servlet-api:${tomcatVersion}"
+    webProvided "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
 
-    tomcatExtProvided "org.apache.tomcat:catalina:${tomcatVersion}"
+    tomcatExtProvided "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
 
 //    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 }
