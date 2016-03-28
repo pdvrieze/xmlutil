@@ -31,17 +31,17 @@ configurations {
     baseCompile {
         description = "The main source that is not dependend on servlet api's"
     }
-    baseProvided {
+    baseCompileOnly {
         description = "Compile time only dependencies for the base"
     }
     webCompile {
         description = "The web version that is not dependent on tomcat as a host"
         extendsFrom baseCompile
     }
-    webProvided {
+    webCompileOnly {
        description = "Compile time only dependencies - not included in war"
     }
-    tomcatExtProvided {
+    tomcatExtCompileOnly {
         description = "Tomcat compile time only dependencies - not included in war"
         transitive false
     }
@@ -80,12 +80,12 @@ dependencies {
 
     baseCompile project(':java-common')
     baseCompile project(':PE-common')
-    baseProvided project(':DarwinJavaApi')
+    baseCompileOnly project(':DarwinJavaApi')
 //    providedCompile "org.apache.tomcat:catalina:${tomcatVersion}"
 
-    webProvided "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
+    webCompileOnly "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
 
-    tomcatExtProvided "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
+    tomcatExtCompileOnly "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
 
 //    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 }
@@ -104,7 +104,7 @@ sourceSets {
         java {
             srcDir 'src/base/java'
         }
-        compileClasspath += configurations.baseProvided
+        compileClasspath += configurations.baseCompileOnly
     }
     main {
         java {
@@ -113,7 +113,7 @@ sourceSets {
             srcDir 'src/web/java'
             srcDir 'src/tomcat/java'
         }
-        compileClasspath+=configurations.baseProvided+configurations.webProvided+configurations.tomcatExtProvided
+        compileClasspath+=configurations.baseCompileOnly+configurations.webCompileOnly+configurations.tomcatExtCompileOnly
     }
     web {
         java {
@@ -121,8 +121,8 @@ sourceSets {
         }
     }
     web.compileClasspath += files(base.runtimeClasspath)
-    web.compileClasspath += configurations.baseProvided
-    web.compileClasspath += configurations.webProvided
+    web.compileClasspath += configurations.baseCompileOnly
+    web.compileClasspath += configurations.webCompileOnly
     web.runtimeClasspath += files(base.runtimeClasspath)
 
     tomcatExt {
@@ -130,7 +130,7 @@ sourceSets {
             srcDir 'src/tomcat/java'
         }
         compileClasspath += files (web.compileClasspath)
-        compileClasspath += configurations.tomcatExtProvided
+        compileClasspath += configurations.tomcatExtCompileOnly
         compileClasspath.each({ logger.debug("Tomcat compile classpath: $it")})
         runtimeClasspath += files(web.runtimeClasspath)
     }
@@ -151,13 +151,6 @@ jar {
     from sourceSets.base.output
     from sourceSets.web.output
     from sourceSets.tomcatExt.output
-}
-
-idea {
-    module {
-        scopes.COMPILE.minus += [configurations.providedCompile, configurations.baseProvided, configurations.webProvided, configurations.tomcatExtCompile]
-        scopes.PROVIDED.plus += [configurations.providedCompile, configurations.baseProvided, configurations.webProvided, configurations.tomcatExtCompile, configurations.tomcatExtProvided]
-    }
 }
 
 /*

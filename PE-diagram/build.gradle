@@ -25,17 +25,11 @@ description = 'A library that contains the shared code for diagrams that is not 
 //group = ['shared', 'process' ]
 
 
-configurations {
-    providedCompile
-}
-
-
 sourceSets {
     main {
         java {
             srcDir 'src'
         }
-        compileClasspath += configurations.providedCompile
     }
 
 }
@@ -43,5 +37,5 @@ sourceSets {
 
 dependencies {
     compile project(':PE-common')
-    providedCompile project(path: ':PE-common', configuration:'providedCompile')
+    compileOnly project(path: ':PE-common', configuration:'compileOnly')
 }

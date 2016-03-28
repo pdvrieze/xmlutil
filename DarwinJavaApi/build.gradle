@@ -25,18 +25,7 @@ description = 'The api library for the Darwin system - Preferably this is loaded
 //group = ['server', 'serverclasspath']
 
 
-configurations {
-    providedCompile
-}
-
-sourceSets {
-    main {
-        compileClasspath+=configurations.providedCompile
-    }
-}
-
-
 dependencies {
     compile project(':JavaCommonApi')
-    providedCompile "org.jetbrains:annotations:13.0"
+    compileOnly "org.jetbrains:annotations:13.0"
 }
