@@ -17,14 +17,14 @@
 
 buildscript {
     ext.androidPluginVersion = '1.5.0'
-    ext.kotlin_version = '1.0.1-1'
+    ext.kotlin_version = '1.0.1-2'
     ext.kotlinx_html_version = '0.5.8'
     repositories {
         jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$androidPluginVersion" //1.5.0
-        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.2'
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.4'
     }
 
 
@@ -57,7 +57,7 @@ allprojects {
         jcenter()
         mavenCentral()
         maven() {
-            url="http://dl.bintray.com/kotlinx/kotlinx"
+            url="http://dl.bintray.com/kotlin/kotlinx.html"
         }
     }
 }
