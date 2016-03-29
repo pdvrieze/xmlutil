@@ -68,6 +68,5 @@ idea{
     }
     module {
         downloadSources = true
-        name="ProcessManager"
     }
 }

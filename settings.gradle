@@ -14,6 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+rootProject.name = "ProcessManager"
 include ':DarwinGenerators'
 include ':android-auth'
 include ':PMEditor'
@@ -34,6 +35,7 @@ include ':PE-server'
 include ':darwin-sql'
 include ':accountmgr'
 include ':accountmgr:js'
+project(':accountmgr:js').name="accountmgrjs"
 include ':accountcommon'
 include ':darwin:jvm'
 include ':darwin:shared'
