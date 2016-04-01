@@ -75,6 +75,9 @@
         <JavaCodeStyleSettings>
           <option name="DO_NOT_WRAP_AFTER_SINGLE_ANNOTATION" value="true" />
         </JavaCodeStyleSettings>
+        <JetCodeStyleSettings>
+          <option name="ALIGN_IN_COLUMNS_CASE_BRANCH" value="true" />
+        </JetCodeStyleSettings>
         <MultiMarkdownCodeStyleSettings>
           <option name="RIGHT_MARGIN" value="72" />
         </MultiMarkdownCodeStyleSettings>
@@ -95,6 +98,8 @@
           <option name="ALIGN_MULTILINE_THROWS_LIST" value="true" />
           <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
           <option name="ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION" value="true" />
+          <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
+          <option name="ALIGN_CONSECUTIVE_VARIABLE_DECLARATIONS" value="true" />
           <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
           <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="true" />
           <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
@@ -108,6 +113,7 @@
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
             <option name="TAB_SIZE" value="2" />
+            <option name="USE_RELATIVE_INDENTS" value="true" />
           </indentOptions>
           <arrangement>
             <tokens>
@@ -485,9 +491,13 @@
           </arrangement>
         </codeStyleSettings>
         <codeStyleSettings language="kotlin">
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+          <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
-            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="CONTINUATION_INDENT_SIZE" value="6" />
             <option name="TAB_SIZE" value="2" />
           </indentOptions>
         </codeStyleSettings>
