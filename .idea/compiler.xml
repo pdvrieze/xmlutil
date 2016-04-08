@@ -18,5 +18,55 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="accountcommon_main" target="1.8" />
+      <module name="accountcommon_test" target="1.8" />
+      <module name="accountmgr_main" target="1.8" />
+      <module name="accountmgr_test" target="1.8" />
+      <module name="accountmgrjs_main" target="1.8" />
+      <module name="accountmgrjs_test" target="1.8" />
+      <module name="darwin-sql_main" target="1.8" />
+      <module name="darwin-sql_test" target="1.8" />
+      <module name="DarwinClients_main" target="1.7" />
+      <module name="DarwinClients_test" target="1.7" />
+      <module name="DarwinCommon_main" target="1.7" />
+      <module name="DarwinCommon_test" target="1.7" />
+      <module name="DarwinGenerators_main" target="1.7" />
+      <module name="DarwinGenerators_test" target="1.7" />
+      <module name="DarwinJavaApi_main" target="1.7" />
+      <module name="DarwinJavaApi_test" target="1.7" />
+      <module name="darwinjs_main" target="1.8" />
+      <module name="darwinjs_test" target="1.8" />
+      <module name="DarwinRealm_main" target="1.8" />
+      <module name="DarwinRealm_test" target="1.8" />
+      <module name="DarwinServices_main" target="1.7" />
+      <module name="DarwinServices_test" target="1.7" />
+      <module name="java-common_main" target="1.7" />
+      <module name="java-common_test" target="1.7" />
+      <module name="JavaCommonApi_main" target="1.7" />
+      <module name="JavaCommonApi_test" target="1.7" />
+      <module name="jvm_main" target="1.8" />
+      <module name="jvm_test" target="1.8" />
+      <module name="kotlinsql_main" target="1.8" />
+      <module name="kotlinsql_test" target="1.8" />
+      <module name="PE-common_main" target="1.7" />
+      <module name="PE-common_test" target="1.7" />
+      <module name="PE-dataservices_main" target="1.7" />
+      <module name="PE-dataservices_test" target="1.7" />
+      <module name="PE-diagram_main" target="1.7" />
+      <module name="PE-diagram_test" target="1.7" />
+      <module name="PE-server_main" target="1.8" />
+      <module name="PE-server_test" target="1.8" />
+      <module name="PEUserMessageHandler_api" target="1.7" />
+      <module name="PEUserMessageHandler_main" target="1.7" />
+      <module name="PEUserMessageHandler_test" target="1.7" />
+      <module name="ProcessEngine_base" target="1.7" />
+      <module name="ProcessEngine_main" target="1.7" />
+      <module name="ProcessEngine_test" target="1.7" />
+      <module name="ProcessEngine_tomcatExt" target="1.7" />
+      <module name="ProcessEngine_web" target="1.7" />
+      <module name="shared_main" target="1.8" />
+      <module name="shared_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
