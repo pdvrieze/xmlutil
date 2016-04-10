@@ -50,6 +50,9 @@ configurations {
         extendsFrom webCompile
         transitive false
     }
+    wsDoc {
+        description "Dependencies needed to run the custom web service doclet."
+    }
 }
 
 task testJar(type: Jar) {
@@ -85,7 +88,11 @@ dependencies {
 
     webCompileOnly "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
 
+    tomcatExtCompileOnly "org.apache.tomcat:tomcat-servlet-api:${tomcatVersion}"
+
     tomcatExtCompileOnly "org.apache.tomcat:tomcat-catalina:${tomcatVersion}"
+
+    wsDoc project(":PE-common:endpointDoclet")
 
 //    configurations['runtime'].extendsFrom configurations['tomcatExtCompile']
 }
@@ -136,6 +143,19 @@ sourceSets {
     }
 
 }
+
+
+task wsDoc(type:Javadoc) {
+    dependsOn configurations.wsDoc
+    dependsOn configurations.tomcatExtCompile
+    group = "documentation"
+    classpath = sourceSets.tomcatExt.compileClasspath
+    source = sourceSets.main.allJava
+    destinationDir = file("${buildDir}/docs/wsDoc")
+    options.docletpath = configurations.wsDoc.files.asType(List)
+    options.doclet = "nl.adaptivity.ws.doclet.WsDoclet"
+}
+
 
 war {
 //    classpath sourceSets.web.output
