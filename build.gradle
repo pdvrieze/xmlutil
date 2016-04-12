@@ -126,5 +126,6 @@ idea{
     }
     module {
         downloadSources = true
+        contentRoot= projectDir
     }
 }
