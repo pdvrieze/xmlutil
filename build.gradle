@@ -49,6 +49,7 @@ ext {
 configurations {
     tomcatWars
     tomcatClasspath
+    androidApps
 }
 
 dependencies {
@@ -62,6 +63,8 @@ dependencies {
     tomcatClasspath project(':JavaCommonApi')
     tomcatClasspath project(':DarwinRealm')
 
+    androidApps project(':android-auth')
+    androidApps project(':PMEditor')
 }
 
 
@@ -77,11 +80,19 @@ task copyTomcatClasspath(type:Copy) {
     dependsOn configurations.tomcatClasspath
     from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
     into "${collectDir}/tomcatlibs/"
+    exclude { file -> file.name.contains("tomcat-servlet-api") }
+}
+
+task copyAndroid(type:Copy) {
+    group = "dist"
+    dependsOn configurations.androidApps
+    from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
+    into "${collectDir}/androidApps/"
 }
 
 task dist {
     group = "dist"
-    dependsOn copyTomcatWars, copyTomcatClasspath
+    dependsOn copyTomcatWars, copyTomcatClasspath, copyAndroid
 }
 
 task wrapper(type: Wrapper) {
