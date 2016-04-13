@@ -14,13 +14,11 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-description = 'The overall project that manages all artefacts of the processmanager'
-
 buildscript {
     ext.androidPluginVersion = '2.0.0'
     ext.kotlin_version = '1.0.1-2'
     ext.kotlinx_html_version = '0.5.8'
-    ext.codegen_version = '0.5'
+    ext.codegen_version = '0.5.1'
     repositories {
     	mavenLocal()
         jcenter()
@@ -34,13 +32,19 @@ buildscript {
         classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.4'
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "net.devrieze:gradle-codegen:${codegen_version}"
     }
 
 }
 
+plugins {
+    id "net.devrieze.gradlecodegen" version "0.5.1"
+}
+
 apply plugin: 'idea'
 apply plugin: 'project-report'
+
+
+description = 'The overall project that manages all artefacts of the processmanager'
 
 ext {
     tomcatVersion = '7.0.68'
