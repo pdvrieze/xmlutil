@@ -18,7 +18,6 @@ buildscript {
     ext.androidPluginVersion = '2.0.0'
     ext.kotlin_version = '1.0.1-2'
     ext.kotlinx_html_version = '0.5.8'
-    ext.codegen_version = '0.5.1'
     repositories {
     	mavenLocal()
         jcenter()
@@ -36,9 +35,9 @@ buildscript {
 
 }
 
-plugins {
-    id "net.devrieze.gradlecodegen" version "0.5.1"
-}
+//plugins {
+//    id "net.devrieze.gradlecodegen" version "0.5.5"
+//}
 
 apply plugin: 'idea'
 apply plugin: 'project-report'
