@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 
 
 /**
+ * Annotation that specifies the Deserializer for this type.
+ *
  * Created by pdvrieze on 27/08/15.
  */
 @Retention(RetentionPolicy.RUNTIME)
