@@ -14,14 +14,14 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.xml;
+package nl.adaptivity.xml
 
 /**
  * Created by pdvrieze on 06/11/15.
  */
-public interface Namespace {
+interface Namespace {
 
-  String getPrefix();
+  val prefix: String
 
-  String getNamespaceURI();
+  val namespaceURI: String
 }
