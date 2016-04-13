@@ -20,17 +20,21 @@ buildscript {
     ext.androidPluginVersion = '2.0.0'
     ext.kotlin_version = '1.0.1-2'
     ext.kotlinx_html_version = '0.5.8'
+    ext.codegen_version = '0.5'
     repositories {
+    	mavenLocal()
         jcenter()
+        maven() {
+            url="https://dl.bintray.com/pdvrieze/maven" 
+        }
+
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$androidPluginVersion" //1.5.0
         classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.4'
-    }
 
-
-    dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "net.devrieze:gradle-codegen:${codegen_version}"
     }
 
 }
@@ -44,6 +48,7 @@ ext {
     androidBuildToolsVersion = '23.0.3'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.0"
     collectDir = "${buildDir}/artifacts"
+    easywsdlver = '2.6.0'
 }
 
 configurations {
@@ -112,10 +117,10 @@ htmlDependencyReport {
 
 allprojects {
     repositories {
+        mavenLocal()
         jcenter()
-        mavenCentral()
         maven() {
-            url="http://dl.bintray.com/kotlin/kotlinx.html"
+            url="https://dl.bintray.com/kotlin/kotlinx.html"
         }
     }
 }
