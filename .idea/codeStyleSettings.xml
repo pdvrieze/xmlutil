@@ -74,6 +74,8 @@
         </AndroidXmlCodeStyleSettings>
         <JavaCodeStyleSettings>
           <option name="DO_NOT_WRAP_AFTER_SINGLE_ANNOTATION" value="true" />
+          <option name="ANNOTATION_PARAMETER_WRAP" value="5" />
+          <option name="ALIGN_MULTILINE_ANNOTATION_PARAMETERS" value="true" />
         </JavaCodeStyleSettings>
         <JetCodeStyleSettings>
           <option name="ALIGN_IN_COLUMNS_CASE_BRANCH" value="true" />
