@@ -28,16 +28,16 @@ import javax.xml.namespace.NamespaceContext
  *
  * Created by pdvrieze on 16/11/15.
  */
-sealed  class XmlEvent private constructor(val locationInfo: String) {
+sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
-  class TextEvent(locationInfo: String, override val eventType: EventType, val text: CharSequence) : XmlEvent(
+  class TextEvent(locationInfo: String?, override val eventType: EventType, val text: CharSequence) : XmlEvent(
         locationInfo) {
 
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = eventType.writeEvent(writer, this)
   }
 
-  class EndDocumentEvent(locationInfo: String) : XmlEvent(locationInfo) {
+  class EndDocumentEvent(locationInfo: String?) : XmlEvent(locationInfo) {
 
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.endDocument()
@@ -45,7 +45,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     override val eventType: EventType get() = END_DOCUMENT
   }
 
-  class EndElementEvent(locationInfo: String, namespaceUri: CharSequence, localName: CharSequence, prefix: CharSequence) :
+  class EndElementEvent(locationInfo: String?, namespaceUri: CharSequence, localName: CharSequence, prefix: CharSequence) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix) {
 
     @Throws(XmlException::class)
@@ -54,7 +54,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     override val eventType: EventType get() = END_ELEMENT
   }
 
-  class StartDocumentEvent(locationInfo: String,
+  class StartDocumentEvent(locationInfo: String?,
                            val version: CharSequence,
                            val encoding: CharSequence,
                            val standalone: Boolean?) :
@@ -66,7 +66,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     override val eventType: EventType get() = START_DOCUMENT
   }
 
-  abstract class NamedEvent(locationInfo: String,
+  abstract class NamedEvent(locationInfo: String?,
                                     val namespaceUri: CharSequence,
                                     val localName: CharSequence,
                                     val prefix: CharSequence) :
@@ -80,7 +80,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
 
   }
 
-  class StartElementEvent(locationInfo: String,
+  class StartElementEvent(locationInfo: String?,
                                   namespaceUri: CharSequence,
                                   localName: CharSequence,
                                   prefix: CharSequence,
@@ -127,7 +127,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     }
   }
 
-  class Attribute(locationInfo: String, val namespaceUri: CharSequence, val localName: CharSequence, val prefix: CharSequence, val value: CharSequence) : XmlEvent(
+  class Attribute(locationInfo: String?, val namespaceUri: CharSequence, val localName: CharSequence, val prefix: CharSequence, val value: CharSequence) : XmlEvent(
         locationInfo) {
 
     override val eventType: EventType get() = ATTRIBUTE
@@ -157,13 +157,13 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
 
     @Throws(XmlException::class)
     @JvmStatic
-    fun from(reader: XmlReader) = reader.getEventType().createEvent(reader)
+    fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
 
     @JvmStatic
     @JvmName("getNamespaceDecls")
     internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
-      val readerOffset = reader.getNamespaceStart()
-      val namespaces = Array<Namespace>(reader.getNamespaceEnd() -readerOffset) { i ->
+      val readerOffset = reader.namespaceStart
+      val namespaces = Array<Namespace>(reader.namespaceEnd -readerOffset) { i ->
         val nsIndex = readerOffset + i
         NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
       }
@@ -174,10 +174,10 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     @JvmName("getAttributes")
     internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
       val result = Array<Attribute>(reader.attributeCount) { i ->
-        Attribute(reader.getLocationInfo(),
-                  reader.getAttributeNamespace(i)!!,
+        Attribute(reader.locationInfo,
+                  reader.getAttributeNamespace(i),
                   reader.getAttributeLocalName(i),
-                  reader.getAttributePrefix(i)!!,
+                  reader.getAttributePrefix(i),
                   reader.getAttributeValue(i))
       }
 

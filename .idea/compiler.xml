@@ -12,6 +12,7 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
       <entry name="!?*.aj" />
+      <entry name="*.xml" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">
@@ -53,8 +54,10 @@
       <module name="js_test" target="1.8" />
       <module name="jvm_main" target="1.8" />
       <module name="jvm_test" target="1.8" />
+      <module name="kotlinsql_generators" target="1.8" />
       <module name="kotlinsql_main" target="1.8" />
       <module name="kotlinsql_test" target="1.8" />
+      <module name="kotlinsql_testGenerators" target="1.8" />
       <module name="PE-common_main" target="1.7" />
       <module name="PE-common_test" target="1.7" />
       <module name="PE-dataservices_main" target="1.7" />
@@ -66,6 +69,10 @@
       <module name="PEUserMessageHandler_api" target="1.7" />
       <module name="PEUserMessageHandler_main" target="1.7" />
       <module name="PEUserMessageHandler_test" target="1.7" />
+      <module name="ProcessEngine-core_main" target="1.7" />
+      <module name="ProcessEngine-core_test" target="1.7" />
+      <module name="ProcessEngine-servlet_main" target="1.8" />
+      <module name="ProcessEngine-servlet_test" target="1.8" />
       <module name="ProcessEngine_base" target="1.7" />
       <module name="ProcessEngine_main" target="1.7" />
       <module name="ProcessEngine_test" target="1.7" />
@@ -75,6 +82,8 @@
       <module name="shared_test" target="1.8" />
       <module name="structurizr_main" target="1.8" />
       <module name="structurizr_test" target="1.8" />
+      <module name="xmlutil-core_main" target="1.7" />
+      <module name="xmlutil-core_test" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
