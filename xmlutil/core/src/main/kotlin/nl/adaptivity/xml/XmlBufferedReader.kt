@@ -51,14 +51,14 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
     this.current = event
 
     when (event.eventType) {
-      XmlStreaming.EventType.START_ELEMENT -> {
+      EventType.START_ELEMENT -> {
         mNamespaceHolder.incDepth()
         val start = event as StartElementEvent
         for (ns in start.namespaceDecls) {
           mNamespaceHolder.addPrefixToContext(ns)
         }
       }
-      XmlStreaming.EventType.END_ELEMENT   -> mNamespaceHolder.decDepth()
+      EventType.END_ELEMENT   -> mNamespaceHolder.decDepth()
       else -> {} /* Do nothing */
     }
     return event
@@ -140,15 +140,15 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
   fun nextTagEvent(): XmlEvent {
     val current = nextEvent()
     when (current.eventType) {
-      XmlStreaming.EventType.TEXT                                                                    -> {
+      EventType.TEXT                                                                    -> {
         if (isXmlWhitespace((current as TextEvent).text)) {
           return nextTagEvent()
         }
         return nextTagEvent()
       }
-      XmlStreaming.EventType.COMMENT // ignore
-        , XmlStreaming.EventType.IGNORABLE_WHITESPACE, XmlStreaming.EventType.PROCESSING_INSTRUCTION -> return nextTagEvent()
-      XmlStreaming.EventType.START_ELEMENT, XmlStreaming.EventType.END_ELEMENT                       -> return current
+      EventType.COMMENT // ignore
+        , EventType.IGNORABLE_WHITESPACE, EventType.PROCESSING_INSTRUCTION -> return nextTagEvent()
+      EventType.START_ELEMENT, EventType.END_ELEMENT                       -> return current
     }
     throw XmlException("Unexpected element found when looking for tags: " + current)
   }
@@ -161,9 +161,9 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
   override val namespaceUri: CharSequence
     @Throws(XmlException::class)
     get() = when (current?.eventType) {
-      XmlStreaming.EventType.ATTRIBUTE     -> (current as Attribute).namespaceUri
-      XmlStreaming.EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
-      XmlStreaming.EventType.END_ELEMENT   -> (current as EndElementEvent).namespaceUri
+      EventType.ATTRIBUTE     -> (current as Attribute).namespaceUri
+      EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
+      EventType.END_ELEMENT   -> (current as EndElementEvent).namespaceUri
       else                                 -> throw XmlException("Attribute not defined here: namespaceUri")
     }
 
@@ -171,18 +171,18 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
   override val localName: CharSequence
     @Throws(XmlException::class)
     get() = when (current?.eventType) {
-      XmlStreaming.EventType.ATTRIBUTE     -> (current as Attribute).localName
-      XmlStreaming.EventType.START_ELEMENT -> (current as StartElementEvent).localName
-      XmlStreaming.EventType.END_ELEMENT   -> (current as EndElementEvent).localName
+      EventType.ATTRIBUTE     -> (current as Attribute).localName
+      EventType.START_ELEMENT -> (current as StartElementEvent).localName
+      EventType.END_ELEMENT   -> (current as EndElementEvent).localName
       else                                 -> throw XmlException("Attribute not defined here: namespaceUri")
     }
 
   override val prefix: CharSequence
     @Throws(XmlException::class)
     get() = when (current?.eventType) {
-      XmlStreaming.EventType.ATTRIBUTE     -> (current as Attribute).prefix
-      XmlStreaming.EventType.START_ELEMENT -> (current as StartElementEvent).prefix
-      XmlStreaming.EventType.END_ELEMENT   -> (current as EndElementEvent).prefix
+      EventType.ATTRIBUTE     -> (current as Attribute).prefix
+      EventType.START_ELEMENT -> (current as StartElementEvent).prefix
+      EventType.END_ELEMENT   -> (current as EndElementEvent).prefix
       else                                 -> throw XmlException("Attribute not defined here: namespaceUri")
     }
 

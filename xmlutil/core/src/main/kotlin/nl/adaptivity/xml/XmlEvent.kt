@@ -18,7 +18,6 @@ package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.matches
 import nl.adaptivity.xml.XmlStreaming.EventType
-import nl.adaptivity.xml.XmlStreaming.EventType.*
 import javax.xml.XMLConstants
 import javax.xml.namespace.NamespaceContext
 
