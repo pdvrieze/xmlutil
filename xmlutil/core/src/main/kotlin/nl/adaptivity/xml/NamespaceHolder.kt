@@ -16,14 +16,9 @@
 
 package nl.adaptivity.xml
 
-import net.devrieze.util.StringUtil
-import nl.adaptivity.xml.Namespace
-import nl.adaptivity.xml.SimpleNamespaceContext
-
-import javax.xml.XMLConstants
+import java.util.*
+import javax.xml.XMLConstants.*
 import javax.xml.namespace.NamespaceContext
-
-import java.util.Arrays
 
 
 /**
@@ -40,19 +35,44 @@ class NamespaceHolder {
   fun incDepth() {
     ++depth
     if (depth >= mNamespaceCounts.size) {
-      enlarge()
+      mNamespaceCounts = Arrays.copyOf(mNamespaceCounts, mNamespaceCounts.size*2)
     }
     mNamespaceCounts[depth] = mNamespaceCounts[depth - 1]
   }
 
-  fun decDepth() { // XXX consider shrinking the arrays.
+  fun decDepth() {
     Arrays.fill(mNamespaces,
-                if (depth == 0) 0 else mNamespaceCounts[depth - 1] * 2,
-                mNamespaceCounts[depth] * 2,
-                null) // Clear out all unused namespaces
+                /*fromIndex =*/ if (depth == 0) 0 else arrayUseAtDepth(depth-1),
+                /*toIndex =*/ arrayUseAtDepth(depth),
+                /*`val` =*/ null) // Clear out all unused namespaces
     mNamespaceCounts[depth] = 0
     --depth
   }
+
+  val totalNamespaceCount:Int
+    get() = mNamespaceCounts[depth]
+
+  private inline fun arrayUseAtDepth(depth:Int) =
+    mNamespaceCounts[depth]*2
+
+  private inline fun prefixArrayPos(pairPos:Int) = pairPos*2
+
+  private inline fun nsArrayPos(pairPos:Int) = pairPos*2+1
+
+  private fun setPrefix(pos:Int, value:CharSequence?) {
+    mNamespaces[prefixArrayPos(pos)] = value?.toString() ?:""
+  }
+
+  private fun getPrefix(pos:Int): CharSequence =
+    mNamespaces[prefixArrayPos(pos)]!!
+
+  private fun setNamespace(pos:Int, value:CharSequence?) {
+    mNamespaces[nsArrayPos(pos)] = value?.toString() ?:""
+  }
+
+  private fun getNamespace(pos:Int): CharSequence =
+        mNamespaces[nsArrayPos(pos)]!!
+
 
   fun clear() {
     mNamespaces = arrayOfNulls<String>(10)
@@ -64,75 +84,50 @@ class NamespaceHolder {
     addPrefixToContext(ns.prefix, ns.namespaceURI)
   }
 
+
   fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
-    val nextNamespacePos = 2 * mNamespaceCounts[depth]
-    if (nextNamespacePos >= mNamespaces.size) {
-      enlarge()
-    }
-    mNamespaces[nextNamespacePos] = if (prefix == null) "" else prefix.toString()
-    mNamespaces[nextNamespacePos + 1] = if (namespaceUri == null) "" else namespaceUri.toString()
+    val nextPair = mNamespaceCounts[depth]
+    if (nsArrayPos(nextPair) >= mNamespaces.size) enlargeNamespaceBuffer()
+
+    setPrefix(nextPair, prefix)
+    setNamespace(nextPair, namespaceUri)
+
     mNamespaceCounts[depth]++
   }
 
-  private fun enlarge() {
-    mNamespaceCounts = Arrays.copyOf(mNamespaceCounts, mNamespaceCounts.size*2)
+  private fun enlargeNamespaceBuffer() {
+    mNamespaces = Arrays.copyOf(mNamespaces, mNamespaces.size*2)
   }
 
   // From first namespace
   val namespaceContext: NamespaceContext
     get() {
-      val startPos = 0
-      val endPos = mNamespaceCounts[depth] * 2
-      val pairs = Arrays.copyOfRange(mNamespaces, startPos, endPos, Array<String>::class.java)
+      val pairs = mNamespaces.sliceArray(0..arrayUseAtDepth(depth)).requireNoNulls()
       return SimpleNamespaceContext(pairs)
     }
 
   fun getNamespaceUri(prefix: CharSequence): CharSequence? {
-    when (prefix.toString()) {
-      XMLConstants.XML_NS_PREFIX   -> return XMLConstants.XML_NS_URI
-      XMLConstants.XMLNS_ATTRIBUTE -> return XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+    val prefixStr = prefix.toString()
+    return when (prefixStr) {
+      XML_NS_PREFIX   -> return XML_NS_URI
+      XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
 
-      else                         -> {
-        ((mNamespaceCounts[depth]*2 -1) downTo 0 step 2)
-              .filter { mNamespaces[it]== prefix }
-              .map { mNamespaces[it+1] }
-              .firstOrNull()?.let { return it }
-      }
+      else            -> ((totalNamespaceCount-1) downTo 0)
+              .firstOrNull { getPrefix(it) == prefixStr }
+              ?.let {getNamespace(it)} ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
     }
-    if (prefix.length == 0) {
-      return XMLConstants.NULL_NS_URI
-    }
-    return null
   }
 
   fun getPrefix(namespaceUri: CharSequence): CharSequence? {
-    when (namespaceUri.toString()) {
-      XMLConstants.XML_NS_URI             -> return XMLConstants.XML_NS_PREFIX
-      XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> return XMLConstants.XMLNS_ATTRIBUTE
-      XMLConstants.NULL_NS_URI            -> {
-        val count = mNamespaceCounts[depth] * 2
-        var i = 0
-        while (i < count) {
-          if (mNamespaces[i]!!.length == 0 && mNamespaces[i + 1]!!.length > 1) {
-            // The default prefix is bound to a non-null namespace
-            return null
-          }
-          i += 2
-        }
-        return XMLConstants.DEFAULT_NS_PREFIX
-      }
+    val namespaceUriStr = namespaceUri.toString()
+    return when (namespaceUriStr) {
+      XML_NS_URI             -> XML_NS_PREFIX
+      XMLNS_ATTRIBUTE_NS_URI -> XMLNS_ATTRIBUTE
+      else                   -> ((totalNamespaceCount - 1) downTo 0)
+              .firstOrNull { getNamespace(it) == namespaceUriStr }
+              ?.let { getPrefix(it) }
+              ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null
 
-      else                                -> {
-        val count = mNamespaceCounts[depth] * 2
-        var i = 1
-        while (i < count) {
-          if (StringUtil.isEqual(namespaceUri, mNamespaces[i])) {
-            return mNamespaces[i - 1]
-          }
-          i += 2
-        }
-      }
     }
-    return null
   }
 }
