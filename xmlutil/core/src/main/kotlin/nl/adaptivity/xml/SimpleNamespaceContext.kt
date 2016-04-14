@@ -16,100 +16,66 @@
 
 package nl.adaptivity.xml
 
-import javax.xml.XMLConstants
-import javax.xml.namespace.NamespaceContext
-
 import java.util.*
+import javax.xml.XMLConstants.*
+import javax.xml.namespace.NamespaceContext
 
 
 /**
+ * A simple namespace context that stores namespaces in a single array
  * Created by pdvrieze on 24/08/15.
  */
-open class SimpleNamespaceContext : NamespaceContext, Iterable<Namespace> {
+open class SimpleNamespaceContext internal constructor(val buffer:Array<out String>) : NamespaceContext, Iterable<Namespace> {
 
   private inner class SimpleIterator : Iterator<Namespace> {
     private var pos = 0
 
-    override fun hasNext(): Boolean {
-      return pos < mStrings.size
-    }
+    override fun hasNext() = pos < size
 
-    override fun next(): Namespace {
-      val result = SimpleNamespace(pos)
-      pos += 2
-      return result
-    }
+    override fun next(): Namespace = SimpleNamespace(pos++)
   }
 
   private inner class SimpleNamespace(private val pos: Int) : Namespace {
 
     override val prefix: String
-      get() = mStrings[pos]
+      get() = getPrefix(pos)
 
     override val namespaceURI: String
-      get() = mStrings[pos + 1]
+      get() = getNamespaceURI(pos)
   }
 
-  private val mStrings: Array<String>
+  constructor(prefixMap: Map<out CharSequence, CharSequence>):
+    this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
 
-  constructor(prefixMap: Map<out CharSequence, out CharSequence>) {
-    mStrings = Array<String>(prefixMap.size * 2) {""}
-    var i = 0
-    prefixMap.entries.forEachIndexed { i, entry ->
-      val nsUri = entry.value.toString()
-      if (nsUri.isEmpty()) throw IllegalArgumentException("Null namespaces are illegal")
+  constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>):
+  this(Array(prefixes.size*2, { (if (it %2==0) prefixes[it/2] else namespaces[it/2]).toString() }))
 
-      mStrings[i * 2] = entry.key.toString()
-      mStrings[i * 2 + 1] = nsUri
-    }
-  }
+  constructor(prefix: CharSequence, namespace: CharSequence):
+    this(arrayOf(prefix.toString(),namespace.toString()))
 
-  constructor(prefixes: Array<CharSequence>, namespaces: Array<CharSequence>) {
-    assert(prefixes.size == namespaces.size)
-    mStrings = Array<String>(prefixes.size * 2) {""}
-    for (i in prefixes.indices) {
-      mStrings[i * 2] = prefixes[i].toString()
-      mStrings[i * 2 + 1] = namespaces[i].toString()
-    }
-  }
+  constructor(namespaces: Collection<Namespace>):
+    this(flatten(namespaces, { prefix }, { namespaceURI } ))
 
-  constructor(prefix: CharSequence, namespace: CharSequence) {
-    mStrings = arrayOf(prefix.toString(),namespace.toString())
-  }
+  constructor(namespaces: Iterable<Namespace>):
+    this(namespaces as? Collection<Namespace> ?: namespaces.toList() )
 
-  internal constructor(strings: Array<String>) {
-    mStrings = strings
-  }
+  val indices:IntRange get() = 0..(size-1)
 
-  constructor(namespaces: Iterable<Namespace>) {
-    if (namespaces is Collection<Any>) {
-      val len = namespaces.size
-      mStrings = Array<String>(len * 2) {""}
-      namespaces.forEachIndexed { i, ns ->
-        mStrings[i*2] = ns.prefix.toString()
-        mStrings[i*2+1] = ns.namespaceURI.toString()
-      }
-    } else {
-      val intermediate = ArrayList<String>()
-      for (ns in namespaces) {
-        intermediate.add(ns.prefix.toString())
-        intermediate.add(ns.namespaceURI.toString())
-      }
-      mStrings = intermediate.toTypedArray()
-    }
-  }
+  val size:Int get() = buffer.size / 2
 
-  fun size(): Int {
-    return mStrings.size / 2
-  }
+  @Deprecated("There is a nice property now, use that", replaceWith = ReplaceWith("size"), level = DeprecationLevel.ERROR)
+  fun size(): Int = size
 
+  /**
+   * Create a context that combines both. This will "forget" overlapped prefixes.
+   */
   fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
     val result = TreeMap<String, String>()
-    for (i in mStrings.size / 2 - 1 downTo 0) {
-      result.put(mStrings[i * 2], mStrings[i * 2 + 1])
+    for (i in indices.reversed()) {
+      result.put(getPrefix(i), getNamespaceURI(i))
     }
-    for (i in other.mStrings.size / 2 - 1 downTo 0) {
-      result.put(other.mStrings[i * 2], other.mStrings[i * 2 + 1])
+    for (i in other.indices.reversed()) {
+      result.put(other.getPrefix(i), other.getNamespaceURI(i))
     }
     return SimpleNamespaceContext(result)
   }
@@ -121,119 +87,85 @@ open class SimpleNamespaceContext : NamespaceContext, Iterable<Namespace> {
    * @return the new context
    */
   fun combine(other: Iterable<Namespace>?): SimpleNamespaceContext? {
-    if (mStrings.size == 0) {
+    if (size == 0) {
       return from(other)
     }
-    if (other == null || !other.iterator().hasNext()) {
+    if (other is SimpleNamespaceContext) { return combine(other) }
+    else if (other == null || !other.iterator().hasNext()) {
       return this
     }
     val result = TreeMap<String, String>()
-    for (i in mStrings.size / 2 - 1 downTo 0) {
-      result.put(mStrings[i * 2], mStrings[i * 2 + 1])
+    for (i in indices.reversed()) {
+      result.put(getPrefix(i), getNamespaceURI(i))
     }
-    if (other is SimpleNamespaceContext) {
-      for (i in other.mStrings.size / 2 - 1 downTo 0) {
-        result.put(other.mStrings[i * 2], other.mStrings[i * 2 + 1])
-      }
-    } else {
-      for (ns in other) {
-        result.put(ns.prefix, ns.namespaceURI)
-      }
+    for (ns in other) {
+      result.put(ns.prefix, ns.namespaceURI)
     }
     return SimpleNamespaceContext(result)
 
   }
 
-  override fun getNamespaceURI(prefix: String?): String {
-    if (prefix == null) {
-      throw IllegalArgumentException()
+  override fun getNamespaceURI(prefix: String): String {
+    return when (prefix) {
+      XML_NS_PREFIX   -> XML_NS_URI
+      XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
+      else -> indices.reversed()
+            .filter {getPrefix(it)==prefix}
+            .map { getNamespaceURI(it) }
+            .firstOrNull()?: NULL_NS_URI
     }
-    when (prefix) {
-      XMLConstants.XML_NS_PREFIX   -> return XMLConstants.XML_NS_URI
-      XMLConstants.XMLNS_ATTRIBUTE -> return XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-    }
-    var i = mStrings.size - 2
-    while (i >= 0) { // Should be backwards to allow overrriding
-      if (prefix == mStrings[i]) {
-        return mStrings[i + 1]
-      }
-      i -= 2
-    }
-
-    return XMLConstants.NULL_NS_URI
   }
 
-  override fun getPrefix(namespaceURI: String): String? {
+  override fun getPrefix(namespaceURI: String) = getPrefixSequence(namespaceURI).firstOrNull()
+
+  fun getPrefixSequence(namespaceURI: String):Sequence<String> {
     return when (namespaceURI) {
-      XMLConstants.XML_NS_URI             -> XMLConstants.XML_NS_PREFIX
-      XMLConstants.NULL_NS_URI            -> XMLConstants.DEFAULT_NS_PREFIX
-      XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> XMLConstants.XMLNS_ATTRIBUTE
-      else                                -> {
-        ((mStrings.size-2)downTo 0 step 2)
-              .filterIndexed { i, s -> mStrings[i+1] == namespaceURI }
-              .map { mStrings[it] }
-              .firstOrNull()
-
+      XML_NS_URI             -> sequenceOf(XML_NS_PREFIX)
+      NULL_NS_URI            -> sequenceOf(DEFAULT_NS_PREFIX)
+      XMLNS_ATTRIBUTE_NS_URI -> sequenceOf(XMLNS_ATTRIBUTE)
+      else                   -> {
+        indices.reversed().asSequence()
+              .filter { getNamespaceURI(it)== namespaceURI }
+              .map { getPrefix(it) }
       }
     }
   }
 
-  override fun getPrefixes(namespaceURI: String): Iterator<String> {
-    when (namespaceURI) {
-      XMLConstants.XML_NS_URI             -> return setOf(XMLConstants.XML_NS_PREFIX).iterator()
-      XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> return setOf(XMLConstants.XMLNS_ATTRIBUTE).iterator()
-      else                                -> {
-        val result = ArrayList<String>(mStrings.size / 2)
-        var i = mStrings.size - 2
-        while (i >= 0) {// Should be backwards to allow overrriding
-          if (namespaceURI == mStrings[i + 1]) {
-            result.add(mStrings[i])
-          }
-          i -= 2
-        }
-        if (result.size == 0) {
-          return Collections.emptyIterator<String>()
-        }
-        return Collections.unmodifiableList(result).iterator()
-      }
-    }
-  }
+  override fun getPrefixes(namespaceURI: String) = getPrefixSequence(namespaceURI).iterator()
 
   fun getPrefix(index: Int): String {
     try {
-      return mStrings[index * 2]
+      return buffer[index * 2]
     } catch (e: ArrayIndexOutOfBoundsException) {
       throw ArrayIndexOutOfBoundsException(index)
     }
-
   }
 
   fun getNamespaceURI(index: Int): String {
     try {
-      return mStrings[index * 2 + 1]
+      return buffer[index * 2 + 1]
     } catch (e: ArrayIndexOutOfBoundsException) {
       throw ArrayIndexOutOfBoundsException(index)
     }
-
   }
 
   override fun iterator(): Iterator<Namespace> {
     return SimpleIterator()
   }
 
-  override fun equals(o: Any?): Boolean {
-    if (this === o) return true
-    if (o == null || javaClass != o.javaClass) return false
+  override fun equals(other: Any?): Boolean{
+    if (this === other) return true
+    if (other?.javaClass != javaClass) return false
 
-    val that = o as SimpleNamespaceContext
+    other as SimpleNamespaceContext
 
-    // Probably incorrect - comparing Object[] arrays with Arrays.equals
-    return Arrays.equals(mStrings, that.mStrings)
+    if (!Arrays.equals(buffer, other.buffer)) return false
 
+    return true
   }
 
-  override fun hashCode(): Int {
-    return Arrays.hashCode(mStrings)
+  override fun hashCode(): Int{
+    return Arrays.hashCode(buffer)
   }
 
   companion object {
@@ -248,4 +180,10 @@ open class SimpleNamespaceContext : NamespaceContext, Iterable<Namespace> {
       }
     }
   }
+}
+
+
+private inline fun <T> flatten(namespaces: Collection<T>, crossinline prefix:T.()->String, crossinline namespace:T.()->String):Array<String> {
+  val filler:Iterator<String> = namespaces.asSequence().flatMap { sequenceOf(it.prefix(), it.namespace()) }.iterator()
+  return Array(namespaces.size*2, { filler.next() })
 }
