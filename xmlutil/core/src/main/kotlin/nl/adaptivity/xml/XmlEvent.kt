@@ -135,7 +135,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.attribute(namespaceUri, localName, prefix, value)
 
-    fun getNamespaceUri(): Boolean {
+    fun hasNamespaceUri(): Boolean {
       return XMLConstants.XMLNS_ATTRIBUTE_NS_URI matches namespaceUri ||
             (prefix.length == 0 && XMLConstants.XMLNS_ATTRIBUTE matches localName)
     }
@@ -157,13 +157,13 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
 
     @Throws(XmlException::class)
     @JvmStatic
-    fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
+    fun from(reader: XmlReader) = reader.getEventType().createEvent(reader)
 
     @JvmStatic
     @JvmName("getNamespaceDecls")
     internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
-      val readerOffset = reader.namespaceStart
-      val namespaces = Array<Namespace>(reader.namespaceEnd -readerOffset) { i ->
+      val readerOffset = reader.getNamespaceStart()
+      val namespaces = Array<Namespace>(reader.getNamespaceEnd() -readerOffset) { i ->
         val nsIndex = readerOffset + i
         NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
       }
@@ -174,7 +174,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String) {
     @JvmName("getAttributes")
     internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
       val result = Array<Attribute>(reader.attributeCount) { i ->
-        Attribute(reader.locationInfo,
+        Attribute(reader.getLocationInfo(),
                   reader.getAttributeNamespace(i)!!,
                   reader.getAttributeLocalName(i),
                   reader.getAttributePrefix(i)!!,
