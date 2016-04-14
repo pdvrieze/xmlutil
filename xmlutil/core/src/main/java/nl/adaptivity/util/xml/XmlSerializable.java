@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 
 public interface XmlSerializable {
 
-  /** XXX Get rid of StAXWriter
+  /**
    * Write the object to an xml stream. The object is expected to write itself and its children.
    * @param out The stream to write to.
    * @throws XMLStreamException When something breaks.

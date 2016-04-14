@@ -100,6 +100,7 @@
           <option name="ALIGN_MULTILINE_THROWS_LIST" value="true" />
           <option name="ALIGN_MULTILINE_EXTENDS_LIST" value="true" />
           <option name="ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION" value="true" />
+          <option name="ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION" value="true" />
           <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
           <option name="ALIGN_CONSECUTIVE_VARIABLE_DECLARATIONS" value="true" />
           <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
@@ -107,6 +108,7 @@
           <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
           <option name="KEEP_SIMPLE_CLASSES_IN_ONE_LINE" value="true" />
           <option name="KEEP_MULTIPLE_EXPRESSIONS_IN_ONE_LINE" value="true" />
+          <option name="ARRAY_INITIALIZER_WRAP" value="5" />
           <option name="IF_BRACE_FORCE" value="3" />
           <option name="DOWHILE_BRACE_FORCE" value="3" />
           <option name="WHILE_BRACE_FORCE" value="3" />
