@@ -141,7 +141,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     }
   }
 
-  private class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
+  class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
 
     override val prefix = namespacePrefix.toString()
     override val namespaceURI = namespaceUri.toString()
@@ -161,6 +161,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
     @JvmStatic
     @JvmName("getNamespaceDecls")
+    @Deprecated("Use the extension property", ReplaceWith("reader.namespaceDecls", "nl.adaptivity.xml.attributes"))
     internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
       val readerOffset = reader.namespaceStart
       val namespaces = Array<Namespace>(reader.namespaceEnd -readerOffset) { i ->
@@ -172,6 +173,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
     @JvmStatic
     @JvmName("getAttributes")
+    @Deprecated("Use the extension property", ReplaceWith("reader.attributes", "nl.adaptivity.xml.attributes"))
     internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
       val result = Array<Attribute>(reader.attributeCount) { i ->
         Attribute(reader.locationInfo,
