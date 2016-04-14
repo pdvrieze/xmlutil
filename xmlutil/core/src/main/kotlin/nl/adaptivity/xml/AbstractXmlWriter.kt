@@ -14,19 +14,17 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml;
+package nl.adaptivity.xml
 
 /**
  * Created by pdvrieze on 16/11/15.
  */
-public abstract class AbstractXmlWriter implements XmlWriter {
+abstract class AbstractXmlWriter : XmlWriter {
 
   /**
    * Default implementation that merely flushes the stream.
    * @throws XmlException When something fails
    */
-  @Override
-  public void close() throws XmlException {
-    flush();
-  }
+  @Throws(XmlException::class)
+  open override fun close() = flush()
 }
