@@ -14,7 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.xml;
+package nl.adaptivity.xml;
 
 import nl.adaptivity.xml.*;
 import org.jetbrains.annotations.NotNull;

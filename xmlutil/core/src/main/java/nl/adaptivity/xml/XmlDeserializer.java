@@ -14,8 +14,9 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.xml;
+package nl.adaptivity.xml;
 
+import nl.adaptivity.xml.XmlDeserializerFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
