@@ -14,30 +14,29 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml;
+package nl.adaptivity.xml
 
-import nl.adaptivity.xml.*;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.*;
+import nl.adaptivity.xml.*
+import org.w3c.dom.*
 
-import javax.xml.XMLConstants;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.*;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-
-import java.util.Map.Entry;
+import javax.xml.XMLConstants
+import javax.xml.bind.annotation.adapters.XmlAdapter
+import javax.xml.namespace.QName
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.stream.*
+import javax.xml.transform.dom.DOMResult
+import javax.xml.transform.dom.DOMSource
 
 
-public interface XmlSerializable {
+interface XmlSerializable {
 
   /**
    * Write the object to an xml stream. The object is expected to write itself and its children.
    * @param out The stream to write to.
+   * *
    * @throws XMLStreamException When something breaks.
    */
-  void serialize(XmlWriter out) throws XmlException;
+  @Throws(XmlException::class)
+  fun serialize(out: XmlWriter)
 
 }
