@@ -35,10 +35,8 @@ import java.lang.reflect.Method
  * Created by pdvrieze on 16/11/15.
  */
 class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
-  override val depth:Int
-    get() = _depth
-
-  private var _depth: Int = 0
+  override var depth:Int = 0
+    private set
 
   @Throws(XMLStreamException::class)
   constructor(writer: Writer, repairNamespaces: Boolean) : this(newFactory(repairNamespaces).createXMLStreamWriter(
@@ -57,7 +55,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   @Throws(XmlException::class)
   override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?) {
-    _depth++
+    depth++
     try {
       mDelegate.writeStartElement(prefix.asString(), localName.toString(), namespace.asString())
     } catch (e: XMLStreamException) {
@@ -71,7 +69,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
     // TODO add verifying assertions
     try {
       mDelegate.writeEndElement()
-      _depth--
+      depth--
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
