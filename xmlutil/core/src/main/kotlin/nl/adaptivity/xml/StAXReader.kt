@@ -131,8 +131,8 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     get() = mDelegate.characterEncodingScheme
 
   @Deprecated("")
-  override fun getAttributeName(index: Int): QName {
-    return QName(getAttributeNamespace(index), getAttributeLocalName(index), getAttributePrefix(index))
+  override fun getAttributeName(i: Int): QName {
+    return QName(getAttributeNamespace(i), getAttributeLocalName(i), getAttributePrefix(i))
   }
 
   override fun getNamespaceUri(prefix: CharSequence): String? {
@@ -158,8 +158,8 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     @Deprecated("")
     get() = mDelegate.location
 
-  override fun getAttributeValue(namespaceURI: CharSequence?, localName: CharSequence): String? {
-    return mDelegate.getAttributeValue(namespaceURI.asString(), localName.toString())
+  override fun getAttributeValue(nsUri: CharSequence?, localName: CharSequence): String? {
+    return mDelegate.getAttributeValue(nsUri.asString(), localName.toString())
   }
 
   override val version: String
@@ -227,20 +227,20 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   override val attributeCount: Int
     get() = mDelegate.attributeCount
 
-  override fun getAttributeNamespace(index: Int): String {
-    return mDelegate.getAttributeNamespace(index)
+  override fun getAttributeNamespace(i: Int): String {
+    return mDelegate.getAttributeNamespace(i)
   }
 
-  override fun getAttributeLocalName(index: Int): String {
-    return mDelegate.getAttributeLocalName(index)
+  override fun getAttributeLocalName(i: Int): String {
+    return mDelegate.getAttributeLocalName(i)
   }
 
-  override fun getAttributePrefix(index: Int): String {
-    return mDelegate.getAttributePrefix(index)
+  override fun getAttributePrefix(i: Int): String {
+    return mDelegate.getAttributePrefix(i)
   }
 
-  override fun getAttributeValue(index: Int): String {
-    return mDelegate.getAttributeValue(index)
+  override fun getAttributeValue(i: Int): String {
+    return mDelegate.getAttributeValue(i)
   }
 
   override val namespaceStart: Int
