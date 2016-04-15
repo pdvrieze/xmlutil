@@ -14,30 +14,36 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml;
+package nl.adaptivity.xml
 
-import nl.adaptivity.xml.XmlException;
-import nl.adaptivity.xml.XmlReader;
+import nl.adaptivity.xml.XmlException
+import nl.adaptivity.xml.XmlReader
 
-import javax.xml.namespace.QName;
+import javax.xml.namespace.QName
 
 
 /**
  * Created by pdvrieze on 04/11/15.
  */
-public interface XmlDeserializable {
+interface XmlDeserializable {
 
   /**
    * Handle the given attribue.
    * @param attributeNamespace The namespace of the the attribute.
+   * *
    * @param attributeLocalName The local name of the attribute
+   * *
    * @param attributeValue The value of the attribute
-   * @return <code>true</code> if handled, <code>false</code> if not. (The caller may use this for errors)
+   * *
+   * @return `true` if handled, `false` if not. (The caller may use this for errors)
    */
-  boolean deserializeAttribute(CharSequence attributeNamespace, CharSequence attributeLocalName, CharSequence attributeValue);
+  fun deserializeAttribute(attributeNamespace: CharSequence,
+                           attributeLocalName: CharSequence,
+                           attributeValue: CharSequence): Boolean
 
-  /** Listener called just before the children are deserialized. After attributes have been processed. */
-  void onBeforeDeserializeChildren(XmlReader in) throws XmlException;
+  /** Listener called just before the children are deserialized. After attributes have been processed.  */
+  @Throws(XmlException::class)
+  fun onBeforeDeserializeChildren(`in`: XmlReader)
 
-  QName getElementName();
+  val elementName: QName
 }
