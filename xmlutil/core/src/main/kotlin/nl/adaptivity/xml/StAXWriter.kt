@@ -65,7 +65,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   }
 
   @Throws(XmlException::class)
-  override fun endTag(namespace: CharSequence, localName: CharSequence, prefix: CharSequence) {
+  override fun endTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?) {
     // TODO add verifying assertions
     try {
       mDelegate.writeEndElement()
