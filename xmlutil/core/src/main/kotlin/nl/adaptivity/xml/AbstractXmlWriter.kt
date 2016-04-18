@@ -16,10 +16,82 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.xml.XmlStreaming.EventType
+import org.w3c.dom.Node
+import javax.xml.transform.dom.DOMSource
+
 /**
  * Created by pdvrieze on 16/11/15.
  */
 abstract class AbstractXmlWriter : XmlWriter {
+
+  companion object {
+
+    @JvmStatic
+    fun XmlWriter.serialize(node: Node) {
+      this.serialize(XmlStreaming.newReader(DOMSource(node)))
+    }
+
+    @JvmStatic
+    fun XmlWriter.serialize(reader: XmlReader) {
+      val `in` = reader
+      val out = this
+      while (`in`.hasNext()) {
+        val eventType = `in`.next() ?: break
+        when (eventType) {
+          EventType.START_DOCUMENT,
+          EventType.PROCESSING_INSTRUCTION,
+          EventType.DOCDECL,
+          EventType.END_DOCUMENT -> {
+            if (out.depth <= 0) {
+              writeCurrentEvent(`in`, out)
+            }
+          }
+        // otherwise fall through
+          else                   -> writeCurrentEvent(`in`, out)
+        }
+      }
+
+    }
+
+
+    @JvmStatic
+    @Throws(XmlException::class)
+    fun writeCurrentEvent(reader: XmlReader, writer: XmlWriter) {
+      when (reader.eventType) {
+        EventType.START_DOCUMENT         -> writer.startDocument(null, reader.encoding, reader.standalone)
+        EventType.START_ELEMENT          -> {
+          writer.startTag(reader.namespaceUri, reader.localName, reader.prefix)
+          run {
+            for (i in reader.namespaceIndices) {
+              writer.namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceUri(i))
+            }
+          }
+          run {
+            for (i in reader.attributeIndices) {
+              writer.attribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
+                               null, reader.getAttributeValue(i))
+            }
+          }
+        }
+        EventType.END_ELEMENT            -> writer.endTag(reader.namespaceUri, reader.localName,
+                                                          reader.prefix)
+        EventType.COMMENT                -> writer.comment(reader.text)
+        EventType.TEXT                   -> writer.text(reader.text)
+        EventType.ATTRIBUTE              -> writer.attribute(reader.namespaceUri, reader.localName,
+                                                             reader.prefix, reader.text)
+        EventType.CDSECT                 -> writer.cdsect(reader.text)
+        EventType.DOCDECL                -> writer.docdecl(reader.text)
+        EventType.END_DOCUMENT           -> writer.endDocument()
+        EventType.ENTITY_REF             -> writer.entityRef(reader.text)
+        EventType.IGNORABLE_WHITESPACE   -> writer.ignorableWhitespace(reader.text)
+        EventType.PROCESSING_INSTRUCTION -> writer.processingInstruction(reader.text)
+        else                             -> throw XmlException("Unsupported element found")
+      }
+    }
+
+
+  } // end of companion
 
   /**
    * Default implementation that merely flushes the stream.

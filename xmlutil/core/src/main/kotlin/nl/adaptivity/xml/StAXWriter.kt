@@ -245,7 +245,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   }
 
   @Throws(XmlException::class)
-  override fun startDocument(version: CharSequence, encoding: CharSequence, standalone: Boolean?) {
+  override fun startDocument(version: CharSequence?, encoding: CharSequence?, standalone: Boolean?) {
     try {
       if (standalone != null && _writeStartDocument !=null && _XMLStreamWriter2!!.isInstance(mDelegate)) {
         try {
