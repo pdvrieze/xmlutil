@@ -14,11 +14,12 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.xml;
 
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-import kotlin.reflect.KClass
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
@@ -27,5 +28,7 @@ import kotlin.reflect.KClass
  * Created by pdvrieze on 27/08/15.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)
+@Target(ElementType.TYPE)
+public @interface XmlDeserializer{
+  Class<? extends XmlDeserializerFactory<?>> value();
+}
