@@ -28,4 +28,4 @@ import kotlin.reflect.KClass
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<out Any>>)
+annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)
