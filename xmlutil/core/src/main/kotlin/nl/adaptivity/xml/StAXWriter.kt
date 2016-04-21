@@ -281,7 +281,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   }
 
   @Throws(XmlException::class)
-  override fun getPrefix(namespaceUri: CharSequence?): CharSequence {
+  override fun getPrefix(namespaceUri: CharSequence?): CharSequence? {
     try {
       return mDelegate.getPrefix(namespaceUri.asString())
     } catch (e: XMLStreamException) {
@@ -301,7 +301,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   }
 
   @Throws(XmlException::class)
-  override fun getNamespaceUri(prefix: CharSequence): CharSequence {
+  override fun getNamespaceUri(prefix: CharSequence): CharSequence? {
     return mDelegate.namespaceContext.getNamespaceURI(prefix.toString())
   }
 
