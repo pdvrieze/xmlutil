@@ -49,7 +49,7 @@ ext {
     tomcatVersion = '7.0.68'
     androidCompatVersion = '23.3.0'
     androidBuildToolsVersion = '23.0.3'
-    dbcpSpec = "com.zaxxer:HikariCP:2.4.0"
+    dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
 }
