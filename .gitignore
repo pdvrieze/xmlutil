@@ -10,3 +10,4 @@ build
 *.iml
 .idea/gradle.xml
 captures
+/*/gen
