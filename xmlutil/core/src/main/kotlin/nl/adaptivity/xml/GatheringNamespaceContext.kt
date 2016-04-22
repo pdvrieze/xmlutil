@@ -29,7 +29,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext, pri
 
   override fun getNamespaceURI(prefix: String): String? {
     return parentContext.getNamespaceURI(prefix)?.apply {
-      if (! isEmpty() && prefix==XMLNS_ATTRIBUTE) {
+      if (! isEmpty() && prefix!=XMLNS_ATTRIBUTE) {
         resultMap.put(prefix, this)
       }
     }
@@ -45,7 +45,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext, pri
 
   @Suppress("UNCHECKED_CAST")// Somehow this type has no proper generic parameter
   override fun getPrefixes(namespaceURI: String): Iterator<String> {
-    if (namespaceURI == XMLNS_ATTRIBUTE_NS_URI || namespaceURI == XML_NS_URI) {
+    if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
 
       val it = parentContext.getPrefixes(namespaceURI) as Iterator<String>
       while (it.hasNext()) {
