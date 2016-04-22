@@ -102,7 +102,7 @@ class NamespaceHolder {
   // From first namespace
   val namespaceContext: NamespaceContext
     get() {
-      val pairs = mNamespaces.sliceArray(0..arrayUseAtDepth(depth)).requireNoNulls()
+      val pairs = mNamespaces.sliceArray(0..(arrayUseAtDepth(depth)-1)).requireNoNulls()
       return SimpleNamespaceContext(pairs)
     }
 
