@@ -228,6 +228,7 @@
       <option name="ignorePrivateMethods" value="true" />
     </inspection_tool>
     <inspection_tool class="ReuseOfLocalVariable" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="SameParameterValue" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="SetReplaceableByEnumSet" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="SimplifiableIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SocketResource" enabled="true" level="WARNING" enabled_by_default="true">
