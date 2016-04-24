@@ -23,6 +23,7 @@ description = 'Utility classes for xml handling that works across platforms (jvm
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile project(':java-common')
 }
 
 test {
