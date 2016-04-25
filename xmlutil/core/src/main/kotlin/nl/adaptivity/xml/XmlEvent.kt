@@ -18,9 +18,9 @@ package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.matches
 import nl.adaptivity.xml.XmlStreaming.EventType
+import java.util.*
 import javax.xml.XMLConstants
 import javax.xml.namespace.NamespaceContext
-
 
 /**
  * A class to represent the events that can occur in XML Documents
@@ -29,11 +29,54 @@ import javax.xml.namespace.NamespaceContext
  */
 sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
+  companion object {
+    @JvmStatic
+    internal val IGNORABLE = EnumSet.of(EventType.COMMENT, EventType.START_DOCUMENT, EventType.END_DOCUMENT,
+        EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.IGNORABLE_WHITESPACE)
+
+
+    @Throws(XmlException::class)
+    @JvmStatic
+    fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
+
+    @JvmStatic
+    @JvmName("getNamespaceDecls")
+    @Deprecated("Use the extension property", ReplaceWith("reader.namespaceDecls", "nl.adaptivity.xml.attributes"))
+    internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
+      val readerOffset = reader.namespaceStart
+      val namespaces = Array<Namespace>(reader.namespaceEnd -readerOffset) { i ->
+        val nsIndex = readerOffset + i
+        NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
+      }
+      return namespaces
+    }
+
+    @JvmStatic
+    @JvmName("getAttributes")
+    @Deprecated("Use the extension property", ReplaceWith("reader.attributes", "nl.adaptivity.xml.attributes"))
+    internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
+      val result = Array<Attribute>(reader.attributeCount) { i ->
+        Attribute(reader.locationInfo,
+                  reader.getAttributeNamespace(i),
+                  reader.getAttributeLocalName(i),
+                  reader.getAttributePrefix(i),
+                  reader.getAttributeValue(i))
+      }
+
+      return result
+    }
+
+  }
   class TextEvent(locationInfo: String?, override val eventType: EventType, val text: CharSequence) : XmlEvent(
         locationInfo) {
 
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = eventType.writeEvent(writer, this)
+
+    override val isIgnorable: Boolean
+      get() =
+        super.isIgnorable || (eventType == EventType.TEXT && isXmlWhitespace(text))
+
   }
 
   class EndDocumentEvent(locationInfo: String?) : XmlEvent(locationInfo) {
@@ -149,40 +192,9 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
   abstract val eventType: EventType
 
+  open val isIgnorable:Boolean = eventType in IGNORABLE
+
   @Throws(XmlException::class)
   abstract fun writeTo(writer: XmlWriter)
 
-  companion object {
-
-    @Throws(XmlException::class)
-    @JvmStatic
-    fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
-
-    @JvmStatic
-    @JvmName("getNamespaceDecls")
-    @Deprecated("Use the extension property", ReplaceWith("reader.namespaceDecls", "nl.adaptivity.xml.attributes"))
-    internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
-      val readerOffset = reader.namespaceStart
-      val namespaces = Array<Namespace>(reader.namespaceEnd -readerOffset) { i ->
-        val nsIndex = readerOffset + i
-        NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
-      }
-      return namespaces
-    }
-
-    @JvmStatic
-    @JvmName("getAttributes")
-    @Deprecated("Use the extension property", ReplaceWith("reader.attributes", "nl.adaptivity.xml.attributes"))
-    internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
-      val result = Array<Attribute>(reader.attributeCount) { i ->
-        Attribute(reader.locationInfo,
-                  reader.getAttributeNamespace(i),
-                  reader.getAttributeLocalName(i),
-                  reader.getAttributePrefix(i),
-                  reader.getAttributeValue(i))
-      }
-
-      return result
-    }
-  }
 }

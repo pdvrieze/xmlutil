@@ -16,17 +16,6 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.xml.*
-import org.w3c.dom.*
-
-import javax.xml.XMLConstants
-import javax.xml.bind.annotation.adapters.XmlAdapter
-import javax.xml.namespace.QName
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.stream.*
-import javax.xml.transform.dom.DOMResult
-import javax.xml.transform.dom.DOMSource
-
 
 interface XmlSerializable {
 
