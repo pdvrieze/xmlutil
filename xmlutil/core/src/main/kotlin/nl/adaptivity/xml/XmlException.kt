@@ -16,10 +16,12 @@
 
 package nl.adaptivity.xml
 
+import java.io.IOException
+
 /**
  * Created by pdvrieze on 15/11/15.
  */
-class XmlException : Exception {
+class XmlException : IOException {
 
   constructor() {
   }
