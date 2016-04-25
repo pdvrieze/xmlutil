@@ -16,8 +16,11 @@
 
 package nl.adaptivity.xml
 
+import net.devrieze.util.StringUtil
+import nl.adaptivity.util.xml.XmlDelegatingWriter
 import nl.adaptivity.xml.XmlStreaming.EventType
 import org.w3c.dom.Node
+import javax.xml.namespace.QName
 import javax.xml.transform.dom.DOMSource
 
 /**
@@ -90,6 +93,39 @@ abstract class AbstractXmlWriter : XmlWriter {
       }
     }
 
+    @JvmStatic
+    @Throws(XmlException::class)
+    fun XmlWriter.endTag(predelemname: QName) {
+      this.endTag(predelemname.namespaceURI, predelemname.localPart, predelemname.prefix)
+    }
+
+    @JvmStatic
+    fun XmlWriter.filterSubstream(): XmlWriter {
+      return SubstreamFilterWriter(this)
+    }
+
+
+    @Throws(XmlException::class)
+    private fun undeclaredPrefixes(reader: XmlReader,
+                                   reference: XmlWriter,
+                                   missingNamespaces: MutableMap<String, String>) {
+      assert(reader.eventType === EventType.START_ELEMENT)
+      val prefix = StringUtil.toString(reader.prefix)
+      if (prefix != null) {
+        if (!missingNamespaces.containsKey(prefix)) {
+          val uri = reader.namespaceUri
+          if (StringUtil.isEqual(reference.getNamespaceUri(prefix)!!,
+                                 uri) && reader.isPrefixDeclaredInElement(prefix)) {
+            return
+          } else if (uri.length > 0) {
+            if (!StringUtil.isEqual(reference.getNamespaceUri(prefix)!!, uri)) {
+              missingNamespaces.put(prefix, uri.toString())
+            }
+          }
+        }
+      }
+    }
+
 
   } // end of companion
 
@@ -98,5 +134,17 @@ abstract class AbstractXmlWriter : XmlWriter {
    * @throws XmlException When something fails
    */
   @Throws(XmlException::class)
-  open override fun close() = flush()
+  override fun close() = flush()
+}
+
+
+private class SubstreamFilterWriter(delegate: XmlWriter) : XmlDelegatingWriter(delegate) {
+
+  override fun processingInstruction(text: CharSequence) { /* ignore */ }
+
+  override fun endDocument() { /* ignore */ }
+
+  override fun docdecl(text: CharSequence) { /* ignore */ }
+
+  override fun startDocument(version: CharSequence?, encoding: CharSequence?, standalone: Boolean?) { /* ignore */ }
 }
