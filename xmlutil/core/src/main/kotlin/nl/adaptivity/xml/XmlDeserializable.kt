@@ -21,10 +21,8 @@ package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.ExtXmlDeserializable
 import nl.adaptivity.util.xml.SimpleXmlDeserializable
-import nl.adaptivity.util.xml.XmlUtil
 import nl.adaptivity.xml.XmlStreaming.EventType
 import java.io.StringReader
-import java.util.*
 import javax.xml.namespace.QName
 
 
@@ -100,7 +98,7 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
   } else if (this is ExtXmlDeserializable) {
     deserializeChildren(reader)
 
-    if (XmlUtil::class.java.desiredAssertionStatus()) reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
+    if (XmlDeserializable::class.java.desiredAssertionStatus()) reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
 
   } else {// Neither, means ignore children
     if (!isXmlWhitespace(reader.siblingsToFragment().content)) {
