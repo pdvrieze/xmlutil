@@ -53,8 +53,8 @@ fun XmlSerializable.serialize(writer: Writer) {
 }
 
 private fun XmlSerializable.toString(flags: Int): String {
-  return StringWriter().let { out ->
-    XmlStreaming.newWriter(out).use { writer ->
+  return StringWriter().apply {
+    XmlStreaming.newWriter(this).use { writer ->
       serialize(writer)
     }
   }.toString()

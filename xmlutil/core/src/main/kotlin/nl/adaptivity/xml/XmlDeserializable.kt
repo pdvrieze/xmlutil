@@ -75,7 +75,6 @@ fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
   return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }
 }
 
-
 @Throws(XmlException::class)
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
   reader.skipPreamble()
