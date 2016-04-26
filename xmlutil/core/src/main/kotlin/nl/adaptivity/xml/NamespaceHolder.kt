@@ -52,12 +52,12 @@ class NamespaceHolder {
   val totalNamespaceCount:Int
     get() = mNamespaceCounts[depth]
 
-  private inline fun arrayUseAtDepth(depth:Int) =
+  private fun arrayUseAtDepth(depth:Int) =
     mNamespaceCounts[depth]*2
 
-  private inline fun prefixArrayPos(pairPos:Int) = pairPos*2
+  private fun prefixArrayPos(pairPos:Int) = pairPos*2
 
-  private inline fun nsArrayPos(pairPos:Int) = pairPos*2+1
+  private fun nsArrayPos(pairPos:Int) = pairPos*2+1
 
   private fun setPrefix(pos:Int, value:CharSequence?) {
     mNamespaces[prefixArrayPos(pos)] = value?.toString() ?:""

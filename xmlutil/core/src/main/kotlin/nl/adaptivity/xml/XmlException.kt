@@ -19,22 +19,18 @@ package nl.adaptivity.xml
 import java.io.IOException
 
 /**
+ * Simple exception for xml related things.
  * Created by pdvrieze on 15/11/15.
  */
 class XmlException : IOException {
 
-  constructor() {
-  }
+  constructor() { }
 
-  constructor(message: String) : super(message) {
-  }
+  constructor(message: String) : super(message)
 
-  constructor(message: String, cause: Throwable) : super(message, cause) {
-  }
+  constructor(message: String, cause: Throwable) : super(message, cause)
 
-  constructor(cause: Throwable) : super(cause) {
-  }
+  constructor(cause: Throwable) : super(cause)
 
-  constructor(message: String, `in`: XmlReader, cause: Throwable) : super(message, cause) {
-  }// TODO do something witht the reader state
+  constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo?: "Unknown position"} - $message", cause) 
 }

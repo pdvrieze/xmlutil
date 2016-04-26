@@ -17,17 +17,15 @@
 package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.asString
-import javax.xml.XMLConstants
+import java.io.OutputStream
+import java.io.Writer
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import javax.xml.namespace.NamespaceContext
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.transform.Result
-
-import java.io.OutputStream
-import java.io.Writer
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
 
 
 /**
@@ -87,7 +85,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("endDocument()"))
   @Throws(XmlException::class)
   fun writeEndDocument() {
     endDocument()
@@ -127,19 +125,19 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("attribute(null, localName, null, value)"))
   @Throws(XmlException::class)
   fun writeAttribute(localName: String, value: String) {
     attribute(null, localName, null, value)
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("attribute(namespaceURI, localName, prefix, value)"))
   @Throws(XmlException::class)
   fun writeAttribute(prefix: String, namespaceURI: String, localName: String, value: String) {
     attribute(namespaceURI, localName, prefix, value)
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("attribute(namespaceURI, localName, null, value)"))
   @Throws(XmlException::class)
   fun writeAttribute(namespaceURI: String, localName: String, value: String) {
     attribute(namespaceURI, localName, null, value)
@@ -162,7 +160,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("comment(data)"))
   @Throws(XmlException::class)
   fun writeComment(data: String) {
     comment(data)
@@ -176,7 +174,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
       if (split > 0) {
         mDelegate.writeProcessingInstruction(textStr.substring(0, split), textStr.substring(split, text.length))
       } else {
-        mDelegate.writeProcessingInstruction(text.toString()!!)
+        mDelegate.writeProcessingInstruction(text.toString())
       }
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -184,13 +182,13 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("processingInstruction(target)"))
   @Throws(XmlException::class)
   fun writeProcessingInstruction(target: String) {
     processingInstruction(target)
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("processingInstruction(target + \" \" + data)"))
   @Throws(XmlException::class)
   fun writeProcessingInstruction(target: String, data: String) {
     processingInstruction(target + " " + data)
@@ -199,46 +197,46 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun cdsect(text: CharSequence) {
     try {
-      mDelegate.writeCData(text.toString()!!)
+      mDelegate.writeCData(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("cdsect(data)"))
   @Throws(XmlException::class)
   fun writeCData(data: String) {
     cdsect(data)
   }
 
   @Throws(XmlException::class)
-  override fun docdecl(dtd: CharSequence) {
+  override fun docdecl(text: CharSequence) {
     try {
-      mDelegate.writeDTD(dtd.toString()!!)
+      mDelegate.writeDTD(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("docdecl(dtd)"))
   @Throws(XmlException::class)
   fun writeDTD(dtd: String) {
     docdecl(dtd)
   }
 
   @Throws(XmlException::class)
-  override fun entityRef(name: CharSequence) {
+  override fun entityRef(text: CharSequence) {
     try {
-      mDelegate.writeEntityRef(name.toString()!!)
+      mDelegate.writeEntityRef(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
 
   }
 
-  @Deprecated("")
+  @Deprecated("", ReplaceWith("entityRef(name)"))
   @Throws(XmlException::class)
   fun writeEntityRef(name: String) {
     entityRef(name)
@@ -247,7 +245,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun startDocument(version: CharSequence?, encoding: CharSequence?, standalone: Boolean?) {
     try {
-      if (standalone != null && _writeStartDocument !=null && _XMLStreamWriter2!!.isInstance(mDelegate)) {
+      if (standalone != null && _writeStartDocument !=null && _XMLStreamWriter!!.isInstance(mDelegate)) {
         try {
           _writeStartDocument.invoke(mDelegate, version.toString(), encoding.toString(), standalone)
         } catch (e: IllegalAccessException) {
@@ -257,7 +255,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
         }
 
       } else {
-        mDelegate.writeStartDocument(encoding.toString()!!, version.toString()!!) // standalone doesn't work
+        mDelegate.writeStartDocument(encoding.toString(), version.toString()) // standalone doesn't work
       }
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -305,11 +303,6 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
     return mDelegate.namespaceContext.getNamespaceURI(prefix.toString())
   }
 
-  @Throws(XmlException::class)
-  fun setDefaultNamespace(uri: String) {
-    setPrefix(XMLConstants.DEFAULT_NS_PREFIX, uri)
-  }
-
   override var namespaceContext: NamespaceContext
     get() = mDelegate.namespaceContext
     @Throws(XmlException::class)
@@ -326,7 +319,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   companion object {
 
-    internal val _XMLStreamWriter2: Class<out XMLStreamWriter>?
+    internal val _XMLStreamWriter: Class<out XMLStreamWriter>?
     internal val _writeStartDocument: Method?
 
     init {
@@ -342,7 +335,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
       }
 
       //noinspection unchecked
-      _XMLStreamWriter2 = clazz?.asSubclass(XMLStreamWriter::class.java)
+      _XMLStreamWriter = clazz?.asSubclass(XMLStreamWriter::class.java)
       _writeStartDocument = m
     }
 
@@ -352,16 +345,5 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
       return xmlOutputFactory
     }
 
-    // XXX remove these ASAP
-    @Deprecated("Use asString", ReplaceWith("charSequence.asString()","nl.adaptivity.xml.asString"), DeprecationLevel.ERROR)
-    private fun toString(charSequence: CharSequence?): String? {
-      return charSequence?.toString()
-    }
-
-    @Deprecated("Use toString", ReplaceWith("charSequence.toString()"), DeprecationLevel.ERROR)
-    @JvmName("toStringNotNull")
-    private fun toString(charSequence: CharSequence): String {
-      return charSequence?.toString()
-    }
   }
 }

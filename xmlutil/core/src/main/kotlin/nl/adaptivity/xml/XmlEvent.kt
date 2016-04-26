@@ -55,7 +55,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     @JvmName("getAttributes")
     @Deprecated("Use the extension property", ReplaceWith("reader.attributes", "nl.adaptivity.xml.attributes"))
     internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
-      val result = Array<Attribute>(reader.attributeCount) { i ->
+      val result = Array(reader.attributeCount) { i ->
         Attribute(reader.locationInfo,
                   reader.getAttributeNamespace(i),
                   reader.getAttributeLocalName(i),
@@ -67,6 +67,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     }
 
   }
+
   class TextEvent(locationInfo: String?, override val eventType: EventType, val text: CharSequence) : XmlEvent(
         locationInfo) {
 
@@ -84,7 +85,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.endDocument()
 
-    override val eventType: EventType get() = END_DOCUMENT
+    override val eventType: EventType get() = EventType.END_DOCUMENT
   }
 
   class EndElementEvent(locationInfo: String?, namespaceUri: CharSequence, localName: CharSequence, prefix: CharSequence) :
@@ -93,7 +94,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.endTag(namespaceUri, localName, prefix)
 
-    override val eventType: EventType get() = END_ELEMENT
+    override val eventType: EventType get() = EventType.END_ELEMENT
   }
 
   class StartDocumentEvent(locationInfo: String?,
@@ -105,7 +106,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.startDocument(version, encoding, standalone)
 
-    override val eventType: EventType get() = START_DOCUMENT
+    override val eventType: EventType get() = EventType.START_DOCUMENT
   }
 
   abstract class NamedEvent(locationInfo: String?,
@@ -139,7 +140,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
       namespaceDecls.forEach { ns -> writer.namespaceAttr(ns.prefix, ns.namespaceURI) }
     }
 
-    override val eventType: EventType get() = START_ELEMENT
+    override val eventType: EventType get() = EventType.START_ELEMENT
 
     override fun getPrefix(namespaceURI: String) = getPrefix(namespaceURI as CharSequence)
 
@@ -172,7 +173,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
   class Attribute(locationInfo: String?, val namespaceUri: CharSequence, val localName: CharSequence, val prefix: CharSequence, val value: CharSequence) : XmlEvent(
         locationInfo) {
 
-    override val eventType: EventType get() = ATTRIBUTE
+    override val eventType: EventType get() = EventType.ATTRIBUTE
 
     @Throws(XmlException::class)
     override fun writeTo(writer: XmlWriter) = writer.attribute(namespaceUri, localName, prefix, value)

@@ -102,7 +102,6 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
   }
 
   protected fun stripWhiteSpaceFromPeekBuffer() {
-    var peekLast: XmlEvent
     while (mPeekBuffer.size > 0 && mPeekBuffer.peekLast().let { peekLast ->
       peekLast is TextEvent && isXmlWhitespace(peekLast.text) }) {
       mPeekBuffer.removeLast()
@@ -139,18 +138,19 @@ open class XmlBufferedReader(private val mDelegate: XmlReader) : AbstractXmlRead
   @Throws(XmlException::class)
   fun nextTagEvent(): XmlEvent {
     val current = nextEvent()
-    when (current.eventType) {
-      EventType.TEXT                                                                    -> {
+    return when (current.eventType) {
+      EventType.TEXT                                     -> {
         if (isXmlWhitespace((current as TextEvent).text)) {
-          return nextTagEvent()
+          nextTagEvent()
+        } else {
+          throw XmlException("Unexpected element found when looking for tags: " + current)
         }
-        return nextTagEvent()
       }
-      EventType.COMMENT // ignore
-        , EventType.IGNORABLE_WHITESPACE, EventType.PROCESSING_INSTRUCTION -> return nextTagEvent()
-      EventType.START_ELEMENT, EventType.END_ELEMENT                       -> return current
+      EventType.COMMENT, EventType.IGNORABLE_WHITESPACE,
+      EventType.PROCESSING_INSTRUCTION                   -> nextTagEvent()
+      EventType.START_ELEMENT, EventType.END_ELEMENT     -> current
+      else                                               -> throw XmlException("Unexpected element found when looking for tags: " + current)
     }
-    throw XmlException("Unexpected element found when looking for tags: " + current)
   }
 
   @Throws(XmlException::class)

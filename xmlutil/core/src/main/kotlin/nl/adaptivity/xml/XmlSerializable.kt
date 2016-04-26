@@ -29,7 +29,7 @@ interface XmlSerializable {
    * Write the object to an xml stream. The object is expected to write itself and its children.
    * @param out The stream to write to.
    * *
-   * @throws XMLStreamException When something breaks.
+   * @throws XmlException When something breaks.
    */
   @Throws(XmlException::class)
   fun serialize(out: XmlWriter)
@@ -54,7 +54,7 @@ fun XmlSerializable.serialize(writer: Writer) {
 
 private fun XmlSerializable.toString(flags: Int): String {
   return StringWriter().apply {
-    XmlStreaming.newWriter(this).use { writer ->
+    XmlStreaming.newWriter(this, flags.and(FLAG_REPAIR_NS)==FLAG_REPAIR_NS).use { writer ->
       serialize(writer)
     }
   }.toString()
