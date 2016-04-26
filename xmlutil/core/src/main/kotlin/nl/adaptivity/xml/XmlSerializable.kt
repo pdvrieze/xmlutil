@@ -14,7 +14,13 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:JvmName("XmlUtil")
+@file:JvmMultifileClass
+
 package nl.adaptivity.xml
+
+import java.io.*
+import java.util.*
 
 
 interface XmlSerializable {
@@ -29,3 +35,40 @@ interface XmlSerializable {
   fun serialize(out: XmlWriter)
 
 }
+
+
+@Throws(XmlException::class)
+fun XmlSerializable.toReader(): Reader {
+  val buffer = CharArrayWriter()
+  XmlStreaming.newWriter(buffer).use {
+    serialize(it)
+
+  }
+  return CharArrayReader(buffer.toCharArray())
+}
+
+@Throws(XmlException::class)
+fun XmlSerializable.serialize(writer: Writer) {
+  XmlStreaming.newWriter(writer, true).use { serialize(it) }
+}
+
+private fun XmlSerializable.toString(flags: Int): String {
+  return StringWriter().let { out ->
+    XmlStreaming.newWriter(out).use { writer ->
+      serialize(writer)
+    }
+  }.toString()
+}
+
+fun XmlSerializable.toString() = toString(DEFAULT_FLAGS)
+
+/**
+ * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.
+ * @param serializables The source list.
+ * *
+ * @return A result list
+ */
+fun Iterable<XmlSerializable>.toString(): List<String> {
+  return this.map { it.toString(DEFAULT_FLAGS) }
+}
+

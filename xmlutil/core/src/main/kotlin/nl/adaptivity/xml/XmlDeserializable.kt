@@ -14,11 +14,13 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:JvmName("XmlUtil")
+@file:JvmMultifileClass
+
 package nl.adaptivity.xml
 
-import nl.adaptivity.xml.XmlException
-import nl.adaptivity.xml.XmlReader
-
+import java.io.StringReader
+import java.util.*
 import javax.xml.namespace.QName
 
 
@@ -46,4 +48,25 @@ interface XmlDeserializable {
   fun onBeforeDeserializeChildren(`in`: XmlReader)
 
   val elementName: QName
+}
+
+
+/**
+ * Utility method to deserialize a list of xml containing strings
+ * @param input The strings to deserialize
+ * *
+ * @param type The type that contains the factory to deserialize
+ * *
+ * @param  The type
+ * *
+ * @return A list of deserialized objects.
+ * *
+ * @throws XmlException If deserialization fails anywhere.
+ */
+@Throws(XmlException::class)
+fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
+  val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
+  val factory: XmlDeserializerFactory<*> = deserializer.value.java.newInstance() as XmlDeserializerFactory<*>
+
+  return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }
 }
