@@ -170,6 +170,7 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
 
   companion object {
 
+    @JvmStatic
     fun from(originalNSContext: Iterable<Namespace>?): SimpleNamespaceContext? {
       if (originalNSContext is SimpleNamespaceContext) {
         return originalNSContext

@@ -19,6 +19,10 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.xml.ExtXmlDeserializable
+import nl.adaptivity.util.xml.SimpleXmlDeserializable
+import nl.adaptivity.util.xml.XmlUtil
+import nl.adaptivity.xml.XmlStreaming.EventType
 import java.io.StringReader
 import java.util.*
 import javax.xml.namespace.QName
@@ -69,4 +73,40 @@ fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
   val factory: XmlDeserializerFactory<*> = deserializer.value.java.newInstance() as XmlDeserializerFactory<*>
 
   return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }
+}
+
+
+@Throws(XmlException::class)
+fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
+  reader.skipPreamble()
+
+  val elementName = elementName
+  assert(reader.isElement(elementName)) { "Expected " + elementName + " but found " + reader.localName }
+
+  for (i in reader.attributeIndices.reversed()) {
+    deserializeAttribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i), reader.getAttributeValue(i))
+  }
+
+  onBeforeDeserializeChildren(reader)
+
+  if (this is SimpleXmlDeserializable) {
+    loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
+      when (reader.eventType) {
+        EventType.START_ELEMENT          -> if (! deserializeChild(reader)) reader.unhandledEvent()
+        EventType.TEXT, EventType.CDSECT -> if (! deserializeChildText(reader.text)) reader.unhandledEvent()
+      // If the text was not deserialized, then just fall through
+        else                             -> reader.unhandledEvent()
+      }
+    }
+  } else if (this is ExtXmlDeserializable) {
+    deserializeChildren(reader)
+
+    if (XmlUtil::class.java.desiredAssertionStatus()) reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
+
+  } else {// Neither, means ignore children
+    if (!isXmlWhitespace(reader.siblingsToFragment().content)) {
+      throw XmlException("Unexpected child content in element")
+    }
+  }
+  return this
 }
