@@ -32,7 +32,7 @@ import javax.xml.transform.Result
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
-class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
+class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter() {
   override var depth:Int = 0
     private set
 
@@ -55,7 +55,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?) {
     depth++
     try {
-      mDelegate.writeStartElement(prefix.asString(), localName.toString(), namespace.asString())
+      delegate.writeStartElement(prefix.asString(), localName.toString(), namespace.asString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -66,7 +66,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   override fun endTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?) {
     // TODO add verifying assertions
     try {
-      mDelegate.writeEndElement()
+      delegate.writeEndElement()
       depth--
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -78,7 +78,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   override fun endDocument() {
     assert(depth == 0) // Don't write this until really the end of the document
     try {
-      mDelegate.writeEndDocument()
+      delegate.writeEndDocument()
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -94,7 +94,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun close() {
     try {
-      mDelegate.close()
+      delegate.close()
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -104,7 +104,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun flush() {
     try {
-      mDelegate.flush()
+      delegate.flush()
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -115,9 +115,9 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   override fun attribute(namespace: CharSequence?, name: CharSequence, prefix: CharSequence?, value: CharSequence) {
     try {
       if (namespace.isNullOrEmpty() || prefix.isNullOrEmpty()) {
-        mDelegate.writeAttribute(name.asString(), value.asString())
+        delegate.writeAttribute(name.asString(), value.asString())
       } else {
-        mDelegate.writeAttribute(namespace.asString(), name.toString(), value.toString())
+        delegate.writeAttribute(namespace.asString(), name.toString(), value.toString())
       }
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -145,7 +145,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   @Throws(XmlException::class)
   override fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) = try {
-    mDelegate.writeNamespace(namespacePrefix.toString(), namespaceUri.toString())
+    delegate.writeNamespace(namespacePrefix.toString(), namespaceUri.toString())
   } catch (e: XMLStreamException) {
     throw XmlException(e)
   }
@@ -153,7 +153,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun comment(text: CharSequence) {
     try {
-      mDelegate.writeComment(text.toString())
+      delegate.writeComment(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -172,9 +172,9 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
     val split = textStr.indexOf(' ')
     try {
       if (split > 0) {
-        mDelegate.writeProcessingInstruction(textStr.substring(0, split), textStr.substring(split, text.length))
+        delegate.writeProcessingInstruction(textStr.substring(0, split), textStr.substring(split, text.length))
       } else {
-        mDelegate.writeProcessingInstruction(text.toString())
+        delegate.writeProcessingInstruction(text.toString())
       }
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -197,7 +197,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun cdsect(text: CharSequence) {
     try {
-      mDelegate.writeCData(text.toString())
+      delegate.writeCData(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -213,7 +213,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun docdecl(text: CharSequence) {
     try {
-      mDelegate.writeDTD(text.toString())
+      delegate.writeDTD(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -229,7 +229,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun entityRef(text: CharSequence) {
     try {
-      mDelegate.writeEntityRef(text.toString())
+      delegate.writeEntityRef(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -245,9 +245,9 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun startDocument(version: CharSequence?, encoding: CharSequence?, standalone: Boolean?) {
     try {
-      if (standalone != null && _writeStartDocument !=null && _XMLStreamWriter!!.isInstance(mDelegate)) {
+      if (standalone != null && _writeStartDocument !=null && _XMLStreamWriter!!.isInstance(delegate)) {
         try {
-          _writeStartDocument.invoke(mDelegate, version.toString(), encoding.toString(), standalone)
+          _writeStartDocument.invoke(delegate, version.toString(), encoding.toString(), standalone)
         } catch (e: IllegalAccessException) {
           throw RuntimeException(e)
         } catch (e: InvocationTargetException) {
@@ -255,7 +255,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
         }
 
       } else {
-        mDelegate.writeStartDocument(encoding.toString(), version.toString()) // standalone doesn't work
+        delegate.writeStartDocument(encoding.toString(), version.toString()) // standalone doesn't work
       }
     } catch (e: XMLStreamException) {
       throw XmlException(e)
@@ -271,7 +271,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun text(text: CharSequence) {
     try {
-      mDelegate.writeCharacters(text.toString())
+      delegate.writeCharacters(text.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -281,7 +281,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun getPrefix(namespaceUri: CharSequence?): CharSequence? {
     try {
-      return mDelegate.getPrefix(namespaceUri.asString())
+      return delegate.getPrefix(namespaceUri.asString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -291,7 +291,7 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
   @Throws(XmlException::class)
   override fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) {
     try {
-      mDelegate.setPrefix(prefix.toString(), namespaceUri.toString())
+      delegate.setPrefix(prefix.toString(), namespaceUri.toString())
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -300,15 +300,15 @@ class StAXWriter(private val mDelegate: XMLStreamWriter) : AbstractXmlWriter() {
 
   @Throws(XmlException::class)
   override fun getNamespaceUri(prefix: CharSequence): CharSequence? {
-    return mDelegate.namespaceContext.getNamespaceURI(prefix.toString())
+    return delegate.namespaceContext.getNamespaceURI(prefix.toString())
   }
 
   override var namespaceContext: NamespaceContext
-    get() = mDelegate.namespaceContext
+    get() = delegate.namespaceContext
     @Throws(XmlException::class)
     set(context) = if (depth == 0) {
       try {
-        mDelegate.namespaceContext = context
+        delegate.namespaceContext = context
       } catch (e: XMLStreamException) {
         throw XmlException(e)
       }
