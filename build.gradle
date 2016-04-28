@@ -59,6 +59,7 @@ configurations {
     tomcatWars
     tomcatClasspath
     androidApps
+    wsDoc
 }
 
 dependencies {
@@ -74,8 +75,47 @@ dependencies {
 
     androidApps project(':android-auth')
     androidApps project(':PMEditor')
+
+    wsDoc project(path: "ProcessEngine:servlet", configuration: 'wsDocOutput')
+    wsDoc project(path: "PEUserMessageHandler", configuration: 'wsDocOutput')
 }
 
+def soapTarget = file("wiki/SOAP")
+if (soapTarget.isDirectory()) {
+    task wsDoc(type: Copy) {
+        group = "documentation"
+        dependsOn configurations.wsDoc
+        destinationDir = file("wiki")
+
+        into('.') {
+            from files({ dependsOn.findAll{dep -> dep instanceof Configuration } })
+//            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
+            include '**/SOAP/*.md'
+            exclude '**/*InternalEndpointImpl.md'
+            rename { path ->
+                def file = path.substring(path.lastIndexOf('/')+1)
+                def extPos = file.lastIndexOf('.')
+                def dotPos = file.lastIndexOf('.', extPos -1) // we want the second last dot, the last is the extension one
+                if (dotPos >= 0) {
+                    file.substring(dotPos + 1, extPos)+"_SOAP.md"
+                } else file
+            }
+        }
+
+        into('.') {
+            from files({ dependsOn.findAll{dep -> dep instanceof Configuration } })
+            include '**/REST/*.md'
+            rename { path ->
+                def file = path.substring(path.lastIndexOf('/')+1)
+                def dotPos = file.lastIndexOf('.', file.lastIndexOf('.')-1) // we want the second last dot, the last is the extension one
+                def extPos = file.lastIndexOf('.')
+                if (dotPos >= 0) {
+                    file.substring(dotPos + 1, extPos)+"_REST.md"
+                } else file
+            }
+        }
+    }
+}
 
 task copyTomcatWars(type:Copy) {
     group = "dist"
