@@ -49,7 +49,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   }
 
   @Throws(XMLStreamException::class)
-  constructor(inputStream: InputStream, encoding: String) : this(XMLInputFactory.newFactory().createXMLStreamReader(
+  constructor(inputStream: InputStream, encoding: String?) : this(XMLInputFactory.newFactory().createXMLStreamReader(
         inputStream,
         encoding)) {
   }
