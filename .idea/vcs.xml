@@ -6,6 +6,7 @@
     <mapping directory="$PROJECT_DIR$/darwinlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/gh-pages" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/kotlinsql" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webeditor" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/wiki" vcs="Git" />
   </component>
 </project>

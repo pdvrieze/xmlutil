@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="webeditor" pattern="file[webeditor]:*/" />
+</component>
