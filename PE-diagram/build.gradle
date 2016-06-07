@@ -25,18 +25,40 @@ description = 'A library that contains the shared code for diagrams that is not 
 
 //group = ['shared', 'process' ]
 
+configurations {
+    imageGenCompile {
+        extendsFrom(compile)
+    }
+}
+
+def imageGenDir=new File(buildDir, 'images');
 
 sourceSets {
     main {
         java {
-            srcDir 'src'
+            srcDir 'src/main/java'
         }
     }
-
+    imageGen {
+        java {
+            srcDir 'src/imagegen/java'
+        }
+    }
 }
 
+task imageGen(type:JavaExec, dependsOn: configurations.imageGenCompile) {
+    classpath = sourceSets.imageGen.runtimeClasspath
+    main = "nl.adaptivity.process.diagram.ImageGen"
+    workingDir = imageGenDir
+
+    doFirst {
+        if (! imageGenDir.exists()) { imageGenDir.mkdirs() }
+    }
+}
 
 dependencies {
     compile project(':PE-common')
     compileOnly project(path: ':PE-common', configuration:'compileOnly')
+    imageGenCompile project(':PE-diagram')
+    imageGenRuntime project(':xmlutil:jvm')
 }
