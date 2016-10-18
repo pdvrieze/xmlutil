@@ -15,9 +15,9 @@
  */
 
 buildscript {
-    ext.androidPluginVersion = '2.1.0'
-    ext.kotlin_version = '1.0.2'
-    ext.kotlinx_html_version = '0.5.9'
+    ext.androidPluginVersion = '2.2.1'
+    ext.kotlin_version = '1.0.4'
+    ext.kotlinx_html_version = '0.5.11'
     ext.codegen_version = '0.5.8'
     repositories {
         mavenLocal()
@@ -48,8 +48,8 @@ description = 'The overall project that manages all artefacts of the processmana
 
 ext {
     tomcatVersion = '7.0.68'
-    androidCompatVersion = '23.4.0'
-    androidBuildToolsVersion = '23.0.3'
+    androidCompatVersion = '24.2.1'
+    androidBuildToolsVersion = '24.0.2'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
