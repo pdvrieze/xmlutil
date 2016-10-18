@@ -323,7 +323,7 @@ class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter() {
     internal val _writeStartDocument: Method?
 
     init {
-      val clazz: Class<*>?
+      var clazz: Class<*>?
       var m: Method? = null
       try {
         clazz = StAXWriter::class.java.classLoader.loadClass("org.codehaus.stax2.XMLStreamWriter")
