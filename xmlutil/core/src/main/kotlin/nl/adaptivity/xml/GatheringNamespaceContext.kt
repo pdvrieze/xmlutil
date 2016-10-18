@@ -16,6 +16,7 @@
 
 package nl.adaptivity.xml
 
+import java.util.*
 import javax.xml.XMLConstants
 import javax.xml.XMLConstants.*
 import javax.xml.namespace.NamespaceContext
@@ -25,10 +26,10 @@ import javax.xml.namespace.NamespaceContext
  * Class that gathers namespace queries and records them in the given map.
  * Created by pdvrieze on 20/10/15.
  */
-class GatheringNamespaceContext(private val parentContext: NamespaceContext, private val resultMap: MutableMap<String, String>) : NamespaceContext {
+class GatheringNamespaceContext(private val parentContext: NamespaceContext?, private val resultMap: MutableMap<String, String>) : NamespaceContext {
 
   override fun getNamespaceURI(prefix: String): String? {
-    return parentContext.getNamespaceURI(prefix)?.apply {
+    return parentContext?.getNamespaceURI(prefix)?.apply {
       if (! isEmpty() && prefix!=XMLNS_ATTRIBUTE) {
         resultMap.put(prefix, this)
       }
@@ -36,7 +37,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext, pri
   }
 
   override fun getPrefix(namespaceURI: String): String? {
-    return parentContext.getPrefix(namespaceURI)?.apply {
+    return parentContext?.getPrefix(namespaceURI)?.apply {
       if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
         resultMap.put(this, namespaceURI)
       }
@@ -45,6 +46,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext, pri
 
   @Suppress("UNCHECKED_CAST")// Somehow this type has no proper generic parameter
   override fun getPrefixes(namespaceURI: String): Iterator<String> {
+    if (parentContext==null) { return Collections.emptyIterator() }
     if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
 
       val it = parentContext.getPrefixes(namespaceURI) as Iterator<String>
