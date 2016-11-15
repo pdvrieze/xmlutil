@@ -10,6 +10,10 @@
       </option>
       <option name="nonThreadSafeTypes" value="" />
     </inspection_tool>
+    <inspection_tool class="AndroidKLintNewApi" enabled="true" level="UNUSED ENTRY" enabled_by_default="true">
+      <scope name="androidable" level="ERROR" enabled="true" />
+      <scope name="AndroidProjects" level="ERROR" enabled="true" />
+    </inspection_tool>
     <inspection_tool class="AndroidLintInlinedApi" enabled="true" level="WARNING" enabled_by_default="false">
       <scope name="AndroidModules" level="WARNING" enabled="true" />
     </inspection_tool>
