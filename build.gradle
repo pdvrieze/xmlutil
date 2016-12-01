@@ -173,7 +173,7 @@ allprojects {
 
 idea{
     project {
-        languageLevel = '1.7'
+        languageLevel = JavaVersion.VERSION_1_7
     }
     module {
         downloadSources = true

@@ -13,3 +13,4 @@ build
 .idea/gradle.xml
 captures
 /*/gen
+wiki
