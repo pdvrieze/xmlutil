@@ -15,7 +15,7 @@
  */
 
 buildscript {
-    ext.androidPluginVersion = '2.2.2'
+    ext.androidPluginVersion = '2.3.0-alpha2'
     ext.kotlin_version = '1.0.5-2'
     ext.kotlinx_html_version = '0.5.12'
     ext.codegen_version = '0.5.8'
@@ -47,7 +47,7 @@ description = 'The overall project that manages all artefacts of the processmana
 ext {
     tomcatVersion = '7.0.68'
     androidCompatVersion = '24.2.1'
-    androidBuildToolsVersion = '24.0.3'
+    androidBuildToolsVersion = '25.0.0'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
@@ -61,7 +61,7 @@ configurations {
     androidApps
     wsDoc
 }
-
+/*
 dependencies {
     tomcatWars project(path: ":ProcessEngine:servlet", configuration: 'archives')
     tomcatWars project(path: ":PEUserMessageHandler", configuration: 'archives')
@@ -79,7 +79,7 @@ dependencies {
     wsDoc project(path: "ProcessEngine:servlet", configuration: 'wsDocOutput')
     wsDoc project(path: "PEUserMessageHandler", configuration: 'wsDocOutput')
 }
-
+*/
 def soapTarget = file("wiki/SOAP")
 if (soapTarget.isDirectory()) {
     task wsDoc(type: Copy) {
@@ -142,10 +142,6 @@ task copyAndroid(type:Copy) {
 task dist {
     group = "dist"
     dependsOn copyTomcatWars, copyTomcatClasspath, copyAndroid
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
 }
 
 task run(dependsOn: [':PE-server:tomcatRun'], type:DefaultTask) {
