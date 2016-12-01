@@ -51,6 +51,8 @@ ext {
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
+
+    myJavaVersion = JavaVersion.VERSION_1_7
 }
 
 configurations {
@@ -175,7 +177,7 @@ allprojects {
 
 idea{
     project {
-        languageLevel = '1.8'
+        languageLevel = '1.7'
     }
     module {
         downloadSources = true

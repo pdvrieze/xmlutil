@@ -34,8 +34,8 @@ jar {
     baseName = "${project.parent.name}-${project.name}"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = myJavaVersion
+targetCompatibility = myJavaVersion
 
 idea {
     module {
