@@ -15,7 +15,7 @@
  */
 
 buildscript {
-    ext.androidPluginVersion = '2.3.0-alpha2'
+    ext.androidPluginVersion = '2.2.2'
     ext.kotlin_version = '1.0.5-2'
     ext.kotlinx_html_version = '0.5.12'
     ext.codegen_version = '0.5.8'
@@ -61,7 +61,7 @@ configurations {
     androidApps
     wsDoc
 }
-/*
+
 dependencies {
     tomcatWars project(path: ":ProcessEngine:servlet", configuration: 'archives')
     tomcatWars project(path: ":PEUserMessageHandler", configuration: 'archives')
@@ -79,7 +79,7 @@ dependencies {
     wsDoc project(path: "ProcessEngine:servlet", configuration: 'wsDocOutput')
     wsDoc project(path: "PEUserMessageHandler", configuration: 'wsDocOutput')
 }
-*/
+
 def soapTarget = file("wiki/SOAP")
 if (soapTarget.isDirectory()) {
     task wsDoc(type: Copy) {
