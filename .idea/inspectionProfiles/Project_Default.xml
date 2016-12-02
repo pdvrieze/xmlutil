@@ -10,7 +10,7 @@
       </option>
       <option name="nonThreadSafeTypes" value="" />
     </inspection_tool>
-    <inspection_tool class="AndroidKLintNewApi" enabled="true" level="UNUSED ENTRY" enabled_by_default="true">
+    <inspection_tool class="AndroidKLintNewApi" enabled="true" level="WARNING" enabled_by_default="true">
       <scope name="androidable" level="WARNING" enabled="true" />
       <scope name="AndroidProjects" level="ERROR" enabled="true" />
     </inspection_tool>
@@ -89,7 +89,6 @@
     <inspection_tool class="ForLoopReplaceableByWhile" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_ignoreLoopsWithoutConditions" value="false" />
     </inspection_tool>
-    <inspection_tool class="GroovyAssignabilityCheck" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GroovyUnusedAssignment" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="IOResource" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredTypesString" value="java.io.ByteArrayOutputStream,java.io.ByteArrayInputStream,java.io.StringBufferInputStream,java.io.CharArrayWriter,java.io.CharArrayReader,java.io.StringWriter,java.io.StringReader" />
