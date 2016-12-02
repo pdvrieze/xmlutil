@@ -47,7 +47,7 @@ interface XmlDeserializable {
 
   /** Listener called just before the children are deserialized. After attributes have been processed.  */
   @Throws(XmlException::class)
-  fun onBeforeDeserializeChildren(`in`: XmlReader)
+  fun onBeforeDeserializeChildren(reader: XmlReader)
 
   val elementName: QName
 }
