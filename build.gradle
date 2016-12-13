@@ -18,7 +18,8 @@ buildscript {
     ext.androidPluginVersion = '2.2.2'
     ext.kotlin_version = '1.1-M03'
     ext.kotlin_plugin_version = '1.1-M03'
-    ext.kotlinx_html_version = '0.5.12'
+//    ext.kotlinx_html_version = '0.5.12'
+    ext.kotlinx_html_version = 'latest-1.1.0-dev-5287-124'
     ext.codegen_version = '0.5.8'
     repositories {
         mavenLocal()
@@ -162,6 +163,9 @@ allprojects {
     repositories {
         mavenLocal()
         jcenter()
+        maven() {
+            url="https://dl.bintray.com/kotlin/kotlin-dev"
+        }
         maven() {
             url="https://dl.bintray.com/kotlin/kotlinx.html"
         }
