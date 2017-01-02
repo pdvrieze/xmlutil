@@ -10,21 +10,20 @@
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with Foobar.  If not,
+ * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
 
 package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.asString
+import nl.adaptivity.xml.XmlStreaming.EventType
+import java.io.InputStream
+import java.io.Reader
 import javax.xml.namespace.NamespaceContext
 import javax.xml.namespace.QName
 import javax.xml.stream.*
 import javax.xml.transform.Source
-
-import java.io.InputStream
-import java.io.Reader
-import nl.adaptivity.xml.XmlStreaming.EventType
 
 
 /**
