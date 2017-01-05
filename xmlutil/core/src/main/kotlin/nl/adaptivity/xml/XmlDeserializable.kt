@@ -43,11 +43,11 @@ interface XmlDeserializable {
    */
   fun deserializeAttribute(attributeNamespace: CharSequence,
                            attributeLocalName: CharSequence,
-                           attributeValue: CharSequence): Boolean
+                           attributeValue: CharSequence): Boolean = false
 
   /** Listener called just before the children are deserialized. After attributes have been processed.  */
   @Throws(XmlException::class)
-  fun onBeforeDeserializeChildren(reader: XmlReader)
+  fun onBeforeDeserializeChildren(reader: XmlReader) {}
 
   val elementName: QName
 }
