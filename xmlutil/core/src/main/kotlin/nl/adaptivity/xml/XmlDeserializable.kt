@@ -49,6 +49,7 @@ interface XmlDeserializable {
   @Throws(XmlException::class)
   fun onBeforeDeserializeChildren(reader: XmlReader) {}
 
+  /** The name of the element, needed for the automated validation */
   val elementName: QName
 }
 
