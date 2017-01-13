@@ -37,19 +37,16 @@ class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter() {
     private set
 
   @Throws(XMLStreamException::class)
-  constructor(writer: Writer, repairNamespaces: Boolean) : this(newFactory(repairNamespaces).createXMLStreamWriter(
-        writer)) {
-  }
+  constructor(writer: Writer, repairNamespaces: Boolean)
+    : this(newFactory(repairNamespaces).createXMLStreamWriter(writer))
 
   @Throws(XMLStreamException::class)
-  constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean) : this(newFactory(
-        repairNamespaces).createXMLStreamWriter(outputStream, encoding)) {
-  }
+  constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean)
+    : this(newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding))
 
   @Throws(XMLStreamException::class)
-  constructor(result: Result, repairNamespaces: Boolean) : this(newFactory(repairNamespaces).createXMLStreamWriter(
-        result)) {
-  }
+  constructor(result: Result, repairNamespaces: Boolean)
+    : this(newFactory(repairNamespaces).createXMLStreamWriter(result))
 
   @Throws(XmlException::class)
   override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?) {
@@ -341,7 +338,7 @@ class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter() {
 
     private fun newFactory(repairNamespaces: Boolean): XMLOutputFactory {
       val xmlOutputFactory = XMLOutputFactory.newFactory()
-      if (repairNamespaces) xmlOutputFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, true)
+      xmlOutputFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, repairNamespaces)
       return xmlOutputFactory
     }
 
