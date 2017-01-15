@@ -23,7 +23,7 @@ buildscript {
     ext.codegen_version = '0.5.8'
     ext.junit5_version='1.0.0-M3'
     ext.jupiterVersion = '5.0.0-M3'
-    ext.spekVersion = '1.1.0-beta2'
+    ext.spekVersion = '1.1.0-beta3'
     repositories {
         mavenLocal()
         jcenter()
@@ -174,7 +174,9 @@ allprojects {
         }
         maven {
             url='https://dl.bintray.com/kotlin/kotlin-eap-1.1'
-
+        }
+        maven {
+            url='https://dl.bintray.com/jetbrains/spek'
         }
     }
 //
