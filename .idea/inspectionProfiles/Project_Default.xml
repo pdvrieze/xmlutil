@@ -10,7 +10,7 @@
       </option>
       <option name="nonThreadSafeTypes" value="" />
     </inspection_tool>
-    <inspection_tool class="AndroidKLintNewApi" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="AndroidKLintNewApi" enabled="true" level="WARNING" enabled_by_default="false">
       <scope name="androidable" level="WARNING" enabled="true" />
       <scope name="AndroidProjects" level="ERROR" enabled="true" />
     </inspection_tool>
@@ -18,6 +18,7 @@
       <scope name="AndroidModules" level="WARNING" enabled="true" />
     </inspection_tool>
     <inspection_tool class="AndroidLintNewApi" enabled="true" level="ERROR" enabled_by_default="false">
+      <scope name="androidable" level="WARNING" enabled="true" />
       <scope name="AndroidModules" level="ERROR" enabled="true" />
     </inspection_tool>
     <inspection_tool class="ArrayEquality" enabled="true" level="WARNING" enabled_by_default="true" />
