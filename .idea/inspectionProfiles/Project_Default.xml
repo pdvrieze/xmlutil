@@ -247,7 +247,7 @@
     <inspection_tool class="NonShortCircuitBoolean" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="ObjectToString" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PackageNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="m_regex" value="[a-z][A-Za-z]*" />
+      <option name="m_regex" value="[a-z][A-Za-z]*(\.[a-z][A-Z]*)*" />
       <option name="m_minLength" value="2" />
       <option name="m_maxLength" value="16" />
     </inspection_tool>
