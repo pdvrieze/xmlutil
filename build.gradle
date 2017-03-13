@@ -16,10 +16,10 @@
 
 buildscript {
     ext.androidPluginVersion = '2.3.0-rc1'
-    ext.kotlin_version = '1.1.0-rc-91'
+    ext.kotlin_version = '1.1.0'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
-    ext.kotlinx_html_version = 'latest-1.1.0-rc-69-9'
+    ext.kotlinx_html_version = '0.6.2'
     ext.codegen_version = '0.5.8'
     ext.junit5_version='1.0.0-M3'
     ext.jupiterVersion = '5.0.0-M3'
@@ -57,6 +57,7 @@ ext {
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
+    requirejs_version = '2.3.2'
 
     myJavaVersion = JavaVersion.VERSION_1_7
 }
@@ -171,9 +172,9 @@ allprojects {
         maven() {
             url="https://dl.bintray.com/kotlin/kotlinx.html"
         }
-        maven {
-            url='https://dl.bintray.com/kotlin/kotlin-eap-1.1'
-        }
+//        maven {
+//            url='https://dl.bintray.com/kotlin/kotlin-eap-1.1'
+//        }
         maven {
             url='https://dl.bintray.com/jetbrains/spek'
         }
