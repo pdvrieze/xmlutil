@@ -3,4 +3,8 @@
   <component name="Kotlin2JsCompilerArguments">
     <option name="sourceMap" value="true" />
   </component>
+  <component name="KotlinCommonCompilerArguments">
+    <option name="languageVersion" value="1.1" />
+    <option name="apiVersion" value="1.1" />
+  </component>
 </project>

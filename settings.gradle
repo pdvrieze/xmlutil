@@ -16,9 +16,6 @@
 
 rootProject.name = "ProcessManager"
 include ':DarwinGenerators'
-include ':android-auth'
-include ':PMEditor'
-include ':darwinlib'
 include ':java-common'
 include ':DarwinClients'
 include ':DarwinCommon'
@@ -45,7 +42,14 @@ include ':kotlinsql'
 include ':structurizr'
 include ':xmlutil:core'
 include ':xmlutil:jvm'
-include ':xmlutil:android'
 include ':xmlutil:generator'
 include ':TestSupport'
 include ':webeditor'
+
+// Android modules
+if (Boolean.valueOf(androidEnabledProp)) {
+    include ':xmlutil:android'
+    include ':android-auth'
+    include ':PMEditor'
+    include ':darwinlib'
+}

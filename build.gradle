@@ -16,7 +16,7 @@
 
 buildscript {
     ext.androidPluginVersion = '2.3.0-rc1'
-    ext.kotlin_version = '1.1.0'
+    ext.kotlin_version = '1.1.1'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.2'
@@ -65,7 +65,9 @@ ext {
 configurations {
     tomcatWars
     tomcatClasspath
-    androidApps
+    if (androidEnabled) {
+        androidApps
+    }
     wsDoc
 }
 
@@ -80,8 +82,10 @@ dependencies {
     tomcatClasspath project(':JavaCommonApi')
     tomcatClasspath project(':DarwinRealm')
 
-    androidApps project(':android-auth')
-    androidApps project(':PMEditor')
+    if (Boolean.valueOf(androidEnabledProp)) {
+        androidApps project(':android-auth')
+        androidApps project(':PMEditor')
+    }
 
     wsDoc project(path: "ProcessEngine:servlet", configuration: 'wsDocOutput')
     wsDoc project(path: "PEUserMessageHandler", configuration: 'wsDocOutput')
@@ -139,16 +143,21 @@ task copyTomcatClasspath(type:Copy) {
     exclude { file -> file.name.contains("tomcat-servlet-api") }
 }
 
-task copyAndroid(type:Copy) {
-    group = "dist"
-    dependsOn configurations.androidApps
-    from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
-    into "${collectDir}/androidApps/"
+if (Boolean.valueOf(androidEnabledProp)) {
+    task copyAndroid(type: Copy) {
+        group = "dist"
+        dependsOn configurations.androidApps
+        from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
+        into "${collectDir}/androidApps/"
+    }
 }
 
 task dist {
     group = "dist"
-    dependsOn copyTomcatWars, copyTomcatClasspath, copyAndroid
+    dependsOn copyTomcatWars, copyTomcatClasspath
+    if (Boolean.valueOf(androidEnabledProp)) {
+        dependsOn copyAndroid
+    }
 }
 
 task run(dependsOn: [':PE-server:tomcatRun'], type:DefaultTask) {
