@@ -76,6 +76,9 @@ dependencies {
     tomcatWars project(path: ":PEUserMessageHandler", configuration: 'archives')
     tomcatWars project(path: ":accountmgr", configuration: 'archives')
     tomcatWars project(path: ":darwin:jvm", configuration: 'warConfig')
+    tomcatWars project(path: ":webeditor", configuration: 'archives')
+    tomcatWars project(path: ":DarwinServices", configuration: 'archives')
+
 
     tomcatClasspath 'mysql:mysql-connector-java:5.1.36'
     tomcatClasspath project(':DarwinJavaApi')
