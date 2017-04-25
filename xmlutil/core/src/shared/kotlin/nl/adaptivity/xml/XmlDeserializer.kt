@@ -16,22 +16,16 @@
 
 package nl.adaptivity.xml
 
-import java.io.IOException
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import kotlin.reflect.KClass
+
 
 /**
- * Simple exception for xml related things.
- * Created by pdvrieze on 15/11/15.
+ * Annotation that specifies the Deserializer for this type.
+
+ * Created by pdvrieze on 27/08/15.
  */
-class XmlException : IOException
-{
-
-  constructor() { }
-
-  constructor(message: String) : super(message)
-
-  constructor(message: String, cause: Throwable) : super(message, cause)
-
-  constructor(cause: Throwable) : super(cause)
-
-  constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
-}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)

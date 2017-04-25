@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -13,31 +13,30 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
-
-@file:JvmName("XmlUtil")
-@file:JvmMultifileClass
-
+@file:JvmName("XmlSerializableExt")
 package nl.adaptivity.xml
 
+import nl.adaptivity.xml.XmlSerializable
+import nl.adaptivity.xml.XmlStreaming
 import java.io.*
 
-
-interface XmlSerializable {
-
-  /**
-   * Write the object to an xml stream. The object is expected to write itself and its children.
-   * @param out The stream to write to.
-   * *
-   * @throws XmlException When something breaks.
-   */
-  @Throws(XmlException::class)
-  fun serialize(out: XmlWriter)
-
+/**
+ * Extension functions for writing that need different js/jvm implementations
+ */
+fun XmlSerializable.toCharArray(): CharArray
+{
+  val caw = CharArrayWriter()
+  XmlStreaming.newWriter(caw).use { writer ->
+    serialize(writer)
+  }
+  return caw.toCharArray()
 }
 
 
+
 @Throws(XmlException::class)
-fun XmlSerializable.toReader(): Reader {
+fun XmlSerializable.toReader(): Reader
+{
   val buffer = CharArrayWriter()
   XmlStreaming.newWriter(buffer).use {
     serialize(it)

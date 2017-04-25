@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017. 
  *
  * This file is part of ProcessManager.
  *
- * ProcessManager is free software: you can redistribute it and/or modify it under the terms of version 3 of the
+ * ProcessManager is free software: you can redistribute it and/or modify it under the terms of version 3 of the 
  * GNU Lesser General Public License as published by the Free Software Foundation.
  *
  * ProcessManager is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
@@ -16,8 +16,12 @@
 
 package nl.adaptivity.xml
 
-import java.util.*
-import javax.xml.XMLConstants.*
+import javax.xml.XMLConstants.NULL_NS_URI
+import javax.xml.XMLConstants.XMLNS_ATTRIBUTE
+import javax.xml.XMLConstants.XML_NS_PREFIX
+import javax.xml.XMLConstants.XML_NS_URI
+import javax.xml.XMLConstants.DEFAULT_NS_PREFIX
+import javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import javax.xml.namespace.NamespaceContext
 
 
@@ -27,56 +31,55 @@ import javax.xml.namespace.NamespaceContext
  */
 class NamespaceHolder {
 
-  private var mNamespaces = arrayOfNulls<String>(10)
-  private var mNamespaceCounts = IntArray(20)
+  private var nameSpaces = arrayOfNulls<String>(10)
+  private var namespaceCounts = IntArray(20)
   var depth = 0
     private set
 
   fun incDepth() {
     ++depth
-    if (depth >= mNamespaceCounts.size) {
-      mNamespaceCounts = Arrays.copyOf(mNamespaceCounts, mNamespaceCounts.size*2)
+    if (depth >= namespaceCounts.size) {
+      namespaceCounts = namespaceCounts.copyOf(namespaceCounts.size * 2)
     }
-    mNamespaceCounts[depth] = mNamespaceCounts[depth - 1]
+    namespaceCounts[depth] = namespaceCounts[depth - 1]
   }
 
   fun decDepth() {
-    Arrays.fill(mNamespaces,
-                /*fromIndex =*/ if (depth == 0) 0 else arrayUseAtDepth(depth-1),
-                /*toIndex =*/ arrayUseAtDepth(depth),
-                /*`val` =*/ null) // Clear out all unused namespaces
-    mNamespaceCounts[depth] = 0
+    nameSpaces.fill(element = null,
+                    fromIndex = if (depth == 0) 0 else arrayUseAtDepth(depth-1),
+                    toIndex = arrayUseAtDepth(depth)) // Clear out all unused namespaces
+    namespaceCounts[depth] = 0
     --depth
   }
 
   val totalNamespaceCount:Int
-    get() = mNamespaceCounts[depth]
+    get() = namespaceCounts[depth]
 
   private fun arrayUseAtDepth(depth:Int) =
-    mNamespaceCounts[depth]*2
+    namespaceCounts[depth] * 2
 
   private fun prefixArrayPos(pairPos:Int) = pairPos*2
 
   private fun nsArrayPos(pairPos:Int) = pairPos*2+1
 
   private fun setPrefix(pos:Int, value:CharSequence?) {
-    mNamespaces[prefixArrayPos(pos)] = value?.toString() ?:""
+    nameSpaces[prefixArrayPos(pos)] = value?.toString() ?: ""
   }
 
   private fun getPrefix(pos:Int): CharSequence =
-    mNamespaces[prefixArrayPos(pos)]!!
+    nameSpaces[prefixArrayPos(pos)]!!
 
   private fun setNamespace(pos:Int, value:CharSequence?) {
-    mNamespaces[nsArrayPos(pos)] = value?.toString() ?:""
+    nameSpaces[nsArrayPos(pos)] = value?.toString() ?: ""
   }
 
   private fun getNamespace(pos:Int): CharSequence =
-        mNamespaces[nsArrayPos(pos)]!!
+        nameSpaces[nsArrayPos(pos)]!!
 
 
   fun clear() {
-    mNamespaces = arrayOfNulls<String>(10)
-    mNamespaceCounts = IntArray(20)
+    nameSpaces = arrayOfNulls<String>(10)
+    namespaceCounts = IntArray(20)
     depth = 0
   }
 
@@ -86,23 +89,23 @@ class NamespaceHolder {
 
 
   fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
-    val nextPair = mNamespaceCounts[depth]
-    if (nsArrayPos(nextPair) >= mNamespaces.size) enlargeNamespaceBuffer()
+    val nextPair = namespaceCounts[depth]
+    if (nsArrayPos(nextPair) >= nameSpaces.size) enlargeNamespaceBuffer()
 
     setPrefix(nextPair, prefix)
     setNamespace(nextPair, namespaceUri)
 
-    mNamespaceCounts[depth]++
+    namespaceCounts[depth]++
   }
 
   private fun enlargeNamespaceBuffer() {
-    mNamespaces = Arrays.copyOf(mNamespaces, mNamespaces.size*2)
+    nameSpaces = nameSpaces.copyOf(nameSpaces.size * 2)
   }
 
   // From first namespace
   val namespaceContext: NamespaceContext
     get() {
-      val pairs = mNamespaces.sliceArray(0..(arrayUseAtDepth(depth)-1)).requireNoNulls()
+      val pairs = nameSpaces.sliceArray(0..(arrayUseAtDepth(depth) - 1)).requireNoNulls()
       return SimpleNamespaceContext(pairs)
     }
 

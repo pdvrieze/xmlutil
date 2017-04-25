@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -16,8 +16,12 @@
 
 package nl.adaptivity.xml
 
-import java.util.*
-import javax.xml.XMLConstants.*
+import javax.xml.XMLConstants.NULL_NS_URI
+import javax.xml.XMLConstants.XMLNS_ATTRIBUTE
+import javax.xml.XMLConstants.XML_NS_PREFIX
+import javax.xml.XMLConstants.XML_NS_URI
+import javax.xml.XMLConstants.DEFAULT_NS_PREFIX
+import javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import javax.xml.namespace.NamespaceContext
 
 
@@ -61,16 +65,15 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
 
   val indices:IntRange get() = 0..(size-1)
 
-  val size:Int get() = buffer.size / 2
-
-  @Deprecated("There is a nice property now, use that", replaceWith = ReplaceWith("size"), level = DeprecationLevel.ERROR)
-  fun size(): Int = size
+  val size:Int
+    @JvmName("size")
+    get() = buffer.size / 2
 
   /**
    * Create a context that combines both. This will "forget" overlapped prefixes.
    */
   fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
-    val result = TreeMap<String, String>()
+    val result = mutableMapOf<String, String>()
     for (i in indices.reversed()) {
       result.put(getPrefix(i), getNamespaceURI(i))
     }
@@ -94,7 +97,7 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
     else if (other == null || !other.iterator().hasNext()) {
       return this
     }
-    val result = TreeMap<String, String>()
+    val result = mutableMapOf<String, String>()
     for (i in indices.reversed()) {
       result.put(getPrefix(i), getNamespaceURI(i))
     }
@@ -136,16 +139,16 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
   fun getPrefix(index: Int): String {
     try {
       return buffer[index * 2]
-    } catch (e: ArrayIndexOutOfBoundsException) {
-      throw ArrayIndexOutOfBoundsException(index)
+    } catch (e: IndexOutOfBoundsException) {
+      throw IndexOutOfBoundsException("Index out of range: $index")
     }
   }
 
   fun getNamespaceURI(index: Int): String {
     try {
       return buffer[index * 2 + 1]
-    } catch (e: ArrayIndexOutOfBoundsException) {
-      throw ArrayIndexOutOfBoundsException(index)
+    } catch (e: IndexOutOfBoundsException) {
+      throw IndexOutOfBoundsException("Index out of range: $index")
     }
   }
 
@@ -159,13 +162,13 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
 
     other as SimpleNamespaceContext
 
-    if (!Arrays.equals(buffer, other.buffer)) return false
+    if (!buffer.contentEquals(other.buffer)) return false
 
     return true
   }
 
   override fun hashCode(): Int{
-    return Arrays.hashCode(buffer)
+    return buffer.contentHashCode()
   }
 
   companion object {

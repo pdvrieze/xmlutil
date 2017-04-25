@@ -14,24 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.util.xml
 
-import java.io.IOException
+import nl.adaptivity.xml.*
+
 
 /**
- * Simple exception for xml related things.
- * Created by pdvrieze on 15/11/15.
+ * A class representing an xml fragment compactly.
+ * Created by pdvrieze on 06/11/15.2
  */
-class XmlException : IOException
+interface CompactFragment : XmlSerializable
 {
 
-  constructor() { }
+  val isEmpty: Boolean
+    get() = content.isEmpty()
 
-  constructor(message: String) : super(message)
+  val namespaces: SimpleNamespaceContext
+  val content: CharArray
 
-  constructor(message: String, cause: Throwable) : super(message, cause)
-
-  constructor(cause: Throwable) : super(cause)
-
-  constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
+  val contentString: String
 }

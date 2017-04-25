@@ -17,7 +17,7 @@
 package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.asString
-import nl.adaptivity.xml.XmlStreaming.EventType
+import nl.adaptivity.xml.EventType
 import java.io.InputStream
 import java.io.Reader
 import javax.xml.namespace.NamespaceContext
@@ -33,14 +33,11 @@ import javax.xml.transform.Source
 class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
   override var isStarted = false
-    private set(value: Boolean) {
-      field = value
-    }
+    private set
+
   private var mFixWhitespace = false
   override var depth = 0
-    private set(value: Int) {
-      field = value
-    }
+    private set
 
 
   @Throws(XMLStreamException::class)
@@ -170,24 +167,22 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     get() = QName(namespaceUri, localName, prefix)
 
   @Throws(XmlException::class)
-  override fun next(): EventType? {
+  override fun next(): EventType {
     isStarted = true
     try {
-      if (mDelegate.hasNext()) {
-        return updateDepth(fixWhitespace(delegateToLocal(mDelegate.next())))
-      } else {
-        return null
-      }
+      return updateDepth(fixWhitespace(delegateToLocal(mDelegate.next())))
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
 
   }
 
-  private fun delegateToLocal(eventType: Int) = DELEGATE_TO_LOCAL[eventType] ?: throw XmlException("Unsupported event type")
+  private fun delegateToLocal(eventType: Int) = DELEGATE_TO_LOCAL[eventType] ?: throw XmlException(
+    "Unsupported event type")
 
   @Throws(XmlException::class)
-  override fun nextTag(): EventType {
+  override fun nextTag(): EventType
+  {
     isStarted = true
     try {
       return updateDepth(fixWhitespace(delegateToLocal(mDelegate.nextTag())))
@@ -197,7 +192,8 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
   }
 
-  private fun fixWhitespace(eventType: EventType): EventType {
+  private fun fixWhitespace(eventType: EventType): EventType
+  {
     if (eventType === EventType.TEXT) {
       if (isXmlWhitespace(mDelegate.text)) {
         mFixWhitespace = true
@@ -209,9 +205,9 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   }
 
   private fun updateDepth(eventType: EventType) = when (eventType) {
-    XmlStreaming.EventType.START_ELEMENT -> { ++depth; eventType }
-    XmlStreaming.EventType.END_ELEMENT   -> { --depth; eventType }
-    else -> eventType
+    EventType.START_ELEMENT -> { ++depth; eventType }
+    EventType.END_ELEMENT   -> { --depth; eventType }
+    else                                      -> eventType
   }
 
   @Throws(XmlException::class)
@@ -324,19 +320,19 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
     private val LOCAL_TO_DELEGATE = IntArray(12) { i ->
       when (i) {
-        EventType.CDSECT.ordinal -> XMLStreamConstants.CDATA
-        EventType.COMMENT.ordinal -> XMLStreamConstants.COMMENT
-        EventType.DOCDECL.ordinal -> XMLStreamConstants.DTD
-        EventType.END_DOCUMENT.ordinal -> XMLStreamConstants.END_DOCUMENT
-        EventType.END_ELEMENT.ordinal -> XMLStreamConstants.END_ELEMENT
-        EventType.ENTITY_REF.ordinal -> XMLStreamConstants.ENTITY_REFERENCE
-        EventType.IGNORABLE_WHITESPACE.ordinal -> XMLStreamConstants.SPACE
+        EventType.CDSECT.ordinal                 -> XMLStreamConstants.CDATA
+        EventType.COMMENT.ordinal                -> XMLStreamConstants.COMMENT
+        EventType.DOCDECL.ordinal                -> XMLStreamConstants.DTD
+        EventType.END_DOCUMENT.ordinal           -> XMLStreamConstants.END_DOCUMENT
+        EventType.END_ELEMENT.ordinal            -> XMLStreamConstants.END_ELEMENT
+        EventType.ENTITY_REF.ordinal             -> XMLStreamConstants.ENTITY_REFERENCE
+        EventType.IGNORABLE_WHITESPACE.ordinal   -> XMLStreamConstants.SPACE
         EventType.PROCESSING_INSTRUCTION.ordinal -> XMLStreamConstants.PROCESSING_INSTRUCTION
-        EventType.START_DOCUMENT.ordinal -> XMLStreamConstants.START_DOCUMENT
-        EventType.START_ELEMENT.ordinal -> XMLStreamConstants.START_ELEMENT
-        EventType.TEXT.ordinal -> XMLStreamConstants.CHARACTERS
-        EventType.ATTRIBUTE.ordinal -> XMLStreamConstants.ATTRIBUTE
-        else -> -1
+        EventType.START_DOCUMENT.ordinal         -> XMLStreamConstants.START_DOCUMENT
+        EventType.START_ELEMENT.ordinal          -> XMLStreamConstants.START_ELEMENT
+        EventType.TEXT.ordinal                   -> XMLStreamConstants.CHARACTERS
+        EventType.ATTRIBUTE.ordinal              -> XMLStreamConstants.ATTRIBUTE
+        else                                                       -> -1
       }
     }
   }

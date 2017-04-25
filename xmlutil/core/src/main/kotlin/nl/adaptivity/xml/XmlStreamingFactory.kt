@@ -41,5 +41,5 @@ interface XmlStreamingFactory {
   fun newReader(reader: Reader): XmlReader
 
   @Throws(XmlException::class)
-  fun newReader(inputStream: InputStream, encoding: String?): XmlReader
+  fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
 }

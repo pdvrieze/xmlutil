@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -17,11 +17,9 @@
 package nl.adaptivity.xml
 
 import org.xmlpull.v1.XmlPullParserException
-
+import java.io.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
-
-import java.io.*
 
 
 /**
@@ -30,9 +28,8 @@ import java.io.*
 class AndroidStreamingFactory : XmlStreamingFactory
 {
 
-  @Override
   @Throws(XmlException::class)
-  fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
+  override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
     try {
       return AndroidXmlWriter(writer, repairNamespaces)
     } catch (e: XmlPullParserException) {
@@ -43,9 +40,8 @@ class AndroidStreamingFactory : XmlStreamingFactory
 
   }
 
-  @Override
   @Throws(XmlException::class)
-  fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
+  override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
   {
     try
     {
@@ -60,23 +56,20 @@ class AndroidStreamingFactory : XmlStreamingFactory
 
   }
 
-  @Override
   @Throws(XmlException::class)
-  fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter
+  override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter
   {
     throw UnsupportedOperationException("Results are not supported")
   }
 
-  @Override
   @Throws(XmlException::class)
-  fun newReader(source: Source): XmlReader
+  override fun newReader(source: Source): XmlReader
   {
     throw UnsupportedOperationException("Sources are not supported")
   }
 
-  @Override
   @Throws(XmlException::class)
-  fun newReader(reader: Reader): XmlReader
+  override fun newReader(reader: Reader): XmlReader
   {
     try
     {
@@ -88,9 +81,8 @@ class AndroidStreamingFactory : XmlStreamingFactory
 
   }
 
-  @Override
   @Throws(XmlException::class)
-  fun newReader(inputStream: InputStream, encoding: String): XmlReader
+  override fun newReader(inputStream: InputStream, encoding: String): XmlReader
   {
     try
     {

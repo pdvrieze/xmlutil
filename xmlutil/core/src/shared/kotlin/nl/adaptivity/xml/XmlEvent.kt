@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -17,8 +17,7 @@
 package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.matches
-import nl.adaptivity.xml.XmlStreaming.EventType
-import java.util.*
+import nl.adaptivity.xml.EventType
 import javax.xml.XMLConstants
 import javax.xml.namespace.NamespaceContext
 
@@ -31,8 +30,25 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
   companion object {
     @JvmStatic
-    internal val IGNORABLE = EnumSet.of(EventType.COMMENT, EventType.START_DOCUMENT, EventType.END_DOCUMENT,
-        EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.IGNORABLE_WHITESPACE)
+    internal val IGNORABLE = object: AbstractSet<EventType>() {
+      private val elements = BooleanArray(EventType.values().size)
+
+      init {
+        elements[EventType.COMMENT.ordinal]=true
+        elements[EventType.START_DOCUMENT.ordinal]=true
+        elements[EventType.END_DOCUMENT.ordinal]=true
+        elements[EventType.PROCESSING_INSTRUCTION.ordinal]=true
+        elements[EventType.DOCDECL.ordinal]=true
+        elements[EventType.IGNORABLE_WHITESPACE.ordinal]=true
+      }
+
+      override fun contains(element: EventType) = elements[element.ordinal]
+
+      override val size get() = 6
+
+      override fun iterator(): Iterator<EventType>
+        = elements.mapIndexed { index, b -> if (b) EventType.values()[index] else null }.filterNotNull().iterator()
+    }
 
 
     @Throws(XmlException::class)
@@ -98,8 +114,8 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
   }
 
   class StartDocumentEvent(locationInfo: String?,
-                           val version: CharSequence,
-                           val encoding: CharSequence,
+                           val version: CharSequence?,
+                           val encoding: CharSequence?,
                            val standalone: Boolean?) :
         XmlEvent(locationInfo) {
 
@@ -180,7 +196,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
     fun hasNamespaceUri(): Boolean {
       return XMLConstants.XMLNS_ATTRIBUTE_NS_URI matches namespaceUri ||
-            (prefix.length == 0 && XMLConstants.XMLNS_ATTRIBUTE matches localName)
+             (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE matches localName)
     }
   }
 
@@ -193,7 +209,7 @@ sealed  class XmlEvent private constructor(val locationInfo: String?) {
 
   abstract val eventType: EventType
 
-  open val isIgnorable:Boolean = eventType in IGNORABLE
+  open val isIgnorable:Boolean get() = eventType.isIgnorable
 
   @Throws(XmlException::class)
   abstract fun writeTo(writer: XmlWriter)

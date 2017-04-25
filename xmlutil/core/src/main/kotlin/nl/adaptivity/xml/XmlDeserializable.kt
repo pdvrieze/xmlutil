@@ -21,7 +21,7 @@ package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.ExtXmlDeserializable
 import nl.adaptivity.util.xml.SimpleXmlDeserializable
-import nl.adaptivity.xml.XmlStreaming.EventType
+import nl.adaptivity.xml.EventType
 import java.io.StringReader
 import javax.xml.namespace.QName
 
@@ -90,10 +90,10 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
   if (this is SimpleXmlDeserializable) {
     loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
       when (reader.eventType) {
-        EventType.START_ELEMENT          -> if (! deserializeChild(reader)) reader.unhandledEvent()
+        EventType.START_ELEMENT                            -> if (! deserializeChild(reader)) reader.unhandledEvent()
         EventType.TEXT, EventType.CDSECT -> if (! deserializeChildText(reader.text)) reader.unhandledEvent()
       // If the text was not deserialized, then just fall through
-        else                             -> reader.unhandledEvent()
+        else                                                                 -> reader.unhandledEvent()
       }
     }
   } else if (this is ExtXmlDeserializable) {

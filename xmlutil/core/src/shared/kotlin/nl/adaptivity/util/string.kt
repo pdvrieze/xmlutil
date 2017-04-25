@@ -14,24 +14,9 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.util
 
-import java.io.IOException
-
-/**
- * Simple exception for xml related things.
- * Created by pdvrieze on 15/11/15.
- */
-class XmlException : IOException
-{
-
-  constructor() { }
-
-  constructor(message: String) : super(message)
-
-  constructor(message: String, cause: Throwable) : super(message, cause)
-
-  constructor(cause: Throwable) : super(cause)
-
-  constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
+fun CharSequence.contentEquals(other:CharSequence):Boolean {
+  return length == other.length &&
+         indices.all { idx -> this[idx]==other[idx] }
 }

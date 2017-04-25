@@ -14,21 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml;
+@file:JvmName("XmlUtil")
+@file:JvmMultifileClass
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package nl.adaptivity.xml
+
+import java.io.*
 
 
-/**
- * Annotation that specifies the Deserializer for this type.
+interface XmlSerializable {
 
- * Created by pdvrieze on 27/08/15.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface XmlDeserializer{
-  Class<? extends XmlDeserializerFactory<?>> value();
+  /**
+   * Write the object to an xml stream. The object is expected to write itself and its children.
+   * @param out The stream to write to.
+   * *
+   * @throws XmlException When something breaks.
+   */
+  @Throws(XmlException::class)
+  fun serialize(out: XmlWriter)
+
 }
