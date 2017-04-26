@@ -18,7 +18,8 @@ rootProject.name = "ProcessManager"
 include ':DarwinGenerators'
 include ':java-common'
 include ':DarwinClients'
-include ':DarwinCommon'
+// No longer contains any worthwhile code.
+//include ':DarwinCommon'
 include ':DarwinJavaApi'
 include ':PE-common'
 include ':PE-common:endpointDoclet'
