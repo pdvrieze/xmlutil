@@ -181,6 +181,9 @@ allprojects {
         maven() {
             url="https://dl.bintray.com/kotlin/kotlin-dev"
         }
+	maven() {
+	    url="https://maven.google.com"
+	}
         maven() {
             url="https://dl.bintray.com/kotlin/kotlinx.html"
         }
