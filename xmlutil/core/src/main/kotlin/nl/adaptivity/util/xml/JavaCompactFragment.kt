@@ -111,7 +111,6 @@ internal class JavaCompactFragment : CompactFragment
   companion object
   {
 
-    val FACTORY = Factory()
 
     @Throws(XmlException::class)
     fun deserialize(reader: XmlReader): CompactFragment
@@ -120,3 +119,4 @@ internal class JavaCompactFragment : CompactFragment
     }
   }
 }
+val FACTORY: XmlDeserializerFactory<CompactFragment> = JavaCompactFragment.Factory()
