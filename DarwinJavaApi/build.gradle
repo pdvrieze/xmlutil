@@ -14,18 +14,19 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java-library'
+apply plugin: 'java'
 apply plugin: 'idea'
 
 sourceCompatibility = myJavaVersion
 targetCompatibility = myJavaVersion
 
-version = '1.1.1'
+version = '1.1.0'
 description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
 
 //group = ['server', 'serverclasspath']
 
 
 dependencies {
-    api project(':JavaCommonApi')
+    compile project(':JavaCommonApi')
+    compileOnly "org.jetbrains:annotations:13.0"
 }
