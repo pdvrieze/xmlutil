@@ -18,7 +18,6 @@ package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.matches
 import nl.adaptivity.xml.XmlEvent.*
-import nl.adaptivity.xml.EventType
 import javax.xml.namespace.NamespaceContext
 
 
@@ -187,8 +186,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : Abstract
   }
 
 
-  protected abstract fun peekFirst(): XmlEvent
-  protected abstract fun peekLast(): XmlEvent
+  protected abstract fun peekFirst(): XmlEvent?
+  protected abstract fun peekLast(): XmlEvent?
   protected abstract fun bufferRemoveLast():XmlEvent
   protected abstract fun bufferRemoveFirst():XmlEvent
   protected abstract fun add(event: XmlEvent)
