@@ -21,9 +21,9 @@ buildscript {
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.3'
     ext.codegen_version = '0.5.8'
-    ext.junit5_version='1.0.0-M3'
-    ext.jupiterVersion = '5.0.0-M3'
-    ext.spekVersion = '1.1.0'
+    ext.junit5_version='1.0.0-M4'
+    ext.jupiterVersion = '5.0.0-M4'
+    ext.spekVersion = '1.1.2'
     repositories {
         mavenLocal()
         maven {
