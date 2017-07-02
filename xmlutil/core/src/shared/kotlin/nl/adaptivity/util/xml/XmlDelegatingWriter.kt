@@ -18,11 +18,7 @@ package nl.adaptivity.util.xml
 
 import nl.adaptivity.xml.XmlException
 import nl.adaptivity.xml.XmlWriter
-
 import javax.xml.namespace.NamespaceContext
-
-import java.io.IOException
-import java.io.Reader
 
 
 /**
