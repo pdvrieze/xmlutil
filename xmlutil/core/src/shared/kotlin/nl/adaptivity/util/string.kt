@@ -17,6 +17,10 @@
 package nl.adaptivity.util
 
 fun CharSequence.contentEquals(other:CharSequence):Boolean {
-  return length == other.length &&
-         indices.all { idx -> this[idx]==other[idx] }
+  if (length!=other.length) return false
+  val l = length
+  for (i in 0 until length) {
+    if (this[i]!=other[i]) return false
+  }
+  return true
 }
