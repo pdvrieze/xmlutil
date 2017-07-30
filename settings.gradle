@@ -44,6 +44,12 @@ include ':structurizr'
 include ':xmlutil:core'
 include ':xmlutil:jvm'
 //include ':xmlutil:js'
+include 'xmlutil:java'
+//findProject(':xmlutil:java')?.name = 'xmlutil-java'
+//findProject(':xmlutil:jvm')?.name = 'xmlutil-jvm'
+//findProject(':xmlutil:core')?.name = 'xmlutil-core'
+//findProject(':xmlutil:js')?.name = 'xmlutil-js'
+
 include ':xmlutil:generator'
 include ':TestSupport'
 include ':webeditor'
@@ -55,3 +61,4 @@ if (Boolean.valueOf(androidEnabledProp)) {
     include ':PMEditor'
     include ':darwinlib'
 }
+
