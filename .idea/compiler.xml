@@ -18,6 +18,7 @@
       <module name="java-common" target="1.7" />
       <module name="JavaCommonApi" target="1.7" />
       <module name="js" target="1.7" />
+      <module name="jscommon" target="1.7" />
       <module name="jvm" target="1.7" />
       <module name="kotlinsql" target="1.7" />
       <module name="PE-common" target="1.7" />
