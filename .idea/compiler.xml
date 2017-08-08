@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="accountcommon" target="1.7" />
       <module name="accountmgr" target="1.7" />
+      <module name="accountmgr-js" target="1.7" />
+      <module name="darwin-jvm" target="1.7" />
       <module name="darwin-sql" target="1.7" />
       <module name="DarwinClients" target="1.7" />
       <module name="DarwinCommon" target="1.7" />
@@ -29,6 +31,7 @@
       <module name="webeditor" target="1.7" />
       <module name="xmlutil-core" target="1.7" />
       <module name="xmlutil-generator" target="1.7" />
+      <module name="xmlutil-java" target="1.7" />
       <module name="xmlutil-js" target="1.7" />
       <module name="xmlutil-jvm" target="1.7" />
     </bytecodeTargetLevel>
