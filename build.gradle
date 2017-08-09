@@ -59,7 +59,7 @@ ext {
     easywsdlver = '2.6.0'
     requirejs_version = '2.3.2'
 
-    myJavaVersion = JavaVersion.VERSION_1_7
+    myJavaVersion = JavaVersion.VERSION_1_8
 }
 
 configurations {
@@ -208,7 +208,7 @@ allprojects {
 
 idea{
     project {
-        languageLevel = JavaVersion.VERSION_1_7
+        languageLevel = JavaVersion.VERSION_1_8
     }
     module {
         downloadSources = true
