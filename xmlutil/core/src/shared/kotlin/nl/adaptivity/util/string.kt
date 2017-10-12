@@ -16,7 +16,9 @@
 
 package nl.adaptivity.util
 
-fun CharSequence.contentEquals(other:CharSequence):Boolean {
+fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
+  if (this==null) return other==null
+  if (other==null) return false
   if (length!=other.length) return false
   val l = length
   for (i in 0 until length) {
