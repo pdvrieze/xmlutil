@@ -15,20 +15,22 @@
  */
 
 buildscript {
+//    ext.androidPluginVersion = '3.0.0-alpha9'
     ext.androidPluginVersion = '2.3.3'
-    ext.kotlin_version = '1.1.3'
+    ext.kotlin_version = '1.1.51'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.3'
     ext.codegen_version = '0.5.8'
     ext.junit5_version='1.0.0-M4'
     ext.jupiterVersion = '5.0.0-M4'
-    ext.spekVersion = '1.1.2'
+    ext.spekVersion = '1.1.5'
     repositories {
         mavenLocal()
         maven {
             url='https://dl.bintray.com/kotlin/kotlin-eap-1.2'
         }
+        google()
         jcenter()
     }
     dependencies {
@@ -51,15 +53,16 @@ apply plugin: 'project-report'
 description = 'The overall project that manages all artefacts of the processmanager'
 
 ext {
+    androidTarget = 25
     tomcatVersion = '7.0.68'
-    androidCompatVersion = '25.0.1'
-    androidBuildToolsVersion = '25.0.2'
+    androidCompatVersion = androidTarget==25 ? '25.3.1' : '26.1.0'
+    androidBuildToolsVersion = '26.0.2'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
     requirejs_version = '2.3.2'
 
-    myJavaVersion = JavaVersion.VERSION_1_8
+    myJavaVersion = JavaVersion.VERSION_1_7
 }
 
 configurations {
