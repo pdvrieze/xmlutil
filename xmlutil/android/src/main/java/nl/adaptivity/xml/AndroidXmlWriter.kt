@@ -99,7 +99,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?)
   {
-    val namespaceStr = StringUtil.toString(namespace!!.toString())
+    val namespaceStr = StringUtil.toString(namespace.toString())
     try
     {
       if (namespace != null && namespace.length > 0)
@@ -117,7 +117,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   }
 
   @Throws(XmlException::class)
-  private fun ensureNamespaceIfRepairing(namespace: CharSequence, prefix: CharSequence?)
+  private fun ensureNamespaceIfRepairing(namespace: CharSequence?, prefix: CharSequence?)
   {
     if (mRepairNamespaces && namespace != null && namespace.length > 0 && prefix != null)
     {
@@ -216,10 +216,10 @@ class AndroidXmlWriter : AbstractXmlWriter
       val sPrefix = StringUtil.toString(prefix)
       if (sPrefix != null && sNamespace != null)
       {
-        setPrefix(sPrefix!!, sNamespace!!)
+        setPrefix(sPrefix, sNamespace)
       }
       mWriter.attribute(sNamespace, StringUtil.toString(name), StringUtil.toString(value))
-      ensureNamespaceIfRepairing(sNamespace!!, sPrefix)
+      ensureNamespaceIfRepairing(sNamespace, sPrefix)
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -333,7 +333,7 @@ class AndroidXmlWriter : AbstractXmlWriter
 
   override fun getPrefix(namespaceUri: CharSequence?): CharSequence?
   {
-    return mNamespaceHolder.getPrefix(namespaceUri!!)
+    return namespaceUri?.let { mNamespaceHolder.getPrefix(it) }
   }
 
   @Throws(XmlException::class)
