@@ -86,11 +86,9 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   override fun flush()
   {
-    try
-    {
+    try {
       mWriter.flush()
-    } catch (e: IOException)
-    {
+    } catch (e: IOException) {
       throw XmlException(e)
     }
 
@@ -99,18 +97,16 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?)
   {
-    val namespaceStr = StringUtil.toString(namespace.toString())
-    try
-    {
-      if (namespace != null && namespace.length > 0)
+    val namespaceStr = namespace.toString()
+    try {
+      if (namespace != null && namespace.isNotEmpty())
       {
         mWriter.setPrefix(prefix?.toString() ?: "", namespaceStr)
       }
-      mWriter.startTag(namespaceStr, StringUtil.toString(localName))
+      mWriter.startTag(namespaceStr, localName.toString())
       mNamespaceHolder.incDepth()
       ensureNamespaceIfRepairing(namespace, prefix)
-    } catch (e: IOException)
-    {
+    } catch (e: IOException) {
       throw XmlException(e)
     }
 
@@ -119,10 +115,10 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   private fun ensureNamespaceIfRepairing(namespace: CharSequence?, prefix: CharSequence?)
   {
-    if (mRepairNamespaces && namespace != null && namespace.length > 0 && prefix != null)
+    if (mRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null)
     {
       // TODO fix more cases than missing namespaces with given prefix and uri
-      if (!StringUtil.isEqual(mNamespaceHolder.getNamespaceUri(prefix), namespace))
+      if (!mNamespaceHolder.getNamespaceUri(prefix).contentEquals(namespace))
       {
         namespaceAttr(prefix, namespace)
       }
@@ -134,7 +130,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.comment(StringUtil.toString(text))
+      mWriter.comment(text.toString())
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -173,7 +169,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.entityRef(StringUtil.toString(text))
+      mWriter.entityRef(text.toString())
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -186,7 +182,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.processingInstruction(StringUtil.toString(text))
+      mWriter.processingInstruction(text.toString())
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -199,7 +195,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.ignorableWhitespace(StringUtil.toString(text))
+      mWriter.ignorableWhitespace(text.toString())
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -212,13 +208,13 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      val sNamespace = StringUtil.toString(namespace)
-      val sPrefix = StringUtil.toString(prefix)
+      val sNamespace = namespace?.toString()
+      val sPrefix = prefix?.toString()
       if (sPrefix != null && sNamespace != null)
       {
         setPrefix(sPrefix, sNamespace)
       }
-      mWriter.attribute(sNamespace, StringUtil.toString(name), StringUtil.toString(value))
+      mWriter.attribute(sNamespace, name.toString(), value.toString())
       ensureNamespaceIfRepairing(sNamespace, sPrefix)
     } catch (e: IOException)
     {
@@ -230,9 +226,8 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   override fun docdecl(text: CharSequence)
   {
-    try
-    {
-      mWriter.docdecl(StringUtil.toString(text))
+    try {
+      mWriter.docdecl(text.toString())
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -249,7 +244,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.startDocument(StringUtil.toString(encoding), standalone)
+      mWriter.startDocument(encoding?.toString(), standalone)
     } catch (e: IOException)
     {
       throw XmlException(e)
@@ -276,7 +271,7 @@ class AndroidXmlWriter : AbstractXmlWriter
   {
     try
     {
-      mWriter.endTag(StringUtil.toString(namespace), StringUtil.toString(localName))
+      mWriter.endTag(namespace?.toString(), localName.toString())
       mNamespaceHolder.decDepth()
     } catch (e: IOException)
     {
@@ -288,12 +283,12 @@ class AndroidXmlWriter : AbstractXmlWriter
   @Throws(XmlException::class)
   override fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence)
   {
-    if (!StringUtil.isEqual(namespaceUri, getNamespaceUri(prefix)))
+    if (!namespaceUri.contentEquals(getNamespaceUri(prefix)))
     {
       mNamespaceHolder.addPrefixToContext(prefix, namespaceUri)
       try
       {
-        mWriter.setPrefix(StringUtil.toString(prefix), StringUtil.toString(namespaceUri))
+        mWriter.setPrefix(prefix.toString(), namespaceUri.toString())
       } catch (e: IOException)
       {
         throw XmlException(e)
@@ -308,13 +303,13 @@ class AndroidXmlWriter : AbstractXmlWriter
     mNamespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
     try
     {
-      if (namespacePrefix != null && namespacePrefix.length > 0)
+      if (namespacePrefix.isNotEmpty())
       {
-        mWriter.attribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, StringUtil.toString(namespacePrefix),
-                          StringUtil.toString(namespaceUri))
+        mWriter.attribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, namespacePrefix.toString(),
+                          namespaceUri.toString())
       } else
       {
-        mWriter.attribute(XMLConstants.NULL_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, StringUtil.toString(namespaceUri))
+        mWriter.attribute(XMLConstants.NULL_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, namespaceUri.toString())
       }
     } catch (e: IOException)
     {
@@ -326,19 +321,16 @@ class AndroidXmlWriter : AbstractXmlWriter
   override val namespaceContext: NamespaceContext
     get() = mNamespaceHolder.namespaceContext
 
-  override fun getNamespaceUri(prefix: CharSequence): CharSequence?
-  {
+  override fun getNamespaceUri(prefix: CharSequence): CharSequence? {
     return mNamespaceHolder.getNamespaceUri(prefix)
   }
 
-  override fun getPrefix(namespaceUri: CharSequence?): CharSequence?
-  {
+  override fun getPrefix(namespaceUri: CharSequence?): CharSequence? {
     return namespaceUri?.let { mNamespaceHolder.getPrefix(it) }
   }
 
   @Throws(XmlException::class)
-  override fun close()
-  {
+  override fun close() {
     super.close()
     mNamespaceHolder.clear()
   }
