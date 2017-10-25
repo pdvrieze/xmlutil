@@ -25,6 +25,7 @@ buildscript {
     ext.junit5_version='1.0.0-M4'
     ext.jupiterVersion = '5.0.0-M4'
     ext.spekVersion = '1.1.5'
+    ext.testngVersion = '6.9.13.8'
     repositories {
         mavenLocal()
         maven {
