@@ -22,8 +22,8 @@ buildscript {
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.3'
     ext.codegen_version = '0.5.8'
-    ext.junit5_version='1.0.0-M4'
-    ext.jupiterVersion = '5.0.0-M4'
+    ext.junit5_version='1.0.0'
+    ext.jupiterVersion = '5.0.0'
     ext.spekVersion = '1.1.5'
     ext.testngVersion = '6.9.13.8'
     repositories {
