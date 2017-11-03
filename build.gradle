@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -15,7 +15,7 @@
  */
 
 buildscript {
-//    ext.androidPluginVersion = '3.0.0-alpha9'
+//    ext.androidPluginVersion = '3.0.0'
     ext.androidPluginVersion = '2.3.3'
     ext.kotlin_version = '1.1.51'
     ext.kotlin_plugin_version = kotlin_version
@@ -56,8 +56,8 @@ description = 'The overall project that manages all artefacts of the processmana
 ext {
     androidTarget = 25
     tomcatVersion = '7.0.68'
-    androidCompatVersion = androidTarget==25 ? '25.3.1' : '26.1.0'
-    androidBuildToolsVersion = '26.0.2'
+    androidCompatVersion = androidTarget==25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.0.0'
+    androidBuildToolsVersion = '27.0.0'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
