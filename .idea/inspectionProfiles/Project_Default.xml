@@ -44,6 +44,7 @@
     <inspection_tool class="AnonymousInnerClassMayBeStatic" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ArrayEquality" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="AssertEqualsCalledOnArray" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="AssignmentOrReturnOfFieldWithMutableType" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true">
       <scope name="AndroidProjects" level="WARNING" enabled="false" />
       <option name="ignoredTypes" value="java.util.stream.Stream,java.util.stream.IntStream,java.util.stream.LongStream,java.util.stream.DoubleStream,java.io.CharArrayWriter,java.io.StringWriter" />
@@ -117,9 +118,6 @@
     <inspection_tool class="CyclicPackageDependency" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DefaultNotLastCaseInSwitch" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DelegatesTo" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="Deprecation" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="IGNORE_INSIDE_DEPRECATED" value="true" />
-    </inspection_tool>
     <inspection_tool class="DivideByZero" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DollarSignInName" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DoubleCheckedLocking" enabled="true" level="WARNING" enabled_by_default="true">
@@ -165,6 +163,33 @@
       <option name="m_ignoreInvisibleFields" value="true" />
     </inspection_tool>
     <inspection_tool class="FieldMayBeFinal" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="FieldNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
+      <extension name="ConstantNamingConvention" enabled="true">
+        <option name="m_regex" value="[A-Z][A-Z_\d]*" />
+        <option name="m_minLength" value="2" />
+        <option name="m_maxLength" value="40" />
+      </extension>
+      <extension name="ConstantWithMutableFieldTypeNamingConvention" enabled="true">
+        <option name="m_regex" value="[A-Z][A-Z_\d]*" />
+        <option name="m_minLength" value="2" />
+        <option name="m_maxLength" value="40" />
+      </extension>
+      <extension name="EnumeratedConstantNamingConvention" enabled="true">
+        <option name="m_regex" value="[A-Z][A-Z_\d]*" />
+        <option name="m_minLength" value="2" />
+        <option name="m_maxLength" value="32" />
+      </extension>
+      <extension name="InstanceVariableNamingConvention" enabled="true">
+        <option name="m_regex" value="(_[a-z\d]|m|[a-z\d][a-z\d])[A-Za-z\d]*" />
+        <option name="m_minLength" value="3" />
+        <option name="m_maxLength" value="32" />
+      </extension>
+      <extension name="StaticVariableNamingConvention" enabled="true">
+        <option name="m_regex" value="(_)?[a-z][A-Za-z\d]*" />
+        <option name="m_minLength" value="3" />
+        <option name="m_maxLength" value="32" />
+      </extension>
+    </inspection_tool>
     <inspection_tool class="Finalize" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreTrivialFinalizers" value="true" />
     </inspection_tool>
@@ -371,7 +396,6 @@
     <inspection_tool class="NestedSwitchStatement" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewExceptionWithoutArguments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewInstanceOfSingleton" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="NonAtomicOperationOnVolatileField" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonExceptionNameEndsWithException" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonFinalFieldInEnum" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonFinalFieldInImmutable" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -426,6 +450,9 @@
     <inspection_tool class="PointlessIndexOfComparison" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PointlessNullCheck" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ProblematicVarargsMethodOverride" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PropertyName" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="namePattern" value="_?[a-z][A-Za-z\d]*" />
+    </inspection_tool>
     <inspection_tool class="PropertyValueSetToItself" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ProtectedMemberInFinalClass" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="QuestionableName" enabled="true" level="WARNING" enabled_by_default="true">
@@ -563,9 +590,6 @@
       <option name="onlyReportSuperfluouslyBoxed" value="true" />
     </inspection_tool>
     <inspection_tool class="UnnecessaryCallToStringValueOf" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="UnnecessaryFullyQualifiedName" enabled="true" level="INFORMATION" enabled_by_default="true">
-      <option name="m_ignoreJavadoc" value="false" />
-    </inspection_tool>
     <inspection_tool class="UnnecessaryInheritDoc" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryJavaDocLink" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreInlineLinkToSuper" value="false" />
@@ -582,7 +606,7 @@
     <inspection_tool class="UnusedSymbol" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="UpperCaseFieldNameNotConstant" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="UseOfAnotherObjectsPrivateField" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoreSameClass" value="false" />
+      <option name="ignoreSameClass" value="true" />
       <option name="ignoreEquals" value="false" />
     </inspection_tool>
     <inspection_tool class="UseOfObsoleteAssert" enabled="true" level="WARNING" enabled_by_default="true" />

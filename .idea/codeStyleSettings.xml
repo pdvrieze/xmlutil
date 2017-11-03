@@ -82,9 +82,6 @@
         <JetCodeStyleSettings>
           <option name="ALIGN_IN_COLUMNS_CASE_BRANCH" value="true" />
         </JetCodeStyleSettings>
-        <MarkdownNavigatorCodeStyleSettings>
-          <option name="RIGHT_MARGIN" value="72" />
-        </MarkdownNavigatorCodeStyleSettings>
         <XML>
           <option name="XML_ATTRIBUTE_WRAP" value="4" />
           <option name="XML_KEEP_LINE_BREAKS_IN_TEXT" value="false" />
