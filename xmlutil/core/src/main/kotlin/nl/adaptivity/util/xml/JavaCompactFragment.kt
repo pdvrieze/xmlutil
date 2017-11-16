@@ -74,12 +74,12 @@ internal class JavaCompactFragment : CompactFragment
     }
   }
 
-  override fun equals(o: Any?): Boolean
+  override fun equals(other: Any?): Boolean
   {
-    if (this === o) return true
-    if (o == null || javaClass != o.javaClass) return false
+    if (this === other) return true
+    if (other == null || javaClass != other.javaClass) return false
 
-    val that = o as CompactFragment?
+    val that = other as CompactFragment?
 
     if (namespaces != that!!.namespaces) return false
     return content.contentEquals(that.content)

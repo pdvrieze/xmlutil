@@ -16,8 +16,6 @@
 
 package nl.adaptivity.xml
 
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.KClass
 
 
@@ -26,6 +24,6 @@ import kotlin.reflect.KClass
 
  * Created by pdvrieze on 27/08/15.
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)

@@ -58,15 +58,16 @@ private fun XmlSerializable.toString(flags: Int): String {
   }.toString()
 }
 
-fun XmlSerializable.toString() = toString(DEFAULT_FLAGS)
+fun toString(serializable: XmlSerializable) = serializable.toString(DEFAULT_FLAGS)
 
 /**
  * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.
  * @param serializables The source list.
- * *
+ *
  * @return A result list
  */
-fun Iterable<XmlSerializable>.toString(): List<String> {
+@JvmName("toString")
+fun Iterable<XmlSerializable>.toSerializedStrings(): List<String> {
   return this.map { it.toString(DEFAULT_FLAGS) }
 }
 

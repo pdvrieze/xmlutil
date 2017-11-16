@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2017.
  *
  * This file is part of ProcessManager.
  *
@@ -18,8 +18,6 @@
 @file:JvmMultifileClass
 
 package nl.adaptivity.xml
-
-import java.io.*
 
 
 interface XmlSerializable {
