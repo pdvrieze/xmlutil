@@ -17,10 +17,10 @@
 buildscript {
 //    ext.androidPluginVersion = '3.0.0'
     ext.androidPluginVersion = '2.3.3'
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.1.60'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
-    ext.kotlinx_html_version = '0.6.3'
+    ext.kotlinx_html_version = '0.6.6'
     ext.codegen_version = '0.5.8'
     ext.junit5_version='1.0.0'
     ext.jupiterVersion = '5.0.0'
@@ -56,7 +56,7 @@ description = 'The overall project that manages all artefacts of the processmana
 ext {
     androidTarget = 25
     tomcatVersion = '7.0.68'
-    androidCompatVersion = androidTarget==25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.0.0'
+    androidCompatVersion = androidTarget==25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.0.1'
     androidBuildToolsVersion = '27.0.0'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
