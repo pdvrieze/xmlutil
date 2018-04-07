@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017.
+ * Copyright (c) 2018.
  *
  * This file is part of ProcessManager.
  *
@@ -15,22 +15,19 @@
  */
 
 buildscript {
-//    ext.androidPluginVersion = '3.0.0'
+//    ext.androidPluginVersion = '3.0.1'
     ext.androidPluginVersion = '2.3.3'
-    ext.kotlin_version = '1.1.60'
+    ext.kotlin_version = '1.2.31'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
-    ext.kotlinx_html_version = '0.6.7'
+    ext.kotlinx_html_version = '0.6.9'
     ext.codegen_version = '0.5.8'
-    ext.junit5_version='1.0.0'
+    ext.junit5_version = '1.0.0'
     ext.jupiterVersion = '5.0.0'
     ext.spekVersion = '1.1.5'
     ext.testngVersion = '6.9.13.8'
     repositories {
         mavenLocal()
-        maven {
-            url='https://dl.bintray.com/kotlin/kotlin-eap-1.2'
-        }
         google()
         jcenter()
     }
@@ -54,10 +51,10 @@ apply plugin: 'project-report'
 description = 'The overall project that manages all artefacts of the processmanager'
 
 ext {
-    androidTarget = 25
+    androidTarget = 26
     tomcatVersion = '7.0.68'
-    androidCompatVersion = androidTarget==25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.0.1'
-    androidBuildToolsVersion = '27.0.0'
+    androidCompatVersion = androidTarget == 25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.0.1'
+    androidBuildToolsVersion = '27.0.1'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
@@ -106,29 +103,29 @@ if (soapTarget.isDirectory()) {
         destinationDir = file("wiki")
 
         into('.') {
-            from files({ dependsOn.findAll{dep -> dep instanceof Configuration } })
+            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
 //            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
             include '**/SOAP/*.md'
             exclude '**/*InternalEndpointImpl.md'
             rename { path ->
-                def file = path.substring(path.lastIndexOf('/')+1)
+                def file = path.substring(path.lastIndexOf('/') + 1)
                 def extPos = file.lastIndexOf('.')
-                def dotPos = file.lastIndexOf('.', extPos -1) // we want the second last dot, the last is the extension one
+                def dotPos = file.lastIndexOf('.', extPos - 1) // we want the second last dot, the last is the extension one
                 if (dotPos >= 0) {
-                    file.substring(dotPos + 1, extPos)+"_SOAP.md"
+                    file.substring(dotPos + 1, extPos) + "_SOAP.md"
                 } else file
             }
         }
 
         into('.') {
-            from files({ dependsOn.findAll{dep -> dep instanceof Configuration } })
+            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
             include '**/REST/*.md'
             rename { path ->
-                def file = path.substring(path.lastIndexOf('/')+1)
-                def dotPos = file.lastIndexOf('.', file.lastIndexOf('.')-1) // we want the second last dot, the last is the extension one
+                def file = path.substring(path.lastIndexOf('/') + 1)
+                def dotPos = file.lastIndexOf('.', file.lastIndexOf('.') - 1) // we want the second last dot, the last is the extension one
                 def extPos = file.lastIndexOf('.')
                 if (dotPos >= 0) {
-                    file.substring(dotPos + 1, extPos)+"_REST.md"
+                    file.substring(dotPos + 1, extPos) + "_REST.md"
                 } else file
             }
         }
@@ -139,14 +136,14 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.0.2'
 }
 
-task copyTomcatWars(type:Copy) {
+task copyTomcatWars(type: Copy) {
     group = "dist"
     dependsOn configurations.tomcatWars
     from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
     into "${collectDir}/webapps/"
 }
 
-task copyTomcatClasspath(type:Copy) {
+task copyTomcatClasspath(type: Copy) {
     group = "dist"
     dependsOn configurations.tomcatClasspath
     from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
@@ -171,9 +168,9 @@ task dist {
     }
 }
 
-task run(dependsOn: [':PE-server:tomcatRun'], type:DefaultTask) {
-    group='application'
-    description='Run the server in a simple configuration'
+task run(dependsOn: [':PE-server:tomcatRun'], type: DefaultTask) {
+    group = 'application'
+    description = 'Run the server in a simple configuration'
 }
 
 
@@ -187,19 +184,14 @@ allprojects {
         mavenLocal()
         jcenter()
         maven() {
-            url="https://dl.bintray.com/kotlin/kotlin-dev"
+            url = "https://dl.bintray.com/kotlin/kotlin-dev"
         }
-	maven() {
-	    url="https://maven.google.com"
-	}
+        google()
         maven() {
-            url="https://dl.bintray.com/kotlin/kotlinx.html"
+            url = "https://dl.bintray.com/kotlin/kotlinx.html"
         }
         maven {
-            url='https://dl.bintray.com/kotlin/kotlin-eap-1.2'
-        }
-        maven {
-            url='https://dl.bintray.com/jetbrains/spek'
+            url = 'https://dl.bintray.com/jetbrains/spek'
         }
     }
 //
@@ -210,12 +202,12 @@ allprojects {
 //    }
 }
 
-idea{
+idea {
     project {
         languageLevel = JavaVersion.VERSION_1_8
     }
     module {
         downloadSources = true
-        contentRoot= projectDir
+        contentRoot = projectDir
     }
 }
