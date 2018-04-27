@@ -26,9 +26,10 @@ include ':multiplatform:common-java'
 include ':multiplatform:java'
 include ':multiplatform:jvm'
 //include ':multiplatform:js'
-//include ':multiplatform:android'
+include ':multiplatform:android'
 
 include ':xmlutil:core:common'
 include ':xmlutil:core:java'
 include ':xmlutil:core:jvm'
+include ':xmlutil:core:android'
 

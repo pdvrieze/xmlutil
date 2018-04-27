@@ -14,27 +14,14 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.util.multiplatform
 
-interface Namespace {
+import java.lang.AutoCloseable
 
-    /**
-     * Gets the prefix, returns "" if this is a default
-     * namespace declaration.
-     */
-    val prefix: String
-
-    /**
-     * Gets the uri bound to the prefix of this namespace
-     */
-    val namespaceURI: String
-
+actual fun assert(value: Boolean, lazyMessage: () -> String) {
+    kotlin.assert(value, lazyMessage)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use the property version", ReplaceWith("this.prefix"))
-inline fun Namespace.getPrefix() = prefix
+actual fun assert(value: Boolean) = kotlin.assert(value)
 
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use the property version", ReplaceWith("this.namespaceURI"))
-inline fun Namespace.getNamespaceURI() = namespaceURI
+actual typealias AutoCloseable = AutoCloseable

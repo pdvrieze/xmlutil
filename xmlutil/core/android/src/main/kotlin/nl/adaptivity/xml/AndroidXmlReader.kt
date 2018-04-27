@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017.
+ * Copyright (c) 2018.
  *
  * This file is part of ProcessManager.
  *
@@ -20,9 +20,6 @@ import nl.adaptivity.util.contentEquals
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
-
-import javax.xml.XMLConstants
-import javax.xml.namespace.NamespaceContext
 
 import java.io.IOException
 import java.io.InputStream

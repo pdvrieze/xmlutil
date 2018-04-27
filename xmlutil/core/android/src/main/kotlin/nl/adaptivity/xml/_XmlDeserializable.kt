@@ -32,7 +32,8 @@ import kotlin.reflect.KClass
  * @throws XmlException If deserialization fails anywhere.
  */
 fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
-  val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
+  val deserializer = type.getAnnotation(XmlDeserializer::class.java)
+                     ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
   val factory: XmlDeserializerFactory<*> = deserializer.value.java.newInstance() as XmlDeserializerFactory<*>
 
   return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }

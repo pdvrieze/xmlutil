@@ -23,7 +23,7 @@ import java.io.Reader
  * Reader that combines multiple "component" readers into one.
  * Created by pdvrieze on 01/11/15.
  */
-internal class CombiningReader(private vararg val sources: Reader) : Reader()
+class CombiningReader(private vararg val sources: Reader) : Reader()
 {
 
   private var currentSource: Int = 0

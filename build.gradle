@@ -15,7 +15,7 @@
  */
 
 buildscript {
-    ext.androidPluginVersion = '3.1.1'
+    ext.androidPluginVersion = '3.1.2'
 //    ext.androidPluginVersion = '2.3.3'
     ext.kotlin_version = '1.2.40'
     ext.kotlin_plugin_version = kotlin_version

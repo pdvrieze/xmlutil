@@ -31,7 +31,8 @@ actual class CompactFragment: XmlSerializable {
     @Throws(XmlException::class)
     override fun deserialize(reader: XmlReader): CompactFragment
     {
-      return Companion.deserialize(reader)
+        @Suppress("RedundantCompanionReference")
+        return Companion.deserialize(reader)
     }
   }
 
@@ -56,7 +57,7 @@ actual class CompactFragment: XmlSerializable {
 
   @Throws(XmlException::class)
   actual constructor(content: XmlSerializable) {
-    namespaces = SimpleNamespaceContext(emptyList<Namespace>())
+    namespaces = SimpleNamespaceContext(emptyList())
     this.content = content.toCharArray()
   }
 
@@ -67,8 +68,7 @@ actual class CompactFragment: XmlSerializable {
     @Throws(XmlException::class)
   override fun serialize(out: XmlWriter)
   {
-      val reader = XMLFragmentStreamReader.from(this)
-      reader.use { reader ->
+    XMLFragmentStreamReader.from(this).use { reader ->
       out.serialize(reader)
     }
   }

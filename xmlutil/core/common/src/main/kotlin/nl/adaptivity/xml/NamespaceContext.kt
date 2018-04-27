@@ -19,7 +19,7 @@ package nl.adaptivity.xml
 expect interface NamespaceContext {
     fun getNamespaceURI(prefix: String): String?
     fun getPrefix(namespaceURI: String): String?
-    @Deprecated("Don't use as unsafe")
+    @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xml.prefixesFor"))
     fun getPrefixes(namespaceURI: String): Iterator<Any?>
 }
 

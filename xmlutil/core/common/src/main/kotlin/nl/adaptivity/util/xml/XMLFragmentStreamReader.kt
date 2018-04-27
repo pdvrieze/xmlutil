@@ -20,12 +20,10 @@ import nl.adaptivity.xml.*
 
 
 /**
- * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
-
+ * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper
+ * elements, and then ignoring those on reading.
  * Created by pdvrieze on 04/11/15.
  */
-/*
-XXX EXPECT
 expect class XMLFragmentStreamReader : XmlDelegatingReader {
 
     companion object {
@@ -34,6 +32,5 @@ expect class XMLFragmentStreamReader : XmlDelegatingReader {
 
 
 }
-*/
 
-fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+//fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)

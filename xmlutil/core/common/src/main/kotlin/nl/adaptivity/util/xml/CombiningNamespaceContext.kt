@@ -18,6 +18,7 @@ package nl.adaptivity.util.xml
 
 import nl.adaptivity.xml.NamespaceContext
 import nl.adaptivity.xml.XMLConstants
+import nl.adaptivity.xml.prefixesFor
 
 
 /**
@@ -41,8 +42,8 @@ class CombiningNamespaceContext(private val primary: NamespaceContext,
     }
 
     override fun getPrefixes(namespaceURI: String): Iterator<String> {
-        val prefixes1 = primary.getPrefixes(namespaceURI) as Iterator<String>
-        val prefixes2 = secondary.getPrefixes(namespaceURI) as Iterator<String>
+        val prefixes1 = primary.prefixesFor(namespaceURI)
+        val prefixes2 = secondary.prefixesFor(namespaceURI)
         val prefixes = hashSetOf<String>()
         while (prefixes1.hasNext()) {
             prefixes.add(prefixes1.next())

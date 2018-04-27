@@ -27,7 +27,7 @@ dependencies {
 //    implementation project(":java-common:jvm")
     implementation project(":multiplatform:jvm")
     expectedBy project(":xmlutil:core:common")
-//    api project(":xmlutil:core:java")
+    api project(":xmlutil:core:java")
 }
 
 sourceSets {

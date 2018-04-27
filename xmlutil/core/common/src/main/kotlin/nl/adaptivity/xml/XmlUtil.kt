@@ -52,7 +52,7 @@ fun CharSequence.toQname(): QName {
 }
 
 fun QName.toCName(): String {
-  if (getPrefix() == null || NULL_NS_URI == getPrefix()) return getLocalPart()
+  if (NULL_NS_URI == getPrefix()) return getLocalPart()
   return "${getPrefix()}:${getLocalPart()}"
 }
 

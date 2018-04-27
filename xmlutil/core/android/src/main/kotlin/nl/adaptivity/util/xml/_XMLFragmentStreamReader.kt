@@ -16,6 +16,7 @@
 
 package nl.adaptivity.util.xml
 
+import nl.adaptivity.util.multiplatform.JvmStatic
 import nl.adaptivity.xml.*
 import java.io.CharArrayReader
 import java.io.Reader
@@ -29,9 +30,8 @@ import javax.xml.XMLConstants
 
  * Created by pdvrieze on 04/11/15.
  */
-class XMLFragmentStreamReader
-constructor(reader: Reader, wrapperNamespaceContext: Iterable<nl.adaptivity.xml.Namespace>)
-    : XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(reader, wrapperNamespaceContext)) {
+actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>)
+    : XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(reader, namespaces)) {
 
     private class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
                                            prefixes: Array<String>,
@@ -171,7 +171,7 @@ constructor(reader: Reader, wrapperNamespaceContext: Iterable<nl.adaptivity.xml.
             localNamespaceContext, prefixes, namespaces)
     }
 
-    companion object {
+    actual companion object {
 
         private val WRAPPERPPREFIX = "SDFKLJDSF"
         private val WRAPPERNAMESPACE = "http://wrapperns"
@@ -199,17 +199,20 @@ constructor(reader: Reader, wrapperNamespaceContext: Iterable<nl.adaptivity.xml.
         }
 
         @Throws(XmlException::class)
+        @JvmStatic
         fun from(reader: Reader, namespaceContext: Iterable<nl.adaptivity.xml.Namespace>): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, namespaceContext)
         }
 
         @Throws(XmlException::class)
+        @JvmStatic
         fun from(reader: Reader): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, emptyList<nl.adaptivity.xml.Namespace>())
         }
 
         @Throws(XmlException::class)
-        fun from(fragment: CompactFragment): XMLFragmentStreamReader {
+        @JvmStatic
+        actual fun from(fragment: CompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(CharArrayReader(fragment.content), fragment.namespaces)
         }
     }
