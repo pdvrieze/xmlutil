@@ -20,19 +20,3 @@ import nl.adaptivity.xml.IterableNamespaceContext
 import nl.adaptivity.xml.XmlReader
 import nl.adaptivity.xml.XmlWriter
 
-fun CompactFragment(s: String) = object : CompactFragment {
-    override val namespaces: IterableNamespaceContext
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val content: CharArray
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val contentString: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
-    override fun getXmlReader(): XmlReader {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun serialize(out: XmlWriter) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-}

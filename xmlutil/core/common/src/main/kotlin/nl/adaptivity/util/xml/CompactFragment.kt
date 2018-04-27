@@ -17,6 +17,7 @@
 package nl.adaptivity.util.xml
 
 import nl.adaptivity.xml.IterableNamespaceContext
+import nl.adaptivity.xml.Namespace
 import nl.adaptivity.xml.XmlReader
 import nl.adaptivity.xml.XmlSerializable
 
@@ -25,10 +26,14 @@ import nl.adaptivity.xml.XmlSerializable
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-interface CompactFragment : XmlSerializable {
+expect class CompactFragment : XmlSerializable {
+
+    constructor(content: String)
+    constructor(orig: CompactFragment)
+    constructor(content: XmlSerializable)
+    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
 
     val isEmpty: Boolean
-        get() = content.isEmpty()
 
     val namespaces: IterableNamespaceContext
     val content: CharArray

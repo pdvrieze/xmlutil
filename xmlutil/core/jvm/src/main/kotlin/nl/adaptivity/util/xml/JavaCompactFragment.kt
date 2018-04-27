@@ -23,7 +23,7 @@ import nl.adaptivity.xml.*
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-internal class JavaCompactFragment : CompactFragment {
+actual class CompactFragment: XmlSerializable {
 
   class Factory : XmlDeserializerFactory<CompactFragment>
   {
@@ -35,37 +35,36 @@ internal class JavaCompactFragment : CompactFragment {
     }
   }
 
-  override val isEmpty: Boolean
-    get() = content.isEmpty()
+    actual val isEmpty: Boolean
+      get() = content.isEmpty()
 
-  override val namespaces: SimpleNamespaceContext
-  override val content: CharArray
+    actual val namespaces: IterableNamespaceContext
+    actual val content: CharArray
 
-  constructor(namespaces: Iterable<Namespace>, content: CharArray)
-  {
-    this.namespaces = SimpleNamespaceContext.from(namespaces)!!
-    this.content = content
+  actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
+    this.namespaces = SimpleNamespaceContext.from(namespaces)
+    this.content = content ?: CharArray(0)
   }
 
   /** Convenience constructor for content without namespaces.  */
-  constructor(string: String) : this(emptyList<Namespace>(), string.toCharArray())
-  {
-  }
+  actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
 
-  constructor(orig: CompactFragment)
-  {
+  actual constructor(orig: CompactFragment) {
     namespaces = SimpleNamespaceContext.from(orig.namespaces)
     content = orig.content
   }
 
   @Throws(XmlException::class)
-  constructor(content: XmlSerializable)
-  {
+  actual constructor(content: XmlSerializable) {
     namespaces = SimpleNamespaceContext(emptyList<Namespace>())
     this.content = content.toCharArray()
   }
 
-  @Throws(XmlException::class)
+  constructor(namespaces: Iterable<Namespace>, content: String?):
+      this(namespaces, content?.toCharArray() ?: kotlin.CharArray(0))
+
+
+    @Throws(XmlException::class)
   override fun serialize(out: XmlWriter)
   {
       val reader = XMLFragmentStreamReader.from(this)
@@ -74,10 +73,9 @@ internal class JavaCompactFragment : CompactFragment {
     }
   }
 
-    override fun getXmlReader() = XMLFragmentStreamReader.from(this)
+  actual fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 
-    override fun equals(other: Any?): Boolean
-  {
+  override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || javaClass != other.javaClass) return false
 
@@ -95,24 +93,14 @@ internal class JavaCompactFragment : CompactFragment {
     return result
   }
 
-  override fun toString(): String
-  {
-    return buildString {
-      append("namespaces=[")
-      (0 until namespaces.size).joinTo(this) { "${namespaces.getPrefix(it)} -> ${namespaces.getNamespaceURI(it)}" }
-
-      append("], content=")
-        .append(String(content))
-        .append('}')
-    }
+  override fun toString(): String {
+      return namespaces.joinToString(prefix="{namespaces=[", postfix = "], content=$contentString}") { "${it.prefix} -> ${it.namespaceURI} }" }
   }
 
-  override val contentString: String
-    get() = String(content)
+  actual val contentString: String
+    get() = content.contentToString()
 
-  companion object
-  {
-
+  companion object {
 
     @Throws(XmlException::class)
     fun deserialize(reader: XmlReader): CompactFragment
@@ -121,4 +109,5 @@ internal class JavaCompactFragment : CompactFragment {
     }
   }
 }
-val FACTORY: XmlDeserializerFactory<CompactFragment> = JavaCompactFragment.Factory()
+
+val COMPACTFRAGMENTFACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()

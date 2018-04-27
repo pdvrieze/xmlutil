@@ -19,7 +19,6 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.CompactFragment
-import nl.adaptivity.util.xml.JavaCompactFragment
 import java.io.CharArrayWriter
 import java.util.*
 
@@ -67,7 +66,7 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
             }
             type = if (hasNext()) next() else null
         }
-        return JavaCompactFragment(SimpleNamespaceContext(missingNamespaces), caw.toCharArray())
+        return CompactFragment(SimpleNamespaceContext(missingNamespaces), caw.toCharArray())
     } catch (e: XmlException) {
         throw XmlException("Failure to parse children into string at " + startLocation, e)
     } catch (e: RuntimeException) {

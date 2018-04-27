@@ -29,4 +29,5 @@ interface XmlSerializable {
 
 }
 
-expect fun toString(serializable: XmlSerializable):String
+//XXX EXPECT
+//expect fun toString(serializable: XmlSerializable):String

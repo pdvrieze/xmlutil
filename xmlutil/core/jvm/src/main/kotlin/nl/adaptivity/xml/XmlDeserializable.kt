@@ -13,7 +13,6 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
-
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.multiplatform.assert
