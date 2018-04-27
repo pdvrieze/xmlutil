@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2018.
  *
  * This file is part of ProcessManager.
  *
@@ -17,7 +17,6 @@
 package nl.adaptivity.xml
 
 import net.devrieze.util.kotlin.asString
-import nl.adaptivity.xml.EventType
 import java.io.InputStream
 import java.io.Reader
 import javax.xml.namespace.NamespaceContext

@@ -14,19 +14,18 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+/**
+ * Interface that factories need to implement to handle be deserialization in a "shared"
+ * non-reflective approach.
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+ * Created by pdvrieze on 27/08/15.
+ */
+interface XmlDeserializerFactory<T>
+{
 
-//group = ['server', 'serverclasspath']
+  /** Deserialize the object */
+  fun deserialize(reader: XmlReader): T
 
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
 }

@@ -14,19 +14,24 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.multiplatform
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+import java.util.UUID
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+actual typealias Class<T> = java.lang.Class<T>
 
-//group = ['server', 'serverclasspath']
+actual typealias Throws = kotlin.jvm.Throws
+
+actual typealias UUID = java.util.UUID
+
+actual fun String.toUUID(): UUID = UUID.fromString(this)
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+@Suppress("NOTHING_TO_INLINE")
+actual fun <T> fill(array: Array<T>, element: T, fromIndex: Int, toIndex: Int) {
+    java.util.Arrays.fill(array, fromIndex, toIndex, element)
 }
+
+@Suppress("NOTHING_TO_INLINE")
+actual inline fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int) =
+    java.lang.System.arraycopy(src, srcPos, dest, destPos, length)

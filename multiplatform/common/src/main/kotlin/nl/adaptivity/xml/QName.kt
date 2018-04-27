@@ -14,19 +14,18 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+expect class QName {
+    constructor(namespaceURI: String, localPart: String, prefix: String)
+    constructor(namespaceURI: String, localPart: String)
+    constructor(localPart: String)
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
-
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+    fun getPrefix(): String
+    fun getLocalPart(): String
+    fun getNamespaceURI(): String
 }
+
+inline val QName.prefix get() = getPrefix()
+inline val QName.localPart get() = getLocalPart()
+inline val QName.namespaceURI get() = getNamespaceURI()

@@ -14,19 +14,13 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
-
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+object XMLConstants {
+    val DEFAULT_NS_PREFIX: String = ""
+    val NULL_NS_URI: String get() = ""
+    val XMLNS_ATTRIBUTE_NS_URI: String get() = "http://www.w3.org/2000/xmlns/"
+    val XMLNS_ATTRIBUTE: String get() = "xmlns"
+    val XML_NS_PREFIX: String get() = "xml"
+    val XML_NS_URI: String get() = "http://www.w3.org/XML/1998/namespace"
 }

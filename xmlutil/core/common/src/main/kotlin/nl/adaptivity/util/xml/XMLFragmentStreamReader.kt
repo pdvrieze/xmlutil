@@ -14,19 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+import nl.adaptivity.xml.*
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+/**
+ * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
+
+ * Created by pdvrieze on 04/11/15.
+ */
+expect class XMLFragmentStreamReader : XmlDelegatingReader {
+
+    companion object {
+        fun from(fragment: CompactFragment): XMLFragmentStreamReader
+    }
+
+
 }
+
+fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)

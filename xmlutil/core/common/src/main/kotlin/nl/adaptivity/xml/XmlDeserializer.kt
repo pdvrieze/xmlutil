@@ -14,19 +14,16 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+import kotlin.reflect.KClass
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
-}
+/**
+ * Annotation that specifies the Deserializer for this type.
+
+ * Created by pdvrieze on 27/08/15.
+ */
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)

@@ -14,19 +14,31 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.kotlin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+val kotlin_version: String by extra
+buildscript {
+    var kotlin_version: String by extra
+    kotlin_version = "1.2.40"
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(kotlinModule("gradle-plugin", kotlin_version))
+    }
+}
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
-
+plugins {
+    id("kotlin-platform-common")
+}
 
 dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+    implementation(kotlin("stdlib-common"))
+    implementation(project(":multiplatform:common"))
+    implementation(project(":java-common:common"))
+}
+repositories {
+    jcenter()
 }

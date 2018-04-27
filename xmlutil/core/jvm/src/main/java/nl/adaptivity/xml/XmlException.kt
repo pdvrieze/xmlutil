@@ -14,19 +14,24 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+actual typealias IOException = java.io.IOException
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+/**
+ * Simple exception for xml related things.
+ * Created by pdvrieze on 15/11/15.
+ */
+actual open class XmlException : IOException
+{
 
-//group = ['server', 'serverclasspath']
+  actual constructor() { }
 
+    actual constructor(message: String) : super(message)
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+    actual constructor(message: String, cause: Throwable) : super(message, cause)
+
+    actual constructor(cause: Throwable) : super(cause)
+
+    actual constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
 }

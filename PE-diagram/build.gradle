@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2018.
  *
  * This file is part of ProcessManager.
  *
@@ -52,8 +52,8 @@ task imageGen(type:JavaExec, dependsOn: configurations.imageGenCompile) {
 }
 
 dependencies {
-    compile project(':PE-common')
-    compileOnly project(path: ':PE-common', configuration:'compileOnly')
+    compile project(':PE-common:jvm')
+    compileOnly project(path: ':PE-common:jvm', configuration:'compileOnly')
     imageGenCompile project(':PE-diagram')
     imageGenRuntime project(':xmlutil:jvm')
     testCompile "org.testng:testng:$testngVersion"

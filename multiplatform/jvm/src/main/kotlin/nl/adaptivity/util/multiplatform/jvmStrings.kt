@@ -14,19 +14,15 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.multiplatform
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+actual typealias Locale = java.util.Locale
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+actual typealias Locales = nl.adaptivity.util.multiplatform.java.Locales
 
-//group = ['server', 'serverclasspath']
+@Suppress("NOTHING_TO_INLINE")
+actual inline fun CharSequence.toLowercase(locale: Locale):String =
+    toString().toLowerCase(locale)
 
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
-}
+@Suppress("NOTHING_TO_INLINE")
+actual inline fun Int.toHex(): String = toString(16)

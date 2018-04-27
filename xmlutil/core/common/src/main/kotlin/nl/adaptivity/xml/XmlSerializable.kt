@@ -14,19 +14,19 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
-
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+package nl.adaptivity.xml
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+interface XmlSerializable {
+
+  /**
+   * Write the object to an xml stream. The object is expected to write itself and its children.
+   * @param out The stream to write to.
+   *
+   * @throws XmlException When something breaks.
+   */
+  fun serialize(out: XmlWriter)
+
 }
+
+expect fun toString(serializable: XmlSerializable):String

@@ -14,19 +14,15 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
-
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+@Deprecated("Don't use, just use string comparison")
+fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
+  if (this==null) return other==null
+  if (other==null) return false
+  if (length!=other.length) return false
+  for (i in 0 until length) {
+    if (this[i]!=other[i]) return false
+  }
+  return true
 }

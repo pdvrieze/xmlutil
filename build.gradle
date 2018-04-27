@@ -17,7 +17,7 @@
 buildscript {
     ext.androidPluginVersion = '3.1.1'
 //    ext.androidPluginVersion = '2.3.3'
-    ext.kotlin_version = '1.2.31'
+    ext.kotlin_version = '1.2.40'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.9'
@@ -82,7 +82,7 @@ dependencies {
 
     tomcatClasspath 'mysql:mysql-connector-java:5.1.36'
     tomcatClasspath project(':DarwinJavaApi')
-    tomcatClasspath project(':JavaCommonApi')
+    tomcatClasspath project(':JavaCommonApi:jvm')
     tomcatClasspath project(':DarwinRealm')
 
     if (Boolean.valueOf(androidEnabledProp)) {

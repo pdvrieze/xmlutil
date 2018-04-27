@@ -14,19 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+import nl.adaptivity.xml.XmlDeserializable
+import nl.adaptivity.xml.XmlException
+import nl.adaptivity.xml.XmlReader
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+/**
+ * Interface that allows more customization on child deserialization than [SimpleXmlDeserializable].
+ * Created by pdvrieze on 04/11/15.
+ */
+interface ExtXmlDeserializable : XmlDeserializable {
+
+  /**
+   * Called to have all children of the current node deserialized. The attributes have already been parsed. The expected
+   * end state is that the streamreader is at the corresponding endElement.
+   * @param `in` The streamreader that is the source of the events.
+   */
+  fun deserializeChildren(reader: XmlReader)
 }

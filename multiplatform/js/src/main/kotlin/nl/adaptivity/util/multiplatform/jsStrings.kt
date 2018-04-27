@@ -14,19 +14,20 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.multiplatform
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+actual class Locale
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+actual object Locales {
+    actual val DEFAULT: Locale = Locale()
+    actual val ENGLISH: Locale = Locale()
 
-//group = ['server', 'serverclasspath']
-
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
 }
+
+@Suppress("NOTHING_TO_INLINE")
+actual inline fun CharSequence.toLowercase(locale: Locale):String =
+    toString().toLowerCase()
+
+
+@Suppress("NOTHING_TO_INLINE", "UnsafeCastFromDynamic")
+actual inline fun Int.toHex(): String = asDynamic().toString(16)

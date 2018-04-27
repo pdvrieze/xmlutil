@@ -14,19 +14,26 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.util.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+import nl.adaptivity.xml.SimpleNamespaceContext
+import nl.adaptivity.xml.XmlReader
+import nl.adaptivity.xml.XmlSerializable
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+/**
+ * A class representing an xml fragment compactly.
+ * Created by pdvrieze on 06/11/15.2
+ */
+interface CompactFragment : XmlSerializable {
+
+    val isEmpty: Boolean
+        get() = content.isEmpty()
+
+    val namespaces: SimpleNamespaceContext
+    val content: CharArray
+
+    val contentString: String
+
+    fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 }

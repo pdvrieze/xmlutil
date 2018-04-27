@@ -14,19 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
-
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
-
-//group = ['server', 'serverclasspath']
+package nl.adaptivity.xml
 
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+expect open class IOException: Exception
+/**
+ * Simple exception for xml related things.
+ * Created by pdvrieze on 15/11/15.
+ */
+expect open class XmlException: IOException {
+
+  constructor()
+
+  constructor(message: String)
+
+  constructor(message: String, cause: Throwable)
+
+  constructor(cause: Throwable)
+
+  constructor(message: String, reader: XmlReader, cause: Throwable)
 }

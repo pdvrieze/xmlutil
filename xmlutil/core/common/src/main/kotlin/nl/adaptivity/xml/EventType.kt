@@ -14,19 +14,29 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+expect enum class EventType
+{
+  START_DOCUMENT,
+    START_ELEMENT,
+  END_ELEMENT,
+  COMMENT,
+  TEXT,
+  CDSECT,
+  DOCDECL,
+  END_DOCUMENT,
+  ENTITY_REF,
+  IGNORABLE_WHITESPACE,
+  ATTRIBUTE,
+  PROCESSING_INSTRUCTION;
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+  val isIgnorable:Boolean
 
-//group = ['server', 'serverclasspath']
+  open fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent): Unit
 
+  abstract fun writeEvent(writer: XmlWriter, reader: XmlReader)
 
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
+  abstract fun createEvent(reader: XmlReader): XmlEvent
+
 }

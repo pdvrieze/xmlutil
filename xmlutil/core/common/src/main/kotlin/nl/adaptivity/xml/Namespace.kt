@@ -14,19 +14,24 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
-apply plugin: 'idea'
+package nl.adaptivity.xml
 
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
+interface Namespace {
 
-version = '1.1.0'
-description = 'The api library for the Darwin system - Preferably this is loaded into the container classpath'
+    /**
+     * Gets the prefix, returns "" if this is a default
+     * namespace declaration.
+     */
+    val prefix: String
 
-//group = ['server', 'serverclasspath']
+    /**
+     * Gets the uri bound to the prefix of this namespace
+     */
+    val namespaceURI: String
 
-
-dependencies {
-    compile project(':JavaCommonApi:jvm')
-    compileOnly "org.jetbrains:annotations:13.0"
 }
+
+@Deprecated("Use the property version", ReplaceWith("this.prefix"))
+inline fun Namespace.getPrefix() = prefix
+@Deprecated("Use the property version", ReplaceWith("this.namespaceURI"))
+inline fun Namespace.getNamespaceURI() = namespaceURI
