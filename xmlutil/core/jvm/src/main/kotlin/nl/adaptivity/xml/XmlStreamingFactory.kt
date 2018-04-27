@@ -23,7 +23,7 @@ import java.io.Writer
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
-actual interface XmlStreamingFactory {
+interface XmlStreamingFactory {
 
   @Throws(XmlException::class)
   fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter

@@ -16,7 +16,7 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.multiplatform.assert
+import nl.adaptivity.util.multiplatform.assert
 import nl.adaptivity.util.xml.ExtXmlDeserializable
 import nl.adaptivity.util.xml.SimpleXmlDeserializable
 

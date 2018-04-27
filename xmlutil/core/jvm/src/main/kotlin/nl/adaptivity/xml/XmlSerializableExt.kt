@@ -56,7 +56,7 @@ fun XmlSerializable.toString(flags: Int): String {
   }.toString()
 }
 
-actual fun toString(serializable: XmlSerializable) = serializable.toString(DEFAULT_FLAGS)
+fun toString(serializable: XmlSerializable) = serializable.toString(DEFAULT_FLAGS)
 
 /**
  * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.

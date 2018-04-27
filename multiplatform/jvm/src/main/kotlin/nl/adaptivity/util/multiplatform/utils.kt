@@ -14,23 +14,14 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.xml
+package nl.adaptivity.util.multiplatform
 
-import nl.adaptivity.xml.*
+import java.lang.AutoCloseable
 
-
-/**
- * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
-
- * Created by pdvrieze on 04/11/15.
- */
-expect class XMLFragmentStreamReader : XmlDelegatingReader {
-
-    companion object {
-        fun from(fragment: CompactFragment): XMLFragmentStreamReader
-    }
-
-
+actual fun assert(value: Boolean, lazyMessage: () -> String) {
+    kotlin.assert(value, lazyMessage)
 }
 
-fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+actual fun assert(value: Boolean) = kotlin.assert(value)
+
+actual typealias AutoCloseable = AutoCloseable

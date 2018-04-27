@@ -23,5 +23,7 @@ expect interface NamespaceContext {
     fun getPrefixes(namespaceURI: String): Iterator<Any?>
 }
 
+interface IterableNamespaceContext: NamespaceContext, Iterable<Namespace>
+
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")
 inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> = getPrefixes(namespaceURI) as Iterator<String>

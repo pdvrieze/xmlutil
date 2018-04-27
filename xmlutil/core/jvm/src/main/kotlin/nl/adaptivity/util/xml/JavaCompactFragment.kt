@@ -23,8 +23,7 @@ import nl.adaptivity.xml.*
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-internal class JavaCompactFragment : CompactFragment
-{
+internal class JavaCompactFragment : CompactFragment {
 
   class Factory : XmlDeserializerFactory<CompactFragment>
   {
@@ -75,7 +74,9 @@ internal class JavaCompactFragment : CompactFragment
     }
   }
 
-  override fun equals(other: Any?): Boolean
+    override fun getXmlReader() = XMLFragmentStreamReader.from(this)
+
+    override fun equals(other: Any?): Boolean
   {
     if (this === other) return true
     if (other == null || javaClass != other.javaClass) return false

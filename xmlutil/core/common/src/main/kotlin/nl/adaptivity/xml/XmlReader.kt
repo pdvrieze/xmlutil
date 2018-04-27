@@ -18,7 +18,7 @@
 @file:JvmName("XmlReaderUtil")
 package nl.adaptivity.xml
 
-import nl.adaptivity.multiplatform.AutoCloseable
+import nl.adaptivity.util.multiplatform.AutoCloseable
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.xml.CompactFragment
@@ -166,7 +166,8 @@ fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(), elementname.getPrefix())
 }
 
-expect fun XmlReader.asSubstream(): XmlReader
+// XXX EXPECT
+//expect fun XmlReader.asSubstream(): XmlReader
 
 
 /**
@@ -254,6 +255,7 @@ fun XmlReader.isIgnorable(): Boolean {
     }
 }
 
+//XXX EXPECT
 expect fun XmlReader.siblingsToFragment(): CompactFragment
 
 /**
@@ -339,4 +341,5 @@ fun XmlReader.isElement(type: EventType,
 /** Write the current event to the writer. This will **not** move the reader. */
 fun XmlReader.writeCurrent(writer: XmlWriter) = eventType.writeEvent(writer, this)
 
-expect open class XmlBufferedReader(delegate: XmlReader) : XmlBufferedReaderBase
+//XXX EXPECT
+//expect open class XmlBufferedReader(delegate: XmlReader) : XmlBufferedReaderBase

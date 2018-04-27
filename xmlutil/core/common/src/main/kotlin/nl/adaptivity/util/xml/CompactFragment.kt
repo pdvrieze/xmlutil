@@ -16,7 +16,7 @@
 
 package nl.adaptivity.util.xml
 
-import nl.adaptivity.xml.SimpleNamespaceContext
+import nl.adaptivity.xml.IterableNamespaceContext
 import nl.adaptivity.xml.XmlReader
 import nl.adaptivity.xml.XmlSerializable
 
@@ -30,10 +30,10 @@ interface CompactFragment : XmlSerializable {
     val isEmpty: Boolean
         get() = content.isEmpty()
 
-    val namespaces: SimpleNamespaceContext
+    val namespaces: IterableNamespaceContext
     val content: CharArray
 
     val contentString: String
 
-    fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+    fun getXmlReader(): XmlReader// = XMLFragmentStreamReader.from(this)
 }

@@ -16,27 +16,26 @@
 
 package nl.adaptivity.xml
 
-expect enum class EventType
-{
-  START_DOCUMENT,
+expect enum class EventType {
+    START_DOCUMENT,
     START_ELEMENT,
-  END_ELEMENT,
-  COMMENT,
-  TEXT,
-  CDSECT,
-  DOCDECL,
-  END_DOCUMENT,
-  ENTITY_REF,
-  IGNORABLE_WHITESPACE,
-  ATTRIBUTE,
-  PROCESSING_INSTRUCTION;
+    END_ELEMENT,
+    COMMENT,
+    TEXT,
+    CDSECT,
+    DOCDECL,
+    END_DOCUMENT,
+    ENTITY_REF,
+    IGNORABLE_WHITESPACE,
+    ATTRIBUTE,
+    PROCESSING_INSTRUCTION;
 
-  val isIgnorable:Boolean
+    val isIgnorable: Boolean
 
-  open fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent): Unit
+    open fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent): Unit
 
-  abstract fun writeEvent(writer: XmlWriter, reader: XmlReader)
+    abstract fun writeEvent(writer: XmlWriter, reader: XmlReader)
 
-  abstract fun createEvent(reader: XmlReader): XmlEvent
+    abstract fun createEvent(reader: XmlReader): XmlEvent
 
 }

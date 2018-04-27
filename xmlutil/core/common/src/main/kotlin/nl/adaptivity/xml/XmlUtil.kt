@@ -66,24 +66,24 @@ fun QName.toCName(): String {
  * @return A resolved qname.
  */
 fun NamespaceContext.asQName(name: String): QName {
-  val reference: NamespaceContext = this
-  val colPos = name.indexOf(':')
-  if (colPos >= 0) {
-    val prefix = name.substring(0, colPos)
-    return QName(reference.getNamespaceURI(prefix) ?: NULL_NS_URI, name.substring(colPos + 1), prefix)
-  } else {
-    return QName(reference.getNamespaceURI(DEFAULT_NS_PREFIX) ?: NULL_NS_URI, name, DEFAULT_NS_PREFIX)
-  }
+    val reference: NamespaceContext = this
+    val colPos = name.indexOf(':')
+    if (colPos >= 0) {
+        val prefix = name.substring(0, colPos)
+        return QName(reference.getNamespaceURI(prefix) ?: NULL_NS_URI, name.substring(colPos + 1), prefix)
+    } else {
+        return QName(reference.getNamespaceURI(DEFAULT_NS_PREFIX) ?: NULL_NS_URI, name, DEFAULT_NS_PREFIX)
+    }
 
 }
 
 fun XmlReader.isXml():Boolean {
-  try {
-    while (hasNext()) next()
-  } catch (e:XmlException) {
-    return false
-  }
-  return true;
+    try {
+        while (hasNext()) next()
+    } catch (e:XmlException) {
+        return false
+    }
+    return true;
 }
 
 fun CharSequence.xmlEncode(): String {

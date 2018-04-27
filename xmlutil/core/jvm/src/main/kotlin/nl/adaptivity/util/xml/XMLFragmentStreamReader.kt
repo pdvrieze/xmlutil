@@ -14,24 +14,26 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.util.xml
 
-actual typealias IOException = java.io.IOException
+import nl.adaptivity.xml.*
+
 
 /**
- * Simple exception for xml related things.
- * Created by pdvrieze on 15/11/15.
+ * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
+
+ * Created by pdvrieze on 04/11/15.
  */
-actual open class XmlException : IOException
-{
+/*
+XXX EXPECT
+expect class XMLFragmentStreamReader : XmlDelegatingReader {
 
-  actual constructor() { }
+    companion object {
+        fun from(fragment: CompactFragment): XMLFragmentStreamReader
+    }
 
-    actual constructor(message: String) : super(message)
 
-    actual constructor(message: String, cause: Throwable) : super(message, cause)
-
-    actual constructor(cause: Throwable) : super(cause)
-
-    actual constructor(message: String, reader: XmlReader, cause: Throwable) : super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
 }
+*/
+
+fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)

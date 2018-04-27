@@ -14,14 +14,24 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.multiplatform
+package nl.adaptivity.xml
 
-import java.lang.AutoCloseable
+actual typealias IOException = java.io.IOException
 
-actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    kotlin.assert(value, lazyMessage)
+/**
+ * Simple exception for xml related things.
+ * Created by pdvrieze on 15/11/15.
+ */
+open class XmlException2 : IOException {
+
+    constructor() {}
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
+
+    constructor(message: String, reader: XmlReader, cause: Throwable) : super(
+        "${reader.locationInfo ?: "Unknown position"} - $message", cause)
 }
-
-actual fun assert(value: Boolean) = kotlin.assert(value)
-
-actual typealias AutoCloseable = AutoCloseable

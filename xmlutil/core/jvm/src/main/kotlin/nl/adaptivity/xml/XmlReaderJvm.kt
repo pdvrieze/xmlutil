@@ -19,7 +19,7 @@
 
 package nl.adaptivity.xml
 
-actual fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(this)
+fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(this)
 
 /**
  * A class that filters an xml stream such that it will only contain expected elements.

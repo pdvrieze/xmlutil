@@ -15,6 +15,7 @@
  */
 apply plugin: 'java-library'
 apply plugin: 'kotlin-platform-jvm'
+//apply plugin: 'kotlin'
 apply plugin: 'idea'
 
 version = '0.5.0'
@@ -23,10 +24,10 @@ description = 'Utility classes for xml handling that works across platforms (jvm
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(":java-common:jvm")
+//    implementation project(":java-common:jvm")
     implementation project(":multiplatform:jvm")
     expectedBy project(":xmlutil:core:common")
-    api project(":xmlutil:core:java")
+//    api project(":xmlutil:core:java")
 }
 
 sourceSets {
