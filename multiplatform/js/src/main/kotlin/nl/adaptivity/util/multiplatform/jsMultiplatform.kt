@@ -47,3 +47,15 @@ actual fun <T> fill(array: Array<T>, element: T, fromIndex: Int, toIndex: Int) {
         array.set(i, element)
     }
 }
+
+actual fun assert(value: Boolean, lazyMessage: () -> String) {
+    if (!value) console.error("Assertion failed: ${lazyMessage()}")
+}
+
+actual fun assert(value: Boolean) {
+    if (!value) console.error("Assertion failed")
+}
+
+actual interface AutoCloseable {
+    actual fun close()
+}

@@ -57,6 +57,7 @@ expect fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int)
 expect fun <T> fill(array: Array<T>, element: T, fromIndex: Int = 0, toIndex: Int = array.size)
 
 expect fun assert(value: Boolean, lazyMessage: () -> String)
+
 expect fun assert(value: Boolean)
 
 expect interface AutoCloseable {
