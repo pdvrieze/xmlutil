@@ -55,7 +55,7 @@ dependencies {
     compile project(':PE-common:jvm')
     compileOnly project(path: ':PE-common:jvm', configuration:'compileOnly')
     imageGenCompile project(':PE-diagram')
-    imageGenRuntime project(':xmlutil:jvm')
+    imageGenRuntime project(':xmlutil:core:jvm')
     testCompile "org.testng:testng:$testngVersion"
-    testRuntime project(':xmlutil:jvm')
+    testRuntime project(':xmlutil:core:jvm')
 }
