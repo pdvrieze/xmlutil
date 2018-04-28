@@ -17,7 +17,7 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.CompactFragment
-import kotlin.browser.document
+import nl.adaptivity.util.xml.ICompactFragment
 
 /**
  * Functions that work on both js/jvm but have different implementations

@@ -191,7 +191,7 @@ actual class XMLFragmentStreamReader constructor(text: String,
         }
 
 
-        actual fun from(fragment: CompactFragment): XMLFragmentStreamReader {
+        actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(fragment.contentString, fragment.namespaces)
         }
     }

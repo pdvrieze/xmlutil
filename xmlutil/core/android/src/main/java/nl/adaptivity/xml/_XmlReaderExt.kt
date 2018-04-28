@@ -19,6 +19,7 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.util.xml.ICompactFragment
 import java.io.CharArrayWriter
 import java.util.*
 

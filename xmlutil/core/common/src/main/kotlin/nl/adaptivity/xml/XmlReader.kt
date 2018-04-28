@@ -23,6 +23,7 @@ import nl.adaptivity.util.multiplatform.AutoCloseable
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.util.xml.ICompactFragment
 
 expect class PlatformXmlReader
 
@@ -284,7 +285,7 @@ expect fun XmlReader.siblingsToFragment(): CompactFragment
  *
  * @throws XmlException
  */
-fun XmlReader.elementContentToFragment(): CompactFragment {
+fun XmlReader.elementContentToFragment(): ICompactFragment {
     val r = this
     r.skipPreamble()
     if (r.hasNext()) {

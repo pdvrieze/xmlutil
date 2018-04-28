@@ -23,7 +23,7 @@ import nl.adaptivity.xml.*
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-actual class CompactFragment: XmlSerializable {
+actual class CompactFragment: ICompactFragment {
 
   class Factory : XmlDeserializerFactory<CompactFragment>
   {
@@ -36,11 +36,11 @@ actual class CompactFragment: XmlSerializable {
     }
   }
 
-    actual val isEmpty: Boolean
+  override val isEmpty: Boolean
       get() = content.isEmpty()
 
-    actual val namespaces: IterableNamespaceContext
-    actual val content: CharArray
+  override val namespaces: IterableNamespaceContext
+  override val content: CharArray
 
   actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
     this.namespaces = SimpleNamespaceContext.from(namespaces)
@@ -50,7 +50,7 @@ actual class CompactFragment: XmlSerializable {
   /** Convenience constructor for content without namespaces.  */
   actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
 
-  actual constructor(orig: CompactFragment) {
+  actual constructor(orig: ICompactFragment) {
     namespaces = SimpleNamespaceContext.from(orig.namespaces)
     content = orig.content
   }
@@ -73,13 +73,13 @@ actual class CompactFragment: XmlSerializable {
     }
   }
 
-  actual fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+  override fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || javaClass != other.javaClass) return false
 
-    val that = other as CompactFragment?
+    val that = other as ICompactFragment?
 
     if (namespaces != that!!.namespaces) return false
     return content.contentEquals(that.content)
@@ -97,7 +97,7 @@ actual class CompactFragment: XmlSerializable {
       return namespaces.joinToString(prefix="{namespaces=[", postfix = "], content=$contentString}") { "${it.prefix} -> ${it.namespaceURI} }" }
   }
 
-  actual val contentString: String
+  override val contentString: String
     get() = content.contentToString()
 
   companion object {

@@ -14,21 +14,28 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.xml
+package nl.adaptivity.util.multiplatform
 
+expect class SimpleQueue<E> {
+    constructor()
 
-/**
- * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper
- * elements, and then ignoring those on reading.
- * Created by pdvrieze on 04/11/15.
- */
-expect class XMLFragmentStreamReader : XmlDelegatingReader {
+    val size: Int
 
-    companion object {
-        fun from(fragment: ICompactFragment): XMLFragmentStreamReader
-    }
+    fun peekFirst(): E?
+    fun peekLast(): E?
 
+    fun removeFirst(): E
+    fun removeLast(): E
 
+    fun addLast(e:E)
+    fun add(element: E): Boolean
+
+    fun clear()
 }
 
-//fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+fun SimpleQueue<*>.isNotEmpty() = size>0
+fun <E> SimpleQueue<E>.addAll(elements: Iterable<E>):Boolean {
+    return elements.fold(false) { acc, e ->
+        acc or add(e)
+    }
+}

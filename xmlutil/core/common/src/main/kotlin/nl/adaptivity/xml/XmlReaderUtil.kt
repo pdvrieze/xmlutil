@@ -19,19 +19,24 @@
 
 package nl.adaptivity.xml
 
-fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(this)
+import nl.adaptivity.util.multiplatform.JvmMultifileClass
+import nl.adaptivity.util.multiplatform.JvmName
+import nl.adaptivity.util.multiplatform.Throws
+
+fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(
+    this)
 
 /**
  * A class that filters an xml stream such that it will only contain expected elements.
  */
-private class SubstreamFilterReader(delegate: XmlReader) : JvmXmlBufferedReader(delegate) {
+private class SubstreamFilterReader(delegate: XmlReader) : XmlBufferedReader(delegate) {
 
   @Throws(XmlException::class)
   override fun doPeek(): List<XmlEvent> {
     return super.doPeek().filter {
       when (it.eventType) {
         EventType.START_DOCUMENT, EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.END_DOCUMENT -> false
-        else                                                                                                                                                                          -> true
+        else                                                                                                  -> true
       }
     }
   }

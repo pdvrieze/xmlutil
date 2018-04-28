@@ -212,7 +212,7 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
 
         @Throws(XmlException::class)
         @JvmStatic
-        actual fun from(fragment: CompactFragment): XMLFragmentStreamReader {
+        actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(CharArrayReader(fragment.content), fragment.namespaces)
         }
     }
