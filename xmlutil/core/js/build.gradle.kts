@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
+    implementation(project(":multiplatform:js"))
     implementation(kotlin("stdlib-js"))
 }
 

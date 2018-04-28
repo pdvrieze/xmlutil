@@ -26,7 +26,7 @@ expect object XmlStreaming {
 
   fun setFactory(factory: XmlStreamingFactory?)
 
-  inline fun <reified T> deSerialize(input: String): T
+  inline fun <reified T:Any> deSerialize(input: String): T
 
   fun toString(value: XmlSerializable): String
 

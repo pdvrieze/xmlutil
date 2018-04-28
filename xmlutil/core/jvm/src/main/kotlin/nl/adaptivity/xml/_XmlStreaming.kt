@@ -136,7 +136,7 @@ actual object XmlStreaming {
         return XmlStreaming.newReader(StringReader(input)).deSerialize(type)
     }
 
-    actual inline fun <reified T> deSerialize(input:String): T {
+    actual inline fun <reified T:Any> deSerialize(input:String): T {
         return deSerialize(input, T::class.java)
     }
 

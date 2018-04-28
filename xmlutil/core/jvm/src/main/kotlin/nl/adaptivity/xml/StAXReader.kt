@@ -23,12 +23,12 @@ import javax.xml.namespace.NamespaceContext
 import javax.xml.stream.*
 import javax.xml.transform.Source
 
-
+actual typealias PlatformXmlReader = StAXReader
 /**
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
  * @author Created by pdvrieze on 16/11/15.
  */
-class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
+class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
   override var isStarted = false
     private set
@@ -55,7 +55,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   @Throws(XmlException::class)
   override fun close() {
     try {
-      mDelegate.close()
+      delegate.close()
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -63,7 +63,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   }
 
   override fun isEndElement(): Boolean {
-    return mDelegate.isEndElement
+    return delegate.isEndElement
   }
 
   val isStandalone: Boolean
@@ -71,16 +71,16 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     get() = standalone ?: false
 
   override fun isCharacters(): Boolean {
-    return mDelegate.isCharacters
+    return delegate.isCharacters
   }
 
   override fun isStartElement(): Boolean {
-    return mDelegate.isStartElement
+    return delegate.isStartElement
   }
 
   @Throws(XmlException::class)
   override fun isWhitespace(): Boolean {
-    return mDelegate.isWhiteSpace
+    return delegate.isWhiteSpace
   }
 
   val isWhiteSpace: Boolean
@@ -93,22 +93,16 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     get() = namespaceUri
 
   override val namespaceUri: String
-    get() = mDelegate.namespaceURI
+    get() = delegate.namespaceURI
 
   @Deprecated("")
   fun hasText(): Boolean {
-    return mDelegate.hasText()
+    return delegate.hasText()
   }
 
   @Throws(XmlException::class)
   override fun require(type: EventType, namespace: CharSequence?, name: CharSequence?) {
-    try {
-      mDelegate.require(LOCAL_TO_DELEGATE[type.ordinal], namespace.asString(), name.asString())
-    } catch (e: XMLStreamException) {
-
-      throw XmlException(e)
-    }
-
+      delegate.require(LOCAL_TO_DELEGATE[type.ordinal], namespace.asString(), name.asString())
   }
 
   val namespaceCount: Int
@@ -122,7 +116,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
   val characterEncodingScheme: String
     @Deprecated("")
-    get() = mDelegate.characterEncodingScheme
+    get() = delegate.characterEncodingScheme
 
   @Deprecated("")
   override fun getAttributeName(i: Int): QName {
@@ -130,7 +124,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   }
 
   override fun getNamespaceUri(prefix: CharSequence): String? {
-    return mDelegate.getNamespaceURI(prefix.toString())
+    return delegate.getNamespaceURI(prefix.toString())
   }
 
   fun getNamespaceURI(prefix: String): String? {
@@ -139,26 +133,26 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
   @Throws(XmlException::class)
   override fun getNamespacePrefix(namespaceUri: CharSequence): String? {
-    return mDelegate.namespaceContext.getPrefix(namespaceUri.toString())
+    return delegate.namespaceContext.getPrefix(namespaceUri.toString())
   }
 
   override val locationInfo: String?
     get() {
-      val location = mDelegate.location
+      val location = delegate.location
       return location?.toString()
     }
 
   val location: Location
     @Deprecated("")
-    get() = mDelegate.location
+    get() = delegate.location
 
   override fun getAttributeValue(nsUri: CharSequence?, localName: CharSequence): String? {
-    return mDelegate.getAttributeValue(nsUri.asString(), localName.toString())
+    return delegate.getAttributeValue(nsUri.asString(), localName.toString())
   }
 
   override val version: String
     @Deprecated("")
-    get() = mDelegate.version
+    get() = delegate.version
 
   override val name: QName
     @Deprecated("")
@@ -168,7 +162,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   override fun next(): EventType {
     isStarted = true
     try {
-      return updateDepth(fixWhitespace(delegateToLocal(mDelegate.next())))
+      return updateDepth(fixWhitespace(delegateToLocal(delegate.next())))
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -183,7 +177,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   {
     isStarted = true
     try {
-      return updateDepth(fixWhitespace(delegateToLocal(mDelegate.nextTag())))
+      return updateDepth(fixWhitespace(delegateToLocal(delegate.nextTag())))
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
@@ -193,7 +187,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   private fun fixWhitespace(eventType: EventType): EventType
   {
     if (eventType === EventType.TEXT) {
-      if (isXmlWhitespace(mDelegate.text)) {
+      if (isXmlWhitespace(delegate.text)) {
         mFixWhitespace = true
         return EventType.IGNORABLE_WHITESPACE
       }
@@ -211,29 +205,29 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
   @Throws(XmlException::class)
   override fun hasNext(): Boolean {
     try {
-      return mDelegate.hasNext()
+      return delegate.hasNext()
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
   }
 
   override val attributeCount: Int
-    get() = mDelegate.attributeCount
+    get() = delegate.attributeCount
 
   override fun getAttributeNamespace(i: Int): String {
-    return mDelegate.getAttributeNamespace(i)
+    return delegate.getAttributeNamespace(i)
   }
 
   override fun getAttributeLocalName(i: Int): String {
-    return mDelegate.getAttributeLocalName(i)
+    return delegate.getAttributeLocalName(i)
   }
 
   override fun getAttributePrefix(i: Int): String {
-    return mDelegate.getAttributePrefix(i)
+    return delegate.getAttributePrefix(i)
   }
 
   override fun getAttributeValue(i: Int): String {
-    return mDelegate.getAttributeValue(i)
+    return delegate.getAttributeValue(i)
   }
 
   override val namespaceStart: Int
@@ -241,32 +235,32 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
 
   override val namespaceEnd: Int
     @Throws(XmlException::class)
-    get() = mDelegate.namespaceCount
+    get() = delegate.namespaceCount
 
   @Deprecated("Wrong name", ReplaceWith("getNamespaceUri(index)"))
   fun getNamespaceURI(index: Int) = getNamespaceUri(index)
 
-  override fun getNamespaceUri(i: Int) = mDelegate.getNamespaceURI(i)
+  override fun getNamespaceUri(i: Int) = delegate.getNamespaceURI(i)
 
-  override fun getNamespacePrefix(i: Int) = mDelegate.getNamespacePrefix(i)
+  override fun getNamespacePrefix(i: Int) = delegate.getNamespacePrefix(i)
 
   override val namespaceContext: NamespaceContext
-    get() = mDelegate.namespaceContext
+    get() = delegate.namespaceContext
 
   override val eventType: EventType
-    get() = if (mFixWhitespace) EventType.IGNORABLE_WHITESPACE else delegateToLocal(mDelegate.eventType)
+    get() = if (mFixWhitespace) EventType.IGNORABLE_WHITESPACE else delegateToLocal(delegate.eventType)
 
   override val text: String
-    get() = mDelegate.text
+    get() = delegate.text
 
   override val encoding: String
-    get() = mDelegate.encoding
+    get() = delegate.encoding
 
   override val localName: String
-    get() = mDelegate.localName
+    get() = delegate.localName
 
   override val prefix: String
-    get() = mDelegate.prefix
+    get() = delegate.prefix
 
   val piData: String?
     @Deprecated("")
@@ -293,7 +287,7 @@ class StAXReader(private val mDelegate: XMLStreamReader) : AbstractXmlReader() {
     }
 
   override val standalone: Boolean?
-    get() = if (mDelegate.standaloneSet()) mDelegate.isStandalone else null
+    get() = if (delegate.standaloneSet()) delegate.isStandalone else null
 
   companion object {
 

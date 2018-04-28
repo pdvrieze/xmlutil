@@ -134,6 +134,7 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
     }
   }
 
+  @Suppress("OverridingDeprecatedMember")
   override fun getPrefixes(namespaceURI: String) = getPrefixSequence(namespaceURI).iterator()
 
   fun getPrefix(index: Int): String {

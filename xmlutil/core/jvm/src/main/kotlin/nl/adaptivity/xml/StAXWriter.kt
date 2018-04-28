@@ -27,12 +27,13 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.transform.Result
 
+actual typealias PlatformXmlWriter = StAXWriter
 
 /**
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
-class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter() {
+class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter(), XmlWriter {
   override var depth:Int = 0
     private set
 

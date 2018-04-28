@@ -14,24 +14,14 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "ProcessManager"
-//include ':java-common:common'
-//include ':java-common:jvm'
-//include ':java-common:js'
-//include ':JavaCommonApi:common'
-//include ':JavaCommonApi:jvm'
-//include ':JavaCommonApi:js'
-include ':multiplatform:common'
-include ':multiplatform:common-java'
-include ':multiplatform:java'
-include ':multiplatform:jvm'
-include ':multiplatform:js'
-include ':multiplatform:android'
+package nl.adaptivity.xml
 
-include ':xmlutil:core:common'
-include ':xmlutil:core:java'
-include ':xmlutil:core:jvm'
-include ':xmlutil:core:js'
-include ':xmlutil:core:android'
-include ':xmlutil:android'
+actual open class IOException : Exception {
+    actual constructor(): super()
 
+    actual constructor(message: String?): super(message)
+
+    actual constructor(message: String?, cause: Throwable?): super(message, cause)
+
+    actual constructor(cause: Throwable?): super(cause)
+}

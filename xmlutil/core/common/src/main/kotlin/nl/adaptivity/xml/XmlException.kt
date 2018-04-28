@@ -18,9 +18,9 @@ package nl.adaptivity.xml
 
 expect open class IOException: Exception {
     constructor()
-    constructor(message: String)
-    constructor(message: String, cause: Throwable)
-    constructor(cause: Throwable)
+    constructor(message: String?)
+    constructor(message: String?, cause: Throwable?)
+    constructor(cause: Throwable?)
 }
 
 

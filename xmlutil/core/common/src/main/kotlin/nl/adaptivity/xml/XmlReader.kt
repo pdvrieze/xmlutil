@@ -16,12 +16,15 @@
 
 @file:JvmMultifileClass
 @file:JvmName("XmlReaderUtil")
+
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.multiplatform.AutoCloseable
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.xml.CompactFragment
+
+expect class PlatformXmlReader
 
 /**
  * Created by pdvrieze on 15/11/15.
@@ -53,11 +56,25 @@ interface XmlReader : AutoCloseable {
 
     val prefix: CharSequence
 
-    val name: QName
+    val name: QName get() = qname(namespaceUri, localName, prefix)
 
     val isStarted: Boolean
 
-    fun require(type: EventType, namespace: CharSequence?, name: CharSequence?)
+    fun require(type: EventType, namespace: CharSequence?, name: CharSequence?): Unit = when {
+        eventType !== type        ->
+            throw XmlException("Unexpected event type Found: $eventType expected $type")
+
+        namespace != null &&
+        namespace != namespaceUri ->
+            throw XmlException("Namespace uri's don't match: expected=$namespace found=$namespaceUri")
+
+        name != null &&
+        name != localName         ->
+            throw XmlException("Local names don't match: expected=$name found=$localName")
+
+        else                      -> Unit
+    }
+
 
     val depth: Int
 
@@ -71,7 +88,8 @@ interface XmlReader : AutoCloseable {
 
     fun getAttributeLocalName(i: Int): CharSequence
 
-    fun getAttributeName(i: Int): QName
+    fun getAttributeName(i: Int): QName =
+        qname(getAttributeNamespace(i), getAttributeLocalName(i), getAttributePrefix(i))
 
     fun getAttributeValue(i: Int): CharSequence
 
@@ -91,15 +109,17 @@ interface XmlReader : AutoCloseable {
 
     fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence?
 
-    fun isWhitespace(): Boolean
+    fun isWhitespace(): Boolean = eventType === EventType.IGNORABLE_WHITESPACE ||
+                                  (eventType === EventType.TEXT &&
+                                   isXmlWhitespace(text))
 
-    fun isEndElement(): Boolean
+    fun isEndElement(): Boolean = eventType === EventType.END_ELEMENT
 
     /** Is the currrent element character content */
-    fun isCharacters(): Boolean
+    fun isCharacters(): Boolean = eventType === EventType.TEXT
 
     /** Is the current element a start element */
-    fun isStartElement(): Boolean
+    fun isStartElement(): Boolean = eventType === EventType.START_ELEMENT
 
     fun getNamespaceUri(prefix: CharSequence): String?
 
@@ -163,7 +183,8 @@ fun XmlReader.unhandledEvent(message: String? = null) {
 }
 
 fun XmlReader.isElement(elementname: QName): Boolean {
-    return isElement(EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(), elementname.getPrefix())
+    return isElement(EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(),
+                     elementname.getPrefix())
 }
 
 // XXX EXPECT

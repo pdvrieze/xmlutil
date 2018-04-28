@@ -27,13 +27,13 @@ import java.io.IOException
 import java.io.OutputStream
 import java.io.Writer
 
+actual typealias PlatformXmlWriter = AndroidXmlWriter
 
 /**
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-class AndroidXmlWriter : AbstractXmlWriter
-{
+class AndroidXmlWriter : AbstractXmlWriter, XmlWriter {
 
   private val mNamespaceHolder = NamespaceHolder()
   private val mRepairNamespaces: Boolean

@@ -25,11 +25,13 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.Reader
 
+actual typealias PlatformXmlReader = AndroidXmlReader
+
+
 /**
  * Created by pdvrieze on 15/11/15.
  */
-class AndroidXmlReader : AbstractXmlReader
-{
+class AndroidXmlReader : XmlReader {
   override var isStarted = false
 
   internal val parser: XmlPullParser
@@ -85,8 +87,7 @@ class AndroidXmlReader : AbstractXmlReader
     = withXmlException { DELEGATE_TO_LOCAL[parser.nextTag()]!! }.also { isStarted = true }
 
   @Throws(XmlException::class)
-  override fun require(type: EventType, namespace: CharSequence?, name: CharSequence?)
-  {
+  override fun require(type: EventType, namespace: CharSequence?, name: CharSequence?) {
     withXmlException { parser.require(LOCAL_TO_DELEGATE[type.ordinal], namespace?.toString(), name?.toString()) }
   }
 
