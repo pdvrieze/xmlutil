@@ -20,7 +20,6 @@ import net.devrieze.util.kotlin.asString
 import java.io.InputStream
 import java.io.Reader
 import javax.xml.namespace.NamespaceContext
-import javax.xml.namespace.QName
 import javax.xml.stream.*
 import javax.xml.transform.Source
 
