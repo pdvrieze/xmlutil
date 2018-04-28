@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2016.
  *
  * This file is part of ProcessManager.
  *
@@ -15,12 +15,40 @@
  */
 
 rootProject.name = "ProcessManager"
-//include ':java-common:common'
-//include ':java-common:jvm'
-//include ':java-common:js'
-//include ':JavaCommonApi:common'
-//include ':JavaCommonApi:jvm'
-//include ':JavaCommonApi:js'
+include ':DarwinGenerators'
+include ':java-common:common'
+include ':java-common:jvm'
+include ':java-common:js'
+include ':jscommon'
+include ':DarwinClients'
+// No longer contains any worthwhile code.
+//include ':DarwinCommon'
+include ':DarwinJavaApi'
+include ':PE-common:common'
+include ':PE-common:jvm'
+include ':PE-common:android'
+include ':PE-common:js'
+include ':PE-common:endpointDoclet'
+include ':JavaCommonApi:common'
+include ':JavaCommonApi:jvm'
+include ':JavaCommonApi:js'
+include ':PE-dataservices'
+include ':PEUserMessageHandler'
+include ':ProcessEngine:core'
+include ':ProcessEngine:servlet'
+include ':PE-diagram'
+include ':DarwinRealm'
+include ':DarwinServices'
+include ':PE-server'
+include ':darwin-sql'
+include ':accountmgr'
+include ':accountmgr:js'
+include ':accountcommon'
+include ':darwin:jvm'
+include ':darwin:shared'
+include ':darwin:js'
+include ':kotlinsql'
+include ':structurizr'
 include ':multiplatform:common'
 include ':multiplatform:common-java'
 include ':multiplatform:java'
@@ -34,4 +62,16 @@ include ':xmlutil:core:jvm'
 include ':xmlutil:core:js'
 include ':xmlutil:core:android'
 include ':xmlutil:android'
+
+//include ':xmlutil:generator'
+include ':TestSupport'
+include ':webeditor'
+
+// Android modules
+if (Boolean.valueOf(androidEnabledProp)) {
+    include ':xmlutil:android'
+    include ':android-auth'
+    include ':PMEditor'
+    include ':darwinlib'
+}
 
