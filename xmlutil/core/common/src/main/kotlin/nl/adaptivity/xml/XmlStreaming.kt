@@ -16,6 +16,8 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.multiplatform.Class
+
 expect interface XmlStreamingFactory
 
 /**

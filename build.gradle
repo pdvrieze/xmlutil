@@ -73,6 +73,108 @@ configurations {
     wsDoc
 }
 
+dependencies {
+    tomcatWars project(path: ":ProcessEngine:servlet", configuration: 'archives')
+    tomcatWars project(path: ":PEUserMessageHandler", configuration: 'archives')
+    tomcatWars project(path: ":accountmgr", configuration: 'archives')
+    tomcatWars project(path: ":darwin:jvm", configuration: 'warConfig')
+    tomcatWars project(path: ":webeditor", configuration: 'archives')
+    tomcatWars project(path: ":DarwinServices", configuration: 'archives')
+
+
+    tomcatClasspath 'mysql:mysql-connector-java:5.1.36'
+    tomcatClasspath project(':DarwinJavaApi')
+    tomcatClasspath project(':JavaCommonApi:jvm')
+    tomcatClasspath project(':DarwinRealm')
+
+    if (Boolean.valueOf(androidEnabledProp)) {
+        androidApps project(path: ':android-auth', configuration: 'debugRuntimeElements')
+        androidApps project(path: ':PMEditor', configuration: 'debugRuntimeElements')
+    }
+
+    wsDoc project(path: "ProcessEngine:servlet", configuration: 'wsDocOutput')
+    wsDoc project(path: "PEUserMessageHandler", configuration: 'wsDocOutput')
+}
+
+def soapTarget = file("wiki/SOAP")
+if (soapTarget.isDirectory()) {
+    task wsDoc(type: Copy) {
+        group = "documentation"
+        dependsOn configurations.wsDoc
+        destinationDir = file("wiki")
+
+        into('.') {
+            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
+//            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
+            include '**/SOAP/*.md'
+            exclude '**/*InternalEndpointImpl.md'
+            rename { path ->
+                def file = path.substring(path.lastIndexOf('/') + 1)
+                def extPos = file.lastIndexOf('.')
+                def dotPos = file.lastIndexOf('.', extPos - 1) // we want the second last dot, the last is the extension one
+                if (dotPos >= 0) {
+                    file.substring(dotPos + 1, extPos) + "_SOAP.md"
+                } else file
+            }
+        }
+
+        into('.') {
+            from files({ dependsOn.findAll { dep -> dep instanceof Configuration } })
+            include '**/REST/*.md'
+            rename { path ->
+                def file = path.substring(path.lastIndexOf('/') + 1)
+                def dotPos = file.lastIndexOf('.', file.lastIndexOf('.') - 1) // we want the second last dot, the last is the extension one
+                def extPos = file.lastIndexOf('.')
+                if (dotPos >= 0) {
+                    file.substring(dotPos + 1, extPos) + "_REST.md"
+                } else file
+            }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}
+
+task copyTomcatWars(type: Copy) {
+    group = "dist"
+    dependsOn configurations.tomcatWars
+    from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
+    into "${collectDir}/webapps/"
+}
+
+task copyTomcatClasspath(type: Copy) {
+    group = "dist"
+    dependsOn configurations.tomcatClasspath
+    from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
+    into "${collectDir}/tomcatlibs/"
+    exclude { file -> file.name.contains("tomcat-servlet-api") }
+}
+
+if (Boolean.valueOf(androidEnabledProp)) {
+    task copyAndroid(type: Copy) {
+        group = "dist"
+        dependsOn configurations.androidApps
+        from files { dependsOn.findAll { dep -> dep instanceof Configuration } }
+        into "${collectDir}/androidApps/"
+    }
+}
+
+task dist {
+    group = "dist"
+    dependsOn copyTomcatWars, copyTomcatClasspath
+    if (Boolean.valueOf(androidEnabledProp)) {
+        dependsOn copyAndroid
+    }
+}
+
+task run(dependsOn: [':PE-server:tomcatRun'], type: DefaultTask) {
+    group = 'application'
+    description = 'Run the server in a simple configuration'
+}
+
+
 
 htmlDependencyReport {
     projects = project.allprojects
@@ -93,6 +195,13 @@ allprojects {
             url = 'https://dl.bintray.com/jetbrains/spek'
         }
     }
+
+//    if (JavaVersion.current().isJava8Compatible()) {
+//        tasks.withType(Javadoc) {
+//            options.addStringOption('Xdoclint:none', '-quiet')
+//        }
+//    }
+
     tasks.withType(KotlinCompile) {
         kotlinOptions.jvmTarget = '1.8'
     }
