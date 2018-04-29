@@ -31,6 +31,7 @@ interface ICompactFragment: XmlSerializable {
 
     fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 }
+
 /**
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2

@@ -22,6 +22,7 @@ package nl.adaptivity.xml
 import nl.adaptivity.util.multiplatform.AutoCloseable
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
+import nl.adaptivity.util.multiplatform.JvmOverloads
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.util.xml.ICompactFragment
 
@@ -170,6 +171,7 @@ fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
     return false
 }
 
+@JvmOverloads
 fun XmlReader.unhandledEvent(message: String? = null) {
     val actualMessage = when (eventType) {
         EventType.CDSECT,
@@ -322,6 +324,7 @@ fun XmlReader.isElement(type: EventType, elementname: QName): Boolean {
  *
  * @return `true` if it matches, otherwise `false`
  */
+@JvmOverloads
 fun XmlReader.isElement(elementNamespace: CharSequence?,
                         elementName: CharSequence,
                         elementPrefix: CharSequence? = null): Boolean {

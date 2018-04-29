@@ -24,6 +24,8 @@ actual typealias JvmField = kotlin.jvm.JvmField
 
 actual typealias JvmName = kotlin.jvm.JvmName
 
+actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
+
 actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
 
 actual typealias URI = java.net.URI

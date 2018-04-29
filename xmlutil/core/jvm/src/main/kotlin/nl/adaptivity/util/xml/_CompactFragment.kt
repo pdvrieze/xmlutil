@@ -102,6 +102,9 @@ actual class CompactFragment: ICompactFragment {
 
   companion object {
 
+    @JvmStatic
+    val FACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()
+
     @Throws(XmlException::class)
     fun deserialize(reader: XmlReader): CompactFragment
     {

@@ -28,6 +28,12 @@ expect annotation class JvmField()
         AnnotationTarget.FILE)
 expect annotation class JvmName(val name:String)
 
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
+@Retention(AnnotationRetention.BINARY)
+@MustBeDocumented
+expect public annotation class JvmOverloads()
+
+
 @Target(AnnotationTarget.FILE)
 expect annotation class JvmMultifileClass()
 

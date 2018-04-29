@@ -40,4 +40,7 @@ open class XmlException : IOException {
 
     constructor(message: String, reader: XmlReader, cause: Throwable) :
         super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
+
+    @Deprecated("Only use in Java, in kotlin just throw", ReplaceWith("throw this"))
+    fun doThrow(): Nothing { throw this }
 }

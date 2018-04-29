@@ -24,7 +24,7 @@ fun <T:Any> JsClass<T>.toClass():Class<T> = this.asDynamic() as Class<T>
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
 @Retention(AnnotationRetention.SOURCE)
-actual public annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
+actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
 
 actual class UUID(val text:String) {
     override fun toString() = text

@@ -29,6 +29,12 @@ actual annotation class JvmField actual constructor()
         AnnotationTarget.FILE)
 actual annotation class JvmName actual constructor(actual val name: String)
 
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
+@Retention(AnnotationRetention.BINARY)
+@MustBeDocumented
+actual public annotation class JvmOverloads()
+
+
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FILE)
 actual annotation class JvmMultifileClass()

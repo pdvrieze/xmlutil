@@ -13,16 +13,16 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
-
+@file:JvmMultifileClass
+@file:JvmName("XmlWriterUtil")
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.AutoCloseable
-import nl.adaptivity.util.multiplatform.assert
+import nl.adaptivity.util.multiplatform.*
 import nl.adaptivity.util.xml.XmlDelegatingWriter
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI
 
-expect class PlatformXmlWriter: XmlWriter
+expect class PlatformXmlWriter//: XmlWriter
 /**
  * Created by pdvrieze on 15/11/15.
  */
@@ -206,6 +206,7 @@ fun XmlWriter.smartStartTag(nsUri:CharSequence?, localName: CharSequence, prefix
   }
 }
 
+@JvmOverloads
 inline fun XmlWriter.smartStartTag(nsUri:CharSequence?, localName: CharSequence, prefix: CharSequence?=null, body: XmlWriter.()->Unit) {
   smartStartTag(nsUri, localName, prefix)
   body()

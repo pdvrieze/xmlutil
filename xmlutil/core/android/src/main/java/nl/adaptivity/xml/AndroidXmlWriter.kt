@@ -33,7 +33,7 @@ actual typealias PlatformXmlWriter = AndroidXmlWriter
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-class AndroidXmlWriter : AbstractXmlWriter, XmlWriter {
+class AndroidXmlWriter : XmlWriter {
 
   private val mNamespaceHolder = NamespaceHolder()
   private val mRepairNamespaces: Boolean
@@ -331,7 +331,6 @@ class AndroidXmlWriter : AbstractXmlWriter, XmlWriter {
 
   @Throws(XmlException::class)
   override fun close() {
-    super.close()
     mNamespaceHolder.clear()
   }
 

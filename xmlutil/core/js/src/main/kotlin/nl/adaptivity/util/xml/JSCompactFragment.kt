@@ -19,6 +19,7 @@ package nl.adaptivity.util.xml
 import nl.adaptivity.js.prototype
 import nl.adaptivity.xml.*
 import org.w3c.dom.DocumentFragment
+import org.w3c.dom.Node
 
 
 typealias JSCompactFragment = CompactFragment
@@ -57,6 +58,7 @@ actual class CompactFragment : ICompactFragment {
     actual constructor(content: String) : this(emptyList(), content)
 
     constructor(documentFragment: DocumentFragment):this(documentFragment.toString())
+    constructor(node: Node):this(node.toString())
 
     /** Convenience constructor for content without namespaces.  */
     constructor(namespaces: Iterable<Namespace>, string: String) {

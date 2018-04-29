@@ -13,19 +13,18 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
+@file:JvmMultifileClass
+@file:JvmName("XmlWriterUtil")
+package nl.adaptivity.xml
 
-package nl.adaptivity.util.multiplatform
+import org.w3c.dom.Node
+import javax.xml.transform.dom.DOMSource
 
-actual typealias JvmStatic = kotlin.jvm.JvmStatic
+fun XmlWriter.writeChild(node: Node) {
+    serialize(node)
+}
 
-actual typealias JvmField = kotlin.jvm.JvmField
-
-actual typealias JvmName = kotlin.jvm.JvmName
-
-actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
-
-actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
-
-actual typealias URI = java.net.URI
-
-actual inline fun createUri(s: String): URI = URI.create(s)
+fun XmlWriter.serialize(node: Node) {
+    val xmlReader = XmlStreaming.newReader(DOMSource(node))
+    serialize(xmlReader)
+}

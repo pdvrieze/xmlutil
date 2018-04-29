@@ -16,8 +16,6 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.Throws
-
 enum class EventType {
     START_DOCUMENT(isIgnorable = true) {
         override fun createEvent(reader: XmlReader) = reader.run {
@@ -28,7 +26,6 @@ enum class EventType {
             writer.startDocument(reader.version, reader.encoding, reader.standalone)
     },
     START_ELEMENT {
-        @Throws(XmlException::class)
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.StartElementEvent(locationInfo, namespaceUri, localName, prefix, attributes,
                                        namespaceDecls)
@@ -46,7 +43,6 @@ enum class EventType {
         }
     },
     END_ELEMENT {
-        @Throws(XmlException::class)
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.EndElementEvent(locationInfo, namespaceUri, localName, prefix)
         }
@@ -59,7 +55,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, COMMENT, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.comment(textEvent.text)
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
@@ -70,7 +65,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, TEXT, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.text(textEvent.text)
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
@@ -81,7 +75,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, CDSECT, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.cdsect(textEvent.text)
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
@@ -92,7 +85,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, DOCDECL, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.docdecl(textEvent.text)
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
@@ -111,7 +103,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, ENTITY_REF, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.entityRef(textEvent.text)
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
@@ -122,7 +113,6 @@ enum class EventType {
             XmlEvent.TextEvent(locationInfo, IGNORABLE_WHITESPACE, text)
         }
 
-        @Throws(XmlException::class)
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.ignorableWhitespace(
             textEvent.text)
 
@@ -130,7 +120,6 @@ enum class EventType {
             writer.ignorableWhitespace(reader.text)
     },
     ATTRIBUTE {
-        @Throws(XmlException::class)
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.Attribute(locationInfo, namespaceUri, localName, prefix, text)
         }
@@ -142,7 +131,6 @@ enum class EventType {
         override fun createEvent(reader: XmlReader) = XmlEvent.TextEvent(
             reader.locationInfo, PROCESSING_INSTRUCTION, reader.text)
 
-        @Throws(XmlException::class)
 
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.processingInstruction(
             textEvent.text)
@@ -161,14 +149,11 @@ enum class EventType {
         this.isIgnorable = isIgnorable
     }
 
-    @Throws(XmlException::class)
     open fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent): Unit = throw UnsupportedOperationException(
         "This is not generally supported, only by text types")
 
-    @Throws(XmlException::class)
     abstract fun writeEvent(writer: XmlWriter, reader: XmlReader)
 
-    @Throws(XmlException::class)
     abstract fun createEvent(reader: XmlReader): XmlEvent
 
 }

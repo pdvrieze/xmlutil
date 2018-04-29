@@ -42,40 +42,34 @@ actual object XmlStreaming {
             return _factory ?: serviceLoader.first().apply { _factory = this }
         }
 
-    @Throws(XmlException::class)
     @JvmStatic
     @JvmOverloads
     fun newWriter(result: Result, repairNamespaces: Boolean = false): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
     }
 
-    @Throws(XmlException::class)
     @JvmOverloads
     @JvmStatic
     fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    @Throws(XmlException::class)
     @JvmOverloads
     @JvmStatic
     fun newWriter(writer: Writer, repairNamespaces: Boolean = false): XmlWriter {
         return factory.newWriter(writer, repairNamespaces)
     }
 
-    @Throws(XmlException::class)
     @JvmStatic
     fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
 
-    @Throws(XmlException::class)
     @JvmStatic
     fun newReader(reader: Reader): XmlReader {
         return factory.newReader(reader)
     }
 
-    @Throws(XmlException::class)
     @JvmStatic
     fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
@@ -119,19 +113,16 @@ actual object XmlStreaming {
       @JvmField val CHARACTERS = EventType.TEXT
     */
     @JvmStatic
-    @Throws(XmlException::class)
     fun <T> deSerialize(input: InputStream, type: Class<T>): T {
         return XmlStreaming.newReader(input, "UTF-8").deSerialize(type)
     }
 
     @JvmStatic
-    @Throws(XmlException::class)
     fun <T> deSerialize(input: Reader, type: Class<T>): T {
         return XmlStreaming.newReader(input).deSerialize(type)
     }
 
     @JvmStatic
-    @Throws(XmlException::class)
     fun <T> deSerialize(input: String, type: Class<T>): T {
         return XmlStreaming.newReader(StringReader(input)).deSerialize(type)
     }
@@ -141,19 +132,16 @@ actual object XmlStreaming {
     }
 
     @JvmStatic
-    @Throws(XmlException::class)
     fun <T> deSerialize(reader: Source, type: Class<T>): T {
         return XmlStreaming.newReader(reader).deSerialize(type)
     }
 
     @JvmStatic
-    @Throws(XmlException::class)
     fun toCharArray(content: Source): CharArray {
         return XmlStreaming.newReader(content).toCharArrayWriter().toCharArray()
     }
 
     @JvmStatic
-    @Throws(XmlException::class)
     fun toString(source: Source): String {
         return XmlStreaming.newReader(source).toCharArrayWriter().toString()
     }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 /*
  * Copyright (c) 2018.
  *
@@ -90,6 +92,9 @@ allprojects {
         maven {
             url = 'https://dl.bintray.com/jetbrains/spek'
         }
+    }
+    tasks.withType(KotlinCompile) {
+        kotlinOptions.jvmTarget = '1.8'
     }
 }
 

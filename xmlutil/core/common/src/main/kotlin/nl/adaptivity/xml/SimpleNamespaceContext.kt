@@ -16,6 +16,7 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xml.XMLConstants.XMLNS_ATTRIBUTE
@@ -66,6 +67,7 @@ open class SimpleNamespaceContext internal constructor(val buffer:Array<out Stri
 
   val indices:IntRange get() = 0..(size-1)
 
+  @get:JvmName("size")
   val size:Int
     get() = buffer.size / 2
 

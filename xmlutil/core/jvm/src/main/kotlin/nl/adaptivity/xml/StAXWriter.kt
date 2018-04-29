@@ -33,7 +33,7 @@ actual typealias PlatformXmlWriter = StAXWriter
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
-class StAXWriter(val delegate: XMLStreamWriter) : AbstractXmlWriter(), XmlWriter {
+class StAXWriter(val delegate: XMLStreamWriter) : XmlWriter {
   override var depth:Int = 0
     private set
 

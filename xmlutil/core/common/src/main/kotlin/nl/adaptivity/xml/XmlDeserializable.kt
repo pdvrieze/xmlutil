@@ -13,8 +13,12 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
+@file:JvmMultifileClass
+@file:JvmName("XmlUtil")
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.multiplatform.JvmMultifileClass
+import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.multiplatform.assert
 import nl.adaptivity.util.xml.ExtXmlDeserializable
 import nl.adaptivity.util.xml.SimpleXmlDeserializable
