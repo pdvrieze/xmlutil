@@ -25,21 +25,15 @@ import javax.xml.transform.Source
 
 actual interface XmlStreamingFactory {
 
-  @Throws(XmlException::class)
   fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter
 
-  @Throws(XmlException::class)
   fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
 
-  @Throws(XmlException::class)
   fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter
 
-  @Throws(XmlException::class)
   fun newReader(source: Source): XmlReader
 
-  @Throws(XmlException::class)
   fun newReader(reader: Reader): XmlReader
 
-  @Throws(XmlException::class)
   fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
 }
