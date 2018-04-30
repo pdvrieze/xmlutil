@@ -97,7 +97,7 @@ actual class CompactFragment: ICompactFragment {
   }
 
   override val contentString: String
-    get() = content.contentToString()
+    get() = String(content)
 
   actual companion object {
 
