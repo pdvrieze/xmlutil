@@ -17,11 +17,9 @@
 /**
  * Created by pdvrieze on 13/04/16.
  */
-@file:JvmMultifileClass
-@file:JvmName("XmlUtilCommon")
+@file:JvmName("XmlUtil")
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI

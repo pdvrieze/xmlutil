@@ -14,7 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 @file:JvmMultifileClass
-@file:JvmName("XmlUtil")
+@file:JvmName("XmlUtilDeserializable")
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
