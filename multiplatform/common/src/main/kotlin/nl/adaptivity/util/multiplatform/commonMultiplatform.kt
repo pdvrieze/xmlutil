@@ -33,8 +33,10 @@ expect annotation class JvmName(val name:String)
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
 @MustBeDocumented
-expect public annotation class JvmOverloads()
+expect annotation class JvmOverloads()
 
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
+expect annotation class JvmDefault()
 
 @Target(AnnotationTarget.FILE)
 expect annotation class JvmMultifileClass()

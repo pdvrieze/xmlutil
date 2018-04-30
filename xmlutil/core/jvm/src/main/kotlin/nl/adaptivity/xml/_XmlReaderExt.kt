@@ -36,7 +36,6 @@ import java.util.*
  *
  * @throws XmlException parsing failed
  */
-@Throws(XmlException::class)
 actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val caw = CharArrayWriter()
     if (!isStarted) {
