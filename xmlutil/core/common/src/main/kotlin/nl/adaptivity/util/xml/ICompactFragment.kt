@@ -16,10 +16,7 @@
 
 package nl.adaptivity.util.xml
 
-import nl.adaptivity.xml.IterableNamespaceContext
-import nl.adaptivity.xml.Namespace
-import nl.adaptivity.xml.XmlReader
-import nl.adaptivity.xml.XmlSerializable
+import nl.adaptivity.xml.*
 
 interface ICompactFragment: XmlSerializable {
     val isEmpty: Boolean
@@ -41,4 +38,10 @@ expect class CompactFragment : ICompactFragment {
     constructor(orig: ICompactFragment)
     constructor(content: XmlSerializable)
     constructor(namespaces: Iterable<Namespace>, content: CharArray?)
+
+    class Factory() : XmlDeserializerFactory<CompactFragment>
+
+    companion object {
+        fun deserialize(reader: XmlReader): CompactFragment
+    }
 }

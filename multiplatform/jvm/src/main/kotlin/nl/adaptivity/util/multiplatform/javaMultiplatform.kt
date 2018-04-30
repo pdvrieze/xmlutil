@@ -20,6 +20,8 @@ import java.util.UUID
 
 actual typealias JvmStatic = kotlin.jvm.JvmStatic
 
+actual typealias JvmWildcard = kotlin.jvm.JvmWildcard
+
 actual typealias JvmField = kotlin.jvm.JvmField
 
 actual typealias JvmName = kotlin.jvm.JvmName
@@ -49,3 +51,5 @@ actual fun <T> fill(array: Array<T>, element: T, fromIndex: Int, toIndex: Int) {
 @Suppress("NOTHING_TO_INLINE")
 actual fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int) =
     java.lang.System.arraycopy(src, srcPos, dest, destPos, length)
+
+actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = value::class.java == T::class.java

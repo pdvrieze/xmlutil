@@ -59,3 +59,5 @@ actual fun assert(value: Boolean) {
 actual interface AutoCloseable {
     actual fun close()
 }
+
+actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = jsTypeOf(value) == jsClass<T>().name

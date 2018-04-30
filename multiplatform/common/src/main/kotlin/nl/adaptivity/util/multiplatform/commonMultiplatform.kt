@@ -19,8 +19,11 @@ package nl.adaptivity.util.multiplatform
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@Retention(AnnotationRetention.RUNTIME)
 expect annotation class JvmStatic()
+
+@Target(AnnotationTarget.TYPE)
+@MustBeDocumented
+expect annotation class JvmWildcard()
 
 expect annotation class JvmField()
 
@@ -29,7 +32,6 @@ expect annotation class JvmField()
 expect annotation class JvmName(val name:String)
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-@Retention(AnnotationRetention.BINARY)
 @MustBeDocumented
 expect public annotation class JvmOverloads()
 
@@ -38,7 +40,6 @@ expect public annotation class JvmOverloads()
 expect annotation class JvmMultifileClass()
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
-@Retention(AnnotationRetention.SOURCE)
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
 expect class URI {
@@ -69,3 +70,5 @@ expect fun assert(value: Boolean)
 expect interface AutoCloseable {
     fun close()
 }
+
+expect inline fun <reified T:Any> isTypeOf(value: Any):Boolean

@@ -30,9 +30,14 @@ actual annotation class JvmField actual constructor()
 actual annotation class JvmName actual constructor(actual val name: String)
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 actual public annotation class JvmOverloads()
+
+@Target(AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.SOURCE)
+@MustBeDocumented
+actual annotation class JvmWildcard()
 
 
 @Retention(AnnotationRetention.SOURCE)

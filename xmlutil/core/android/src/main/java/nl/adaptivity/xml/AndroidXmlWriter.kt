@@ -16,6 +16,7 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.lib.xmlutil.BuildConfig
 import nl.adaptivity.util.contentEquals
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlSerializer

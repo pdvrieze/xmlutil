@@ -190,6 +190,13 @@ fun XmlWriter.smartStartTag(qName: QName) {
 /**
  * Enhanced function for writing start tags, that will attempt to reuse prefixes.
  */
+inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.()->Unit) {
+    smartStartTag(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), body)
+}
+
+/**
+ * Enhanced function for writing start tags, that will attempt to reuse prefixes.
+ */
 fun XmlWriter.smartStartTag(nsUri:CharSequence?, localName: CharSequence, prefix: CharSequence?=null) {
   if (nsUri==null) {
     val namespace = namespaceContext.getNamespaceURI(prefix?.toString()?: DEFAULT_NS_PREFIX) ?: NULL_NS_URI
@@ -229,10 +236,6 @@ inline fun <T:XmlSerializable> XmlWriter.serializeAll(iterable: Iterable<T>) = i
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T:XmlSerializable> XmlWriter.serializeAll(sequence: Sequence<T>) = sequence.forEach { it.serialize(this) }
 
-
-inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.()->Unit) {
-  smartStartTag(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), body)
-}
 
 inline fun XmlWriter.startTag(nsUri:CharSequence?, localName: CharSequence, prefix: CharSequence?=null, body: XmlWriter.()->Unit) {
   startTag(nsUri, localName, prefix)

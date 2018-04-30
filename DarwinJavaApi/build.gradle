@@ -14,7 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'idea'
 
 sourceCompatibility = myJavaVersion
@@ -27,6 +27,6 @@ description = 'The api library for the Darwin system - Preferably this is loaded
 
 
 dependencies {
-    compile project(':JavaCommonApi:jvm')
+    compileOnly project(':JavaCommonApi:jvm')
     compileOnly "org.jetbrains:annotations:13.0"
 }

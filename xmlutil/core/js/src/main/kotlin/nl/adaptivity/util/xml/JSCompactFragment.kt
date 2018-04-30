@@ -30,7 +30,7 @@ typealias JSCompactFragment = CompactFragment
  */
 actual class CompactFragment : ICompactFragment {
 
-    class Factory : XmlDeserializerFactory<CompactFragment> {
+    actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
             return Companion.deserialize(reader)
@@ -113,11 +113,11 @@ actual class CompactFragment : ICompactFragment {
     }
 
 
-    companion object {
+    actual companion object {
 
         val FACTORY = Factory()
 
-        fun deserialize(reader: XmlReader): CompactFragment {
+        actual fun deserialize(reader: XmlReader): CompactFragment {
             return reader.siblingsToFragment()
         }
     }
