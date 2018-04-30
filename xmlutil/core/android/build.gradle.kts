@@ -36,7 +36,7 @@ plugins {
     idea
 }
 
-val `kotlin_version` by rootProject
+val `kotlin_version`: String by rootProject
 val kotlinVersion get() = `kotlin_version` as String?
 
 android {
