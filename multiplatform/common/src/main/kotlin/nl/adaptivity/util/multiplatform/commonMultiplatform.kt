@@ -56,6 +56,8 @@ inline val URI.path get() = getPath()
 
 expect inline fun createUri(s: String): URI
 
+inline fun String.toUri(): URI = createUri(this)
+
 fun Appendable.append(d: Double) = append(d.toString())
 fun Appendable.append(i: Int) = append(i.toString())
 
