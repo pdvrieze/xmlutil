@@ -23,61 +23,51 @@ import java.io.Reader
  * Reader that combines multiple "component" readers into one.
  * Created by pdvrieze on 01/11/15.
  */
-class CombiningReader(private vararg val sources: Reader) : Reader()
-{
+class CombiningReader(private vararg val sources: Reader) : Reader() {
 
-  private var currentSource: Int = 0
+    private var currentSource: Int = 0
 
-  @Throws(IOException::class)
-  override fun read(cbuf: CharArray, off: Int, len: Int): Int
-  {
-    if (currentSource >= sources.size) return -1
+    @Throws(IOException::class)
+    override fun read(cbuf: CharArray, off: Int, len: Int): Int {
+        if (currentSource >= sources.size) return -1
 
-    val source = sources[currentSource]
-    val i = source.read(cbuf, off, len)
-    if (i < 0)
-    {
-      source.close()
-      ++currentSource
-      return read(cbuf, off, len)
+        val source = sources[currentSource]
+        val i = source.read(cbuf, off, len)
+        if (i < 0) {
+            source.close()
+            ++currentSource
+            return read(cbuf, off, len)
+        }
+        return i
     }
-    return i
-  }
 
-  @Throws(IOException::class)
-  override fun close()
-  {
-    sources.forEach { it.close() }
-  }
-
-  @Throws(IOException::class)
-  override fun ready(): Boolean
-  {
-    if (currentSource >= sources.size)
-    {
-      return false
+    @Throws(IOException::class)
+    override fun close() {
+        sources.forEach { it.close() }
     }
-    return sources[currentSource].ready()
-  }
 
-  override fun markSupported(): Boolean
-  {
-    return super.markSupported()
-  }
-
-  @Throws(IOException::class)
-  override fun mark(readAheadLimit: Int)
-  {
-    throw IOException("Mark not supported")
-  }
-
-  @Throws(IOException::class)
-  override fun reset()
-  {
-    for (i in currentSource downTo 0)
-    {
-      sources[i].reset()
-      currentSource = i
+    @Throws(IOException::class)
+    override fun ready(): Boolean {
+        if (currentSource >= sources.size) {
+            return false
+        }
+        return sources[currentSource].ready()
     }
-  }
+
+    override fun markSupported(): Boolean {
+        return super.markSupported()
+    }
+
+    @Throws(IOException::class)
+    override fun mark(readAheadLimit: Int) {
+        throw IOException("Mark not supported")
+    }
+
+    @Throws(IOException::class)
+    override fun reset() {
+        for (i in currentSource downTo 0) {
+            sources[i].reset()
+            currentSource = i
+        }
+    }
 }

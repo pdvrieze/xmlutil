@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 /*
  * Copyright (c) 2018.
  *
@@ -23,6 +26,10 @@ plugins {
 val `kotlin_version`: String by project
 val kotlinVersion get() = `kotlin_version`
 
+base {
+    archivesBaseName = "multiplatform"
+}
+
 android {
     compileSdkVersion(27)
 }
@@ -30,6 +37,10 @@ android {
 dependencies {
     expectedBy(project(":multiplatform:common"))
     expectedBy(project(":multiplatform:common-java"))
-    implementation(project(":multiplatform:java"))
+    api(project(":multiplatform:java"))
     implementation(kotlin("stdlib", kotlinVersion))
+}
+
+tasks.withType<KotlinCompile> {
+    val opts: KotlinJvmOptions = kotlinOptions
 }

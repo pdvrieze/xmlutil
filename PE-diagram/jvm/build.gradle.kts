@@ -36,9 +36,13 @@ plugins {
     id("kotlin-platform-jvm")
 }
 
+base {
+    archivesBaseName="PE-diagram"
+}
+
 java.sourceSets {
     create("imageGen").apply {
-        getJava().srcDir("src/imagegen/java")
+        java.srcDir("src/imagegen/java")
     }
 }
 
@@ -54,5 +58,5 @@ dependencies {
     imageGenCompile(project(":PE-diagram:jvm"))
     imageGenRuntime(project (":xmlutil:core:jvm"))
     testCompile("org.testng:testng:$testngVersion")
-    testRuntime(project (":xmlutil:core:jvm"))
+    testRuntimeOnly(project (":xmlutil:core:jvm"))
 }

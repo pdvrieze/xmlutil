@@ -30,6 +30,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 plugins {
+    base
     id("com.android.library")
     id("kotlin-platform-android")
     id("kotlin-kapt")
@@ -43,7 +44,9 @@ android {
     compileSdkVersion(27)
 }
 
-
+base {
+    archivesBaseName="xmlutil-core"
+}
 
 version = "0.5.0"
 description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"

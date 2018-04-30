@@ -18,7 +18,7 @@
  * Created by pdvrieze on 13/04/16.
  */
 @file:JvmMultifileClass
-@file:JvmName("XmlUtil")
+@file:JvmName("XmlUtilCommon")
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.multiplatform.JvmMultifileClass

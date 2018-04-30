@@ -21,6 +21,10 @@ plugins {
     id("kotlin-platform-js")
 }
 
+base {
+    archivesBaseName="xmlutil-core"
+}
+
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
     implementation(project(":multiplatform:js"))
