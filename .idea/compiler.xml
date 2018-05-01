@@ -8,7 +8,6 @@
       <module name="darwin-jvm" target="1.7" />
       <module name="darwin-sql" target="1.7" />
       <module name="DarwinClients" target="1.7" />
-      <module name="DarwinCommon" target="1.7" />
       <module name="DarwinGenerators" target="1.7" />
       <module name="DarwinJavaApi" target="1.7" />
       <module name="darwinjs" target="1.7" />
@@ -17,9 +16,7 @@
       <module name="endpointDoclet" target="1.7" />
       <module name="java-common" target="1.7" />
       <module name="JavaCommonApi" target="1.7" />
-      <module name="js" target="1.7" />
       <module name="jscommon" target="1.7" />
-      <module name="jvm" target="1.7" />
       <module name="kotlinsql" target="1.7" />
       <module name="PE-common" target="1.7" />
       <module name="PE-dataservices" target="1.7" />
@@ -31,10 +28,6 @@
       <module name="TestSupport" target="1.7" />
       <module name="webeditor" target="1.7" />
       <module name="xmlutil-core" target="1.7" />
-      <module name="xmlutil-generator" target="1.7" />
-      <module name="xmlutil-java" target="1.7" />
-      <module name="xmlutil-js" target="1.7" />
-      <module name="xmlutil-jvm" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
