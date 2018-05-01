@@ -40,10 +40,6 @@ sourceSets {
     }
 }
 
-test {
-    useTestNG()
-}
-
 jar {
     baseName = "${project.parent.name}-${project.name}"
 }
