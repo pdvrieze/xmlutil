@@ -49,14 +49,20 @@ java.sourceSets {
 val imageGenCompile = configurations["imageGenCompile"].apply { extendsFrom(configurations["apiElements"]) }
 val imageGenRuntime = configurations["imageGenRuntime"].apply { extendsFrom(configurations["runtimeElements"]) }
 
-val testngVersion:String by project
+val jupiterVersion: String by project
 
 dependencies {
+    expectedBy(project(":PE-diagram:common"))
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":PE-common:jvm"))
     compileOnly(project(path= ":PE-common:jvm", configuration="compileOnly"))
     imageGenCompile(project(":PE-diagram:jvm"))
     imageGenRuntime(project (":xmlutil:core:jvm"))
-    testCompile("org.testng:testng:$testngVersion")
-    testRuntimeOnly(project (":xmlutil:core:jvm"))
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
