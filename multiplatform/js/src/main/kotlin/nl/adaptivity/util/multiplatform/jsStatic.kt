@@ -32,20 +32,20 @@ actual annotation class JvmName actual constructor(actual val name: String)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-actual public annotation class JvmOverloads()
+actual annotation class JvmOverloads
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
-actual annotation class JvmDefault()
+actual annotation class JvmDefault
 
 @Target(AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-actual annotation class JvmWildcard()
+actual annotation class JvmWildcard
 
 
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FILE)
-actual annotation class JvmMultifileClass()
+actual annotation class JvmMultifileClass
 
 
 open external class URL(url:String, base:String= definedExternally) {

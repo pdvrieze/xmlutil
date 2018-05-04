@@ -18,4 +18,4 @@ package nl.adaptivity.util.multiplatform
 
 //actual typealias JvmDefault = kotlin.jvm.JvmDefault
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
-actual annotation class JvmDefault()
+actual annotation class JvmDefault
