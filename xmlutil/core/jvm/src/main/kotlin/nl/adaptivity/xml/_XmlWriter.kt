@@ -14,7 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 @file:JvmMultifileClass
-@file:JvmName("XmlWriterUtil")
+@file:JvmName("XmlWriterUtilJVM")
 package nl.adaptivity.xml
 
 import org.w3c.dom.Node

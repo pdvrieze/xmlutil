@@ -13,17 +13,27 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
+@file:JvmMultifileClass
+@file:JvmName("XmlReaderUtil")
+package nl.adaptivity.xml
 
-plugins {
-    id("java-library")
-    id("kotlin-platform-jvm")
-}
-base {
-    archivesBaseName="xmlutil-core-java"
+import java.io.CharArrayWriter
+
+/**
+ * Extension functions for XmlReader that only work on Java
+ */
+
+
+inline fun <reified T : Any> XmlReader.deSerialize(): T {
+    return deSerialize(T::class.java)
 }
 
-dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
-    implementation(kotlin("stdlib-jdk7"))
+
+fun <T> XmlReader.deSerialize(type: Class<T>): T {
+    val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
+
+    return type.cast(deserializer.value.java.newInstance().deserialize(this))
 }
+
+
+

@@ -14,16 +14,6 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id("java-library")
-    id("kotlin-platform-jvm")
-}
-base {
-    archivesBaseName="xmlutil-core-java"
-}
+package nl.adaptivity.xml
 
-dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
-    implementation(kotlin("stdlib-jdk7"))
-}
+expect class PlatformXmlReader

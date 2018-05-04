@@ -14,16 +14,36 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id("java-library")
-    id("kotlin-platform-jvm")
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.kotlin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val kotlin_version: String by extra
+buildscript {
+    var kotlin_version: String by extra
+    kotlin_version = "1.2.40"
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(kotlinModule("gradle-plugin", kotlin_version))
+    }
 }
+
 base {
-    archivesBaseName="xmlutil-core-java"
+    archivesBaseName="xmlutil-core-common-nonshared"
+}
+
+
+plugins {
+    id("kotlin-platform-common")
 }
 
 dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
-    implementation(kotlin("stdlib-jdk7"))
+    implementation(kotlin("stdlib-common"))
+    implementation(project(":multiplatform:common"))
+    implementation(project(":xmlutil:core:common"))
+}
+repositories {
+    jcenter()
 }

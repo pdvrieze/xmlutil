@@ -23,10 +23,7 @@ import nl.adaptivity.util.multiplatform.AutoCloseable
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.multiplatform.JvmOverloads
-import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.util.xml.ICompactFragment
-
-expect class PlatformXmlReader
 
 /**
  * Created by pdvrieze on 15/11/15.
@@ -280,25 +277,7 @@ fun XmlReader.isIgnorable(): Boolean {
 }
 
 //XXX EXPECT
-expect fun XmlReader.siblingsToFragment(): CompactFragment
 
-/**
- * Differs from [.siblingsToFragment] in that it skips the current event.
- *
- * @throws XmlException
- */
-fun XmlReader.elementContentToFragment(): ICompactFragment {
-    val r = this
-    r.skipPreamble()
-    if (r.hasNext()) {
-        r.require(EventType.START_ELEMENT, null, null)
-        r.next()
-        return r.siblingsToFragment()
-    }
-    return CompactFragment("")
-}
-
-fun XmlReader.siblingsToCharArray() = siblingsToFragment().content
 
 /**
  * Check that the current state is a start element for the given name. The mPrefix is ignored.

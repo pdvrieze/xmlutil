@@ -66,10 +66,10 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
   if (this is SimpleXmlDeserializable) {
     loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
       when (reader.eventType) {
-        EventType.START_ELEMENT                            -> if (! deserializeChild(reader)) reader.unhandledEvent()
+        EventType.START_ELEMENT          -> if (! deserializeChild(reader)) reader.unhandledEvent()
         EventType.TEXT, EventType.CDSECT -> if (! deserializeChildText(reader.text)) reader.unhandledEvent()
       // If the text was not deserialized, then just fall through
-        else                                                                 -> reader.unhandledEvent()
+        else                             -> reader.unhandledEvent()
       }
     }
   } else if (this is ExtXmlDeserializable) {

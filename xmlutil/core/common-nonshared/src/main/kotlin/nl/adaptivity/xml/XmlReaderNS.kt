@@ -16,26 +16,26 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.Class
-
-expect interface XmlStreamingFactory
+import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.util.xml.ICompactFragment
 
 /**
- * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
- * Created by pdvrieze on 15/11/15.
+ * Differs from [.siblingsToFragment] in that it skips the current event.
+ *
+ * @throws XmlException
  */
-expect object XmlStreaming {
-
-  fun setFactory(factory: XmlStreamingFactory?)
-
-  inline fun <reified T:Any> deSerialize(input: String): T
-
-  fun toString(value: XmlSerializable): String
-
+fun XmlReader.elementContentToFragment(): ICompactFragment {
+    val r = this
+    r.skipPreamble()
+    if (r.hasNext()) {
+        r.require(EventType.START_ELEMENT, null, null)
+        r.next()
+        return r.siblingsToFragment()
+    }
+    return CompactFragment("")
 }
 
-/** Flag to indicate that the xml declaration should be omitted, when possible.  */
-const val FLAG_OMIT_XMLDECL = 1
-const val FLAG_REPAIR_NS = 2
-const val DEFAULT_FLAGS = FLAG_OMIT_XMLDECL
+expect fun XmlReader.siblingsToFragment(): CompactFragment
+
+fun XmlReader.siblingsToCharArray() = siblingsToFragment().content
 

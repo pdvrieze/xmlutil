@@ -27,13 +27,11 @@ actual class CompactFragment: ICompactFragment {
 
   actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
-    @Throws(XmlException::class)
-    override fun deserialize(reader: XmlReader): CompactFragment
-    {
-        @Suppress("RedundantCompanionReference")
-        return Companion.deserialize(reader)
+        override fun deserialize(reader: XmlReader): CompactFragment {
+            @Suppress("RedundantCompanionReference")
+            return Companion.deserialize(reader)
+        }
     }
-  }
 
   override val isEmpty: Boolean
       get() = content.isEmpty()
@@ -65,8 +63,7 @@ actual class CompactFragment: ICompactFragment {
 
 
     @Throws(XmlException::class)
-  override fun serialize(out: XmlWriter)
-  {
+  override fun serialize(out: XmlWriter) {
     XMLFragmentStreamReader.from(this).use { reader ->
       out.serialize(reader)
     }
@@ -85,8 +82,7 @@ actual class CompactFragment: ICompactFragment {
 
   }
 
-  override fun hashCode(): Int
-  {
+  override fun hashCode(): Int {
     var result = namespaces.hashCode()
     result = 31 * result + content.contentHashCode()
     return result
@@ -105,8 +101,7 @@ actual class CompactFragment: ICompactFragment {
     val FACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()
 
     @Throws(XmlException::class)
-    actual fun deserialize(reader: XmlReader): CompactFragment
-    {
+    actual fun deserialize(reader: XmlReader): CompactFragment {
       return reader.siblingsToFragment()
     }
   }

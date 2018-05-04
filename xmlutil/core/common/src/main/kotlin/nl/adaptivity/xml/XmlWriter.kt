@@ -23,7 +23,6 @@ import nl.adaptivity.util.xml.XmlDelegatingWriter
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI
 
-expect class PlatformXmlWriter//: XmlWriter
 /**
  * Created by pdvrieze on 15/11/15.
  */

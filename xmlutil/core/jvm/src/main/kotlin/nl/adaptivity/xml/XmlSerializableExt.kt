@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
-@file:JvmName("XmlSerializableExt")
+@file:JvmName("XmlSerializableExtJvm")
 package nl.adaptivity.xml
 
 import java.io.*
@@ -55,17 +55,3 @@ fun XmlSerializable.toString(flags: Int): String {
     }
   }.toString()
 }
-
-fun toString(serializable: XmlSerializable) = serializable.toString(DEFAULT_FLAGS)
-
-/**
- * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.
- * @param serializables The source list.
- *
- * @return A result list
- */
-@JvmName("toString")
-fun Iterable<XmlSerializable>.toSerializedStrings(): List<String> {
-  return this.map { it.toString(DEFAULT_FLAGS) }
-}
-

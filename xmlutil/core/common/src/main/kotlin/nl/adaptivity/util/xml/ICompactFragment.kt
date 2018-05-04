@@ -26,22 +26,6 @@ interface ICompactFragment: XmlSerializable {
 
     val contentString: String
 
-    fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+    fun getXmlReader(): XmlReader
 }
 
-/**
- * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.2
- */
-expect class CompactFragment : ICompactFragment {
-    constructor(content: String)
-    constructor(orig: ICompactFragment)
-    constructor(content: XmlSerializable)
-    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
-
-    class Factory() : XmlDeserializerFactory<CompactFragment>
-
-    companion object {
-        fun deserialize(reader: XmlReader): CompactFragment
-    }
-}

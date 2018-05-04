@@ -14,16 +14,19 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id("java-library")
-    id("kotlin-platform-jvm")
-}
-base {
-    archivesBaseName="xmlutil-core-java"
+package nl.adaptivity.xml
+
+/**
+ * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
+ * Created by pdvrieze on 15/11/15.
+ */
+expect object XmlStreaming {
+
+  fun setFactory(factory: XmlStreamingFactory?)
+
+  inline fun <reified T:Any> deSerialize(input: String): T
+
+  fun toString(value: XmlSerializable): String
+
 }
 
-dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
-    implementation(kotlin("stdlib-jdk7"))
-}

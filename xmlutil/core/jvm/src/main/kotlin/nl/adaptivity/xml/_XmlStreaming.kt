@@ -127,6 +127,11 @@ actual object XmlStreaming {
         return XmlStreaming.newReader(StringReader(input)).deSerialize(type)
     }
 
+    @JvmStatic
+    fun <T> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> {
+        return inputs.map { input -> XmlStreaming.newReader(StringReader(input)).deSerialize(type) }
+    }
+
     actual inline fun <reified T:Any> deSerialize(input:String): T {
         return deSerialize(input, T::class.java)
     }

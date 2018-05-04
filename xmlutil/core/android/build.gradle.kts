@@ -45,7 +45,7 @@ android {
 }
 
 base {
-    archivesBaseName="xmlutil-core"
+    archivesBaseName="xmlutil-core-android"
 }
 
 version = "0.5.0"
@@ -53,8 +53,8 @@ description = "Utility classes for xml handling that works across platforms (jvm
 
 
 dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":xmlutil:core:java"))
+    expectedBy(project(":xmlutil:core:common-nonshared"))
+    api(project(":xmlutil:core:java"))
     implementation(project(":multiplatform:jvm"))
     implementation(kotlin("stdlib-jdk7", kotlinVersion))
 }

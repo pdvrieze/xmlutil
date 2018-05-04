@@ -14,16 +14,26 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-plugins {
-    id("java-library")
-    id("kotlin-platform-jvm")
-}
-base {
-    archivesBaseName="xmlutil-core-java"
-}
+package nl.adaptivity.util.xml
 
-dependencies {
-    expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
-    implementation(kotlin("stdlib-jdk7"))
+import nl.adaptivity.xml.Namespace
+import nl.adaptivity.xml.XmlDeserializerFactory
+import nl.adaptivity.xml.XmlReader
+import nl.adaptivity.xml.XmlSerializable
+
+/**
+ * A class representing an xml fragment compactly.
+ * Created by pdvrieze on 06/11/15.2
+ */
+expect class CompactFragment : ICompactFragment {
+    constructor(content: String)
+    constructor(orig: ICompactFragment)
+    constructor(content: XmlSerializable)
+    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
+
+    class Factory() : XmlDeserializerFactory<CompactFragment>
+
+    companion object {
+        fun deserialize(reader: XmlReader): CompactFragment
+    }
 }

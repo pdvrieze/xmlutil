@@ -23,4 +23,4 @@ import nl.adaptivity.xml.*
  * Simple baseclass for a delating XmlReader.
  * Created by pdvrieze on 16/11/15.
  */
-open class XmlDelegatingReader protected constructor(protected val delegate: XmlReader): XmlReader by delegate
+open class XmlDelegatingReader protected constructor(protected open val delegate: XmlReader): XmlReader by delegate
