@@ -20,10 +20,11 @@ plugins {
 }
 
 base {
-    archivesBaseName = "multiplatform"
+    archivesBaseName = "multiplatform-js"
 }
 
 dependencies {
     expectedBy(project(":multiplatform:common"))
+    expectedBy(project(":multiplatform:common-nonshared"))
     implementation(kotlin("stdlib-js"))
 }

@@ -16,7 +16,7 @@
 
 rootProject.name = "ProcessManager"
 include ':multiplatform:common'
-include ':multiplatform:common-java'
+include ':multiplatform:common-nonshared'
 include ':multiplatform:java'
 include ':multiplatform:jvm'
 include ':multiplatform:js'
@@ -36,6 +36,7 @@ include ':PE-common:jvm'
 include ':PE-common:js'
 include ':PE-common:endpointDoclet'
 include ':JavaCommonApi:common'
+include ':JavaCommonApi:java'
 include ':JavaCommonApi:jvm'
 include ':JavaCommonApi:js'
 include ':PE-dataservices'
@@ -69,7 +70,6 @@ include ':webeditor'
 // Android modules
 if (Boolean.valueOf(androidEnabledProp)) {
     include ':multiplatform:android'
-    include ':JavaCommonApi:android'
     include ':java-common:android'
     include ':PE-common:android'
     include ':PE-diagram:android'

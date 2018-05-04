@@ -35,8 +35,8 @@ android {
 }
 
 dependencies {
-    expectedBy(project(":multiplatform:common"))
-    expectedBy(project(":multiplatform:common-java"))
+//    expectedBy(project(":multiplatform:common"))
+    expectedBy(project(":multiplatform:common-nonshared"))
     api(project(":multiplatform:java"))
     implementation(kotlin("stdlib", kotlinVersion))
 }

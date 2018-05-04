@@ -60,4 +60,4 @@ actual interface AutoCloseable {
     actual fun close()
 }
 
-actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = jsTypeOf(value) == jsClass<T>().name
+actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = jsTypeOf(value) == T::class.js.name

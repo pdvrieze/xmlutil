@@ -35,9 +35,6 @@ expect annotation class JvmName(val name:String)
 @MustBeDocumented
 expect annotation class JvmOverloads()
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
-expect annotation class JvmDefault()
-
 @Target(AnnotationTarget.FILE)
 expect annotation class JvmMultifileClass()
 
@@ -56,6 +53,7 @@ inline val URI.path get() = getPath()
 
 expect inline fun createUri(s: String): URI
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun String.toUri(): URI = createUri(this)
 
 fun Appendable.append(d: Double) = append(d.toString())

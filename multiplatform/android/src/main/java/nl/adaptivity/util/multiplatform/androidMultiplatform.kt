@@ -16,44 +16,6 @@
 
 package nl.adaptivity.util.multiplatform
 
-import java.util.UUID
-
-actual typealias Class<T> = java.lang.Class<T>
-
-actual typealias Throws = kotlin.jvm.Throws
-
-actual typealias UUID = java.util.UUID
-
-actual typealias JvmStatic = kotlin.jvm.JvmStatic
-
-actual typealias JvmField = kotlin.jvm.JvmField
-
-actual typealias JvmName = kotlin.jvm.JvmName
-
-actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
-
 //actual typealias JvmDefault = kotlin.jvm.JvmDefault
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 actual annotation class JvmDefault()
-
-actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
-
-actual typealias JvmWildcard = kotlin.jvm.JvmWildcard
-
-
-actual typealias URI = java.net.URI
-
-actual inline fun createUri(s: String): URI = URI.create(s)
-actual fun String.toUUID(): UUID = UUID.fromString(this)
-
-
-@Suppress("NOTHING_TO_INLINE")
-actual fun <T> fill(array: Array<T>, element: T, fromIndex: Int, toIndex: Int) {
-    java.util.Arrays.fill(array, fromIndex, toIndex, element)
-}
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int) =
-    java.lang.System.arraycopy(src, srcPos, dest, destPos, length)
-
-actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = value::class.java == T::class.java

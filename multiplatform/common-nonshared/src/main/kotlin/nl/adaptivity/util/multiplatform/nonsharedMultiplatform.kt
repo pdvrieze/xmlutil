@@ -16,4 +16,6 @@
 
 package nl.adaptivity.util.multiplatform
 
-actual typealias SimpleQueue<E> = java.util.ArrayDeque<E>
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
+expect annotation class JvmDefault()

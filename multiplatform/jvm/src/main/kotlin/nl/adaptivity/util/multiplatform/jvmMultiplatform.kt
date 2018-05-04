@@ -16,13 +16,4 @@
 
 package nl.adaptivity.util.multiplatform
 
-actual typealias Locale = java.util.Locale
-
-actual typealias Locales = nl.adaptivity.util.multiplatform.java.Locales
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun CharSequence.toLowercase(locale: Locale):String =
-    toString().toLowerCase(locale)
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun Int.toHex(): String = toString(16)
+actual typealias JvmDefault = kotlin.jvm.JvmDefault

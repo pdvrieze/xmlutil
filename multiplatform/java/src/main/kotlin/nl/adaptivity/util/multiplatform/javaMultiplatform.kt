@@ -18,6 +18,12 @@ package nl.adaptivity.util.multiplatform
 
 import java.util.UUID
 
+actual typealias Class<T> = java.lang.Class<T>
+
+actual typealias Throws = kotlin.jvm.Throws
+
+actual typealias UUID = java.util.UUID
+
 actual typealias JvmStatic = kotlin.jvm.JvmStatic
 
 actual typealias JvmWildcard = kotlin.jvm.JvmWildcard
@@ -28,20 +34,12 @@ actual typealias JvmName = kotlin.jvm.JvmName
 
 actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
 
-actual typealias JvmDefault = kotlin.jvm.JvmDefault
-
 actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
 
 actual typealias URI = java.net.URI
 
 @Suppress("NOTHING_TO_INLINE")
 actual inline fun createUri(s: String): URI = URI.create(s)
-
-actual typealias Class<T> = java.lang.Class<T>
-
-actual typealias Throws = kotlin.jvm.Throws
-
-actual typealias UUID = UUID
 
 actual fun String.toUUID(): UUID = UUID.fromString(this)
 

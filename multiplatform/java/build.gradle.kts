@@ -24,5 +24,6 @@ base {
 }
 
 dependencies {
+    expectedBy(project(":multiplatform:common"))
     implementation(kotlin("stdlib"))
 }
