@@ -17,10 +17,10 @@
 package nl.adaptivity.xml
 
 object XMLConstants {
-    val DEFAULT_NS_PREFIX: String = ""
-    val NULL_NS_URI: String get() = ""
-    val XMLNS_ATTRIBUTE_NS_URI: String get() = "http://www.w3.org/2000/xmlns/"
-    val XMLNS_ATTRIBUTE: String get() = "xmlns"
-    val XML_NS_PREFIX: String get() = "xml"
-    val XML_NS_URI: String get() = "http://www.w3.org/XML/1998/namespace"
+    const val DEFAULT_NS_PREFIX: String = ""
+    const val NULL_NS_URI: String = ""
+    const val XMLNS_ATTRIBUTE_NS_URI: String = "http://www.w3.org/2000/xmlns/"
+    const val XMLNS_ATTRIBUTE: String = "xmlns"
+    const val XML_NS_PREFIX: String = "xml"
+    const val XML_NS_URI: String = "http://www.w3.org/XML/1998/namespace"
 }

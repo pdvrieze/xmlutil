@@ -59,6 +59,7 @@ inline fun String.toUri(): URI = createUri(this)
 fun Appendable.append(d: Double) = append(d.toString())
 fun Appendable.append(i: Int) = append(i.toString())
 
+@Suppress("unused")
 expect class Class<T:Any?>
 
 expect fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int)
@@ -73,4 +74,5 @@ expect interface AutoCloseable {
     fun close()
 }
 
+@Suppress("unused")
 expect inline fun <reified T:Any> isTypeOf(value: Any):Boolean

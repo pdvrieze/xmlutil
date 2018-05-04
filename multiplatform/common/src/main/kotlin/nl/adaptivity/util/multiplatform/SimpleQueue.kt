@@ -16,8 +16,7 @@
 
 package nl.adaptivity.util.multiplatform
 
-expect class SimpleQueue<E> {
-    constructor()
+expect class SimpleQueue<E>() {
 
     val size: Int
 
