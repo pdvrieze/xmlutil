@@ -23,15 +23,14 @@ import kotlin.dom.isText
 fun Node.asElement(): Element? = if (isElement) this as Element else null
 fun Node.asText(): Text? = if (isText) this as Text else null
 
-fun Node.removeElementChildren()
-{
-  val top = this
-  var cur = top.firstChild
-  while (cur!=null) {
-    val n = cur.nextSibling
-    if (cur.isElement) {
-      top.removeChild(cur)
+fun Node.removeElementChildren() {
+    val top = this
+    var cur = top.firstChild
+    while (cur != null) {
+        val n = cur.nextSibling
+        if (cur.isElement) {
+            top.removeChild(cur)
+        }
+        cur = n
     }
-    cur = n
-  }
 }

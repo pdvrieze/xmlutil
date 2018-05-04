@@ -17,7 +17,6 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.CompactFragment
-import nl.adaptivity.util.xml.ICompactFragment
 
 /**
  * Functions that work on both js/jvm but have different implementations
@@ -25,7 +24,7 @@ import nl.adaptivity.util.xml.ICompactFragment
 
 /**
  * Read the current element (and content) and all its siblings into a fragment.
- * @param in The source stream.
+ * @receiver The source stream.
  *
  * @return the fragment
  *
@@ -67,9 +66,9 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment
     }
     return CompactFragment(dest)
   } catch (e: XmlException) {
-    throw XmlException("Failure to parse children into string at " + startLocation, e)
+    throw XmlException("Failure to parse children into string at $startLocation", e)
   } catch (e: RuntimeException) {
-    throw XmlException("Failure to parse children into string at " + startLocation, e)
+    throw XmlException("Failure to parse children into string at $startLocation", e)
   }
 
 }

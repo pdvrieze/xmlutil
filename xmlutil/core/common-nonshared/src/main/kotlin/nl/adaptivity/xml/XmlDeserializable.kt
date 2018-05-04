@@ -15,6 +15,7 @@
  */
 @file:JvmMultifileClass
 @file:JvmName("XmlUtilDeserializable")
+
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
@@ -29,58 +30,59 @@ import nl.adaptivity.util.xml.SimpleXmlDeserializable
  */
 interface XmlDeserializable {
 
-  /**
-   * Handle the given attribue.
-   * @param attributeNamespace The namespace of the the attribute.
-   *
-   * @param attributeLocalName The local name of the attribute
-   *
-   * @param attributeValue The value of the attribute
-   *
-   * @return `true` if handled, `false` if not. (The caller may use this for errors)
-   */
-  fun deserializeAttribute(attributeNamespace: CharSequence,
-                           attributeLocalName: CharSequence,
-                           attributeValue: CharSequence): Boolean = false
+    /**
+     * Handle the given attribute.
+     * @param attributeNamespace The namespace of the the attribute.
+     *
+     * @param attributeLocalName The local name of the attribute
+     *
+     * @param attributeValue The value of the attribute
+     *
+     * @return `true` if handled, `false` if not. (The caller may use this for errors)
+     */
+    fun deserializeAttribute(attributeNamespace: String?,
+                             attributeLocalName: String,
+                             attributeValue: String): Boolean = false
 
-  /** Listener called just before the children are deserialized. After attributes have been processed.  */
-  fun onBeforeDeserializeChildren(reader: XmlReader) {}
+    /** Listener called just before the children are deserialized. After attributes have been processed.  */
+    fun onBeforeDeserializeChildren(reader: XmlReader) {}
 
-  /** The name of the element, needed for the automated validation */
-  val elementName: QName
+    /** The name of the element, needed for the automated validation */
+    val elementName: QName
 }
 
 
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
-  reader.skipPreamble()
+    reader.skipPreamble()
 
-  val elementName = elementName
-  assert(reader.isElement(elementName)) { "Expected " + elementName + " but found " + reader.localName }
+    val elementName = elementName
+    assert(reader.isElement(elementName)) { "Expected $elementName but found ${reader.localName}" }
 
-  for (i in reader.attributeIndices.reversed()) {
-    deserializeAttribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i), reader.getAttributeValue(i))
-  }
-
-  onBeforeDeserializeChildren(reader)
-
-  if (this is SimpleXmlDeserializable) {
-    loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
-      when (reader.eventType) {
-        EventType.START_ELEMENT          -> if (! deserializeChild(reader)) reader.unhandledEvent()
-        EventType.TEXT, EventType.CDSECT -> if (! deserializeChildText(reader.text)) reader.unhandledEvent()
-      // If the text was not deserialized, then just fall through
-        else                             -> reader.unhandledEvent()
-      }
+    for (i in reader.attributeIndices.reversed()) {
+        deserializeAttribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
+                             reader.getAttributeValue(i))
     }
-  } else if (this is ExtXmlDeserializable) {
-    deserializeChildren(reader)
 
-    reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
+    onBeforeDeserializeChildren(reader)
 
-  } else {// Neither, means ignore children
-    if (!isXmlWhitespace(reader.siblingsToFragment().content)) {
-      throw XmlException("Unexpected child content in element")
+    if (this is SimpleXmlDeserializable) {
+        loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
+            when (reader.eventType) {
+                EventType.START_ELEMENT          -> if (!deserializeChild(reader)) reader.unhandledEvent()
+                EventType.TEXT, EventType.CDSECT -> if (!deserializeChildText(reader.text)) reader.unhandledEvent()
+            // If the text was not deserialized, then just fall through
+                else                             -> reader.unhandledEvent()
+            }
+        }
+    } else if (this is ExtXmlDeserializable) {
+        deserializeChildren(reader)
+
+        reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
+
+    } else {// Neither, means ignore children
+        if (!isXmlWhitespace(reader.siblingsToFragment().content)) {
+            throw XmlException("Unexpected child content in element")
+        }
     }
-  }
-  return this
+    return this
 }

@@ -17,8 +17,6 @@
 @file:JvmName("XmlReaderUtil")
 package nl.adaptivity.xml
 
-import java.io.CharArrayWriter
-
 /**
  * Extension functions for XmlReader that only work on Java
  */

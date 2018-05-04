@@ -35,6 +35,7 @@ actual object XmlStreaming {
         ServiceLoader.load(service, service.classLoader)
     }
 
+    @Suppress("ObjectPropertyName")
     private var _factory: XmlStreamingFactory? = StAXStreamingFactory()
 
     private val factory: XmlStreamingFactory

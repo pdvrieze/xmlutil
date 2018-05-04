@@ -35,6 +35,7 @@ actual object XmlStreaming {
         ServiceLoader.load(service, service.classLoader)
     }
 
+    @Suppress("ObjectPropertyName")
     private var _factory: XmlStreamingFactory? = AndroidStreamingFactory()
 
     private val factory: XmlStreamingFactory
@@ -44,20 +45,20 @@ actual object XmlStreaming {
 
     @JvmStatic
     @JvmOverloads
-    fun newWriter(result: Result, repairNamespaces: Boolean = false): XmlWriter {
-        return factory.newWriter(result, repairNamespaces)
+    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
+        return factory.newWriter(result, repairNamespaces, omitXmlDecl)
     }
 
     @JvmOverloads
     @JvmStatic
-    fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter {
-        return factory.newWriter(outputStream, encoding, repairNamespaces)
+    fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
+        return factory.newWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
     }
 
     @JvmOverloads
     @JvmStatic
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces)
+    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
+        return factory.newWriter(writer, repairNamespaces, omitXmlDecl)
     }
 
     @JvmStatic

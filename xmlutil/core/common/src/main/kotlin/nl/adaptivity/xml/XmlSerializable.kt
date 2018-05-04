@@ -28,6 +28,3 @@ interface XmlSerializable {
   fun serialize(out: XmlWriter)
 
 }
-
-//XXX EXPECT
-//expect fun toString(serializable: XmlSerializable):String

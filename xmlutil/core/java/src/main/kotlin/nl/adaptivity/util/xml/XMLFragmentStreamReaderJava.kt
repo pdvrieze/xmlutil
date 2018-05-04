@@ -19,7 +19,6 @@ package nl.adaptivity.util.xml
 import nl.adaptivity.util.xml.impl.FragmentNamespaceContext
 import nl.adaptivity.xml.EventType
 import nl.adaptivity.xml.NamespaceContext
-import nl.adaptivity.xml.XmlException
 import nl.adaptivity.xml.XmlReader
 
 interface XMLFragmentStreamReaderJava: XmlReader {
@@ -60,12 +59,12 @@ interface XMLFragmentStreamReaderJava: XmlReader {
     override val namespaceEnd: Int
         get() = localNamespaceContext.size
 
-    override fun getNamespacePrefix(i: Int): CharSequence {
-        return localNamespaceContext.getPrefix(i)
+    override fun getNamespacePrefix(index: Int): String {
+        return localNamespaceContext.getPrefix(index)
     }
 
-    override fun getNamespaceUri(i: Int): CharSequence {
-        return localNamespaceContext.getNamespaceURI(i)
+    override fun getNamespaceUri(index: Int): String {
+        return localNamespaceContext.getNamespaceURI(index)
     }
 
     override val namespaceContext: NamespaceContext
@@ -74,8 +73,8 @@ interface XMLFragmentStreamReaderJava: XmlReader {
     fun extendNamespace() {
         val nsStart = delegate.namespaceStart
         val nscount = delegate.namespaceEnd - nsStart
-        val prefixes = Array<String>(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart).toString() }
-        val namespaces = Array<String>(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart).toString() }
+        val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
+        val namespaces = Array(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart) }
 
         localNamespaceContext = FragmentNamespaceContext(
             localNamespaceContext, prefixes, namespaces)

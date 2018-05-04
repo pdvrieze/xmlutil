@@ -19,7 +19,6 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.util.xml.CompactFragment
-import nl.adaptivity.util.xml.ICompactFragment
 import java.io.CharArrayWriter
 import java.util.*
 
@@ -52,25 +51,33 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
         val missingNamespaces = TreeMap<String, String>()
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
         val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
+
+
         var type: EventType? = eventType
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
-            if (type === EventType.START_ELEMENT) {
-                val out = XmlStreaming.newWriter(caw)
-                writeCurrent(out) // writes the start tag
-                out.addUndeclaredNamespaces(this, missingNamespaces)
-                out.writeElementContent(missingNamespaces, this) // writes the children and end tag
-                out.close()
-            } else if (type === EventType.TEXT || type === EventType.IGNORABLE_WHITESPACE || type === EventType.CDSECT) {
-                // TODO if empty, ignore ignorable whitespace.
-                caw.append(text.xmlEncode())
+            @Suppress("NON_EXHAUSTIVE_WHEN")
+            when (type) {
+                EventType.START_ELEMENT        ->
+                    XmlStreaming.newWriter(caw).use { out ->
+                        writeCurrent(out) // writes the start tag
+                        out.addUndeclaredNamespaces(this, missingNamespaces)
+                        out.writeElementContent(missingNamespaces, this) // writes the children and end tag
+                    }
+
+                EventType.IGNORABLE_WHITESPACE ->
+                    if (text.isNotEmpty()) caw.append(text.xmlEncode())
+
+                EventType.TEXT,
+                EventType.CDSECT               ->
+                    caw.append(text.xmlEncode())
             }
             type = if (hasNext()) next() else null
         }
         return CompactFragment(SimpleNamespaceContext(missingNamespaces), caw.toCharArray())
     } catch (e: XmlException) {
-        throw XmlException("Failure to parse children into string at " + startLocation, e)
+        throw XmlException( "Failure to parse children into string at $startLocation", e)
     } catch (e: RuntimeException) {
-        throw XmlException("Failure to parse children into string at " + startLocation, e)
+        throw XmlException("Failure to parse children into string at $startLocation", e)
     }
 
 }

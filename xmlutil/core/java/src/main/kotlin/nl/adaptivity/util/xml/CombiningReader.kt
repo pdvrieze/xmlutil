@@ -27,7 +27,6 @@ class CombiningReader(private vararg val sources: Reader) : Reader() {
 
     private var currentSource: Int = 0
 
-    @Throws(IOException::class)
     override fun read(cbuf: CharArray, off: Int, len: Int): Int {
         if (currentSource >= sources.size) return -1
 
@@ -41,12 +40,10 @@ class CombiningReader(private vararg val sources: Reader) : Reader() {
         return i
     }
 
-    @Throws(IOException::class)
     override fun close() {
         sources.forEach { it.close() }
     }
 
-    @Throws(IOException::class)
     override fun ready(): Boolean {
         if (currentSource >= sources.size) {
             return false
@@ -54,16 +51,10 @@ class CombiningReader(private vararg val sources: Reader) : Reader() {
         return sources[currentSource].ready()
     }
 
-    override fun markSupported(): Boolean {
-        return super.markSupported()
-    }
-
-    @Throws(IOException::class)
-    override fun mark(readAheadLimit: Int) {
+    override fun mark(readAheadLimit: Int): Nothing {
         throw IOException("Mark not supported")
     }
 
-    @Throws(IOException::class)
     override fun reset() {
         for (i in currentSource downTo 0) {
             sources[i].reset()

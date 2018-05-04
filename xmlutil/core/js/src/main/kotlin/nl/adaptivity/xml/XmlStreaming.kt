@@ -16,7 +16,6 @@
 
 package nl.adaptivity.xml
 
-import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
@@ -71,9 +70,9 @@ actual object XmlStreaming {
 }
 
 
+/*
 fun <T:Any> JSDomReader.deSerialize(type: KClass<T>): T {
     TODO("Kotlin JS does not support annotations yet so no way to determine the deserializer")
-/*
     val an = type.annotations.firstOrNull { jsTypeOf(it) == kotlin.js.jsClass<XmlDeserializer>().name }
     val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
 

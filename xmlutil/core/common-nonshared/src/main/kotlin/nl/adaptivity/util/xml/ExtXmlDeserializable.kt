@@ -16,7 +16,6 @@
 package nl.adaptivity.util.xml
 
 import nl.adaptivity.xml.XmlDeserializable
-import nl.adaptivity.xml.XmlException
 import nl.adaptivity.xml.XmlReader
 
 
@@ -26,10 +25,10 @@ import nl.adaptivity.xml.XmlReader
  */
 interface ExtXmlDeserializable : XmlDeserializable {
 
-  /**
-   * Called to have all children of the current node deserialized. The attributes have already been parsed. The expected
-   * end state is that the streamreader is at the corresponding endElement.
-   * @param `in` The streamreader that is the source of the events.
-   */
-  fun deserializeChildren(reader: XmlReader)
+    /**
+     * Called to have all children of the current node deserialized. The attributes have already been parsed. The expected
+     * end state is that the streamreader is at the corresponding endElement.
+     * @param `in` The streamreader that is the source of the events.
+     */
+    fun deserializeChildren(reader: XmlReader)
 }

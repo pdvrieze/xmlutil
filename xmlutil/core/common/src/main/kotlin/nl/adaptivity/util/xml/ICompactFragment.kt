@@ -18,6 +18,9 @@ package nl.adaptivity.util.xml
 
 import nl.adaptivity.xml.*
 
+/**
+ * Base interface for CompactFragment implementations.
+ */
 interface ICompactFragment: XmlSerializable {
     val isEmpty: Boolean
 

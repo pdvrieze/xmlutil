@@ -24,72 +24,45 @@ import javax.xml.transform.Source
 /**
  * Created by pdvrieze on 21/11/15.
  */
-class AndroidStreamingFactory : XmlStreamingFactory
-{
+class AndroidStreamingFactory : XmlStreamingFactory {
 
-  @Throws(XmlException::class)
-  override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
-    try {
-      return AndroidXmlWriter(writer, repairNamespaces)
-    } catch (e: XmlPullParserException) {
-      throw XmlException(e)
-    } catch (e: IOException) {
-      throw XmlException(e)
+    @Throws(XmlException::class)
+    override fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        return AndroidXmlWriter(writer, repairNamespaces, omitXmlDecl)
     }
 
-  }
-
-  @Throws(XmlException::class)
-  override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
-  {
-    try
-    {
-      return AndroidXmlWriter(outputStream, encoding, repairNamespaces)
-    } catch (e: XmlPullParserException)
-    {
-      throw XmlException(e)
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
+    @Throws(XmlException::class)
+    override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        return AndroidXmlWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
     }
 
-  }
-
-  @Throws(XmlException::class)
-  override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter
-  {
-    throw UnsupportedOperationException("Results are not supported")
-  }
-
-  @Throws(XmlException::class)
-  override fun newReader(source: Source): XmlReader
-  {
-    throw UnsupportedOperationException("Sources are not supported")
-  }
-
-  @Throws(XmlException::class)
-  override fun newReader(reader: Reader): XmlReader
-  {
-    try
-    {
-      return AndroidXmlReader(reader)
-    } catch (e: XmlPullParserException)
-    {
-      throw XmlException(e)
+    @Throws(XmlException::class)
+    override fun newWriter(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        throw UnsupportedOperationException("Results are not supported")
     }
 
-  }
-
-  @Throws(XmlException::class)
-  override fun newReader(inputStream: InputStream, encoding: String): XmlReader
-  {
-    try
-    {
-      return AndroidXmlReader(inputStream, encoding)
-    } catch (e: XmlPullParserException)
-    {
-      throw XmlException(e)
+    @Throws(XmlException::class)
+    override fun newReader(source: Source): XmlReader {
+        throw UnsupportedOperationException("Sources are not supported")
     }
 
-  }
+    @Throws(XmlException::class)
+    override fun newReader(reader: Reader): XmlReader {
+        try {
+            return AndroidXmlReader(reader)
+        } catch (e: XmlPullParserException) {
+            throw XmlException(e)
+        }
+
+    }
+
+    @Throws(XmlException::class)
+    override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
+        try {
+            return AndroidXmlReader(inputStream, encoding)
+        } catch (e: XmlPullParserException) {
+            throw XmlException(e)
+        }
+
+    }
 }

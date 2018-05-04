@@ -22,11 +22,11 @@ package nl.adaptivity.xml
  */
 expect object XmlStreaming {
 
-  fun setFactory(factory: XmlStreamingFactory?)
+    fun setFactory(factory: XmlStreamingFactory?)
 
-  inline fun <reified T:Any> deSerialize(input: String): T
+    inline fun <reified T : Any> deSerialize(input: String): T
 
-  fun toString(value: XmlSerializable): String
+    fun toString(value: XmlSerializable): String
 
 }
 

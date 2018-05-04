@@ -30,7 +30,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
     override fun getNamespaceURI(prefix: String): String? {
         return parentContext?.getNamespaceURI(prefix)?.apply {
             if (!isEmpty() && prefix != XMLNS_ATTRIBUTE) {
-                resultMap.put(prefix, this)
+                resultMap[prefix] = this
             }
         }
     }
@@ -38,12 +38,12 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
     override fun getPrefix(namespaceURI: String): String? {
         return parentContext?.getPrefix(namespaceURI)?.apply {
             if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
-                resultMap.put(this, namespaceURI)
+                resultMap[this] = namespaceURI
             }
         }
     }
 
-    @Suppress("UNCHECKED_CAST", "DEPRECATION")// Somehow this type has no proper generic parameter
+    @Suppress("UNCHECKED_CAST", "DEPRECATION", "OverridingDeprecatedMember")// Somehow this type has no proper generic parameter
     override fun getPrefixes(namespaceURI: String): Iterator<String> {
         if (parentContext == null) {
             return emptyList<String>().iterator()
@@ -52,7 +52,7 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
 
             val it = parentContext.getPrefixes(namespaceURI) as Iterator<String>
             while (it.hasNext()) {
-                resultMap.put(it.next(), namespaceURI)
+                resultMap[it.next()] = namespaceURI
             }
         }
         return parentContext.getPrefixes(namespaceURI) as Iterator<String>

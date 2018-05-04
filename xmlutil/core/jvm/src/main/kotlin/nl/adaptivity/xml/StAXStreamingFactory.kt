@@ -27,27 +27,27 @@ import javax.xml.transform.Source
 class StAXStreamingFactory : XmlStreamingFactory {
 
   @Throws(XmlException::class)
-  override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
+  override fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
     try {
-      return StAXWriter(writer, repairNamespaces)
+      return StAXWriter(writer, repairNamespaces, omitXmlDecl)
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
   }
 
   @Throws(XmlException::class)
-  override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
+  override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
     try {
-      return StAXWriter(outputStream, encoding, repairNamespaces)
+      return StAXWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }
   }
 
   @Throws(XmlException::class)
-  override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
+  override fun newWriter(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
     try {
-      return StAXWriter(result, repairNamespaces)
+      return StAXWriter(result, repairNamespaces, omitXmlDecl)
     } catch (e: XMLStreamException) {
       throw XmlException(e)
     }

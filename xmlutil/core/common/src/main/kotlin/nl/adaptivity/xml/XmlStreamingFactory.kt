@@ -20,5 +20,9 @@ expect interface XmlStreamingFactory
 
 /** Flag to indicate that the xml declaration should be omitted, when possible.  */
 const val FLAG_OMIT_XMLDECL = 1
+
+/** Flag to indicate that the namespace usable should be automatically repaired. */
 const val FLAG_REPAIR_NS = 2
+
+/** The default used flags */
 const val DEFAULT_FLAGS = FLAG_OMIT_XMLDECL

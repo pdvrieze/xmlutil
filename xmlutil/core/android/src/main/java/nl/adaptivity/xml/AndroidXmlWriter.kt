@@ -17,7 +17,6 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.lib.xmlutil.BuildConfig
-import nl.adaptivity.util.contentEquals
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlSerializer
 
@@ -36,338 +35,186 @@ actual typealias PlatformXmlWriter = AndroidXmlWriter
  */
 class AndroidXmlWriter : XmlWriter {
 
-  private val mNamespaceHolder = NamespaceHolder()
-  private val mRepairNamespaces: Boolean
-  private val mWriter: XmlSerializer
+    private val namespaceHolder = NamespaceHolder()
+    private val isRepairNamespaces: Boolean
+    private val writer: XmlSerializer
 
-  @Throws(XmlPullParserException::class, IOException::class)
-  @JvmOverloads constructor(writer: Writer, repairNamespaces: Boolean = true) : this(repairNamespaces)
-  {
-    mWriter.setOutput(writer)
-    initWriter(mWriter)
-  }
-
-  @Throws(XmlPullParserException::class)
-  private constructor(repairNamespaces: Boolean)
-  {
-    mRepairNamespaces = repairNamespaces
-    mWriter = BetterXmlSerializer()
-    initWriter(mWriter)
-  }
-
-  @Throws(XmlPullParserException::class, IOException::class)
-  @JvmOverloads constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = true) : this(
-      repairNamespaces)
-  {
-    mWriter.setOutput(outputStream, encoding)
-    initWriter(mWriter)
-  }
-
-  private fun initWriter(writer: XmlSerializer)
-  {
-    try
-    {
-      writer.setPrefix(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI)
-    } catch (e: IOException)
-    {
-      throw RuntimeException(e)
+    @Throws(XmlPullParserException::class, IOException::class)
+    @JvmOverloads constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) : this(repairNamespaces, omitXmlDecl) {
+        this.writer.setOutput(writer)
+        initWriter(this.writer)
     }
 
-  }
-
-  @JvmOverloads constructor(serializer: XmlSerializer, repairNamespaces: Boolean = true)
-  {
-    mWriter = serializer
-    mRepairNamespaces = repairNamespaces
-    initWriter(mWriter)
-  }
-
-  // Object Initialization end
-
-  @Throws(XmlException::class)
-  override fun flush()
-  {
-    try {
-      mWriter.flush()
-    } catch (e: IOException) {
-      throw XmlException(e)
+    @Throws(XmlPullParserException::class)
+    private constructor(repairNamespaces: Boolean, omitXmlDecl: Boolean) {
+        isRepairNamespaces = repairNamespaces
+        writer = BetterXmlSerializer().apply { isOmitXmlDecl = omitXmlDecl }
+        initWriter(writer)
     }
 
-  }
-
-  @Throws(XmlException::class)
-  override fun startTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?)
-  {
-    val namespaceStr = namespace.toString()
-    try {
-      if (namespace != null && namespace.isNotEmpty())
-      {
-        mWriter.setPrefix(prefix?.toString() ?: "", namespaceStr)
-      }
-      mWriter.startTag(namespaceStr, localName.toString())
-      mNamespaceHolder.incDepth()
-      ensureNamespaceIfRepairing(namespace, prefix)
-    } catch (e: IOException) {
-      throw XmlException(e)
+    @Throws(XmlPullParserException::class, IOException::class)
+    @JvmOverloads constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) :
+        this(repairNamespaces, omitXmlDecl) {
+        writer.setOutput(outputStream, encoding)
+        initWriter(writer)
     }
 
-  }
-
-  @Throws(XmlException::class)
-  private fun ensureNamespaceIfRepairing(namespace: CharSequence?, prefix: CharSequence?)
-  {
-    if (mRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null)
-    {
-      // TODO fix more cases than missing namespaces with given prefix and uri
-      if (!mNamespaceHolder.getNamespaceUri(prefix).contentEquals(namespace))
-      {
-        namespaceAttr(prefix, namespace)
-      }
-    }
-  }
-
-  @Throws(XmlException::class)
-  override fun comment(text: CharSequence)
-  {
-    try
-    {
-      mWriter.comment(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun text(text: CharSequence)
-  {
-    try
-    {
-      mWriter.text(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun cdsect(text: CharSequence)
-  {
-    try
-    {
-      mWriter.cdsect(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun entityRef(text: CharSequence)
-  {
-    try
-    {
-      mWriter.entityRef(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun processingInstruction(text: CharSequence)
-  {
-    try
-    {
-      mWriter.processingInstruction(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun ignorableWhitespace(text: CharSequence)
-  {
-    try
-    {
-      mWriter.ignorableWhitespace(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun attribute(namespace: CharSequence?, name: CharSequence, prefix: CharSequence?, value: CharSequence)
-  {
-    try
-    {
-      val sNamespace = namespace?.toString()
-      val sPrefix = prefix?.toString()
-      if (sPrefix != null && sNamespace != null)
-      {
-        setPrefix(sPrefix, sNamespace)
-      }
-      mWriter.attribute(sNamespace, name.toString(), value.toString())
-      ensureNamespaceIfRepairing(sNamespace, sPrefix)
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun docdecl(text: CharSequence)
-  {
-    try {
-      mWriter.docdecl(text.toString())
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  /**
-   * {@inheritDoc}
-   * @param version Unfortunately the serializer is forced to version 1.0
-   */
-  @Throws(XmlException::class)
-  override fun startDocument(version: CharSequence?, encoding: CharSequence?, standalone: Boolean?)
-  {
-    try
-    {
-      mWriter.startDocument(encoding?.toString(), standalone)
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun endDocument()
-  {
-    if (BuildConfig.DEBUG && depth != 0) throw AssertionError()
-    try
-    {
-      mWriter.endDocument()
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun endTag(namespace: CharSequence?, localName: CharSequence, prefix: CharSequence?)
-  {
-    try
-    {
-      mWriter.endTag(namespace?.toString(), localName.toString())
-      mNamespaceHolder.decDepth()
-    } catch (e: IOException)
-    {
-      throw XmlException(e)
-    }
-
-  }
-
-  @Throws(XmlException::class)
-  override fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence)
-  {
-    if (!namespaceUri.contentEquals(getNamespaceUri(prefix)))
-    {
-      mNamespaceHolder.addPrefixToContext(prefix, namespaceUri)
-      try
-      {
-        mWriter.setPrefix(prefix.toString(), namespaceUri.toString())
-      } catch (e: IOException)
-      {
-        throw XmlException(e)
-      }
+    private fun initWriter(writer: XmlSerializer) {
+        try {
+            writer.setPrefix(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI)
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
 
     }
-  }
 
-  @Throws(XmlException::class)
-  override fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence)
-  {
-    mNamespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
-    try
-    {
-      if (namespacePrefix.isNotEmpty())
-      {
-        mWriter.attribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, namespacePrefix.toString(),
-                          namespaceUri.toString())
-      } else
-      {
-        mWriter.attribute(XMLConstants.NULL_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, namespaceUri.toString())
-      }
-    } catch (e: IOException)
-    {
-      throw RuntimeException(e)
+    @JvmOverloads
+    constructor(serializer: XmlSerializer, repairNamespaces: Boolean = true) {
+        writer = serializer
+        isRepairNamespaces = repairNamespaces
+        initWriter(writer)
     }
 
-  }
-
-  override val namespaceContext: NamespaceContext
-    get() = mNamespaceHolder.namespaceContext
-
-  override fun getNamespaceUri(prefix: CharSequence): CharSequence? {
-    return mNamespaceHolder.getNamespaceUri(prefix)
-  }
-
-  override fun getPrefix(namespaceUri: CharSequence?): CharSequence? {
-    return namespaceUri?.let { mNamespaceHolder.getPrefix(it) }
-  }
-
-  @Throws(XmlException::class)
-  override fun close() {
-    mNamespaceHolder.clear()
-  }
-
-  // Property accessors start
-  override val depth: Int
-    get() = mNamespaceHolder.depth
-  // Property acccessors end
-}// Object Initialization
-
-private object StringUtil {
-  @Deprecated("Not needed in kotlin", ReplaceWith("charSequence.toString()"))
-  fun toString(charSequence: CharSequence): String {
-    return charSequence.toString()
-  }
 
 
-  @JvmName("toStringOpt")
-  @Deprecated("Not needed in kotlin", ReplaceWith("charSequence?.toString()"))
-  fun toString(charSequence: CharSequence?): String? {
-    return charSequence?.toString()
-  }
+    @Throws(XmlException::class)
+    override fun flush() {
+        try {
+            writer.flush()
+        } catch (e: IOException) {
+            throw XmlException(e)
+        }
 
-  @Deprecated("Not needed anymore", ReplaceWith("seq1.contentEquals(seq2)"))
-  fun isEqual(seq1: CharSequence, seq2: CharSequence):Boolean {
-    return seq1.contentEquals(seq2)
-  }
+    }
 
-  @JvmName("isEqualO1O2")
-  @Deprecated("Not needed anymore", ReplaceWith("seq1.contentEquals(seq2)"))
-  fun isEqual(seq1: CharSequence?, seq2: CharSequence?):Boolean {
-    return if(seq2==null) seq1==null else seq1?.contentEquals(seq2) ?: false
-  }
+    @Throws(XmlException::class)
+    override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        try {
+            if (namespace != null && namespace.isNotEmpty()) {
+                writer.setPrefix(prefix ?: "", namespace)
+            }
+            writer.startTag(namespace, localName)
+            namespaceHolder.incDepth()
+            ensureNamespaceIfRepairing(namespace, prefix)
+        } catch (e: IOException) {
+            throw XmlException(e)
+        }
 
-  @JvmName("isEqualO1")
-  @Deprecated("Not needed anymore", ReplaceWith("seq1.contentEquals(seq2)"))
-  fun isEqual(seq1: CharSequence?, seq2: CharSequence):Boolean {
-    return seq1?.contentEquals(seq2) ?: false
-  }
+    }
+
+    @Throws(XmlException::class)
+    private fun ensureNamespaceIfRepairing(namespace: String?, prefix: String?) {
+        if (isRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null) {
+            // TODO fix more cases than missing namespaces with given prefix and uri
+            if (namespaceHolder.getNamespaceUri(prefix) != namespace) {
+                namespaceAttr(prefix, namespace)
+            }
+        }
+    }
+
+    @Throws(XmlException::class)
+    override fun comment(text: String) {
+        writer.comment(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun text(text: String) {
+        writer.text(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun cdsect(text: String) {
+        writer.cdsect(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun entityRef(text: String) {
+        writer.entityRef(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun processingInstruction(text: String) {
+        writer.processingInstruction(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun ignorableWhitespace(text: String) {
+        writer.ignorableWhitespace(text)
+    }
+
+    @Throws(XmlException::class)
+    override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
+        if (prefix != null && namespace != null) {
+            setPrefix(prefix, namespace)
+        }
+        writer.attribute(namespace, name, value)
+        ensureNamespaceIfRepairing(namespace, prefix)
+    }
+
+    @Throws(XmlException::class)
+    override fun docdecl(text: String) {
+        writer.docdecl(text)
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param version Unfortunately the serializer is forced to version 1.0
+     */
+    @Throws(XmlException::class)
+    override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
+        writer.startDocument(encoding, standalone)
+    }
+
+    @Throws(XmlException::class)
+    override fun endDocument() {
+        if (BuildConfig.DEBUG && depth != 0) throw AssertionError()
+        writer.endDocument()
+    }
+
+    @Throws(XmlException::class)
+    override fun endTag(namespace: String?, localName: String, prefix: String?) {
+        writer.endTag(namespace, localName)
+        namespaceHolder.decDepth()
+    }
+
+    @Throws(XmlException::class)
+    override fun setPrefix(prefix: String, namespaceUri: String) {
+        if (namespaceUri != getNamespaceUri(prefix)) {
+            namespaceHolder.addPrefixToContext(prefix, namespaceUri)
+            writer.setPrefix(prefix, namespaceUri)
+        }
+    }
+
+    @Throws(XmlException::class)
+    override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
+        namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
+        if (namespacePrefix.isNotEmpty()) {
+            writer.attribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, namespacePrefix,
+                             namespaceUri)
+        } else {
+            writer.attribute(XMLConstants.NULL_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, namespaceUri)
+        }
+    }
+
+    override val namespaceContext: NamespaceContext
+        get() = namespaceHolder.namespaceContext
+
+    override fun getNamespaceUri(prefix: String): String? {
+        return namespaceHolder.getNamespaceUri(prefix)
+    }
+
+    override fun getPrefix(namespaceUri: String?): String? {
+        return namespaceUri?.let { namespaceHolder.getPrefix(it) }
+    }
+
+    @Throws(XmlException::class)
+    override fun close() {
+        namespaceHolder.clear()
+    }
+
+
+    override val depth: Int
+        get() = namespaceHolder.depth
+
 }
+

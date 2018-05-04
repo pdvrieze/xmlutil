@@ -17,12 +17,13 @@
 package nl.adaptivity.util.xml
 
 import nl.adaptivity.util.multiplatform.JvmStatic
+import nl.adaptivity.util.xml.XMLFragmentStreamReaderJava.Companion.WRAPPERNAMESPACE
+import nl.adaptivity.util.xml.XMLFragmentStreamReaderJava.Companion.WRAPPERPPREFIX
 import nl.adaptivity.util.xml.impl.FragmentNamespaceContext
 import nl.adaptivity.xml.*
 import java.io.CharArrayReader
 import java.io.Reader
 import java.io.StringReader
-import java.util.*
 import javax.xml.XMLConstants
 
 /**
@@ -36,19 +37,19 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
     override val delegate: XmlReader get() = super.delegate
 
     override var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(
-        null, emptyArray(), emptyArray<String>())
+        null, emptyArray(), emptyArray())
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
-    override fun getNamespaceUri(prefix: CharSequence): String? {
+    override fun getNamespaceUri(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null
 
         return super<XmlDelegatingReader>.getNamespaceUri(prefix)
     }
 
-    override fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence? {
+    override fun getNamespacePrefix(namespaceUri: String): String? {
         if (WRAPPERNAMESPACE.contentEquals(namespaceUri)) return null
 
         return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
@@ -62,16 +63,13 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
     override val namespaceEnd: Int
         get() = super<XMLFragmentStreamReaderJava>.namespaceEnd
 
-    override fun getNamespacePrefix(i: Int) = super<XMLFragmentStreamReaderJava>.getNamespacePrefix(i)
+    override fun getNamespacePrefix(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespacePrefix(index)
 
-    override fun getNamespaceUri(i: Int) = super<XMLFragmentStreamReaderJava>.getNamespaceUri(i)
+    override fun getNamespaceUri(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespaceUri(index)
 
     override val namespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
 
     actual companion object {
-
-        private val WRAPPERPPREFIX = "SDFKLJDSF"
-        private val WRAPPERNAMESPACE = "http://wrapperns"
 
         private fun getDelegate(reader: Reader,
                                 wrapperNamespaceContext: Iterable<nl.adaptivity.xml.Namespace>): XmlReader {
@@ -101,7 +99,7 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
 
         @JvmStatic
         fun from(reader: Reader): XMLFragmentStreamReader {
-            return XMLFragmentStreamReader(reader, emptyList<nl.adaptivity.xml.Namespace>())
+            return XMLFragmentStreamReader(reader, emptyList())
         }
 
         @JvmStatic

@@ -19,16 +19,12 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.AutoCloseable
-import nl.adaptivity.util.multiplatform.JvmMultifileClass
-import nl.adaptivity.util.multiplatform.JvmName
-import nl.adaptivity.util.multiplatform.JvmOverloads
-import nl.adaptivity.util.xml.ICompactFragment
+import nl.adaptivity.util.multiplatform.*
 
 /**
  * Created by pdvrieze on 15/11/15.
  */
-interface XmlReader : AutoCloseable {
+interface XmlReader : Closeable, Iterator<EventType> {
 
     /** Get the next tag. This must call next, not use the underlying stream.  */
     fun nextTag(): EventType {
@@ -44,22 +40,21 @@ interface XmlReader : AutoCloseable {
         return event
     }
 
+    override operator fun hasNext(): Boolean
 
-    operator fun hasNext(): Boolean
+    override operator fun next(): EventType
 
-    operator fun next(): EventType
+    val namespaceUri: String
 
-    val namespaceUri: CharSequence
+    val localName: String
 
-    val localName: CharSequence
-
-    val prefix: CharSequence
+    val prefix: String
 
     val name: QName get() = qname(namespaceUri, localName, prefix)
 
     val isStarted: Boolean
 
-    fun require(type: EventType, namespace: CharSequence?, name: CharSequence?): Unit = when {
+    fun require(type: EventType, namespace: String?, name: String?): Unit = when {
         eventType !== type        ->
             throw XmlException("Unexpected event type Found: $eventType expected $type")
 
@@ -77,36 +72,36 @@ interface XmlReader : AutoCloseable {
 
     val depth: Int
 
-    val text: CharSequence
+    val text: String
 
     val attributeCount: Int
 
-    fun getAttributeNamespace(i: Int): CharSequence
+    fun getAttributeNamespace(index: Int): String
 
-    fun getAttributePrefix(i: Int): CharSequence
+    fun getAttributePrefix(index: Int): String
 
-    fun getAttributeLocalName(i: Int): CharSequence
+    fun getAttributeLocalName(index: Int): String
 
-    fun getAttributeName(i: Int): QName =
-        qname(getAttributeNamespace(i), getAttributeLocalName(i), getAttributePrefix(i))
+    fun getAttributeName(index: Int): QName =
+        qname(getAttributeNamespace(index), getAttributeLocalName(index), getAttributePrefix(index))
 
-    fun getAttributeValue(i: Int): CharSequence
+    fun getAttributeValue(index: Int): String
 
     val eventType: EventType
 
-    fun getAttributeValue(nsUri: CharSequence?, localName: CharSequence): CharSequence?
+    fun getAttributeValue(nsUri: String?, localName: String): String?
 
     val namespaceStart: Int
 
     val namespaceEnd: Int
 
-    fun getNamespacePrefix(i: Int): CharSequence
+    fun getNamespacePrefix(index: Int): String
 
     override fun close()
 
-    fun getNamespaceUri(i: Int): CharSequence
+    fun getNamespaceUri(index: Int): String
 
-    fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence?
+    fun getNamespacePrefix(namespaceUri: String): String?
 
     fun isWhitespace(): Boolean = eventType === EventType.IGNORABLE_WHITESPACE ||
                                   (eventType === EventType.TEXT &&
@@ -120,7 +115,7 @@ interface XmlReader : AutoCloseable {
     /** Is the current element a start element */
     fun isStartElement(): Boolean = eventType === EventType.START_ELEMENT
 
-    fun getNamespaceUri(prefix: CharSequence): String?
+    fun getNamespaceUri(prefix: String): String?
 
     /** Get some information on the current location in the file. This is implementation dependent.  */
     val locationInfo: String?
@@ -128,16 +123,16 @@ interface XmlReader : AutoCloseable {
     /** The current namespace context */
     val namespaceContext: NamespaceContext
 
-    val encoding: CharSequence?
+    val encoding: String?
 
     val standalone: Boolean?
 
-    val version: CharSequence?
+    val version: String?
 }
 
 val XmlReader.attributes: Array<out XmlEvent.Attribute>
     get() =
-        Array<XmlEvent.Attribute>(attributeCount) { i ->
+        Array(attributeCount) { i ->
             XmlEvent.Attribute(locationInfo,
                                getAttributeNamespace(i),
                                getAttributeLocalName(i),
@@ -160,8 +155,8 @@ val XmlReader.qname: QName get() = text.toQname()
 
 fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
     val r = this
-    for (i in r.namespaceStart..r.namespaceEnd - 1) {
-        if (r.getNamespacePrefix(i).toString() == prefix) {
+    for (i in r.namespaceStart until r.namespaceEnd) {
+        if (r.getNamespacePrefix(i) == prefix) {
             return true
         }
     }
@@ -187,10 +182,6 @@ fun XmlReader.isElement(elementname: QName): Boolean {
                      elementname.getPrefix())
 }
 
-// XXX EXPECT
-//expect fun XmlReader.asSubstream(): XmlReader
-
-
 /**
  * Get the next text sequence in the reader. This will skip over comments and ignorable whitespace, but not tags.
  * Any tags encountered with cause an exception to be thrown.
@@ -199,7 +190,7 @@ fun XmlReader.isElement(elementname: QName): Boolean {
  *
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
-fun XmlReader.allText(): CharSequence {
+fun XmlReader.allText(): String {
     val t = this
     return buildString {
         var type: EventType? = null
@@ -232,7 +223,7 @@ fun XmlReader.skipElement() {
     }
 }
 
-fun XmlReader.readSimpleElement(): CharSequence {
+fun XmlReader.readSimpleElement(): String {
     val t = this
     t.require(EventType.START_ELEMENT, null, null)
     return buildString {
@@ -263,21 +254,16 @@ fun XmlReader.skipPreamble() {
     }
 }
 
-fun XmlReader.isIgnorable(): Boolean {
-    return when (eventType) {
-        EventType.COMMENT,
-        EventType.START_DOCUMENT,
-        EventType.END_DOCUMENT,
-        EventType.PROCESSING_INSTRUCTION,
-        EventType.DOCDECL,
-        EventType.IGNORABLE_WHITESPACE -> true
-        EventType.TEXT                 -> isXmlWhitespace(text)
-        else                           -> false
-    }
+fun XmlReader.isIgnorable() = when (eventType) {
+    EventType.COMMENT,
+    EventType.START_DOCUMENT,
+    EventType.END_DOCUMENT,
+    EventType.PROCESSING_INSTRUCTION,
+    EventType.DOCDECL,
+    EventType.IGNORABLE_WHITESPACE -> true
+    EventType.TEXT                 -> isXmlWhitespace(text)
+    else                           -> false
 }
-
-//XXX EXPECT
-
 
 /**
  * Check that the current state is a start element for the given name. The mPrefix is ignored.
@@ -304,9 +290,9 @@ fun XmlReader.isElement(type: EventType, elementname: QName): Boolean {
  * @return `true` if it matches, otherwise `false`
  */
 @JvmOverloads
-fun XmlReader.isElement(elementNamespace: CharSequence?,
-                        elementName: CharSequence,
-                        elementPrefix: CharSequence? = null): Boolean {
+fun XmlReader.isElement(elementNamespace: String?,
+                        elementName: String,
+                        elementPrefix: String? = null): Boolean {
     return this.isElement(EventType.START_ELEMENT, elementNamespace, elementName, elementPrefix)
 }
 
@@ -319,12 +305,12 @@ fun XmlReader.isElement(elementNamespace: CharSequence?,
  *
  * @param elementName The local name to check against
  *
- * @param elementPrefix The mPrefix to fall back on if the namespace can't be determined    @return `true` if it matches, otherwise `false`
+ * @param elementPrefix The prefix to fall back on if the namespace can't be determined    @return `true` if it matches, otherwise `false`
  */
 fun XmlReader.isElement(type: EventType,
-                        elementNamespace: CharSequence?,
-                        elementName: CharSequence,
-                        elementPrefix: CharSequence? = null): Boolean {
+                        elementNamespace: String?,
+                        elementName: String,
+                        elementPrefix: String? = null): Boolean {
     val r = this
     if (r.eventType !== type) {
         return false
@@ -342,8 +328,7 @@ fun XmlReader.isElement(type: EventType,
     }
 }
 
-/** Write the current event to the writer. This will **not** move the reader. */
+/**
+ * Write the current event to the writer. This will **not** move the reader.
+ */
 fun XmlReader.writeCurrent(writer: XmlWriter) = eventType.writeEvent(writer, this)
-
-//XXX EXPECT
-//expect open class XmlBufferedReader(delegate: XmlReader) : XmlBufferedReaderBase

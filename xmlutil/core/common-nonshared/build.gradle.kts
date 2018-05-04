@@ -18,25 +18,13 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kotlin_version: String by extra
-buildscript {
-    var kotlin_version: String by extra
-    kotlin_version = "1.2.40"
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath(kotlinModule("gradle-plugin", kotlin_version))
-    }
+
+plugins {
+    id("kotlin-platform-common")
 }
 
 base {
     archivesBaseName="xmlutil-core-common-nonshared"
-}
-
-
-plugins {
-    id("kotlin-platform-common")
 }
 
 dependencies {
@@ -44,6 +32,8 @@ dependencies {
     implementation(project(":multiplatform:common"))
     implementation(project(":xmlutil:core:common"))
 }
+
 repositories {
+    mavenLocal()
     jcenter()
 }

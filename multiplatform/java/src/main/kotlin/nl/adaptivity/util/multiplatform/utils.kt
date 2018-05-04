@@ -24,4 +24,6 @@ actual fun assert(value: Boolean, lazyMessage: () -> String) {
 
 actual fun assert(value: Boolean) = kotlin.assert(value)
 
-actual typealias AutoCloseable = AutoCloseable
+actual typealias AutoCloseable = java.lang.AutoCloseable
+
+actual typealias Closeable = java.io.Closeable

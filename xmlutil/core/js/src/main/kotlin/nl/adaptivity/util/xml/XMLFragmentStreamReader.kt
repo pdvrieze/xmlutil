@@ -50,7 +50,7 @@ actual class XMLFragmentStreamReader constructor(text: String,
 
         }
 
-        @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xml.prefixesFor"))
+        @Suppress("OverridingDeprecatedMember", "DEPRECATION")
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             if (parent == null) {
                 return super.getPrefixes(namespaceURI)
@@ -86,8 +86,8 @@ actual class XMLFragmentStreamReader constructor(text: String,
         }
     }
 
-    private var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(null, emptyArray<String>(),
-                                                                                           emptyArray<String>())
+    private var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(null, emptyArray(),
+                                                                                           emptyArray())
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
@@ -105,12 +105,12 @@ actual class XMLFragmentStreamReader constructor(text: String,
             EventType.DOCDECL       -> return next()
 
             EventType.START_ELEMENT -> {
-                if (WRAPPERNAMESPACE == delegate.namespaceUri.toString()) return next()
+                if (WRAPPERNAMESPACE == delegate.namespaceUri) return next()
 
                 extendNamespace()
             }
             EventType.END_ELEMENT   -> {
-                if (WRAPPERNAMESPACE == delegate.namespaceUri.toString()) {
+                if (WRAPPERNAMESPACE == delegate.namespaceUri) {
                     return delegate.next()
                 }
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
@@ -120,15 +120,15 @@ actual class XMLFragmentStreamReader constructor(text: String,
     }
 
 
-    override fun getNamespaceUri(prefix: CharSequence): String? {
-        if (WRAPPERPPREFIX == prefix.toString()) return null
+    override fun getNamespaceUri(prefix: String): String? {
+        if (WRAPPERPPREFIX == prefix) return null
 
         return super.getNamespaceUri(prefix)
     }
 
 
-    override fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence? {
-        if (WRAPPERNAMESPACE == namespaceUri.toString()) return null
+    override fun getNamespacePrefix(namespaceUri: String): String? {
+        if (WRAPPERNAMESPACE == namespaceUri) return null
 
         return super.getNamespacePrefix(namespaceUri)
     }
@@ -140,13 +140,13 @@ actual class XMLFragmentStreamReader constructor(text: String,
         get() = localNamespaceContext.size
 
 
-    override fun getNamespacePrefix(i: Int): CharSequence {
-        return localNamespaceContext.getPrefix(i)
+    override fun getNamespacePrefix(index: Int): String {
+        return localNamespaceContext.getPrefix(index)
     }
 
 
-    override fun getNamespaceUri(i: Int): CharSequence {
-        return localNamespaceContext.getNamespaceURI(i)
+    override fun getNamespaceUri(index: Int): String {
+        return localNamespaceContext.getNamespaceURI(index)
     }
 
     override val namespaceContext: NamespaceContext
@@ -156,16 +156,16 @@ actual class XMLFragmentStreamReader constructor(text: String,
     private fun extendNamespace() {
         val nsStart = delegate.namespaceStart
         val nscount = delegate.namespaceEnd - nsStart
-        val prefixes = Array<String>(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart).toString() }
-        val namespaces = Array<String>(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart).toString() }
+        val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
+        val namespaces = Array(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart) }
 
         localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
     }
 
     actual companion object {
 
-        private val WRAPPERPPREFIX = "SDFKLJDSF"
-        private val WRAPPERNAMESPACE = "http://wrapperns"
+        private const val WRAPPERPPREFIX = "SDFKLJDSF"
+        private const val WRAPPERNAMESPACE = "http://wrapperns"
 
 
         private fun getDelegate(text: String,
@@ -185,7 +185,7 @@ actual class XMLFragmentStreamReader constructor(text: String,
                 append(" >")
             }
 
-            val actualInput = wrapper + text + "</$WRAPPERPPREFIX:wrapper>"
+            val actualInput = "$wrapper$text</$WRAPPERPPREFIX:wrapper>"
             val parser = DOMParser()
             return JSDomReader(parser.parseFromString(actualInput, "text/xml"))
         }

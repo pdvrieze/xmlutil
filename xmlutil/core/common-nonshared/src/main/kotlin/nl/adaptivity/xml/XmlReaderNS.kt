@@ -14,8 +14,10 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:JvmName("XmlReaderNS")
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.util.xml.ICompactFragment
 

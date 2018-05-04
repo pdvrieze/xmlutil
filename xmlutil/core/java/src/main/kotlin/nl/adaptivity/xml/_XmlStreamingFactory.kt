@@ -25,11 +25,11 @@ import javax.xml.transform.Source
 
 actual interface XmlStreamingFactory {
 
-  fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter
+  fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
-  fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
+  fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false, omitXmlDecl: Boolean= false): XmlWriter
 
-  fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter
+  fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
   fun newReader(source: Source): XmlReader
 

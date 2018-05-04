@@ -74,5 +74,7 @@ expect interface AutoCloseable {
     fun close()
 }
 
+expect interface Closeable: AutoCloseable
+
 @Suppress("unused")
 expect inline fun <reified T:Any> isTypeOf(value: Any):Boolean

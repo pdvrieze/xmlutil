@@ -20,11 +20,9 @@ import java.io.StringReader
 
 /**
  * Utility method to deserialize a list of xml containing strings
- * @param input The strings to deserialize
+ * @receiver The strings to deserialize
  *
  * @param type The type that contains the factory to deserialize
- *
- * @param  The type
  *
  * @return A list of deserialized objects.
  *

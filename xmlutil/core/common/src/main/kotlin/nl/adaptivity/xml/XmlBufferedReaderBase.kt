@@ -31,8 +31,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     get() = current as? StartElementEvent ?: throw XmlException(
         "Expected a start element, but did not find it.")
 
-  override val namespaceUri: CharSequence
-    get() = when (current?.eventType) {
+  override val namespaceUri: String
+      get() = when (current?.eventType) {
       EventType.ATTRIBUTE     -> (current as Attribute).namespaceUri
       EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
       EventType.END_ELEMENT   -> (current as EndElementEvent).namespaceUri
@@ -41,8 +41,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     }
 
 
-  override val localName: CharSequence
-    get() = when (current?.eventType) {
+  override val localName: String
+      get() = when (current?.eventType) {
       EventType.ATTRIBUTE     -> (current as Attribute).localName
       EventType.START_ELEMENT -> (current as StartElementEvent).localName
       EventType.END_ELEMENT   -> (current as EndElementEvent).localName
@@ -50,8 +50,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
           "Attribute not defined here: namespaceUri")
     }
 
-  override val prefix: CharSequence
-    get() = when (current?.eventType) {
+  override val prefix: String
+      get() = when (current?.eventType) {
       EventType.ATTRIBUTE     -> (current as Attribute).prefix
       EventType.START_ELEMENT -> (current as StartElementEvent).prefix
       EventType.END_ELEMENT   -> (current as EndElementEvent).prefix
@@ -62,8 +62,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
   override val depth: Int
     get() = namespaceHolder.depth
 
-  override val text: CharSequence
-    get() {
+  override val text: String
+      get() {
       return if (current!!.eventType === EventType.ATTRIBUTE) {
         (current as Attribute).value
       } else (current as TextEvent).text
@@ -96,14 +96,14 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
       return currentElement.namespaceContext
     }
 
-  override val encoding: CharSequence?
-    get() = (current as StartDocumentEvent).encoding
+  override val encoding: String?
+      get() = (current as StartDocumentEvent).encoding
 
   override val standalone: Boolean?
     get() = (current as StartDocumentEvent).standalone
 
-  override val version: CharSequence?
-    get() = (current as StartDocumentEvent).version
+  override val version: String?
+      get() = (current as StartDocumentEvent).version
 
   fun nextEvent(): XmlEvent {
     if (hasPeekItems) {
@@ -134,7 +134,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     return event
   }
 
-  internal fun peek(): XmlEvent? {
+  private fun peek(): XmlEvent? {
     if (hasPeekItems) {
       return peekFirst()
     }
@@ -197,14 +197,14 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         if (isXmlWhitespace((current as TextEvent).text)) {
           nextTagEvent()
         } else {
-          throw XmlException("Unexpected element found when looking for tags: " + current)
+          throw XmlException("Unexpected element found when looking for tags: $current")
         }
       }
       EventType.COMMENT, EventType.IGNORABLE_WHITESPACE,
       EventType.PROCESSING_INSTRUCTION               -> nextTagEvent()
       EventType.START_ELEMENT, EventType.END_ELEMENT -> current
       else                                           -> throw XmlException(
-          "Unexpected element found when looking for tags: " + current)
+          "Unexpected element found when looking for tags: $current")
     }
   }
 
@@ -212,33 +212,33 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     return nextEvent().eventType
   }
 
-  override fun getAttributeNamespace(i: Int) = currentElement.attributes[i].namespaceUri
+  override fun getAttributeNamespace(index: Int): String = currentElement.attributes[index].namespaceUri
 
-  override fun getAttributePrefix(i: Int) = currentElement.attributes[i].prefix
+  override fun getAttributePrefix(index: Int): String = currentElement.attributes[index].prefix
 
-  override fun getAttributeLocalName(i: Int) = currentElement.attributes[i].localName
+  override fun getAttributeLocalName(index: Int): String = currentElement.attributes[index].localName
 
-  override fun getAttributeValue(i: Int) = currentElement.attributes[i].value
+  override fun getAttributeValue(index: Int): String = currentElement.attributes[index].value
 
-  override fun getAttributeValue(nsUri: CharSequence?, localName: CharSequence) =
+  override fun getAttributeValue(nsUri: String?, localName: String): String? =
         currentElement.attributes.firstOrNull { attr ->
             (nsUri == null || nsUri == attr.namespaceUri) && localName == attr.localName
         }?.value
 
 
-  override fun getNamespacePrefix(i: Int): CharSequence {
-    return currentElement.namespaceDecls[i].prefix
+  override fun getNamespacePrefix(index: Int): String {
+    return currentElement.namespaceDecls[index].prefix
   }
 
-  override fun getNamespaceUri(i: Int): CharSequence {
-    return currentElement.namespaceDecls[i].namespaceURI
+  override fun getNamespaceUri(index: Int): String {
+    return currentElement.namespaceDecls[index].namespaceURI
   }
 
-  override fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence? {
+  override fun getNamespacePrefix(namespaceUri: String): String? {
     return currentElement.getPrefix(namespaceUri)
   }
 
-  override fun getNamespaceUri(prefix: CharSequence): String? {
-    return currentElement.getNamespaceUri(prefix)
+  override fun getNamespaceUri(prefix: String): String? {
+    return currentElement.getNamespaceURI(prefix)
   }
 }

@@ -92,10 +92,10 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
         val result = mutableMapOf<String, String>()
         for (i in indices.reversed()) {
-            result.put(getPrefix(i), getNamespaceURI(i))
+            result[getPrefix(i)] = getNamespaceURI(i)
         }
         for (i in other.indices.reversed()) {
-            result.put(other.getPrefix(i), other.getNamespaceURI(i))
+            result[other.getPrefix(i)] = other.getNamespaceURI(i)
         }
         return SimpleNamespaceContext(result)
     }
@@ -117,10 +117,10 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         }
         val result = mutableMapOf<String, String>()
         for (i in indices.reversed()) {
-            result.put(getPrefix(i), getNamespaceURI(i))
+            result[getPrefix(i)] = getNamespaceURI(i)
         }
         for (ns in other) {
-            result.put(ns.prefix, ns.namespaceURI)
+            result[ns.prefix] = ns.namespaceURI
         }
         return SimpleNamespaceContext(result)
 

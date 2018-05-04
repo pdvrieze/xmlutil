@@ -21,57 +21,33 @@ package nl.adaptivity.xml
  *
  * Created by pdvrieze on 16/11/15.
  */
-sealed class XmlEvent private constructor(val locationInfo: String?) {
+sealed class XmlEvent(val locationInfo: String?) {
 
     companion object {
-        internal val IGNORABLE = object : AbstractSet<EventType>() {
-            private val elements = BooleanArray(EventType.values().size)
-
-            init {
-                elements[EventType.COMMENT.ordinal] = true
-                elements[EventType.START_DOCUMENT.ordinal] = true
-                elements[EventType.END_DOCUMENT.ordinal] = true
-                elements[EventType.PROCESSING_INSTRUCTION.ordinal] = true
-                elements[EventType.DOCDECL.ordinal] = true
-                elements[EventType.IGNORABLE_WHITESPACE.ordinal] = true
-            }
-
-            override fun contains(element: EventType) = elements[element.ordinal]
-
-            override val size get() = 6
-
-            override fun iterator(): Iterator<EventType> = elements.mapIndexed { index, b -> if (b) EventType.values()[index] else null }.filterNotNull().iterator()
-        }
-
 
         fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
 
         @Deprecated("Use the extension property", ReplaceWith("reader.namespaceDecls", "nl.adaptivity.xml.attributes"))
         internal fun getNamespaceDecls(reader: XmlReader): Array<out Namespace> {
             val readerOffset = reader.namespaceStart
-            val namespaces = Array<Namespace>(reader.namespaceEnd - readerOffset) { i ->
+            return Array<Namespace>(reader.namespaceEnd - readerOffset) { i ->
                 val nsIndex = readerOffset + i
                 NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
             }
-            return namespaces
         }
 
         @Deprecated("Use the extension property", ReplaceWith("reader.attributes", "nl.adaptivity.xml.attributes"))
-        internal fun getAttributes(reader: XmlReader): Array<out Attribute> {
-            val result = Array(reader.attributeCount) { i ->
-                Attribute(reader.locationInfo,
-                          reader.getAttributeNamespace(i),
-                          reader.getAttributeLocalName(i),
-                          reader.getAttributePrefix(i),
-                          reader.getAttributeValue(i))
-            }
-
-            return result
+        internal fun getAttributes(reader: XmlReader): Array<out Attribute> = Array(reader.attributeCount) { i ->
+            Attribute(reader.locationInfo,
+                      reader.getAttributeNamespace(i),
+                      reader.getAttributeLocalName(i),
+                      reader.getAttributePrefix(i),
+                      reader.getAttributeValue(i))
         }
 
     }
 
-    class TextEvent(locationInfo: String?, override val eventType: EventType, val text: CharSequence) : XmlEvent(
+    class TextEvent(locationInfo: String?, override val eventType: EventType, val text: String) : XmlEvent(
         locationInfo) {
 
         override fun writeTo(writer: XmlWriter) = eventType.writeEvent(writer, this)
@@ -90,9 +66,9 @@ sealed class XmlEvent private constructor(val locationInfo: String?) {
     }
 
     class EndElementEvent(locationInfo: String?,
-                          namespaceUri: CharSequence,
-                          localName: CharSequence,
-                          prefix: CharSequence) :
+                          namespaceUri: String,
+                          localName: String,
+                          prefix: String) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix) {
 
         override fun writeTo(writer: XmlWriter) = writer.endTag(namespaceUri, localName, prefix)
@@ -100,10 +76,11 @@ sealed class XmlEvent private constructor(val locationInfo: String?) {
         override val eventType: EventType get() = EventType.END_ELEMENT
     }
 
-    class StartDocumentEvent(locationInfo: String?,
-                             val version: CharSequence?,
-                             val encoding: CharSequence?,
-                             val standalone: Boolean?) :
+    class StartDocumentEvent (
+        locationInfo: String?,
+        val encoding: String?,
+        val version: String?,
+        val standalone: Boolean?) :
         XmlEvent(locationInfo) {
 
         override fun writeTo(writer: XmlWriter) = writer.startDocument(version, encoding, standalone)
@@ -112,23 +89,23 @@ sealed class XmlEvent private constructor(val locationInfo: String?) {
     }
 
     abstract class NamedEvent(locationInfo: String?,
-                              val namespaceUri: CharSequence,
-                              val localName: CharSequence,
-                              val prefix: CharSequence) :
+                              val namespaceUri: String,
+                              val localName: String,
+                              val prefix: String) :
         XmlEvent(locationInfo) {
 
         fun isEqualNames(ev: NamedEvent): Boolean {
-            return namespaceUri.toString() == ev.namespaceUri.toString() &&
-                   localName.toString() == ev.localName.toString() &&
-                   prefix.toString() == ev.prefix.toString()
+            return namespaceUri == ev.namespaceUri &&
+                   localName == ev.localName &&
+                   prefix == ev.prefix
         }
 
     }
 
     class StartElementEvent(locationInfo: String?,
-                            namespaceUri: CharSequence,
-                            localName: CharSequence,
-                            prefix: CharSequence,
+                            namespaceUri: String,
+                            localName: String,
+                            prefix: String,
                             val attributes: Array<out Attribute>,
                             val namespaceDecls: Array<out Namespace>) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContext {
@@ -148,63 +125,71 @@ sealed class XmlEvent private constructor(val locationInfo: String?) {
         fun getPrefix(namespaceUri: CharSequence): String? {
             return namespaceDecls
                 .asSequence()
-                .filter { ns -> ns.namespaceURI.toString() == namespaceUri.toString() }
+                .filter { ns -> ns.namespaceURI == namespaceUri.toString() }
                 .lastOrNull()?.prefix
         }
 
-        override fun getNamespaceURI(prefix: String) = getNamespaceUri(prefix)
+        override fun getNamespaceURI(prefix: String) = namespaceDecls
+            .asSequence()
+            .filter { ns -> ns.prefix == prefix }
+            .lastOrNull()?.namespaceURI
 
+        @Deprecated("Just use the version that takes a string",
+                    ReplaceWith("getNamespaceURI(prefix.toString())"))
         fun getNamespaceUri(prefix: CharSequence): String? {
-            return namespaceDecls
-                .asSequence()
-                .filter { ns -> ns.prefix == prefix.toString() }
-                .lastOrNull()?.namespaceURI
+            return getNamespaceURI(prefix.toString())
         }
 
         val namespaceContext: NamespaceContext get() = this
 
+        @Suppress("OverridingDeprecatedMember")
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             return namespaceDecls
                 .asSequence()
-                .filter { ns -> ns.namespaceURI == namespaceUri.toString() }
+                .filter { ns -> ns.namespaceURI == namespaceUri }
                 .map { it.prefix }.iterator()
         }
     }
 
     class Attribute(locationInfo: String?,
-                    val namespaceUri: CharSequence,
-                    val localName: CharSequence,
-                    val prefix: CharSequence,
-                    val value: CharSequence) : XmlEvent(
+                    namespaceUri: CharSequence,
+                    localName: CharSequence,
+                    prefix: CharSequence,
+                    value: CharSequence) : XmlEvent(
         locationInfo) {
 
+        val value = value.toString()
+        val prefix = prefix.toString()
+        val localName = localName.toString()
+        val namespaceUri = namespaceUri.toString()
         override val eventType: EventType get() = EventType.ATTRIBUTE
 
         override fun writeTo(writer: XmlWriter) = writer.attribute(namespaceUri, localName, prefix, value)
 
         fun hasNamespaceUri(): Boolean {
-            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI == namespaceUri.toString() ||
-                   (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE == localName.toString())
+            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI == namespaceUri ||
+                   (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE == localName)
         }
     }
 
-    class NamespaceImpl(private val namespacePrefix: CharSequence, private val namespaceUri: CharSequence) : Namespace {
+    class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
 
-        override val prefix: String get() = namespacePrefix.toString()
+        override val prefix: String = namespacePrefix.toString()
 
-        override val namespaceURI get() = namespaceUri.toString()
+        override val namespaceURI = namespaceUri.toString()
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Namespace) return false
 
-            if (namespacePrefix != other.prefix) return false
-            if (namespaceUri != other.namespaceURI) return false
+            if (prefix != other.prefix) return false
+            if (namespaceURI != other.namespaceURI) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            return 31 * namespacePrefix.hashCode() + namespaceUri.hashCode()
+            return 31 * prefix.hashCode() + namespaceURI.hashCode()
         }
 
         override fun toString(): String {

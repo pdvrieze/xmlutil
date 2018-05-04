@@ -28,7 +28,4 @@ expect class XMLFragmentStreamReader : XmlDelegatingReader {
         fun from(fragment: ICompactFragment): XMLFragmentStreamReader
     }
 
-
 }
-
-//fun CompactFragment.getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)

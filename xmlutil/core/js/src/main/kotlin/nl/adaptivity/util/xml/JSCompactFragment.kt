@@ -33,7 +33,7 @@ actual class CompactFragment : ICompactFragment {
     actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
-            return Companion.deserialize(reader)
+            return CompactFragment.deserialize(reader)
         }
     }
 
@@ -86,6 +86,7 @@ actual class CompactFragment : ICompactFragment {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
+        @Suppress("UnsafeCastFromDynamic")
         if (other == null || prototype != other.prototype) return false
 
         val that = other as ICompactFragment?

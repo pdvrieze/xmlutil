@@ -26,3 +26,8 @@ fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
   }
   return true
 }
+
+@Deprecated("Use string equals", ReplaceWith("this == other"))
+fun String?.contentEquals(other: String?): Boolean {
+    return this == other
+}

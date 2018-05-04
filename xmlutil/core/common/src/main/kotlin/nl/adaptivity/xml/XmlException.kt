@@ -30,7 +30,7 @@ expect open class IOException: Exception {
  */
 open class XmlException : IOException {
 
-    constructor() {}
+    constructor()
 
     constructor(message: String) : super(message)
 

@@ -29,9 +29,9 @@ actual typealias PlatformXmlReader = JSDomReader
 class JSDomReader(val delegate: Node) : XmlReader {
   private var current: Node? = null
 
-  override val namespaceUri get() = current?.asElement()?.namespaceURI ?: throw XmlException("Only elements have a namespace uri")
-  override val localName get() = current?.asElement()?.localName ?: throw XmlException("Only elements have a local name")
-  override val prefix get() = current?.asElement()?.prefix  ?: throw XmlException("Only elements have a namespace uri")
+  override val namespaceUri: String get() = current?.asElement()?.namespaceURI ?: throw XmlException("Only elements have a namespace uri")
+  override val localName: String get() = current?.asElement()?.localName ?: throw XmlException("Only elements have a local name")
+  override val prefix: String get() = current?.asElement()?.prefix ?: throw XmlException("Only elements have a namespace uri")
   override var isStarted: Boolean = false
     private set
 
@@ -40,7 +40,8 @@ class JSDomReader(val delegate: Node) : XmlReader {
   override var depth: Int = 0
     private set
 
-  override val text: String get() = when (current?.nodeType) {
+  override val text: String
+      get() = when (current?.nodeType) {
       Node.ENTITY_REFERENCE_NODE,
       Node.COMMENT_NODE,
       Node.TEXT_NODE,
@@ -73,11 +74,11 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
   override val namespaceContext: NamespaceContext
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-  override val encoding get() = delegate.ownerDocument!!.inputEncoding
+  override val encoding: String? get() = delegate.ownerDocument!!.inputEncoding
 
   override val standalone: Boolean?
     get() = TODO("Not implemented")
-  override val version get() = "1.0"
+  override val version: String? get() = "1.0"
 
   override fun hasNext(): Boolean
   {
@@ -102,7 +103,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
           }
         }
         c.firstChild != null -> {
-          current == c.firstChild
+          current = c.firstChild
         }
         c.nextSibling != null -> {
           current = c.nextSibling
@@ -119,33 +120,27 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
   }
 
-  override fun getAttributeNamespace(i: Int): CharSequence
-  {
+  override fun getAttributeNamespace(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getAttributePrefix(i: Int): CharSequence
-  {
+  override fun getAttributePrefix(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getAttributeLocalName(i: Int): CharSequence
-  {
+  override fun getAttributeLocalName(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getAttributeValue(i: Int): CharSequence
-  {
+  override fun getAttributeValue(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getAttributeValue(nsUri: CharSequence?, localName: CharSequence): CharSequence?
-  {
+  override fun getAttributeValue(nsUri: String?, localName: String): String? {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespacePrefix(i: Int): CharSequence
-  {
+  override fun getNamespacePrefix(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -154,17 +149,15 @@ class JSDomReader(val delegate: Node) : XmlReader {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespaceUri(i: Int): CharSequence
-  {
+  override fun getNamespaceUri(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespacePrefix(namespaceUri: CharSequence): CharSequence?
-  {
+  override fun getNamespacePrefix(namespaceUri: String): String? {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespaceUri(prefix: CharSequence): String?
+  override fun getNamespaceUri(prefix: String): String?
   {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }

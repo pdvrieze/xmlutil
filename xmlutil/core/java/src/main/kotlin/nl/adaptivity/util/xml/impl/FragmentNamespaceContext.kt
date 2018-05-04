@@ -31,6 +31,7 @@ class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
         return super.getPrefix(namespaceURI) ?: parent?.getPrefix(namespaceURI)
     }
 
+    @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     override fun getPrefixes(namespaceURI: String): Iterator<String> {
         if (parent == null) {
             return super.getPrefixes(namespaceURI)

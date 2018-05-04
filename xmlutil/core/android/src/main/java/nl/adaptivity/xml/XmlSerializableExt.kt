@@ -60,7 +60,7 @@ fun toString(serializable: XmlSerializable) = serializable.toString(DEFAULT_FLAG
 
 /**
  * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.
- * @param serializables The source list.
+ * @receiver The source list.
  *
  * @return A result list
  */

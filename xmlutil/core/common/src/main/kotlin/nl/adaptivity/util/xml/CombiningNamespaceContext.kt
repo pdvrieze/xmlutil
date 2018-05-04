@@ -41,6 +41,7 @@ class CombiningNamespaceContext(private val primary: NamespaceContext,
         } else prefix
     }
 
+    @Suppress("OverridingDeprecatedMember")
     override fun getPrefixes(namespaceURI: String): Iterator<String> {
         val prefixes1 = primary.prefixesFor(namespaceURI)
         val prefixes2 = secondary.prefixesFor(namespaceURI)
