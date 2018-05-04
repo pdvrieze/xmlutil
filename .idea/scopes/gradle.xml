@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="gradle" pattern="file[*]:*.gradle*" />
+</component>
