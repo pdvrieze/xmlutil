@@ -16,8 +16,6 @@
 
 package nl.adaptivity.util.xml
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import nl.adaptivity.xml.*
 
 

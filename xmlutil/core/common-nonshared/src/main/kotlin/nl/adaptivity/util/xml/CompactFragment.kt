@@ -16,15 +16,10 @@
 
 package nl.adaptivity.util.xml
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.*
-import nl.adaptivity.util.multiplatform.Class
-import nl.adaptivity.util.multiplatform.JvmStatic
 import nl.adaptivity.xml.Namespace
 import nl.adaptivity.xml.XmlDeserializerFactory
 import nl.adaptivity.xml.XmlReader
 import nl.adaptivity.xml.XmlSerializable
-import kotlin.reflect.KClass
 
 /**
  * A class representing an xml fragment compactly.
