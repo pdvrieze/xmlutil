@@ -16,21 +16,12 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import nl.adaptivity.util.xml.CompactFragment
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.junit.jupiter.api.Assertions.assertEquals
-
-@Serializable
-@XmlSerialName("address")
-data class Address(val houseNumber: String, val street: String, val city: String)
-
-@Serializable
-data class Business(val name: String, val headOffice: Address)
-
 
 object testXML : Spek(
     {
@@ -47,16 +38,41 @@ object testXML : Spek(
 
         given("A simple business") {
             val expBusinessXml =
-                """|<Business name="ABC Corp">
-                   |  <Address houseNumber="1" street="ABC road" city="ABCVille"/>
-                   |</Business>""".trimMargin("|")
+                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"></headOffice></Business>"
 
             val business = Business("ABC Corp", Address("1", "ABC road", "ABCVille"))
             on("serialization") {
                 val serialized = XML.stringify(business)
-                it("should be the expected value") {
+                it("should equal the expected business xml") {
                     assertEquals(expBusinessXml, serialized)
                 }
+            }
+        }
+
+        given("A chamber of commerce") {
+            val expChamber="<chamber name=\"hightech\">"+
+                           "<member name=\"foo\"></member>" +
+                           "<member name=\"bar\"></member>" +
+                           "</chamber>"
+            val chamber = Chamber("hightech", listOf(Business("foo", null), Business("bar", null)))
+
+            on("serialization") {
+                val serialized = XML.stringify(chamber)
+                it("Should equal the chamber xml") {
+                    assertEquals(expChamber, serialized)
+                }
+            }
+        }
+
+        given("A compactFragment") {
+            val expectedXml = "<compactFragment><a>someA</a><b>someB</b></compactFragment>"
+            val fragment = CompactFragment("<a>someA</a><b>someB</b>")
+            on("serialization") {
+                val serialized = XML.stringify(fragment)
+                it("Should equal the expected fragment xml") {
+                    assertEquals(expectedXml, serialized)
+                }
+
             }
         }
     })
