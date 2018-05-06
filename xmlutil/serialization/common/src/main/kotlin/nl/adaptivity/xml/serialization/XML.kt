@@ -74,7 +74,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     }
 
     open class XmlOutput internal constructor(context: SerialContext?,
-                                              val target: XmlWriter,
+                                              open val target: XmlWriter,
                                               serialName: QName?,
                                               protected val childName: QName?) : TaggedOutput<OutputDescriptor>() {
 
@@ -116,7 +116,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         // If the child tag has a different namespace uri that requires a namespace declaration
                         // And we didn't just declare the prefix here already then we will declare it here rather
                         // than on each child
-                        if (serialName?.prefix!=childName.prefix && target.getNamespaceUri(childName.prefix)!=childName.namespaceURI) {
+                        if (serialName?.prefix != childName.prefix && target.getNamespaceUri(
+                                childName.prefix) != childName.namespaceURI) {
                             target.namespaceAttr(childName.prefix, childName.namespaceURI)
                         }
                     }
@@ -128,7 +129,12 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 KSerialClassKind.SEALED,
                 KSerialClassKind.POLYMORPHIC -> {
                     target.doSmartStartTag(tagName)
-                    XmlOutput(context, target, tagName, null)
+                    val lastInvertedIndex = desc.lastInvertedIndex()
+                    if (lastInvertedIndex > 0) {
+                        InvertedWriter(context, target, tagName, null, lastInvertedIndex)
+                    } else {
+                        XmlOutput(context, target, tagName, null)
+                    }
                 }
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
@@ -160,8 +166,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 */
 
         override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
-            val tag  = currentTagOrNull
-            if (tag!=null && tag.name!=serialName && tag.childName!=childName) {
+            val tag = currentTagOrNull
+            if (tag != null && tag.name != serialName && tag.childName != childName) {
                 copy(serialName = tag.name, childName = tag.childName).apply {
                     if (writeElement(tag.desc, tag.index))
                         writeSerializableValue(saver, value)
@@ -194,15 +200,28 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         override fun writeTaggedString(tag: OutputDescriptor, value: String) {
             when (tag.kind) {
-                OutputKind.Unknown   -> { tag.kind = OutputKind.Attribute; writeTaggedString(tag, value) }
-                OutputKind.Attribute -> target.writeAttribute(tag.name, value)
-                OutputKind.Text      -> target.text(value)
-                OutputKind.Element   -> target.smartStartTag(tag.name) {
+                OutputKind.Unknown   -> {
+                    tag.kind = OutputKind.Attribute; writeTaggedString(tag, value)
+                }
+                OutputKind.Attribute -> target.doWriteAttribute(tag.name, value)
+                OutputKind.Text      -> target.doText(value)
+                OutputKind.Element   -> target.doSmartStartTag(tag.name) {
                     text(value)
                 }
             }
         }
 
+        open fun XmlWriter.doWriteAttribute(name: QName, value:String) {
+            writeAttribute(name, value)
+        }
+
+        inline fun XmlWriter.doSmartStartTag(name:QName, body: XmlWriter.()->Unit) {
+            doSmartStartTag(name)
+            body()
+            endTag(name)
+        }
+
+        open fun XmlWriter.doText(value: String) = text(value)
         /**
          * Wrapper function that will allow queing events
          */
@@ -224,6 +243,40 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
+        private class InvertedWriter(context: SerialContext?,
+                                     target: XmlWriter,
+                                     serialName: QName,
+                                     childName: QName?,
+                                     val lastInvertedIndex: Int) : XmlOutput(context, target, serialName, childName) {
+
+            val parentWriter get() = super.target
+
+            override var target: XmlWriter = XmlBufferedWriter()
+                private set
+
+            override fun XmlWriter.doWriteAttribute(name: QName, value: String) {
+                // Write attributes directly in all cases
+                parentWriter.writeAttribute(name, value)
+            }
+
+            override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
+                if (index>lastInvertedIndex) {
+                    // If we are done, just flip to using a regular target
+                    (target as? XmlBufferedWriter)?.flushTo(parentWriter)
+                    target = parentWriter
+                }
+                // Duplication needed as super access doesn't work
+                return OutputDescriptor(this, index, outputKind(index), getTagName(index))
+            }
+
+            override fun writeFinished(desc: KSerialClassDesc) {
+                // Flush if we somehow haven't flushed yet
+                (target as? XmlBufferedWriter)?.flushTo(parentWriter)
+                target = parentWriter
+
+                super.writeFinished(desc)
+            }
+        }
 
         private class RepeatedWriter(context: SerialContext?,
                                      target: XmlWriter,
@@ -242,12 +295,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
-                val name = childName ?:
-                           getAnnotationsForIndex(index).getXmlSerialName(serialName) ?:
-                           serialName ?:
-                           QName(this.name)
+                val name = childName ?: getAnnotationsForIndex(index).getXmlSerialName(serialName) ?: serialName
+                           ?: QName(this.name)
 
-                val specifiedKind = outputKind(index).let { if (it!=OutputKind.Text) OutputKind.Element else it }
+                val specifiedKind = outputKind(index).let { if (it != OutputKind.Text) OutputKind.Element else it }
                 return OutputDescriptor(this, index, specifiedKind, name)
             }
 
@@ -270,7 +321,11 @@ fun Collection<Annotation>.getXmlSerialName(current: QName?): QName? {
     return when {
         serialName == null -> null
         serialName.namespace == UNSET_ANNOTATION_VALUE
-                           -> if(current==null) { QName(serialName.value) } else { QName(current.namespaceURI, serialName.value, current.prefix) }
+                           -> if (current == null) {
+            QName(serialName.value)
+        } else {
+            QName(current.namespaceURI, serialName.value, current.prefix)
+        }
 
         serialName.prefix == UNSET_ANNOTATION_VALUE
                            -> QName(serialName.namespace, serialName.value)
@@ -335,7 +390,7 @@ annotation class XmlElement(val value: Boolean = true)
 annotation class XmlValue(val value: Boolean = true)
 
 enum class OutputKind { Element, Attribute, Text, Unknown }
-data class OutputDescriptor(val desc: KSerialClassDesc, val index: Int, var kind: OutputKind, val name: QName)  {
+data class OutputDescriptor(val desc: KSerialClassDesc, val index: Int, var kind: OutputKind, val name: QName) {
     val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
 }
 
@@ -350,7 +405,26 @@ private inline fun <reified T> Iterable<*>.firstOrNull(): T? {
 
 
 private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
+    // lists will always be elements
+    getAnnotationsForIndex(index).firstOrNull<XmlChildrenName>()?.let { return OutputKind.Element }
     getAnnotationsForIndex(
         index).firstOrNull<XmlElement>()?.let { return if (it.value) OutputKind.Element else OutputKind.Attribute }
     return OutputKind.Unknown
+}
+
+/**
+ * Determine the last index that may be an attribute (this is on incomplete information).
+ * This will only return a positive value if there is an element before this attribute.
+ */
+private fun KSerialClassDesc.lastInvertedIndex(): Int {
+    var seenElement = false
+    var lastAttrIndex = -1
+    for (i in 0 until associatedFieldsCount) {
+        when (outputKind(i)) {
+            OutputKind.Text,
+            OutputKind.Element -> seenElement = true
+            else               -> if (seenElement) lastAttrIndex = i
+        }
+    }
+    return lastAttrIndex
 }
