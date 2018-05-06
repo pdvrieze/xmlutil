@@ -13,10 +13,13 @@
  * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
-apply plugin: 'java-library'
-apply plugin: 'kotlin-platform-jvm'
-//apply plugin: 'kotlin'
-apply plugin: 'idea'
+
+plugins {
+    id("java-library")
+    id("kotlin-platform-jvm")
+    id("idea")
+    id("kotlinx-serialization")
+}
 
 version = '0.5.0'
 description = 'Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb'
@@ -30,6 +33,7 @@ dependencies {
     api project(":multiplatform:jvm")
     expectedBy project(":xmlutil:core:common-nonshared")
     api project(":xmlutil:core:java")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
 
 sourceSets {

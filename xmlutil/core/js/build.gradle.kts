@@ -19,17 +19,22 @@ import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 plugins {
     base
     id("kotlin-platform-js")
+    id("kotlinx-serialization")
+
 }
 
 base {
     archivesBaseName="xmlutil-core"
 }
 
+val serializationVersion:String by project
+
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
     expectedBy(project(":xmlutil:core:common-nonshared"))
     implementation(project(":multiplatform:js"))
     implementation(kotlin("stdlib-js"))
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
 }
 
 getTasks().withType<Kotlin2JsCompile> {

@@ -74,7 +74,12 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
 
     private open class XmlOutput(context: SerialContext?,
                                    private val target: XmlWriter,
-                                   private var targetType: KClass<*>?) : TaggedOutput<OutputDescriptor>() {
+                                   protected val serialName: QName?,
+                                   protected val childName: QName? = null) : TaggedOutput<OutputDescriptor>() {
+
+        constructor(context: SerialContext?, target: XmlWriter, targetType: KClass<*>?):
+            this(context, target, targetType?.getSerialName(), targetType?.getChildName())
+
         init {
             this.context = context
         }
@@ -89,17 +94,25 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
          * @param typeParams The serializers for the elements
          */
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
-            val tagName = currentTagOrNull?.name ?: targetType?.getSerialName() ?: QName(desc.name)
-            target.doSmartStartTag(tagName)
+            val tagName = currentTagOrNull?.name ?: serialName ?: QName(desc.name)
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
-                KSerialClassKind.SET         -> RepeatedWriter(context, target, tagName, targetType?.getChildName())
+                KSerialClassKind.SET         -> {
+                    currentTagOrNull?.run { kind = OutputKind.Element }
+                    if(childName!=null) {
+                        target.doSmartStartTag(tagName)
+                    }
+                    RepeatedWriter(context, target, tagName, childName)
+                }
 
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
                 KSerialClassKind.SEALED,
-                KSerialClassKind.POLYMORPHIC -> this
+                KSerialClassKind.POLYMORPHIC -> {
+                    target.doSmartStartTag(tagName)
+                    XmlOutput(context, target, tagName)
+                }
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
                 else                         -> throw SerializationException(
@@ -107,18 +120,11 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
             }
         }
 
-        private class RepeatedWriter(context: SerialContext?,
-                                     target: XmlWriter,
-                                     tagName: QName,
-                                     childName: QName?) : XmlOutput(context, target, null) {
-
-        }
-
         /**
          * Called when finished writing the current complex element.
          */
         override fun writeFinished(desc: KSerialClassDesc) {
-            val tagName = currentTagOrNull?.name ?: targetType?.getSerialName() ?: QName(desc.name)
+            val tagName = currentTagOrNull?.name ?: serialName ?: QName(desc.name)
             target.endTag(tagName)
         }
 
@@ -136,6 +142,10 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
 
         override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
             super.writeSerializableValue(saver, value)
+        }
+
+        override fun writeTaggedNull(tag: OutputDescriptor) {
+            // Do nothing - in xml absense is null
         }
 
         override fun writeTaggedBoolean(tag: OutputDescriptor, value: Boolean) = writeTaggedString(tag, value.toString())
@@ -168,7 +178,7 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
         /**
          * Wrapper function that will allow queing events
          */
-        fun XmlWriter.doSmartStartTag(name: QName) = smartStartTag(name)
+        open fun XmlWriter.doSmartStartTag(name: QName) = smartStartTag(name)
 
         fun KSerialClassDesc.getTagName(index: Int): QName {
             getAnnotationsForIndex(index).getXmlSerialName()?.let { return it }
@@ -185,6 +195,32 @@ class XML(val context: SerialContext? = null, val repairNamespaces: Boolean = tr
                 else  -> QName(name)
             }
         }
+
+
+        private class RepeatedWriter(context: SerialContext?,
+                                     target: XmlWriter,
+                                     tagName: QName,
+                                     childName: QName?) : XmlOutput(context, target, tagName, childName) {
+
+            override fun shouldWriteElement(desc: KSerialClassDesc, tag: OutputDescriptor, index: Int): Boolean {
+                tag.kind == OutputKind.Element
+                // Don't write the element count in xml
+                return index != 0
+            }
+
+            override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
+                val name = childName ?: getAnnotationsForIndex(index).getXmlSerialName() ?: serialName ?: QName(this.name)
+
+                return OutputDescriptor(outputKind(index), name)
+            }
+
+            override fun writeFinished(desc: KSerialClassDesc) {
+                if (childName!=null) {
+                    super.writeFinished(desc)
+                }
+            }
+        }
+
     }
 }
 
@@ -250,6 +286,13 @@ annotation class XmlChildrenName(val value: String,
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlElement(val value: Boolean = true)
+
+/**
+ * Force a property to be element content
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlValue(val value: Boolean = true)
 
 private enum class OutputKind { Element, Attribute, Text, Unknown }
 private data class OutputDescriptor(var kind: OutputKind, val name: QName)

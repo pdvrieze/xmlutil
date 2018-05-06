@@ -39,8 +39,3 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 //    implementation(project(":java-common:common"))
 }
-
-repositories {
-    jcenter()
-    maven(url = "https://kotlin.bintray.com/kotlinx")
-}

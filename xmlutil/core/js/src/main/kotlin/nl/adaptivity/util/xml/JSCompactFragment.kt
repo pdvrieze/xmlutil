@@ -16,6 +16,8 @@
 
 package nl.adaptivity.util.xml
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import nl.adaptivity.js.prototype
 import nl.adaptivity.xml.*
 import org.w3c.dom.DocumentFragment
@@ -43,6 +45,7 @@ actual class CompactFragment : ICompactFragment {
 
     override val namespaces: IterableNamespaceContext
 
+    @Transient
     @Deprecated("In javascript this is not efficient, use contentString")
     override val content: CharArray
         get() = CharArray(contentString.length) { i -> contentString[i] }
@@ -61,9 +64,9 @@ actual class CompactFragment : ICompactFragment {
     constructor(node: Node):this(node.toString())
 
     /** Convenience constructor for content without namespaces.  */
-    constructor(namespaces: Iterable<Namespace>, string: String) {
+    actual constructor(namespaces: Iterable<Namespace>, content: String) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
-        this.contentString = string
+        this.contentString = content
     }
 
     actual constructor(orig: ICompactFragment) {

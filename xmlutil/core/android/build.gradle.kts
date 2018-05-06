@@ -20,11 +20,13 @@ plugins {
     id("kotlin-platform-android")
     id("kotlin-kapt")
     idea
+    id("kotlinx-serialization")
 }
 
 @Suppress("PropertyName")
 val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
+val serializationVersion:String by project
 
 android {
     compileSdkVersion(27)
@@ -43,6 +45,7 @@ dependencies {
     api(project(":xmlutil:core:java"))
     api(project(":multiplatform:jvm"))
     implementation(kotlin("stdlib", kotlinVersion))
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
 /*
 

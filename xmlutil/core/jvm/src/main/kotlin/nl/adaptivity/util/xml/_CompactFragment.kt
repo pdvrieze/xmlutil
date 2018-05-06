@@ -16,6 +16,8 @@
 
 package nl.adaptivity.util.xml
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import nl.adaptivity.xml.*
 
 
@@ -37,6 +39,8 @@ actual class CompactFragment: ICompactFragment {
       get() = content.isEmpty()
 
   override val namespaces: IterableNamespaceContext
+
+  @Transient
   override val content: CharArray
 
   actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
@@ -58,8 +62,8 @@ actual class CompactFragment: ICompactFragment {
     this.content = content.toCharArray()
   }
 
-  constructor(namespaces: Iterable<Namespace>, content: String?):
-      this(namespaces, content?.toCharArray() ?: kotlin.CharArray(0))
+  actual constructor(namespaces: Iterable<Namespace>, content: String):
+      this(namespaces, content.toCharArray())
 
 
     @Throws(XmlException::class)

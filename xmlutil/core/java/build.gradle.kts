@@ -18,12 +18,16 @@ plugins {
     id("java-library")
     id("kotlin-platform-jvm")
 }
+
 base {
     archivesBaseName="xmlutil-core-java"
 }
+
+val serializationVersion:String by project
 
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
     api(project(":multiplatform:java"))
     implementation(kotlin("stdlib-jdk7"))
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 }
