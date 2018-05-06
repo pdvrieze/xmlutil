@@ -65,7 +65,7 @@ object testXML : Spek(
             }
         }
 
-        given("A compactFragment") {
+        given("a compactFragment") {
             val expectedXml = "<compactFragment><a>someA</a><b>someB</b></compactFragment>"
             val fragment = CompactFragment("<a>someA</a><b>someB</b>")
             on("serialization") {
@@ -77,7 +77,7 @@ object testXML : Spek(
             }
         }
 
-        given("A more complex element") {
+        given("a more complex element") {
             val special = Special()
             val expectedSpecial="""<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
                                 "<f:flag>2</f:flag>" +
@@ -95,15 +95,21 @@ object testXML : Spek(
             }
         }
 
-        given("A class that has inverted property order") {
-            val inverted = Inverted()
-            val expected = """<Inverted arg="6"><elem>value</elem></Inverted>"""
+        given("a class that has inverted property order") {
+            val inverted = Inverted("value2", 7)
+            val expected = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
 
             on("serialization") {
                 val serialized = XML.stringify(inverted)
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
+
+                it("should parse to the original") {
+                    val invertedCopy: Inverted = XML.parse(serialized)
+                    assertEquals(inverted, invertedCopy)
+                }
+
             }
 
         }
