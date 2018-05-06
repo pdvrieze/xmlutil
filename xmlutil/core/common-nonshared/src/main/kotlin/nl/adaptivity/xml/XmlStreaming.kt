@@ -28,5 +28,8 @@ expect object XmlStreaming {
 
     fun toString(value: XmlSerializable): String
 
+    fun newReader(input: CharSequence): XmlReader
+
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 }
 

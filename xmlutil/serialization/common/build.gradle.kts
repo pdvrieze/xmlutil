@@ -17,22 +17,30 @@
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-base {
-    archivesBaseName="xmlutil-core-common"
-}
+import kotlin.jvm.javaClass
 
 
 plugins {
     id("kotlin-platform-common")
+//    id("kotlinx-serialization")
 }
+
+base {
+    archivesBaseName="xmlutil-serialization-common"
+}
+
+val serializationVersion:String by project
 
 dependencies {
     implementation(kotlin("stdlib-common"))
     implementation(project(":multiplatform:common"))
+    implementation(project(":xmlutil:core:common"))
+    implementation(project(":xmlutil:core:common-nonshared"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 //    implementation(project(":java-common:common"))
 }
 
 repositories {
     jcenter()
+    maven(url = "https://kotlin.bintray.com/kotlinx")
 }

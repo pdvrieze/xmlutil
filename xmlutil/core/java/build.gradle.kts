@@ -24,6 +24,6 @@ base {
 
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
-    implementation(project(":multiplatform:java"))
+    api(project(":multiplatform:java"))
     implementation(kotlin("stdlib-jdk7"))
 }

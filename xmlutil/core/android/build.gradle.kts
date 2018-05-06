@@ -41,7 +41,7 @@ description = "Utility classes for xml handling that works across platforms (jvm
 dependencies {
     expectedBy(project(":xmlutil:core:common-nonshared"))
     api(project(":xmlutil:core:java"))
-    implementation(project(":multiplatform:jvm"))
+    api(project(":multiplatform:jvm"))
     implementation(kotlin("stdlib", kotlinVersion))
 }
 /*

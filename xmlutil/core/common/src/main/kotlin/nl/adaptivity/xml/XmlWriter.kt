@@ -217,12 +217,13 @@ fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? =
     } else {
         var writeNs = false
 
-        val namespace: String = nsUri.toString()
-        val usedPrefix = getPrefix(namespace) ?: run { writeNs = true; prefix ?: DEFAULT_NS_PREFIX }
+        val usedPrefix = getPrefix(nsUri) ?: run {
+            if (nsUri != NULL_NS_URI) { writeNs = true }; prefix ?: DEFAULT_NS_PREFIX
+        }
 
-        startTag(namespace, localName, usedPrefix)
+        startTag(nsUri, localName, usedPrefix)
 
-        if (writeNs) this.namespaceAttr(usedPrefix, namespace)
+        if (writeNs) this.namespaceAttr(usedPrefix, nsUri)
     }
 }
 

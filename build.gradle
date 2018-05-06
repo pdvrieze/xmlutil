@@ -28,6 +28,7 @@ buildscript {
     ext.jupiterVersion = '5.2.0'
     ext.spekVersion = '1.1.5'
     ext.testngVersion = '6.9.13.8'
+    ext.serialization_version = '0.5.0'
     repositories {
         mavenLocal()
         google()

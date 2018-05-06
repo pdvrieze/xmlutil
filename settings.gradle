@@ -14,72 +14,103 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "ProcessManager"
-include ':multiplatform:common'
-include ':multiplatform:common-nonshared'
-include ':multiplatform:java'
-include ':multiplatform:jvm'
-include ':multiplatform:js'
+pluginManagement {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
 
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlinx-serialization") {
+                def version = (requested.version == null || requested.version.length() == 0) ? serializationVersion : requested.version
+/*
+                // The kotlin version. Unfortunately intellij doesn't support the settings delegate (even though gradle does)
+                val version = when {
+                    !requested.version.isNullOrEmpty()
+                         -> requested.version
 
-include ':DarwinGenerators'
-include ':java-common:common'
-include ':java-common:jvm'
-include ':java-common:js'
-include ':jscommon'
-include ':DarwinClients'
-// No longer contains any worthwhile code.
-//include ':DarwinCommon'
-include ':DarwinJavaApi'
-include ':PE-common:common'
-include ':PE-common:jvm'
-include ':PE-common:js'
-include ':PE-common:endpointDoclet'
-include ':JavaCommonApi:common'
-include ':JavaCommonApi:java'
-include ':JavaCommonApi:jvm'
-include ':JavaCommonApi:js'
-include ':PE-dataservices'
-include ':PEUserMessageHandler'
-include ':ProcessEngine:core'
-include ':ProcessEngine:servlet'
-include ':PE-diagram:common'
-include ':PE-diagram:jvm'
-include ':DarwinRealm'
-include ':DarwinServices'
-include ':PE-server'
-include ':darwin-sql'
-include ':accountmgr'
-include ':accountmgr:js'
-include ':accountcommon'
-include ':darwin:jvm'
-include ':darwin:shared'
-include ':darwin:js'
-include ':kotlinsql'
-include ':structurizr'
+                    else -> gradle.rootProject.extra["serializationVersion"]
+                }
+*/
+                useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
 
-include ':xmlutil:core:common'
-include ':xmlutil:core:common-nonshared'
-include ':xmlutil:core:java'
-include ':xmlutil:core:jvm'
-include ':xmlutil:core:js'
-
-//include ':xmlutil:generator'
-include ':TestSupport'
-include ':webeditor'
-
-// Android modules
-if (Boolean.valueOf(androidEnabledProp)) {
-    include ':multiplatform:android'
-    include ':java-common:android'
-    include ':PE-common:android'
-    include ':PE-diagram:android'
-
-    include ':android-auth'
-    include ':darwinlib'
-    include ':PMEditor'
-
-    include ':xmlutil:core:android'
-    include ':xmlutil:android'
+            }
+        }
+    }
 }
 
+rootProject.name = "ProcessManager"
+include(":multiplatform:common")
+include(":multiplatform:common-nonshared")
+include(":multiplatform:java")
+include(":multiplatform:jvm")
+include(":multiplatform:js")
+
+
+include(":DarwinGenerators")
+include(":java-common:common")
+include(":java-common:jvm")
+include(":java-common:js")
+include(":jscommon")
+include(":DarwinClients")
+// No longer contains any worthwhile code.
+//include(":DarwinCommon")
+include(":DarwinJavaApi")
+include(":PE-common:common")
+include(":PE-common:jvm")
+include(":PE-common:js")
+include(":PE-common:endpointDoclet")
+include(":JavaCommonApi:common")
+include(":JavaCommonApi:java")
+include(":JavaCommonApi:jvm")
+include(":JavaCommonApi:js")
+include(":PE-dataservices")
+include(":PEUserMessageHandler")
+include(":ProcessEngine:core")
+include(":ProcessEngine:servlet")
+include(":PE-diagram:common")
+include(":PE-diagram:jvm")
+include(":DarwinRealm")
+include(":DarwinServices")
+include(":PE-server")
+include(":darwin-sql")
+include(":accountmgr")
+include(":accountmgr:js")
+include(":accountcommon")
+include(":darwin:jvm")
+include(":darwin:shared")
+include(":darwin:js")
+include(":kotlinsql")
+include(":structurizr")
+
+include(":xmlutil:core:common")
+include(":xmlutil:core:common-nonshared")
+include(":xmlutil:core:java")
+include(":xmlutil:core:jvm")
+include(":xmlutil:core:js")
+include(":xmlutil:serialization:common")
+include(":xmlutil:serialization:jvm")
+
+//include(":xmlutil:generator")
+include(":TestSupport")
+include(":webeditor")
+
+//val androidEnabledProp: String by settings//= rootProject.extra["androidEnabledProp"]//extra.get["AndroidEnabledProp"].toBoolean()
+
+// Android modules
+if (Boolean.parseBoolean(androidEnabledProp)) {
+    include(":multiplatform:android")
+    include(":java-common:android")
+    include(":PE-common:android")
+    include(":PE-diagram:android")
+
+    include(":android-auth")
+    include(":darwinlib")
+    include(":PMEditor")
+
+    include(":xmlutil:core:android")
+    include(":xmlutil:android")
+}

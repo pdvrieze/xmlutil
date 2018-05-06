@@ -16,10 +16,9 @@
 
 package nl.adaptivity.xml
 
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
+import nl.adaptivity.util.AppendableWriter
+import nl.adaptivity.util.CharsequenceReader
+import java.io.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
@@ -31,9 +30,14 @@ actual interface XmlStreamingFactory {
 
   fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
+  fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false) =
+      newWriter(AppendableWriter(output), repairNamespaces, omitXmlDecl)
+
   fun newReader(source: Source): XmlReader
 
   fun newReader(reader: Reader): XmlReader
 
   fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
+
+  fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
 }

@@ -16,6 +16,7 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.util.xml.XmlDelegatingWriter
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
@@ -47,11 +48,10 @@ actual object XmlStreaming {
         throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
-    fun <T:Any> deSerialize(input: String, type: KClass<T>): T {
-        val document = DOMParser().parseFromString(input, "text/xml")
-        val reader = JSDomReader(document)
-        return reader.deSerialize(type)
-    }
+    fun <T:Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
+    /*: T {
+        return newReader(input).deSerialize(type)
+    }*/
 
     actual inline fun <reified T:Any> deSerialize(input:String): T {
         return deSerialize(input, T::class)
@@ -67,8 +67,17 @@ actual object XmlStreaming {
         }
         return w.target.toString()
     }
-}
 
+    actual fun newReader(input: CharSequence): XmlReader {
+        return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
+    }
+
+    actual fun newWriter(output: Appendable,
+                         repairNamespaces: Boolean,
+                         omitXmlDecl: Boolean): XmlWriter {
+        return AppendingWriter(output, JSDomWriter())
+    }
+}
 
 /*
 fun <T:Any> JSDomReader.deSerialize(type: KClass<T>): T {
@@ -77,5 +86,16 @@ fun <T:Any> JSDomReader.deSerialize(type: KClass<T>): T {
     val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
 
     return type.cast(deserializer.value.java.newInstance().deserialize(this))
+}
 */
+
+internal class AppendingWriter(private val target: Appendable, private val delegate: JSDomWriter): XmlWriter by delegate {
+    override fun close() {
+        delegate.close()
+        target.append(delegate.toString())
+    }
+
+    override fun flush() {
+        delegate.flush()
+    }
 }

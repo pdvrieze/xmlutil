@@ -14,6 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 @file:JvmName("JVMXmlStreamingKt")
+
 package nl.adaptivity.xml
 
 import nl.adaptivity.xml.XmlStreaming.deSerialize
@@ -62,6 +63,11 @@ actual object XmlStreaming {
     }
 
     @JvmStatic
+    actual fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        return factory.newWriter(output, repairNamespaces, omitXmlDecl)
+    }
+
+    @JvmStatic
     fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
@@ -74,6 +80,11 @@ actual object XmlStreaming {
     @JvmStatic
     fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
+    }
+
+    @JvmStatic
+    actual fun newReader(input: CharSequence): XmlReader {
+        return factory.newReader(input)
     }
 
     @JvmStatic
@@ -133,7 +144,7 @@ actual object XmlStreaming {
         return inputs.map { input -> XmlStreaming.newReader(StringReader(input)).deSerialize(type) }
     }
 
-    actual inline fun <reified T:Any> deSerialize(input:String): T {
+    actual inline fun <reified T : Any> deSerialize(input: String): T {
         return deSerialize(input, T::class.java)
     }
 
@@ -171,7 +182,6 @@ inline fun <reified T : Any> deserialize(input: InputStream) = deSerialize(input
 inline fun <reified T : Any> deserialize(input: Reader) = deSerialize(input, T::class.java)
 
 inline fun <reified T : Any> deserialize(input: String) = deSerialize(input, T::class.java)
-
 
 
 @JvmField

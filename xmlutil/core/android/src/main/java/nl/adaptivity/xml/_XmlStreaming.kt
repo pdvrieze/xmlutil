@@ -61,6 +61,10 @@ actual object XmlStreaming {
         return factory.newWriter(writer, repairNamespaces, omitXmlDecl)
     }
 
+    actual fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        return factory.newWriter(output, repairNamespaces, omitXmlDecl)
+    }
+
     @JvmStatic
     fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
@@ -74,6 +78,11 @@ actual object XmlStreaming {
     @JvmStatic
     fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
+    }
+
+    @JvmStatic
+    actual fun newReader(input: CharSequence): XmlReader {
+        return factory.newReader(input)
     }
 
     @JvmStatic
