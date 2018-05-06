@@ -106,12 +106,25 @@ class NamespaceHolder {
         nameSpaces = nameSpaces.copyOf(nameSpaces.size * 2)
     }
 
+
     // From first namespace
-    val namespaceContext: NamespaceContext
-        get() {
-            val pairs = nameSpaces.sliceArray(0..(arrayUseAtDepth(depth) - 1)).requireNoNulls()
-            return SimpleNamespaceContext(pairs)
+    val namespaceContext: NamespaceContext = object : NamespaceContext {
+        override fun getNamespaceURI(prefix: String): String? {
+            return this@NamespaceHolder.getNamespaceUri(prefix)
         }
+
+        override fun getPrefix(namespaceURI: String): String? {
+            return this@NamespaceHolder.getPrefix(namespaceURI)
+        }
+
+        @Suppress("OverridingDeprecatedMember")
+        override fun getPrefixes(namespaceURI: String): Iterator<Any?> {
+            return ((totalNamespaceCount-1) downTo 0)
+                .asSequence()
+                .filter { getNamespace(it) == namespaceURI }
+                .iterator()
+        }
+    }
 
     fun getNamespaceUri(prefix: CharSequence): String? {
         val prefixStr = prefix.toString()
