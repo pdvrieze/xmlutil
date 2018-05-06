@@ -64,6 +64,8 @@ dependencies {
 
 
     testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testRuntime("com.fasterxml.woodstox:woodstox-core:5.0.3")
+
 
     testRuntime ("org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}") {
         exclude(group="org.junit.platform")
