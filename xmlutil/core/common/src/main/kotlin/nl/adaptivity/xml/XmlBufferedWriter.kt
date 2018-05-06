@@ -16,7 +16,9 @@
 
 package nl.adaptivity.xml
 
-class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf()) : XmlWriter {
+import nl.adaptivity.util.xml.CombiningNamespaceContext
+
+class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegateNamespaceContext: NamespaceContext?=null) : XmlWriter {
     private val _buffer = buffer
 
     val buffer: List<XmlEvent> get() = _buffer
@@ -25,8 +27,11 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf()) : XmlWr
 
     override val depth: Int get() = namespaceHolder.depth
 
-    override val namespaceContext: NamespaceContext
-        get() = namespaceHolder.namespaceContext
+    override val namespaceContext: NamespaceContext = if (delegateNamespaceContext==null) {
+        namespaceHolder.namespaceContext
+    } else {
+        CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
+    }
 
     override fun setPrefix(prefix: String, namespaceUri: String) {
         namespaceHolder.addPrefixToContext(prefix, namespaceUri)
