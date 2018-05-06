@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 object testXML : Spek(
     {
         given("A simple data class") {
-            val expAddressXml: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"></address>"
+            val expAddressXml: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
             val address = Address("10", "Downing Street", "London")
             on("serialization") {
                 val serialized = XML.stringify(address)
@@ -39,7 +39,7 @@ object testXML : Spek(
 
         given("A simple business") {
             val expBusinessXml =
-                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"></headOffice></Business>"
+                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
 
             val business = Business("ABC Corp", Address("1", "ABC road", "ABCVille"))
             on("serialization") {
@@ -52,8 +52,8 @@ object testXML : Spek(
 
         given("A chamber of commerce") {
             val expChamber="<chamber name=\"hightech\">"+
-                           "<member name=\"foo\"></member>" +
-                           "<member name=\"bar\"></member>" +
+                           "<member name=\"foo\"/>" +
+                           "<member name=\"bar\"/>" +
                            "</chamber>"
             val chamber = Chamber("hightech", listOf(Business("foo", null), Business("bar", null)))
 
@@ -93,6 +93,19 @@ object testXML : Spek(
                     assertEquals(expectedSpecial, serialized)
                 }
             }
+        }
+
+        given("A class that has inverted property order") {
+            val inverted = Inverted()
+            val expected = """<Inverted arg="6"><elem>value</elem></Inverted>"""
+
+            on("serialization") {
+                val serialized = XML.stringify(inverted)
+                it("should equal the expected xml form") {
+                    assertEquals(expected, inverted)
+                }
+            }
 
         }
+
     })

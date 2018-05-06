@@ -39,3 +39,8 @@ data class Special(val paramA: String = "valA",
                    @SerialName("flags")
                    @XmlChildrenName("flag", namespace="urn:flag", prefix="f")
                    val param: List<Int> = listOf(2, 3, 4, 5, 6))
+
+@Serializable
+data class Inverted(@XmlElement(true)
+                    val elem:String = "value",
+                    val arg: Short=6)
