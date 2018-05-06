@@ -164,7 +164,14 @@ sealed class XmlEvent(val locationInfo: String?) {
         val namespaceUri = namespaceUri.toString()
         override val eventType: EventType get() = EventType.ATTRIBUTE
 
-        override fun writeTo(writer: XmlWriter) = writer.attribute(namespaceUri, localName, prefix, value)
+        override fun writeTo(writer: XmlWriter) {
+            if (hasNamespaceUri()) {
+                val nsPrefix = if (prefix.isNullOrEmpty()) "" else localName
+                writer.namespaceAttr(nsPrefix, namespaceUri)
+            } else {
+                writer.attribute(namespaceUri, localName, prefix, value)
+            }
+        }
 
         fun hasNamespaceUri(): Boolean {
             return XMLConstants.XMLNS_ATTRIBUTE_NS_URI == namespaceUri ||
