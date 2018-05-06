@@ -102,7 +102,7 @@ object testXML : Spek(
             on("serialization") {
                 val serialized = XML.stringify(inverted)
                 it("should equal the expected xml form") {
-                    assertEquals(expected, inverted)
+                    assertEquals(expected, serialized)
                 }
             }
 
