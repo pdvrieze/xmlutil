@@ -137,6 +137,10 @@ class CompactFragmentSerializer() : KSerializer<CompactFragment> {
             }
 
             override val associatedFieldsCount: Int get() = 2
+
+            override fun toString(): String {
+                return "compactFragment[namespaces, content]"
+            }
         }
     }
 }
