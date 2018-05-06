@@ -52,7 +52,11 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         depth++
         try {
-            delegate.writeStartElement(prefix, localName, namespace)
+            if (namespace.isNullOrEmpty() && prefix.isNullOrEmpty() && delegate.namespaceContext.getNamespaceURI("").isNullOrEmpty()) {
+                delegate.writeStartElement(localName)
+            } else {
+                delegate.writeStartElement(prefix, localName, namespace)
+            }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
