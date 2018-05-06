@@ -29,5 +29,4 @@ dependencies {
     expectedBy(project(":xmlutil:core:common"))
     api(project(":multiplatform:java"))
     implementation(kotlin("stdlib-jdk7"))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 }

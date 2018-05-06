@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin-platform-common")
-    id("kotlinx-serialization")
 }
 
 base {
@@ -34,5 +33,4 @@ dependencies {
     implementation(kotlin("stdlib-common"))
     implementation(project(":multiplatform:common"))
     implementation(project(":xmlutil:core:common"))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 }

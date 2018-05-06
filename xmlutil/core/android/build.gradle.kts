@@ -20,7 +20,6 @@ plugins {
     id("kotlin-platform-android")
     id("kotlin-kapt")
     idea
-    id("kotlinx-serialization")
 }
 
 @Suppress("PropertyName")
@@ -45,7 +44,6 @@ dependencies {
     api(project(":xmlutil:core:java"))
     api(project(":multiplatform:jvm"))
     implementation(kotlin("stdlib", kotlinVersion))
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
 /*
 

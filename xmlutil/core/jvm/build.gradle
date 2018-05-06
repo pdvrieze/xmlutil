@@ -18,7 +18,6 @@ plugins {
     id("java-library")
     id("kotlin-platform-jvm")
     id("idea")
-    id("kotlinx-serialization")
 }
 
 version = '0.5.0'
@@ -33,7 +32,6 @@ dependencies {
     api project(":multiplatform:jvm")
     expectedBy project(":xmlutil:core:common-nonshared")
     api project(":xmlutil:core:java")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
 
 sourceSets {
