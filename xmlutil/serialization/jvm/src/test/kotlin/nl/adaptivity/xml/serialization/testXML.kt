@@ -21,6 +21,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.api.dsl.xgiven
 import org.junit.jupiter.api.Assertions.assertEquals
 
 object testXML : Spek(
@@ -74,5 +75,24 @@ object testXML : Spek(
                 }
 
             }
+        }
+
+        given("A more complex element") {
+            val special = Special()
+            val expectedSpecial="""<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
+                                "<f:flag>2</f:flag>" +
+                                "<f:flag>3</f:flag>" +
+                                "<f:flag>4</f:flag>" +
+                                "<f:flag>5</f:flag>" +
+                                "<f:flag>6</f:flag>" +
+                                "</flags></localname>"
+
+            on("serialization") {
+                val serialized = XML.stringify(special)
+                it("Should equal the special xml") {
+                    assertEquals(expectedSpecial, serialized)
+                }
+            }
+
         }
     })

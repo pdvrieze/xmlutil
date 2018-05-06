@@ -30,3 +30,12 @@ data class Business(val name: String, val headOffice: Address?)
 @Serializable
 @XmlSerialName("chamber")
 data class Chamber(val name: String, @SerialName("member") val members: List<Business>)
+
+@Serializable
+@XmlSerialName("localname", "urn:namespace")
+data class Special(val paramA: String = "valA",
+                   @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
+                   @XmlElement(true) val paramB: Int = 1,
+                   @SerialName("flags")
+                   @XmlChildrenName("flag", namespace="urn:flag", prefix="f")
+                   val param: List<Int> = listOf(2, 3, 4, 5, 6))
