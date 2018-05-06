@@ -90,7 +90,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         get() = namespaceUri
 
     override val namespaceUri: String
-        get() = delegate.namespaceURI
+        get() = delegate.namespaceURI ?: XMLConstants.NULL_NS_URI
 
     @Deprecated("")
     fun hasText(): Boolean {
