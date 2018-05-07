@@ -21,6 +21,7 @@ import nl.adaptivity.util.multiplatform.JvmStatic
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.xml.Namespace
 import nl.adaptivity.xml.XmlEvent
+import nl.adaptivity.xml.siblingsToFragment
 import kotlin.reflect.KClass
 
 @Serializer(forClass = Namespace::class)
@@ -84,18 +85,26 @@ class CompactFragmentSerializer() : KSerializer<CompactFragment> {
     override fun load(input: KInput): CompactFragment {
         val serialClassDesc = serialClassDesc
         val newInput = input.readBegin(serialClassDesc)
-        var namespaces: List<Namespace> = mutableListOf()
-        var content = ""
+        if (newInput is XML.XmlInput) {
 
-        readElements(newInput) {elem ->
-            when (elem) {
-                0 -> namespaces = newInput.readSerializableElementValue(serialClassDesc, elem,
-                                                                        input.context.klassSerializer(kClass()))
-                1 -> content = newInput.readStringElementValue(serialClassDesc, elem)
+            return newInput.input.run {
+                next()
+                siblingsToFragment()
             }
-        }
+        } else {
+            var namespaces: List<Namespace> = mutableListOf()
+            var content = ""
 
-        return CompactFragment(namespaces, content)
+            readElements(newInput) { elem ->
+                when (elem) {
+                    0 -> namespaces = newInput.readSerializableElementValue(serialClassDesc, elem,
+                                                                            input.context.klassSerializer(kClass()))
+                    1 -> content = newInput.readStringElementValue(serialClassDesc, elem)
+                }
+            }
+
+            return CompactFragment(namespaces, content)
+        }
     }
 
     override fun save(output: KOutput, obj: CompactFragment) {
