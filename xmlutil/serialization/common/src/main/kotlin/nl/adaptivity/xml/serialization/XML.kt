@@ -419,7 +419,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             return map.get(name.normalize()) ?:
-                   throw XmlException("Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
+                   throw SerializationException("Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
         }
 
         internal class AnonymousListInput(context: SerialContext?, input: XmlReader, childName: QName): XmlInput(context, input, childName, null, 2) {
@@ -552,7 +552,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         EventType.TEXT          -> desc.getValueChild()
                         EventType.ATTRIBUTE     -> desc.indexOf(input.name)
                         EventType.START_ELEMENT -> desc.indexOf(input.name)
-                        else                    -> throw XmlException("Unexpected event in stream")
+                        else                    -> throw SerializationException("Unexpected event in stream")
                     }
                 }
             }

@@ -16,13 +16,16 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerializationException
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.xml.XmlException
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.jetbrains.spek.api.dsl.xgiven
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertThrows
 
 object testXML : Spek(
     {
@@ -131,6 +134,24 @@ object testXML : Spek(
 
             }
 
+        }
+
+        given("a missing child for inverted") {
+            val xml = "<Inverted arg='5'/>"
+            it("should throw an exception when parsing") {
+                assertThrows<MissingFieldException> {
+                    XML.parse<Inverted>(xml)
+                }
+            }
+        }
+
+        given("An incomplete xml specification for inverted") {
+            val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
+            it("should throw an exception when parsing") {
+                assertThrows<SerializationException> {
+                    XML.parse<Inverted>(xml)
+                }
+            }
         }
 
     })
