@@ -433,10 +433,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 // do Nothing. List items are not nullable in XML
             }
 
-            override fun readEnd(desc: KSerialClassDesc) {
-                super.readEnd(desc)
-            }
-
             override fun readElement(desc: KSerialClassDesc): Int {
                 return when {
                     finished -> KInput.READ_DONE
