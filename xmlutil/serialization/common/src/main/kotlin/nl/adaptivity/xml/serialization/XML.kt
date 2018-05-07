@@ -246,6 +246,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             // Do nothing - in xml absense is null
         }
 
+        override fun writeTaggedValue(tag: OutputDescriptor, value: Any) {
+            if (value is XmlSerializable) {
+                value.serialize(target)
+            } else {
+                super.writeTaggedValue(tag, value)
+            }
+        }
+
         override fun writeTaggedBoolean(tag: OutputDescriptor, value: Boolean) = writeTaggedString(tag,
                                                                                                    value.toString())
 
@@ -493,9 +501,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        fun nextNulledItemsIdx() {
+        fun nextNulledItemsIdx(desc: KSerialClassDesc) {
             for(i in (nulledItemsIdx+1) until seenItems.size) {
-                if (!seenItems[i]) {
+                if (!(seenItems[i] || desc.isOptional(i))) {
                     nulledItemsIdx = i
                     return
                 }
@@ -519,7 +527,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 if (nulledItemsIdx>=seenItems.size) return KInput.READ_DONE
                 val i = nulledItemsIdx
-                nextNulledItemsIdx()
+                nextNulledItemsIdx(desc)
                 return i
             }
 
@@ -543,7 +551,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 if (!eventType.isIgnorable) {
                     return when (eventType) {
                         EventType.END_ELEMENT   -> {
-                            nextNulledItemsIdx()
+                            nextNulledItemsIdx(desc)
                             when {
                                 nulledItemsIdx < seenItems.size -> nulledItemsIdx
                                 else                            -> KInput.READ_DONE
@@ -706,6 +714,10 @@ private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
     getAnnotationsForIndex(
         index).firstOrNull<XmlElement>()?.let { return if (it.value) OutputKind.Element else OutputKind.Attribute }
     return OutputKind.Unknown
+}
+
+private fun KSerialClassDesc.isOptional(index: Int): Boolean {
+    return getAnnotationsForIndex(index).firstOrNull<Optional>() !=null
 }
 
 /**
