@@ -552,6 +552,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         override fun readTaggedString(tag: OutputDescriptor): String {
+            if (nulledItemsIdx>=0) throw MissingFieldException(tag.desc.getElementName(tag.index))
             return when (tag.kind) {
                 OutputKind.Element   -> input.readSimpleElement()
                 OutputKind.Text      -> input.allText()
