@@ -418,8 +418,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 _nameMap = map
             }
 
-            return map.get(name.normalize()) ?: throw XmlException(
-                "Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
+            return map.get(name.normalize()) ?:
+                   throw XmlException("Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
         }
 
         internal class AnonymousListInput(context: SerialContext?, input: XmlReader, childName: QName): XmlInput(context, input, childName, null, 2) {
@@ -441,6 +441,26 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
+        internal class NamedListInput(context: SerialContext?, input: XmlReader, serialName: QName, childName: QName): XmlInput(context, input, serialName, childName, 2) {
+            var childCount = 0
+
+            override fun readElement(desc: KSerialClassDesc): Int {
+                return when (input.nextTag()) {
+                    EventType.END_ELEMENT -> KInput.READ_DONE
+                    else                  -> ++childCount // This is important to ensure appending in the list.
+                }
+            }
+
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                // The classDesc only has indices 0 and 1. Just make sure to return the needed tag, rather than the "truth"
+                return OutputDescriptor(classDesc, 1, OutputKind.Element, childName!!)
+            }
+
+            override fun markItemSeen(index: Int) {
+                // do Nothing. List items are not nullable in XML
+            }
+        }
+
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
             val tagName = getTagName(desc)
             if (isTagNotReadYet) input.nextTag()
@@ -451,11 +471,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
                 KSerialClassKind.SET         -> {
-                    currentTagOrNull?.run { kind = OutputKind.Element }
-                    val childName = desc.getAnnotationsForIndex(currentTag.index).getChildName()
+                    val t = currentTag
+                    t.kind = OutputKind.Element
+
+                    val childName = t.desc.getAnnotationsForIndex(t.index).getChildName()
                     return when (childName) {
                         null -> AnonymousListInput(context, input, tagName)
-                        else -> copy(serialName = tagName, childName = childName, childCount = 2)
+                        else -> NamedListInput(context, input, tagName, childName)
                     }
                 }
 
@@ -482,6 +504,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         override fun readElement(desc: KSerialClassDesc): Int {
+/*
             when (desc.kind) {
                 KSerialClassKind.MAP,
                 KSerialClassKind.LIST,
@@ -489,6 +512,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     return 1 // Just read a single element (always at index 1 - index 0 is the size)
                 }
             }
+*/
             if (nulledItemsIdx>=0) {
                 val sn = serialName!!
                 input.require(EventType.END_ELEMENT, sn.namespaceURI, sn.localPart)
@@ -572,7 +596,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         override fun readTaggedInt(tag: OutputDescriptor) = when (tag.desc.kind) {
             KSerialClassKind.SET,
             KSerialClassKind.LIST,
-            KSerialClassKind.MAP -> 1 // Always return elements one by one (there is no list size)
+            KSerialClassKind.MAP -> if(tag.index==0) 1 else readTaggedString(tag).toInt() // Always return elements one by one (there is no list size)
 
             else                 -> readTaggedString(tag).toInt()
         }
@@ -662,7 +686,7 @@ annotation class XmlElement(val value: Boolean = true)
 annotation class XmlValue(val value: Boolean = true)
 
 enum class OutputKind { Element, Attribute, Text, Unknown }
-data class OutputDescriptor(val desc: KSerialClassDesc, val index: Int, var kind: OutputKind, val name: QName) {
+data class OutputDescriptor(val desc: KSerialClassDesc, val index: Int, var kind: OutputKind, var name: QName) {
     val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
 }
 
