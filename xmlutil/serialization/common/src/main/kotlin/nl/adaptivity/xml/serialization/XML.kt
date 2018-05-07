@@ -59,7 +59,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
-        val input = XmlInput(context, reader, kClass.getSerialName(), kClass.getChildName())
+        val input = XmlInput(context, reader, kClass.getSerialName(), kClass.getChildName(), true)
         return input.read(loader)
     }
 
@@ -366,6 +366,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                         val input: XmlReader,
                                         serialName: QName?,
                                         protected val childName: QName?,
+                                        private val isTagNotReadYet: Boolean = false,
                                         private var attrIndex: Int = -1) : TaggedInput<OutputDescriptor>(), XmlCommon {
         init {
             this.context = context
@@ -375,10 +376,19 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                  input: XmlReader = this.input,
                  serialName: QName? = this.serialName,
                  childName: QName? = this.childName,
-                 attrIndex: Int = -1) = XmlInput(context, input, serialName, childName, attrIndex)
+                 isTagNotReadYet: Boolean = false,
+                 attrIndex: Int = -1) = XmlInput(context, input, serialName, childName, isTagNotReadYet, attrIndex)
 
         final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
-            return doGetTag(this, index)
+            return doGetTag(this, index).apply {
+                if (kind==OutputKind.Unknown) {
+                    if (attrIndex >= 0 && attrIndex < input.attributeCount) {
+                        kind = OutputKind.Attribute
+                    } else {
+                        kind = OutputKind.Element
+                    }
+                }
+            }
         }
 
         override var serialName: QName? = serialName
@@ -403,7 +413,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
             val tagName = getTagName(desc)
-            input.nextTag()
+            if (isTagNotReadYet) input.nextTag()
+
             input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
 
             return when (desc.kind) {
@@ -427,11 +438,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         override fun readElement(desc: KSerialClassDesc): Int {
-            if (attrIndex>=0) {
-                val oldIndex = attrIndex
-                attrIndex++
-                if (attrIndex>=input.attributeCount) attrIndex = -1
-                val name = input.getAttributeName(oldIndex)
+            if (attrIndex>=0 && attrIndex<input.attributeCount) {
+
+                val name = input.getAttributeName(attrIndex)
 
                 return if (name.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI ||
                            name.prefix == XMLConstants.XMLNS_ATTRIBUTE ||
@@ -442,6 +451,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     desc.indexOf(name)
                 }
             }
+            attrIndex = -1 // Ensure to reset here
+
             for (eventType in input) {
                 if (!eventType.isIgnorable) {
                     return when (eventType) {
@@ -463,7 +474,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             return when(tag.kind) {
                 OutputKind.Element -> input.readSimpleElement()
                 OutputKind.Text -> input.allText()
-                OutputKind.Attribute -> input.getAttributeValue(tag.name.namespaceURI, tag.name.localPart)!!
+                OutputKind.Attribute -> {
+                    input.getAttributeValue(attrIndex).also { attrIndex++ }
+                }
                 OutputKind.Unknown -> run { tag.kind = OutputKind.Attribute; readTaggedString(tag) }
             }
         }

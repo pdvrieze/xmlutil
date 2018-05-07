@@ -21,7 +21,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.jetbrains.spek.api.dsl.xgiven
 import org.junit.jupiter.api.Assertions.assertEquals
 
 object testXML : Spek(
@@ -33,6 +32,10 @@ object testXML : Spek(
                 val serialized = XML.stringify(address)
                 it("should be the expected value") {
                     assertEquals(expAddressXml, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(address, XML.parse<Address>(serialized))
                 }
             }
         }
@@ -46,6 +49,10 @@ object testXML : Spek(
                 val serialized = XML.stringify(business)
                 it("should equal the expected business xml") {
                     assertEquals(expBusinessXml, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(business, XML.parse<Business>(serialized))
                 }
             }
         }
@@ -62,6 +69,10 @@ object testXML : Spek(
                 it("Should equal the chamber xml") {
                     assertEquals(expChamber, serialized)
                 }
+
+                it("should parse to the original") {
+                    assertEquals(chamber, XML.parse<Chamber>(serialized))
+                }
             }
         }
 
@@ -72,6 +83,10 @@ object testXML : Spek(
                 val serialized = XML.stringify(fragment)
                 it("Should equal the expected fragment xml") {
                     assertEquals(expectedXml, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(fragment, XML.parse<CompactFragment>(serialized))
                 }
 
             }
@@ -92,6 +107,10 @@ object testXML : Spek(
                 it("Should equal the special xml") {
                     assertEquals(expectedSpecial, serialized)
                 }
+
+                it("should parse to the original") {
+                    assertEquals(special, XML.parse<Special>(serialized))
+                }
             }
         }
 
@@ -106,8 +125,7 @@ object testXML : Spek(
                 }
 
                 it("should parse to the original") {
-                    val invertedCopy: Inverted = XML.parse(serialized)
-                    assertEquals(inverted, invertedCopy)
+                    assertEquals(inverted, XML.parse<Inverted>(serialized))
                 }
 
             }
