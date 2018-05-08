@@ -165,7 +165,7 @@ object testXML : Spek(
                 }
 
                 it("should parse to the original") {
-                    assertEquals(poly, XML.parse<Inverted>(serialized))
+                    assertEquals(poly, XML.parse<Container>(serialized))
                 }
 
             }
