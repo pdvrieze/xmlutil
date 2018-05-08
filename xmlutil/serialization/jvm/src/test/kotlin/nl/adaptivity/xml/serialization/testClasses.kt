@@ -28,15 +28,15 @@ data class Address(val houseNumber: String, val street: String, val city: String
 open class Base
 
 @Serializable
-@XmlSerialName("ChildA")
+@XmlSerialName("childA")
 data class ChildA(val valueA: String): Base()
 
 @Serializable
-@XmlSerialName("ChildB")
+@XmlSerialName("childB")
 data class ChildB(val valueB: String): Base()
 
 @Serializable
-data class Container(val member: Base)
+data class Container(val label: String, val member: Base)
 
 @Serializable
 data class Business(val name: String, val headOffice: Address?)

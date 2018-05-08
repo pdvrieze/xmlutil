@@ -21,9 +21,33 @@ import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.xml.*
 import kotlin.reflect.KClass
 
+class XmlNameMap {
+    private val classMap = mutableMapOf<QName, KClass<*>>()
+    private val nameMap = mutableMapOf<KClass<*>, QName>()
+
+    fun lookupClass(name: QName) = classMap[name.copy(prefix = "")]
+    fun lookupName(kClass: KClass<*>) = nameMap[kClass]
+
+    fun registerClass(kClass: KClass<*>) {
+        val name = kClass.getSerialName() ?: QName(kClass.simpleName!!)
+        registerClass(name, kClass)
+    }
+
+    fun registerClass(name: QName, kClass: KClass<*>) {
+        classMap[name.copy(prefix = "")] = kClass
+        nameMap[kClass] = name
+    }
+}
+
 class XML(val context: SerialContext? = defaultSerialContext(),
           val repairNamespaces: Boolean = true,
           val omitXmlDecl: Boolean = true) {
+
+    val nameMap = XmlNameMap()
+
+    fun registerClass(kClass: KClass<*>) = nameMap.registerClass(kClass)
+
+    fun registerClass(name: QName, kClass: KClass<*>) = nameMap.registerClass(name, kClass)
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class, obj, context.klassSerializer(T::class))
 
@@ -59,7 +83,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
-        val input = XmlInput(context, reader, kClass.getSerialName(), kClass.getChildName(), 0, true)
+        val input = XmlInput(context, nameMap, reader, kClass.getSerialName(), kClass.getChildName(), 0, true)
         return input.read(loader)
     }
 
@@ -106,8 +130,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         val namespaceContext: NamespaceContext
 
         fun getTagName(desc: KSerialClassDesc) =
-            (myCurrentTagOrNull?.name ?: serialName ?: QName(
-                desc.name.substringAfterLast('.'))).also { serialName = it }
+            (myCurrentTagOrNull?.name ?: serialName
+             ?: QName(desc.name.substringAfterLast('.'))).also { serialName = it }
 
 
         fun KSerialClassDesc.getTagName(index: Int): QName {
@@ -192,17 +216,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     RepeatedWriter(context, target, tagName, childName)
                 }
                 KSerialClassKind.POLYMORPHIC -> {
-                    PolymorphicWriter(context, target)
-/*
-                    target.doSmartStartTag(tagName)
+                    val transparent = desc.associatedFieldsCount==1
+                    if (!transparent) target.doSmartStartTag(tagName)
 
-                    val lastInvertedIndex = desc.lastInvertedIndex()
-                    if (lastInvertedIndex > 0) {
-                        InvertedWriter(context, target, tagName, null, lastInvertedIndex)
-                    } else {
-                        XmlOutput(context, target, tagName, null)
-                    }
-*/
+                    PolymorphicWriter(context, target, transparent)
                 }
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
@@ -347,23 +364,26 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         private class PolymorphicWriter(context: SerialContext?,
-                                        target: XmlWriter) : XmlOutput(context, target, null, null) {
+                                        target: XmlWriter, val transparent:Boolean = false) : XmlOutput(context, target, null, null) {
             override fun writeTaggedString(tag: OutputDescriptor, value: String) {
-                when (tag.index) {
-                    0    -> Unit
-                    else -> super.writeTaggedString(tag, value)
-                }
+                if (tag.index==0) tag.name= QName("type")
+                if (transparent && tag.index == 0) return
+
+                super.writeTaggedString(tag, value)
             }
 
             override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
                 val tag = currentTag
-                if (tag.index == 1) ((value as Any)::class).getSerialName()?.let { tag.name = it }
+                if (transparent && tag.index == 1) ((value as Any)::class).getSerialName()?.let { tag.name = it }
 
                 super.writeSerializableValue(saver, value)
             }
 
             override fun writeFinished(desc: KSerialClassDesc) {
-                // Don't write anything
+                // Don't write anything if we're transparent
+                if (!transparent) {
+                    super.writeFinished(desc)
+                }
             }
         }
 
@@ -404,8 +424,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     }
 
     open class XmlInput internal constructor(context: SerialContext?,
+                                             val nameMap: XmlNameMap,
                                              val input: XmlReader,
-                                             serialName: QName?,
+                                             override var serialName: QName?,
                                              protected val childName: QName?,
                                              childCount: Int,
                                              private val isTagNotReadYet: Boolean = false,
@@ -415,12 +436,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         fun copy(context: SerialContext? = this.context,
+                 nameMap: XmlNameMap = this.nameMap,
                  input: XmlReader = this.input,
                  serialName: QName? = this.serialName,
                  childName: QName? = this.childName,
                  childCount: Int,
                  isTagNotReadYet: Boolean = false,
-                 attrIndex: Int = -1) = XmlInput(context, input, serialName, childName, childCount, isTagNotReadYet,
+                 attrIndex: Int = -1) = XmlInput(context, nameMap, input, serialName, childName, childCount,
+                                                 isTagNotReadYet,
                                                  attrIndex)
 
         final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
@@ -433,8 +456,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
 
-        override var serialName: QName? = serialName
-
         override val myCurrentTagOrNull: OutputDescriptor? get() = currentTagOrNull
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
@@ -446,12 +467,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         fun QName.normalize(): QName {
             return when {
-                namespaceURI.isEmpty() -> QName(namespaceContext.getNamespaceURI(prefix) ?: "", localPart)
-                else                   -> QName(namespaceURI, localPart)
+                namespaceURI.isEmpty() -> copy(namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
+                                               prefix = "")
+                else                   -> copy(prefix = "")
             }
         }
 
-        fun KSerialClassDesc.indexOf(name: QName): Int {
+        open fun KSerialClassDesc.indexOf(name: QName): Int {
             val map = _nameMap ?: mutableMapOf<QName, Int>().also { map ->
                 for (i in 0 until associatedFieldsCount) {
                     map[getTagName(i).normalize()] = i
@@ -464,8 +486,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 "Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
         }
 
-        internal class AnonymousListInput(context: SerialContext?, input: XmlReader, childName: QName) : XmlInput(
-            context, input, childName, null, 2) {
+        internal class AnonymousListInput(context: SerialContext?,
+                                          nameMap: XmlNameMap,
+                                          input: XmlReader,
+                                          childName: QName) : XmlInput(
+            context, nameMap, input, childName, null, 2) {
             var finished = false
 
             override fun getTagName(desc: KSerialClassDesc): QName {
@@ -487,9 +512,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         internal class NamedListInput(context: SerialContext?,
+                                      nameMap: XmlNameMap,
                                       input: XmlReader,
                                       serialName: QName,
-                                      childName: QName) : XmlInput(context, input, serialName, childName, 2) {
+                                      childName: QName) : XmlInput(context, nameMap, input, serialName, childName, 2) {
             var childCount = 0
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -509,6 +535,28 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
+        internal class PolymorphicInput(context: SerialContext?, nameMap: XmlNameMap, input: XmlReader, val transparent: Boolean = false) :
+            XmlInput(context, nameMap, input, null, null, 2, attrIndex = 0) {
+            override fun readElement(desc: KSerialClassDesc): Int {
+                if (transparent) return 1
+                return KInput.READ_ALL
+            }
+
+            override fun KSerialClassDesc.indexOf(name: QName): Int {
+                return if (name.namespaceURI=="" && name.localPart=="type") 0 else 1
+            }
+
+            override fun getTagName(desc: KSerialClassDesc): QName {
+                return super.getTagName(desc)
+            }
+
+            override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
+                if (!transparent) input.nextTag()
+                return super.readSerializableValue(loader)
+            }
+
+        }
+
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
             val tagName = getTagName(desc)
             if (isTagNotReadYet) input.nextTag()
@@ -524,15 +572,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                     val childName = t.desc.getAnnotationsForIndex(t.index).getChildName()
                     return when (childName) {
-                        null -> AnonymousListInput(context, input, tagName)
-                        else -> NamedListInput(context, input, tagName, childName)
+                        null -> AnonymousListInput(context, nameMap, input, tagName)
+                        else -> NamedListInput(context, nameMap, input, tagName, childName)
                     }
                 }
-
+                KSerialClassKind.POLYMORPHIC -> {
+                    PolymorphicInput(context, nameMap, input)
+                }
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED,
-                KSerialClassKind.POLYMORPHIC -> copy(serialName = tagName, attrIndex = 0,
+                KSerialClassKind.SEALED      -> copy(serialName = tagName, attrIndex = 0,
                                                      childCount = desc.associatedFieldsCount)
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
@@ -778,3 +827,7 @@ private fun KSerialClassDesc.lastInvertedIndex(): Int {
     }
     return lastAttrIndex
 }
+
+fun QName.copy(namespaceURI: String = this.namespaceURI,
+               localPart: String = this.localPart,
+               prefix: String = this.prefix) = QName(namespaceURI, localPart, prefix)

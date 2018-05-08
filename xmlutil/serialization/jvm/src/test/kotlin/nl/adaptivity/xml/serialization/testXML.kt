@@ -30,7 +30,7 @@ import org.junit.jupiter.api.assertThrows
 
 object testXML : Spek(
     {
-        given("A simple data class") {
+        xgiven("A simple data class") {
             val expAddressXml: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
             val address = Address("10", "Downing Street", "London")
             on("serialization") {
@@ -45,7 +45,7 @@ object testXML : Spek(
             }
         }
 
-        given("A simple business") {
+        xgiven("A simple business") {
             val expBusinessXml =
                 "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
 
@@ -62,7 +62,7 @@ object testXML : Spek(
             }
         }
 
-        given("A chamber of commerce") {
+        xgiven("A chamber of commerce") {
             val expChamber="<chamber name=\"hightech\">"+
                            "<member name=\"foo\"/>" +
                            "<member name=\"bar\"/>" +
@@ -81,7 +81,7 @@ object testXML : Spek(
             }
         }
 
-        given("a compactFragment") {
+        xgiven("a compactFragment") {
             val expectedXml = "<compactFragment><a>someA</a><b>someB</b></compactFragment>"
             val fragment = CompactFragment("<a>someA</a><b>someB</b>")
             on("serialization") {
@@ -97,7 +97,7 @@ object testXML : Spek(
             }
         }
 
-        given("a more complex element") {
+        xgiven("a more complex element") {
             val special = Special()
             val expectedSpecial="""<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
                                 "<f:flag>2</f:flag>" +
@@ -119,7 +119,7 @@ object testXML : Spek(
             }
         }
 
-        given("a class that has inverted property order") {
+        xgiven("a class that has inverted property order") {
             val inverted = Inverted("value2", 7)
             val expected = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
 
@@ -137,7 +137,7 @@ object testXML : Spek(
 
         }
 
-        given("a missing child for inverted") {
+        xgiven("a missing child for inverted") {
             val xml = "<Inverted arg='5'/>"
             it("should throw an exception when parsing") {
                 assertThrows<MissingFieldException> {
@@ -146,7 +146,7 @@ object testXML : Spek(
             }
         }
 
-        given("An incomplete xml specification for inverted") {
+        xgiven("An incomplete xml specification for inverted") {
             val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
             it("should throw an exception when parsing") {
                 assertThrows<SerializationException> {
@@ -156,8 +156,8 @@ object testXML : Spek(
         }
 
         given("A class with polymorphic children") {
-            val poly = Container(ChildA("data"))
-            val expected = "<Container><ChildA valueA=\"data\"/></Container>"
+            val poly = Container("lbl", ChildA("data"))
+            val expected = "<Container label=\"lbl\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member></Container>"
             on ("serialization") {
                 val serialized = XML.stringify(poly)
                 it("should equal the expected xml form") {
