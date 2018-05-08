@@ -59,7 +59,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
-        val input = XmlInput(context, reader, kClass.getSerialName(), kClass.getChildName(), 0,true)
+        val input = XmlInput(context, reader, kClass.getSerialName(), kClass.getChildName(), 0, true)
         return input.read(loader)
     }
 
@@ -191,11 +191,22 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     }
                     RepeatedWriter(context, target, tagName, childName)
                 }
+                KSerialClassKind.POLYMORPHIC -> {
+                    PolymorphicWriter(context, target)
+/*
+                    target.doSmartStartTag(tagName)
 
+                    val lastInvertedIndex = desc.lastInvertedIndex()
+                    if (lastInvertedIndex > 0) {
+                        InvertedWriter(context, target, tagName, null, lastInvertedIndex)
+                    } else {
+                        XmlOutput(context, target, tagName, null)
+                    }
+*/
+                }
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED,
-                KSerialClassKind.POLYMORPHIC -> {
+                KSerialClassKind.SEALED      -> {
                     target.doSmartStartTag(tagName)
                     val lastInvertedIndex = desc.lastInvertedIndex()
                     if (lastInvertedIndex > 0) {
@@ -335,6 +346,28 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
+        private class PolymorphicWriter(context: SerialContext?,
+                                        target: XmlWriter) : XmlOutput(context, target, null, null) {
+            override fun writeTaggedString(tag: OutputDescriptor, value: String) {
+                when (tag.index) {
+                    0    -> Unit
+                    else -> super.writeTaggedString(tag, value)
+                }
+            }
+
+            override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
+                val tag = currentTag
+                if (tag.index == 1) ((value as Any)::class).getSerialName()?.let { tag.name = it }
+
+                super.writeSerializableValue(saver, value)
+            }
+
+            override fun writeFinished(desc: KSerialClassDesc) {
+                // Don't write anything
+            }
+        }
+
+
         private class RepeatedWriter(context: SerialContext?,
                                      target: XmlWriter,
                                      serialName: QName,
@@ -387,14 +420,15 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                  childName: QName? = this.childName,
                  childCount: Int,
                  isTagNotReadYet: Boolean = false,
-                 attrIndex: Int = -1) = XmlInput(context, input, serialName, childName, childCount, isTagNotReadYet, attrIndex)
+                 attrIndex: Int = -1) = XmlInput(context, input, serialName, childName, childCount, isTagNotReadYet,
+                                                 attrIndex)
 
         final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
             markItemSeen(index)
             return doGetTag(this, index)
         }
 
-        open fun markItemSeen(index:Int) {
+        open fun markItemSeen(index: Int) {
             seenItems[index] = true
         }
 
@@ -426,11 +460,12 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 _nameMap = map
             }
 
-            return map.get(name.normalize()) ?:
-                   throw SerializationException("Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
+            return map.get(name.normalize()) ?: throw SerializationException(
+                "Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
         }
 
-        internal class AnonymousListInput(context: SerialContext?, input: XmlReader, childName: QName): XmlInput(context, input, childName, null, 2) {
+        internal class AnonymousListInput(context: SerialContext?, input: XmlReader, childName: QName) : XmlInput(
+            context, input, childName, null, 2) {
             var finished = false
 
             override fun getTagName(desc: KSerialClassDesc): QName {
@@ -444,12 +479,17 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun readElement(desc: KSerialClassDesc): Int {
                 return when {
                     finished -> KInput.READ_DONE
-                    else     -> { finished = true; 1}
+                    else     -> {
+                        finished = true; 1
+                    }
                 }
             }
         }
 
-        internal class NamedListInput(context: SerialContext?, input: XmlReader, serialName: QName, childName: QName): XmlInput(context, input, serialName, childName, 2) {
+        internal class NamedListInput(context: SerialContext?,
+                                      input: XmlReader,
+                                      serialName: QName,
+                                      childName: QName) : XmlInput(context, input, serialName, childName, 2) {
             var childCount = 0
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -492,7 +532,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
                 KSerialClassKind.SEALED,
-                KSerialClassKind.POLYMORPHIC -> copy(serialName = tagName, attrIndex = 0, childCount = desc.associatedFieldsCount)
+                KSerialClassKind.POLYMORPHIC -> copy(serialName = tagName, attrIndex = 0,
+                                                     childCount = desc.associatedFieldsCount)
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
                 else                         -> throw SerializationException(
@@ -502,7 +543,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         fun nextNulledItemsIdx(desc: KSerialClassDesc) {
-            for(i in (nulledItemsIdx+1) until seenItems.size) {
+            for (i in (nulledItemsIdx + 1) until seenItems.size) {
                 if (!(seenItems[i] || desc.isOptional(i))) {
                     nulledItemsIdx = i
                     return
@@ -521,11 +562,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 }
             }
 */
-            if (nulledItemsIdx>=0) {
+            if (nulledItemsIdx >= 0) {
                 val sn = serialName!!
                 input.require(EventType.END_ELEMENT, sn.namespaceURI, sn.localPart)
 
-                if (nulledItemsIdx>=seenItems.size) return KInput.READ_DONE
+                if (nulledItemsIdx >= seenItems.size) return KInput.READ_DONE
                 val i = nulledItemsIdx
                 nextNulledItemsIdx(desc)
                 return i
@@ -576,11 +617,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         override fun readTaggedNotNullMark(tag: OutputDescriptor): Boolean {
-            return nulledItemsIdx<0 // If we are not yet reading "missing values" we have no nulls
+            return nulledItemsIdx < 0 // If we are not yet reading "missing values" we have no nulls
         }
 
         override fun readTaggedString(tag: OutputDescriptor): String {
-            if (nulledItemsIdx>=0) throw MissingFieldException(tag.desc.getElementName(tag.index))
+            if (nulledItemsIdx >= 0) throw MissingFieldException(tag.desc.getElementName(tag.index))
             return when (tag.kind) {
                 OutputKind.Element   -> input.readSimpleElement()
                 OutputKind.Text      -> input.allText()
@@ -604,7 +645,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         override fun readTaggedInt(tag: OutputDescriptor) = when (tag.desc.kind) {
             KSerialClassKind.SET,
             KSerialClassKind.LIST,
-            KSerialClassKind.MAP -> if(tag.index==0) 1 else readTaggedString(tag).toInt() // Always return elements one by one (there is no list size)
+            KSerialClassKind.MAP -> if (tag.index == 0) 1 else readTaggedString(
+                tag).toInt() // Always return elements one by one (there is no list size)
 
             else                 -> readTaggedString(tag).toInt()
         }
@@ -717,7 +759,7 @@ private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
 }
 
 private fun KSerialClassDesc.isOptional(index: Int): Boolean {
-    return getAnnotationsForIndex(index).firstOrNull<Optional>() !=null
+    return getAnnotationsForIndex(index).firstOrNull<Optional>() != null
 }
 
 /**
