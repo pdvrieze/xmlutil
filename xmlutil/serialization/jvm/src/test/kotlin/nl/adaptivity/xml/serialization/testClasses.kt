@@ -25,6 +25,20 @@ import kotlinx.serialization.Serializable
 data class Address(val houseNumber: String, val street: String, val city: String)
 
 @Serializable
+open class Base
+
+@Serializable
+@XmlSerialName("ChildA")
+data class ChildA(val valueA: String): Base()
+
+@Serializable
+@XmlSerialName("ChildB")
+data class ChildB(val valueB: String): Base()
+
+@Serializable
+data class Container(val member: Base)
+
+@Serializable
 data class Business(val name: String, val headOffice: Address?)
 
 @Serializable

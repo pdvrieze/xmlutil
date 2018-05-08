@@ -24,6 +24,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.api.dsl.xgiven
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 
@@ -151,6 +152,22 @@ object testXML : Spek(
                 assertThrows<SerializationException> {
                     XML.parse<Inverted>(xml)
                 }
+            }
+        }
+
+        given("A class with polymorphic children") {
+            val poly = Container(ChildA("data"))
+            val expected = "<Container><ChildA valueA=\"data\"/></Container>"
+            on ("serialization") {
+                val serialized = XML.stringify(poly)
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(poly, XML.parse<Inverted>(serialized))
+                }
+
             }
         }
 
