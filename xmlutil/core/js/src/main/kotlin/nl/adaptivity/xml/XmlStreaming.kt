@@ -53,9 +53,10 @@ actual object XmlStreaming {
         return newReader(input).deSerialize(type)
     }*/
 
-    actual inline fun <reified T:Any> deSerialize(input:String): T {
+    actual inline fun <reified T:Any> deSerialize(input:String): T = TODO("JS does not support annotations")
+    /*: T {
         return deSerialize(input, T::class)
-    }
+    }*/
 
 
     actual fun toString(value: XmlSerializable): String {

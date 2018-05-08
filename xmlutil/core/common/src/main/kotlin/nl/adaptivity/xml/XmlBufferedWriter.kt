@@ -47,11 +47,11 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         namespaceHolder.incDepth()
-        val namespace = effectiveNamespace(namespace, prefix)
-        val prefix = effectivePrefix(prefix, namespace)
+        val effNamespace = effectiveNamespace(namespace, prefix)
+        val effPrefix = effectivePrefix(prefix, effNamespace)
 
         _buffer.add(
-            XmlEvent.StartElementEvent(null, namespace ?: "", localName, prefix ?: "", emptyArray(), emptyArray()))
+            XmlEvent.StartElementEvent(null, effNamespace ?: "", localName, effPrefix ?: "", emptyArray(), emptyArray()))
     }
 
     private fun effectivePrefix(prefix: String?, namespace: String?) =
@@ -64,7 +64,7 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
         namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
         val localName: String
         val prefix: String
-        if (namespacePrefix.isNullOrEmpty()) {
+        if (namespacePrefix.isEmpty()) {
             localName = XMLConstants.XMLNS_ATTRIBUTE
             prefix = ""
         } else {
@@ -76,9 +76,9 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
     }
 
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
-        val namespace = effectiveNamespace(namespace, prefix)
-        val prefix = effectivePrefix(prefix, namespace) ?: ""
-        _buffer.add(XmlEvent.EndElementEvent(null, namespace ?: "", localName, prefix))
+        val effNamespace = effectiveNamespace(namespace, prefix)
+        val effPrefix = effectivePrefix(prefix, effNamespace) ?: ""
+        _buffer.add(XmlEvent.EndElementEvent(null, effNamespace ?: "", localName, effPrefix))
         namespaceHolder.decDepth()
     }
 
@@ -99,9 +99,9 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
             (prefix.isNullOrEmpty() && name == XMLConstants.XMLNS_ATTRIBUTE)) {
             namespaceAttr(name, value)
         } else {
-            val namespace = effectiveNamespace(namespace, prefix)
-            val prefix = effectivePrefix(prefix, namespace) ?: ""
-            _buffer.add(XmlEvent.Attribute(null, namespace ?: "", name, prefix, value))
+            val effNamespace = effectiveNamespace(namespace, prefix)
+            val effPrefix = effectivePrefix(prefix, effNamespace) ?: ""
+            _buffer.add(XmlEvent.Attribute(null, effNamespace ?: "", name, effPrefix, value))
         }
     }
 

@@ -80,7 +80,7 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
         reader.require(EventType.END_ELEMENT, elementName.namespaceURI, elementName.localPart)
 
     } else {// Neither, means ignore children
-        if (!isXmlWhitespace(reader.siblingsToFragment().content)) {
+        if (!isXmlWhitespace(reader.siblingsToFragment().contentString)) {
             throw XmlException("Unexpected child content in element")
         }
     }

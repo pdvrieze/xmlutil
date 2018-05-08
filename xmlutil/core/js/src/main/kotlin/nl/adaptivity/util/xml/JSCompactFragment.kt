@@ -38,7 +38,7 @@ actual class CompactFragment : ICompactFragment {
     }
 
     override val isEmpty: Boolean
-        get() = content.isEmpty()
+        get() = contentString.isEmpty()
 
 
     override val namespaces: IterableNamespaceContext
