@@ -525,15 +525,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        abstract inner class Base(val serialName: QName,
-                                  val childName: QName?) : TaggedInput<OutputDescriptor>(), XmlInput {
+        abstract inner class Base(override var serialName: QName,
+                                  override val childName: QName?) : TaggedInput<OutputDescriptor>(), XmlCommon<QName>, XmlInput {
             override val input: XmlReader get() = this@XmlInputBase.input
+
+            override val myCurrentTag: OutputDescriptor get() = currentTag
+            override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
             final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
                 return doGetTag(this, index)
             }
 
-            open fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
                 return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
             }
 
@@ -719,15 +722,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 "Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
         }
 
-        internal class AnonymousListInput(context: SerialContext?,
-                                          nameMap: XmlNameMap,
-                                          input: XmlReader,
-                                          childName: QName) : XmlInputBase(
-            context, nameMap, input, childName, null, 2) {
+        internal inner class AnonymousListInput(childName: QName) : Base(childName, null), XmlInput {
             var finished = false
 
-            override fun getTagName(desc: KSerialClassDesc): QName {
-                return serialName!!
+            override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+                return readBegin(desc, serialName)
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -791,19 +790,19 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        internal fun readBegin(desc: KSerialClassDesc, tagName: QName): KInput {
+        internal fun XmlInput.readBegin(desc: KSerialClassDesc, tagName: QName): KInput {
             input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
 
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
                 KSerialClassKind.SET         -> {
-                    val t = currentTag
+                    val t = (this as XmlCommon<*>).myCurrentTag
                     t.kind = OutputKind.Element
 
                     val childName = t.desc.getAnnotationsForIndex(t.index).getChildName()
                     return when (childName) {
-                        null -> AnonymousListInput(context, nameMap, input, tagName)
+                        null -> copy(childCount = 1).AnonymousListInput(tagName)
                         else -> NamedListInput(context, nameMap, input, tagName, childName)
                     }
                 }
