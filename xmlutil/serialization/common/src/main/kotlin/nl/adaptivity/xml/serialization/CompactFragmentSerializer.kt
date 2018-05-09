@@ -109,14 +109,14 @@ class CompactFragmentSerializer() : KSerializer<CompactFragment> {
 
     override fun save(output: KOutput, obj: CompactFragment) {
         val serialClassDesc = serialClassDesc
-        output.writeBegin(serialClassDesc).let { output ->
-            if (output is XML.XmlOutput) {
-                obj.serialize(output.target)
+        output.writeBegin(serialClassDesc).let { childOut ->
+            if (childOut is XML.XmlOutput) {
+                obj.serialize(childOut.target)
             } else {
-                output.writeSerializableElementValue(serialClassDesc, 0, output.context.klassSerializer(Namespace::class).list, obj.namespaces.toList())
-                output.writeStringElementValue(serialClassDesc, 1, obj.contentString)
+                childOut.writeSerializableElementValue(serialClassDesc, 0, NamespaceSerializer().list, obj.namespaces.toList())
+                childOut.writeStringElementValue(serialClassDesc, 1, obj.contentString)
             }
-            output.writeEnd(serialClassDesc)
+            childOut.writeEnd(serialClassDesc)
         }
     }
 
