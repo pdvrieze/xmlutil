@@ -39,7 +39,7 @@ data class ChildB(val valueB: String): Base()
 data class Container(val label: String, val member: Base)
 
 @Serializable
-data class Container2(val name:String, @XmlPolyChildren(arrayOf("ChildA", "ChildB")) val children: List<Base>)
+data class Container2(val name:String, @XmlPolyChildren(arrayOf("ChildA", "ChildB=better")) val children: List<Base>)
 
 @Serializable
 data class Business(val name: String, val headOffice: Address?)

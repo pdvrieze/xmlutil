@@ -171,7 +171,7 @@ object testXML : Spek(
 
         given("A class with multiple children") {
             val poly2 = Container2("name2", listOf(ChildA("data"), ChildB("xxx")))
-            val expected = "<Container name=\"name2\"><ChildA valueA=\"data\"/><ChildB value=\"xxx\"/></Container>"
+            val expected = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
             on ("serialization") {
                 val serialized = XML.stringify(poly2)
 
