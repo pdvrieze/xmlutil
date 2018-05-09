@@ -87,7 +87,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         target: XmlWriter,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
 
-        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>), kClass.getChildName(), kClass.name)
+        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>),
+                                                            kClass.getChildName(), kClass.name)
 
         output.write(serializer, obj)
     }
@@ -97,7 +98,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
-        val input = XmlInput(context, nameMap, reader, kClass.getSerialName(loader as? KSerializer<*>), kClass.getChildName(), 0, true)
+        val serialName = kClass.getSerialName(loader as? KSerializer<*>)
+        val input = XmlInputBase(context, nameMap, reader, serialName, kClass.getChildName(), 0, true).Initial(
+            serialName, kClass.getChildName())
         return input.read(loader)
     }
 
@@ -213,7 +216,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         tname = currentTypeName
                     }
 
-                    ListWriter(tagName, childName, tname,useAnnotations)
+                    ListWriter(tagName, childName, tname, useAnnotations)
                 }
                 KSerialClassKind.POLYMORPHIC -> {
 //                    val currentTypeName = (this as? XmlCommon<*>)?.myCurrentTag?.desc?.name
@@ -344,7 +347,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        inner class Initial(override val serialName: QName, val childName: QName?, override val currentTypeName: String?) : ElementValueOutput(), XmlOutput {
+        inner class Initial(override val serialName: QName,
+                            val childName: QName?,
+                            override val currentTypeName: String?) : ElementValueOutput(), XmlOutput {
             init {
                 this.context = this@XmlOutputBase.context
             }
@@ -429,7 +434,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun writeTaggedString(tag: OutputDescriptor, value: String) {
                 if (transparent && tag.index == 0) {
                     val regName = polyChildren?.lookupName(value)
-                    serialName = if(regName?.specified==true) regName.name else QName(value.substringAfterLast('.'))
+                    serialName = if (regName?.specified == true) regName.name else QName(value.substringAfterLast('.'))
                 } else {
                     super.writeTaggedString(tag, value)
                 }
@@ -482,14 +487,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     }
 
-    open class XmlInput internal constructor(context: SerialContext?,
-                                             val nameMap: XmlNameMap,
-                                             val input: XmlReader,
-                                             override var serialName: QName?,
-                                             override val childName: QName?,
-                                             childCount: Int,
-                                             private val isTagNotReadYet: Boolean = false,
-                                             private var attrIndex: Int = -1) : TaggedInput<OutputDescriptor>(), XmlCommon<QName?> {
+    interface XmlInput {
+        val input: XmlReader
+    }
+
+    open class XmlInputBase internal constructor(context: SerialContext?,
+                                                 val nameMap: XmlNameMap,
+                                                 override val input: XmlReader,
+                                                 override var serialName: QName?,
+                                                 override val childName: QName?,
+                                                 childCount: Int,
+                                                 private val isTagNotReadYet: Boolean = false,
+                                                 private var attrIndex: Int = -1) : TaggedInput<OutputDescriptor>(), XmlCommon<QName?>, XmlInput {
         init {
             this.context = context
         }
@@ -501,28 +510,193 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                  childName: QName? = this.childName,
                  childCount: Int,
                  isTagNotReadYet: Boolean = false,
-                 attrIndex: Int = -1) = XmlInput(context, nameMap, input, serialName, childName, childCount,
-                                                 isTagNotReadYet,
-                                                 attrIndex)
+                 attrIndex: Int = -1) = XmlInputBase(context, nameMap, input, serialName, childName, childCount,
+                                                     isTagNotReadYet,
+                                                     attrIndex)
+
+        inner class Initial(val serialName: QName, val childName: QName?) : ElementValueInput(), XmlInput {
+            override val input: XmlReader
+                get() = this@XmlInputBase.input
+
+            override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+                input.nextTag()
+
+                return readBegin(desc, serialName)
+            }
+        }
+
+        abstract inner class Base(val serialName: QName,
+                                  val childName: QName?) : TaggedInput<OutputDescriptor>(), XmlInput {
+            override val input: XmlReader get() = this@XmlInputBase.input
+
+            final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
+                return doGetTag(this, index)
+            }
+
+            open fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+            }
+
+            override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+                val tagName = currentTag.name
+
+                return readBegin(desc, tagName)
+            }
+
+            override fun readElement(desc: KSerialClassDesc): Int {
+
+                // TODO validate correctness of type
+                for (eventType in input) {
+                    if (!eventType.isIgnorable) {
+                        return when (eventType) {
+                            EventType.END_ELEMENT   -> readElementEnd(desc)
+                            EventType.TEXT          -> desc.getValueChild()
+                            EventType.ATTRIBUTE     -> desc.indexOf(input.name)
+                            EventType.START_ELEMENT -> desc.indexOf(input.name)
+                            else                    -> throw SerializationException("Unexpected event in stream")
+                        }
+                    }
+                }
+                return KInput.READ_DONE
+            }
+
+            open fun readElementEnd(desc: KSerialClassDesc): Int {
+                return READ_DONE
+            }
+
+            override fun readTaggedString(tag: OutputDescriptor): String {
+                return when (tag.kind) {
+                    OutputKind.Element   -> input.readSimpleElement()
+                    OutputKind.Text      -> input.allText()
+                    OutputKind.Attribute -> {
+                        input.getAttributeValue(attrIndex).also { attrIndex++ }
+                    }
+                    OutputKind.Unknown   -> run { tag.kind = OutputKind.Attribute; readTaggedString(tag) }
+                }
+            }
+
+            override fun readTaggedBoolean(tag: OutputDescriptor) = readTaggedString(tag).toBoolean()
+
+            override fun readTaggedByte(tag: OutputDescriptor) = readTaggedString(tag).toByte()
+
+            override fun readTaggedChar(tag: OutputDescriptor) = readTaggedString(tag).single()
+
+            override fun readTaggedDouble(tag: OutputDescriptor) = readTaggedString(tag).toDouble()
+
+            override fun readTaggedFloat(tag: OutputDescriptor) = readTaggedString(tag).toFloat()
+
+            override fun readTaggedInt(tag: OutputDescriptor) = when (tag.desc.kind) {
+                KSerialClassKind.SET,
+                KSerialClassKind.LIST,
+                KSerialClassKind.MAP -> if (tag.index == 0) 1 else readTaggedString(
+                    tag).toInt() // Always return elements one by one (there is no list size)
+
+                else                 -> readTaggedString(tag).toInt()
+            }
+
+            override fun readTaggedLong(tag: OutputDescriptor) = readTaggedString(tag).toLong()
+
+            override fun readTaggedShort(tag: OutputDescriptor) = readTaggedString(tag).toShort()
+
+        }
+
+        inner class Element(serialName: QName,
+                            childName: QName?,
+                            childCount: Int,
+                            private var attrIndex: Int = 0) : Base(serialName, childName) {
+            private val seenItems = BooleanArray(childCount)
+
+            private var nulledItemsIdx = -1
+
+            fun nextNulledItemsIdx(desc: KSerialClassDesc) {
+                for (i in (nulledItemsIdx + 1) until seenItems.size) {
+                    if (!(seenItems[i] || desc.isOptional(i))) {
+                        nulledItemsIdx = i
+                        return
+                    }
+                }
+                nulledItemsIdx = seenItems.size
+            }
+
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                markItemSeen(index)
+
+                val outputKind = when {
+                    attrIndex >= 0 && attrIndex < input.attributeCount -> OutputKind.Attribute
+                    input.eventType == EventType.TEXT ||
+                    input.eventType == EventType.CDSECT                -> OutputKind.Text
+                    else                                               -> OutputKind.Element
+                }
+                val expectedOutputKind = classDesc.outputKind(index)
+                if (!outputKind.matchesExpectationBy(expectedOutputKind)) throw SerializationException(
+                    "Found element ${classDesc.getElementName(
+                        index)} as $outputKind while expecting $expectedOutputKind")
+
+                return OutputDescriptor(classDesc, index, outputKind, classDesc.getTagName(index))
+            }
+
+            open fun markItemSeen(index: Int) {
+                seenItems[index] = true
+            }
+
+            override fun readElement(desc: KSerialClassDesc): Int {
+                if (nulledItemsIdx >= 0) {
+                    val sn = serialName
+                    input.require(EventType.END_ELEMENT, sn.namespaceURI, sn.localPart)
+
+                    if (nulledItemsIdx >= seenItems.size) return KInput.READ_DONE
+                    val i = nulledItemsIdx
+                    nextNulledItemsIdx(desc)
+                    return i
+                }
+
+                if (attrIndex >= 0 && attrIndex < input.attributeCount) {
+
+                    val name = input.getAttributeName(attrIndex)
+
+                    return if (name.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI ||
+                               name.prefix == XMLConstants.XMLNS_ATTRIBUTE ||
+                               (name.prefix.isEmpty() && name.localPart == XMLConstants.XMLNS_ATTRIBUTE)) {
+                        // Ignore namespace decls
+                        readElement(desc)
+                    } else {
+                        desc.indexOf(name)
+                    }
+                }
+                attrIndex = -1 // Ensure to reset here
+
+                return super.readElement(desc)
+            }
+
+            override fun readElementEnd(desc: KSerialClassDesc): Int {
+                nextNulledItemsIdx(desc)
+                return when {
+                    nulledItemsIdx < seenItems.size -> nulledItemsIdx
+                    else                            -> READ_DONE
+                }
+            }
+
+            override fun readTaggedNotNullMark(tag: OutputDescriptor): Boolean {
+                return nulledItemsIdx < 0 // If we are not yet reading "missing values" we have no nulls
+            }
+
+            override fun readTaggedString(tag: OutputDescriptor): String {
+                if (nulledItemsIdx >= 0) throw MissingFieldException(tag.desc.getElementName(tag.index))
+                return super.readTaggedString(tag).also {
+                    if (tag.kind== OutputKind.Attribute) attrIndex++
+                }
+            }
+        }
 
         final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
-            markItemSeen(index)
             return doGetTag(this, index)
         }
-
-        open fun markItemSeen(index: Int) {
-            seenItems[index] = true
-        }
-
 
         override val myCurrentTag: OutputDescriptor get() = currentTag
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
         private var _nameMap: Map<QName, Int>? = null
-
-        private val seenItems = BooleanArray(childCount)
-        private var nulledItemsIdx = -1
 
         fun QName.normalize(): QName {
             return when {
@@ -548,16 +722,12 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         internal class AnonymousListInput(context: SerialContext?,
                                           nameMap: XmlNameMap,
                                           input: XmlReader,
-                                          childName: QName) : XmlInput(
+                                          childName: QName) : XmlInputBase(
             context, nameMap, input, childName, null, 2) {
             var finished = false
 
             override fun getTagName(desc: KSerialClassDesc): QName {
                 return serialName!!
-            }
-
-            override fun markItemSeen(index: Int) {
-                // do Nothing. List items are not nullable in XML
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -574,7 +744,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                       nameMap: XmlNameMap,
                                       input: XmlReader,
                                       serialName: QName,
-                                      childName: QName) : XmlInput(context, nameMap, input, serialName, childName, 2) {
+                                      childName: QName) : XmlInputBase(context, nameMap, input, serialName, childName,
+                                                                       2) {
             var childCount = 0
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -588,17 +759,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 // The classDesc only has indices 0 and 1. Just make sure to return the needed tag, rather than the "truth"
                 return OutputDescriptor(classDesc, 1, OutputKind.Element, childName!!)
             }
-
-            override fun markItemSeen(index: Int) {
-                // do Nothing. List items are not nullable in XML
-            }
         }
 
         internal class PolymorphicInput(context: SerialContext?,
                                         nameMap: XmlNameMap,
                                         input: XmlReader,
                                         val transparent: Boolean = false) :
-            XmlInput(context, nameMap, input, null, null, 2, attrIndex = 0) {
+            XmlInputBase(context, nameMap, input, null, null, 2, attrIndex = 0) {
             override fun readElement(desc: KSerialClassDesc): Int {
                 if (transparent) return 1
                 return KInput.READ_ALL
@@ -620,6 +787,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 desc.name.substringAfterLast('.'))) else getTagName(desc)
             if (isTagNotReadYet) input.nextTag()
 
+            return readBegin(desc, tagName)
+
+        }
+
+        internal fun readBegin(desc: KSerialClassDesc, tagName: QName): KInput {
             input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
 
             return when (desc.kind) {
@@ -641,35 +813,17 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
                 KSerialClassKind.SEALED      -> copy(serialName = tagName, attrIndex = 0,
-                                                     childCount = desc.associatedFieldsCount)
+                                                     childCount = desc.associatedFieldsCount).Element(tagName, null,
+                                                                                                      desc.associatedFieldsCount)
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
                 else                         -> throw SerializationException(
                     "Primitives are not supported at top-level")
             }
-
-        }
-
-        fun nextNulledItemsIdx(desc: KSerialClassDesc) {
-            for (i in (nulledItemsIdx + 1) until seenItems.size) {
-                if (!(seenItems[i] || desc.isOptional(i))) {
-                    nulledItemsIdx = i
-                    return
-                }
-            }
-            nulledItemsIdx = seenItems.size
         }
 
         override fun readElement(desc: KSerialClassDesc): Int {
 /*
-            when (desc.kind) {
-                KSerialClassKind.MAP,
-                KSerialClassKind.LIST,
-                KSerialClassKind.SET -> {
-                    return 1 // Just read a single element (always at index 1 - index 0 is the size)
-                }
-            }
-*/
             if (nulledItemsIdx >= 0) {
                 val sn = serialName!!
                 input.require(EventType.END_ELEMENT, sn.namespaceURI, sn.localPart)
@@ -679,6 +833,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 nextNulledItemsIdx(desc)
                 return i
             }
+*/
 
             if (attrIndex >= 0 && attrIndex < input.attributeCount) {
 
@@ -699,13 +854,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             for (eventType in input) {
                 if (!eventType.isIgnorable) {
                     return when (eventType) {
-                        EventType.END_ELEMENT   -> {
-                            nextNulledItemsIdx(desc)
-                            when {
-                                nulledItemsIdx < seenItems.size -> nulledItemsIdx
-                                else                            -> KInput.READ_DONE
-                            }
-                        }
+                        EventType.END_ELEMENT   -> KInput.READ_DONE
                         EventType.TEXT          -> desc.getValueChild()
                         EventType.ATTRIBUTE     -> desc.indexOf(input.name)
                         EventType.START_ELEMENT -> desc.indexOf(input.name)
@@ -724,12 +873,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             return super.updateSerializableValue(loader, desc, old)
         }
 
-        override fun readTaggedNotNullMark(tag: OutputDescriptor): Boolean {
-            return nulledItemsIdx < 0 // If we are not yet reading "missing values" we have no nulls
-        }
-
         override fun readTaggedString(tag: OutputDescriptor): String {
-            if (nulledItemsIdx >= 0) throw MissingFieldException(tag.desc.getElementName(tag.index))
             return when (tag.kind) {
                 OutputKind.Element   -> input.readSimpleElement()
                 OutputKind.Text      -> input.allText()
@@ -770,7 +914,7 @@ fun PolyInfo(namespaceContext: NamespaceContext,
              currentTypeName: String?,
              polyChildren: Array<String>): XmlNameMap {
     val result = XmlNameMap()
-    val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?:""
+    val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
 
     for (child in polyChildren) {
         val eqPos = child.indexOf('=')
@@ -785,7 +929,7 @@ fun PolyInfo(namespaceContext: NamespaceContext,
             pkgPos = child.lastIndexOf('.')
             prefPos = -1
             prefix = parentTag.prefix
-            localPart = if (pkgPos<0) child else child.substring(pkgPos+1)
+            localPart = if (pkgPos < 0) child else child.substring(pkgPos + 1)
         } else {
             typeNameBase = child.substring(0, eqPos).trim()
             pkgPos = child.lastIndexOf('.', eqPos - 1)
@@ -801,7 +945,8 @@ fun PolyInfo(namespaceContext: NamespaceContext,
         }
 
 
-        val ns = if (prefPos>=0) namespaceContext.getNamespaceURI(prefix)?: parentTag.namespaceURI else parentTag.namespaceURI
+        val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
+                                   ?: parentTag.namespaceURI else parentTag.namespaceURI
         val name = QName(ns, localPart, prefix)
 
         val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
@@ -901,7 +1046,18 @@ annotation class XmlElement(val value: Boolean = true)
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlValue(val value: Boolean = true)
 
-enum class OutputKind { Element, Attribute, Text, Unknown }
+enum class OutputKind {
+    Element, Attribute, Text, Unknown;
+
+    fun matchesExpectationBy(expectedOutputKind: OutputKind): Boolean {
+        return when(expectedOutputKind) {
+            this -> true
+            Unknown -> true
+            else -> false
+        }
+    }
+}
+
 data class OutputDescriptor(val desc: KSerialClassDesc,
                             val index: Int,
                             var kind: OutputKind,
@@ -910,6 +1066,7 @@ data class OutputDescriptor(val desc: KSerialClassDesc,
     //    val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
     val currentAnnotations get() = desc.getAnnotationsForIndex(index)
 }
+
 
 internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
 
