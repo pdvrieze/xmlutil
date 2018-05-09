@@ -29,7 +29,7 @@ actual typealias PlatformXmlReader = JSDomReader
 class JSDomReader(val delegate: Node) : XmlReader {
   private var current: Node? = null
 
-  override val namespaceUri: String get() = current?.asElement()?.namespaceURI ?: throw XmlException("Only elements have a namespace uri")
+  override val namespaceURI: String get() = current?.asElement()?.namespaceURI ?: throw XmlException("Only elements have a namespace uri")
   override val localName: String get() = current?.asElement()?.localName ?: throw XmlException("Only elements have a local name")
   override val prefix: String get() = current?.asElement()?.prefix ?: throw XmlException("Only elements have a namespace uri")
   override var isStarted: Boolean = false
@@ -149,7 +149,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespaceUri(index: Int): String {
+  override fun getNamespaceURI(index: Int): String {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
@@ -157,8 +157,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun getNamespaceUri(prefix: String): String?
-  {
+  override fun getNamespaceURI(prefix: String): String? {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

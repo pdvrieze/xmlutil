@@ -44,13 +44,13 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
     override operator fun next(): EventType
 
-    val namespaceUri: String
+    val namespaceURI: String
 
     val localName: String
 
     val prefix: String
 
-    val name: QName get() = qname(namespaceUri, localName, prefix)
+    val name: QName get() = qname(namespaceURI, localName, prefix)
 
     val isStarted: Boolean
 
@@ -59,8 +59,8 @@ interface XmlReader : Closeable, Iterator<EventType> {
             throw XmlException("Unexpected event type Found: $eventType expected $type")
 
         namespace != null &&
-        namespace != namespaceUri ->
-            throw XmlException("Namespace uri's don't match: expected=$namespace found=$namespaceUri")
+        namespace != namespaceURI ->
+            throw XmlException("Namespace uri's don't match: expected=$namespace found=$namespaceURI")
 
         name != null &&
         name != localName         ->
@@ -99,7 +99,7 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
     override fun close()
 
-    fun getNamespaceUri(index: Int): String
+    fun getNamespaceURI(index: Int): String
 
     fun getNamespacePrefix(namespaceUri: String): String?
 
@@ -115,7 +115,7 @@ interface XmlReader : Closeable, Iterator<EventType> {
     /** Is the current element a start element */
     fun isStartElement(): Boolean = eventType === EventType.START_ELEMENT
 
-    fun getNamespaceUri(prefix: String): String?
+    fun getNamespaceURI(prefix: String): String?
 
     /** Get some information on the current location in the file. This is implementation dependent.  */
     val locationInfo: String?
@@ -148,7 +148,7 @@ val XmlReader.namespaceDecls: Array<out Namespace>
     get() =
         Array<Namespace>(namespaceEnd - namespaceStart) { i ->
             val nsIndex = namespaceStart + i
-            XmlEvent.NamespaceImpl(getNamespacePrefix(nsIndex), getNamespaceUri(nsIndex))
+            XmlEvent.NamespaceImpl(getNamespacePrefix(nsIndex), getNamespaceURI(nsIndex))
         }
 
 val XmlReader.qname: QName get() = text.toQname()
@@ -322,7 +322,7 @@ fun XmlReader.isElement(type: EventType,
     }
 
     return when {
-        !elementNamespace.isNullOrEmpty() -> expNs == r.namespaceUri
+        !elementNamespace.isNullOrEmpty() -> expNs == r.namespaceURI
         elementPrefix.isNullOrEmpty()     -> r.prefix.isEmpty()
         else                              -> elementPrefix == r.prefix
     }

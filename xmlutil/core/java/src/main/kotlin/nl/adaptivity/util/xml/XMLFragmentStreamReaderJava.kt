@@ -21,7 +21,7 @@ import nl.adaptivity.xml.EventType
 import nl.adaptivity.xml.NamespaceContext
 import nl.adaptivity.xml.XmlReader
 
-interface XMLFragmentStreamReaderJava: XmlReader {
+interface XMLFragmentStreamReaderJava : XmlReader {
     var localNamespaceContext: FragmentNamespaceContext
     val delegate: XmlReader
 
@@ -34,7 +34,7 @@ interface XMLFragmentStreamReaderJava: XmlReader {
             EventType.PROCESSING_INSTRUCTION,
             EventType.DOCDECL       -> next()
             EventType.START_ELEMENT -> {
-                if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceUri)) {
+                if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                     // Special case the wrapping namespace, dropping the element.
                     next()
                 } else {
@@ -42,7 +42,7 @@ interface XMLFragmentStreamReaderJava: XmlReader {
                     delegateNext
                 }
             }
-            EventType.END_ELEMENT   -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceUri)) {
+            EventType.END_ELEMENT   -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                 // Drop the closing tag of the wrapper as well
                 delegate.next()
             } else {
@@ -63,7 +63,7 @@ interface XMLFragmentStreamReaderJava: XmlReader {
         return localNamespaceContext.getPrefix(index)
     }
 
-    override fun getNamespaceUri(index: Int): String {
+    override fun getNamespaceURI(index: Int): String {
         return localNamespaceContext.getNamespaceURI(index)
     }
 
@@ -74,10 +74,9 @@ interface XMLFragmentStreamReaderJava: XmlReader {
         val nsStart = delegate.namespaceStart
         val nscount = delegate.namespaceEnd - nsStart
         val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
-        val namespaces = Array(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart) }
+        val namespaces = Array(nscount) { idx -> delegate.getNamespaceURI(idx + nsStart) }
 
-        localNamespaceContext = FragmentNamespaceContext(
-            localNamespaceContext, prefixes, namespaces)
+        localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
     }
 
     companion object {

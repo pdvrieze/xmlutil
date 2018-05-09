@@ -85,11 +85,11 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         @Throws(XmlException::class)
         get() = isWhitespace()
 
-    val namespaceURI: String
-        @Deprecated("")
-        get() = namespaceUri
+    @Deprecated("", ReplaceWith("namespaceURI"))
+    val namespaceUri: String
+        get() = namespaceURI
 
-    override val namespaceUri: String
+    override val namespaceURI: String
         get() = delegate.namespaceURI ?: XMLConstants.NULL_NS_URI
 
     @Deprecated("")
@@ -119,12 +119,8 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return QName(getAttributeNamespace(index), getAttributeLocalName(index), getAttributePrefix(index))
     }
 
-    override fun getNamespaceUri(prefix: String): String? {
+    override fun getNamespaceURI(prefix: String): String? {
         return delegate.getNamespaceURI(prefix)
-    }
-
-    fun getNamespaceURI(prefix: String): String? {
-        return getNamespaceUri(prefix)
     }
 
     @Throws(XmlException::class)
@@ -152,7 +148,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
     override val name: QName
         @Deprecated("")
-        get() = QName(namespaceUri, localName, prefix)
+        get() = QName(this.namespaceURI, localName, prefix)
 
     @Throws(XmlException::class)
     override fun next(): EventType {
@@ -235,10 +231,10 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         @Throws(XmlException::class)
         get() = delegate.namespaceCount
 
-    @Deprecated("Wrong name", ReplaceWith("getNamespaceUri(index)"))
-    fun getNamespaceURI(index: Int) = getNamespaceUri(index)
+    @Deprecated("Wrong name", ReplaceWith("getNamespaceURI(index)"))
+    fun getNamespaceUri(index: Int) = getNamespaceURI(index)
 
-    override fun getNamespaceUri(index: Int): String = delegate.getNamespaceURI(index)
+    override fun getNamespaceURI(index: Int): String = delegate.getNamespaceURI(index)
 
     override fun getNamespacePrefix(index: Int): String = delegate.getNamespacePrefix(index)
 

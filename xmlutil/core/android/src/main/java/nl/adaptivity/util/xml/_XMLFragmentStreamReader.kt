@@ -43,10 +43,10 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
-    override fun getNamespaceUri(prefix: String): String? {
+    override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null
 
-        return super<XmlDelegatingReader>.getNamespaceUri(prefix)
+        return super<XmlDelegatingReader>.getNamespaceURI(prefix)
     }
 
     override fun getNamespacePrefix(namespaceUri: String): String? {
@@ -65,7 +65,7 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
 
     override fun getNamespacePrefix(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespacePrefix(index)
 
-    override fun getNamespaceUri(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespaceUri(index)
+    override fun getNamespaceURI(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespaceURI(index)
 
     override val namespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
 

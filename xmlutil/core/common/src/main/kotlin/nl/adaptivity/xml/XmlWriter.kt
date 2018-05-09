@@ -117,7 +117,7 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
     assert(reader.eventType === EventType.START_ELEMENT)
     val prefix = reader.prefix
     if (!missingNamespaces.containsKey(prefix)) {
-        val uri = reader.namespaceUri
+        val uri = reader.namespaceURI
         if (getNamespaceUri(prefix) == uri && reader.isPrefixDeclaredInElement(prefix)) {
             return
         } else if (uri.isNotEmpty()) {
@@ -158,10 +158,10 @@ fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
     when (reader.eventType) {
         EventType.START_DOCUMENT         -> startDocument(null, reader.encoding, reader.standalone)
         EventType.START_ELEMENT          -> {
-            startTag(reader.namespaceUri, reader.localName, reader.prefix)
+            startTag(reader.namespaceURI, reader.localName, reader.prefix)
             run {
                 for (i in reader.namespaceIndices) {
-                    namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceUri(i))
+                    namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceURI(i))
                 }
             }
             run {
@@ -171,11 +171,11 @@ fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
                 }
             }
         }
-        EventType.END_ELEMENT            -> endTag(reader.namespaceUri, reader.localName,
+        EventType.END_ELEMENT            -> endTag(reader.namespaceURI, reader.localName,
                                                    reader.prefix)
         EventType.COMMENT                -> comment(reader.text)
         EventType.TEXT                   -> text(reader.text)
-        EventType.ATTRIBUTE              -> attribute(reader.namespaceUri, reader.localName,
+        EventType.ATTRIBUTE              -> attribute(reader.namespaceURI, reader.localName,
                                                       reader.prefix, reader.text)
         EventType.CDSECT                 -> cdsect(reader.text)
         EventType.DOCDECL                -> docdecl(reader.text)
@@ -352,7 +352,7 @@ private fun undeclaredPrefixes(reader: XmlReader,
     assert(reader.eventType === EventType.START_ELEMENT)
     val prefix = reader.prefix
     if (!missingNamespaces.containsKey(prefix)) {
-        val uri = reader.namespaceUri
+        val uri = reader.namespaceURI
         if (uri == reference.getNamespaceUri(prefix)
             && reader.isPrefixDeclaredInElement(prefix)) {
             return

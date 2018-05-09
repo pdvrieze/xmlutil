@@ -27,14 +27,14 @@ enum class EventType {
     },
     START_ELEMENT {
         override fun createEvent(reader: XmlReader) = reader.run {
-            XmlEvent.StartElementEvent(locationInfo, namespaceUri, localName, prefix, attributes,
+            XmlEvent.StartElementEvent(locationInfo, namespaceURI, localName, prefix, attributes,
                                        namespaceDecls)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
-            writer.startTag(reader.namespaceUri, reader.localName, reader.prefix)
+            writer.startTag(reader.namespaceURI, reader.localName, reader.prefix)
             for (i in reader.namespaceStart until reader.namespaceEnd) {
-                writer.namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceUri(i))
+                writer.namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceURI(i))
             }
             for (i in 0 until reader.attributeCount) {
                 writer.attribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i), null,
@@ -44,11 +44,11 @@ enum class EventType {
     },
     END_ELEMENT {
         override fun createEvent(reader: XmlReader) = reader.run {
-            XmlEvent.EndElementEvent(locationInfo, namespaceUri, localName, prefix)
+            XmlEvent.EndElementEvent(locationInfo, namespaceURI, localName, prefix)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
-            writer.endTag(reader.namespaceUri, reader.localName, reader.prefix)
+            writer.endTag(reader.namespaceURI, reader.localName, reader.prefix)
     },
     COMMENT(isIgnorable = true) {
         override fun createEvent(reader: XmlReader) = reader.run {
@@ -121,11 +121,11 @@ enum class EventType {
     },
     ATTRIBUTE {
         override fun createEvent(reader: XmlReader) = reader.run {
-            XmlEvent.Attribute(locationInfo, namespaceUri, localName, prefix, text)
+            XmlEvent.Attribute(locationInfo, this.namespaceURI, localName, prefix, text)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) =
-            writer.attribute(reader.namespaceUri, reader.localName, reader.prefix, reader.text)
+            writer.attribute(reader.namespaceURI, reader.localName, reader.prefix, reader.text)
     },
     PROCESSING_INSTRUCTION(isIgnorable = true) {
         override fun createEvent(reader: XmlReader) = XmlEvent.TextEvent(

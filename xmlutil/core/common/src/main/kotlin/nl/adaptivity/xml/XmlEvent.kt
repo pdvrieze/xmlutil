@@ -32,7 +32,7 @@ sealed class XmlEvent(val locationInfo: String?) {
             val readerOffset = reader.namespaceStart
             return Array<Namespace>(reader.namespaceEnd - readerOffset) { i ->
                 val nsIndex = readerOffset + i
-                NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceUri(nsIndex))
+                NamespaceImpl(reader.getNamespacePrefix(nsIndex), reader.getNamespaceURI(nsIndex))
             }
         }
 

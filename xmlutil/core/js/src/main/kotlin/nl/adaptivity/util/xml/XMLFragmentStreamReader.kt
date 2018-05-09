@@ -105,12 +105,12 @@ actual class XMLFragmentStreamReader constructor(text: String,
             EventType.DOCDECL       -> return next()
 
             EventType.START_ELEMENT -> {
-                if (WRAPPERNAMESPACE == delegate.namespaceUri) return next()
+                if (WRAPPERNAMESPACE == delegate.namespaceURI) return next()
 
                 extendNamespace()
             }
             EventType.END_ELEMENT   -> {
-                if (WRAPPERNAMESPACE == delegate.namespaceUri) {
+                if (WRAPPERNAMESPACE == delegate.namespaceURI) {
                     return delegate.next()
                 }
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
@@ -120,10 +120,10 @@ actual class XMLFragmentStreamReader constructor(text: String,
     }
 
 
-    override fun getNamespaceUri(prefix: String): String? {
+    override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX == prefix) return null
 
-        return super.getNamespaceUri(prefix)
+        return super.getNamespaceURI(prefix)
     }
 
 
@@ -145,7 +145,7 @@ actual class XMLFragmentStreamReader constructor(text: String,
     }
 
 
-    override fun getNamespaceUri(index: Int): String {
+    override fun getNamespaceURI(index: Int): String {
         return localNamespaceContext.getNamespaceURI(index)
     }
 
@@ -157,7 +157,7 @@ actual class XMLFragmentStreamReader constructor(text: String,
         val nsStart = delegate.namespaceStart
         val nscount = delegate.namespaceEnd - nsStart
         val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
-        val namespaces = Array(nscount) { idx -> delegate.getNamespaceUri(idx + nsStart) }
+        val namespaces = Array(nscount) { idx -> delegate.getNamespaceURI(idx + nsStart) }
 
         localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
     }

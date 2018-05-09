@@ -31,7 +31,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     get() = current as? StartElementEvent ?: throw XmlException(
         "Expected a start element, but did not find it.")
 
-  override val namespaceUri: String
+  override val namespaceURI: String
       get() = when (current?.eventType) {
       EventType.ATTRIBUTE     -> (current as Attribute).namespaceUri
       EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
@@ -230,7 +230,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     return currentElement.namespaceDecls[index].prefix
   }
 
-  override fun getNamespaceUri(index: Int): String {
+  override fun getNamespaceURI(index: Int): String {
     return currentElement.namespaceDecls[index].namespaceURI
   }
 
@@ -238,7 +238,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     return currentElement.getPrefix(namespaceUri)
   }
 
-  override fun getNamespaceUri(prefix: String): String? {
+  override fun getNamespaceURI(prefix: String): String? {
     return currentElement.getNamespaceURI(prefix)
   }
 }
