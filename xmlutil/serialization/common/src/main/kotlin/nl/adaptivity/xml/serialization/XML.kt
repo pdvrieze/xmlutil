@@ -22,21 +22,34 @@ import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.xml.*
 import kotlin.reflect.KClass
 
-class XmlNameMap {
-    private val classMap = mutableMapOf<QName, KClass<*>>()
-    private val nameMap = mutableMapOf<KClass<*>, QName>()
+data class NameHolder(val name: QName, val specified: Boolean)
 
+class XmlNameMap {
+    private val classMap = mutableMapOf<QName, String>()
+    private val nameMap = mutableMapOf<String, NameHolder>()
+
+    fun lookupName(kClass: KClass<*>) = lookupName(kClass.name)
     fun lookupClass(name: QName) = classMap[name.copy(prefix = "")]
-    fun lookupName(kClass: KClass<*>) = nameMap[kClass]
+    fun lookupName(kClass: String) = nameMap[kClass]
 
     fun registerClass(kClass: KClass<*>) {
-        val name = kClass.getSerialName() ?: QName(kClass.name.substringAfterLast('.'))
-        registerClass(name, kClass)
+        val serialName = kClass.myAnnotations.getXmlSerialName(null)//getSerialName(kClass.serializer())
+
+        val name: QName
+        val specified: Boolean
+        if (serialName == null) {
+            specified = false
+            name = QName(kClass.name.substringAfterLast('.'))
+        } else {
+            specified = true
+            name = serialName
+        }
+        registerClass(name, kClass.name, specified)
     }
 
-    fun registerClass(name: QName, kClass: KClass<*>) {
+    fun registerClass(name: QName, kClass: String, specified: Boolean) {
         classMap[name.copy(prefix = "")] = kClass
-        nameMap[kClass] = name
+        nameMap[kClass] = NameHolder(name, specified)
     }
 }
 
@@ -48,7 +61,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     fun registerClass(kClass: KClass<*>) = nameMap.registerClass(kClass)
 
-    fun registerClass(name: QName, kClass: KClass<*>) = nameMap.registerClass(name, kClass)
+    fun registerClass(name: QName, kClass: KClass<*>) = nameMap.registerClass(name, kClass.name, true)
 
     inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class, obj, context.klassSerializer(T::class))
 
@@ -74,7 +87,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         target: XmlWriter,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
 
-        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(), kClass.getChildName())
+        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>), kClass.getChildName(), kClass.name)
 
         output.write(serializer, obj)
     }
@@ -84,7 +97,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
-        val input = XmlInput(context, nameMap, reader, kClass.getSerialName(), kClass.getChildName(), 0, true)
+        val input = XmlInput(context, nameMap, reader, kClass.getSerialName(loader as? KSerializer<*>), kClass.getChildName(), 0, true)
         return input.read(loader)
     }
 
@@ -163,18 +176,78 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
             return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
         }
+
     }
 
     interface XmlOutput {
+        val serialName: QName
         val context: SerialContext?
         val target: XmlWriter
+        val currentTypeName: String?
     }
 
     open class XmlOutputBase internal constructor(val context: SerialContext?,
                                                   val target: XmlWriter) {
 
+        internal fun XmlOutput.writeBegin(desc: KSerialClassDesc,
+                                          useAnnotations: List<Annotation>,
+                                          tagName: QName,
+                                          childName: QName?): KOutput {
+            return when (desc.kind) {
+                KSerialClassKind.LIST,
+                KSerialClassKind.MAP,
+                KSerialClassKind.SET         -> {
+                    val tname: String?
+                    if (childName != null) {
+                        target.smartStartTag(tagName)
+
+                        // If the child tag has a different namespace uri that requires a namespace declaration
+                        // And we didn't just declare the prefix here already then we will declare it here rather
+                        // than on each child
+                        if (tagName.prefix != childName.prefix && target.getNamespaceUri(
+                                childName.prefix) != childName.namespaceURI) {
+                            target.namespaceAttr(childName.prefix, childName.namespaceURI)
+                        }
+                        tname = desc.name
+                    } else {
+                        tname = currentTypeName
+                    }
+
+                    ListWriter(tagName, childName, tname,useAnnotations)
+                }
+                KSerialClassKind.POLYMORPHIC -> {
+//                    val currentTypeName = (this as? XmlCommon<*>)?.myCurrentTag?.desc?.name
+                    val polyChildren = useAnnotations.firstOrNull<XmlPolyChildren>()
+                    val transparent = desc.associatedFieldsCount == 1 || polyChildren != null
+                    if (!transparent) {
+                        target.smartStartTag(tagName)
+                    }
+
+                    PolymorphicWriter(serialName, tagName, transparent, currentTypeName, polyChildren)
+                }
+                KSerialClassKind.CLASS,
+                KSerialClassKind.OBJECT,
+                KSerialClassKind.SEALED      -> {
+                    target.smartStartTag(tagName)
+                    val lastInvertedIndex = desc.lastInvertedIndex()
+                    if (lastInvertedIndex > 0) {
+                        InvertedWriter(tagName, null, lastInvertedIndex)
+                    } else {
+                        Base(tagName, childName)
+                    }
+                }
+
+                KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
+                else                         -> throw SerializationException(
+                    "Primitives are not supported at top-level")
+            }
+        }
+
         inner open class Base(override var serialName: QName,
                               override var childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
+
+            override val currentTypeName: String?
+                get() = currentTag.desc.name
 
             override val myCurrentTag: OutputDescriptor get() = currentTag
             override val namespaceContext: NamespaceContext get() = target.namespaceContext
@@ -271,7 +344,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        inner class Initial(private val serialName: QName?, val childName: QName?) : ElementValueOutput(), XmlOutput {
+        inner class Initial(override val serialName: QName, val childName: QName?, override val currentTypeName: String?) : ElementValueOutput(), XmlOutput {
             init {
                 this.context = this@XmlOutputBase.context
             }
@@ -285,55 +358,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
              * @param desc The description for the *new* element
              */
             override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
-                val tagName = serialName ?: QName(desc.name.substringAfterLast('.'))
+                val tagName = serialName
                 return writeBegin(desc, emptyList(), tagName, childName)
-            }
-        }
-
-        internal fun XmlOutput.writeBegin(desc: KSerialClassDesc,
-                                useAnnotations: List<Annotation>,
-                                tagName: QName,
-                                childName: QName?): KOutput {
-            return when (desc.kind) {
-                KSerialClassKind.LIST,
-                KSerialClassKind.MAP,
-                KSerialClassKind.SET         -> {
-                    if (childName != null) {
-                        target.smartStartTag(tagName)
-
-                        // If the child tag has a different namespace uri that requires a namespace declaration
-                        // And we didn't just declare the prefix here already then we will declare it here rather
-                        // than on each child
-                        if (tagName.prefix != childName.prefix && target.getNamespaceUri(
-                                childName.prefix) != childName.namespaceURI) {
-                            target.namespaceAttr(childName.prefix, childName.namespaceURI)
-                        }
-                    }
-                    ListWriter(tagName, childName)
-                }
-                KSerialClassKind.POLYMORPHIC -> {
-                    val transparent = desc.associatedFieldsCount == 1 || useAnnotations.firstOrNull<XmlPolyChildren>() != null
-                    if (!transparent) {
-                        target.smartStartTag(tagName)
-                    }
-
-                    PolymorphicWriter(tagName, transparent)
-                }
-                KSerialClassKind.CLASS,
-                KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED      -> {
-                    target.smartStartTag(tagName)
-                    val lastInvertedIndex = desc.lastInvertedIndex()
-                    if (lastInvertedIndex > 0) {
-                        InvertedWriter(tagName, null, lastInvertedIndex)
-                    } else {
-                        Base(tagName, childName)
-                    }
-                }
-
-                KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
-                else                         -> throw SerializationException(
-                    "Primitives are not supported at top-level")
             }
         }
 
@@ -370,8 +396,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        private inner class PolymorphicWriter(serialName: QName, val transparent: Boolean = false) :
+        private inner class PolymorphicWriter(parentName: QName,
+                                              serialName: QName,
+                                              val transparent: Boolean,
+                                              override val currentTypeName: String?,
+                                              polyChildren: XmlPolyChildren?) :
             Base(serialName, null), XmlOutput {
+
+            val polyChildren = polyChildren?.let { PolyInfo(namespaceContext, parentName, currentTypeName, it.value) }
 
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
                 val tagName: QName
@@ -390,8 +422,17 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return OutputDescriptor(classDesc, index, outputKind, tagName, childName)
             }
 
-            override fun shouldWriteElement(desc: KSerialClassDesc, tag: OutputDescriptor, index: Int): Boolean {
-                return !(transparent && index == 0)
+            override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+                return super.writeBegin(desc, *typeParams)
+            }
+
+            override fun writeTaggedString(tag: OutputDescriptor, value: String) {
+                if (transparent && tag.index == 0) {
+                    val regName = polyChildren?.lookupName(value)
+                    serialName = if(regName?.specified==true) regName.name else QName(value.substringAfterLast('.'))
+                } else {
+                    super.writeTaggedString(tag, value)
+                }
             }
 
             override fun writeFinished(desc: KSerialClassDesc) {
@@ -404,13 +445,20 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         /** Writer that does not actually write an outer tag unless a childName is specified */
         private inner class ListWriter(serialName: QName,
-                                       childName: QName?) : Base(serialName, childName), XmlOutput {
+                                       childName: QName?,
+                                       override val currentTypeName: String?,
+                                       val useAnnotations: List<Annotation>) : Base(serialName, childName), XmlOutput {
 
             override fun OutputKind.effectiveKind() = when (this) {
                 OutputKind.Unknown,
                 OutputKind.Attribute -> OutputKind.Element
 
                 else                 -> this
+            }
+
+            override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+                val tag = currentTag
+                return writeBegin(desc, useAnnotations, tag.name, tag.childName)
             }
 
             override fun shouldWriteElement(desc: KSerialClassDesc, tag: OutputDescriptor, index: Int): Boolean {
@@ -717,6 +765,55 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     }
 }
 
+fun PolyInfo(namespaceContext: NamespaceContext,
+             parentTag: QName,
+             currentTypeName: String?,
+             polyChildren: Array<String>): XmlNameMap {
+    val result = XmlNameMap()
+    val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?:""
+
+    for (child in polyChildren) {
+        val eqPos = child.indexOf('=')
+        val pkgPos: Int
+        val prefPos: Int
+        val typeNameBase: String
+        val prefix: String
+        val localPart: String
+
+        if (eqPos < 0) {
+            typeNameBase = child
+            pkgPos = child.lastIndexOf('.')
+            prefPos = -1
+            prefix = parentTag.prefix
+            localPart = if (pkgPos<0) child else child.substring(pkgPos+1)
+        } else {
+            typeNameBase = child.substring(0, eqPos).trim()
+            pkgPos = child.lastIndexOf('.', eqPos - 1)
+            prefPos = child.indexOf(':', eqPos + 1)
+
+            if (prefPos < 0) {
+                prefix = parentTag.prefix
+                localPart = child.substring(eqPos + 1).trim()
+            } else {
+                prefix = child.substring(eqPos + 1, prefPos).trim()
+                localPart = child.substring(prefPos + 1).trim()
+            }
+        }
+
+
+        val ns = if (prefPos>=0) namespaceContext.getNamespaceURI(prefix)?: parentTag.namespaceURI else parentTag.namespaceURI
+        val name = QName(ns, localPart, prefix)
+
+        val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
+
+        result.registerClass(name, typename, eqPos >= 0)
+
+
+    }
+
+    return result
+}
+
 
 private fun defaultSerialContext() = SerialContext().apply {
     registerSerializer(CompactFragment::class, CompactFragmentSerializer())
@@ -754,8 +851,10 @@ fun Collection<Annotation>.getChildName(): QName? {
     }
 }
 
-fun <T : Any> KClass<T>.getSerialName(): QName? {
+fun <T : Any> KClass<T>.getSerialName(serializer: KSerializer<*>?): QName {
     return myAnnotations.getXmlSerialName(null)
+           ?: serializer?.run { QName(serialClassDesc.name.substringAfterLast('.')) }
+           ?: QName(name.substringAfterLast('.'))
 }
 
 fun <T : Any> KClass<T>.getChildName(): QName? {
@@ -820,7 +919,6 @@ private inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     }
     return null
 }
-
 
 private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
     // lists will always be elements
