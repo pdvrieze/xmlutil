@@ -17,8 +17,11 @@
 package nl.adaptivity.util.multiplatform
 
 import java.util.UUID
+import kotlin.reflect.KClass
 
 actual typealias Class<T> = java.lang.Class<T>
+
+actual val KClass<*>.name get() = java.name
 
 actual typealias Throws = kotlin.jvm.Throws
 

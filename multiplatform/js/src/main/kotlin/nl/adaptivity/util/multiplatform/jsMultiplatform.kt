@@ -20,6 +20,8 @@ import kotlin.reflect.KClass
 
 actual class Class<T:Any?>(val name:String)
 
+actual val KClass<*>.name get() = js.name
+
 fun <T:Any> JsClass<T>.toClass():Class<T> = this.asDynamic() as Class<T>
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
