@@ -73,7 +73,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         target: XmlWriter,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
 
-        val output = XmlOutput(context, target, kClass)
+        val output = XmlOutputImpl(context, target, kClass).Initial(kClass.getSerialName(), kClass.getChildName())
 
         output.write(serializer, obj)
     }
@@ -124,14 +124,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                                                                                    loader)
     }
 
-    internal interface XmlCommon {
-        var serialName: QName?
-        val myCurrentTagOrNull: OutputDescriptor?
+    internal interface XmlCommon<QN : QName?> {
+        var serialName: QN
+        val childName: QName?
+        val myCurrentTag: OutputDescriptor
         val namespaceContext: NamespaceContext
 
         fun getTagName(desc: KSerialClassDesc) =
-            (myCurrentTagOrNull?.name ?: serialName
-             ?: QName(desc.name.substringAfterLast('.'))).also { serialName = it }
+            myCurrentTag.name//.also { serialName = it }
 
 
         fun KSerialClassDesc.getTagName(index: Int): QName {
@@ -164,16 +164,21 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
     }
 
-    open class XmlOutput internal constructor(context: SerialContext?,
-                                              open val target: XmlWriter,
-                                              final override var serialName: QName?,
-                                              protected val childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon {
+    interface XmlOutput {
+        val context: SerialContext?
+        val target: XmlWriter
+    }
+
+    open class XmlOutputImpl internal constructor(context: SerialContext?,
+                                                  override val target: XmlWriter,
+                                                  final override var serialName: QName?,
+                                                  override var childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName?>, XmlOutput {
 
         init {
             this.context = context
         }
 
-        override val myCurrentTagOrNull: OutputDescriptor? get() = currentTagOrNull
+        override val myCurrentTag: OutputDescriptor get() = currentTag
         override val namespaceContext: NamespaceContext get() = target.namespaceContext
 
         internal constructor(context: SerialContext?, target: XmlWriter, targetType: KClass<*>?) :
@@ -182,11 +187,122 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         open fun copy(context: SerialContext? = this.context,
                       target: XmlWriter = this.target,
                       serialName: QName? = this.serialName,
-                      childName: QName? = this.childName) = XmlOutput(context, target, serialName, childName)
+                      childName: QName? = null) = XmlOutputImpl(context, target, serialName, childName)
 
         final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
             // just delegate to a function that can be overridden properly with super calls
             return doGetTag(this, index)
+        }
+
+        inner open class Base(override var serialName: QName,
+                              override var childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
+
+            override val myCurrentTag: OutputDescriptor get() = currentTag
+            override val namespaceContext: NamespaceContext get() = target.namespaceContext
+            override val target: XmlWriter get() = this@XmlOutputImpl.target
+
+            open fun OutputKind.effectiveKind() = when (this) {
+                OutputKind.Unknown -> OutputKind.Attribute
+                else               -> this
+            }
+
+            override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+                val tag = currentTag
+                return writeBegin(desc, tag.name, tag.childName)
+            }
+
+            /**
+             * Called when finished writing the current complex element.
+             */
+            override fun writeFinished(desc: KSerialClassDesc) {
+                target.endTag(serialName)
+            }
+
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+            }
+
+            final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
+                // just delegate to a function that can be overridden properly with super calls
+                return doGetTag(this, index)
+            }
+
+            override fun writeTaggedNull(tag: OutputDescriptor) {
+                // Do nothing - in xml absense is null
+            }
+
+            override fun writeTaggedValue(tag: OutputDescriptor, value: Any) {
+                if (value is XmlSerializable) {
+                    value.serialize(target)
+                } else {
+                    super.writeTaggedValue(tag, value)
+                }
+            }
+
+            override fun writeTaggedBoolean(tag: OutputDescriptor, value: Boolean) = writeTaggedString(tag,
+                                                                                                       value.toString())
+
+            override fun writeTaggedByte(tag: OutputDescriptor, value: Byte) = writeTaggedString(tag, value.toString())
+
+            override fun writeTaggedChar(tag: OutputDescriptor, value: Char) = writeTaggedString(tag, value.toString())
+
+            override fun writeTaggedDouble(tag: OutputDescriptor, value: Double) = writeTaggedString(tag,
+                                                                                                     value.toString())
+
+            override fun writeTaggedFloat(tag: OutputDescriptor, value: Float) = writeTaggedString(tag,
+                                                                                                   value.toString())
+
+            override fun writeTaggedInt(tag: OutputDescriptor, value: Int) = writeTaggedString(tag, value.toString())
+
+            override fun writeTaggedLong(tag: OutputDescriptor, value: Long) = writeTaggedString(tag, value.toString())
+
+            override fun writeTaggedShort(tag: OutputDescriptor, value: Short) = writeTaggedString(tag,
+                                                                                                   value.toString())
+
+            override fun writeTaggedString(tag: OutputDescriptor, value: String) {
+                when (tag.kind.effectiveKind()) {
+                    OutputKind.Unknown   -> throw UnsupportedOperationException("Unknown should never happen")
+                    OutputKind.Attribute -> target.doWriteAttribute(tag.name, value)
+                    OutputKind.Text      -> target.doText(value)
+                    OutputKind.Element   -> doSmartStartTag(tag.name) {
+                        text(value)
+                    }
+                }
+            }
+
+            open fun Any.doWriteAttribute(name: QName, value: String) {
+                target.writeAttribute(name, value)
+            }
+
+            inline fun doSmartStartTag(name: QName, body: XmlWriter.() -> Unit) = target.run {
+                doSmartStartTag(name)
+                body()
+                endTag(name)
+            }
+
+            open fun doSmartStartTag(name: QName) = target.smartStartTag(name)
+
+            open fun Any.doText(value: String) = target.text(value)
+
+        }
+
+        inner class Initial(private val serialName: QName?, val childName: QName?) : ElementValueOutput(), XmlOutput {
+            init {
+                this.context = this@XmlOutputImpl.context
+            }
+
+            override val target: XmlWriter get() = this@XmlOutputImpl.target
+
+            /**
+             * Create an output for the element. We only need this as xml serialization must always start with an
+             * element. We should not have any tag defined yet
+             *
+             * @param desc The description for the *new* element
+             */
+            override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+                val tagName = serialName ?: QName(desc.name.substringAfterLast('.'))
+                return writeBegin(desc, tagName, childName)
+            }
         }
 
         /**
@@ -195,20 +311,23 @@ class XML(val context: SerialContext? = defaultSerialContext(),
          * @param typeParams The serializers for the elements
          */
         override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
-            val tagName = getTagName(desc)
+            return writeBegin(desc, getTagName(desc), this.childName)
+        }
+
+        internal fun writeBegin(desc: KSerialClassDesc,
+                                tagName: QName,
+                                childName: QName?): KOutput {
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
                 KSerialClassKind.SET         -> {
-                    currentTagOrNull?.run { kind = OutputKind.Element }
-                    val childName = childName
                     if (childName != null) {
-                        target.doSmartStartTag(tagName)
+                        doSmartStartTag(tagName)
 
                         // If the child tag has a different namespace uri that requires a namespace declaration
                         // And we didn't just declare the prefix here already then we will declare it here rather
                         // than on each child
-                        if (serialName?.prefix != childName.prefix && target.getNamespaceUri(
+                        if (tagName.prefix != childName.prefix && target.getNamespaceUri(
                                 childName.prefix) != childName.namespaceURI) {
                             target.namespaceAttr(childName.prefix, childName.namespaceURI)
                         }
@@ -216,20 +335,20 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     RepeatedWriter(context, target, tagName, childName)
                 }
                 KSerialClassKind.POLYMORPHIC -> {
-                    val transparent = desc.associatedFieldsCount==1
-                    if (!transparent) target.doSmartStartTag(tagName)
+                    val transparent = desc.associatedFieldsCount == 1 || currentTagOrNull?.currentAnnotations?.firstOrNull<XmlPolyChildren>() != null
+                    if (!transparent) doSmartStartTag(tagName)
 
-                    PolymorphicWriter(context, target, transparent)
+                    PolymorphicWriter(tagName, transparent)
                 }
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
                 KSerialClassKind.SEALED      -> {
-                    target.doSmartStartTag(tagName)
+                    doSmartStartTag(tagName)
                     val lastInvertedIndex = desc.lastInvertedIndex()
                     if (lastInvertedIndex > 0) {
-                        InvertedWriter(context, target, tagName, null, lastInvertedIndex)
+                        InvertedWriter(tagName, null, lastInvertedIndex)
                     } else {
-                        XmlOutput(context, target, tagName, null)
+                        Base(tagName, childName)
                     }
                 }
 
@@ -259,8 +378,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 */
 
         override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
-            val tag = currentTagOrNull
-            if (tag != null && tag.name != serialName && tag.childName != childName) {
+            val tag = currentTag
+            if (tag.name != serialName && tag.childName != childName) {
                 copy(serialName = tag.name, childName = tag.childName).apply {
                     if (writeElement(tag.desc, tag.index))
                         writeSerializableValue(saver, value)
@@ -304,42 +423,40 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 OutputKind.Unknown   -> {
                     tag.kind = OutputKind.Attribute; writeTaggedString(tag, value)
                 }
-                OutputKind.Attribute -> target.doWriteAttribute(tag.name, value)
-                OutputKind.Text      -> target.doText(value)
-                OutputKind.Element   -> target.doSmartStartTag(tag.name) {
+                OutputKind.Attribute -> doWriteAttribute(tag.name, value)
+                OutputKind.Text      -> doText(value)
+                OutputKind.Element   -> doSmartStartTag(tag.name) {
                     text(value)
                 }
             }
         }
 
-        open fun XmlWriter.doWriteAttribute(name: QName, value: String) {
-            writeAttribute(name, value)
+        open fun doWriteAttribute(name: QName, value: String) {
+            target.writeAttribute(name, value)
         }
 
-        inline fun XmlWriter.doSmartStartTag(name: QName, body: XmlWriter.() -> Unit) {
+        inline fun doSmartStartTag(name: QName, body: XmlWriter.() -> Unit) {
             doSmartStartTag(name)
-            body()
-            endTag(name)
+            target.body()
+            target.endTag(name)
         }
 
-        open fun XmlWriter.doText(value: String) = text(value)
+        open fun doText(value: String) = target.text(value)
         /**
          * Wrapper function that will allow queing events
          */
-        open fun XmlWriter.doSmartStartTag(name: QName) = smartStartTag(name)
+        open fun doSmartStartTag(name: QName) = target.smartStartTag(name)
 
-        private class InvertedWriter(context: SerialContext?,
-                                     target: XmlWriter,
-                                     serialName: QName,
-                                     childName: QName?,
-                                     val lastInvertedIndex: Int) : XmlOutput(context, target, serialName, childName) {
+        private inner class InvertedWriter(serialName: QName,
+                                           childName: QName?,
+                                           val lastInvertedIndex: Int) : Base(serialName, childName) {
 
             val parentWriter get() = super.target
 
             override var target: XmlWriter = XmlBufferedWriter()
                 private set
 
-            override fun XmlWriter.doWriteAttribute(name: QName, value: String) {
+            override fun Any.doWriteAttribute(name: QName, value: String) {
                 // Write attributes directly in all cases
                 parentWriter.writeAttribute(name, value)
             }
@@ -350,7 +467,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     (target as? XmlBufferedWriter)?.flushTo(parentWriter)
                     target = parentWriter
                 }
-                // Duplication needed as super access doesn't work
+                // Now get the actual tag
                 return super.doGetTag(classDesc, index)
             }
 
@@ -363,20 +480,28 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        private class PolymorphicWriter(context: SerialContext?,
-                                        target: XmlWriter, val transparent:Boolean = false) : XmlOutput(context, target, null, null) {
-            override fun writeTaggedString(tag: OutputDescriptor, value: String) {
-                if (tag.index==0) tag.name= QName("type")
-                if (transparent && tag.index == 0) return
+        private inner class PolymorphicWriter(serialName: QName, val transparent: Boolean = false) :
+            Base(serialName, null), XmlOutput {
 
-                super.writeTaggedString(tag, value)
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                val tagName: QName
+                val outputKind: OutputKind
+                when (index) {
+                    0 -> {
+                        tagName = QName("type")
+                        outputKind = OutputKind.Attribute
+                    }
+                    else -> {
+                        tagName = if (transparent) serialName else classDesc.getTagName(index)
+                        outputKind = OutputKind.Element
+                    }
+                }
+
+                return OutputDescriptor(classDesc, index, outputKind, tagName, childName)
             }
 
-            override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
-                val tag = currentTag
-                if (transparent && tag.index == 1) ((value as Any)::class).getSerialName()?.let { tag.name = it }
-
-                super.writeSerializableValue(saver, value)
+            override fun shouldWriteElement(desc: KSerialClassDesc, tag: OutputDescriptor, index: Int): Boolean {
+                return !(transparent && index==0)
             }
 
             override fun writeFinished(desc: KSerialClassDesc) {
@@ -387,11 +512,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-
         private class RepeatedWriter(context: SerialContext?,
                                      target: XmlWriter,
                                      serialName: QName,
-                                     childName: QName?) : XmlOutput(context, target, serialName, childName) {
+                                     childName: QName?) : XmlOutputImpl(context, target, serialName, childName) {
 
             override fun copy(context: SerialContext?,
                               target: XmlWriter,
@@ -427,10 +551,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                              val nameMap: XmlNameMap,
                                              val input: XmlReader,
                                              override var serialName: QName?,
-                                             protected val childName: QName?,
+                                             override val childName: QName?,
                                              childCount: Int,
                                              private val isTagNotReadYet: Boolean = false,
-                                             private var attrIndex: Int = -1) : TaggedInput<OutputDescriptor>(), XmlCommon {
+                                             private var attrIndex: Int = -1) : TaggedInput<OutputDescriptor>(), XmlCommon<QName?> {
         init {
             this.context = context
         }
@@ -456,7 +580,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
 
-        override val myCurrentTagOrNull: OutputDescriptor? get() = currentTagOrNull
+        override val myCurrentTag: OutputDescriptor get() = currentTag
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -535,7 +659,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        internal class PolymorphicInput(context: SerialContext?, nameMap: XmlNameMap, input: XmlReader, val transparent: Boolean = false) :
+        internal class PolymorphicInput(context: SerialContext?,
+                                        nameMap: XmlNameMap,
+                                        input: XmlReader,
+                                        val transparent: Boolean = false) :
             XmlInput(context, nameMap, input, null, null, 2, attrIndex = 0) {
             override fun readElement(desc: KSerialClassDesc): Int {
                 if (transparent) return 1
@@ -543,11 +670,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun KSerialClassDesc.indexOf(name: QName): Int {
-                return if (name.namespaceURI=="" && name.localPart=="type") 0 else 1
-            }
-
-            override fun getTagName(desc: KSerialClassDesc): QName {
-                return super.getTagName(desc)
+                return if (name.namespaceURI == "" && name.localPart == "type") 0 else 1
             }
 
             override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
@@ -558,7 +681,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-            val tagName = getTagName(desc)
+            val tagName = if (currentTagOrNull == null) (serialName ?: QName(
+                desc.name.substringAfterLast('.'))) else getTagName(desc)
             if (isTagNotReadYet) input.nextTag()
 
             input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
@@ -761,6 +885,13 @@ annotation class XmlSerialName(val value: String,
                                val prefix: String = UNSET_ANNOTATION_VALUE)
 
 /**
+ * Indicate the valid poly children for this element
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlPolyChildren(val value: Array<String>)
+
+/**
  * Specify additional information about child values. This is only used for primitives, not for classes that have their
  * own independent name
  */
@@ -785,8 +916,13 @@ annotation class XmlElement(val value: Boolean = true)
 annotation class XmlValue(val value: Boolean = true)
 
 enum class OutputKind { Element, Attribute, Text, Unknown }
-data class OutputDescriptor(val desc: KSerialClassDesc, val index: Int, var kind: OutputKind, var name: QName) {
-    val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
+data class OutputDescriptor(val desc: KSerialClassDesc,
+                            val index: Int,
+                            var kind: OutputKind,
+                            var name: QName,
+                            val childName: QName? = desc.getAnnotationsForIndex(index).getChildName()) {
+//    val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
+    val currentAnnotations get() = desc.getAnnotationsForIndex(index)
 }
 
 internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
