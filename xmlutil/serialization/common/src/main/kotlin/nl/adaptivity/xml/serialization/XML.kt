@@ -99,8 +99,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
         val serialName = kClass.getSerialName(loader as? KSerializer<*>)
-        val input = XmlInputBase(context, nameMap, reader, serialName, kClass.getChildName()).Initial(
-            serialName, kClass.getChildName())
+        val input = XmlInputBase(reader).Initial(
+            serialName)
         return input.read(loader)
     }
 
@@ -188,6 +188,99 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
+        fun polyTagName(parentTag: QName,
+                        polyChild: String,
+                        currentTypeName: String?,
+                        itemIdx: Int): PolyInfo {
+            val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
+            val eqPos = polyChild.indexOf('=')
+            val pkgPos: Int
+            val prefPos: Int
+            val typeNameBase: String
+            val prefix: String
+            val localPart: String
+
+            if (eqPos < 0) {
+                typeNameBase = polyChild
+                pkgPos = polyChild.lastIndexOf('.')
+                prefPos = -1
+                prefix = parentTag.prefix
+                localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
+            } else {
+                typeNameBase = polyChild.substring(0, eqPos).trim()
+                pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
+                prefPos = polyChild.indexOf(':', eqPos + 1)
+
+                if (prefPos < 0) {
+                    prefix = parentTag.prefix
+                    localPart = polyChild.substring(eqPos + 1).trim()
+                } else {
+                    prefix = polyChild.substring(eqPos + 1, prefPos).trim()
+                    localPart = polyChild.substring(prefPos + 1).trim()
+                }
+            }
+
+
+            val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
+                                       ?: parentTag.namespaceURI else parentTag.namespaceURI
+
+            val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
+
+            val name = QName(ns, localPart, prefix)
+
+            return PolyInfo(typename, name, itemIdx)
+        }
+
+        fun PolyInfo(parentTag: QName,
+                     currentTypeName: String?,
+                     polyChildren: Array<String>): XmlNameMap {
+            val result = XmlNameMap()
+            val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
+
+            for (polyChild in polyChildren) {
+                val polyInfo = polyTagName(parentTag, polyChild, currentTypeName, -1)
+                val eqPos = polyChild.indexOf('=')
+                val pkgPos: Int
+                val prefPos: Int
+                val typeNameBase: String
+                val prefix: String
+                val localPart: String
+
+                if (eqPos < 0) {
+                    typeNameBase = polyChild
+                    pkgPos = polyChild.lastIndexOf('.')
+                    prefPos = -1
+                    prefix = parentTag.prefix
+                    localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
+                } else {
+                    typeNameBase = polyChild.substring(0, eqPos).trim()
+                    pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
+                    prefPos = polyChild.indexOf(':', eqPos + 1)
+
+                    if (prefPos < 0) {
+                        prefix = parentTag.prefix
+                        localPart = polyChild.substring(eqPos + 1).trim()
+                    } else {
+                        prefix = polyChild.substring(eqPos + 1, prefPos).trim()
+                        localPart = polyChild.substring(prefPos + 1).trim()
+                    }
+                }
+
+
+                val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
+                                           ?: parentTag.namespaceURI else parentTag.namespaceURI
+                val name = QName(ns, localPart, prefix)
+
+                val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
+
+                result.registerClass(polyInfo.tagName, polyInfo.kClass, polyChild.indexOf('=') >= 0)
+
+
+            }
+
+            return result
+        }
+
     }
 
     interface XmlOutput {
@@ -254,8 +347,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        inner open class Base(override var serialName: QName,
-                              override var childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
+        internal inner open class Base(override var serialName: QName,
+                                       override var childName: QName?) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
 
             override val currentTypeName: String?
                 get() = currentTag.desc.name
@@ -416,7 +509,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                               polyChildren: XmlPolyChildren?) :
             Base(serialName, null), XmlOutput {
 
-            val polyChildren = polyChildren?.let { PolyInfo(namespaceContext, parentName, currentTypeName, it.value) }
+            val polyChildren = polyChildren?.let { PolyInfo(parentName, currentTypeName, it.value) }
 
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
                 val tagName: QName
@@ -499,29 +592,26 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         val input: XmlReader
     }
 
-    open class XmlInputBase internal constructor(val context: SerialContext?,
-                                                 val nameMap: XmlNameMap,
-                                                 val input: XmlReader,
-                                                 var _serialName: QName?,
-                                                 val _childName: QName?) {
+    open class XmlInputBase internal constructor(val input: XmlReader) {
 
-        inner class Initial(val serialName: QName, val childName: QName?) : ElementValueInput(), XmlInput {
+        inner class Initial(val serialName: QName) : ElementValueInput(), XmlInput {
             override val input: XmlReader
                 get() = this@XmlInputBase.input
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
                 input.nextTag()
 
-                return readBegin(desc, serialName)
+                return readBegin(desc, serialName, null)
             }
         }
 
-        abstract inner class Base(val desc: KSerialClassDesc,
-                                  override var serialName: QName,
-                                  override val childName: QName?) : TaggedInput<OutputDescriptor>(), XmlCommon<QName>, XmlInput {
+        internal abstract inner class Base(val desc: KSerialClassDesc,
+                                           override var serialName: QName,
+                                           override val childName: QName?) : TaggedInput<OutputDescriptor>(), XmlCommon<QName>, XmlInput {
 
 
             private var nameToMembers: Map<QName, Int>? = null
+            protected var polyChildren: Map<QName, PolyInfo>? = null
 
             override val input: XmlReader get() = this@XmlInputBase.input
 
@@ -533,26 +623,50 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
-                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+                val tagName = classDesc.getTagName(index)
+                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), tagName)
             }
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-                val tagName = currentTag.name
+                val tag = currentTag
+                val tagName = tag.name
 
-                return readBegin(desc, tagName)
+                val polyInfo = polyChildren?.values?.firstOrNull { it.index == tag.index && it.tagName.normalize() == input.name.normalize() }
+
+                return readBegin(desc, tagName, polyInfo)
             }
 
             open fun KSerialClassDesc.indexOf(name: QName): Int {
-                val map = nameToMembers ?: mutableMapOf<QName, Int>().also { map ->
-                    for (i in 0 until associatedFieldsCount) {
-                        map[getTagName(i).normalize()] = i
+                val polyMap: Map<QName, PolyInfo>
+                val nameMap: Map<QName, Int>
+
+                if (polyChildren != null && nameToMembers != null) {
+                    polyMap = polyChildren!!
+                    nameMap = nameToMembers!!
+                } else {
+                    polyMap = mutableMapOf(); polyChildren = polyMap
+                    nameMap = mutableMapOf(); nameToMembers = nameMap
+
+
+                    for (fieldNo in 0 until associatedFieldsCount) {
+                        val polyChildren = getAnnotationsForIndex(fieldNo).firstOrNull<XmlPolyChildren>()
+                        if (polyChildren != null) {
+                            for (child in polyChildren.value) {
+                                val polyInfo = polyTagName(serialName, child, this.name, fieldNo)
+                                polyMap[polyInfo.tagName.normalize()] = polyInfo
+                            }
+                        } else {
+                            nameMap[getTagName(fieldNo).normalize()] = fieldNo
+                        }
                     }
 
-                    nameToMembers = map
                 }
-
-                return map.get(name.normalize()) ?: throw SerializationException(
-                    "Could not find a field for name $name\n  candidates were: ${map.keys.joinToString()}")
+                val normalName = name.normalize()
+                return nameMap[normalName]
+                       ?: polyMap[normalName]?.index
+                       ?: throw SerializationException(
+                           "Could not find a field for name $name\n  candidates were: ${nameMap.keys.joinToString()} " +
+                           " and ${polyMap.keys.joinToString()}")
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -613,10 +727,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        inner class Element(desc: KSerialClassDesc,
-                            serialName: QName,
-                            childName: QName?,
-                            private var attrIndex: Int = 0) : Base(desc, serialName, childName) {
+        internal inner class Element(desc: KSerialClassDesc,
+                                     serialName: QName,
+                                     childName: QName?,
+                                     private var attrIndex: Int = 0) : Base(desc, serialName, childName) {
             private val seenItems = BooleanArray(desc.associatedFieldsCount)
 
             private var nulledItemsIdx = -1
@@ -704,12 +818,12 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
 
-        internal inner class AnonymousListInput(desc: KSerialClassDesc, childName: QName) :
+        internal inner class AnonymousListInput(desc: KSerialClassDesc, childName: QName, val polyInfo: PolyInfo?) :
             Base(desc, childName, null), XmlInput {
             var finished = false
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-                return readBegin(desc, serialName)
+                return readBegin(desc, serialName, polyInfo)
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -739,10 +853,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        internal inner class PolymorphicInput(desc: KSerialClassDesc,val transparent: Boolean = false) : Base(desc, QName("--invalid--"), null) {
+        internal inner class PolymorphicInput(desc: KSerialClassDesc,
+                                              val polyInfo: PolyInfo?, val transparent: Boolean=polyInfo!=null) : Base(desc, QName("--invalid--"), null) {
+            override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
+//                currentTag.desc = desc // Override this
+                return super.readBegin(desc, *typeParams)
+            }
 
             override fun readElement(desc: KSerialClassDesc): Int {
-                if (transparent) return 1
                 return KInput.READ_ALL
             }
 
@@ -750,12 +868,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return when (index) {
                     0    -> OutputDescriptor(classDesc, index, OutputKind.Attribute, QName("type"))
                     else -> OutputDescriptor(classDesc, index, OutputKind.Element,
-                                             childName ?: classDesc.getTagName(index))
+                                             polyInfo?.tagName ?: childName ?: classDesc.getTagName(index))
                 }
             }
 
             override fun doReadAttribute(tag: OutputDescriptor): String {
-                return input.getAttributeValue(0)
+                return if (! transparent) {
+                    input.getAttributeValue(0)
+                } else {
+                    polyInfo?.kClass ?: input.name.localPart // Likely to fail unless the tagname matches the type
+                }
             }
 
             override fun KSerialClassDesc.indexOf(name: QName): Int {
@@ -769,8 +891,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         }
 
-        internal fun XmlInput.readBegin(desc: KSerialClassDesc, tagName: QName): KInput {
-            input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
+        internal fun XmlInput.readBegin(desc: KSerialClassDesc, tagName: QName, polyInfo: PolyInfo?): KInput {
 
             return when (desc.kind) {
                 KSerialClassKind.LIST,
@@ -781,16 +902,26 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                     val childName = t.desc.getAnnotationsForIndex(t.index).getChildName()
                     return when (childName) {
-                        null -> AnonymousListInput(desc, tagName)
-                        else -> NamedListInput(desc, tagName, childName)
+                        null -> AnonymousListInput(desc, tagName, polyInfo)
+                        else -> {
+                            input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
+                            NamedListInput(desc, tagName, childName)
+                        }
                     }
                 }
+
                 KSerialClassKind.POLYMORPHIC -> {
-                    PolymorphicInput()
+
+
+                    PolymorphicInput(desc, polyInfo, tagName.copy(prefix = "")!=input.name.copy(prefix=""))
                 }
+
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED      -> Element(desc, tagName, null)
+                KSerialClassKind.SEALED      -> {
+                    input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
+                    Element(desc, tagName, null)
+                }
 
                 KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
                 else                         -> throw SerializationException(
@@ -800,57 +931,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     }
 }
-
-fun PolyInfo(namespaceContext: NamespaceContext,
-             parentTag: QName,
-             currentTypeName: String?,
-             polyChildren: Array<String>): XmlNameMap {
-    val result = XmlNameMap()
-    val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
-
-    for (child in polyChildren) {
-        val eqPos = child.indexOf('=')
-        val pkgPos: Int
-        val prefPos: Int
-        val typeNameBase: String
-        val prefix: String
-        val localPart: String
-
-        if (eqPos < 0) {
-            typeNameBase = child
-            pkgPos = child.lastIndexOf('.')
-            prefPos = -1
-            prefix = parentTag.prefix
-            localPart = if (pkgPos < 0) child else child.substring(pkgPos + 1)
-        } else {
-            typeNameBase = child.substring(0, eqPos).trim()
-            pkgPos = child.lastIndexOf('.', eqPos - 1)
-            prefPos = child.indexOf(':', eqPos + 1)
-
-            if (prefPos < 0) {
-                prefix = parentTag.prefix
-                localPart = child.substring(eqPos + 1).trim()
-            } else {
-                prefix = child.substring(eqPos + 1, prefPos).trim()
-                localPart = child.substring(prefPos + 1).trim()
-            }
-        }
-
-
-        val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
-                                   ?: parentTag.namespaceURI else parentTag.namespaceURI
-        val name = QName(ns, localPart, prefix)
-
-        val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
-
-        result.registerClass(name, typename, eqPos >= 0)
-
-
-    }
-
-    return result
-}
-
 
 private fun defaultSerialContext() = SerialContext().apply {
     registerSerializer(CompactFragment::class, CompactFragmentSerializer())
@@ -950,15 +1030,19 @@ enum class OutputKind {
     }
 }
 
-data class OutputDescriptor(val desc: KSerialClassDesc,
-                            val index: Int,
-                            var kind: OutputKind,
-                            var name: QName,
-                            val childName: QName? = desc.getAnnotationsForIndex(index).getChildName()) {
+internal data class OutputDescriptor(val desc: KSerialClassDesc,
+                                     val index: Int,
+                                     var kind: OutputKind,
+                                     var name: QName,
+                                     val childName: QName? = desc.getAnnotationsForIndex(index).getChildName(),
+                                     var _polyInfo: PolyInfo? = null) {
+
+
     //    val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
     val currentAnnotations get() = desc.getAnnotationsForIndex(index)
 }
 
+internal data class PolyInfo(val kClass: String, val tagName: QName, val index: Int)
 
 internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
 
@@ -1001,3 +1085,5 @@ private fun KSerialClassDesc.lastInvertedIndex(): Int {
 fun QName.copy(namespaceURI: String = this.namespaceURI,
                localPart: String = this.localPart,
                prefix: String = this.prefix) = QName(namespaceURI, localPart, prefix)
+
+fun QName.copy(prefix: String = this.prefix) = if (prefix==this.prefix) this else QName(namespaceURI, localPart, prefix)

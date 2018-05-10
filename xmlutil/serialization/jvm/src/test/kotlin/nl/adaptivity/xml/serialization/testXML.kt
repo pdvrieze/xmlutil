@@ -178,12 +178,10 @@ object testXML : Spek(
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
-/*
 
                 it("should parse to the original") {
-                    assertEquals(poly2, XML.parse<Container>(serialized))
+                    assertEquals(poly2, XML.parse<Container2>(serialized))
                 }
-*/
 
             }
         }
