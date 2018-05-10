@@ -56,6 +56,9 @@ sealed class XmlEvent(val locationInfo: String?) {
             get() =
                 super.isIgnorable || (eventType == EventType.TEXT && isXmlWhitespace(text))
 
+        override fun toString(): String {
+            return "$eventType - \"$text\" (${locationInfo?:""})"
+        }
     }
 
     class EndDocumentEvent(locationInfo: String?) : XmlEvent(locationInfo) {
@@ -63,6 +66,11 @@ sealed class XmlEvent(val locationInfo: String?) {
         override fun writeTo(writer: XmlWriter) = writer.endDocument()
 
         override val eventType: EventType get() = EventType.END_DOCUMENT
+
+        override fun toString(): String {
+            return "$eventType (${locationInfo?:""})"
+        }
+
     }
 
     class EndElementEvent(locationInfo: String?,
@@ -74,6 +82,7 @@ sealed class XmlEvent(val locationInfo: String?) {
         override fun writeTo(writer: XmlWriter) = writer.endTag(namespaceUri, localName, prefix)
 
         override val eventType: EventType get() = EventType.END_ELEMENT
+
     }
 
     class StartDocumentEvent (
@@ -86,6 +95,11 @@ sealed class XmlEvent(val locationInfo: String?) {
         override fun writeTo(writer: XmlWriter) = writer.startDocument(version, encoding, standalone)
 
         override val eventType: EventType get() = EventType.START_DOCUMENT
+
+        override fun toString(): String {
+            return "$eventType - encoding:$encoding, version: $version, standalone: $standalone (${locationInfo ?: ""})"
+        }
+
     }
 
     abstract class NamedEvent(locationInfo: String?,
@@ -98,6 +112,10 @@ sealed class XmlEvent(val locationInfo: String?) {
             return namespaceUri == ev.namespaceUri &&
                    localName == ev.localName &&
                    prefix == ev.prefix
+        }
+
+        override fun toString(): String {
+            return "$eventType - {$namespaceUri}$prefix:$localName (${locationInfo ?: ""})"
         }
 
     }
@@ -149,14 +167,19 @@ sealed class XmlEvent(val locationInfo: String?) {
                 .filter { ns -> ns.namespaceURI == namespaceUri }
                 .map { it.prefix }.iterator()
         }
+
+        override fun toString(): String {
+            return "$eventType - {$namespaceUri}$prefix:$localName (${locationInfo ?: ""})" +
+                   attributes.joinToString("\n    ", if(attributes.isNotEmpty())"\n    " else "") { "${it.localName} = ${it.value} " }
+        }
+
     }
 
     class Attribute(locationInfo: String?,
                     namespaceUri: CharSequence,
                     localName: CharSequence,
                     prefix: CharSequence,
-                    value: CharSequence) : XmlEvent(
-        locationInfo) {
+                    value: CharSequence) : XmlEvent(locationInfo) {
 
         val value = value.toString()
         val prefix = prefix.toString()

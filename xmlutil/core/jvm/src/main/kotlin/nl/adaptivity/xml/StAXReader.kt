@@ -259,6 +259,10 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override val standalone: Boolean?
         get() = if (delegate.standaloneSet()) delegate.isStandalone else null
 
+    override fun toString(): String {
+        return toEvent().toString()
+    }
+
     companion object {
 
         private val DELEGATE_TO_LOCAL = Array(16) { i ->

@@ -157,3 +157,5 @@ enum class EventType {
     abstract fun createEvent(reader: XmlReader): XmlEvent
 
 }
+
+fun XmlReader.toEvent(): XmlEvent = eventType.createEvent(this)
