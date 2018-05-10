@@ -20,9 +20,7 @@ import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 import nl.adaptivity.util.xml.CompactFragment
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.api.dsl.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 
@@ -181,6 +179,62 @@ object testXML : Spek(
 
                 it("should parse to the original") {
                     assertEquals(poly2, XML.parse<Container2>(serialized))
+                }
+
+            }
+        }
+
+        given("A Simpler class with multiple children without specification") {
+            val poly2 = Container3("name2", listOf(ChildA("data"), ChildB("xxx"), ChildA("yyy")))
+            val expected = "<Container3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></Container3>"
+            on ("serialization") {
+                val serialized = XML.stringify(poly2)
+
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(poly2, XML.parse<Container3>(serialized))
+                }
+
+            }
+        }
+
+        given("A container with a sealed child") {
+            val sealed = SealedSingle("mySealed", SealedA("a-data"))
+            val expected = "<SealedSingle name=\"mySealed\"><SealedA valueA=\"a-data\"/></SealedSingle>"
+            on ("serialization") {
+                val serialized = XML.stringify(sealed)
+
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(sealed, XML.parse<SealedSingle>(serialized))
+                }
+
+            }
+        }
+
+        xgiven("A container with sealed children") {
+            val sealed = Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data")))
+            val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
+            on ("serialization") {
+                val serialized = XML.stringify(sealed)
+
+                // Disabled because sealed classes are broken when used in lists
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(sealed, XML.parse<Sealed>(serialized))
+                }
+
+                test("The expected value should also parse to the original") {
+                    assertEquals(sealed, XML.parse<Sealed>(expected))
                 }
 
             }

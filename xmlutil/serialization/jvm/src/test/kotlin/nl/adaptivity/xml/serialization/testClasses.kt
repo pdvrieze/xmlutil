@@ -42,6 +42,23 @@ data class Container(val label: String, val member: Base)
 data class Container2(val name:String, @XmlPolyChildren(arrayOf("ChildA", "ChildB=better")) val children: List<Base>)
 
 @Serializable
+data class Container3(val xxx: String, @SerialName("member") val members: List<Base>)
+
+@Serializable
+sealed /*open*/ class SealedParent
+
+@Serializable
+data class SealedA(val data: String, val extra:String="2"): SealedParent()
+@Serializable
+data class SealedB(val main: String, val ext: Float=0.5F): SealedParent()
+
+@Serializable
+data class Sealed(val name: String, val members: List<SealedParent>)
+
+@Serializable
+data class SealedSingle(val name: String, val member: SealedA)
+
+@Serializable
 data class Business(val name: String, val headOffice: Address?)
 
 @Serializable
