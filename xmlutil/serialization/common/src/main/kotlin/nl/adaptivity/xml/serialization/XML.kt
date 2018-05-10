@@ -300,7 +300,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
-                KSerialClassKind.SET         -> {
+                KSerialClassKind.SET    -> {
                     val tname: String?
                     if (childName != null) {
                         target.smartStartTag(tagName)
@@ -319,7 +319,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                     ListWriter(tagName, childName, tname, useAnnotations)
                 }
-                KSerialClassKind.POLYMORPHIC -> {
+                KSerialClassKind.POLYMORPHIC,
+                KSerialClassKind.SEALED -> {
 //                    val currentTypeName = (this as? XmlCommon<*>)?.myCurrentTag?.desc?.name
                     val polyChildren = useAnnotations.firstOrNull<XmlPolyChildren>()
                     val transparent = desc.associatedFieldsCount == 1 || polyChildren != null
@@ -330,8 +331,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     PolymorphicWriter(serialName, tagName, transparent, currentTypeName, polyChildren)
                 }
                 KSerialClassKind.CLASS,
-                KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED      -> {
+                KSerialClassKind.OBJECT -> {
                     target.smartStartTag(tagName)
                     val lastInvertedIndex = desc.lastInvertedIndex()
                     if (lastInvertedIndex > 0) {
@@ -341,8 +341,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     }
                 }
 
-                KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
-                else                         -> throw SerializationException(
+                KSerialClassKind.ENTRY  -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
+                else                    -> throw SerializationException(
                     "Primitives are not supported at top-level")
             }
         }
@@ -383,7 +383,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
-                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+                if (index < classDesc.associatedFieldsCount) {
+                    return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+                } else {
+                    return OutputDescriptor(classDesc, index, OutputKind.Unknown, QName("value"), null)
+                }
             }
 
             final override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
@@ -662,11 +666,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 }
                 val normalName = name.normalize()
-                return nameMap[normalName]
-                       ?: polyMap[normalName]?.index
-                       ?: throw SerializationException(
-                           "Could not find a field for name $name\n  candidates were: ${nameMap.keys.joinToString()} " +
-                           " and ${polyMap.keys.joinToString()}")
+                nameMap[normalName]?.let { return it }
+                polyMap[normalName]?.let { return it.index }
+
+
+
+//                val pkg = desc.name.substringBeforeLast('.', "")
+
+                throw SerializationException("Could not find a field for name $name\n  candidates " +
+                                             "were: ${nameMap.keys.joinToString()}  and " +
+                                             polyMap.keys.joinToString())
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -854,7 +863,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
         internal inner class PolymorphicInput(desc: KSerialClassDesc,
-                                              val polyInfo: PolyInfo?, val transparent: Boolean=polyInfo!=null) : Base(desc, QName("--invalid--"), null) {
+                                              val polyInfo: PolyInfo?,
+                                              val transparent: Boolean = polyInfo != null) : Base(desc,
+                                                                                                  QName("--invalid--"),
+                                                                                                  null) {
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
 //                currentTag.desc = desc // Override this
                 return super.readBegin(desc, *typeParams)
@@ -873,7 +885,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun doReadAttribute(tag: OutputDescriptor): String {
-                return if (! transparent) {
+                return if (!transparent) {
                     input.getAttributeValue(0)
                 } else {
                     polyInfo?.kClass ?: input.name.localPart // Likely to fail unless the tagname matches the type
@@ -889,6 +901,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return super.readSerializableValue(loader)
             }
 
+            override fun readEnd(desc: KSerialClassDesc) {
+                if (!transparent) {
+                    input.nextTag()
+                    require(input.isEndElement())
+                }
+                super.readEnd(desc)
+            }
         }
 
         internal fun XmlInput.readBegin(desc: KSerialClassDesc, tagName: QName, polyInfo: PolyInfo?): KInput {
@@ -896,7 +915,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
-                KSerialClassKind.SET         -> {
+                KSerialClassKind.SET    -> {
                     val t = (this as XmlCommon<*>).myCurrentTag
                     t.kind = OutputKind.Element
 
@@ -910,21 +929,21 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                     }
                 }
 
-                KSerialClassKind.POLYMORPHIC -> {
+                KSerialClassKind.POLYMORPHIC,
+                KSerialClassKind.SEALED -> {
 
 
-                    PolymorphicInput(desc, polyInfo, tagName.copy(prefix = "")!=input.name.copy(prefix=""))
+                    PolymorphicInput(desc, polyInfo, tagName.copy(prefix = "") != input.name.copy(prefix = ""))
                 }
 
                 KSerialClassKind.CLASS,
-                KSerialClassKind.OBJECT,
-                KSerialClassKind.SEALED      -> {
+                KSerialClassKind.OBJECT -> {
                     input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
                     Element(desc, tagName, null)
                 }
 
-                KSerialClassKind.ENTRY       -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
-                else                         -> throw SerializationException(
+                KSerialClassKind.ENTRY  -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
+                else                    -> throw SerializationException(
                     "Primitives are not supported at top-level")
             }
         }
@@ -1034,7 +1053,8 @@ internal data class OutputDescriptor(val desc: KSerialClassDesc,
                                      val index: Int,
                                      var kind: OutputKind,
                                      var name: QName,
-                                     val childName: QName? = desc.getAnnotationsForIndex(index).getChildName(),
+                                     val childName: QName? = if (index < desc.associatedFieldsCount) desc.getAnnotationsForIndex(
+                                         index).getChildName() else null,
                                      var _polyInfo: PolyInfo? = null) {
 
 
@@ -1055,9 +1075,12 @@ private inline fun <reified T> Iterable<*>.firstOrNull(): T? {
 
 private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
     // lists will always be elements
-    getAnnotationsForIndex(index).firstOrNull<XmlChildrenName>()?.let { return OutputKind.Element }
-    getAnnotationsForIndex(
-        index).firstOrNull<XmlElement>()?.let { return if (it.value) OutputKind.Element else OutputKind.Attribute }
+    if (index < associatedFieldsCount) {
+        getAnnotationsForIndex(index).firstOrNull<XmlChildrenName>()?.let { return OutputKind.Element }
+        getAnnotationsForIndex(index).firstOrNull<XmlElement>()?.let {
+            return if (it.value) OutputKind.Element else OutputKind.Attribute
+        }
+    }
     return OutputKind.Unknown
 }
 
@@ -1086,4 +1109,5 @@ fun QName.copy(namespaceURI: String = this.namespaceURI,
                localPart: String = this.localPart,
                prefix: String = this.prefix) = QName(namespaceURI, localPart, prefix)
 
-fun QName.copy(prefix: String = this.prefix) = if (prefix==this.prefix) this else QName(namespaceURI, localPart, prefix)
+fun QName.copy(prefix: String = this.prefix) = if (prefix == this.prefix) this else QName(namespaceURI, localPart,
+                                                                                          prefix)
