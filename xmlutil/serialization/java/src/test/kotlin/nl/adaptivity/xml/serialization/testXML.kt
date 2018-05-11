@@ -41,6 +41,30 @@ object testXML : Spek(
             }
         }
 
+        given("A simple class with a nullable value"){
+            val setValue = NullableContainer("myBar")
+            val nullValue = NullableContainer()
+            on("serialization of a set value") {
+                val serialized = XML.stringify(setValue)
+                it ("should match the expected value") {
+                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>", serialized)
+                }
+                it ("Should parse back to the original") {
+                    assertEquals(setValue, XML.parse<NullableContainer>(serialized))
+                }
+            }
+            on("serialization of a null value") {
+                val serialized = XML.stringify(nullValue)
+                it ("should match the expected value") {
+                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\"/>", serialized)
+                }
+                it ("Should parse back to the original") {
+                    assertEquals(nullValue, XML.parse<NullableContainer>(serialized))
+                }
+            }
+        }
+
+
         given("A simple business") {
             val expBusinessXml =
                 "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"

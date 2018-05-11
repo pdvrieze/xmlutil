@@ -78,3 +78,9 @@ data class Special(val paramA: String = "valA",
 data class Inverted(@XmlElement(true)
                     val elem:String = "value",
                     val arg: Short=6)
+
+
+@Serializable
+@XmlSerialName("NullableContainer", "urn:myurn", "p")
+data class NullableContainer(var bar: String? = null)
+

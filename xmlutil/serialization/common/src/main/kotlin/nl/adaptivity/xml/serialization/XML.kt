@@ -19,6 +19,7 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.util.multiplatform.name
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.util.xml.ICompactFragment
 import nl.adaptivity.xml.*
 import kotlin.reflect.KClass
 
@@ -163,7 +164,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         "Missing namespace for prefix $prefix")
                     QName(ns, name.substring(0, i), prefix)
                 }
-                else  -> QName(serialName?.namespaceURI ?: "", name, serialName?.prefix ?: "")
+                else  -> QName(serialName?.namespaceURI ?: "", name, /*serialName?.prefix ?: */"")
             }
         }
 
@@ -640,7 +641,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return readBegin(desc, tagName, polyInfo)
             }
 
-            open fun KSerialClassDesc.indexOf(name: QName): Int {
+            open fun KSerialClassDesc.indexOf(name: QName, attr: Boolean): Int {
                 val polyMap: Map<QName, PolyInfo>
                 val nameMap: Map<QName, Int>
 
@@ -669,7 +670,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 nameMap[normalName]?.let { return it }
                 polyMap[normalName]?.let { return it.index }
 
-
+                if (attr && name.namespaceURI.isEmpty()) {
+                    val attrName =normalName.copy(namespaceURI = serialName.namespaceURI)
+                    nameMap[attrName]?.let { return it }
+                    polyMap[normalName.copy(namespaceURI = serialName.namespaceURI)]?.let { return it.index }
+                }
 
 //                val pkg = desc.name.substringBeforeLast('.', "")
 
@@ -686,8 +691,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         return when (eventType) {
                             EventType.END_ELEMENT   -> readElementEnd(desc)
                             EventType.TEXT          -> desc.getValueChild()
-                            EventType.ATTRIBUTE     -> desc.indexOf(input.name)
-                            EventType.START_ELEMENT -> desc.indexOf(input.name)
+                            EventType.ATTRIBUTE     -> desc.indexOf(input.name, true)
+                            EventType.START_ELEMENT -> desc.indexOf(input.name, false)
                             else                    -> throw SerializationException("Unexpected event in stream")
                         }
                     }
@@ -796,7 +801,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         // Ignore namespace decls
                         readElement(desc)
                     } else {
-                        desc.indexOf(name)
+                        desc.indexOf(name, true)
                     }
                 }
                 attrIndex = -1 // Ensure to reset here
@@ -892,7 +897,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 }
             }
 
-            override fun KSerialClassDesc.indexOf(name: QName): Int {
+            override fun KSerialClassDesc.indexOf(name: QName, attr: Boolean): Int {
                 return if (name.namespaceURI == "" && name.localPart == "type") 0 else 1
             }
 
@@ -952,7 +957,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 }
 
 private fun defaultSerialContext() = SerialContext().apply {
-    registerSerializer(CompactFragment::class, CompactFragmentSerializer())
+//    registerSerializer(ICompactFragment::class, ICompactFragmentSerializer())
+    registerSerializer(CompactFragment::class, CompactFragmentSerializer)
 }
 
 fun Collection<Annotation>.getXmlSerialName(current: QName?): QName? {
@@ -1111,3 +1117,7 @@ fun QName.copy(namespaceURI: String = this.namespaceURI,
 
 fun QName.copy(prefix: String = this.prefix) = if (prefix == this.prefix) this else QName(namespaceURI, localPart,
                                                                                           prefix)
+
+inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML().toXml(this, out)
+
+inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) = XML().toXml(kClass, this, out)
