@@ -26,9 +26,9 @@ abstract class BaseSerializableContainer<T: XmlSerializable>(val name:QName): Xm
   abstract val children: Iterable<T>
 
   override fun serialize(out: XmlWriter) {
-    out.smartStartTag(name)
-    out.writeChildren(children)
-    out.endTag(name)
+    out.smartStartTag(name) {
+        writeChildren(children)
+    }
   }
 }
 
