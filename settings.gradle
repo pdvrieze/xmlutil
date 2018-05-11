@@ -37,6 +37,8 @@ pluginManagement {
 */
                 useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
 
+            } else if (requested.id.id == "net.devrieze.gradlecodegen") {
+                useModule("net.devrieze:gradle-codegen:0.5.6")
             }
         }
     }
@@ -92,7 +94,7 @@ include(":xmlutil:core:java")
 include(":xmlutil:core:jvm")
 include(":xmlutil:core:js")
 include(":xmlutil:serialization:common")
-include(":xmlutil:serialization:jvm")
+include(":xmlutil:serialization:java")
 
 //include(":xmlutil:generator")
 include(":TestSupport")

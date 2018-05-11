@@ -19,24 +19,25 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.util.multiplatform.JvmStatic
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.util.xml.ICompactFragment
 import nl.adaptivity.xml.Namespace
 import nl.adaptivity.xml.XmlEvent
 import nl.adaptivity.xml.siblingsToFragment
 import kotlin.reflect.KClass
 
 @Serializer(forClass = Namespace::class)
-class NamespaceSerializer: KSerializer<Namespace> {
+class NamespaceSerializer : KSerializer<Namespace> {
     override val serialClassDesc: KSerialClassDesc get() = Companion
 
     private lateinit var stringSerializer: KSerializer<String>
 
     override fun load(input: KInput): Namespace {
-        if (! this::stringSerializer.isInitialized) stringSerializer = input.context.klassSerializer(String::class)
+        if (!this::stringSerializer.isInitialized) stringSerializer = input.context.klassSerializer(String::class)
 
         lateinit var prefix: String
         lateinit var namespaceUri: String
         readElements(input) {
-            when(it) {
+            when (it) {
                 0 -> prefix = input.readStringElementValue(serialClassDesc, it)
                 1 -> namespaceUri = input.readStringElementValue(serialClassDesc, it)
             }
@@ -48,22 +49,22 @@ class NamespaceSerializer: KSerializer<Namespace> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    companion object: KSerialClassDesc {
+    companion object : KSerialClassDesc {
         override val kind: KSerialClassKind
             get() = KSerialClassKind.CLASS
 
         override val name: String
             get() = "namespace"
 
-        override fun getElementIndex(name: String): Int = when(name) {
-            "prefix" -> 0
+        override fun getElementIndex(name: String): Int = when (name) {
+            "prefix"       -> 0
             "namespaceUri" -> 1
-            else -> KInput.UNKNOWN_NAME
+            else           -> KInput.UNKNOWN_NAME
         }
 
         override fun getElementName(index: Int): String = when (index) {
-            0 -> "prefix"
-            1 -> "namespaceUri"
+            0    -> "prefix"
+            1    -> "namespaceUri"
             else -> throw IndexOutOfBoundsException("$index")
         }
 
@@ -72,14 +73,14 @@ class NamespaceSerializer: KSerializer<Namespace> {
 
 inline fun KSerializer<*>.readElements(input: KInput, body: (Int) -> Unit) {
     var elem = input.readElement(serialClassDesc)
-    while (elem>=0) {
+    while (elem >= 0) {
         body(elem)
         elem = input.readElement(serialClassDesc)
     }
 }
 
 @Serializer(forClass = CompactFragment::class)
-class CompactFragmentSerializer() : KSerializer<CompactFragment> {
+object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val serialClassDesc get() = MYSERIALCLASSDESC
 
     override fun load(input: KInput): CompactFragment {
@@ -108,12 +109,17 @@ class CompactFragmentSerializer() : KSerializer<CompactFragment> {
     }
 
     override fun save(output: KOutput, obj: CompactFragment) {
+        save(output, obj as ICompactFragment)
+    }
+
+    fun save(output: KOutput, obj: ICompactFragment) {
         val serialClassDesc = serialClassDesc
         output.writeBegin(serialClassDesc).let { childOut ->
             if (childOut is XML.XmlOutput) {
                 obj.serialize(childOut.target)
             } else {
-                childOut.writeSerializableElementValue(serialClassDesc, 0, NamespaceSerializer().list, obj.namespaces.toList())
+                childOut.writeSerializableElementValue(serialClassDesc, 0, NamespaceSerializer().list,
+                                                       obj.namespaces.toList())
                 childOut.writeStringElementValue(serialClassDesc, 1, obj.contentString)
             }
             childOut.writeEnd(serialClassDesc)
@@ -121,36 +127,48 @@ class CompactFragmentSerializer() : KSerializer<CompactFragment> {
     }
 
 
+    @JvmStatic
+    val MYSERIALCLASSDESC = object : KSerialClassDesc {
+        override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
 
-    companion object {
-        @JvmStatic
-        val MYSERIALCLASSDESC = object : KSerialClassDesc {
-            override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
+        override val name: String get() = "compactFragment"
 
-            override val name: String get() = "compactFragment"
-
-            override fun getElementIndex(name: String): Int {
-                return when (name) {
-                    "namespaces" -> 0
-                    "content"    -> 1
-                    else         -> KInput.UNKNOWN_NAME
-                }
-            }
-
-            override fun getElementName(index: Int): String {
-                return when (index) {
-                    0    -> "namespaces"
-                    1    -> "content"
-                    else -> throw IndexOutOfBoundsException("$index")
-                }
-            }
-
-            override val associatedFieldsCount: Int get() = 2
-
-            override fun toString(): String {
-                return "compactFragment[namespaces, content]"
+        override fun getElementIndex(name: String): Int {
+            return when (name) {
+                "namespaces" -> 0
+                "content"    -> 1
+                else         -> KInput.UNKNOWN_NAME
             }
         }
+
+        override fun getElementName(index: Int): String {
+            return when (index) {
+                0    -> "namespaces"
+                1    -> "content"
+                else -> throw IndexOutOfBoundsException("$index")
+            }
+        }
+
+        override val associatedFieldsCount: Int get() = 2
+
+        override fun toString(): String {
+            return "compactFragment[namespaces, content]"
+        }
+    }
+}
+
+@Serializer(forClass = ICompactFragment::class)
+object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
+
+    override val serialClassDesc: KSerialClassDesc
+        get() = CompactFragmentSerializer.serialClassDesc
+
+    override fun load(input: KInput): ICompactFragment {
+        return CompactFragmentSerializer.load(input)
+    }
+
+    override fun save(output: KOutput, obj: ICompactFragment) {
+        CompactFragmentSerializer.save(output, obj)
     }
 }
 
