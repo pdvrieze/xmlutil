@@ -19,8 +19,9 @@ package nl.adaptivity.xml
 import kotlinx.serialization.*
 import nl.adaptivity.xml.serialization.readBegin
 import nl.adaptivity.xml.serialization.readElements
+import nl.adaptivity.xml.serialization.simpleSerialClassDesc
 
-@Serializable
+//@Serializable
 interface Namespace {
 
     /**
@@ -36,6 +37,9 @@ interface Namespace {
 
     @Serializer(forClass = Namespace::class)
     companion object: KSerializer<Namespace> {
+        override val serialClassDesc: KSerialClassDesc
+            = simpleSerialClassDesc<Namespace>("prefix", "namespaceURI")
+
         override fun load(input: KInput): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
