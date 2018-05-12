@@ -17,6 +17,7 @@
 plugins {
     id("java-library")
     id("kotlin-platform-jvm")
+    id("kotlinx-serialization")
 }
 
 base {
@@ -29,4 +30,5 @@ dependencies {
     expectedBy(project(":xmlutil:core:common"))
     api(project(":multiplatform:java"))
     implementation(kotlin("stdlib-jdk7"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }

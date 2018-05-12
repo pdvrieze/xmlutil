@@ -236,47 +236,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                      currentTypeName: String?,
                      polyChildren: Array<String>): XmlNameMap {
             val result = XmlNameMap()
-            val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
 
             for (polyChild in polyChildren) {
                 val polyInfo = polyTagName(parentTag, polyChild, currentTypeName, -1)
-                val eqPos = polyChild.indexOf('=')
-                val pkgPos: Int
-                val prefPos: Int
-                val typeNameBase: String
-                val prefix: String
-                val localPart: String
-
-                if (eqPos < 0) {
-                    typeNameBase = polyChild
-                    pkgPos = polyChild.lastIndexOf('.')
-                    prefPos = -1
-                    prefix = parentTag.prefix
-                    localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
-                } else {
-                    typeNameBase = polyChild.substring(0, eqPos).trim()
-                    pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
-                    prefPos = polyChild.indexOf(':', eqPos + 1)
-
-                    if (prefPos < 0) {
-                        prefix = parentTag.prefix
-                        localPart = polyChild.substring(eqPos + 1).trim()
-                    } else {
-                        prefix = polyChild.substring(eqPos + 1, prefPos).trim()
-                        localPart = polyChild.substring(prefPos + 1).trim()
-                    }
-                }
-
-
-                val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
-                                           ?: parentTag.namespaceURI else parentTag.namespaceURI
-                val name = QName(ns, localPart, prefix)
-
-                val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
 
                 result.registerClass(polyInfo.tagName, polyInfo.kClass, polyChild.indexOf('=') >= 0)
-
-
             }
 
             return result
@@ -1120,4 +1084,5 @@ fun QName.copy(prefix: String = this.prefix) = if (prefix == this.prefix) this e
 
 inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML().toXml(this, out)
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) = XML().toXml(kClass, this, out)

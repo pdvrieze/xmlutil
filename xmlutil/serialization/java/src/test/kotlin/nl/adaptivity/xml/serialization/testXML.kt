@@ -17,7 +17,9 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerialContext
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JSON
 import nl.adaptivity.util.xml.CompactFragment
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
@@ -29,7 +31,8 @@ object testXML : Spek(
         given("A simple data class") {
             val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
             val address = Address("10", "Downing Street", "London")
-            on("serialization") {
+
+            on("serialization with XML") {
                 val serialized = XML.stringify(address)
                 it("should be the expected value") {
                     assertEquals(expAddressXml, serialized)
@@ -37,6 +40,19 @@ object testXML : Spek(
 
                 it("should parse to the original") {
                     assertEquals(address, XML.parse<Address>(serialized))
+                }
+            }
+
+            val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
+
+            on("serialization with JSON") {
+                val serialized = JSON.stringify(address)
+                it("should be the expected value") {
+                    assertEquals(expectedJSON, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(address, JSON.parse<Address>(serialized))
                 }
             }
         }
@@ -104,7 +120,8 @@ object testXML : Spek(
         given("a compactFragment") {
             val expectedXml = "<compactFragment><a>someA</a><b>someB</b></compactFragment>"
             val fragment = CompactFragment("<a>someA</a><b>someB</b>")
-            on("serialization") {
+
+            on("serialization with XML") {
                 val serialized = XML.stringify(fragment)
                 it("Should equal the expected fragment xml") {
                     assertEquals(expectedXml, serialized)
@@ -112,6 +129,22 @@ object testXML : Spek(
 
                 it("should parse to the original") {
                     assertEquals(fragment, XML.parse<CompactFragment>(serialized))
+                }
+
+            }
+            val expectedJSON = "{\"namespaces\":[],\"content\":\"<a>someA</a><b>someB</b>\"}"
+
+            on("serialization with JSON") {
+                val context = SerialContext().apply {
+                    registerSerializer(CompactFragment::class, CompactFragmentSerializer)
+                }
+                val serialized = JSON(context = context).stringify(fragment)
+                it("Should equal the expected fragment JSON") {
+                    assertEquals(expectedJSON, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(fragment, JSON(context = context).parse<CompactFragment>(serialized))
                 }
 
             }

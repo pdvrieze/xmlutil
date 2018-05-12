@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 plugins {
     base
     id("kotlin-platform-js")
+    id("kotlinx-serialization")
 }
 
 base {
@@ -32,6 +33,7 @@ dependencies {
     expectedBy(project(":xmlutil:core:common-nonshared"))
     implementation(project(":multiplatform:js"))
     implementation(kotlin("stdlib-js"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
 }
 
 getTasks().withType<Kotlin2JsCompile> {

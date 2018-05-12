@@ -25,12 +25,15 @@ base {
 
 plugins {
     id("kotlin-platform-common")
+    id("kotlinx-serialization")
 }
+
+val serializationVersion:String by project
 
 dependencies {
     implementation(kotlin("stdlib-common"))
     implementation(project(":multiplatform:common"))
-//    implementation(project(":java-common:common"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 }
 
 repositories {

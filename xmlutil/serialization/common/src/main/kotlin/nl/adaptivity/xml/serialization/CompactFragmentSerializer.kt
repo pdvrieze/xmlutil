@@ -21,63 +21,8 @@ import nl.adaptivity.util.multiplatform.JvmStatic
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.util.xml.ICompactFragment
 import nl.adaptivity.xml.Namespace
-import nl.adaptivity.xml.XmlEvent
 import nl.adaptivity.xml.siblingsToFragment
 import kotlin.reflect.KClass
-
-@Serializer(forClass = Namespace::class)
-class NamespaceSerializer : KSerializer<Namespace> {
-    override val serialClassDesc: KSerialClassDesc get() = Companion
-
-    private lateinit var stringSerializer: KSerializer<String>
-
-    override fun load(input: KInput): Namespace {
-        if (!this::stringSerializer.isInitialized) stringSerializer = input.context.klassSerializer(String::class)
-
-        lateinit var prefix: String
-        lateinit var namespaceUri: String
-        readElements(input) {
-            when (it) {
-                0 -> prefix = input.readStringElementValue(serialClassDesc, it)
-                1 -> namespaceUri = input.readStringElementValue(serialClassDesc, it)
-            }
-        }
-        return XmlEvent.NamespaceImpl(prefix, namespaceUri)
-    }
-
-    override fun save(output: KOutput, obj: Namespace) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    companion object : KSerialClassDesc {
-        override val kind: KSerialClassKind
-            get() = KSerialClassKind.CLASS
-
-        override val name: String
-            get() = "namespace"
-
-        override fun getElementIndex(name: String): Int = when (name) {
-            "prefix"       -> 0
-            "namespaceUri" -> 1
-            else           -> KInput.UNKNOWN_NAME
-        }
-
-        override fun getElementName(index: Int): String = when (index) {
-            0    -> "prefix"
-            1    -> "namespaceUri"
-            else -> throw IndexOutOfBoundsException("$index")
-        }
-
-    }
-}
-
-inline fun KSerializer<*>.readElements(input: KInput, body: (Int) -> Unit) {
-    var elem = input.readElement(serialClassDesc)
-    while (elem >= 0) {
-        body(elem)
-        elem = input.readElement(serialClassDesc)
-    }
-}
 
 @Serializer(forClass = CompactFragment::class)
 object CompactFragmentSerializer : KSerializer<CompactFragment> {
@@ -90,7 +35,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
             return newInput.input.run {
                 next()
-                siblingsToFragment()
+                siblingsToFragment().also { newInput.readEnd(serialClassDesc) }
             }
         } else {
             var namespaces: List<Namespace> = mutableListOf()
@@ -98,12 +43,11 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
             readElements(newInput) { elem ->
                 when (elem) {
-                    0 -> namespaces = newInput.readSerializableElementValue(serialClassDesc, elem,
-                                                                            input.context.klassSerializer(kClass()))
+                    0 -> namespaces = newInput.readSerializableElementValue(serialClassDesc, elem, Namespace.list)
                     1 -> content = newInput.readStringElementValue(serialClassDesc, elem)
                 }
             }
-
+            newInput.readEnd(serialClassDesc)
             return CompactFragment(namespaces, content)
         }
     }
@@ -118,7 +62,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             if (childOut is XML.XmlOutput) {
                 obj.serialize(childOut.target)
             } else {
-                childOut.writeSerializableElementValue(serialClassDesc, 0, NamespaceSerializer().list,
+                childOut.writeSerializableElementValue(serialClassDesc, 0, Namespace.list,
                                                        obj.namespaces.toList())
                 childOut.writeStringElementValue(serialClassDesc, 1, obj.contentString)
             }

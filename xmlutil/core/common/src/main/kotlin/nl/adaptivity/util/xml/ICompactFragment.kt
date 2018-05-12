@@ -16,15 +16,19 @@
 
 package nl.adaptivity.util.xml
 
+import kotlinx.serialization.Transient
 import nl.adaptivity.xml.*
 
 /**
  * Base interface for CompactFragment implementations.
  */
 interface ICompactFragment: XmlSerializable {
+    @Transient
     val isEmpty: Boolean
 
     val namespaces: IterableNamespaceContext
+
+    @Transient
     val content: CharArray
 
     val contentString: String

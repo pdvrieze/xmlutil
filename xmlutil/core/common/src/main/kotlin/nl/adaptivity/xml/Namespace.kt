@@ -16,6 +16,12 @@
 
 package nl.adaptivity.xml
 
+import kotlinx.serialization.*
+import nl.adaptivity.xml.serialization.readElement
+import nl.adaptivity.xml.serialization.readElements
+import nl.adaptivity.xml.serialization.simpleSerialClassDesc
+
+@Serializable
 interface Namespace {
 
     /**
@@ -29,6 +35,30 @@ interface Namespace {
      */
     val namespaceURI: String
 
+    @Serializer(forClass = Namespace::class)
+    companion object: KSerializer<Namespace> {
+        override fun load(input: KInput): Namespace {
+            lateinit var prefix: String
+            lateinit var namespaceUri: String
+            input.readElement(serialClassDesc) { desc ->
+                readElements(this) {
+                    when (it) {
+                        0 -> prefix = readStringElementValue(desc, it)
+                        1 -> namespaceUri = readStringElementValue(desc, it)
+                    }
+                }
+            }
+            return XmlEvent.NamespaceImpl(prefix, namespaceUri)
+        }
+
+        override fun save(output: KOutput, obj: Namespace) {
+            val childOut = output.writeBegin(serialClassDesc)
+            childOut.writeStringElementValue(serialClassDesc, 0, obj.prefix)
+            childOut.writeStringElementValue(serialClassDesc, 1, obj.namespaceURI)
+            childOut.writeEnd(serialClassDesc)
+        }
+
+    }
 }
 
 @Suppress("NOTHING_TO_INLINE")

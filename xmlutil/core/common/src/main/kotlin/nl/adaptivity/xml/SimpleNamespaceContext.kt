@@ -16,20 +16,32 @@
 
 package nl.adaptivity.xml
 
+import kotlinx.serialization.*
 import nl.adaptivity.util.multiplatform.JvmName
+import nl.adaptivity.util.multiplatform.name
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xml.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xml.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.XML_NS_URI
+import nl.adaptivity.xml.serialization.withName
 
 
 /**
  * A simple namespace context that stores namespaces in a single array
  * Created by pdvrieze on 24/08/15.
  */
+@Serializable
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
+
+    @Transient
+    val indices: IntRange get() = 0..(size - 1)
+
+    @Transient
+    @get:JvmName("size")
+    val size: Int
+        get() = buffer.size / 2
 
     private inner class SimpleIterator : Iterator<Namespace> {
         private var pos = 0
@@ -79,12 +91,6 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
 
     constructor(namespaces: Iterable<Namespace>) :
         this(namespaces as? Collection<Namespace> ?: namespaces.toList())
-
-    val indices: IntRange get() = 0..(size - 1)
-
-    @get:JvmName("size")
-    val size: Int
-        get() = buffer.size / 2
 
     /**
      * Create a context that combines both. This will "forget" overlapped prefixes.
@@ -188,12 +194,26 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return buffer.contentHashCode()
     }
 
+    @Serializer(forClass = SimpleNamespaceContext::class)
     companion object {
+
+        private val actualSerializer = Namespace.list
+
+        override val serialClassDesc: KSerialClassDesc = actualSerializer.serialClassDesc.withName(SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
             else                      -> SimpleNamespaceContext(originalNSContext)
         }
+
+        override fun load(input: KInput): SimpleNamespaceContext {
+            return SimpleNamespaceContext(actualSerializer.load(input))
+        }
+
+        override fun save(output: KOutput, obj: SimpleNamespaceContext) {
+            actualSerializer.save(output, obj.toList())
+        }
+
     }
 }
 
