@@ -23,9 +23,9 @@ actual object Locales {
     actual val ENGLISH: java.util.Locale get() = java.util.Locale.ENGLISH
 }
 
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun CharSequence.toLowercase(locale: Locale):String =
-    toString().toLowerCase(locale)
+@Suppress("NOTHING_TO_INLINE", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+actual inline fun String.toLowercase(locale: Locale):String =
+    (this as java.lang.String).toLowerCase(locale)
 
 @Suppress("NOTHING_TO_INLINE")
 actual inline fun Int.toHex(): String = toString(16)
