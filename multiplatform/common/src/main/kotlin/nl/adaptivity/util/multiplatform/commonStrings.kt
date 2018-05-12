@@ -26,3 +26,7 @@ expect object Locales {
 expect fun CharSequence.toLowercase(locale: Locale = Locales.DEFAULT): String
 
 expect fun Int.toHex():String
+
+fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }
+
+expect fun String.toCharArray(): CharArray

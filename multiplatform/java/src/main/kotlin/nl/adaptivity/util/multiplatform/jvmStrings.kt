@@ -29,3 +29,6 @@ actual inline fun CharSequence.toLowercase(locale: Locale):String =
 
 @Suppress("NOTHING_TO_INLINE")
 actual inline fun Int.toHex(): String = toString(16)
+
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "NOTHING_TO_INLINE")
+actual inline fun String.toCharArray(): CharArray = (this as java.lang.String).toCharArray()

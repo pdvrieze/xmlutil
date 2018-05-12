@@ -31,3 +31,6 @@ actual inline fun CharSequence.toLowercase(locale: Locale):String =
 
 @Suppress("NOTHING_TO_INLINE", "UnsafeCastFromDynamic")
 actual inline fun Int.toHex(): String = asDynamic().toString(16)
+
+@Suppress("NOTHING_TO_INLINE")
+actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()
