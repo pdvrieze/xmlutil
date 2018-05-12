@@ -44,6 +44,8 @@ interface XmlWriter : Closeable {
 
     fun namespaceAttr(namespacePrefix: String, namespaceUri: String)
 
+    fun namespaceAttr(namespace: Namespace) = namespaceAttr(namespace.prefix, namespace.namespaceURI)
+
     override fun close()
 
     /**
