@@ -45,8 +45,20 @@ inline fun KSerializer<*>.readElements(input: KInput, body: (Int) -> Unit) {
     }
 }
 
-inline fun KInput.readElement(desc: KSerialClassDesc, body: KInput.(desc: KSerialClassDesc) -> Unit) {
+inline fun <T> KInput.readBegin(desc: KSerialClassDesc, body: KInput.(desc: KSerialClassDesc) -> T):T {
     val input = readBegin(desc)
-    input.body(desc)
-    input.readEnd(desc)
+    try {
+        return input.body(desc)
+    } finally {
+        input.readEnd(desc)
+    }
+}
+
+inline fun KOutput.writeBegin(desc: KSerialClassDesc, body: KOutput.(desc: KSerialClassDesc) -> Unit) {
+    val output = writeBegin(desc)
+    try {
+        output.body(desc)
+    } finally {
+        output.writeEnd(desc)
+    }
 }

@@ -29,26 +29,32 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val serialClassDesc get() = MYSERIALCLASSDESC
 
     override fun load(input: KInput): CompactFragment {
-        val serialClassDesc = serialClassDesc
-        val newInput = input.readBegin(serialClassDesc)
-        if (newInput is XML.XmlInput) {
+        return input.readBegin(serialClassDesc) { desc ->
+            readCompactFragmentContent(this, desc)
+        }
+    }
 
-            return newInput.input.run {
+    fun readCompactFragmentContent(input: KInput, desc: KSerialClassDesc): CompactFragment {
+        return if (input is XML.XmlInput) {
+
+            input.input.run {
                 next()
-                siblingsToFragment().also { newInput.readEnd(serialClassDesc) }
+                siblingsToFragment()
             }
         } else {
             var namespaces: List<Namespace> = mutableListOf()
             var content = ""
 
-            readElements(newInput) { elem ->
+            val nsIndex = desc.getElementIndex("namespaces")
+            val contentIndex = desc.getElementIndex("content")
+
+            readElements(input) { elem ->
                 when (elem) {
-                    0 -> namespaces = newInput.readSerializableElementValue(serialClassDesc, elem, Namespace.list)
-                    1 -> content = newInput.readStringElementValue(serialClassDesc, elem)
+                    nsIndex      -> namespaces = input.readSerializableElementValue(desc, elem, Namespace.list)
+                    contentIndex -> content = input.readStringElementValue(desc, elem)
                 }
             }
-            newInput.readEnd(serialClassDesc)
-            return CompactFragment(namespaces, content)
+            CompactFragment(namespaces, content)
         }
     }
 
@@ -58,22 +64,28 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
     fun save(output: KOutput, obj: ICompactFragment) {
         val serialClassDesc = serialClassDesc
-        output.writeBegin(serialClassDesc).let { childOut ->
-            if (childOut is XML.XmlOutput) {
-                val writer = childOut.target
-                for(namespace in obj.namespaces) {
-                    if (writer.getPrefix(namespace.namespaceURI) == null) {
-                        writer.namespaceAttr(namespace)
-                    }
-                }
+        output.writeBegin(serialClassDesc) { desc ->
+            writeCompactFragmentContent(this, desc, 0, obj)
+        }
+    }
 
-                obj.serialize(writer)
-            } else {
-                childOut.writeSerializableElementValue(serialClassDesc, 0, Namespace.list,
-                                                       obj.namespaces.toList())
-                childOut.writeStringElementValue(serialClassDesc, 1, obj.contentString)
+    fun writeCompactFragmentContent(output: KOutput,
+                                    serialClassDesc: KSerialClassDesc,
+                                    startIndex: Int,
+                                    obj: ICompactFragment) {
+        if (output is XML.XmlOutput) {
+            val writer = output.target
+            for (namespace in obj.namespaces) {
+                if (writer.getPrefix(namespace.namespaceURI) == null) {
+                    writer.namespaceAttr(namespace)
+                }
             }
-            childOut.writeEnd(serialClassDesc)
+
+            obj.serialize(writer)
+        } else {
+            output.writeSerializableElementValue(serialClassDesc, startIndex + 0, Namespace.list,
+                                                 obj.namespaces.toList())
+            output.writeStringElementValue(serialClassDesc, startIndex + 1, obj.contentString)
         }
     }
 

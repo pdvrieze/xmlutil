@@ -17,9 +17,8 @@
 package nl.adaptivity.xml
 
 import kotlinx.serialization.*
-import nl.adaptivity.xml.serialization.readElement
+import nl.adaptivity.xml.serialization.readBegin
 import nl.adaptivity.xml.serialization.readElements
-import nl.adaptivity.xml.serialization.simpleSerialClassDesc
 
 @Serializable
 interface Namespace {
@@ -40,7 +39,7 @@ interface Namespace {
         override fun load(input: KInput): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
-            input.readElement(serialClassDesc) { desc ->
+            input.readBegin(serialClassDesc) { desc ->
                 readElements(this) {
                     when (it) {
                         0 -> prefix = readStringElementValue(desc, it)
