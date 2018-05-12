@@ -60,7 +60,14 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         val serialClassDesc = serialClassDesc
         output.writeBegin(serialClassDesc).let { childOut ->
             if (childOut is XML.XmlOutput) {
-                obj.serialize(childOut.target)
+                val writer = childOut.target
+                for(namespace in obj.namespaces) {
+                    if (writer.getPrefix(namespace.namespaceURI) == null) {
+                        writer.namespaceAttr(namespace)
+                    }
+                }
+
+                obj.serialize(writer)
             } else {
                 childOut.writeSerializableElementValue(serialClassDesc, 0, Namespace.list,
                                                        obj.namespaces.toList())

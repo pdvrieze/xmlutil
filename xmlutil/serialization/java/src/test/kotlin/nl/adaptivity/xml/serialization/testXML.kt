@@ -21,6 +21,7 @@ import kotlinx.serialization.SerialContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JSON
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.xml.XmlEvent
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -118,8 +119,8 @@ object testXML : Spek(
         }
 
         given("a compactFragment") {
-            val expectedXml = "<compactFragment><a>someA</a><b>someB</b></compactFragment>"
-            val fragment = CompactFragment("<a>someA</a><b>someB</b>")
+            val expectedXml = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
+            val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
 
             on("serialization with XML") {
                 val serialized = XML.stringify(fragment)
@@ -132,7 +133,7 @@ object testXML : Spek(
                 }
 
             }
-            val expectedJSON = "{\"namespaces\":[],\"content\":\"<a>someA</a><b>someB</b>\"}"
+            val expectedJSON = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
 
             on("serialization with JSON") {
                 val context = SerialContext().apply {
