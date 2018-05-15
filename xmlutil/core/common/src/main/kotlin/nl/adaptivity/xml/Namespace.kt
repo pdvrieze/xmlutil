@@ -30,10 +30,13 @@ interface Namespace {
      */
     val prefix: String
 
+    operator fun component1() = prefix
+
     /**
      * Gets the uri bound to the prefix of this namespace
      */
     val namespaceURI: String
+    operator fun component2() = namespaceURI
 
     @Serializer(forClass = Namespace::class)
     companion object: KSerializer<Namespace> {

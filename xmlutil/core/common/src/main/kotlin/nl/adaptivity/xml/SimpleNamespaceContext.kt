@@ -95,7 +95,12 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     /**
      * Create a context that combines both. This will "forget" overlapped prefixes.
      */
+    @Deprecated("Use operator", ReplaceWith("this + other"))
     fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
+        return this + other
+    }
+
+    operator fun plus(other: SimpleNamespaceContext): SimpleNamespaceContext {
         val result = mutableMapOf<String, String>()
         for (i in indices.reversed()) {
             result[getPrefix(i)] = getNamespaceURI(i)
@@ -113,11 +118,15 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
      * @return the new context
      */
     fun combine(other: Iterable<Namespace>): SimpleNamespaceContext? {
+        return plus(other)
+    }
+
+    operator fun plus(other: Iterable<Namespace>): SimpleNamespaceContext {
         if (size == 0) {
             return from(other)
         }
         if (other is SimpleNamespaceContext) {
-            return combine(other)
+            return this + other
         } else if (!other.iterator().hasNext()) {
             return this
         }
@@ -129,7 +138,6 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
             result[ns.prefix] = ns.namespaceURI
         }
         return SimpleNamespaceContext(result)
-
     }
 
     override fun getNamespaceURI(prefix: String): String {
