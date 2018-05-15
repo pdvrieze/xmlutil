@@ -44,6 +44,8 @@ class SimpleSerialClassDesc(override val name: String, vararg val elements: Stri
     override fun getElementIndex(name: String) = elements.indexOf(name)
 
     override fun getElementName(index: Int) = elements[index]
+
+    override val associatedFieldsCount: Int get() = elements.size
 }
 
 fun KSerialClassDesc.withName(name: String): KSerialClassDesc = RenameDesc(this, name)
