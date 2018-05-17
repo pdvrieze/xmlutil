@@ -41,7 +41,12 @@ class SimpleSerialClassDescPrimitive(override val name: String) : KSerialClassDe
 class SimpleSerialClassDesc(override val name: String, vararg val elements: String): KSerialClassDesc {
     override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
 
-    override fun getElementIndex(name: String) = elements.indexOf(name)
+    override fun getElementIndex(name: String) = elements.indexOf(name).let {
+        if (it<0)
+            KInput.UNKNOWN_NAME
+        else
+            it
+    }
 
     override fun getElementName(index: Int) = elements[index]
 
