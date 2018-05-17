@@ -33,6 +33,7 @@ buildscript {
         mavenLocal()
         google()
         jcenter()
+        maven { url = "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$androidPluginVersion" //1.5.0
@@ -198,6 +199,7 @@ allprojects {
         maven {
             url = 'https://dl.bintray.com/jetbrains/spek'
         }
+        maven { url = "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
 
 //    if (JavaVersion.current().isJava8Compatible()) {
