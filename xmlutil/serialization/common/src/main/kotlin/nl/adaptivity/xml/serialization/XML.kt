@@ -643,8 +643,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 //                val pkg = desc.name.substringBeforeLast('.', "")
 
                 throw SerializationException("Could not find a field for name $name\n  candidates " +
-                                             "were: ${nameMap.keys.joinToString()}  and " +
-                                             polyMap.keys.joinToString())
+                                             "were: ${(nameMap.keys + polyMap.keys).joinToString()}")
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
