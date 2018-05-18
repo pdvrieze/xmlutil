@@ -135,6 +135,22 @@ object testXML : Spek(
             }
         }
 
+        given("An empty chamber") {
+            val expChamber="<chamber name=\"lowtech\"/>"
+            val chamber = Chamber("lowtech", emptyList())
+
+            on("serialization") {
+                val serialized = XML.stringify(chamber)
+                it("Should equal the chamber xml") {
+                    assertEquals(expChamber, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(chamber, XML.parse<Chamber>(serialized))
+                }
+            }
+        }
+
         given("a compactFragment") {
             val expectedXml = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
             val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
