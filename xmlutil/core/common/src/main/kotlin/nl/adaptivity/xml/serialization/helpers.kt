@@ -32,7 +32,10 @@ object CharArrayAsStringSerializer : KSerializer<CharArray> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun KInput.readNullableString(): String? = readNullableSerializableValue(StringSerializer::class as KSerialLoader<String?>)
+fun KInput.readNullableString(): String? = readNullableSerializableValue(StringSerializer as KSerialLoader<String?>)
+
+@Suppress("UNCHECKED_CAST")
+fun KInput.readNullableString(desc: KSerialClassDesc, index: Int): String? = readNullableSerializableElementValue(desc, index, StringSerializer as KSerialLoader<String?>)
 
 fun KOutput.writeNullableStringElementValue(desc: KSerialClassDesc, index: Int, value: String?) = writeNullableSerializableElementValue(desc, index, StringSerializer, value)
 
