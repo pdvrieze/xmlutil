@@ -58,6 +58,23 @@ object testXML : Spek(
             }
         }
 
+        given ("A data class with optional boolean") {
+            val location = Location(Address("1600", "Pensylvania Avenue", "Washington DC"))
+            val expectedXml="<Location><addres houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
+
+            on("Serialization with XML") {
+                val serialized = XML.stringify(location)
+                it("should serialize to the expected xml") {
+                    assertEquals(expectedXml,serialized)
+                }
+                it("should also parse to the original") {
+                    assertEquals(location, XML.parse<Location>(serialized))
+                }
+
+            }
+        }
+
+
         given("A simple class with a nullable value"){
             val setValue = NullableContainer("myBar")
             val nullValue = NullableContainer()

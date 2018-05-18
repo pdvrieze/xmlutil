@@ -16,23 +16,29 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
 @Serializable
-@XmlSerialName("address")
+@XmlSerialName("address", namespace = "", prefix = "")
 data class Address(val houseNumber: String, val street: String, val city: String)
+
+@Serializable
+data class Location(val addres: Address,
+                    @XmlDefault("NaN")
+                    @Optional val temperature:Double = Double.NaN)
 
 @Serializable
 open class Base
 
 @Serializable
-@XmlSerialName("childA")
+@XmlSerialName("childA", namespace = "", prefix = "")
 data class ChildA(val valueA: String): Base()
 
 @Serializable
-@XmlSerialName("childB")
+@XmlSerialName("childB", namespace = "", prefix = "")
 data class ChildB(val valueB: String): Base()
 
 @Serializable
@@ -62,11 +68,11 @@ data class SealedSingle(val name: String, val member: SealedA)
 data class Business(val name: String, val headOffice: Address?)
 
 @Serializable
-@XmlSerialName("chamber")
+@XmlSerialName("chamber", namespace = "", prefix = "")
 data class Chamber(val name: String, @SerialName("member") val members: List<Business>)
 
 @Serializable
-@XmlSerialName("localname", "urn:namespace")
+@XmlSerialName("localname", "urn:namespace", prefix = "")
 data class Special(val paramA: String = "valA",
                    @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
                    @XmlElement(true) val paramB: Int = 1,
