@@ -17,6 +17,7 @@
 package nl.adaptivity.xml.serialization.canary
 
 import kotlinx.serialization.*
+import nl.adaptivity.xml.serialization.canary.Canary.childInfoForClassDesc
 import kotlin.reflect.KClass
 
 class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
@@ -36,16 +37,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
         currentClassDesc = desc
 
-        childInfo = when (desc.kind) {
-            KSerialClassKind.MAP,
-            KSerialClassKind.SET,
-            KSerialClassKind.LIST
-                 -> arrayOf(ChildInfo("count"), ChildInfo("values"))
-
-            else -> Array(desc.associatedFieldsCount) {
-                ChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it))
-            }
-        }
+        childInfo = childInfoForClassDesc(desc)
         return this
     }
 

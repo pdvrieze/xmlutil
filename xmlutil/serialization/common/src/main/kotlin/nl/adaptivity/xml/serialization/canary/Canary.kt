@@ -17,12 +17,14 @@
 package nl.adaptivity.xml.serialization.canary
 
 import kotlinx.serialization.KSerialClassDesc
+import kotlinx.serialization.KSerialClassKind
+import kotlinx.serialization.KSerialLoader
 import kotlinx.serialization.KSerialSaver
 
 object Canary {
 
     private val saverMap = mutableMapOf<KSerialSaver<*>, ExtInfo>()
-
+    private val loaderMap = mutableMapOf<KSerialLoader<*>, ExtInfo>()
 
     fun <T> extInfo(saver: KSerialSaver<T>, obj: T): ExtInfo {
         return saverMap.getOrPut(saver) {
@@ -32,8 +34,52 @@ object Canary {
         }
     }
 
+    fun <T> extInfo(loader: KSerialLoader<T>): ExtInfo {
+        return loaderMap.getOrPut(loader) {
+            val input = CanaryInput()
+            load(input, loader)
+            input.extInfo()
+        }
+
+    }
+
+    internal fun <T> load(input: CanaryInput,
+                         loader: KSerialLoader<T>) {
+        try {
+            loader.load(input)
+        } catch (e: CanaryInput.SuspendException) {
+            if (e.finished) return
+        }
+        while (true) {
+            try {
+                loader.load(input)
+                throw IllegalStateException("This should not be reachable")
+            } catch (e: CanaryInput.SuspendException) {
+                if (e.finished) break
+            }
+        }
+    }
+
     fun <T> pollInfo(saver: KSerialSaver<T>): ExtInfo? {
         return saverMap[saver]
+    }
+
+
+    fun <T> pollInfo(loader: KSerialLoader<T>): ExtInfo? {
+        return loaderMap[loader]
+    }
+
+    internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo> {
+        return when (desc.kind) {
+            KSerialClassKind.MAP,
+            KSerialClassKind.SET,
+            KSerialClassKind.LIST
+                 -> arrayOf(ChildInfo("count"), ChildInfo("values"))
+
+            else -> Array(desc.associatedFieldsCount) {
+                ChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it))
+            }
+        }
     }
 
 

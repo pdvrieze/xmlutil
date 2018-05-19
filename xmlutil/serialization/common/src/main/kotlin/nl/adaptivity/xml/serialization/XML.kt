@@ -117,8 +117,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
         val serialName = kClass.getSerialName(loader as? KSerializer<*>)
-        val input = XmlInputBase(reader).Initial(
-            serialName)
+        val extInfo = Canary.extInfo(loader)
+        val input = XmlInputBase(reader).Initial(serialName, extInfo)
         return input.read(loader)
     }
 
@@ -381,8 +381,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun writeTaggedValue(tag: OutputDescriptor, value: Any) {
                 if (value is XmlSerializable) {
                     value.serialize(target)
-//                    defer {
-//                    }
                 } else {
                     super.writeTaggedValue(tag, value)
                 }
@@ -662,14 +660,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     open class XmlInputBase internal constructor(val input: XmlReader) {
 
-        inner class Initial(val serialName: QName) : ElementValueInput(), XmlInput {
+        inner class Initial(val serialName: QName, val extInfo: ExtInfo) : ElementValueInput(), XmlInput {
             override val input: XmlReader
                 get() = this@XmlInputBase.input
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
                 input.nextTag()
 
-                return readBegin(desc, serialName, null, false)
+                return readBegin(desc, serialName, null, false, extInfo)
             }
         }
 
@@ -701,7 +699,24 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 val polyInfo = polyChildren?.values?.firstOrNull { it.index == tag.index && it.tagName.normalize() == input.name.normalize() }
 
-                return readBegin(desc, tagName, polyInfo, false)
+                return readBegin(desc, tagName, polyInfo, false, tag.extInfo!!)
+            }
+
+            override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
+                currentTag.extInfo = Canary.extInfo(loader)
+                return super.readSerializableValue(loader)
+            }
+
+            override fun <T : Any> updateNullableSerializableValue(loader: KSerialLoader<T?>,
+                                                                   desc: KSerialClassDesc,
+                                                                   old: T?): T? {
+                currentTag.extInfo = Canary.extInfo(loader)
+                return super.updateNullableSerializableValue(loader, desc, old)
+            }
+
+            override fun <T> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
+                currentTag.extInfo = Canary.extInfo(loader)
+                return super.updateSerializableValue(loader, desc, old)
             }
 
             open fun KSerialClassDesc.indexOf(name: QName, attr: Boolean): Int {
@@ -810,7 +825,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         internal inner class Element(desc: KSerialClassDesc,
                                      serialName: QName,
                                      childName: QName?,
-                                     private var attrIndex: Int = 0) : Base(desc, serialName, childName) {
+                                     private var attrIndex: Int = 0,
+                                     var extInfo: ExtInfo) : Base(desc, serialName, childName) {
             private val seenItems = BooleanArray(desc.associatedFieldsCount)
 
             private var nulledItemsIdx = -1
@@ -821,14 +837,25 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 val polyInfo = polyChildren?.values?.firstOrNull { it.index == tag.index && it.tagName.normalize() == input.name.normalize() }
 
-                return readBegin(desc, tagName, polyInfo, nulledItemsIdx >= 0)
+
+                return readBegin(desc, tagName, polyInfo, nulledItemsIdx >= 0, tag.extInfo!!)
             }
 
-            fun nextNulledItemsIdx(desc: KSerialClassDesc) {
+            fun nextNulledItemsIdx() {
                 for (i in (nulledItemsIdx + 1) until seenItems.size) {
-                    if (!(seenItems[i] || desc.isOptional(i))) {
-                        nulledItemsIdx = i
-                        return
+                    if (!seenItems[i]) {
+                        val childInfo = extInfo.childInfo[i]
+                        // If a
+                        val nullableOrList = childInfo.isNullable || when(childInfo.kind) {
+                            KSerialClassKind.SET,
+                            KSerialClassKind.MAP,
+                            KSerialClassKind.LIST -> true
+                            else -> false
+                        }
+                        if (nullableOrList) {
+                            nulledItemsIdx = i
+                            return
+                        }
                     }
                 }
                 nulledItemsIdx = seenItems.size
@@ -837,18 +864,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
                 markItemSeen(index)
 
-                val outputKind = when {
-                    attrIndex >= 0 && attrIndex < input.attributeCount -> OutputKind.Attribute
-                    input.eventType == EventType.TEXT ||
-                    input.eventType == EventType.CDSECT                -> OutputKind.Text
-                    else                                               -> OutputKind.Element
+                if (index < extInfo.childInfo.size) {
+                    return OutputDescriptor(classDesc, index, classDesc.outputKind(index, extInfo), classDesc.getTagName(index))
+                } else {
+                    return OutputDescriptor(classDesc, index, OutputKind.Unknown, QName("value"), null)
                 }
-                val expectedOutputKind = classDesc.outputKind(index)
-                if (!outputKind.matchesExpectationBy(expectedOutputKind)) throw SerializationException(
-                    "Found element ${classDesc.getElementName(
-                        index)} as $outputKind while expecting $expectedOutputKind")
-
-                return OutputDescriptor(classDesc, index, outputKind, classDesc.getTagName(index))
             }
 
             fun markItemSeen(index: Int) {
@@ -862,7 +882,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                     if (nulledItemsIdx >= seenItems.size) return KInput.READ_DONE
                     val i = nulledItemsIdx
-                    nextNulledItemsIdx(desc)
+                    nextNulledItemsIdx()
                     return i
                 }
 
@@ -885,7 +905,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun readElementEnd(desc: KSerialClassDesc): Int {
-                nextNulledItemsIdx(desc)
+                nextNulledItemsIdx()
                 return when {
                     nulledItemsIdx < seenItems.size -> nulledItemsIdx
                     else                            -> READ_DONE
@@ -916,7 +936,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             Base(desc, childName, null), XmlInput {
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-                return readBegin(desc, serialName, polyInfo, false)
+                return readBegin(desc, serialName, polyInfo, false, currentTag.extInfo!!)
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
@@ -952,7 +972,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                                                                                   QName("--invalid--"),
                                                                                                   null) {
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
-//                currentTag.desc = desc // Override this
                 return super.readBegin(desc, *typeParams)
             }
 
@@ -997,7 +1016,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         internal fun XmlInput.readBegin(desc: KSerialClassDesc,
                                         tagName: QName,
                                         polyInfo: PolyInfo?,
-                                        isReadingNulls: Boolean): KInput {
+                                        isReadingNulls: Boolean,
+                                        extInfo: ExtInfo): KInput {
 
             return when (desc.kind) {
                 KSerialClassKind.LIST,
@@ -1018,15 +1038,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 KSerialClassKind.POLYMORPHIC,
                 KSerialClassKind.SEALED -> {
-
-
                     PolymorphicInput(desc, polyInfo, tagName.copy(prefix = "") != input.name.copy(prefix = ""))
                 }
 
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT -> {
                     input.require(EventType.START_ELEMENT, tagName.namespaceURI, tagName.localPart)
-                    Element(desc, tagName, null)
+                    Element(desc, tagName, null, extInfo = extInfo)
                 }
 
                 KSerialClassKind.ENTRY  -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
