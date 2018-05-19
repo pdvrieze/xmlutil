@@ -297,7 +297,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT -> {
                     target.smartStartTag(tagName)
-                    Base(tagName, childName, desc.associatedFieldsCount>1)
+                    Base(tagName, childName, desc.associatedFieldsCount > 1)
                 }
 
                 KSerialClassKind.ENTRY  -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
@@ -379,7 +379,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
             override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
                 val t = currentTag
-                if (t.kind == OutputKind.Unknown && saver is KSerializer<*>) {
+                if (t.kind == OutputKind.Unknown && saver is KSerializer<*> && saver !is ContextSerializer<*>) {
                     val desc = saver.serialClassDesc
                     if (desc.kind != KSerialClassKind.PRIMITIVE ||
                         desc.associatedFieldsCount > 1) {
@@ -561,7 +561,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         private inner class TagSaver(val tag: OutputDescriptor,
                                      val delegate: Base) : TaggedOutput<OutputDescriptor>(), XmlOutput {
 
-            override fun writeBegin(desc: KSerialClassDesc, collectionSize: Int, vararg typeParams: KSerializer<*>): KOutput {
+            override fun writeBegin(desc: KSerialClassDesc,
+                                    collectionSize: Int,
+                                    vararg typeParams: KSerializer<*>): KOutput {
                 return writeBegin(desc)
             }
 
@@ -832,7 +834,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                 val polyInfo = polyChildren?.values?.firstOrNull { it.index == tag.index && it.tagName.normalize() == input.name.normalize() }
 
-                return readBegin(desc, tagName, polyInfo, nulledItemsIdx >=0)
+                return readBegin(desc, tagName, polyInfo, nulledItemsIdx >= 0)
             }
 
             fun nextNulledItemsIdx(desc: KSerialClassDesc) {
@@ -912,12 +914,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun readTaggedString(tag: OutputDescriptor): String {
-                if (nulledItemsIdx >= 0) throw MissingFieldException("${tag.desc.getElementName(tag.index)}:${tag.index}")
+                if (nulledItemsIdx >= 0) {
+                    return tag.currentAnnotations.firstOrNull<XmlDefault>()?.value ?: throw MissingFieldException(
+                        "${tag.desc.getElementName(tag.index)}:${tag.index}")
+                }
                 return super.readTaggedString(tag)
             }
         }
 
-        internal inner class AnonymousListInput(desc: KSerialClassDesc, childName: QName, val polyInfo: PolyInfo?, var finished: Boolean) :
+        internal inner class AnonymousListInput(desc: KSerialClassDesc,
+                                                childName: QName,
+                                                val polyInfo: PolyInfo?,
+                                                var finished: Boolean) :
             Base(desc, childName, null), XmlInput {
 
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
@@ -999,7 +1007,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
         }
 
-        internal fun XmlInput.readBegin(desc: KSerialClassDesc, tagName: QName, polyInfo: PolyInfo?, isReadingNulls: Boolean): KInput {
+        internal fun XmlInput.readBegin(desc: KSerialClassDesc,
+                                        tagName: QName,
+                                        polyInfo: PolyInfo?,
+                                        isReadingNulls: Boolean): KInput {
 
             return when (desc.kind) {
                 KSerialClassKind.LIST,
@@ -1183,7 +1194,7 @@ private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
 }
 
 private fun KSerialClassDesc.isOptional(index: Int): Boolean {
-    return getAnnotationsForIndex(index).firstOrNull<XmlDefault>() != null
+    return getAnnotationsForIndex(index).firstOrNull<Optional>() != null
 }
 
 /**
