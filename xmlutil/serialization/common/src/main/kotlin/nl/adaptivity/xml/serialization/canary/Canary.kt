@@ -48,7 +48,7 @@ object Canary {
         try {
             loader.load(input)
         } catch (e: CanaryInput.SuspendException) {
-            if (e.finished) return
+            if (!input.deep || e.finished) return
         }
         while (true) {
             try {
