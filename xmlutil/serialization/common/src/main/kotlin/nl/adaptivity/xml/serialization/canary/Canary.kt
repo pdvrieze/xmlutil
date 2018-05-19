@@ -32,5 +32,9 @@ object Canary {
         }
     }
 
+    fun <T> pollInfo(saver: KSerialSaver<T>): ExtInfo? {
+        return saverMap[saver]
+    }
+
 
 }

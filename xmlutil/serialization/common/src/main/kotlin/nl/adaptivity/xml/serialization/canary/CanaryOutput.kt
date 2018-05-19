@@ -57,12 +57,19 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
 
     override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
         if (index < 0) throw IllegalStateException()
-        CanaryOutput(false).also {
-            saver.save(it, value)
+        if (index <childInfo.size) {
+            val poll = Canary.pollInfo(saver)
+            if (poll!=null) {
+                childInfo[index].kind = poll.kind
+            } else if (isDeep) {
+                CanaryOutput(false).also {
+                    saver.save(it, value)
 
-            // Support lists
-            if (index<childInfo.size)
-                childInfo[index].kind = it.kind
+                    // Support lists
+                    if (index < childInfo.size)
+                        childInfo[index].kind = it.kind
+                }
+            }
         }
         index = -1
         currentClassDesc = null
