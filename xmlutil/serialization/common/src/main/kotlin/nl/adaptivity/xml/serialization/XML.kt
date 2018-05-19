@@ -20,6 +20,9 @@ import kotlinx.serialization.*
 import nl.adaptivity.util.multiplatform.name
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.xml.*
+import nl.adaptivity.xml.serialization.canary.Canary
+import nl.adaptivity.xml.serialization.canary.ChildType
+import nl.adaptivity.xml.serialization.canary.ExtInfo
 import kotlin.reflect.KClass
 
 data class NameHolder(val name: QName, val specified: Boolean)
@@ -70,10 +73,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                             saver: KSerialSaver<T> = context.klassSerializer(kClass)): String {
         return buildString {
             val writer = XmlStreaming.newWriter(this, repairNamespaces, omitXmlDecl)
+            var ex: Exception? = null
             try {
                 toXml(kClass, obj, writer, saver)
+            } catch (e: Exception) {
+                ex = e
             } finally {
-                writer.close()
+                try {
+                    writer.close()
+                } finally {
+                    ex?.let { throw it }
+                }
+
             }
         }
     }
@@ -86,9 +97,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         obj: T,
                         target: XmlWriter,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
+        val extInfo = try {
+            Canary.extInfo(serializer, obj)
+        } catch (e: Exception) {
+            println(e.message)
+            throw e
+        }
+
 
         val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>),
-                                                            kClass.getChildName(), kClass.name)
+                                                            kClass.getChildName(), kClass.name, extInfo)
 
         output.write(serializer, obj)
     }
@@ -106,15 +124,6 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     fun <T : Any> parse(kClass: KClass<T>, str: String, loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
         return parse(kClass, XmlStreaming.newReader(str), loader)
-/*
-
-
-        val parser = Parser(str)
-        val input = JsonInput(Mode.OBJ, parser)
-        val result = input.read(loader)
-        check(parser.tc == TC_EOF) { "Shall parse complete string"}
-        return result
-*/
     }
 
     companion object {
@@ -260,7 +269,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         internal fun XmlOutput.writeBegin(desc: KSerialClassDesc,
                                           useAnnotations: List<Annotation>,
                                           tagName: QName,
-                                          childName: QName?): KOutput {
+                                          childName: QName?,
+                                          extInfo: ExtInfo): KOutput {
             return when (desc.kind) {
                 KSerialClassKind.LIST,
                 KSerialClassKind.MAP,
@@ -281,7 +291,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         tname = currentTypeName
                     }
 
-                    ListWriter(tagName, childName, tname, useAnnotations)
+                    ListWriter(tagName, childName, tname, useAnnotations, extInfo)
                 }
                 KSerialClassKind.POLYMORPHIC,
                 KSerialClassKind.SEALED -> {
@@ -292,12 +302,12 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         target.smartStartTag(tagName)
                     }
 
-                    PolymorphicWriter(serialName, tagName, transparent, currentTypeName, polyChildren)
+                    PolymorphicWriter(serialName, tagName, transparent, currentTypeName, polyChildren, extInfo)
                 }
                 KSerialClassKind.CLASS,
                 KSerialClassKind.OBJECT -> {
                     target.smartStartTag(tagName)
-                    Base(tagName, childName, desc.associatedFieldsCount > 1)
+                    Base(tagName, childName, desc.associatedFieldsCount > 1, extInfo)
                 }
 
                 KSerialClassKind.ENTRY  -> TODO("Maps are not yet supported")//MapEntryWriter(currentTagOrNull)
@@ -308,7 +318,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         internal inner open class Base(override var serialName: QName,
                                        override var childName: QName?,
-                                       private var deferring: Boolean = true) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
+                                       private var deferring: Boolean = true,
+                                       private val extInfo: ExtInfo) : TaggedOutput<OutputDescriptor>(), XmlCommon<QName>, XmlOutput {
 
 
             val deferredBuffer = mutableListOf<Pair<OutputDescriptor, TaggedOutput<OutputDescriptor>.() -> Unit>>()
@@ -336,7 +347,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
              */
             override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
                 val tag = currentTag
-                return writeBegin(desc, tag.currentAnnotations, tag.name, tag.childName)
+                return writeBegin(desc, tag.currentAnnotations, tag.name, tag.childName, tag.extInfo!!)
             }
 
             /**
@@ -351,8 +362,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
-                if (index < classDesc.associatedFieldsCount) {
-                    return OutputDescriptor(classDesc, index, classDesc.outputKind(index), classDesc.getTagName(index))
+                if (index < extInfo.childInfo.size) {
+                    return OutputDescriptor(classDesc, index, classDesc.outputKind(index, extInfo), classDesc.getTagName(index))
                 } else {
                     return OutputDescriptor(classDesc, index, OutputKind.Unknown, QName("value"), null)
                 }
@@ -379,11 +390,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
             override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
                 val t = currentTag
-                if (t.kind == OutputKind.Unknown && saver is KSerializer<*> && saver !is ContextSerializer<*>) {
-                    val desc = saver.serialClassDesc
-                    if (desc.kind != KSerialClassKind.PRIMITIVE ||
-                        desc.associatedFieldsCount > 1) {
-                        t.kind = OutputKind.Element
+                val extInfo = Canary.extInfo(saver, value)
+                t.extInfo = extInfo
+
+
+                if (t.kind == OutputKind.Unknown) {
+                    t.kind = when (extInfo.type) {
+                        ChildType.ELEMENT -> OutputKind.Element
+                        else -> OutputKind.Attribute
                     }
                 }
 
@@ -432,7 +446,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             open fun defer(tag: OutputDescriptor, deferred: TaggedOutput<OutputDescriptor>.() -> Unit) {
-                if (deferring) {
+
+                if (tag.kind == OutputKind.Attribute) {
+                    deferred()
+                } else if (deferring) {
                     deferredBuffer.add(Pair(tag, deferred))
                 } else {
                     deferred()
@@ -455,7 +472,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         inner class Initial(override val serialName: QName,
                             val childName: QName?,
-                            override val currentTypeName: String?) : ElementValueOutput(), XmlOutput {
+                            override val currentTypeName: String?,
+                            val extInfo: ExtInfo) : ElementValueOutput(), XmlOutput {
             init {
                 this.context = this@XmlOutputBase.context
             }
@@ -470,40 +488,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
              */
             override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
                 val tagName = serialName
-                return writeBegin(desc, emptyList(), tagName, childName)
-            }
-        }
-
-        private inner class InvertedWriter(serialName: QName,
-                                           childName: QName?,
-                                           val lastInvertedIndex: Int) : Base(serialName, childName) {
-
-            val parentWriter get() = super.target
-
-            override var target: XmlWriter = XmlBufferedWriter()
-                private set
-
-            override fun Any.doWriteAttribute(name: QName, value: String) {
-                // Write attributes directly in all cases
-                parentWriter.writeAttribute(name, value)
-            }
-
-            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
-                if (index > lastInvertedIndex) {
-                    // If we are done, just flip to using a regular target
-                    (target as? XmlBufferedWriter)?.flushTo(parentWriter)
-                    target = parentWriter
-                }
-                // Now get the actual tag
-                return super.doGetTag(classDesc, index)
-            }
-
-            override fun writeFinished(desc: KSerialClassDesc) {
-                // Flush if we somehow haven't flushed yet
-                (target as? XmlBufferedWriter)?.flushTo(parentWriter)
-                target = parentWriter
-
-                super.writeFinished(desc)
+                return writeBegin(desc, emptyList(), tagName, childName, extInfo)
             }
         }
 
@@ -511,8 +496,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                               serialName: QName,
                                               val transparent: Boolean,
                                               override val currentTypeName: String?,
-                                              polyChildren: XmlPolyChildren?) :
-            Base(serialName, null), XmlOutput {
+                                              polyChildren: XmlPolyChildren?,
+                                              extInfo: ExtInfo) :
+            Base(serialName, null, extInfo = extInfo), XmlOutput {
 
             val polyChildren = polyChildren?.let { PolyInfo(parentName, currentTypeName, it.value) }
 
@@ -622,7 +608,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
             override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
                 val tag = tag
-                return writeBegin(desc, tag.currentAnnotations, tag.name, tag.childName)
+                return writeBegin(desc, tag.currentAnnotations, tag.name, tag.childName, tag.extInfo!!)
             }
         }
 
@@ -630,7 +616,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         private inner class ListWriter(serialName: QName,
                                        childName: QName?,
                                        override val currentTypeName: String?,
-                                       val useAnnotations: List<Annotation>) : Base(serialName, childName), XmlOutput {
+                                       val useAnnotations: List<Annotation>,
+                                       extInfo: ExtInfo) : Base(serialName, childName, extInfo = extInfo), XmlOutput {
 
             override fun OutputKind.effectiveKind() = when (this) {
                 OutputKind.Unknown,
@@ -645,7 +632,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
             override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
                 val tag = currentTag
-                return writeBegin(desc, useAnnotations, tag.name, tag.childName)
+                return writeBegin(desc, useAnnotations, tag.name, tag.childName, tag.extInfo!!)
             }
 
             override fun shouldWriteElement(desc: KSerialClassDesc, tag: OutputDescriptor, index: Int): Boolean {
@@ -1163,7 +1150,8 @@ internal data class OutputDescriptor(val desc: KSerialClassDesc,
                                      var name: QName,
                                      val childName: QName? = if (index < desc.associatedFieldsCount) desc.getAnnotationsForIndex(
                                          index).getChildName() else null,
-                                     var _polyInfo: PolyInfo? = null) {
+                                     var _polyInfo: PolyInfo? = null,
+                                     var extInfo: ExtInfo? = null) {
 
 
     //    val childName: QName? by lazy { desc.getAnnotationsForIndex(index).getChildName() }
@@ -1181,7 +1169,7 @@ private inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     return null
 }
 
-private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
+private fun KSerialClassDesc.outputKind(index: Int, extInfo: ExtInfo? = null): OutputKind {
     // lists will always be elements
     if (index < associatedFieldsCount) {
         getAnnotationsForIndex(index).forEach {
@@ -1190,28 +1178,22 @@ private fun KSerialClassDesc.outputKind(index: Int): OutputKind {
             if (it is XmlValue && it.value) return OutputKind.Text
         }
     }
-    return OutputKind.Unknown
+    val childType = when {
+        extInfo == null -> null
+        index >= extInfo.childInfo.size -> null
+        else -> extInfo.childInfo[index].type
+    }
+
+    return when (childType) {
+        ChildType.ELEMENT -> OutputKind.Element
+        null,
+        ChildType.UNKNOWN -> OutputKind.Unknown
+        else -> OutputKind.Attribute
+    }
 }
 
 private fun KSerialClassDesc.isOptional(index: Int): Boolean {
     return getAnnotationsForIndex(index).firstOrNull<Optional>() != null
-}
-
-/**
- * Determine the last index that may be an attribute (this is on incomplete information).
- * This will only return a positive value if there is an element before this attribute.
- */
-private fun KSerialClassDesc.lastInvertedIndex(): Int {
-    var seenElement = false
-    var lastAttrIndex = -1
-    for (i in 0 until associatedFieldsCount) {
-        when (outputKind(i)) {
-            OutputKind.Text,
-            OutputKind.Element -> seenElement = true
-            else               -> if (seenElement) lastAttrIndex = i
-        }
-    }
-    return lastAttrIndex
 }
 
 fun QName.copy(namespaceURI: String = this.namespaceURI,
