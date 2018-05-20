@@ -85,7 +85,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         val index = currentChildIndex
         if (index < 0) {
             this.type = type
-            this.kind == KSerialClassKind.PRIMITIVE
+            this.kind = KSerialClassKind.PRIMITIVE
         } else if (index < childInfo.size) {
             childInfo[index].type = type
         }
