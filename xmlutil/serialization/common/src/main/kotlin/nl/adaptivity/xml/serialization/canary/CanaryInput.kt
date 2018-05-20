@@ -17,7 +17,6 @@
 package nl.adaptivity.xml.serialization.canary
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringSerializer
 import kotlin.reflect.KClass
 
 internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
@@ -58,14 +57,23 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         val extInfo = Canary.pollInfo(loader)
         if (extInfo!=null) {
             val currentInfo = childInfo[currentChildIndex]
-            extInfo.kind?.let{ currentInfo.kind }
+            extInfo.kind?.let{ currentInfo.kind = it }
             currentInfo.type = extInfo.type
             currentInfo.childCount = extInfo.childInfo.size
         } else if(deep) {
             val childIn = CanaryInput(false)
             Canary.load(childIn, loader)
             val currentInfo = childInfo[currentChildIndex]
-            childIn.kind?.let { currentInfo.kind = it }
+            val inKind = childIn.kind
+            if (inKind ==null) {
+                if (childIn.currentChildIndex<0) {
+                    currentInfo.kind = KSerialClassKind.PRIMITIVE
+                } else {
+                    throw IllegalStateException("Unexpected null value for child kind")
+                }
+            } else {
+                currentInfo.kind = inKind
+            }
             currentInfo.type = childIn.type
             currentInfo.childCount = childIn.childInfo.size
         }
@@ -87,7 +95,9 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
             this.type = type
             this.kind = KSerialClassKind.PRIMITIVE
         } else if (index < childInfo.size) {
-            childInfo[index].type = type
+            val ci = childInfo[index]
+            ci.kind = KSerialClassKind.PRIMITIVE
+            ci.type = type
         }
         throw SuspendException(childInfo.isEmpty())
     }
@@ -117,6 +127,14 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     override fun readIntValue(): Int {
+        if (kind==KSerialClassKind.LIST && currentChildIndex==0) {
+            if (childInfo.isNotEmpty()) {
+                val ci = childInfo[0]
+                ci.kind = KSerialClassKind.PRIMITIVE
+                ci.type = ChildType.INT
+            }
+            return 1 // One simulated element
+        }
         setCurrentChildType(ChildType.INT)
     }
 
@@ -162,6 +180,10 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     fun extInfo(): ExtInfo {
+        if (kind==null) {
+            throw IllegalStateException("No kind for input")
+        }
+
         return ExtInfo(kind, childInfo, type)
     }
 

@@ -783,8 +783,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return READ_DONE
             }
 
-            open fun doReadAttribute(tag: OutputDescriptor): String = throw UnsupportedOperationException(
-                "Base doesn't support reading attributes")
+            open fun doReadAttribute(tag: OutputDescriptor): String =
+                throw UnsupportedOperationException("Base doesn't support reading attributes")
 
             override fun readTaggedString(tag: OutputDescriptor): String {
                 return when (tag.kind) {
@@ -923,6 +923,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 return input.getAttributeValue(attrIndex).also { attrIndex++ }
             }
 
+            override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
+                if (attrIndex>=0) {
+                    if (currentTag.kind == OutputKind.Element) { // We are having an element masquerading as attribute.
+                        // Whatever we do, increase the index
+                        attrIndex++
+                    }
+                }
+                return super.readSerializableValue(loader)
+            }
+
             override fun readTaggedString(tag: OutputDescriptor): String {
                 if (nulledItemsIdx >= 0) {
                     return tag.currentAnnotations.firstOrNull<XmlDefault>()?.value ?: throw MissingFieldException(
@@ -949,6 +959,43 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         finished = true; 1
                     }
                 }
+            }
+
+            override fun <T> updateSerializableElementValue(desc: KSerialClassDesc,
+                                                            index: Int,
+                                                            loader: KSerialLoader<T>,
+                                                            old: T): T {
+                val outKind = desc.outputKind(index)
+                if (outKind == OutputKind.Attribute && index>1) {
+                    throw IndexOutOfBoundsException("Cannot read more than one attribute of name $serialName")
+                }
+                return super.updateSerializableElementValue(desc, index, loader, old)
+            }
+
+            override fun doReadAttribute(tag: OutputDescriptor): String {
+                val expectedNS = serialName.namespaceURI
+                val expectedName = serialName.localPart
+                val allowEmpty = serialName.namespaceURI == expectedNS
+
+                var index = -1
+                for (i in 0 until input.attributeCount) {
+                    if (input.getAttributeLocalName(i) == expectedName) {
+                        val actualNS = input.getAttributeNamespace(i)
+                        if (actualNS == expectedNS) {
+                            index = i; break;
+                        } else if (actualNS.isEmpty() && allowEmpty) {
+                            index = i
+                        }
+                    }
+                }
+                if (index<0) throw SerializationException("No attribute for name $serialName found on element of name ${input.name}")
+
+                return input.getAttributeValue(index)
+            }
+
+            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
+                val tagName = serialName
+                return OutputDescriptor(classDesc, index, classDesc.outputKind(index), tagName)
             }
         }
 
