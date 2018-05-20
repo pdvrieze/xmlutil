@@ -45,7 +45,8 @@ actual object XmlStreaming {
     }
 
     actual fun setFactory(factory: XmlStreamingFactory?) {
-        throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
+        if (factory!=null)
+            throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
     fun <T:Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")

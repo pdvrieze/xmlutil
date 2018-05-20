@@ -87,7 +87,7 @@ actual object XmlStreaming {
 
     @JvmStatic
     actual fun setFactory(factory: XmlStreamingFactory?) {
-        _factory = factory
+        _factory = factory ?: AndroidStreamingFactory()
     }
 
     @JvmStatic
