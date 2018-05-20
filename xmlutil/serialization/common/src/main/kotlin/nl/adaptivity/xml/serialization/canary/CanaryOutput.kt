@@ -30,6 +30,8 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     private var currentClassDesc: KSerialClassDesc? = null
 
     override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
+        if (index<0)
+            throw IndexOutOfBoundsException()
         this.index = index
         return true
     }
@@ -51,15 +53,16 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
         if (index < 0) throw IllegalStateException()
         if (index <childInfo.size) {
             val poll = Canary.pollInfo(saver)
+            val childAtIndex = childInfo[index]
             if (poll!=null) {
-                childInfo[index].kind = poll.kind
+                childAtIndex.kind = poll.kind
             } else if (isDeep) {
                 CanaryOutput(false).also {
                     saver.save(it, value)
 
-                    // Support lists
-                    if (index < childInfo.size)
-                        childInfo[index].kind = it.kind
+                    childAtIndex.kind = it.kind
+                    childAtIndex.type = it.type
+                    childAtIndex.childCount = it.childInfo.size
                 }
             }
         }

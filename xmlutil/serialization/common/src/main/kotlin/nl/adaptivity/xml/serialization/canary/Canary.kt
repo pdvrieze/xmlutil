@@ -27,28 +27,44 @@ object Canary {
     private val loaderMap = mutableMapOf<KSerialLoader<*>, ExtInfo>()
 
     fun <T> extInfo(saver: KSerialSaver<T>, obj: T): ExtInfo {
-        return saverMap.getOrPut(saver) {
-            val output = CanaryOutput()
-            saver.save(output, obj)
-            output.extInfo()
+        val current = saverMap[saver]
+        if (current != null) return current
+
+        val output = CanaryOutput()
+        saver.save(output, obj)
+        val new = output.extInfo()
+
+        if (new.childInfo.none { it.type == ChildType.UNKNOWN }) {
+            saverMap[saver] = new
         }
+
+        return new
     }
 
     fun <T> extInfo(loader: KSerialLoader<T>): ExtInfo {
-        return loaderMap.getOrPut(loader) {
-            val input = CanaryInput()
-            load(input, loader)
-            input.extInfo()
+        val current = loaderMap[loader]
+        if (current != null) return current
+
+        val input = CanaryInput()
+        load(input, loader)
+        val new = input.extInfo()
+
+        if (new.childInfo.none { it.type == ChildType.UNKNOWN }) {
+            loaderMap[loader] = new
         }
+
+        return new
 
     }
 
     internal fun <T> load(input: CanaryInput,
-                         loader: KSerialLoader<T>) {
+                          loader: KSerialLoader<T>) {
         try {
             loader.load(input)
         } catch (e: CanaryInput.SuspendException) {
-            if (!input.deep || e.finished) return
+            if (e.finished) {
+                return
+            }
         }
         while (true) {
             try {

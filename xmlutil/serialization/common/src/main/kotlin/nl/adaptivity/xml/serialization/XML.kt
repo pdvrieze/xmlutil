@@ -161,7 +161,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
 
         fun KSerialClassDesc.getTagName(index: Int): QName {
-            getAnnotationsForIndex(index).getXmlSerialName(serialName)?.let { return it }
+            getAnnotationsForIndex(index).getXmlSerialName(serialName)?.let {
+                return it
+            }
 
             val name = getElementName(index)
             val i = name.indexOf(':')
@@ -845,14 +847,15 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 for (i in (nulledItemsIdx + 1) until seenItems.size) {
                     if (!seenItems[i]) {
                         val childInfo = extInfo.childInfo[i]
+                        val default = childInfo.annotations.firstOrNull<XmlDefault>()
                         // If a
-                        val nullableOrList = childInfo.isNullable || when(childInfo.kind) {
+                        val defaultOrList = childInfo.isNullable || default != null || when(childInfo.kind) {
                             KSerialClassKind.SET,
                             KSerialClassKind.MAP,
                             KSerialClassKind.LIST -> true
                             else -> false
                         }
-                        if (nullableOrList) {
+                        if (defaultOrList) {
                             nulledItemsIdx = i
                             return
                         }

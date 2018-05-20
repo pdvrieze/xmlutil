@@ -44,9 +44,24 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         throw SuspendException(true)
     }
 
-    override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
+    override fun <T : Any> updateNullableSerializableValue(loader: KSerialLoader<T?>,
+                                                           desc: KSerialClassDesc,
+                                                           old: T?): T? {
+        readSerializableValue(loader)
+    }
+
+    override fun <T> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
+        readSerializableValue(loader)
+    }
+
+    override fun <T> readSerializableValue(loader: KSerialLoader<T>): Nothing {
         val extInfo = Canary.pollInfo(loader)
-        if(deep) {
+        if (extInfo!=null) {
+            val currentInfo = childInfo[currentChildIndex]
+            extInfo.kind?.let{ currentInfo.kind }
+            currentInfo.type = extInfo.type
+            currentInfo.childCount = extInfo.childInfo.size
+        } else if(deep) {
             val childIn = CanaryInput(false)
             Canary.load(childIn, loader)
             val currentInfo = childInfo[currentChildIndex]
@@ -70,6 +85,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         val index = currentChildIndex
         if (index < 0) {
             this.type = type
+            this.kind == KSerialClassKind.PRIMITIVE
         } else if (index < childInfo.size) {
             childInfo[index].type = type
         }
