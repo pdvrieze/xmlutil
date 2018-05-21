@@ -20,10 +20,10 @@ import kotlinx.serialization.KSerialClassKind
 
 data class ChildInfo(val name: String,
                      val annotations: List<Annotation> = emptyList(),
-                     var kind: KSerialClassKind? = null,
+                     override var kind: KSerialClassKind? = null,
                      var childCount: Int = 0,
-                     var type: ChildType = ChildType.UNKNOWN,
-                     var isNullable: Boolean = false)
+                     override var type: ChildType = ChildType.UNKNOWN,
+                     override var isNullable: Boolean = false) : BaseInfo
 
 enum class ChildType {
     DOUBLE,
@@ -39,5 +39,14 @@ enum class ChildType {
     LONG,
     NONSERIALIZABLE,
     SHORT,
-    ELEMENT
+    ELEMENT;
+
+    val isPrimitive
+        get() = when(this) {
+            ChildType.UNKNOWN,
+            ChildType.UNIT,
+            ChildType.ELEMENT,
+            ChildType.NONSERIALIZABLE -> false
+            else            -> true
+        }
 }

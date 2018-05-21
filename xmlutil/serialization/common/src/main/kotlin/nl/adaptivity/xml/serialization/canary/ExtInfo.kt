@@ -22,8 +22,14 @@ import nl.adaptivity.xml.serialization.XmlChildrenName
 import nl.adaptivity.xml.serialization.XmlElement
 import nl.adaptivity.xml.serialization.XmlValue
 
-class ExtInfo(val kind: KSerialClassKind?,
+interface BaseInfo {
+    val kind: KSerialClassKind?
+    val type: ChildType
+    val isNullable: Boolean
+}
+
+class ExtInfo(override val kind: KSerialClassKind?,
               val childInfo: Array<ChildInfo>,
-              val type: ChildType,
-              val isNullable: Boolean) {
+              override val type: ChildType,
+              override val isNullable: Boolean): BaseInfo {
 }
