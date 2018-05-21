@@ -18,6 +18,7 @@
 
 package nl.adaptivity.xml
 
+import kotlinx.serialization.Transient
 import nl.adaptivity.util.multiplatform.JvmMultifileClass
 import nl.adaptivity.util.multiplatform.JvmName
 import nl.adaptivity.util.multiplatform.assert
@@ -48,6 +49,7 @@ interface XmlDeserializable {
     fun onBeforeDeserializeChildren(reader: XmlReader) {}
 
     /** The name of the element, needed for the automated validation */
+    @Transient
     val elementName: QName
 }
 
