@@ -57,7 +57,7 @@ class XmlNameMap {
 class XML(val context: SerialContext? = defaultSerialContext(),
           val repairNamespaces: Boolean = true,
           val omitXmlDecl: Boolean = true,
-          val indent: Int = 0) {
+          var indent: Int = 0) {
 
     val nameMap = XmlNameMap()
 
@@ -65,16 +65,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     fun registerClass(name: QName, kClass: KClass<*>) = nameMap.registerClass(name, kClass.name, true)
 
-    inline fun <reified T : Any> stringify(obj: T): String = stringify(T::class, obj, context.klassSerializer(T::class))
+    inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String = stringify(T::class, obj, context.klassSerializer(T::class), prefix)
 
     fun <T : Any> stringify(kClass: KClass<T>,
                             obj: T,
-                            saver: KSerialSaver<T> = context.klassSerializer(kClass)): String {
+                            saver: KSerialSaver<T> = context.klassSerializer(kClass),
+                            prefix: String? = null): String {
         return buildString {
             val writer = XmlStreaming.newWriter(this, repairNamespaces, omitXmlDecl)
+
             var ex: Exception? = null
             try {
-                toXml(kClass, obj, writer, saver)
+                toXml(kClass, obj, writer, prefix, saver)
             } catch (e: Exception) {
                 ex = e
             } finally {
@@ -88,13 +90,14 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
     }
 
-    inline fun <reified T : Any> toXml(obj: T, target: XmlWriter) {
-        toXml(T::class, obj, target, context.klassSerializer(T::class))
+    inline fun <reified T : Any> toXml(obj: T, target: XmlWriter, prefix: String? = null) {
+        toXml(T::class, obj, target, prefix, context.klassSerializer(T::class))
     }
 
     fun <T : Any> toXml(kClass: KClass<T>,
                         obj: T,
                         target: XmlWriter,
+                        prefix: String? = null,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
         target.indent = indent
         val extInfo = try {
@@ -105,7 +108,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         }
 
 
-        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>),
+        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>, prefix),
                                                             kClass.getChildName(), kClass.name, extInfo)
 
         output.write(serializer, obj)
@@ -128,10 +131,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>): String =
-            XML().run { stringify(kClass, obj, context.klassSerializer(kClass)) }
+        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String?=null): String =
+            XML().run { stringify(kClass, obj, context.klassSerializer(kClass), prefix) }
 
-        inline fun <reified T : Any> stringify(obj: T): String = stringify(obj, T::class)
+        inline fun <reified T : Any> stringify(obj: T, prefix: String?): String = stringify(obj, T::class, prefix)
 
         fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(kClass, str)
         fun <T : Any> parse(kClass: KClass<T>, str: String, loader: KSerialLoader<T>): T = XML().parse(kClass, str,
@@ -1156,6 +1159,12 @@ fun Collection<Annotation>.getChildName(): QName? {
                              -> QName(childrenName.namespace, childrenName.value)
 
         else                 -> QName(childrenName.namespace, childrenName.value, childrenName.prefix)
+    }
+}
+
+fun <T : Any> KClass<T>.getSerialName(serializer: KSerializer<*>?, prefix: String?): QName {
+    return getSerialName(serializer).let {
+        if (prefix==null) it else it.copy(prefix=prefix)
     }
 }
 
