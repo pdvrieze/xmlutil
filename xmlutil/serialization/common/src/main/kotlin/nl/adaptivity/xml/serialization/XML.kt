@@ -58,7 +58,8 @@ class XmlNameMap {
 
 class XML(val context: SerialContext? = defaultSerialContext(),
           val repairNamespaces: Boolean = true,
-          val omitXmlDecl: Boolean = true) {
+          val omitXmlDecl: Boolean = true,
+          val indent:Int = 0) {
 
     val nameMap = XmlNameMap()
 
@@ -97,6 +98,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         obj: T,
                         target: XmlWriter,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
+        target.indent = indent
         val extInfo = try {
             Canary.extInfo(serializer, obj)
         } catch (e: Exception) {
