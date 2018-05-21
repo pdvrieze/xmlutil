@@ -27,6 +27,10 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override val depth: Int get() = namespaceHolder.depth
 
+    override var indent: Int
+        get() = 0
+        set(value) {} // Buffered writers don't add synthetic elements
+
     override val namespaceContext: NamespaceContext = if (delegateNamespaceContext==null) {
         namespaceHolder.namespaceContext
     } else {

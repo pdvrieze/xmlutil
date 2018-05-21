@@ -39,6 +39,15 @@ class AndroidXmlWriter : XmlWriter {
     private val isRepairNamespaces: Boolean
     private val writer: XmlSerializer
 
+    override var indent: Int = 0
+    private var lastTagDepth = TAG_DEPTH_NOT_TAG
+
+    override val namespaceContext: NamespaceContext
+        get() = namespaceHolder.namespaceContext
+
+    override val depth: Int
+        get() = namespaceHolder.depth
+
     @Throws(XmlPullParserException::class, IOException::class)
     @JvmOverloads constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) : this(repairNamespaces, omitXmlDecl) {
         this.writer.setOutput(writer)
@@ -75,6 +84,12 @@ class AndroidXmlWriter : XmlWriter {
         initWriter(writer)
     }
 
+    private fun writeIndent(newDepth:Int = depth) {
+        if (lastTagDepth>=0 && indent > 0 && lastTagDepth!=depth) {
+            writer.ignorableWhitespace("\n${" ".repeat(indent * depth)}")
+        }
+        lastTagDepth = newDepth
+    }
 
 
     @Throws(XmlException::class)
@@ -89,6 +104,8 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        writeIndent()
+
         try {
             if (namespace != null && namespace.isNotEmpty()) {
                 writer.setPrefix(prefix ?: "", namespace)
@@ -99,7 +116,6 @@ class AndroidXmlWriter : XmlWriter {
         } catch (e: IOException) {
             throw XmlException(e)
         }
-
     }
 
     @Throws(XmlException::class)
@@ -114,32 +130,38 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun comment(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         writer.comment(text)
     }
 
     @Throws(XmlException::class)
     override fun text(text: String) {
         writer.text(text)
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)
     override fun cdsect(text: String) {
         writer.cdsect(text)
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)
     override fun entityRef(text: String) {
         writer.entityRef(text)
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)
     override fun processingInstruction(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         writer.processingInstruction(text)
     }
 
     @Throws(XmlException::class)
     override fun ignorableWhitespace(text: String) {
         writer.ignorableWhitespace(text)
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)
@@ -153,6 +175,7 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun docdecl(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         writer.docdecl(text)
     }
 
@@ -162,6 +185,7 @@ class AndroidXmlWriter : XmlWriter {
      */
     @Throws(XmlException::class)
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         writer.startDocument(encoding, standalone)
     }
 
@@ -173,8 +197,9 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
-        writer.endTag(namespace, localName)
         namespaceHolder.decDepth()
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        writer.endTag(namespace, localName)
     }
 
     @Throws(XmlException::class)
@@ -196,9 +221,6 @@ class AndroidXmlWriter : XmlWriter {
         }
     }
 
-    override val namespaceContext: NamespaceContext
-        get() = namespaceHolder.namespaceContext
-
     override fun getNamespaceUri(prefix: String): String? {
         return namespaceHolder.getNamespaceUri(prefix)
     }
@@ -213,8 +235,10 @@ class AndroidXmlWriter : XmlWriter {
     }
 
 
-    override val depth: Int
-        get() = namespaceHolder.depth
 
+    companion object {
+        const val TAG_DEPTH_NOT_TAG = -1
+        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+    }
 }
 

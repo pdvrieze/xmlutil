@@ -33,6 +33,10 @@ actual typealias PlatformXmlWriter = StAXWriter
  * Created by pdvrieze on 16/11/15.
  */
 class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false) : XmlWriter {
+    override var indent: Int = 0
+
+    var lastTagDepth = -1
+
     override var depth: Int = 0
         private set
 
@@ -50,9 +54,11 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        writeIndent()
         depth++
         try {
-            if (namespace.isNullOrEmpty() && prefix.isNullOrEmpty() && delegate.namespaceContext.getNamespaceURI("").isNullOrEmpty()) {
+            if (namespace.isNullOrEmpty() && prefix.isNullOrEmpty() && delegate.namespaceContext.getNamespaceURI(
+                    "").isNullOrEmpty()) {
                 delegate.writeStartElement(localName)
             } else {
                 delegate.writeStartElement(prefix, localName, namespace)
@@ -60,13 +66,21 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
     }
 
     @Throws(XmlException::class)
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
-        delegate.writeEndElement()
         depth--
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        delegate.writeEndElement()
+    }
+
+
+    private fun writeIndent(newDepth:Int = depth) {
+        if (lastTagDepth>=0 && indent > 0 && lastTagDepth!=depth) {
+            delegate.writeCharacters("\n${" ".repeat(indent * depth)}")
+        }
+        lastTagDepth = newDepth
     }
 
     @Throws(XmlException::class)
@@ -147,12 +161,12 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun comment(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         try {
             delegate.writeComment(text)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
     }
 
     @Deprecated("", ReplaceWith("comment(data)"))
@@ -163,6 +177,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun processingInstruction(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         val split = text.indexOf(' ')
         try {
             if (split > 0) {
@@ -173,7 +188,6 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
     }
 
     @Deprecated("", ReplaceWith("processingInstruction(target)"))
@@ -195,7 +209,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Deprecated("", ReplaceWith("cdsect(data)"))
@@ -206,12 +220,12 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun docdecl(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         try {
             delegate.writeDTD(text)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
     }
 
     @Deprecated("", ReplaceWith("docdecl(dtd)"))
@@ -227,7 +241,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Deprecated("", ReplaceWith("entityRef(name)"))
@@ -238,8 +252,10 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
-        if(!omitXmlDecl) {
-            if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(delegate) == true) {
+        if (!omitXmlDecl) {
+            writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
+            if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(
+                    delegate) == true) {
                 mtdWriteStartDocument.invoke(delegate, version, encoding, standalone)
             } else {
                 delegate.writeStartDocument(encoding, version) // standalone doesn't work
@@ -260,7 +276,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)
@@ -303,6 +319,9 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         }
 
     companion object {
+
+        const val TAG_DEPTH_NOT_TAG = -1
+        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
 
         private val clsXmlStreamWriter: Class<out XMLStreamWriter>?
         private val mtdWriteStartDocument: MethodHandle?

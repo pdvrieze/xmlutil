@@ -20,6 +20,7 @@ import nl.adaptivity.js.util.removeElementChildren
 import nl.adaptivity.util.multiplatform.assert
 import org.w3c.dom.*
 import kotlin.browser.document
+import kotlin.browser.window
 
 actual typealias PlatformXmlWriter = JSDomWriter
 
@@ -62,6 +63,12 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override var depth: Int = 0
         private set
+
+    override var indent: Int
+        get() = 0
+        set(value) {
+            console.warn("JS does not support indentation yet")
+        }
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         val cur = currentElement ?: throw XmlException("Not in an element")

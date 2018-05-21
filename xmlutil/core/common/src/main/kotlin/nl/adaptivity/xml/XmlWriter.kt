@@ -29,6 +29,9 @@ interface XmlWriter : Closeable {
 
     val depth: Int
 
+    /** The indentation level to use for autoindenting the output */
+    var indent: Int
+
     @Deprecated("Use the version that takes strings",
                 ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())"))
     fun setPrefix(prefix:CharSequence, namespaceUri: CharSequence) = setPrefix(prefix.toString(), namespaceUri.toString())
