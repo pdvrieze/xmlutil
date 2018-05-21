@@ -28,6 +28,8 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
 
     private var type: ChildType = ChildType.UNKNOWN
 
+    var isNullable = false
+
     override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
         if (currentChildIndex<0) { // This is called at every load as we restart load every time
             kind = desc.kind
@@ -46,6 +48,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     override fun <T : Any> updateNullableSerializableValue(loader: KSerialLoader<T?>,
                                                            desc: KSerialClassDesc,
                                                            old: T?): T? {
+        readNotNullMark()
         readSerializableValue(loader)
     }
 
@@ -143,17 +146,29 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     override fun readNotNullMark(): Boolean {
-        childInfo[currentChildIndex].isNullable = true
+        if (currentChildIndex>=0) {
+            childInfo[currentChildIndex].isNullable = true
+        } else {
+            isNullable = true
+        }
         return true
     }
 
     override fun readNullValue(): Nothing? {
-        childInfo[currentChildIndex].isNullable = true
+        if (currentChildIndex>=0) {
+            childInfo[currentChildIndex].isNullable = true
+        } else {
+            isNullable = true
+        }
         return null
     }
 
     override fun readNullableValue(): Any? {
-        childInfo[currentChildIndex].isNullable = true
+        if (currentChildIndex>=0) {
+            childInfo[currentChildIndex].isNullable = true
+        } else {
+            isNullable = true
+        }
         return null
     }
 
@@ -184,7 +199,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
             throw IllegalStateException("No kind for input")
         }
 
-        return ExtInfo(kind, childInfo, type)
+        return ExtInfo(kind, childInfo, type, isNullable)
     }
 
     internal class SuspendException(val finished: Boolean = false): Exception()

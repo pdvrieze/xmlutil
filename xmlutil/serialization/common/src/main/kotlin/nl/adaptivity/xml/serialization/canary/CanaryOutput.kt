@@ -27,6 +27,8 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
 
     var type: ChildType = ChildType.UNKNOWN
 
+    var isNullable: Boolean = false
+
     private var currentClassDesc: KSerialClassDesc? = null
 
     override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
@@ -56,6 +58,9 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
             val childAtIndex = childInfo[index]
             if (poll!=null) {
                 childAtIndex.kind = poll.kind
+                childAtIndex.isNullable = childAtIndex.isNullable || poll.isNullable
+                childAtIndex.type = poll.type
+                childAtIndex.childCount = poll.childInfo.size
             } else if (isDeep) {
                 CanaryOutput(false).also {
                     saver.save(it, value)
@@ -63,6 +68,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
                     childAtIndex.kind = it.kind
                     childAtIndex.type = it.type
                     childAtIndex.childCount = it.childInfo.size
+                    childAtIndex.isNullable = childAtIndex.isNullable || it.isNullable
                 }
             }
         }
@@ -116,11 +122,19 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     }
 
     override fun writeNotNullMark() {
-        childInfo[index].isNullable = true
+        if (index>=0) {
+            childInfo[index].isNullable = true
+        } else {
+            isNullable = true
+        }
     }
 
     override fun writeNullValue() {
-        childInfo[index].isNullable = true
+        if (index>=0) {
+            childInfo[index].isNullable = true
+        } else {
+            isNullable = true
+        }
         index = -1
     }
 
@@ -137,7 +151,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     }
 
     fun extInfo(): ExtInfo {
-        return ExtInfo(kind, childInfo, type)
+        return ExtInfo(kind, childInfo, type, isNullable)
     }
 }
 

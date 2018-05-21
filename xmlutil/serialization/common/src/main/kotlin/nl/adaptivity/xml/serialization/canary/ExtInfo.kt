@@ -24,5 +24,6 @@ import nl.adaptivity.xml.serialization.XmlValue
 
 class ExtInfo(val kind: KSerialClassKind?,
               val childInfo: Array<ChildInfo>,
-              val type: ChildType) {
+              val type: ChildType,
+              val isNullable: Boolean) {
 }
