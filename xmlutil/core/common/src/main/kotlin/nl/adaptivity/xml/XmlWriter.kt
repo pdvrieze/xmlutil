@@ -17,7 +17,10 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.*
+import nl.adaptivity.util.multiplatform.Closeable
+import nl.adaptivity.util.multiplatform.JvmName
+import nl.adaptivity.util.multiplatform.JvmOverloads
+import nl.adaptivity.util.multiplatform.assert
 import nl.adaptivity.util.xml.XmlDelegatingWriter
 import nl.adaptivity.xml.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xml.XMLConstants.NULL_NS_URI
@@ -153,6 +156,10 @@ fun XmlWriter.serialize(reader: XmlReader) {
                 if (depth <= 0) {
                     writeCurrentEvent(reader)
                 }
+            }
+            EventType.IGNORABLE_WHITESPACE -> {
+                // Only write ignorable whitespace if we are not formatting with a set indent.
+                if (indent==0) writeCurrentEvent(reader)
             }
             else                   -> writeCurrentEvent(reader)
         }
