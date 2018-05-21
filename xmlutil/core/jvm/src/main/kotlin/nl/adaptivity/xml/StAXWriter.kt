@@ -20,7 +20,6 @@ import java.io.OutputStream
 import java.io.Writer
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
-import javax.xml.namespace.NamespaceContext
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamWriter
