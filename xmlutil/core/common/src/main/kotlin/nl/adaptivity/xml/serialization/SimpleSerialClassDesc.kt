@@ -16,9 +16,7 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.KInput
-import kotlinx.serialization.KSerialClassDesc
-import kotlinx.serialization.KSerialClassKind
+import kotlinx.serialization.*
 import nl.adaptivity.util.multiplatform.name
 
 inline fun <reified T> simpleSerialClassDesc(): KSerialClassDesc {
@@ -57,3 +55,13 @@ class SimpleSerialClassDesc(override val name: String, vararg val elements: Stri
 fun KSerialClassDesc.withName(name: String): KSerialClassDesc = RenameDesc(this, name)
 
 private class RenameDesc(val delegate: KSerialClassDesc, override val name:String): KSerialClassDesc by delegate
+
+abstract class DelegateSerializer<T>(val delegate: KSerializer<T>): KSerializer<T> {
+    override val serialClassDesc: KSerialClassDesc get() = delegate.serialClassDesc
+
+    override fun load(input: KInput) = delegate.load(input)
+
+    override fun save(output: KOutput, obj: T) = delegate.save(output, obj)
+
+    override fun update(input: KInput, old: T) = delegate.update(input, old)
+}
