@@ -18,4 +18,7 @@
     <item name='javax.xml.transform.Source'>
         <annotation name='java.lang.Deprecated' />
     </item>
+    <item name='javax.xml.transform.Result'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
 </root>
