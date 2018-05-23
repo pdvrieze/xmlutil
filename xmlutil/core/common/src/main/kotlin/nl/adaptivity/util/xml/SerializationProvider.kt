@@ -14,20 +14,21 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.util.xml
 
-import nl.adaptivity.util.xml.SerializationProvider
+import nl.adaptivity.xml.XmlReader
+import nl.adaptivity.xml.XmlWriter
 import kotlin.reflect.KClass
 
-@Suppress("UNCHECKED_CAST")
-/**
- * Interface that factories need to implement to handle be deserialization in a "shared"
- * non-reflective approach.
+interface SerializationProvider {
+    interface XmlSerializerFun<in T:Any> {
+        operator fun invoke(output: XmlWriter, value: T)
+    }
 
- * Created by pdvrieze on 27/08/15.
- */
-interface XmlDeserializerFactory<T> {
+    interface XmlDeserializerFun {
+        operator fun <T:Any> invoke(input: XmlReader, type: KClass<T>): T
+    }
 
-    /** Deserialize the object */
-    fun deserialize(reader: XmlReader): T
+    fun <T:Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
+    fun <T:Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
 }

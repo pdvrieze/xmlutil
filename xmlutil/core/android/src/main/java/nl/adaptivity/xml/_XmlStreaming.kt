@@ -27,7 +27,7 @@ import javax.xml.transform.Source
  * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
  * Created by pdvrieze on 15/11/15.
  */
-actual object XmlStreaming {
+actual object XmlStreaming: XmlStreamingJavaCommon() {
 
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
@@ -43,101 +43,67 @@ actual object XmlStreaming {
             return _factory ?: serviceLoader.first().apply { _factory = this }
         }
 
-    @JvmStatic
     @JvmOverloads
+    override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
+        return newWriter(result, repairNamespaces, false)
+    }
+
+    @JvmStatic
     fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
         return factory.newWriter(result, repairNamespaces, omitXmlDecl)
     }
 
     @JvmOverloads
+    override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
+        return newWriter(outputStream, encoding, repairNamespaces, false)
+    }
+
+
     @JvmStatic
     fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
     }
 
     @JvmOverloads
+    override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
+        return newWriter(writer, repairNamespaces, false)
+    }
+
     @JvmStatic
     fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
         return factory.newWriter(writer, repairNamespaces, omitXmlDecl)
     }
 
-    actual fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         return factory.newWriter(output, repairNamespaces, omitXmlDecl)
     }
 
-    @JvmStatic
-    fun newReader(inputStream: InputStream, encoding: String): XmlReader {
+    override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
 
-    @JvmStatic
-    fun newReader(reader: Reader): XmlReader {
+    override fun newReader(reader: Reader): XmlReader {
         return factory.newReader(reader)
     }
 
-    @JvmStatic
-    fun newReader(source: Source): XmlReader {
+    override fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
     }
 
-    @JvmStatic
-    actual fun newReader(input: CharSequence): XmlReader {
+    actual override fun newReader(input: CharSequence): XmlReader {
         return factory.newReader(input)
     }
 
-    @JvmStatic
-    actual fun setFactory(factory: XmlStreamingFactory?) {
+    actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory ?: AndroidStreamingFactory()
     }
 
-    @JvmStatic
-    fun <T> deSerialize(input: InputStream, type: Class<T>): T {
-        return XmlStreaming.newReader(input, "UTF-8").deSerialize(type)
+    override fun toCharArray(content: Source): CharArray {
+        return newReader(content).toCharArrayWriter().toCharArray()
     }
 
-    @JvmStatic
-    fun <T> deSerialize(input: Reader, type: Class<T>): T {
-        return XmlStreaming.newReader(input).deSerialize(type)
-    }
-
-    @JvmStatic
-    fun <T> deSerialize(input: String, type: Class<T>): T {
-        return XmlStreaming.newReader(StringReader(input)).deSerialize(type)
-    }
-
-    @JvmStatic
-    fun <T> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> {
-        return inputs.map { input -> XmlStreaming.newReader(StringReader(input)).deSerialize(type) }
-    }
-
-    actual inline fun <reified T:Any> deSerialize(input:String): T {
-        return deSerialize(input, T::class.java)
-    }
-
-    @JvmStatic
-    fun <T> deSerialize(reader: Source, type: Class<T>): T {
-        return XmlStreaming.newReader(reader).deSerialize(type)
-    }
-
-    @JvmStatic
-    fun toCharArray(content: Source): CharArray {
-        return XmlStreaming.newReader(content).toCharArrayWriter().toCharArray()
-    }
-
-    @JvmStatic
-    fun toString(source: Source): String {
-        return XmlStreaming.newReader(source).toCharArrayWriter().toString()
-    }
-
-    actual fun toString(value: XmlSerializable): String {
-        return StringWriter().apply {
-            val w = XmlStreaming.newWriter(this@apply)
-            try {
-                value.serialize(w)
-            } finally {
-                w.close()
-            }
-        }.toString()
+    override fun toString(source: Source): String {
+        return newReader(source).toCharArrayWriter().toString()
     }
 
 }
