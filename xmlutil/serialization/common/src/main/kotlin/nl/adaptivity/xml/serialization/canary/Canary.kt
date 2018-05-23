@@ -16,10 +16,7 @@
 
 package nl.adaptivity.xml.serialization.canary
 
-import kotlinx.serialization.KSerialClassDesc
-import kotlinx.serialization.KSerialClassKind
-import kotlinx.serialization.KSerialLoader
-import kotlinx.serialization.KSerialSaver
+import kotlinx.serialization.*
 
 object Canary {
 
@@ -72,7 +69,10 @@ object Canary {
                 throw IllegalStateException("This should not be reachable")
             } catch (e: CanaryInput.SuspendException) {
                 if (e.finished) break
+            } catch (e: UnknownFieldException) {
+                throw IllegalStateException("Could not gather information for loader ${loader} on field ${input.currentChildIndex} with info: ${input.childInfo[input.currentChildIndex]}", e)
             }
+
         }
     }
 

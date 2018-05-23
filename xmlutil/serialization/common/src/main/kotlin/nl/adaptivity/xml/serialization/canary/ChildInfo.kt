@@ -23,7 +23,13 @@ data class ChildInfo(val name: String,
                      override var kind: KSerialClassKind? = null,
                      var childCount: Int = 0,
                      override var type: ChildType = ChildType.UNKNOWN,
-                     override var isNullable: Boolean = false) : BaseInfo
+                     override var isNullable: Boolean = false) : BaseInfo {
+
+    override fun toString(): String {
+        return "ChildInfo(name='$name', annotations=$annotations, kind=$kind, childCount=$childCount, type=$type, isNullable=$isNullable)"
+    }
+}
+
 
 enum class ChildType {
     DOUBLE,
