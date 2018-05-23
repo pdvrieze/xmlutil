@@ -46,17 +46,14 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
             return _factory ?: serviceLoader.first().apply { _factory = this }
         }
 
-    @JvmOverloads
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
     }
 
-    @JvmOverloads
     override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    @JvmOverloads
     override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(writer, repairNamespaces)
     }
