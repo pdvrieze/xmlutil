@@ -26,7 +26,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "kotlinx-serialization") {
-                def version = (requested.version == null || requested.version.length() == 0) ? serializationVersion : requested.version
+                def version = (requested.version == null || requested.version.length() == 0) ? serializationPluginVersion : requested.version
 /*
                 // The kotlin version. Unfortunately intellij doesn't support the settings delegate (even though gradle does)
                 val version = when {

@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     ext.androidPluginVersion = '3.1.2'
 //    ext.androidPluginVersion = '2.3.3'
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.50-eap-17'
     ext.kotlin_plugin_version = kotlin_version
 //    ext.kotlinx_html_version = '0.5.12'
     ext.kotlinx_html_version = '0.6.9'
@@ -28,7 +28,7 @@ buildscript {
     ext.jupiterVersion = '5.2.0'
     ext.spekVersion = '1.1.5'
     ext.testngVersion = '6.9.13.8'
-    ext.serialization_version = '0.5.0'
+    ext.serialization_version = "$serializationVersion"
     repositories {
         mavenLocal()
         google()
