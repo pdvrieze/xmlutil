@@ -19,7 +19,10 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.util.multiplatform.*
+import nl.adaptivity.util.multiplatform.Closeable
+import nl.adaptivity.util.multiplatform.JvmMultifileClass
+import nl.adaptivity.util.multiplatform.JvmName
+import nl.adaptivity.util.multiplatform.JvmOverloads
 
 /**
  * Created by pdvrieze on 15/11/15.
@@ -184,7 +187,10 @@ fun XmlReader.isElement(elementname: QName): Boolean {
 
 /**
  * Get the next text sequence in the reader. This will skip over comments and ignorable whitespace, but not tags.
- * Any tags encountered with cause an exception to be thrown.
+ * Any tags encountered with cause an exception to be thrown. It can either be invoked when in a start tag to return
+ * all text content, or on a content element to include it (if text or cdata) and all subsequent siblings.
+ *
+ * The function will move to the containing end tag.
  *
  * @return   The text found
  *
@@ -194,6 +200,9 @@ fun XmlReader.allText(): String {
     val t = this
     return buildString {
         var type: EventType? = null
+        if (eventType == EventType.TEXT || eventType == EventType.CDSECT) {
+            append(text)
+        }
 
         while ((t.next().apply { type = this@apply }) !== EventType.END_ELEMENT) {
             when (type) {

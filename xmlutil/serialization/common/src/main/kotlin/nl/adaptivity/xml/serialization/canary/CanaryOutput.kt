@@ -40,6 +40,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
 
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
         currentClassDesc = desc
+        kind = desc.kind
 
         childInfo = childInfoForClassDesc(desc)
         return this

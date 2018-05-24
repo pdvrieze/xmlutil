@@ -17,6 +17,7 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
+import nl.adaptivity.util.multiplatform.assert
 import nl.adaptivity.util.multiplatform.name
 import nl.adaptivity.util.xml.CompactFragment
 import nl.adaptivity.xml.*
@@ -65,7 +66,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     fun registerClass(name: QName, kClass: KClass<*>) = nameMap.registerClass(name, kClass.name, true)
 
-    inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String = stringify(T::class, obj, context.klassSerializer(T::class), prefix)
+    inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String = stringify(T::class, obj,
+                                                                                               context.klassSerializer(
+                                                                                                   T::class), prefix)
 
     fun <T : Any> stringify(kClass: KClass<T>,
                             obj: T,
@@ -131,7 +134,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String?=null): String =
+        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String =
             XML().run { stringify(kClass, obj, context.klassSerializer(kClass), prefix) }
 
         inline fun <reified T : Any> stringify(obj: T, prefix: String?): String = stringify(obj, T::class, prefix)
@@ -185,6 +188,9 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             if (associatedFieldsCount == 1) {
                 return 0
             } else {
+                for (i in 0 until associatedFieldsCount) {
+                    if (getAnnotationsForIndex(i).any { it is XmlValue }) return i
+                }
                 // TODO actually determine this properly
                 return KInput.UNKNOWN_NAME
             }
@@ -564,7 +570,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override val currentTypeName: String? get() = tag.desc.name
 
             override fun KSerialClassDesc.getTag(index: Int): OutputDescriptor {
-                return with(delegate) { getTag(index) }
+                return delegate.doGetTag(this, index)
             }
 
             override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
@@ -665,6 +671,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     }
 
     open class XmlInputBase internal constructor(val input: XmlReader) {
+
+        var skipRead = false
 
         inner class Initial(val serialName: QName, val extInfo: ExtInfo) : ElementValueInput(), XmlInput {
             override val input: XmlReader
@@ -767,7 +775,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             override fun readElement(desc: KSerialClassDesc): Int {
-
+                if (skipRead) { // reading values will already move to the end tag.
+                    assert(input.isEndElement())
+                    skipRead = false
+                    return readElementEnd(desc)
+                }
                 // TODO validate correctness of type
                 for (eventType in input) {
                     if (!eventType.isIgnorable) {
@@ -793,7 +805,10 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun readTaggedString(tag: OutputDescriptor): String {
                 return when (tag.kind) {
                     OutputKind.Element   -> input.readSimpleElement()
-                    OutputKind.Text      -> input.allText()
+                    OutputKind.Text      -> {
+                        skipRead = true
+                        input.allText()
+                    }
                     OutputKind.Attribute -> doReadAttribute(tag)
                     OutputKind.Unknown   -> run { tag.kind = OutputKind.Attribute; doReadAttribute(tag) }
                 }
@@ -1006,12 +1021,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun doGetTag(classDesc: KSerialClassDesc, index: Int): OutputDescriptor {
                 val tagName = serialName
                 val suggestedOutputKind = when (index) {
-                    0 -> classDesc.outputKind(index)
-                    else ->  if (childInfo.type.isPrimitive) { OutputKind.Text } else { classDesc.outputKind(childInfo) }
+                    0    -> classDesc.outputKind(index)
+                    else -> if (childInfo.type.isPrimitive) {
+                        OutputKind.Text
+                    } else {
+                        classDesc.outputKind(childInfo)
+                    }
                 }
                 val outputKind = when (suggestedOutputKind) {
                     OutputKind.Attribute -> OutputKind.Text
-                    else -> suggestedOutputKind
+                    else                 -> suggestedOutputKind
                 }
 
                 return OutputDescriptor(classDesc, index, outputKind, tagName)
@@ -1164,7 +1183,7 @@ fun Collection<Annotation>.getChildName(): QName? {
 
 fun <T : Any> KClass<T>.getSerialName(serializer: KSerializer<*>?, prefix: String?): QName {
     return getSerialName(serializer).let {
-        if (prefix==null) it else it.copy(prefix=prefix)
+        if (prefix == null) it else it.copy(prefix = prefix)
     }
 }
 
