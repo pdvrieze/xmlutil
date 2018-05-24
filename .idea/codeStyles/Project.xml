@@ -201,27 +201,6 @@
           <section>
             <rule>
               <match>
-                <ENUM>true</ENUM>
-              </match>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
-                <INTERFACE>true</INTERFACE>
-              </match>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
-                <CLASS>true</CLASS>
-              </match>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
                 <AND>
                   <FIELD>true</FIELD>
                   <FINAL>true</FINAL>
@@ -412,17 +391,21 @@
               </match>
             </rule>
           </section>
-          <section start_comment="// Object Initialization" end_comment="// Object Initialization end">
+          <section>
             <rule>
               <match>
                 <INITIALIZER_BLOCK>true</INITIALIZER_BLOCK>
               </match>
             </rule>
+          </section>
+          <section>
             <rule>
               <match>
                 <CONSTRUCTOR>true</CONSTRUCTOR>
               </match>
             </rule>
+          </section>
+          <section>
             <rule>
               <match>
                 <AND>
@@ -433,11 +416,13 @@
                 </AND>
               </match>
             </rule>
+          </section>
+          <section>
             <rule>
               <match>
                 <AND>
                   <METHOD>true</METHOD>
-                  <NAME>^(init|newInstance|deserialize)</NAME>
+                  <NAME>^(init|newInstance|deserialize|copy)</NAME>
                   <STATIC>false</STATIC>
                 </AND>
               </match>
@@ -446,16 +431,21 @@
           <section>
             <rule>
               <match>
-                <METHOD>true</METHOD>
+                <AND>
+                  <METHOD>true</METHOD>
+                  <STATIC>false</STATIC>
+                </AND>
               </match>
             </rule>
           </section>
-          <section start_comment="// Property accessors start" end_comment="// Property acccessors end">
+          <section>
             <rule>
               <match>
-                <PropertyAccessors />
+                <AND>
+                  <METHOD>true</METHOD>
+                  <NAME>(?!^(toString|hashCode|equals)$)</NAME>
+                </AND>
               </match>
-              <order>BY_NAME</order>
             </rule>
           </section>
           <section>
@@ -477,6 +467,27 @@
                   <PUBLIC>false</PUBLIC>
                   <STATIC>true</STATIC>
                 </AND>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
+                <ENUM>true</ENUM>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
+                <INTERFACE>true</INTERFACE>
+              </match>
+            </rule>
+          </section>
+          <section>
+            <rule>
+              <match>
+                <CLASS>true</CLASS>
               </match>
             </rule>
           </section>
