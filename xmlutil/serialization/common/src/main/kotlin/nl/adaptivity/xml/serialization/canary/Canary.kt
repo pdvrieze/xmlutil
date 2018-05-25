@@ -70,7 +70,7 @@ object Canary {
             } catch (e: CanaryInput.SuspendException) {
                 if (e.finished) break
             } catch (e: UnknownFieldException) {
-                throw IllegalStateException("Could not gather information for loader ${loader} on field ${input.currentChildIndex} with info: ${input.childInfo[input.currentChildIndex]}", e)
+                throw IllegalStateException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childInfo[input.currentChildIndex]}", e)
             }
 
         }
