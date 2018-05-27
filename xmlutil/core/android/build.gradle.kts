@@ -43,7 +43,7 @@ description = "Utility classes for xml handling that works across platforms (jvm
 dependencies {
     expectedBy(project(":xmlutil:core:common-nonshared"))
     api(project(":xmlutil:core:java"))
-    api(project(":multiplatform:jvm"))
+    api(project(":multiplatform:android"))
     implementation(kotlin("stdlib", kotlinVersion))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
