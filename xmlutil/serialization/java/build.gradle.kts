@@ -36,7 +36,7 @@ val jupiterVersion:String by project
 dependencies {
     implementation(project(":xmlutil:core:java"))
     compileOnly(project(":xmlutil:core:jvm"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 
     expectedBy(project(":xmlutil:serialization:common"))
 

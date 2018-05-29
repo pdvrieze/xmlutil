@@ -18,8 +18,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  */
 
 plugins {
-    id("com.android.library")
-    id("kotlin-platform-android")
+    id("java-library")
+    id("kotlin-platform-jvm")
     id("kotlin-kapt")
 }
 
@@ -29,10 +29,12 @@ val kotlinVersion get() = `kotlin_version`
 base {
     archivesBaseName = "multiplatform"
 }
+/*
 
 android {
     compileSdkVersion(27)
 }
+*/
 
 dependencies {
 //    expectedBy(project(":multiplatform:common"))
