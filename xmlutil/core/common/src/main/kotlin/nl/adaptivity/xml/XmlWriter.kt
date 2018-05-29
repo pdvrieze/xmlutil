@@ -314,7 +314,13 @@ fun XmlWriter.writeAttribute(name: String, value: Any?) {
 }
 
 fun XmlWriter.writeAttribute(name: QName, value: String?) {
-    value?.let { attribute(name.getNamespaceURI(), name.getLocalPart(), name.getPrefix(), value) }
+    value?.let {
+        if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
+            attribute(null, name.localPart, name.prefix, value)
+        } else {
+            attribute(name.namespaceURI, name.localPart, name.prefix, value)
+        }
+    }
 }
 
 fun XmlWriter.writeAttribute(name: String, value: Double) {

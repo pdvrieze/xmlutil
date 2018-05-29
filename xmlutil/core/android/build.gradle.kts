@@ -16,8 +16,9 @@
 
 plugins {
     base
-    id("com.android.library")
-    id("kotlin-platform-android")
+    `java-library`
+//    id("com.android.library")
+    id("kotlin-platform-jvm")
     id("kotlin-kapt")
     idea
     id("kotlinx-serialization")
@@ -28,9 +29,11 @@ val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
 val serializationVersion:String by project
 
+/*
 android {
     compileSdkVersion(27)
 }
+*/
 
 base {
     archivesBaseName="xmlutil-core-android"
@@ -41,6 +44,9 @@ description = "Utility classes for xml handling that works across platforms (jvm
 
 
 dependencies {
+    compileOnly("net.sf.kxml:kxml2:2.3.0")
+    testRuntime("net.sf.kxml:kxml2:2.3.0")
+
     expectedBy(project(":xmlutil:core:common-nonshared"))
     api(project(":xmlutil:core:java"))
     api(project(":multiplatform:android"))

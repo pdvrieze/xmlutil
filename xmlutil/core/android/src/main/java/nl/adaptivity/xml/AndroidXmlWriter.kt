@@ -16,16 +16,13 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.lib.xmlutil.BuildConfig
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlSerializer
-
-import javax.xml.XMLConstants
-import javax.xml.namespace.NamespaceContext
-
 import java.io.IOException
 import java.io.OutputStream
 import java.io.Writer
+import javax.xml.XMLConstants
+import javax.xml.namespace.NamespaceContext
 
 actual typealias PlatformXmlWriter = AndroidXmlWriter
 
@@ -122,7 +119,7 @@ class AndroidXmlWriter : XmlWriter {
     private fun ensureNamespaceIfRepairing(namespace: String?, prefix: String?) {
         if (isRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null) {
             // TODO fix more cases than missing namespaces with given prefix and uri
-            if (namespaceHolder.getNamespaceUri(prefix) != namespace) {
+            if (namespaceHolder.getNamespaceUri(prefix) != (namespace ?:"")) {
                 namespaceAttr(prefix, namespace)
             }
         }
@@ -166,11 +163,16 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
-        if (prefix != null && namespace != null) {
+        if (prefix != null && prefix.isNotEmpty() && namespace != null && namespace.isNotEmpty()) {
             setPrefix(prefix, namespace)
+            ensureNamespaceIfRepairing(namespace, prefix)
         }
-        writer.attribute(namespace, name, value)
-        ensureNamespaceIfRepairing(namespace, prefix)
+        val writer = writer
+        if (writer is BetterXmlSerializer) {
+            writer.attribute(namespace, prefix?:"", name, value)
+        } else {
+            writer.attribute(namespace, name, value)
+        }
     }
 
     @Throws(XmlException::class)
@@ -191,7 +193,7 @@ class AndroidXmlWriter : XmlWriter {
 
     @Throws(XmlException::class)
     override fun endDocument() {
-        if (BuildConfig.DEBUG && depth != 0) throw AssertionError()
+        assert(depth == 0)
         writer.endDocument()
     }
 

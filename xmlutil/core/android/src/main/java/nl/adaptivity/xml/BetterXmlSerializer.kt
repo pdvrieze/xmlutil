@@ -17,14 +17,12 @@
 package nl.adaptivity.xml
 
 import org.xmlpull.v1.XmlSerializer
-
-import javax.xml.XMLConstants
-
 import java.io.IOException
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
-import java.util.Locale
+import java.util.*
+import javax.xml.XMLConstants
 
 
 class BetterXmlSerializer : XmlSerializer {
@@ -46,6 +44,7 @@ class BetterXmlSerializer : XmlSerializer {
     private var encoding: String? = null
     private val escapeAggressive = false
     var isOmitXmlDecl = false
+    var addTrailingSpaceBeforeEnd=true
 
     private fun check(close: Boolean) {
         if (!pending) {
@@ -62,15 +61,22 @@ class BetterXmlSerializer : XmlSerializer {
         }
         indent[depth] = indent[depth - 1]
 
-        if (nspCounts.size <= depth + 1) {
+        if (nspCounts.size <= depth + 2) {
             val hlp = IntArray(depth + 8)
-            System.arraycopy(nspCounts, 0, hlp, 0, depth + 1)
+            System.arraycopy(nspCounts, 0, hlp, 0, depth + 2)
             nspCounts = hlp
         }
 
-        nspCounts[depth + 1] = nspCounts[depth]
+//        val c = nspCounts[depth+1]
+//        nspCounts[depth + 1] = c
+//        nspCounts[depth + 2] = c
 
-        writer.write(if (close) " />" else ">")
+        val endOfTag = when {
+            !close                    -> ">"
+            addTrailingSpaceBeforeEnd -> " />"
+            else                      -> "/>"
+        }
+        writer.write(endOfTag)
     }
 
     @Throws(IOException::class)
@@ -194,6 +200,30 @@ class BetterXmlSerializer : XmlSerializer {
         return prefix
     }
 
+    private fun getNamespace(prefix: String, includeDefault: Boolean=false): String? {
+        val namespace: Nothing
+
+        run {
+            var i = nspCounts[depth + 1] * 2 - 2
+            while (i >= 0) {
+                if (nspStack[i] == prefix && (includeDefault || nspStack[i] != "")) {
+                    var candidate: String? = nspStack[i+1]
+                    for (j in i + 2 until nspCounts[depth + 1] * 2) {
+                        if (nspStack[j+1] == candidate) {
+                            candidate = null
+                            break
+                        }
+                    }
+                    if (candidate != null) {
+                        return candidate
+                    }
+                }
+                i -= 2
+            }
+        }
+        return null
+    }
+
     override fun getProperty(name: String): Any {
         throw RuntimeException("Unsupported property")
     }
@@ -219,7 +249,12 @@ class BetterXmlSerializer : XmlSerializer {
     @Throws(IOException::class)
     override fun setPrefix(prefix: String?, namespace: String?) {
 
-        val depth = this.depth + 1
+        val depth: Int
+        if(pending) {
+            depth = this.depth + 2
+        } else {
+            depth = this.depth + 1
+        }
 
         var i = nspCounts[depth] * 2 - 2
         while (i >= 0) {
@@ -231,7 +266,10 @@ class BetterXmlSerializer : XmlSerializer {
         }
 
 
-        var pos = nspCounts[depth]++ shl 1
+        val c = nspCounts[depth]
+        nspCounts[depth] = c + 1
+        nspCounts[depth+1] = c + 1
+        var pos = c shl 1
 
         addSpaceToNspStack()
 
@@ -262,6 +300,7 @@ class BetterXmlSerializer : XmlSerializer {
 
         nspCounts[0] = 3
         nspCounts[1] = 3
+        nspCounts[2] = 3
         nspStack[0] = ""
         nspStack[1] = ""
         nspStack[2] = "xml"
@@ -407,6 +446,49 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     @Throws(IOException::class)
+    fun attribute(namespace: String?,
+                           prefix: String,
+                           name: String,
+                           value: String): BetterXmlSerializer {
+        if (!pending) {
+            throw IllegalStateException("illegal position for attribute")
+        }
+
+        val ns = namespace ?: ""
+
+        if (ns == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+            return namespace(name, value) // If it is a namespace attribute, just go there.
+        } else if (ns == XMLConstants.NULL_NS_URI && XMLConstants.XMLNS_ATTRIBUTE == name) {
+            return namespace("", value) // If it is a namespace attribute, just go there.
+        }
+
+        val actualPrefix = if (prefix.isNotEmpty()) {
+            if (getNamespace(prefix) != namespace) {
+                getPrefix(ns, false, true) ?: ""
+            } else prefix
+        } else {
+            prefix
+        }
+
+        //		depth--;
+        //		pending = false;
+
+        writer.write(' ')
+        if ("" != actualPrefix) {
+            writer.write(actualPrefix)
+            writer.write(':')
+        }
+        writer.write(name)
+        writer.write('=')
+        val q = if (value.indexOf('"') == -1) '"' else '\''
+        writer.write(q.toInt())
+        writeEscaped(value, q.toInt())
+        writer.write(q.toInt())
+
+        return this
+    }
+
+    @Throws(IOException::class)
     fun namespace(
         prefix: String,
         namespace: String?): BetterXmlSerializer {
@@ -434,7 +516,10 @@ class BetterXmlSerializer : XmlSerializer {
 
         if (!wasSet) { // Don't use setPrefix as we know it isn't there
             addSpaceToNspStack()
-            val pos = nspCounts[depth + 1]++ shl 1
+            val c = nspCounts[depth+1]
+            nspCounts[depth+1] = c + 1
+            nspCounts[depth+2] = c + 1
+            val pos = c shl 1
             nspStack[pos] = prefix
             nspStack[pos + 1] = namespace
             nspWritten[pos shr 1] = true
@@ -499,7 +584,9 @@ class BetterXmlSerializer : XmlSerializer {
             writer.write('>')
         }
 
-        nspCounts[depth + 1] = nspCounts[depth]
+        val c = nspCounts[depth]
+        nspCounts[depth + 1] = c
+        if(!pending) nspCounts[depth + 2] = c
         return this
     }
 

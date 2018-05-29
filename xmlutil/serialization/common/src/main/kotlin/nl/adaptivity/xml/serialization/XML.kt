@@ -139,6 +139,16 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
         inline fun <reified T : Any> stringify(obj: T, prefix: String?): String = stringify(obj, T::class, prefix)
 
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> toXml(dest: XmlWriter,
+                            obj: T,
+                            kClass: KClass<T> = obj::class as KClass<T>,
+                            prefix: String? = null) =
+            XML().run { toXml(kClass, obj, dest, prefix, context.klassSerializer(kClass)) }
+
+        inline fun <reified T : Any> toXml(dest: XmlWriter, obj: T, prefix: String?) = toXml(dest, obj, T::class,
+                                                                                             prefix)
+
         fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(kClass, str)
         fun <T : Any> parse(kClass: KClass<T>, str: String, loader: KSerialLoader<T>): T = XML().parse(kClass, str,
                                                                                                        loader)
@@ -467,7 +477,15 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             open fun Any.doWriteAttribute(name: QName, value: String) {
-                target.writeAttribute(name, value)
+                val actualAttrName:QName = when {
+                    name.getNamespaceURI().isEmpty() ||
+                    (serialName.getNamespaceURI() == name.getNamespaceURI() &&
+                     (serialName.prefix == name.prefix)) -> QName(name.localPart) // Breaks in android otherwise
+
+                    else -> name
+                }
+
+                target.writeAttribute(actualAttrName, value)
             }
 
             inline fun doSmartStartTag(name: QName, body: XmlWriter.() -> Unit) = target.run {
@@ -783,11 +801,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                 // TODO validate correctness of type
                 for (eventType in input) {
                     if (!eventType.isIgnorable) {
-                        return when (eventType) {
-                            EventType.END_ELEMENT   -> readElementEnd(desc)
-                            EventType.TEXT          -> desc.getValueChild()
-                            EventType.ATTRIBUTE     -> desc.indexOf(input.name, true)
-                            EventType.START_ELEMENT -> desc.indexOf(input.name, false)
+                        // The android reader doesn't check whitespaceness
+
+                        when (eventType) {
+                            EventType.END_ELEMENT   -> return readElementEnd(desc)
+                            EventType.TEXT          -> if (!input.isWhitespace()) desc.getValueChild()
+                            EventType.ATTRIBUTE     -> return desc.indexOf(input.name, true)
+                            EventType.START_ELEMENT -> return desc.indexOf(input.name, false)
                             else                    -> throw SerializationException("Unexpected event in stream")
                         }
                     }

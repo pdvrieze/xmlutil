@@ -17,7 +17,10 @@
 package nl.adaptivity.xml
 
 import nl.adaptivity.xml.XmlStreaming.deSerialize
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.Writer
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
@@ -43,35 +46,16 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
             return _factory ?: serviceLoader.first().apply { _factory = this }
         }
 
-    @JvmOverloads
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
-        return newWriter(result, repairNamespaces, false)
+        return factory.newWriter(result, repairNamespaces)
     }
 
-    @JvmStatic
-    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
-        return factory.newWriter(result, repairNamespaces, omitXmlDecl)
-    }
-
-    @JvmOverloads
     override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
-        return newWriter(outputStream, encoding, repairNamespaces, false)
+        return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-
-    @JvmStatic
-    fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
-        return factory.newWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
-    }
-
-    @JvmOverloads
     override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
-        return newWriter(writer, repairNamespaces, false)
-    }
-
-    @JvmStatic
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces, omitXmlDecl)
+        return factory.newWriter(writer, repairNamespaces)
     }
 
     actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {

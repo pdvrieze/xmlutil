@@ -93,6 +93,10 @@ class NamespaceHolder {
 
 
     fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
+        for (i in namespaceCounts[depth - 1] until namespaceCounts[depth]) {
+            if (getPrefix(i) == prefix && getNamespace(i) == namespaceUri) return
+        }
+
         val nextPair = namespaceCounts[depth]
         if (nsArrayPos(nextPair) >= nameSpaces.size) enlargeNamespaceBuffer()
 
@@ -119,7 +123,7 @@ class NamespaceHolder {
 
         @Suppress("OverridingDeprecatedMember")
         override fun getPrefixes(namespaceURI: String): Iterator<Any?> {
-            return ((totalNamespaceCount-1) downTo 0)
+            return ((totalNamespaceCount - 1) downTo 0)
                 .asSequence()
                 .filter { getNamespace(it) == namespaceURI }
                 .iterator()
