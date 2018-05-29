@@ -21,14 +21,24 @@ import kotlinx.serialization.SerialContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JSON
 import nl.adaptivity.util.xml.CompactFragment
+import nl.adaptivity.xml.StAXWriter
 import nl.adaptivity.xml.XmlEvent
+import nl.adaptivity.xml.XmlStreaming
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows
+import java.io.CharArrayWriter
 
 object testXML : Spek(
     {
+        given("A simple writer") {
+            val writer = XmlStreaming.newWriter(CharArrayWriter())
+            it("should be a STaXwriter") {
+                assertTrue(writer is StAXWriter)
+            }
+        }
         given("A simple data class") {
             val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
             val address = Address("10", "Downing Street", "London")
