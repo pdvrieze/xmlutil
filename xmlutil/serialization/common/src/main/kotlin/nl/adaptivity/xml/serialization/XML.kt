@@ -805,7 +805,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
 
                         when (eventType) {
                             EventType.END_ELEMENT   -> return readElementEnd(desc)
-                            EventType.TEXT          -> if (!input.isWhitespace()) desc.getValueChild()
+                            EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChild()
                             EventType.ATTRIBUTE     -> return desc.indexOf(input.name, true)
                             EventType.START_ELEMENT -> return desc.indexOf(input.name, false)
                             else                    -> throw SerializationException("Unexpected event in stream")
