@@ -93,7 +93,8 @@ class NamespaceHolder {
 
 
     fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
-        for (i in namespaceCounts[depth - 1] until namespaceCounts[depth]) {
+        val prevCounts = if(depth>=1)namespaceCounts[depth - 1] else 0
+        for (i in prevCounts until namespaceCounts[depth]) {
             if (getPrefix(i) == prefix && getNamespace(i) == namespaceUri) return
         }
 

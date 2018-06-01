@@ -61,7 +61,7 @@ class BetterXmlSerializer : XmlSerializer {
         }
         indent[depth] = indent[depth - 1]
 
-        if (nspCounts.size <= depth + 2) {
+        if (nspCounts.size <= depth + 3) {
             val hlp = IntArray(depth + 8)
             System.arraycopy(nspCounts, 0, hlp, 0, depth + 2)
             nspCounts = hlp
@@ -282,16 +282,13 @@ class BetterXmlSerializer : XmlSerializer {
         val nspCount = nspCounts[if (pending) depth + 1 else depth]
         val pos = nspCount shl 1
         if (nspStack.size < pos + 2) {
-            run {
-                val hlp = arrayOfNulls<String>(nspStack.size + 16)
-                System.arraycopy(nspStack, 0, hlp, 0, pos)
-                nspStack = hlp
-            }
-            run {
-                val help = BooleanArray(nspWritten.size + 8)
-                System.arraycopy(nspWritten, 0, help, 0, nspCount)
-                nspWritten = help
-            }
+            val hlp = arrayOfNulls<String>(nspStack.size + 16)
+            System.arraycopy(nspStack, 0, hlp, 0, pos)
+            nspStack = hlp
+
+            val help = BooleanArray(nspWritten.size + 8)
+            System.arraycopy(nspWritten, 0, help, 0, nspCount)
+            nspWritten = help
         }
     }
 
