@@ -29,7 +29,7 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override var indent: Int
         get() = 0
-        set(value) {} // Buffered writers don't add synthetic elements
+        set(@Suppress("UNUSED_PARAMETER") value) {} // Buffered writers don't add synthetic elements
 
     override val namespaceContext: NamespaceContext = if (delegateNamespaceContext==null) {
         namespaceHolder.namespaceContext
