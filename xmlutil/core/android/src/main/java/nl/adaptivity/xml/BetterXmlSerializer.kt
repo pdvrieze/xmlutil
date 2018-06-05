@@ -67,9 +67,8 @@ class BetterXmlSerializer : XmlSerializer {
             nspCounts = hlp
         }
 
-//        val c = nspCounts[depth+1]
-//        nspCounts[depth + 1] = c
-//        nspCounts[depth + 2] = c
+        nspCounts[depth + 2] = nspCounts[depth+1]
+        // Only set the second level here as the first level may already have pending namespaces
 
         val endOfTag = when {
             !close                    -> ">"
