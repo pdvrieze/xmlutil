@@ -15,3 +15,7 @@ captures
 /*/gen
 wiki
 /extinfo/
+/.idea/caches/
+/.idea/shelf/
+/.idea/modules/
+/.idea/workspace.xml
