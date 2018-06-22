@@ -57,9 +57,9 @@ apply plugin: 'project-report'
 description = 'The overall project that manages all artefacts of the processmanager'
 
 ext {
-    androidTarget = 27
+    androidTarget = 28
     tomcatVersion = '7.0.68'
-    androidCompatVersion = androidTarget == 25 ? '25.3.1' : androidTarget == 26 ? '26.1.0' : '27.1.1'
+    androidCompatVersion = androidTarget == androidTarget == 26 ? '26.1.0' : androidTarget == 27 ? '27.1.1' : '28.0.0-alpha3'
     dbcpSpec = "com.zaxxer:HikariCP:2.4.5"
     collectDir = "${buildDir}/artifacts"
     easywsdlver = '2.6.0'
