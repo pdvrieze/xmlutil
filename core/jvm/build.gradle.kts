@@ -21,37 +21,37 @@ plugins {
     id("kotlinx-serialization")
 }
 
-version = '0.5.0'
-description = 'Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb'
+val kotlin_version:String by project
+val serializationVersion:String by project
+val myJavaVersion:JavaVersion by project
+val xmlutil_version:String by project
 
-archivesBaseName="xmlutil-core-jvm"
+version = xmlutil_version
+description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"
 
+base {
+    archivesBaseName="xmlutil-core-jvm"
+}
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    expectedBy project(":core:common-nonshared")
-    api project(":core:java")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    expectedBy(project(":core:common-nonshared"))
+    api(project(":core:java"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 
 }
 
-sourceSets {
-    main {
-        kotlin {
-            srcDir 'src/shared/kotlin'
-        }
-    }
+tasks.getByName<Jar>("jar") {
+    baseName = "${project.parent?.name}-${project.name}"
 }
 
-jar {
-    baseName = "${project.parent.name}-${project.name}"
+java {
+    sourceCompatibility = myJavaVersion
+    targetCompatibility = myJavaVersion
 }
-
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
 
 idea {
     module {
-        name = "${parent.name}-${project.name}"
+        name = "${parent?.name}-${project.name}"
     }
 }
