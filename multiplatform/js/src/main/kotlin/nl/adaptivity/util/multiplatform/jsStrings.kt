@@ -16,20 +16,5 @@
 
 package nl.adaptivity.util.multiplatform
 
-actual class Locale
-
-actual object Locales {
-    actual val DEFAULT: Locale = Locale()
-    actual val ENGLISH: Locale = Locale()
-
-}
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun String.toLowercase(locale: Locale):String = toLowerCase()
-
-
-@Suppress("NOTHING_TO_INLINE", "UnsafeCastFromDynamic")
-actual inline fun Int.toHex(): String = asDynamic().toString(16)
-
 @Suppress("NOTHING_TO_INLINE")
 actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()

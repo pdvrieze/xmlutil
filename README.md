@@ -4,6 +4,14 @@
   capabilities for Android, JVM and JS (alpha quality)
 
   It also provides serialization support
+
+**Help wanted**: Any help with extending this project is welcome. Help is especially needed for the following aspects:
+
+* Documentation updates
+* Testing, in particular more extensive tests. Some tests already exist for both JVM and Android
+* Javascript support
+  * Core Javascript support needs testing but should work. It is based on DOM so may be slow
+  * Javascript serialization support: make serialization work on Javascript once possible
   
 ## Modules
 
@@ -28,3 +36,17 @@ Javascript based implementation
 
 ### core.jvm
 Code unique to the JVM platform (Pulls in core.java as API dependency)
+
+### Serialization
+The kotlinx.serialization plugin to allow serialization to XML
+
+### Serialization.java
+The java version of the serialization plugin. Please note that it does not pull in the platform specific library. The
+core library is dependent on the actual platform used (JVM or Android). This library only pulls in the shared Java code.
+
+### Serialization.js
+The Javascript version of the serialization plugin. This is not yet implemented due to missing annotation support for
+javascript and the 0.6.0 version of kotlinx.serialization not supporting type annotations.
+
+### Serialization.test-android
+An android test project to test serialization on Android.

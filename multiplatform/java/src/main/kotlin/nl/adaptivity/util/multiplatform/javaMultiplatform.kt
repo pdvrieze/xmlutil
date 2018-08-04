@@ -16,16 +16,11 @@
 
 package nl.adaptivity.util.multiplatform
 
-import java.util.UUID
 import kotlin.reflect.KClass
-
-actual typealias Class<T> = java.lang.Class<T>
 
 actual val KClass<*>.name get() = java.name
 
 actual typealias Throws = kotlin.jvm.Throws
-
-actual typealias UUID = java.util.UUID
 
 actual typealias JvmStatic = kotlin.jvm.JvmStatic
 
@@ -39,20 +34,4 @@ actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
 
 actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
 
-actual typealias URI = java.net.URI
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun createUri(s: String): URI = URI.create(s)
-
-actual fun String.toUUID(): UUID = UUID.fromString(this)
-
-@Suppress("NOTHING_TO_INLINE")
-actual fun <T> fill(array: Array<T>, element: T, fromIndex: Int, toIndex: Int) {
-    java.util.Arrays.fill(array, fromIndex, toIndex, element)
-}
-
-@Suppress("NOTHING_TO_INLINE")
-actual fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int) =
-    java.lang.System.arraycopy(src, srcPos, dest, destPos, length)
-
-actual inline fun <reified T:Any> isTypeOf(value: Any):Boolean = value::class.java == T::class.java
+typealias URI = java.net.URI

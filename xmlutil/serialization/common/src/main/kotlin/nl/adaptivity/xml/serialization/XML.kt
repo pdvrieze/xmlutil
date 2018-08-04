@@ -477,10 +477,11 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             }
 
             open fun Any.doWriteAttribute(name: QName, value: String) {
-                val actualAttrName:QName = when {
+                val actualAttrName: QName = when {
                     name.getNamespaceURI().isEmpty() ||
                     (serialName.getNamespaceURI() == name.getNamespaceURI() &&
-                     (serialName.prefix == name.prefix)) -> QName(name.localPart) // Breaks in android otherwise
+                     (serialName.prefix == name.prefix)) -> QName(
+                        name.localPart) // Breaks in android otherwise
 
                     else -> name
                 }
@@ -558,7 +559,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
             override fun writeTaggedString(tag: OutputDescriptor, value: String) {
                 if (transparent && tag.index == 0) {
                     val regName = polyChildren?.lookupName(value)
-                    serialName = if (regName?.specified == true) regName.name else QName(value.substringAfterLast('.'))
+                    serialName = if (regName?.specified == true) regName.name else QName(
+                        value.substringAfterLast('.'))
                 } else {
                     super.writeTaggedString(tag, value)
                 }
@@ -1077,7 +1079,8 @@ class XML(val context: SerialContext? = defaultSerialContext(),
         internal inner class PolymorphicInput(desc: KSerialClassDesc,
                                               val polyInfo: PolyInfo?,
                                               val transparent: Boolean = polyInfo != null) : Base(desc,
-                                                                                                  QName("--invalid--"),
+                                                                                                  QName(
+                                                                                                      "--invalid--"),
                                                                                                   null) {
             override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
                 return super.readBegin(desc, *typeParams)
@@ -1351,11 +1354,13 @@ private fun KSerialClassDesc.isOptional(index: Int): Boolean {
 }
 
 fun QName.copy(namespaceURI: String = this.namespaceURI,
-               localPart: String = this.localPart,
-               prefix: String = this.prefix) = QName(namespaceURI, localPart, prefix)
+                                 localPart: String = this.localPart,
+                                 prefix: String = this.prefix) = QName(namespaceURI, localPart,
+                                                                                         prefix)
 
-fun QName.copy(prefix: String = this.prefix) = if (prefix == this.prefix) this else QName(namespaceURI, localPart,
-                                                                                          prefix)
+fun QName.copy(prefix: String = this.prefix) = if (prefix == this.prefix) this else QName(
+    namespaceURI, localPart,
+    prefix)
 
 inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML().toXml(this, out)
 

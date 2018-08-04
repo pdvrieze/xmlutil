@@ -16,19 +16,7 @@
 
 package nl.adaptivity.util.multiplatform
 
-actual typealias Locale = java.util.Locale
-
-actual object Locales {
-    actual val DEFAULT: java.util.Locale get() = java.util.Locale.getDefault()
-    actual val ENGLISH: java.util.Locale get() = java.util.Locale.ENGLISH
-}
-
-@Suppress("NOTHING_TO_INLINE", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-actual inline fun String.toLowercase(locale: Locale):String =
-    (this as java.lang.String).toLowerCase(locale)
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun Int.toHex(): String = toString(16)
+typealias Locale = java.util.Locale
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "NOTHING_TO_INLINE")
 actual inline fun String.toCharArray(): CharArray = (this as java.lang.String).toCharArray()

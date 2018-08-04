@@ -41,32 +41,7 @@ expect annotation class JvmMultifileClass()
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
-expect class URI {
-    fun getPath(): String
-}
-
-expect class UUID
-
-expect fun String.toUUID(): UUID
-
-inline val URI.path get() = getPath()
-
-expect inline fun createUri(s: String): URI
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun String.toUri(): URI = createUri(this)
-
-fun Appendable.append(d: Double) = append(d.toString())
-fun Appendable.append(i: Int) = append(i.toString())
-
-@Suppress("unused")
-expect class Class<T:Any?>
-
 expect val KClass<*>.name: String
-
-expect fun arraycopy(src: Any, srcPos:Int, dest:Any, destPos:Int, length:Int)
-
-expect fun <T> fill(array: Array<T>, element: T, fromIndex: Int = 0, toIndex: Int = array.size)
 
 expect fun assert(value: Boolean, lazyMessage: () -> String)
 
@@ -77,6 +52,3 @@ expect interface AutoCloseable {
 }
 
 expect interface Closeable: AutoCloseable
-
-@Suppress("unused")
-expect inline fun <reified T:Any> isTypeOf(value: Any):Boolean

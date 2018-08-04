@@ -16,8 +16,6 @@
 
 package nl.adaptivity.util.multiplatform
 
-import java.lang.AutoCloseable
-
 actual fun assert(value: Boolean, lazyMessage: () -> String) {
     kotlin.assert(value, lazyMessage)
 }

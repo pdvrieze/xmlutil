@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Test Android" type="org.spekframework.spek-jvm" factoryName="Spek - JVM">
+    <module name="test-android" />
+    <option name="target" value="spec" />
+    <option name="spec" value="nl.adaptivity.xml.serialization.testXML" />
+    <option name="vm-parameters" value="" />
+    <option name="program-parameters" value="" />
+    <option name="working-directory" value="" />
+    <option name="alternative-jre-path" value="" />
+    <option name="pass-parent-envs" value="true" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

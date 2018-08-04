@@ -46,16 +46,3 @@ actual annotation class JvmWildcard
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FILE)
 actual annotation class JvmMultifileClass
-
-
-open external class URL(url:String, base:String= definedExternally) {
-    val pathName: String
-}
-
-actual class URI(s: String):URL(s) {
-    @Suppress("NOTHING_TO_INLINE")
-    actual inline fun getPath(): String = pathName
-}
-
-@Suppress("NOTHING_TO_INLINE")
-actual inline fun createUri(s: String): URI = URI(s)

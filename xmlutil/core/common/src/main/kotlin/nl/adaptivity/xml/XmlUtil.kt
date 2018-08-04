@@ -36,13 +36,13 @@ fun isXmlWhitespace(data: CharSequence) = data.all { isXmlWhitespace(it) }
 @Deprecated("Use the version that takes string parameters", ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())"))
 fun qname(namespaceUri: CharSequence?, localname: CharSequence, prefix: CharSequence? = DEFAULT_NS_PREFIX) =
     QName(namespaceUri?.toString() ?: NULL_NS_URI,
-          localname.toString(),
-          prefix?.toString() ?: DEFAULT_NS_PREFIX)
+                            localname.toString(),
+                            prefix?.toString() ?: DEFAULT_NS_PREFIX)
 
 fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX) =
     QName(namespaceUri ?: NULL_NS_URI,
-          localname,
-          prefix ?: DEFAULT_NS_PREFIX)
+                            localname,
+                            prefix ?: DEFAULT_NS_PREFIX)
 
 
 fun CharSequence.toQname(): QName {

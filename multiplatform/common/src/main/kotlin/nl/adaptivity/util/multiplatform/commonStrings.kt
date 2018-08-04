@@ -16,27 +16,6 @@
 
 package nl.adaptivity.util.multiplatform
 
-expect class Locale
-
-expect object Locales {
-    val DEFAULT: Locale
-    val ENGLISH: Locale
-}
-
-fun CharSequence.toLowercase(locale: Locale): String =
-    toString().toLowercase(locale)
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun CharSequence.toLowercase(): String = toString().toLowerCase()
-
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use builtin version", ReplaceWith("toString().toLowerCase()"))
-inline fun String.toLowercase(): String = toString().toLowerCase()
-
-expect fun String.toLowercase(locale: Locale):String
-
-expect fun Int.toHex():String
-
 fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }
 
 expect fun String.toCharArray(): CharArray
