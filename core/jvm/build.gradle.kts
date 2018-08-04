@@ -1,5 +1,6 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
+import net.devrieze.gradle.ext.doPublish
 import java.util.Date
 
 /*
@@ -33,8 +34,6 @@ val myJavaVersion:JavaVersion by project
 val xmlutil_version:String by project
 val xmlutil_versiondesc:String by project
 
-version = xmlutil_version
-group = "net.devrieze"
 description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"
 
 base {
@@ -60,52 +59,10 @@ java {
 
 
 val sourcesJar = task<Jar>("androidSourcesJar") {
-    classifier = "sources"
     from(java.sourceSets["main"].allSource)
 }
 
-
-publishing {
-    (publications) {
-        "MyPublication"(MavenPublication::class) {
-            artifact(tasks.getByName("jar"))
-
-            groupId = project.group as String
-            artifactId = "xmlutil-jvm"
-            artifact(sourcesJar).apply {
-                classifier = "sources"
-            }
-        }
-    }
-}
-
-bintray {
-    if (rootProject.hasProperty("bintrayUser")) {
-        user = rootProject.property("bintrayUser") as String?
-        key = rootProject.property("bintrayApiKey") as String?
-    }
-
-    setPublications("MyPublication")
-
-    pkg(closureOf<BintrayExtension.PackageConfig> {
-        repo = "maven"
-        name = "android-coroutines"
-        userOrg = "pdvrieze"
-        setLicenses("LGPL-3.0")
-        vcsUrl = "https://github.com/pdvrieze/android-coroutines.git"
-
-        version.apply {
-            name = xmlutil_version
-            desc = xmlutil_versiondesc
-            released = Date().toString()
-            vcsTag = "v$version"
-        }
-    })
-}
-
-tasks.withType<BintrayUploadTask> {
-    dependsOn(sourcesJar)
-}
+doPublish(sourcesJar)
 
 idea {
     module {

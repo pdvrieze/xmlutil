@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2018.
+ *
+ * This file is part of xmlutil.
+ *
+ * xmlutil is free software: you can redistribute it and/or modify it under the terms of version 3 of the
+ * GNU Lesser General Public License as published by the Free Software Foundation.
+ *
+ * xmlutil is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with xmlutil.  If not,
+ * see <http://www.gnu.org/licenses/>.
+ */
+
+pluginManagement {
+    repositories {
+        mavenLocal()
+        jcenter()
+        gradlePluginPortal()
+    }
+
+
+    Properties properties = new Properties()
+    FileInputStream input = new FileInputStream(file('../gradle.properties'))
+    properties.load(input)
+    input.close()
+
+    for (String key : properties.stringPropertyNames()) {
+        ext.set(key, properties.getProperty(key))
+    }
+
+    resolutionStrategy {
+
+        eachPlugin {
+
+            switch (requested.id.id) {
+                case "com.android.library":
+                case "com.android.application" :
+                    def ver = requested.version!=null ? requested.version : androidBuildToolsVersion
+                    useModule("com.android.tools.build:gradle:${ver}");
+                    break
+                case "org.jetbrains.kotlin.android":
+                case "kotlin-android-extensions" :
+                    def ver = requested.version!=null ? requested.version : kotlin_version
+                    useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${ver}");
+                    break
+                case "org.jetbrains.dokka-android" :
+                    def ver = requested.version!=null ? requested.version : dokkaVersion
+                    useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
+                    break
+                case "kotlinx-serialization":
+                    def version = (requested.version == null || requested.version.length() == 0) ? serializationPluginVersion : requested.version
+                    useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
+                case "com.jfrog.bintray":
+                    useVersion(requested.version!=null ? requested.version : bintrayVersion)
+            }
+        }
+    }
+}

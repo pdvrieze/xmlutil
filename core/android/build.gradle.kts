@@ -1,3 +1,5 @@
+import net.devrieze.gradle.ext.doPublish
+
 /*
  * Copyright (c) 2018.
  *
@@ -21,6 +23,8 @@ plugins {
     id("kotlin-kapt")
     idea
     id("kotlinx-serialization")
+    id("maven-publish")
+    id("com.jfrog.bintray")
 }
 
 @Suppress("PropertyName")
@@ -28,7 +32,7 @@ val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
 val serializationVersion:String by project
 val xmlutil_version:String by project
-
+val x: Build_gradle = this
 base {
     archivesBaseName="xmlutil-core-android"
 }
@@ -47,6 +51,13 @@ dependencies {
     implementation(kotlin("stdlib", kotlinVersion))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
+
+
+val sourcesJar = task<Jar>("androidSourcesJar") {
+    from(java.sourceSets["main"].allSource)
+}
+
+doPublish(sourcesJar)
 
 idea {
     module {
