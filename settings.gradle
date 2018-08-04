@@ -37,16 +37,16 @@ pluginManagement {
 
 rootProject.name = "xmlutil"
 
-include(":xmlutil:core:common")
-include(":xmlutil:core:common-nonshared")
-include(":xmlutil:core:java")
-include(":xmlutil:core:jvm")
-include(":xmlutil:core:js")
-include(":xmlutil:serialization:common")
-include(":xmlutil:serialization:java")
-include(":xmlutil:serialization:js")
+include(":core:common")
+include(":core:common-nonshared")
+include(":core:java")
+include(":core:jvm")
+include(":core:js")
+include(":serialization:common")
+include(":serialization:java")
+include(":serialization:js")
 
 if (Boolean.parseBoolean(androidEnabledProp)) {
-    include(":xmlutil:core:android")
-    include(":xmlutil:serialization:test-android")
+    include(":core:android")
+    include(":serialization:test-android")
 }
