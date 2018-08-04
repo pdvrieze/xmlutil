@@ -27,12 +27,14 @@ plugins {
 val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
 val serializationVersion:String by project
+val xmlutil_version:String by project
 
 base {
     archivesBaseName="xmlutil-core-android"
 }
 
-version = "0.5.0"
+
+version = xmlutil_version
 description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"
 
 
