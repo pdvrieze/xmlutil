@@ -22,7 +22,6 @@ import kotlin.jvm.javaClass
 
 plugins {
     id("kotlin-platform-common")
-//    id("kotlinx-serialization")
 }
 
 base {
@@ -37,5 +36,4 @@ dependencies {
     implementation(project(":xmlutil:core:common"))
     implementation(project(":xmlutil:core:common-nonshared"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
-//    implementation(project(":java-common:common"))
 }

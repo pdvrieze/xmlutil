@@ -5,6 +5,18 @@
       <module name="accountcommon" target="1.7" />
       <module name="accountmgr" target="1.7" />
       <module name="accountmgr-js" target="1.7" />
+      <module name="core-android_main" target="1.8" />
+      <module name="core-android_test" target="1.8" />
+      <module name="core-common-nonshared_main" target="1.8" />
+      <module name="core-common-nonshared_test" target="1.8" />
+      <module name="core-common_main" target="1.8" />
+      <module name="core-common_test" target="1.8" />
+      <module name="core-java_main" target="1.8" />
+      <module name="core-java_test" target="1.8" />
+      <module name="core-js_main" target="1.8" />
+      <module name="core-js_test" target="1.8" />
+      <module name="core-jvm_main" target="1.8" />
+      <module name="core-jvm_test" target="1.8" />
       <module name="darwin-jvm" target="1.7" />
       <module name="darwin-sql" target="1.7" />
       <module name="DarwinClients" target="1.7" />
@@ -17,14 +29,36 @@
       <module name="java-common" target="1.7" />
       <module name="JavaCommonApi" target="1.7" />
       <module name="jscommon" target="1.7" />
+      <module name="jscommon_main" target="1.8" />
+      <module name="jscommon_test" target="1.8" />
       <module name="kotlinsql" target="1.7" />
+      <module name="multiplatform-android_main" target="1.8" />
+      <module name="multiplatform-android_test" target="1.8" />
+      <module name="multiplatform-common-nonshared_main" target="1.8" />
+      <module name="multiplatform-common-nonshared_test" target="1.8" />
+      <module name="multiplatform-common_main" target="1.8" />
+      <module name="multiplatform-common_test" target="1.8" />
+      <module name="multiplatform-java_main" target="1.8" />
+      <module name="multiplatform-java_test" target="1.8" />
+      <module name="multiplatform-js_main" target="1.8" />
+      <module name="multiplatform-js_test" target="1.8" />
+      <module name="multiplatform-jvm_main" target="1.8" />
+      <module name="multiplatform-jvm_test" target="1.8" />
       <module name="PE-common" target="1.7" />
       <module name="PE-dataservices" target="1.7" />
       <module name="PE-diagram" target="1.7" />
       <module name="PE-server" target="1.7" />
       <module name="PEUserMessageHandler" target="1.7" />
+      <module name="serialization-common_main" target="1.8" />
+      <module name="serialization-common_test" target="1.8" />
+      <module name="serialization-java_main" target="1.8" />
+      <module name="serialization-java_test" target="1.8" />
+      <module name="serialization-js_main" target="1.8" />
+      <module name="serialization-js_test" target="1.8" />
       <module name="shared" target="1.7" />
       <module name="structurizr" target="1.7" />
+      <module name="test-android_main" target="1.8" />
+      <module name="test-android_test" target="1.8" />
       <module name="TestSupport" target="1.7" />
       <module name="webeditor" target="1.7" />
       <module name="xmlutil-core" target="1.7" />

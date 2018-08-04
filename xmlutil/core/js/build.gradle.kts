@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
-
 /*
  * Copyright (c) 2018.
  *
@@ -16,6 +14,8 @@ import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
  * see <http://www.gnu.org/licenses/>.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+
 plugins {
     base
     id("kotlin-platform-js")
@@ -23,10 +23,10 @@ plugins {
 }
 
 base {
-    archivesBaseName="xmlutil-core"
+    setArchivesBaseName("xmlutil-core")
 }
 
-val serializationVersion:String by project
+val serializationVersion:String by rootProject
 
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
@@ -47,18 +47,3 @@ getTasks().withType<Kotlin2JsCompile> {
     }
 }
 
-
-//compileKotlin2Js {
-//    dependsOn tasks.copyCore
-//        kotlinOptions.outputFile = outDir + "xmlutil.js"
-//    kotlinOptions.sourceMap = true
-//    kotlinOptions.suppressWarnings = false
-//    kotlinOptions.verbose = true
-//    kotlinOptions.metaInfo = true
-//    kotlinOptions.moduleKind = "umd"
-//    kotlinOptions.main = "call"
-//}
-//
-//jar {
-//    baseName='xmlutil-js'
-//}

@@ -19,7 +19,6 @@ import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-//    `java-library`
     id("kotlin-platform-js")
     id("kotlinx-serialization")
 }

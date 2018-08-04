@@ -17,7 +17,6 @@
 plugins {
     base
     `java-library`
-//    id("com.android.library")
     id("kotlin-platform-jvm")
     id("kotlin-kapt")
     idea
@@ -28,12 +27,6 @@ plugins {
 val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
 val serializationVersion:String by project
-
-/*
-android {
-    compileSdkVersion(27)
-}
-*/
 
 base {
     archivesBaseName="xmlutil-core-android"
@@ -53,19 +46,6 @@ dependencies {
     implementation(kotlin("stdlib", kotlinVersion))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
-/*
-
-test {
-    useTestNG()
-}
-
-jar {
-    baseName = "${project.parent.name}-${project.name}"
-}
-
-sourceCompatibility = myJavaVersion
-targetCompatibility = myJavaVersion
-*/
 
 idea {
     module {
