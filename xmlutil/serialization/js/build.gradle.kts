@@ -34,7 +34,6 @@ val jupiterVersion:String by project
 
 dependencies {
     implementation(project(":xmlutil:core:js"))
-    implementation(project(":multiplatform:js"))
     implementation(kotlin("stdlib-js"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
 

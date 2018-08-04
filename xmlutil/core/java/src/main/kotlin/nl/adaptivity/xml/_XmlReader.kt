@@ -17,6 +17,9 @@
 @file:JvmName("XmlReaderUtil")
 package nl.adaptivity.xml
 
+import nl.adaptivity.xmlutil.XmlDeserializer
+import nl.adaptivity.xmlutil.XmlReader
+
 /**
  * Extension functions for XmlReader that only work on Java
  */

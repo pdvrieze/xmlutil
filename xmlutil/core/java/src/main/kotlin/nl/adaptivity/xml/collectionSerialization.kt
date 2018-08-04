@@ -16,6 +16,10 @@
 
 package nl.adaptivity.xml
 
+import nl.adaptivity.xmlutil.XmlSerializable
+import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.smartStartTag
+import nl.adaptivity.xmlutil.writeChildren
 import javax.xml.namespace.QName
 
 /**

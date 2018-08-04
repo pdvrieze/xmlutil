@@ -14,4 +14,4 @@
 # see <http://www.gnu.org/licenses/>.
 #
 
-nl.adaptivity.util.xml.KotlinxSerializationProvider
+nl.adaptivity.xmlutil.util.KotlinxSerializationProvider

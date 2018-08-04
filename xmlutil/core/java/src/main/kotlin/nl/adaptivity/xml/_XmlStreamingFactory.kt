@@ -14,11 +14,14 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.xmlutil
 
-import nl.adaptivity.util.AppendableWriter
-import nl.adaptivity.util.CharsequenceReader
-import java.io.*
+import nl.adaptivity.xmlutil.impl.CharsequenceReader
+import nl.adaptivity.xmlutil.impl.AppendableWriter
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.Writer
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 

@@ -2,7 +2,7 @@
   <configuration default="false" name="test JVM" type="org.spekframework.spek-jvm" factoryName="Spek - JVM">
     <module name="serialization-java" />
     <option name="target" value="spec" />
-    <option name="spec" value="nl.adaptivity.xml.serialization.testXML" />
+    <option name="spec" value="nl.adaptivity.xmlutil.serialization.testXML" />
     <option name="vm-parameters" value="" />
     <option name="program-parameters" value="" />
     <option name="working-directory" value="" />

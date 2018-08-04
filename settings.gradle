@@ -36,11 +36,6 @@ pluginManagement {
 }
 
 rootProject.name = "xmlutil"
-include(":multiplatform:common")
-include(":multiplatform:common-nonshared")
-include(":multiplatform:java")
-include(":multiplatform:jvm")
-include(":multiplatform:js")
 
 include(":xmlutil:core:common")
 include(":xmlutil:core:common-nonshared")
@@ -49,11 +44,9 @@ include(":xmlutil:core:jvm")
 include(":xmlutil:core:js")
 include(":xmlutil:serialization:common")
 include(":xmlutil:serialization:java")
-include(":xmlutil:serialization:test-android")
 include(":xmlutil:serialization:js")
 
 if (Boolean.parseBoolean(androidEnabledProp)) {
-    include(":multiplatform:android")
-    include(":java-common:android")
     include(":xmlutil:core:android")
+    include(":xmlutil:serialization:test-android")
 }

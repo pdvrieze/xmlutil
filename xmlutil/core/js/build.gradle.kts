@@ -31,7 +31,6 @@ val serializationVersion:String by rootProject
 dependencies {
     expectedBy(project(":xmlutil:core:common"))
     expectedBy(project(":xmlutil:core:common-nonshared"))
-    implementation(project(":multiplatform:js"))
     implementation(kotlin("stdlib-js"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
 }

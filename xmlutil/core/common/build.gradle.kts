@@ -32,7 +32,6 @@ val serializationVersion:String by project
 
 dependencies {
     implementation(kotlin("stdlib-common"))
-    implementation(project(":multiplatform:common"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
 }
 

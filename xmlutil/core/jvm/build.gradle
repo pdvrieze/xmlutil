@@ -29,7 +29,6 @@ archivesBaseName="xmlutil-core-jvm"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    api project(":multiplatform:jvm")
     expectedBy project(":xmlutil:core:common-nonshared")
     api project(":xmlutil:core:java")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")

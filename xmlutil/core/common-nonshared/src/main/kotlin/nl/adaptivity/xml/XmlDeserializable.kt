@@ -16,14 +16,14 @@
 @file:JvmMultifileClass
 @file:JvmName("XmlUtilDeserializable")
 
-package nl.adaptivity.xml
+package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.Transient
-import nl.adaptivity.util.multiplatform.JvmMultifileClass
-import nl.adaptivity.util.multiplatform.JvmName
-import nl.adaptivity.util.multiplatform.assert
-import nl.adaptivity.util.xml.ExtXmlDeserializable
-import nl.adaptivity.util.xml.SimpleXmlDeserializable
+import nl.adaptivity.xmlutil.multiplatform.JvmMultifileClass
+import nl.adaptivity.xmlutil.multiplatform.JvmName
+import nl.adaptivity.xmlutil.multiplatform.assert
+import nl.adaptivity.xmlutil.util.ExtXmlDeserializable
+import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
 
 
 /**
@@ -58,7 +58,8 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()
 
     val elementName = elementName
-    assert(reader.isElement(elementName)) { "Expected $elementName but found ${reader.localName}" }
+    assert(
+        reader.isElement(elementName)) { "Expected $elementName but found ${reader.localName}" }
 
     for (i in reader.attributeIndices.reversed()) {
         deserializeAttribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
