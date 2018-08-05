@@ -133,24 +133,22 @@ bintray {
         key = rootProject.property("bintrayApiKey") as String?
     }
 
-    setPublications("MyPublication")
+    setPublications("jvmPublication", "androidPublication")
 
-    for (artId in listOf("xmlutil-serialization-jvm", "xmlutil-serialization-android")) {
-        pkg(closureOf<BintrayExtension.PackageConfig> {
-            repo = "maven"
-            name = artId
-            userOrg = "pdvrieze"
-            setLicenses("LGPL-3.0")
-            vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
+    pkg(closureOf<BintrayExtension.PackageConfig> {
+        repo = "maven"
+        name = "xmlutil-serialization"
+        userOrg = "pdvrieze"
+        setLicenses("LGPL-3.0")
+        vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
 
-            version.apply {
-                name = xmlutil_version
-                desc = xmlutil_versiondesc
-                released = Date().toString()
-                vcsTag = "v$version"
-            }
-        })
-    }
+        version.apply {
+            name = xmlutil_version
+            desc = xmlutil_versiondesc
+            released = Date().toString()
+            vcsTag = "v$version"
+        }
+    })
 }
 
 tasks.withType<BintrayUploadTask> {
