@@ -86,18 +86,13 @@ fun Node.dependency(groupId: String,
 */
 
 fun KotlinBuildScript.doPublish(sourceJar: Jar) {
-    val serializationVersion: String by project
     val xmlutil_version: String by project
     val xmlutil_versiondesc: String by project
-    val kotlin_version: String by project
 
 
-    if (version == "unspecified") {
-        version = xmlutil_version
-    }
+    if (version == "unspecified") version = xmlutil_version
     group = "net.devrieze"
 
-    logger.lifecycle("The project name is: ${project.parent?.name}:${project.name}")
     val artId = when (project.parent?.name) {
         "serialization" -> "xmlutil-serialization-${project.name}"
         else            -> "xmlutil-${project.name}"
@@ -108,9 +103,7 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar) {
     extensions.configure<PublishingExtension>("publishing") {
         (publications) {
             "MyPublication"(MavenPublication::class) {
-                val jarTask = tasks.getByName("jar")
                 from(components["java"])
-//                artifact(jarTask)
 
                 groupId = project.group as String
                 artifactId = artId
@@ -121,26 +114,12 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar) {
                 pom {
                     withXml {
                         dependencies {
-                            val toRemove = nodeChildren()
+                            nodeChildren()
                                     .filter { it.child(GROUPID)?.text()?.startsWith("xmlutil")!=false }
                                     .forEach{remove(it)}
                         }
                     }
                 }
-/*
-
-                pom {
-                    withXml {
-                        dependencies {
-
-                            dependency("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-                            dependency("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion",
-                                       type = "jar")
-                        }
-                    }
-                }
-*/
-
             }
         }
     }
@@ -174,37 +153,4 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar) {
         dependsOn(sourceJar)
     }
 
-    logger
 }
-
-private fun Project.resolveDep(t: Any?, parentTask: Task, depth: Int = 0): List<Any> {
-    val logger = Logging.getLogger(Logging.LIFECYCLE.name)
-    logger.lifecycle(
-            "Getting dependencies for $t ($depth) : (${t?.javaClass} - ${t!!.javaClass.interfaces.joinToString()})")
-    return when (t) {
-        is Configuration      -> {
-            logger.info("  found configuration")
-            t.buildDependencies.getDependencies(parentTask).map {
-                resolveDep(it, parentTask, depth + 1)
-            }        }
-        is Buildable          -> t.buildDependencies.getDependencies(parentTask).map {
-            resolveDep(it, parentTask, depth + 1)
-        }
-        is SourceTask         -> t.dependsOn.flatMap { resolveDep(it, t, depth + 1) } +
-                                 resolveDep(t.source, t, depth + 1)
-        is DependentSourceSet -> t.dependencies.dependencies.toList()
-        is Task               -> t.dependsOn.flatMap { resolveDep(it, t, depth + 1) }
-        is Closure<*>         -> resolveDep(t.invoke(), parentTask, depth + 1)
-        is TaskDependency     -> t.getDependencies(parentTask).map { resolveDep(it, parentTask, depth + 1) }
-        is Iterable<*>        -> t.mapNotNull { resolveDep(it, parentTask, depth + 1) }
-        is ProjectDependency  -> listOf(t.dependencyProject)
-        is String             -> resolveDep(tasks.findByName(t), parentTask, depth)
-        else                  -> {
-            logger.lifecycle("XXX - unsupported type ${t.javaClass}"); emptyList()
-        }
-
-    }
-}
-
-
-fun Project.resolveDeps(task: Task) = task.dependsOn.flatMap { resolveDep(it, task) }

@@ -58,7 +58,7 @@ java {
 }
 
 
-val sourcesJar = task<Jar>("androidSourcesJar") {
+val sourcesJar = task<Jar>("mySourcesJar") {
     from(java.sourceSets["main"].allSource)
 }
 

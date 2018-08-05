@@ -14,20 +14,35 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
+import groovy.util.Node
+import net.devrieze.gradle.ext.*
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Date
 
 plugins {
-    `java-library`
     id("kotlin-platform-jvm")
+    `java-library`
     id("kotlinx-serialization")
+    id("maven-publish")
+    id("com.jfrog.bintray")
 }
 
 base {
     archivesBaseName="xmlutil-serialization-jvm"
 }
 
+
+val xmlutil_version: String by project
+val xmlutil_versiondesc: String by project
+
+
+if (version == "unspecified") version = xmlutil_version
+group = "net.devrieze.serialization"
+description = "Serializer for XML based on kotlinx.serialization"
 
 val serializationVersion:String by project
 val spekVersion:String by project
@@ -65,6 +80,79 @@ repositories {
     maven(url = "https://kotlin.bintray.com/kotlinx")
 }
 
-tasks.withType<Test> {
+tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+
+
+val sourcesJar = task<Jar>("mySourcesJar") {
+    from(java.sourceSets["main"].allSource)
+    classifier="sources"
+}
+
+publishing {
+    (publications) {
+        for (suffix in listOf("jvm", "android")) {
+            val artId = "xmlutil-serialization-$suffix"
+            "${suffix}Publication"(MavenPublication::class) {
+                from(components["java"])
+
+                groupId = "net.devrieze"
+                artifactId = artId
+                artifact(sourcesJar)
+                pom {
+                    withXml {
+                        dependencies {
+                            // Drop common (nonpublished) modules dependencies
+                            nodeChildren()
+                                    .filter { it.child(GROUPID)?.text()?.startsWith("xmlutil") != false }
+                                    .forEach { remove(it) }
+
+                            // Replace the dependency with a platform specific one
+                            nodeChildren()
+                                    .asSequence()
+                                    .mapNotNull { it.child("artifactId") }
+                                    .filter { it.text() == "xmlutil-java" }
+                                    .forEach { it: Node -> it.setValue("xmlutil-$suffix") }
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+    }
+}
+
+bintray {
+
+    if (rootProject.hasProperty("bintrayUser")) {
+        user = rootProject.property("bintrayUser") as String?
+        key = rootProject.property("bintrayApiKey") as String?
+    }
+
+    setPublications("MyPublication")
+
+    for (artId in listOf("xmlutil-serialization-jvm", "xmlutil-serialization-android")) {
+        pkg(closureOf<BintrayExtension.PackageConfig> {
+            repo = "maven"
+            name = artId
+            userOrg = "pdvrieze"
+            setLicenses("LGPL-3.0")
+            vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
+
+            version.apply {
+                name = xmlutil_version
+                desc = xmlutil_versiondesc
+                released = Date().toString()
+                vcsTag = "v$version"
+            }
+        })
+    }
+}
+
+tasks.withType<BintrayUploadTask> {
+    dependsOn(sourcesJar)
 }
