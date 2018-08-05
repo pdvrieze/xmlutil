@@ -1,9 +1,15 @@
+# Versions
+* License: [![GitHub license](https://img.shields.io/badge/License-LGPL%203-blue.svg?style=flat)](COPYING.LESSER)
+* JVM: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-jvm/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-jvm/_latestVersion) 
+* Android: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-android/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-android/_latestVersion) 
+* Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-serialization/_latestVersion) 
+
 # Introduction
 
-  This project is a cross-platform XML serialization library compatible with kotlin serialization. It provides
-  capabilities for Android, JVM and JS (alpha quality)
+This project is a cross-platform XML serialization library compatible with kotlin serialization. It provides
+capabilities for Android, JVM and JS (alpha quality)
 
-  It also provides serialization support
+It also provides serialization support
 
 **Help wanted**: Any help with extending this project is welcome. Help is especially needed for the following aspects:
 
