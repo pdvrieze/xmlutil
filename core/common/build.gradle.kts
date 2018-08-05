@@ -14,19 +14,23 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+import net.devrieze.gradle.ext.doPublish
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("kotlin-platform-common")
+    id("kotlinx-serialization")
+    id("maven-publish")
+    id("com.jfrog.bintray")
+}
 
 base {
     archivesBaseName="xmlutil-core-common"
 }
 
 
-plugins {
-    id("kotlin-platform-common")
-    id("kotlinx-serialization")
-}
 
 val serializationVersion:String by project
 
@@ -38,3 +42,12 @@ dependencies {
 repositories {
     jcenter()
 }
+
+
+val sourcesJar = task<Jar>("mySourcesJar") {
+    from(java.sourceSets["main"].allSource)
+}
+
+
+doPublish(sourcesJar, "xmlutil-common")
+
