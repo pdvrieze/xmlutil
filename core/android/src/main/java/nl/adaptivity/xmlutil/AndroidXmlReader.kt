@@ -21,11 +21,14 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
 import java.io.Reader
 
+/**
+ * Type alias that allows cross-platform reference to the platform reader.
+ */
 actual typealias PlatformXmlReader = AndroidXmlReader
 
 
 /**
- * Created by pdvrieze on 15/11/15.
+ * And XMLReader implementation that works on Android
  */
 class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     override var isStarted = false

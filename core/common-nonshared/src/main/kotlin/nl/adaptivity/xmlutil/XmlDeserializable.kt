@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2018.
  *
- * This file is part of ProcessManager.
+ * This file is part of xmlutil.
  *
- * ProcessManager is free software: you can redistribute it and/or modify it under the terms of version 3 of the
+ * xmlutil is free software: you can redistribute it and/or modify it under the terms of version 3 of the
  * GNU Lesser General Public License as published by the Free Software Foundation.
  *
- * ProcessManager is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ * xmlutil is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
+ * You should have received a copy of the GNU Lesser General Public License along with xmlutil.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
 @file:JvmMultifileClass
@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
 /**
  * Created by pdvrieze on 04/11/15.
  */
+@Deprecated("Use kotlinx.serialization instead")
 interface XmlDeserializable {
 
     /**
@@ -54,6 +55,7 @@ interface XmlDeserializable {
 }
 
 
+@Deprecated("Use kotlinx.serialization instead")
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()
 

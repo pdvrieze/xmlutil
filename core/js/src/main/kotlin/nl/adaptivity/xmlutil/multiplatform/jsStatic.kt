@@ -34,9 +34,6 @@ actual annotation class JvmName actual constructor(actual val name: String)
 @MustBeDocumented
 actual annotation class JvmOverloads
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
-actual annotation class JvmDefault
-
 @Target(AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
