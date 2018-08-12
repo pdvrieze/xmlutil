@@ -14,4 +14,4 @@
 # see <http://www.gnu.org/licenses/>.
 #
 
-nl.adaptivity.util.xml.DefaultSerializationProvider
+nl.adaptivity.xmlutil.util.DefaultSerializationProvider
