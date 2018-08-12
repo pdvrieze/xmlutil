@@ -85,13 +85,12 @@ fun Node.dependency(groupId: String,
 }
 */
 
-fun KotlinBuildScript.doPublish(sourceJar: Jar) {
+fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
     val xmlutil_version: String by project
     val xmlutil_versiondesc: String by project
 
 
     if (version == "unspecified") version = xmlutil_version
-    group = "net.devrieze"
 
     val artId = when (project.parent?.name) {
         "serialization" -> "xmlutil-serialization-${project.name}"
@@ -105,7 +104,7 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar) {
             "MyPublication"(MavenPublication::class) {
                 from(components["java"])
 
-                groupId = project.group as String
+                groupId = "net.devrieze"
                 artifactId = artId
                 artifact(sourceJar).apply {
                     classifier = "sources"
@@ -135,7 +134,7 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar) {
 
         pkg(closureOf<BintrayExtension.PackageConfig> {
             repo = "maven"
-            name = artId
+            name = bintrayId ?: artId
             userOrg = "pdvrieze"
             setLicenses("LGPL-3.0")
             vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
