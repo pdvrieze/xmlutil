@@ -23,6 +23,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     var kind: KSerialClassKind? = null
 
     var childInfo: Array<ChildInfo> = emptyArray()
+    var classAnnotations: List<Annotation> = emptyList()
 
     var currentChildIndex = -1;
 
@@ -34,6 +35,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         if (currentChildIndex<0) { // This is called at every load as we restart load every time
             kind = desc.kind
             childInfo = Canary.childInfoForClassDesc(desc)
+            classAnnotations = desc.getAnnotationsForClass()
         }
         return this
     }
@@ -199,7 +201,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
             throw IllegalStateException("No kind for input")
         }
 
-        return ExtInfo(kind, childInfo, type, isNullable)
+        return ExtInfo(kind, classAnnotations, childInfo, type, isNullable)
     }
 
     internal class SuspendException(val finished: Boolean = false): Exception()

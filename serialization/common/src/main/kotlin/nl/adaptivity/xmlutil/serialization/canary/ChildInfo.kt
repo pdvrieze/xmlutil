@@ -17,16 +17,38 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.KSerialClassKind
+import kotlin.reflect.KClass
 
 data class ChildInfo(val name: String,
-                     val annotations: List<Annotation> = emptyList(),
+                     val useAnnotations: List<Annotation> = emptyList(),
+                     var classAnnotations: List<Annotation>,
                      override var kind: KSerialClassKind? = null,
                      var childCount: Int = 0,
                      override var type: ChildType = ChildType.UNKNOWN,
                      override var isNullable: Boolean = false) : BaseInfo {
 
     override fun toString(): String {
-        return "ChildInfo(name='$name', annotations=$annotations, kind=$kind, childCount=$childCount, type=$type, isNullable=$isNullable)"
+        return "ChildInfo(name='$name', useAnnotations=$useAnnotations, classAnnotations=$classAnnotations, kind=$kind, childCount=$childCount, type=$type, isNullable=$isNullable)"
+    }
+
+    inline fun <reified T> findAnnotation():T? {
+        for (e in useAnnotations) {
+            if (e is T) return e
+        }
+        for (e in classAnnotations) {
+            if (e is T) return e
+        }
+        return null
+    }
+
+    fun <T:Annotation> findAnnotation(klass: KClass<T>): T? {
+        for (e in useAnnotations) {
+            if (klass.isInstance(e)) return e as T
+        }
+        for (e in classAnnotations) {
+            if (klass.isInstance(e)) return e as T
+        }
+        return null
     }
 }
 

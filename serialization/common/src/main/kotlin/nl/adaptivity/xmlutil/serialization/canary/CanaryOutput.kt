@@ -24,6 +24,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     var index: Int = -1
     var kind: KSerialClassKind? = null
     var childInfo: Array<ChildInfo> = emptyArray()
+    var classAnnotations: List<Annotation> = emptyList()
 
     var type: ChildType = ChildType.UNKNOWN
 
@@ -41,6 +42,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
         currentClassDesc = desc
         kind = desc.kind
+        classAnnotations = desc.getAnnotationsForClass()
 
         childInfo = childInfoForClassDesc(desc)
         return this
@@ -59,6 +61,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
             val childAtIndex = childInfo[index]
             if (poll!=null) {
                 childAtIndex.kind = poll.kind
+                childAtIndex.classAnnotations = poll.classAnnotations
                 childAtIndex.isNullable = childAtIndex.isNullable || poll.isNullable
                 childAtIndex.type = poll.type
                 childAtIndex.childCount = poll.childInfo.size
@@ -68,6 +71,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
 
                     childAtIndex.kind = it.kind
                     childAtIndex.type = it.type
+                    childAtIndex.classAnnotations = it.classAnnotations
                     childAtIndex.childCount = it.childInfo.size
                     childAtIndex.isNullable = childAtIndex.isNullable || it.isNullable
                 }
@@ -152,7 +156,7 @@ class CanaryOutput(val isDeep: Boolean = true) : ElementValueOutput() {
     }
 
     fun extInfo(): ExtInfo {
-        return ExtInfo(kind, childInfo, type, isNullable)
+        return ExtInfo(kind, classAnnotations, childInfo, type, isNullable)
     }
 }
 

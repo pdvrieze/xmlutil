@@ -72,7 +72,7 @@ object testXML : Spek(
         given ("A data class with optional boolean") {
             val location = Location(
                 Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><addres houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
+            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
 
             on("Serialization with XML") {
                 val serialized = XML.stringify(location)
@@ -294,7 +294,7 @@ object testXML : Spek(
             val poly2 = Container3("name2", listOf(ChildA("data"),
                                                    ChildB("xxx"),
                                                    ChildA("yyy")))
-            val expected = "<Container3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></Container3>"
+            val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
             on ("serialization") {
                 val serialized = XML.stringify(poly2)
 

@@ -90,10 +90,10 @@ object Canary {
             KSerialClassKind.MAP,
             KSerialClassKind.SET,
             KSerialClassKind.LIST
-                 -> arrayOf(ChildInfo("count"), ChildInfo("values"))
+                 -> arrayOf(ChildInfo("count", classAnnotations = emptyList()), ChildInfo("values", classAnnotations = emptyList()))
 
             else -> Array(desc.associatedFieldsCount) {
-                ChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it))
+                ChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it), emptyList())
             }
         }
     }
