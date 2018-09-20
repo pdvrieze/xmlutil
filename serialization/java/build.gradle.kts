@@ -87,7 +87,7 @@ tasks.getByName<Test>("test") {
 
 
 val sourcesJar = task<Jar>("mySourcesJar") {
-    from(java.sourceSets["main"].allSource)
+    from(sourceSets["main"].allSource)
     classifier="sources"
 }
 
@@ -95,7 +95,7 @@ publishing {
     (publications) {
         for (suffix in listOf("jvm", "android")) {
             val artId = "xmlutil-serialization-$suffix"
-            "${suffix}Publication"(MavenPublication::class) {
+            register<MavenPublication>("${suffix}Publication") {
                 from(components["java"])
 
                 groupId = "net.devrieze"

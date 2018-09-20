@@ -101,7 +101,7 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
 
     extensions.configure<PublishingExtension>("publishing") {
         (publications) {
-            "MyPublication"(MavenPublication::class) {
+            register<MavenPublication>("MyPublication") {
                 from(components["java"])
 
                 groupId = "net.devrieze"

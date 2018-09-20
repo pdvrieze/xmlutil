@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Test Android" type="org.spekframework.spek-jvm" factoryName="Spek - JVM">
-    <module name="test-android" />
+    <module name="xmlutil.serialization-test-android" />
     <option name="target" value="spec" />
     <option name="spec" value="nl.adaptivity.xmlutil.serialization.testXML" />
     <option name="vm-parameters" value="" />

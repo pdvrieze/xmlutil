@@ -45,7 +45,7 @@ repositories {
 
 
 val sourcesJar = task<Jar>("mySourcesJar") {
-    from(java.sourceSets["main"].allSource)
+    from(sourceSets["main"].allSource)
 }
 
 

@@ -54,7 +54,7 @@ dependencies {
 
 
 val sourcesJar = task<Jar>("androidSourcesJar") {
-    from(java.sourceSets["main"].allSource)
+    from(sourceSets["main"].allSource)
 }
 
 doPublish(sourcesJar)
