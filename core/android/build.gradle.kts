@@ -1,4 +1,7 @@
+import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import net.devrieze.gradle.ext.doPublish
+import java.util.Date
 
 /*
  * Copyright (c) 2018.
@@ -20,8 +23,8 @@ plugins {
     base
     `java-library`
     id("kotlin-platform-jvm")
-    id("kotlin-kapt")
-    idea
+//    id("kotlin-kapt")
+    id("idea")
     id("kotlinx-serialization")
     id("maven-publish")
     id("com.jfrog.bintray")
@@ -32,24 +35,25 @@ val kotlin_version: String by rootProject
 val kotlinVersion get() = kotlin_version as String?
 val serializationVersion:String by project
 val xmlutil_version:String by project
-val x: Build_gradle = this
+
+description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"
+
 base {
     archivesBaseName="xmlutil-core-android"
 }
 
-
 version = xmlutil_version
-description = "Utility classes for xml handling that works across platforms (jvm/js/android), and more powerful than jaxb"
 
 
 dependencies {
+    implementation(kotlin("stdlib", kotlinVersion))
+    expectedBy(project(":core:common-nonshared"))
+    api(project(":core:java"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+
     compileOnly("net.sf.kxml:kxml2:2.3.0")
     testRuntime("net.sf.kxml:kxml2:2.3.0")
 
-    expectedBy(project(":core:common-nonshared"))
-    api(project(":core:java"))
-    implementation(kotlin("stdlib", kotlinVersion))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 }
 
 

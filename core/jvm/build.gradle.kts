@@ -20,7 +20,8 @@ import java.util.Date
  */
 
 plugins {
-    id("java-library")
+    base
+    `java-library`
     id("kotlin-platform-jvm")
     id("idea")
     id("kotlinx-serialization")
@@ -28,6 +29,7 @@ plugins {
     id("com.jfrog.bintray")
 }
 
+@Suppress("PropertyName")
 val kotlin_version:String by project
 val serializationVersion:String by project
 val myJavaVersion:JavaVersion by project
@@ -41,7 +43,8 @@ base {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    implementation(kotlin("stdlib-jdk8", kotlin_version))
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     expectedBy(project(":core:common-nonshared"))
     api(project(":core:java"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
