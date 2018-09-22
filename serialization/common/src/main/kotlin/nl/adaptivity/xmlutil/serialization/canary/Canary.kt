@@ -17,11 +17,30 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
+import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 
 object Canary {
 
     private val saverMap = mutableMapOf<KSerialSaver<*>, ExtInfo>()
     private val loaderMap = mutableMapOf<KSerialLoader<*>, ExtInfo>()
+
+    private val saverMap2 = mutableMapOf<KSerialSaver<*>, SerialDescriptor>()
+    private val loaderMap2 = mutableMapOf<KSerialLoader<*>, SerialDescriptor>()
+
+    fun <T> serialDescriptor(saver: KSerialSaver<T>, obj: T): SerialDescriptor {
+        val current = saverMap2[saver]?.also { return it }
+        if (current != null) return current
+
+        val output = CanaryOutput2((saver as? KSerializer<*>)?.serialClassDesc)
+        saver.save(output, obj)
+        val new: SerialDescriptor = output.serialDescriptor()
+
+        saverMap2[saver] = new
+
+        return new
+    }
+
+    fun <T> serialDescriptor(loader: KSerialLoader<T>): SerialDescriptor = TODO()
 
     fun <T> extInfo(saver: KSerialSaver<T>, obj: T): ExtInfo {
         val current = saverMap[saver]
@@ -83,6 +102,22 @@ object Canary {
 
     fun <T> pollInfo(loader: KSerialLoader<T>): ExtInfo? {
         return loaderMap[loader]
+    }
+
+    fun <T> pollDesc(saver: KSerialSaver<T>): SerialDescriptor? {
+        return saverMap2[saver]
+    }
+
+    internal fun registerDesc(saver: KSerialSaver<*>, desc: SerialDescriptor) {
+        saverMap2[saver] = desc
+    }
+
+    internal fun registerDesc(loader: KSerialLoader<*>, desc: SerialDescriptor) {
+        loaderMap2[loader] = desc
+    }
+
+    fun <T> pollDesc(loader: KSerialLoader<T>): SerialDescriptor? {
+        return loaderMap2[loader]
     }
 
     internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo> {

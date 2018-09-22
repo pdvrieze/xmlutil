@@ -71,14 +71,14 @@ data class Business(val name: String, @XmlSerialName("headOffice", "", "") val h
 
 @Serializable
 @XmlSerialName("chamber", namespace = "", prefix = "")
-data class Chamber(val name: String, @SerialName("member") val members: List<Business>)
+data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
 
 @Serializable
 @XmlSerialName("localname", "urn:namespace", prefix = "")
 data class Special(val paramA: String = "valA",
                    @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
                    @XmlElement(true) val paramB: Int = 1,
-                   @SerialName("flags")
+                   @XmlSerialName("flags", namespace ="urn:namespace", prefix = "")
                    @XmlChildrenName("flag", namespace="urn:flag", prefix="f")
                    val param: List<Int> = listOf(2, 3, 4, 5, 6))
 

@@ -79,7 +79,7 @@ object testXML : Spek(
                 it("should serialize to the expected xml") {
                     assertEquals(expectedXml,serialized)
                 }
-                it("should also parse to the original") {
+                xit("should also parse to the original") {
                     assertEquals(location, XML.parse<Location>(serialized))
                 }
 
@@ -326,7 +326,7 @@ object testXML : Spek(
             }
         }
 
-        xgiven("A container with sealed children") {
+        given("A container with sealed children") {
             val sealed = Sealed("mySealed", listOf(SealedA("a-data"),
                                                    SealedB("b-data")))
             val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"

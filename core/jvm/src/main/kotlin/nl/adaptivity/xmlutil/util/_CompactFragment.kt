@@ -91,7 +91,7 @@ actual class CompactFragment: ICompactFragment {
   }
 
   override fun toString(): String {
-      return namespaces.joinToString(prefix="{namespaces=[", postfix = "], content=$contentString}") { "${it.prefix} -> ${it.namespaceURI} }" }
+      return namespaces.joinToString(prefix="{namespaces=[", postfix = "], content=$contentString}") { "${it.prefix} -> ${it.namespaceURI}" }
   }
 
   override val contentString: String

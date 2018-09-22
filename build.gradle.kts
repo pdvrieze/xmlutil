@@ -29,7 +29,7 @@ ext {
 }
 
 task<Wrapper>("wrapper") {
-    gradleVersion = "4.9"
+    gradleVersion = "4.10.2"
 }
 
 allprojects {

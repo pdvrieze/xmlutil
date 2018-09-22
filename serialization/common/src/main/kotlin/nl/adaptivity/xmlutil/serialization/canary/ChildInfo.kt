@@ -17,6 +17,11 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.KSerialClassKind
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.internal.*
+import nl.adaptivity.xmlutil.serialization.compat.PrimitiveKind
+import nl.adaptivity.xmlutil.serialization.compat.SerialKind
+import nl.adaptivity.xmlutil.serialization.compat.StructureKind
 import kotlin.reflect.KClass
 
 data class ChildInfo(val name: String,
@@ -43,9 +48,11 @@ data class ChildInfo(val name: String,
 
     fun <T:Annotation> findAnnotation(klass: KClass<T>): T? {
         for (e in useAnnotations) {
+            @Suppress("UNCHECKED_CAST")
             if (klass.isInstance(e)) return e as T
         }
         for (e in classAnnotations) {
+            @Suppress("UNCHECKED_CAST")
             if (klass.isInstance(e)) return e as T
         }
         return null
@@ -53,21 +60,22 @@ data class ChildInfo(val name: String,
 }
 
 
-enum class ChildType {
-    DOUBLE,
-    INT,
-    FLOAT,
-    STRING,
-    UNKNOWN,
-    BOOLEAN,
-    BYTE,
-    UNIT,
-    CHAR,
-    ENUM,
-    LONG,
-    NONSERIALIZABLE,
-    SHORT,
-    ELEMENT;
+enum class ChildType(private val serializer: KSerializer<*>?, val serialKind: SerialKind) {
+    DOUBLE(DoubleSerializer, PrimitiveKind.DOUBLE),
+    INT(IntSerializer, PrimitiveKind.INT),
+    FLOAT(FloatSerializer, PrimitiveKind.FLOAT),
+    STRING(StringSerializer, PrimitiveKind.STRING),
+    UNKNOWN(null, StructureKind.CLASS),
+    BOOLEAN(BooleanSerializer, PrimitiveKind.BOOLEAN),
+    BYTE(BooleanSerializer, PrimitiveKind.BYTE),
+    UNIT(UnitSerializer, PrimitiveKind.UNIT),
+    CHAR(CharSerializer, PrimitiveKind.CHAR),
+    ENUM(null, PrimitiveKind.ENUM),
+    LONG(LongSerializer, PrimitiveKind.LONG),
+    NONSERIALIZABLE(null, StructureKind.CLASS),
+    SHORT(ShortSerializer, PrimitiveKind.SHORT),
+    @Deprecated("Don't use this, it is unclear")
+    ELEMENT(null, StructureKind.CLASS);
 
     val isPrimitive
         get() = when(this) {
@@ -77,4 +85,7 @@ enum class ChildType {
             ChildType.NONSERIALIZABLE -> false
             else            -> true
         }
+
+    val primitiveSerializer: KSerializer<*> get() = serializer!!
+
 }

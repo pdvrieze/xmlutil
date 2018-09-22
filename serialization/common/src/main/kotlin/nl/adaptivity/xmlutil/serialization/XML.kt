@@ -21,6 +21,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.canary.*
+import nl.adaptivity.xmlutil.serialization.compat.EncoderOutput
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -104,16 +105,26 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         prefix: String? = null,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
         target.indent = indent
+/*
         val extInfo = try {
             Canary.extInfo(serializer, obj)
         } catch (e: Exception) {
             println(e.message)
             throw e
         }
+*/
 
+        val serialDescriptor = Canary.serialDescriptor(serializer, obj)
 
+        val encoder = XmlEncoderBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>, prefix),
+                                                              kClass.getChildName(), kClass.name, serialDescriptor)
+
+        val output = EncoderOutput(encoder, serialDescriptor)
+
+/*
         val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>, prefix),
                                                             kClass.getChildName(), kClass.name, extInfo)
+*/
 
         output.write(serializer, obj)
     }
@@ -482,7 +493,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                      (serialName.prefix == name.prefix)) -> QName(
                         name.localPart) // Breaks in android otherwise
 
-                    else -> name
+                    else                                          -> name
                 }
 
                 target.writeAttribute(actualAttrName, value)
@@ -1321,11 +1332,13 @@ internal data class XmlTagImpl(val desc: KSerialClassDesc,
 
 internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
 
+internal fun XmlChildrenName.toQName() = QName(namespace, value, prefix)
+
 internal data class PolyInfo(val kClass: String, val tagName: QName, val index: Int)
 
 internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
 
-private inline fun <reified T> Iterable<*>.firstOrNull(): T? {
+internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     for (e in this) {
         if (e is T) return e
     }

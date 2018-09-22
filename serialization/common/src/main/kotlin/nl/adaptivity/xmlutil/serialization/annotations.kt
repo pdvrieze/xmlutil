@@ -52,7 +52,7 @@ annotation class XmlChildrenName(val value: String,
 annotation class XmlElement(val value: Boolean/* = true*/)
 
 /**
- * Force a property to be element content
+ * Force a property to be text element content
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
