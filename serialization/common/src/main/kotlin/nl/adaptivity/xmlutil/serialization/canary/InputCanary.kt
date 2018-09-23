@@ -16,25 +16,38 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
+
 import kotlinx.serialization.*
+import nl.adaptivity.xmlutil.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
+import nl.adaptivity.xmlutil.serialization.compat.asSerialKind
 import kotlin.reflect.KClass
 
-internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
+internal class InputCanary(val deep: Boolean = true): ElementValueInput() {
+    lateinit var kSerialClassDesc: KSerialClassDesc
+
     var kind: KSerialClassKind? = null
 
-    var childInfo: Array<OldChildInfo> = emptyArray()
+    internal var childInfo: Array<ChildInfo?> = emptyArray()
     var classAnnotations: List<Annotation> = emptyList()
 
-    var currentChildIndex = -1;
+    var currentChildIndex = -1
 
     private var type: ChildType = ChildType.UNKNOWN
 
-    var isNullable = false
+    var isClassNullable = false
+    var isCurrentElementNullable = false
+
+    var canBeComplete: Boolean = true
+
+    var complete: Boolean = false
+
 
     override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {
         if (currentChildIndex<0) { // This is called at every load as we restart load every time
+            kSerialClassDesc = desc
             kind = desc.kind
-            childInfo = Canary.childInfoForClassDesc(desc)
+            childInfo = childInfoForClassDesc(desc)
             classAnnotations = desc.getAnnotationsForClass()
         }
         return this
@@ -44,6 +57,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         if (type == ChildType.UNKNOWN) {
             type = ChildType.CLASS
         }
+        if (canBeComplete) complete=true
         throw SuspendException(true)
     }
 
@@ -59,28 +73,21 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     override fun <T> readSerializableValue(loader: KSerialLoader<T>): Nothing {
-        val extInfo = Canary.pollInfo(loader)
-        if (extInfo!=null) {
-            val currentInfo = childInfo[currentChildIndex]
-            extInfo.kind?.let{ currentInfo.kind = it }
-            currentInfo.type = extInfo.type
-            currentInfo.childCount = extInfo.childInfo.size
+        val polledDesc = Canary.pollDesc(loader)
+        if (polledDesc!=null) {
+            childInfo[currentChildIndex] = ChildInfo(polledDesc, isCurrentElementNullable)
         } else if(deep) {
-            val childIn = CanaryInput(false)
+            val childIn = InputCanary(false)
+
             Canary.load(childIn, loader)
-            val currentInfo = childInfo[currentChildIndex]
-            val inKind = childIn.kind
-            if (inKind ==null) {
-                if (childIn.currentChildIndex<0) {
-                    currentInfo.kind = KSerialClassKind.PRIMITIVE
-                } else {
-                    throw IllegalStateException("Unexpected null value for child kind")
-                }
+
+            val newDesc = childIn.serialDescriptor()
+            childInfo[currentChildIndex] = ChildInfo(newDesc, isCurrentElementNullable)
+            if (childIn.complete) {
+                Canary.registerDesc(loader, newDesc)
             } else {
-                currentInfo.kind = inKind
+                canBeComplete = false
             }
-            currentInfo.type = childIn.type
-            currentInfo.childCount = childIn.childInfo.size
         }
         throw SuspendException()
     }
@@ -95,15 +102,16 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     private fun setCurrentChildType(type: ChildType):Nothing {
+        assert(type.isPrimitive)
         val index = currentChildIndex
         if (index < 0) {
+            kSerialClassDesc = type.primitiveSerializer.serialClassDesc
             this.type = type
-            this.kind = KSerialClassKind.PRIMITIVE
         } else if (index < childInfo.size) {
-            val ci = childInfo[index]
-            ci.kind = KSerialClassKind.PRIMITIVE
-            ci.type = type
+            childInfo[index] = ChildInfo(type.primitiveSerialDescriptor, isCurrentElementNullable)
         }
+        currentChildIndex = -1
+        isCurrentElementNullable = false
         throw SuspendException(childInfo.isEmpty())
     }
 
@@ -132,13 +140,20 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
     }
 
     override fun readIntValue(): Int {
-        if (kind==KSerialClassKind.LIST && currentChildIndex==0) {
-            if (childInfo.isNotEmpty()) {
-                val ci = childInfo[0]
-                ci.kind = KSerialClassKind.PRIMITIVE
-                ci.type = ChildType.INT
+        if (currentChildIndex == 0) {
+            @Suppress("NON_EXHAUSTIVE_WHEN")
+            when (kind) {
+                KSerialClassKind.LIST,
+                KSerialClassKind.SET,
+                KSerialClassKind.MAP -> {
+                    if (childInfo.isNotEmpty()) {
+                        childInfo[0] = ChildInfo(ChildType.INT.primitiveSerialDescriptor, false)
+                    }
+                    currentChildIndex = -1
+                    isCurrentElementNullable = false
+                    return 1 // One simulated element
+                }
             }
-            return 1 // One simulated element
         }
         setCurrentChildType(ChildType.INT)
     }
@@ -149,30 +164,33 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
 
     override fun readNotNullMark(): Boolean {
         if (currentChildIndex>=0) {
-            childInfo[currentChildIndex].isNullable = true
+            isCurrentElementNullable = true
         } else {
-            isNullable = true
+            isClassNullable = true
         }
         return true
     }
 
     override fun readNullValue(): Nothing? {
         if (currentChildIndex>=0) {
-            childInfo[currentChildIndex].isNullable = true
+            isCurrentElementNullable = true
         } else {
-            isNullable = true
+            isClassNullable = true
         }
         return null
     }
 
+/*
+    // Don't override this as we want to use the default that reads a not-null mark and then the value
     override fun readNullableValue(): Any? {
         if (currentChildIndex>=0) {
-            childInfo[currentChildIndex].isNullable = true
+            isCurrentElementNullable = true
         } else {
-            isNullable = true
+            isClassNullable = true
         }
         return null
     }
+*/
 
     override fun readShortValue(): Short {
         setCurrentChildType(ChildType.SHORT)
@@ -182,7 +200,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         // We need to special case the Polymorphic serializer as it requires the children to be read in order
         // This mean bailing out to continue at the next index is invalid.
         if (kind == KSerialClassKind.POLYMORPHIC && currentChildIndex==0) {
-            childInfo[currentChildIndex].type = ChildType.STRING
+            childInfo[0] = ChildInfo(ChildType.STRING.primitiveSerialDescriptor)
             return "nl.adaptivity.xmlutil.serialization.canary.CanaryInput\$Dummy"
         }
         setCurrentChildType(ChildType.STRING)
@@ -196,16 +214,17 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
         setCurrentChildType(ChildType.NONSERIALIZABLE)
     }
 
-    fun extInfo(): ExtInfo {
-        if (kind==null) {
-            throw IllegalStateException("No kind for input")
-        }
-
-        return ExtInfo(kind, classAnnotations, childInfo, type, isNullable)
+    fun serialDescriptor(): SerialDescriptor {
+        val kSerialClassDesc = kSerialClassDesc
+        return ExtSerialDescriptor(requireNotNull(kSerialClassDesc, {"parentClassDesc"}),
+                                   kSerialClassDesc.kind.asSerialKind(type),
+                                   BooleanArray(childInfo.size) { childInfo[it]?.isNullable ?: false },
+                                   Array(childInfo.size) {
+                                       requireNotNull(requireNotNull(childInfo[it],{"childInfo"}).descriptor, {"descriptor"}) })
     }
 
     internal class SuspendException(val finished: Boolean = false): Exception()
 
     @Serializable
-    private class Dummy(val dummyVal: String)
+    class Dummy(val dummyVal: String)
 }

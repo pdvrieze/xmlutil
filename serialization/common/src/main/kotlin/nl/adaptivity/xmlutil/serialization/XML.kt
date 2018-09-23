@@ -601,7 +601,7 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                                                 childName: QName,
                                                 val polyInfo: PolyInfo?,
                                                 var finished: Boolean,
-                                                val childInfo: ChildInfo) :
+                                                val childInfo: OldChildInfo) :
             Base(desc, childName, null), XmlInput {
 
             lateinit var extInfo: ExtInfo
@@ -948,7 +948,7 @@ private fun KSerialClassDesc.outputKind(index: Int, extInfo: ExtInfo? = null): O
     return outputKind(childInfo)
 }
 
-private fun KSerialClassDesc.outputKind(index: Int, childInfo: ChildInfo): OutputKind {
+private fun KSerialClassDesc.outputKind(index: Int, childInfo: OldChildInfo): OutputKind {
     // lists will always be elements
     if (index < associatedFieldsCount) {
         getAnnotationsForIndex(index).forEach {

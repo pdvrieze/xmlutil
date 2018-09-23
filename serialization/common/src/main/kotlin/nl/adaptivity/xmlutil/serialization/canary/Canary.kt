@@ -79,6 +79,28 @@ object Canary {
         }
     }
 
+    internal fun <T> load(input: InputCanary,
+                          loader: KSerialLoader<T>) {
+        try {
+            loader.load(input)
+        } catch (e: CanaryInput.SuspendException) {
+            if (e.finished) {
+                return
+            }
+        }
+        while (true) {
+            try {
+                loader.load(input)
+                throw IllegalStateException("This should not be reachable")
+            } catch (e: CanaryInput.SuspendException) {
+                if (e.finished) break
+            } catch (e: UnknownFieldException) {
+                throw IllegalStateException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childInfo[input.currentChildIndex]}", e)
+            }
+
+        }
+    }
+
     fun <T> pollInfo(loader: KSerialLoader<T>): ExtInfo? {
         return loaderMap[loader]
     }
@@ -99,15 +121,15 @@ object Canary {
         return loaderMap2[loader]
     }
 
-    internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo> {
+    internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<OldChildInfo> {
         return when (desc.kind) {
             KSerialClassKind.MAP,
             KSerialClassKind.SET,
             KSerialClassKind.LIST
-                 -> arrayOf(ChildInfo("count", classAnnotations = emptyList()), ChildInfo("values", classAnnotations = emptyList()))
+                 -> arrayOf(OldChildInfo("count", classAnnotations = emptyList()), OldChildInfo("values", classAnnotations = emptyList()))
 
             else -> Array(desc.associatedFieldsCount) {
-                ChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it), emptyList())
+                OldChildInfo(desc.getElementName(it), desc.getAnnotationsForIndex(it), emptyList())
             }
         }
     }

@@ -16,76 +16,25 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
+import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerialClassKind
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.internal.*
-import nl.adaptivity.xmlutil.serialization.compat.PrimitiveKind
-import nl.adaptivity.xmlutil.serialization.compat.SerialKind
-import nl.adaptivity.xmlutil.serialization.compat.StructureKind
-import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 
-data class ChildInfo(val name: String,
-                     val useAnnotations: List<Annotation> = emptyList(),
-                     var classAnnotations: List<Annotation>,
-                     override var kind: KSerialClassKind? = null,
-                     var childCount: Int = 0,
-                     override var type: ChildType = ChildType.UNKNOWN,
-                     override var isNullable: Boolean = false) : BaseInfo {
+internal class ChildInfo(var descriptor: SerialDescriptor? = null, var isNullable: Boolean = false)
 
-    override fun toString(): String {
-        return "ChildInfo(name='$name', useAnnotations=$useAnnotations, classAnnotations=$classAnnotations, kind=$kind, childCount=$childCount, type=$type, isNullable=$isNullable)"
-    }
 
-    inline fun <reified T> findAnnotation(): T? {
-        for (e in useAnnotations) {
-            if (e is T) return e
-        }
-        for (e in classAnnotations) {
-            if (e is T) return e
-        }
-        return null
-    }
+internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo?> = when (desc.kind) {
 
-    fun <T : Annotation> findAnnotation(klass: KClass<T>): T? {
-        for (e in useAnnotations) {
-            @Suppress("UNCHECKED_CAST")
-            if (klass.isInstance(e)) return e as T
-        }
-        for (e in classAnnotations) {
-            @Suppress("UNCHECKED_CAST")
-            if (klass.isInstance(e)) return e as T
-        }
-        return null
-    }
+    KSerialClassKind.PRIMITIVE,
+    KSerialClassKind.ENUM,
+    KSerialClassKind.OBJECT,
+    KSerialClassKind.UNIT  -> emptyArray()
+    KSerialClassKind.LIST,
+    KSerialClassKind.SET,
+    KSerialClassKind.MAP   -> arrayOf(null, DUMMYCHILDINFO)
+    KSerialClassKind.POLYMORPHIC,
+    KSerialClassKind.ENTRY -> arrayOfNulls(2)
+    else                   -> arrayOfNulls(desc.associatedFieldsCount)
 }
 
-
-enum class ChildType(private val serializer: KSerializer<*>?, val serialKind: SerialKind) {
-    DOUBLE(DoubleSerializer, PrimitiveKind.DOUBLE),
-    INT(IntSerializer, PrimitiveKind.INT),
-    FLOAT(FloatSerializer, PrimitiveKind.FLOAT),
-    STRING(StringSerializer, PrimitiveKind.STRING),
-    UNKNOWN(null, StructureKind.CLASS),
-    BOOLEAN(BooleanSerializer, PrimitiveKind.BOOLEAN),
-    BYTE(BooleanSerializer, PrimitiveKind.BYTE),
-    UNIT(UnitSerializer, PrimitiveKind.UNIT),
-    CHAR(CharSerializer, PrimitiveKind.CHAR),
-    ENUM(null, PrimitiveKind.ENUM),
-    LONG(LongSerializer, PrimitiveKind.LONG),
-    NONSERIALIZABLE(null, StructureKind.CLASS),
-    SHORT(ShortSerializer, PrimitiveKind.SHORT),
-    CLASS(null, StructureKind.CLASS);
-
-    val isPrimitive
-        get() = when (this) {
-            ChildType.UNKNOWN,
-            ChildType.UNIT,
-            ChildType.CLASS,
-            ChildType.NONSERIALIZABLE -> false
-            else                      -> true
-        }
-
-    val primitiveSerializer: KSerializer<*>
-        get() = serializer ?: throw UnsupportedOperationException("The type is not a primitive")
-
-}
+internal val DUMMYCHILDINFO = ChildInfo(OutputCanary.Companion.DUMMYSERIALDESC)

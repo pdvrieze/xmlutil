@@ -17,10 +17,6 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.KSerialClassKind
-import nl.adaptivity.xmlutil.serialization.OutputKind
-import nl.adaptivity.xmlutil.serialization.XmlChildrenName
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlValue
 
 interface BaseInfo {
     val kind: KSerialClassKind?
@@ -30,7 +26,7 @@ interface BaseInfo {
 
 class ExtInfo(override val kind: KSerialClassKind?,
               val classAnnotations: List<Annotation>,
-              val childInfo: Array<ChildInfo>,
+              val childInfo: Array<OldChildInfo>,
               override val type: ChildType,
               override val isNullable: Boolean): BaseInfo {
 }

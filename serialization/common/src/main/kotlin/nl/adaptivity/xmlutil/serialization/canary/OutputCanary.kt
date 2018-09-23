@@ -77,7 +77,8 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
                     } else {
                         complete = false // If children are not complete we are not
                     }
-                    childInfo[index] = ChildInfo(desc, currentElementIsNullable)
+                    childInfo[index] = ChildInfo(desc,
+                                                                                            currentElementIsNullable)
                 }
             }
         }
@@ -90,8 +91,7 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
             kSerialClassDesc = type.primitiveSerializer.serialClassDesc
             this.type = type
         } else if (index < childInfo.size) {
-            val desc = ExtSerialDescriptor(type.primitiveSerializer.serialClassDesc, type.serialKind, BooleanArray(0), emptyArray())
-            childInfo[index] = ChildInfo(desc, currentElementIsNullable)
+            childInfo[index] = ChildInfo(type.primitiveSerialDescriptor, currentElementIsNullable)
         }
         index = -1
         currentElementIsNullable = false
@@ -189,23 +189,6 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
                                        requireNotNull(requireNotNull(childInfo[it],{"childInfo"}).descriptor, {"descriptor"}) })
     }
 
-    private class ChildInfo(var descriptor: SerialDescriptor? = null,
-                            var isNullable: Boolean = false)
-
-
-    private fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo?> = when(desc.kind) {
-
-        KSerialClassKind.PRIMITIVE,
-        KSerialClassKind.ENUM,
-        KSerialClassKind.OBJECT,
-        KSerialClassKind.UNIT        -> emptyArray()
-        KSerialClassKind.LIST,
-        KSerialClassKind.SET,
-        KSerialClassKind.MAP         -> arrayOf(null, DUMMYCHILDINFO)
-        KSerialClassKind.POLYMORPHIC,
-        KSerialClassKind.ENTRY       -> arrayOfNulls(2)
-        else -> arrayOfNulls(desc.associatedFieldsCount)
-    }
 
     companion object {
 
@@ -235,7 +218,6 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
                     throw UnsupportedOperationException("No children in dummy")
         }
 
-        private val DUMMYCHILDINFO = ChildInfo(DUMMYSERIALDESC)
 
     }
 }
