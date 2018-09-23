@@ -36,7 +36,7 @@ data class ChildInfo(val name: String,
         return "ChildInfo(name='$name', useAnnotations=$useAnnotations, classAnnotations=$classAnnotations, kind=$kind, childCount=$childCount, type=$type, isNullable=$isNullable)"
     }
 
-    inline fun <reified T> findAnnotation():T? {
+    inline fun <reified T> findAnnotation(): T? {
         for (e in useAnnotations) {
             if (e is T) return e
         }
@@ -46,7 +46,7 @@ data class ChildInfo(val name: String,
         return null
     }
 
-    fun <T:Annotation> findAnnotation(klass: KClass<T>): T? {
+    fun <T : Annotation> findAnnotation(klass: KClass<T>): T? {
         for (e in useAnnotations) {
             @Suppress("UNCHECKED_CAST")
             if (klass.isInstance(e)) return e as T
@@ -74,18 +74,18 @@ enum class ChildType(private val serializer: KSerializer<*>?, val serialKind: Se
     LONG(LongSerializer, PrimitiveKind.LONG),
     NONSERIALIZABLE(null, StructureKind.CLASS),
     SHORT(ShortSerializer, PrimitiveKind.SHORT),
-    @Deprecated("Don't use this, it is unclear")
-    ELEMENT(null, StructureKind.CLASS);
+    CLASS(null, StructureKind.CLASS);
 
     val isPrimitive
-        get() = when(this) {
+        get() = when (this) {
             ChildType.UNKNOWN,
             ChildType.UNIT,
-            ChildType.ELEMENT,
+            ChildType.CLASS,
             ChildType.NONSERIALIZABLE -> false
-            else            -> true
+            else                      -> true
         }
 
-    val primitiveSerializer: KSerializer<*> get() = serializer!!
+    val primitiveSerializer: KSerializer<*>
+        get() = serializer ?: throw UnsupportedOperationException("The type is not a primitive")
 
 }

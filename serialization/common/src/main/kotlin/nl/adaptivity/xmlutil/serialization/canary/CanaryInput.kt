@@ -42,7 +42,7 @@ internal class CanaryInput(val deep: Boolean = true): ElementValueInput() {
 
     override fun readEnd(desc: KSerialClassDesc) {
         if (type == ChildType.UNKNOWN) {
-            type = ChildType.ELEMENT
+            type = ChildType.CLASS
         }
         throw SuspendException(true)
     }

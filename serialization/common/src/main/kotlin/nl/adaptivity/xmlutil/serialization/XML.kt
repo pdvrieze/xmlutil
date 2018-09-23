@@ -292,10 +292,21 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     }
 
     interface XmlOutput {
+        /**
+         * The name for the current tag
+         */
         val serialName: QName
+        /**
+         * The currently active serialization context
+         */
         val context: SerialContext?
+        /**
+         * The XmlWriter used. Can be used directly by serializers
+         */
         val target: XmlWriter
-        val currentTypeName: Nothing?
+
+        @Deprecated("Not used will always return null", ReplaceWith("null"))
+        val currentTypeName: Nothing? get() = null
     }
 
     interface XmlInput {
@@ -970,7 +981,7 @@ private fun outputKind(baseInfo: BaseInfo? = null): OutputKind {
     }
 
     return when (childType) {
-        ChildType.ELEMENT -> OutputKind.Element
+        ChildType.CLASS   -> OutputKind.Element
         null,
         ChildType.UNKNOWN -> OutputKind.Unknown
         else              -> OutputKind.Attribute

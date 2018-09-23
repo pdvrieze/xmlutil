@@ -72,7 +72,7 @@ internal fun KSerialClassKind.asSerialKind(type: ChildType?): SerialKind {
             ChildType.ENUM    -> PrimitiveKind.ENUM
             ChildType.LONG    -> PrimitiveKind.LONG
             ChildType.SHORT   -> PrimitiveKind.SHORT
-            ChildType.ELEMENT -> StructureKind.CLASS
+            ChildType.CLASS   -> StructureKind.CLASS
             else              -> throw IllegalArgumentException("Serializing non-primitive primitive: $type")
         }
         KSerialClassKind.ENUM        -> UnionKind.ENUM

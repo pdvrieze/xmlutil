@@ -30,7 +30,7 @@ object Canary {
         val current = saverMap[saver]?.also { return it }
         if (current != null) return current
 
-        val output = CanaryOutput2((saver as? KSerializer<*>)?.serialClassDesc)
+        val output = OutputCanary((saver as? KSerializer<*>)?.serialClassDesc)
         saver.save(output, obj)
         val new: SerialDescriptor = output.serialDescriptor()
 

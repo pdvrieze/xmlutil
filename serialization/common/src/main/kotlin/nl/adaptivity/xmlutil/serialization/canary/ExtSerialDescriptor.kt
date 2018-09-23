@@ -22,7 +22,15 @@ import nl.adaptivity.xmlutil.serialization.XmlDefault
 import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 import nl.adaptivity.xmlutil.serialization.compat.SerialKind
 
-class ExtSerialDescriptor(private val base: KSerialClassDesc,
+/**
+ * An implementation of SerialDescriptor
+ *
+ * @param base The serial class descriptor that is the basis. This is used for delegation so not directly accessible
+ * @property extKind The SerialKind for the property
+ * @param isChildNullable An array marking for all elements whether they are nullable
+ * @param childDescriptors An array with all child descriptors
+ */
+internal class ExtSerialDescriptor(private val base: KSerialClassDesc,
                           override val extKind: SerialKind,
                           private val isChildNullable: BooleanArray,
                           private val childDescriptors: Array<SerialDescriptor>) : SerialDescriptor {

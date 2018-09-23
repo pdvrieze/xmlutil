@@ -18,37 +18,27 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumSerializer
-import kotlinx.serialization.internal.SerialClassDescImpl
-import kotlinx.serialization.internal.UnitSerializer
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.compat.*
 import kotlin.reflect.KClass
 
 
-class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val isDeep: Boolean = true) : ElementValueOutput() {
+class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? = null, private val isDeep: Boolean = true) : ElementValueOutput() {
     private var index: Int = -1
-    var kind: KSerialClassKind? = null
-        private set
+
     var type: ChildType = ChildType.UNKNOWN
         private set
-    val serialKind: SerialKind? get() = kind?.asSerialKind(type)
 
     // If we are not deep the descriptor is going to be incomplete (only used for nullability)
-    var complete: Boolean = isDeep
-        private set
+    private var complete: Boolean = isDeep
 
 
     private var childInfo: Array<ChildInfo?> = emptyArray()
 
-    var classAnnotations: List<Annotation> = emptyList()
-        private set
-
-    var isNullable: Boolean = false
-        private set
+    // We have two nullable flags to make distinguishing easier. This is because composite and non-composite are mixed.
+    private var isNullable: Boolean = false
 
     private var currentElementIsNullable: Boolean = false
-
-//    private var parentClassDesc: KSerialClassDesc? = null
 
     override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
         if (index<0)
@@ -58,9 +48,7 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
     }
 
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
-        parentClassDesc = desc
-        kind = desc.kind
-        classAnnotations = desc.getAnnotationsForClass()
+        kSerialClassDesc = desc
 
         childInfo = childInfoForClassDesc(desc)
         return this
@@ -68,7 +56,7 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
 
     override fun writeEnd(desc: KSerialClassDesc) {
         if (type == ChildType.UNKNOWN) {
-            type = ChildType.ELEMENT
+            type = ChildType.CLASS
         }
     }
 
@@ -78,10 +66,10 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
             val poll = Canary.pollDesc(saver)
 
             if (poll != null) {
-                val isNullable = CanaryOutput2(isDeep = false).let { saver.save(it, value); it.isNullable }
+                val isNullable = OutputCanary(isDeep = false).let { saver.save(it, value); it.isNullable }
                 childInfo[index] = ChildInfo(poll, isNullable)
             } else if(isDeep) {
-                CanaryOutput2().also {
+                OutputCanary().also {
                     saver.save(it, value)
                     val desc = it.serialDescriptor()
                     if (it.complete) {
@@ -99,8 +87,7 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
     private fun setCurrentPrimitiveChildType(type: ChildType) {
         assert(type.isPrimitive)
         if (index < 0) {
-            kind = KSerialClassKind.PRIMITIVE
-            parentClassDesc = type.primitiveSerializer.serialClassDesc
+            kSerialClassDesc = type.primitiveSerializer.serialClassDesc
             this.type = type
         } else if (index < childInfo.size) {
             val desc = ExtSerialDescriptor(type.primitiveSerializer.serialClassDesc, type.serialKind, BooleanArray(0), emptyArray())
@@ -194,8 +181,9 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
     }
 
     fun serialDescriptor(): SerialDescriptor {
-        return ExtSerialDescriptor(requireNotNull(parentClassDesc, {"parentClassDesc"}),
-                                   (kind ?: KSerialClassKind.PRIMITIVE).asSerialKind(type),
+        val kSerialClassDesc = kSerialClassDesc!!
+        return ExtSerialDescriptor(requireNotNull(kSerialClassDesc, {"parentClassDesc"}),
+                                   kSerialClassDesc.kind.asSerialKind(type),
                                    BooleanArray(childInfo.size) { childInfo[it]?.isNullable ?: false },
                                    Array(childInfo.size) {
                                        requireNotNull(requireNotNull(childInfo[it],{"childInfo"}).descriptor, {"descriptor"}) })
@@ -223,7 +211,9 @@ class CanaryOutput2(private var parentClassDesc: KSerialClassDesc? = null, val i
 
         object DUMMYSERIALDESC: SerialDescriptor {
             override val name: String get() = throw UnsupportedOperationException("Dummy descriptors have no names")
+            @Suppress("OverridingDeprecatedMember")
             override val kind: KSerialClassKind get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
+
             override val extKind: SerialKind get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
             override val elementsCount: Int get() = 0
 
