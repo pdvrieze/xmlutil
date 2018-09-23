@@ -25,27 +25,6 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
                                                val target: XmlWriter) {
 
     /**
-     * Class used only at top level. At top level a tag is expected.
-     */
-    open inner class Initial(override val serialName: QName,
-                             val desc: SerialDescriptor) : Encoder, XML.XmlOutput {
-
-        override val context: SerialContext? get() = this@XmlEncoderBase.context
-        override val target: XmlWriter get() = this@XmlEncoderBase.target
-
-        /**
-         * Create an output for the element. We only need this as xml serialization must always start with an
-         * element. We should not have any tag defined yet
-         *
-         * @param desc The description for the *new* element
-         */
-        override fun beginEncodeComposite(desc: SerialDescriptor): CompositeEncoder {
-            val dummyParent = DummyParentDescriptor(serialName, desc)
-            return beginEncodeCompositeImpl(dummyParent, 0, desc)
-        }
-    }
-
-    /**
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
      */

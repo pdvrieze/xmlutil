@@ -21,6 +21,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.canary.*
+import nl.adaptivity.xmlutil.serialization.compat.DummyParentDescriptor
 import nl.adaptivity.xmlutil.serialization.compat.EncoderOutput
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
@@ -105,26 +106,13 @@ class XML(val context: SerialContext? = defaultSerialContext(),
                         prefix: String? = null,
                         serializer: KSerialSaver<T> = context.klassSerializer(kClass)) {
         target.indent = indent
-/*
-        val extInfo = try {
-            Canary.extInfo(serializer, obj)
-        } catch (e: Exception) {
-            println(e.message)
-            throw e
-        }
-*/
 
         val serialDescriptor = Canary.serialDescriptor(serializer, obj)
 
-        val encoder = XmlEncoderBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>, prefix),
-                                                              serialDescriptor)
+        val serialName = kClass.getSerialName(serializer as? KSerializer<*>, prefix)
+        val encoder = XmlEncoderBase(context, target).XmlEncoder(DummyParentDescriptor(serialName, serialDescriptor), 0)
 
         val output = EncoderOutput(encoder, serialDescriptor)
-
-/*
-        val output = XmlOutputBase(context, target).Initial(kClass.getSerialName(serializer as? KSerializer<*>, prefix),
-                                                            kClass.getChildName(), kClass.name, extInfo)
-*/
 
         output.write(serializer, obj)
     }
