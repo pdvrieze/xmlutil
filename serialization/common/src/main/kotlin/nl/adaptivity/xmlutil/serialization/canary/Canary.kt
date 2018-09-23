@@ -21,41 +21,25 @@ import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 
 object Canary {
 
-    private val saverMap = mutableMapOf<KSerialSaver<*>, ExtInfo>()
+    private val saverMap = mutableMapOf<KSerialSaver<*>, SerialDescriptor>()
     private val loaderMap = mutableMapOf<KSerialLoader<*>, ExtInfo>()
 
-    private val saverMap2 = mutableMapOf<KSerialSaver<*>, SerialDescriptor>()
     private val loaderMap2 = mutableMapOf<KSerialLoader<*>, SerialDescriptor>()
 
     fun <T> serialDescriptor(saver: KSerialSaver<T>, obj: T): SerialDescriptor {
-        val current = saverMap2[saver]?.also { return it }
+        val current = saverMap[saver]?.also { return it }
         if (current != null) return current
 
         val output = CanaryOutput2((saver as? KSerializer<*>)?.serialClassDesc)
         saver.save(output, obj)
         val new: SerialDescriptor = output.serialDescriptor()
 
-        saverMap2[saver] = new
+        saverMap[saver] = new
 
         return new
     }
 
     fun <T> serialDescriptor(loader: KSerialLoader<T>): SerialDescriptor = TODO()
-
-    fun <T> extInfo(saver: KSerialSaver<T>, obj: T): ExtInfo {
-        val current = saverMap[saver]
-        if (current != null) return current
-
-        val output = CanaryOutput()
-        saver.save(output, obj)
-        val new = output.extInfo()
-
-        if (new.childInfo.none { it.type == ChildType.UNKNOWN }) {
-            saverMap[saver] = new
-        }
-
-        return new
-    }
 
     fun <T> extInfo(loader: KSerialLoader<T>): ExtInfo {
         val current = loaderMap[loader]
@@ -95,21 +79,16 @@ object Canary {
         }
     }
 
-    fun <T> pollInfo(saver: KSerialSaver<T>): ExtInfo? {
-        return saverMap[saver]
-    }
-
-
     fun <T> pollInfo(loader: KSerialLoader<T>): ExtInfo? {
         return loaderMap[loader]
     }
 
     fun <T> pollDesc(saver: KSerialSaver<T>): SerialDescriptor? {
-        return saverMap2[saver]
+        return saverMap[saver]
     }
 
     internal fun registerDesc(saver: KSerialSaver<*>, desc: SerialDescriptor) {
-        saverMap2[saver] = desc
+        saverMap[saver] = desc
     }
 
     internal fun registerDesc(loader: KSerialLoader<*>, desc: SerialDescriptor) {
