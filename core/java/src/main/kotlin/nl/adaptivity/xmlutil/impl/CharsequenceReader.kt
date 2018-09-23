@@ -64,6 +64,9 @@ internal class CharsequenceReader(private val sequence: CharSequence): Reader() 
 
     override fun read(cbuf: CharArray, off: Int, len: Int): Int {
         lock {
+            // Make sure to signal end of file
+            if (pos >=sequence.length) return -1
+
             val origPos = pos
             for (i in off until (off + len).coerceAtMost(sequence.length - pos)) {
                 cbuf[i] = sequence[pos]
