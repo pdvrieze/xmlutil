@@ -334,7 +334,7 @@ object testXML : Spek(
                 val serialized = XML.stringify(sealed)
 
                 // Disabled because sealed classes are broken when used in lists
-                it("should equal the expected xml form") {
+                test("it should equal the expected xml form", Pending.Yes("Waiting for sealed support")) {
                     assertEquals(expected, serialized)
                 }
 
@@ -342,7 +342,7 @@ object testXML : Spek(
                     assertEquals(sealed, XML.parse<Sealed>(serialized))
                 }
 
-                test("The expected value should also parse to the original") {
+                test("The expected value should also parse to the original", Pending.Yes("Waiting for sealed support")) {
                     assertEquals(sealed, XML.parse<Sealed>(expected))
                 }
 

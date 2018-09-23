@@ -170,7 +170,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
             UnionKind.OBJECT,
             UnionKind.ENUM        -> TagEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
             UnionKind.SEALED,
-            UnionKind.POLYMORPHIC -> PolymorphicEncoder(parentDesc, elementIndex, desc, transparent = false,
+            UnionKind.POLYMORPHIC -> PolymorphicEncoder(parentDesc, elementIndex, desc,
                                                         currentTypeName = null).apply { writeBegin() }
         }
     }
@@ -348,21 +348,29 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
     private inner class PolymorphicEncoder(parentDesc: SerialDescriptor,
                                            elementIndex: Int,
                                            desc: SerialDescriptor,
-                                           val transparent: Boolean,
+                                           /** Used to determine package */
                                            override var currentTypeName: String?) :
             TagEncoder(parentDesc, elementIndex, desc, false), XML.XmlOutput {
 
-        override var tagSerialName: QName = when {
-            transparent -> desc.requestedName(elementIndex)
-            else        -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
-                           ?: parentDesc.getElementName(elementIndex).toQname()
-
+        val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
+            polyInfo(parentDesc.requestedName(elementIndex), currentTypeName, it.value)
         }
+
+        override var tagSerialName: QName = when (polyChildren) {
+            null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
+                    ?: parentDesc.getElementName(elementIndex).toQname()
+            else -> desc.requestedName(elementIndex)
+        }
+
+        @Deprecated("Just check for missing children", ReplaceWith("polyChildren != null"))
+        val transparent: Boolean get() = polyChildren!=null
+
 
         fun polyTagName(parentTag: QName,
                         polyChild: String,
                         currentTypeName: String?,
                         itemIdx: Int): PolyInfo {
+            val currentTypeName = parentDesc.name
             val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
             val eqPos = polyChild.indexOf('=')
             val pkgPos: Int
@@ -416,10 +424,6 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
             return result
         }
 
-        val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
-            polyInfo(parentDesc.requestedName(elementIndex), currentTypeName, it.value)
-        }
-
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
@@ -432,6 +436,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
         override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
             if (transparent) {
                 if (index == 0) {
+                    currentTypeName = value
                     val regName = polyChildren?.lookupName(value)
                     tagSerialName = when (regName?.specified) {
                         true -> regName.name
@@ -454,9 +459,10 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
                                                    index: Int,
                                                    strategy: SerializationStrategy<T>,
                                                    value: T) {
-            if (transparent) {
+            if (polyChildren !=null) {
                 assert(index > 0) // the first element is the type
-                val encoder = RenamedEncoder(QName("type"), desc, index)
+                // The name has been set when the type was "written"
+                val encoder = RenamedEncoder(tagSerialName, desc, index)
                 strategy.serialize(encoder, value)
             } else {
                 val encoder = RenamedEncoder(QName("value"), desc, index)
