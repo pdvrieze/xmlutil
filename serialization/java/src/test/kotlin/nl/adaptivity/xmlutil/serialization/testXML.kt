@@ -79,7 +79,7 @@ object testXML : Spek(
                 it("should serialize to the expected xml") {
                     assertEquals(expectedXml,serialized)
                 }
-                xit("should also parse to the original") {
+                it("should also parse to the original") {
                     assertEquals(location, XML.parse<Location>(serialized))
                 }
 

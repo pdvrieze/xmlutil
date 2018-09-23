@@ -79,9 +79,9 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
 */
 
     inner open class Initial(override val serialName: QName,
-                             val childName: QName?,
-                             override val currentTypeName: String?,
                              val desc: SerialDescriptor) : Encoder, XML.XmlOutput {
+
+        override val currentTypeName: Nothing? get() = null
 
         override val context: SerialContext? get() = this@XmlEncoderBase.context
         override val target: XmlWriter get() = this@XmlEncoderBase.target
@@ -170,8 +170,8 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
             UnionKind.OBJECT,
             UnionKind.ENUM        -> TagEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
             UnionKind.SEALED,
-            UnionKind.POLYMORPHIC -> PolymorphicEncoder(parentDesc, elementIndex, desc,
-                                                        currentTypeName = null).apply { writeBegin() }
+            UnionKind.POLYMORPHIC -> PolymorphicEncoder(parentDesc, elementIndex, desc
+                                                       ).apply { writeBegin() }
         }
     }
 
@@ -205,7 +205,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
         @Deprecated("Use tagSerialName", ReplaceWith("tagSerialName"))
         override val serialName: QName
             get() = tagSerialName
-        override var currentTypeName: String? = null
+        override val currentTypeName: Nothing? = null
 
         override val context: SerialContext? get() = this@XmlEncoderBase.context
         override val target: XmlWriter get() = this@XmlEncoderBase.target
@@ -306,7 +306,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
         override fun endEncodeComposite(desc: SerialDescriptor) {
             deferring = false
             for (deferred in deferredBuffer) {
-                TagSaver(deferred.first, this).apply(deferred.second)
+                TagSaver(this).apply(deferred.second)
             }
             target.endTag(tagSerialName)
         }
@@ -347,9 +347,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
 
     private inner class PolymorphicEncoder(parentDesc: SerialDescriptor,
                                            elementIndex: Int,
-                                           desc: SerialDescriptor,
-                                           /** Used to determine package */
-                                           override var currentTypeName: String?) :
+                                           desc: SerialDescriptor) :
             TagEncoder(parentDesc, elementIndex, desc, false), XML.XmlOutput {
 
         val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
@@ -368,10 +366,9 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
 
         fun polyTagName(parentTag: QName,
                         polyChild: String,
-                        currentTypeName: String?,
                         itemIdx: Int): PolyInfo {
             val currentTypeName = parentDesc.name
-            val currentPkg = currentTypeName?.substringBeforeLast('.', "") ?: ""
+            val currentPkg = currentTypeName.substringBeforeLast('.', "") ?: ""
             val eqPos = polyChild.indexOf('=')
             val pkgPos: Int
             val prefPos: Int
@@ -416,7 +413,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
             val result = XmlNameMap()
 
             for (polyChild in polyChildren) {
-                val polyInfo = polyTagName(parentTag, polyChild, currentTypeName, -1)
+                val polyInfo = polyTagName(parentTag, polyChild, -1)
 
                 result.registerClass(polyInfo.tagName, polyInfo.kClass, polyChild.indexOf('=') >= 0)
             }
@@ -436,7 +433,6 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
         override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
             if (transparent) {
                 if (index == 0) {
-                    currentTypeName = value
                     val regName = polyChildren?.lookupName(value)
                     tagSerialName = when (regName?.specified) {
                         true -> regName.name
@@ -480,9 +476,8 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
     }
 
 
-    @Deprecated("Doesn't seem to do much")
-    private inner class TagSaver(val tag: Int,
-                                 val delegate: TagEncoder) : CompositeEncoder, XML.XmlOutput {
+    @Deprecated("Doesn't seem to do much", ReplaceWith("delegate"))
+    private inner class TagSaver(val delegate: TagEncoder) : CompositeEncoder, XML.XmlOutput {
         override val context: SerialContext?
             get() = this@XmlEncoderBase.context
 
@@ -490,7 +485,7 @@ open class XmlEncoderBase internal constructor(val context: SerialContext?,
 
         override val target: XmlWriter get() = delegate.target
 
-        override val currentTypeName: String? get() = delegate.desc.getElementName(tag)
+        override val currentTypeName: Nothing? get() = null
 
         override fun <T> encodeSerializableElement(desc: SerialDescriptor,
                                                    index: Int,
