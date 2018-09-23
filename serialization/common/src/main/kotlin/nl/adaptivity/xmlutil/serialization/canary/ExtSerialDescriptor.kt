@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.serialization.compat.SerialKind
 class ExtSerialDescriptor(private val base: KSerialClassDesc,
                           override val extKind: SerialKind,
                           private val isChildNullable: BooleanArray,
-                          private val childDescriptors: Array<SerialDescriptor>): SerialDescriptor {
+                          private val childDescriptors: Array<SerialDescriptor>) : SerialDescriptor {
 
     override val name: String get() = base.name
     override val kind: KSerialClassKind get() = base.kind
@@ -35,12 +35,22 @@ class ExtSerialDescriptor(private val base: KSerialClassDesc,
 
     override fun getEntityAnnotations(): List<Annotation> = base.getAnnotationsForClass()
 
-    override fun getElementAnnotations(index: Int) = if(index<elementsCount) base.getAnnotationsForIndex(index) else emptyList()
+    override fun getElementAnnotations(index: Int) = if (index < elementsCount) base.getAnnotationsForIndex(
+            index) else emptyList()
 
-    override val elementsCount:Int get() = base.associatedFieldsCount
+    override val elementsCount: Int get() = base.associatedFieldsCount
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = childDescriptors[index]
 
-    override fun isNullable(index:Int): Boolean = isChildNullable[index]
+    override fun isNullable(index: Int): Boolean = isChildNullable[index]
     override fun isElementOptional(index: Int): Boolean = getElementAnnotations(index).any { it is XmlDefault }
+
+    override fun toString(): String {
+        return buildString {
+            append(name)
+            (0 until elementsCount).joinTo(this, prefix = "(", postfix = ")") { idx ->
+                "${getElementName(idx)}:${getElementDescriptor(idx).name}${if (isNullable(idx)) "?" else "" }"
+            }
+        }
+    }
 }
