@@ -51,9 +51,7 @@ inline fun KSerializer<*>.readElements(input: KInput, body: (Int) -> Unit) {
 
 inline fun <T> KInput.readBegin(desc: KSerialClassDesc, body: KInput.(desc: KSerialClassDesc) -> T):T {
     val input = readBegin(desc)
-    try {
-        return input.body(desc)
-    } finally {
+    return input.body(desc).also {
         input.readEnd(desc)
     }
 }
