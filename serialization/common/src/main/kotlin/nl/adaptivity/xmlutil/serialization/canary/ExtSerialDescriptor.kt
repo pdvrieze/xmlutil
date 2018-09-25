@@ -18,9 +18,11 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerialClassKind
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlDefault
 import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 import nl.adaptivity.xmlutil.serialization.compat.SerialKind
+import nl.adaptivity.xmlutil.toCName
 
 /**
  * An implementation of SerialDescriptor
@@ -30,10 +32,13 @@ import nl.adaptivity.xmlutil.serialization.compat.SerialKind
  * @param isChildNullable An array marking for all elements whether they are nullable
  * @param childDescriptors An array with all child descriptors
  */
-internal class ExtSerialDescriptor(private val base: KSerialClassDesc,
-                          override val extKind: SerialKind,
-                          private val isChildNullable: BooleanArray,
-                          private val childDescriptors: Array<SerialDescriptor>) : SerialDescriptor {
+internal class ExtSerialDescriptor(
+    private val base: KSerialClassDesc,
+    override val extKind: SerialKind,
+    private val childDescriptors: Array<SerialDescriptor>
+) : SerialDescriptor {
+
+    override val isNullable: Boolean get() = false
 
     override val name: String get() = base.name
     override val kind: KSerialClassKind get() = base.kind
@@ -43,22 +48,25 @@ internal class ExtSerialDescriptor(private val base: KSerialClassDesc,
 
     override fun getEntityAnnotations(): List<Annotation> = base.getAnnotationsForClass()
 
-    override fun getElementAnnotations(index: Int) = if (index < elementsCount) base.getAnnotationsForIndex(
-            index) else emptyList()
+    override fun getElementAnnotations(index: Int) =
+            if (index < elementsCount) base.getAnnotationsForIndex(index) else emptyList()
 
     override val elementsCount: Int get() = base.associatedFieldsCount
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = childDescriptors[index]
 
-    override fun isNullable(index: Int): Boolean = isChildNullable[index]
     override fun isElementOptional(index: Int): Boolean = getElementAnnotations(index).any { it is XmlDefault }
 
     override fun toString(): String {
         return buildString {
             append(name)
             (0 until elementsCount).joinTo(this, prefix = "(", postfix = ")") { idx ->
-                "${getElementName(idx)}:${getElementDescriptor(idx).name}${if (isNullable(idx)) "?" else "" }"
+                "${getElementName(idx)}:${getElementDescriptor(idx).name}${if (childDescriptors[idx].isNullable) "?" else ""}"
             }
         }
     }
+}
+
+class NullableSerialDescriptor(val original: SerialDescriptor): SerialDescriptor by original {
+    override val isNullable: Boolean get() = true
 }

@@ -18,8 +18,8 @@ package nl.adaptivity.xmlutil.serialization.compat
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumSerializer
-import kotlinx.serialization.internal.NullableSerializer
 import nl.adaptivity.xmlutil.serialization.canary.Canary
+import nl.adaptivity.xmlutil.serialization.canary.NullableSerialDescriptor
 import kotlin.reflect.KClass
 
 open class EncoderOutput(val encoder: Encoder, val descriptor: SerialDescriptor): ElementValueOutput() {
@@ -42,10 +42,12 @@ open class EncoderOutput(val encoder: Encoder, val descriptor: SerialDescriptor)
     }
 
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
+        val descriptor = descriptor.let { if (it is NullableSerialDescriptor) it.original else it }
         return CompositeEncoderOutput(beginEncodeComposite(descriptor), descriptor)
     }
 
     override fun writeBegin(desc: KSerialClassDesc, collectionSize: Int, vararg typeParams: KSerializer<*>): KOutput {
+        val descriptor = descriptor.let { if (it is NullableSerialDescriptor) it.original else it }
         return CompositeEncoderOutput(beginEncodeComposite(descriptor), descriptor)
     }
 
@@ -57,7 +59,7 @@ open class EncoderOutput(val encoder: Encoder, val descriptor: SerialDescriptor)
         EnumSerializer(enumClass).save(this, value)
     }
 
-    fun beginEncodeComposite(descriptor: SerialDescriptor): CompositeEncoder {
+    private fun beginEncodeComposite(descriptor: SerialDescriptor): CompositeEncoder {
         return encoder.beginEncodeComposite(descriptor)
     }
 }
@@ -127,8 +129,10 @@ private class SaverStrategy<T>(private val saver: KSerialSaver<T>, override val 
         }
         saver.save(encoderOutput, obj)
     }
+/*
 
     override fun save(output: KOutput, obj: T) {
         saver.save(output, obj)
     }
+*/
 }

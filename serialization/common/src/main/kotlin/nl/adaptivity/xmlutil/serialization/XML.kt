@@ -21,8 +21,10 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.canary.*
+import nl.adaptivity.xmlutil.serialization.compat.DecoderInput
 import nl.adaptivity.xmlutil.serialization.compat.DummyParentDescriptor
 import nl.adaptivity.xmlutil.serialization.compat.EncoderOutput
+import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -122,10 +124,18 @@ class XML(val context: SerialContext? = defaultSerialContext(),
     fun <T : Any> parse(kClass: KClass<T>,
                         reader: XmlReader,
                         loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
+
         val serialName = kClass.getSerialName(loader as? KSerializer<*>)
-        val extInfo = Canary.extInfo(loader)
-        val input = XmlInputBase(reader).Initial(serialName, extInfo)
-        return input.read(loader)
+        val serialDescriptor = Canary.serialDescriptor(loader)
+
+        val decoder = XmlDecoderBase(context, reader).XmlDecoder(DummyParentDescriptor(serialName, serialDescriptor), 0)
+        val input = DecoderInput(decoder, serialDescriptor)
+
+        // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
+        // in the correct state of having just read the startTag (that would normally be read by the code that determines
+        // what to parse (before calling readSerializableValue on the value)
+        reader.skipPreamble()
+        return input.readSerializableValue(loader)
     }
 
     fun <T : Any> parse(kClass: KClass<T>, str: String, loader: KSerialLoader<T> = context.klassSerializer(kClass)): T {
@@ -930,6 +940,20 @@ internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     }
     return null
 }
+
+
+internal fun SerialDescriptor.getValueChild(): Int {
+    if (associatedFieldsCount == 1) {
+        return 0
+    } else {
+        for (i in 0 until associatedFieldsCount) {
+            if (getAnnotationsForIndex(i).any { it is XmlValue }) return i
+        }
+        // TODO actually determine this properly
+        return KInput.UNKNOWN_NAME
+    }
+}
+
 
 private fun KSerialClassDesc.outputKind(index: Int, extInfo: ExtInfo? = null): OutputKind {
     // lists will always be elements

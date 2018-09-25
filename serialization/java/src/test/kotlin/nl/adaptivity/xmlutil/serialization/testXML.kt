@@ -175,7 +175,7 @@ object testXML : Spek(
                     assertEquals(expectedXml, serialized)
                 }
 
-                it("should parse to the original") {
+                it("should parse to the original"/*, "Gets into an infinite loop. For now ignore."*/) {
                     assertEquals(fragment, XML.parse<CompactFragment>(serialized))
                 }
 

@@ -20,10 +20,7 @@ import kotlinx.serialization.KSerialClassDesc
 import kotlinx.serialization.KSerialClassKind
 import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
 
-internal class ChildInfo(var descriptor: SerialDescriptor? = null, var isNullable: Boolean = false)
-
-
-internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo?> = when (desc.kind) {
+internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<SerialDescriptor?> = when (desc.kind) {
 
     KSerialClassKind.PRIMITIVE,
     KSerialClassKind.ENUM,
@@ -31,10 +28,10 @@ internal fun childInfoForClassDesc(desc: KSerialClassDesc): Array<ChildInfo?> = 
     KSerialClassKind.UNIT  -> emptyArray()
     KSerialClassKind.LIST,
     KSerialClassKind.SET,
-    KSerialClassKind.MAP   -> arrayOf(null, DUMMYCHILDINFO)
+    KSerialClassKind.MAP   -> arrayOf(null, OutputCanary.Companion.DUMMYSERIALDESC)
     KSerialClassKind.POLYMORPHIC,
     KSerialClassKind.ENTRY -> arrayOfNulls(2)
     else                   -> arrayOfNulls(desc.associatedFieldsCount)
 }
 
-internal val DUMMYCHILDINFO = ChildInfo(OutputCanary.Companion.DUMMYSERIALDESC)
+internal val DUMMYCHILDINFO = OutputCanary.Companion.DUMMYSERIALDESC

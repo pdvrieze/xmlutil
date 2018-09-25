@@ -33,13 +33,28 @@ object Canary {
         val output = OutputCanary((saver as? KSerializer<*>)?.serialClassDesc)
         saver.save(output, obj)
         val new: SerialDescriptor = output.serialDescriptor()
-
-        saverMap[saver] = new
+        if(output.complete) { // Only save complete descriptors
+            saverMap[saver] = new
+        }
 
         return new
     }
 
-    fun <T> serialDescriptor(loader: KSerialLoader<T>): SerialDescriptor = TODO()
+    fun <T> serialDescriptor(loader: KSerialLoader<T>): SerialDescriptor {
+        val current = loaderMap2[loader]
+        if (current != null) return current
+
+        val input = InputCanary()
+        load(input, loader)
+        val new = input.serialDescriptor()
+
+        if (input.complete) {
+            loaderMap2[loader] = new
+        }
+
+        return new
+
+    }
 
     fun <T> extInfo(loader: KSerialLoader<T>): ExtInfo {
         val current = loaderMap[loader]
@@ -83,7 +98,7 @@ object Canary {
                           loader: KSerialLoader<T>) {
         try {
             loader.load(input)
-        } catch (e: CanaryInput.SuspendException) {
+        } catch (e: InputCanary.SuspendException) {
             if (e.finished) {
                 return
             }
@@ -92,10 +107,10 @@ object Canary {
             try {
                 loader.load(input)
                 throw IllegalStateException("This should not be reachable")
-            } catch (e: CanaryInput.SuspendException) {
+            } catch (e: InputCanary.SuspendException) {
                 if (e.finished) break
             } catch (e: UnknownFieldException) {
-                throw IllegalStateException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childInfo[input.currentChildIndex]}", e)
+                throw IllegalStateException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childDescriptors[input.currentChildIndex]}", e)
             }
 
         }

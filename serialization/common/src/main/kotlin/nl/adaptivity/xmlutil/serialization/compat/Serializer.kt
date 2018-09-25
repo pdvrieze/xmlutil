@@ -19,13 +19,13 @@ package nl.adaptivity.xmlutil.serialization.compat
 import kotlinx.serialization.KSerialLoader
 import kotlinx.serialization.KSerialSaver
 
-interface SerializationStrategy<in T>: KSerialSaver<T> {
+interface SerializationStrategy<in T> {
     fun serialize(output: Encoder, obj: T)
 
     val descriptor: SerialDescriptor
 }
 
-interface DeserializationStrategy<out T>: KSerialLoader<@kotlin.UnsafeVariance T> {
+interface DeserializationStrategy<out T> {
     fun deserialize(input: Decoder, oldValue: @kotlin.UnsafeVariance T? = null): T
     val descriptor: SerialDescriptor
 }

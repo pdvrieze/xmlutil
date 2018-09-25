@@ -19,6 +19,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.multiplatform.JvmStatic
+import nl.adaptivity.xmlutil.serialization.compat.CompositeDecoderInput
 import nl.adaptivity.xmlutil.serialization.compat.CompositeEncoderOutput
 import nl.adaptivity.xmlutil.serialization.compat.EncoderOutput
 import nl.adaptivity.xmlutil.siblingsToFragment
@@ -37,9 +38,10 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
     }
 
     fun readCompactFragmentContent(input: KInput, desc: KSerialClassDesc): CompactFragment {
-        return if (input is XML.XmlInput) {
+        val xmlInput = ((input as? CompositeDecoderInput)?.decoder ?: input) as? XML.XmlInput
+        return if (xmlInput!=null) {
 
-            input.input.run {
+            xmlInput.input.run {
                 next()
                 siblingsToFragment()
             }

@@ -44,12 +44,13 @@ interface SerialDescriptor: KSerialClassDesc {
     @Deprecated("Use getElementAnnotations", ReplaceWith("getElementAnnotations(index)"))
     override fun getAnnotationsForIndex(index: Int): List<Annotation> = getElementAnnotations(index)
     fun getElementDescriptor(index: Int): SerialDescriptor
-    fun isNullable(index: Int): Boolean
+    val isNullable: Boolean
     fun isElementOptional(index: Int): Boolean
 }
 
 class DummyParentDescriptor(private val serialName: QName?, private val childDesc: SerialDescriptor): SerialDescriptor {
-    override val name: String get() = throw UnsupportedOperationException("Dummy has no name")
+    /** This merely mirrors the parent name as tags need a basis and this object is only used at top level. */
+    override val name: String get() = childDesc.name
 
     override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
 
@@ -78,7 +79,7 @@ class DummyParentDescriptor(private val serialName: QName?, private val childDes
         return childDesc
     }
 
-    override fun isNullable(index: Int) = false
+    override val isNullable: Boolean get() = false
 
     override fun isElementOptional(index: Int) = false
 }

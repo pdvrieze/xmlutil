@@ -30,10 +30,11 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
         private set
 
     // If we are not deep the descriptor is going to be incomplete (only used for nullability)
-    private var complete: Boolean = isDeep
+    var complete: Boolean = isDeep
+        private set
 
 
-    private var childInfo: Array<ChildInfo?> = emptyArray()
+    private var childInfo: Array<SerialDescriptor?> = emptyArray()
 
     // We have two nullable flags to make distinguishing easier. This is because composite and non-composite are mixed.
     private var isNullable: Boolean = false
@@ -67,7 +68,7 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
 
             if (poll != null) {
                 val isNullable = OutputCanary(isDeep = false).let { saver.save(it, value); it.isNullable }
-                childInfo[index] = ChildInfo(poll, isNullable)
+                childInfo[index] = poll.wrapNullable(isNullable)
             } else if(isDeep) {
                 OutputCanary().also {
                     saver.save(it, value)
@@ -77,8 +78,7 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
                     } else {
                         complete = false // If children are not complete we are not
                     }
-                    childInfo[index] = ChildInfo(desc,
-                                                                                            currentElementIsNullable)
+                    childInfo[index] = desc.wrapNullable()
                 }
             }
         }
@@ -91,7 +91,7 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
             kSerialClassDesc = type.primitiveSerializer.serialClassDesc
             this.type = type
         } else if (index < childInfo.size) {
-            childInfo[index] = ChildInfo(type.primitiveSerialDescriptor, currentElementIsNullable)
+            childInfo[index] = type.primitiveSerialDescriptor.wrapNullable()
         }
         index = -1
         currentElementIsNullable = false
@@ -118,8 +118,8 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
             type = ChildType.ENUM
         } else if (index<childInfo.size) {
             val serializer = EnumSerializer(enumClass)
-            val desc = ExtSerialDescriptor(serializer.serialClassDesc, UnionKind.ENUM, BooleanArray(0), emptyArray())
-            childInfo[index] = ChildInfo(desc, currentElementIsNullable)
+            val desc = ExtSerialDescriptor(serializer.serialClassDesc, UnionKind.ENUM, emptyArray())
+            childInfo[index] = desc.wrapNullable()
             currentElementIsNullable = false
             index = -1
         }
@@ -184,11 +184,17 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
         val kSerialClassDesc = kSerialClassDesc!!
         return ExtSerialDescriptor(requireNotNull(kSerialClassDesc, {"parentClassDesc"}),
                                    kSerialClassDesc.kind.asSerialKind(type),
-                                   BooleanArray(childInfo.size) { childInfo[it]?.isNullable ?: false },
                                    Array(childInfo.size) {
-                                       requireNotNull(requireNotNull(childInfo[it],{"childInfo"}).descriptor, {"descriptor"}) })
+                                       requireNotNull(childInfo[it],{"childInfo"}) })
     }
 
+
+    fun SerialDescriptor.wrapNullable() = wrapNullable(currentElementIsNullable)
+
+    fun SerialDescriptor.wrapNullable(newValue: Boolean) = when {
+        !isNullable && newValue -> NullableSerialDescriptor(this)
+        else                     -> this
+    }
 
     companion object {
 
@@ -212,7 +218,7 @@ class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? =
                 throw UnsupportedOperationException("No children in dummy")
             }
 
-            override fun isNullable(index: Int) = throw UnsupportedOperationException("No children in dummy")
+            override val isNullable: Boolean get() = false
 
             override fun isElementOptional(index: Int) =
                     throw UnsupportedOperationException("No children in dummy")

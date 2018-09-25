@@ -44,6 +44,6 @@ enum class ChildType(private val serializer: KSerializer<*>?, val serialKind: Se
 
     // Create this lazilly as it is unique but only exists for primitives
     val primitiveSerialDescriptor: SerialDescriptor by lazy {
-        ExtSerialDescriptor(primitiveSerializer.serialClassDesc, serialKind, BooleanArray(0), emptyArray())
+        ExtSerialDescriptor(primitiveSerializer.serialClassDesc, serialKind, emptyArray())
     }
 }
