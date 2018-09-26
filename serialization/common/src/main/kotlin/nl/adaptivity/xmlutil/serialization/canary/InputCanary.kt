@@ -18,7 +18,10 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 
 import kotlinx.serialization.*
+import nl.adaptivity.xmlutil.serialization.compat.PrimitiveKind
 import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
+import nl.adaptivity.xmlutil.serialization.compat.SerialKind
+import nl.adaptivity.xmlutil.serialization.compat.asSerialKind
 import kotlin.reflect.KClass
 
 internal class InputCanary(override val isDeep: Boolean = true) : ElementValueInput(), CanaryCommon {
@@ -28,7 +31,7 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
 
     override var currentChildIndex = -1
 
-    override var type: ChildType = ChildType.UNKNOWN
+    override lateinit var serialKind: SerialKind
 
     override var isClassNullable = false
     override var isCurrentElementNullable = false
@@ -46,7 +49,7 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
         suspending = false
         if (currentChildIndex < 0) { // This is called at every load as we restart load every time
             kSerialClassDesc = desc
-            type = ChildType.STRUCTURE // ReadBegin means we have some sort of class child
+            serialKind = desc.kind.asSerialKind()
             childDescriptors = childInfoForClassDesc(desc)
         }
         return this
@@ -59,9 +62,6 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
     }
 
     override fun readEnd(desc: KSerialClassDesc) {
-        if (type == ChildType.UNKNOWN) {
-            throw IllegalStateException("Unexpected type")
-        }
         if (canBeComplete) isComplete = true
         doSuspend(true)
     }
@@ -110,33 +110,34 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
         }
     }
 
-    override fun setCurrentChildType(type: ChildType): Nothing {
-        super.setCurrentChildType(type)
+    override fun setCurrentChildType(kind: PrimitiveKind): Nothing {
+        super.setCurrentChildType(kind)
         doSuspend(childDescriptors.isEmpty())
     }
 
     override fun readBooleanValue(): Boolean {
-        setCurrentChildType(ChildType.BOOLEAN)
+        setCurrentChildType(PrimitiveKind.BOOLEAN)
     }
 
     override fun readByteValue(): Byte {
-        setCurrentChildType(ChildType.BYTE)
+        setCurrentChildType(PrimitiveKind.BYTE)
     }
 
     override fun readCharValue(): Char {
-        setCurrentChildType(ChildType.CHAR)
+        setCurrentChildType(PrimitiveKind.CHAR)
     }
 
     override fun readDoubleValue(): Double {
-        setCurrentChildType(ChildType.DOUBLE)
+        setCurrentChildType(PrimitiveKind.DOUBLE)
     }
 
     override fun <T : Enum<T>> readEnumValue(enumClass: KClass<T>): T {
-        setCurrentChildType(ChildType.ENUM)
+        setCurrentEnumChildType(enumClass)
+        doSuspend(childDescriptors.isEmpty())
     }
 
     override fun readFloatValue(): Float {
-        setCurrentChildType(ChildType.FLOAT)
+        setCurrentChildType(PrimitiveKind.FLOAT)
     }
 
     override fun readIntValue(): Int {
@@ -147,18 +148,18 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
                 KSerialClassKind.SET,
                 KSerialClassKind.MAP -> {
                     if (childDescriptors.isNotEmpty()) {
-                        childDescriptors[0] = ChildType.INT.primitiveSerialDescriptor
+                        childDescriptors[0] = PrimitiveKind.INT.primitiveSerialDescriptor
                     }
                     isCurrentElementNullable = false
                     return 1 // One simulated element
                 }
             }
         }
-        setCurrentChildType(ChildType.INT)
+        setCurrentChildType(PrimitiveKind.INT)
     }
 
     override fun readLongValue(): Long {
-        setCurrentChildType(ChildType.LONG)
+        setCurrentChildType(PrimitiveKind.LONG)
     }
 
     override fun readNotNullMark(): Boolean {
@@ -180,7 +181,7 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
     }
 
     override fun readShortValue(): Short {
-        setCurrentChildType(ChildType.SHORT)
+        setCurrentChildType(PrimitiveKind.SHORT)
     }
 
     override fun readStringValue(): String {
@@ -192,18 +193,18 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
         if (currentChildIndex == 0 &&
             kSerialClassDesc.kind == KSerialClassKind.POLYMORPHIC) {
 
-            childDescriptors[0] = ChildType.STRING.primitiveSerialDescriptor
+            childDescriptors[0] = PrimitiveKind.STRING.primitiveSerialDescriptor
             return "nl.adaptivity.xmlutil.serialization.canary.InputCanary\$Dummy"
         }
-        setCurrentChildType(ChildType.STRING)
+        setCurrentChildType(PrimitiveKind.STRING)
     }
 
     override fun readUnitValue() {
-        setCurrentChildType(ChildType.UNIT)
+        setCurrentChildType(PrimitiveKind.UNIT)
     }
 
     override fun readValue(): Any {
-        setCurrentChildType(ChildType.NONSERIALIZABLE)
+        throw SerializationException("Cannot handle non-serializable values")
     }
 
     internal class SuspendException(val finished: Boolean = false) : Exception()

@@ -17,22 +17,33 @@
 package nl.adaptivity.xmlutil.serialization.compat
 
 import kotlinx.serialization.KSerialClassKind
-import nl.adaptivity.xmlutil.serialization.canary.ChildType
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.internal.*
+import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 
 sealed class SerialKind
-sealed class PrimitiveKind : SerialKind() {
-    object INT : PrimitiveKind()
-    object UNIT : PrimitiveKind()
-    object STRING : PrimitiveKind()
-    object DOUBLE : PrimitiveKind()
-    object FLOAT : PrimitiveKind()
-    object BOOLEAN : PrimitiveKind()
-    object BYTE : PrimitiveKind()
-    object CHAR : PrimitiveKind()
-    object ENUM : PrimitiveKind()
-    object LONG : PrimitiveKind()
-    object SHORT : PrimitiveKind()
+sealed class PrimitiveKind
+constructor(val primitiveSerializer: KSerializer<*>) : SerialKind() {
+    object INT : PrimitiveKind(IntSerializer)
+    object UNIT : PrimitiveKind(UnitSerializer)
+    object STRING : PrimitiveKind(StringSerializer)
+    object DOUBLE : PrimitiveKind(DoubleSerializer)
+    object FLOAT : PrimitiveKind(FloatSerializer)
+    object BOOLEAN : PrimitiveKind(BooleanSerializer)
+    object BYTE : PrimitiveKind(ByteSerializer)
+    object CHAR : PrimitiveKind(CharSerializer)
+    object ENUM : PrimitiveKind(EnumSerializer(DummyEnum::class))
+    object LONG : PrimitiveKind(LongSerializer)
+    object SHORT : PrimitiveKind(ShortSerializer)
+
+    open val primitiveSerialDescriptor: SerialDescriptor by lazy {
+        ExtSerialDescriptor(primitiveSerializer.serialClassDesc, this, emptyArray())
+    }
+
 }
+
+private enum class DummyEnum {}
 
 sealed class StructureKind : SerialKind() {
     object CLASS : StructureKind()
@@ -48,7 +59,7 @@ sealed class UnionKind : SerialKind() {
 }
 
 
-internal fun KSerialClassKind.asSerialKind(type: ChildType?): SerialKind {
+internal fun KSerialClassKind.asSerialKind(): SerialKind {
     return when (this) {
         KSerialClassKind.CLASS       -> StructureKind.CLASS
         KSerialClassKind.OBJECT      -> UnionKind.OBJECT
@@ -59,22 +70,7 @@ internal fun KSerialClassKind.asSerialKind(type: ChildType?): SerialKind {
         KSerialClassKind.MAP         -> StructureKind.MAP
         KSerialClassKind.ENTRY       -> StructureKind.CLASS
         KSerialClassKind.POLYMORPHIC -> UnionKind.POLYMORPHIC
-        KSerialClassKind.PRIMITIVE   -> when (type) {
-
-            ChildType.DOUBLE  -> PrimitiveKind.DOUBLE
-            ChildType.INT       -> PrimitiveKind.INT
-            ChildType.FLOAT     -> PrimitiveKind.FLOAT
-            ChildType.STRING    -> PrimitiveKind.STRING
-            ChildType.BOOLEAN   -> PrimitiveKind.BOOLEAN
-            ChildType.BYTE      -> PrimitiveKind.BYTE
-            ChildType.UNIT      -> PrimitiveKind.UNIT
-            ChildType.CHAR      -> PrimitiveKind.CHAR
-            ChildType.ENUM      -> PrimitiveKind.ENUM
-            ChildType.LONG      -> PrimitiveKind.LONG
-            ChildType.SHORT     -> PrimitiveKind.SHORT
-            ChildType.STRUCTURE -> StructureKind.CLASS
-            else                -> throw IllegalArgumentException("Serializing non-primitive primitive: $type")
-        }
+        KSerialClassKind.PRIMITIVE   -> throw SerializationException("Cannot convert a primitive due to lacking information")
         KSerialClassKind.ENUM        -> UnionKind.ENUM
     }
 }

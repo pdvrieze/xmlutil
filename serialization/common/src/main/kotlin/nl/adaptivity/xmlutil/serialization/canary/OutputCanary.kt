@@ -17,7 +17,6 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumSerializer
 import nl.adaptivity.xmlutil.serialization.compat.*
 import kotlin.reflect.KClass
 
@@ -31,11 +30,11 @@ class OutputCanary constructor(
 
     override lateinit var kSerialClassDesc: KSerialClassDesc
 
+    override lateinit var serialKind: SerialKind
+
     init {
         kSerialClassDesc?.let { this.kSerialClassDesc = it }
     }
-
-    override var type: ChildType = ChildType.UNKNOWN
 
     // If we are not deep the descriptor is going to be incomplete (only used for nullability)
     override var isComplete: Boolean = isDeep
@@ -58,16 +57,10 @@ class OutputCanary constructor(
 
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
         kSerialClassDesc = desc
-        type = ChildType.STRUCTURE
+        serialKind = desc.kind.asSerialKind()
 
         childDescriptors = childInfoForClassDesc(desc)
         return this
-    }
-
-    override fun writeEnd(desc: KSerialClassDesc) {
-        if (type == ChildType.UNKNOWN) {
-            throw IllegalStateException("Unexpected type")
-        }
     }
 
     override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
@@ -94,59 +87,49 @@ class OutputCanary constructor(
         currentChildIndex = -1
     }
 
-    override fun setCurrentChildType(type: ChildType) {
-        super.setCurrentChildType(type)
+    override fun setCurrentChildType(kind: PrimitiveKind) {
+        super.setCurrentChildType(kind)
         currentChildIndex = -1
     }
 
     override fun writeBooleanValue(value: Boolean) {
-        setCurrentChildType(ChildType.BOOLEAN)
+        setCurrentChildType(PrimitiveKind.BOOLEAN)
     }
 
     override fun writeByteValue(value: Byte) {
-        setCurrentChildType(ChildType.BYTE)
+        setCurrentChildType(PrimitiveKind.BYTE)
     }
 
     override fun writeCharValue(value: Char) {
-        setCurrentChildType(ChildType.CHAR)
+        setCurrentChildType(PrimitiveKind.CHAR)
     }
 
     override fun writeDoubleValue(value: Double) {
-        setCurrentChildType(ChildType.DOUBLE)
+        setCurrentChildType(PrimitiveKind.DOUBLE)
     }
 
     override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) {
-        if (currentChildIndex < 0) {
-            type = ChildType.ENUM
-        } else if (currentChildIndex < childDescriptors.size) {
-            val serializer = EnumSerializer(enumClass)
-            val desc = ExtSerialDescriptor(serializer.serialClassDesc, UnionKind.ENUM, emptyArray())
-            childDescriptors[currentChildIndex] = desc.wrapNullable()
-            isCurrentElementNullable = false
-            currentChildIndex = -1
-        }
+        setCurrentEnumChildType(enumClass)
     }
 
     override fun writeFloatValue(value: Float) {
-        setCurrentChildType(ChildType.FLOAT)
+        setCurrentChildType(PrimitiveKind.FLOAT)
     }
 
     override fun writeIntValue(value: Int) {
-        setCurrentChildType(ChildType.INT)
+        setCurrentChildType(PrimitiveKind.INT)
     }
 
     override fun writeLongValue(value: Long) {
-        setCurrentChildType(ChildType.LONG)
+        setCurrentChildType(PrimitiveKind.LONG)
     }
 
     override fun writeNonSerializableValue(value: Any) {
-        if (currentChildIndex < 0) {
-            type = ChildType.UNKNOWN
-        } else if (currentChildIndex < childDescriptors.size) {
-            childDescriptors[currentChildIndex] = null
-        }
+        throw SerializationException("Cannot create descriptors for types includin unserializable values")
+        /*
         isCurrentElementNullable = false
         currentChildIndex = -1
+        */
     }
 
     override fun writeNotNullMark() {
@@ -171,15 +154,15 @@ class OutputCanary constructor(
     }
 
     override fun writeShortValue(value: Short) {
-        setCurrentChildType(ChildType.SHORT)
+        setCurrentChildType(PrimitiveKind.SHORT)
     }
 
     override fun writeStringValue(value: String) {
-        setCurrentChildType(ChildType.STRING)
+        setCurrentChildType(PrimitiveKind.STRING)
     }
 
     override fun writeUnitValue() {
-        setCurrentChildType(ChildType.UNIT)
+        setCurrentChildType(PrimitiveKind.UNIT)
     }
 
 

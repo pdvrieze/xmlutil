@@ -17,31 +17,45 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.KSerialClassDesc
-import nl.adaptivity.xmlutil.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
-import nl.adaptivity.xmlutil.serialization.compat.asSerialKind
+import kotlinx.serialization.internal.EnumSerializer
+import nl.adaptivity.xmlutil.serialization.compat.*
+import kotlin.reflect.KClass
 
 interface CanaryCommon {
     var kSerialClassDesc: KSerialClassDesc
     var currentChildIndex: Int
-    var type: ChildType
+    var serialKind: SerialKind
     var isClassNullable: Boolean
     val isComplete: Boolean
     val isDeep: Boolean
     val childDescriptors: Array<SerialDescriptor?>
     var isCurrentElementNullable: Boolean
 
-    fun setCurrentChildType(type: ChildType): Unit {
-        assert(type.isPrimitive)
+    fun setCurrentChildType(kind: PrimitiveKind) {
         val index = currentChildIndex
         if (index < 0) {
-            kSerialClassDesc = type.primitiveSerializer.serialClassDesc
-            this.type = type
+            kSerialClassDesc = kind.primitiveSerializer.serialClassDesc
+            this.serialKind = kind
         } else if (index < childDescriptors.size) {
-            childDescriptors[index] = type.primitiveSerialDescriptor.wrapNullable()
+            childDescriptors[index] = kind.primitiveSerialDescriptor.wrapNullable()
         }
 
         isCurrentElementNullable = false
+
+    }
+
+    fun <T : Enum<T>> setCurrentEnumChildType(enumClass: KClass<T>) {
+        val serialClassDesc = EnumSerializer(enumClass).serialClassDesc
+        if (currentChildIndex < 0) {
+            serialKind = PrimitiveKind.ENUM
+            kSerialClassDesc = serialClassDesc
+        } else if (currentChildIndex < childDescriptors.size) {
+            val desc = ExtSerialDescriptor(serialClassDesc, UnionKind.ENUM, emptyArray())
+            childDescriptors[currentChildIndex] = desc.wrapNullable()
+            isCurrentElementNullable = false
+            currentChildIndex = -1
+        }
+
     }
 
     fun SerialDescriptor.wrapNullable() = wrapNullable(isCurrentElementNullable)
@@ -54,7 +68,7 @@ interface CanaryCommon {
     fun serialDescriptor(): SerialDescriptor {
         val kSerialClassDesc = kSerialClassDesc
         return ExtSerialDescriptor(kSerialClassDesc,
-                                   kSerialClassDesc.kind.asSerialKind(type),
+                                   serialKind,
                                    Array(childDescriptors.size) {
                                        requireNotNull(childDescriptors[it], {
                                            "childDescriptors[$it]"

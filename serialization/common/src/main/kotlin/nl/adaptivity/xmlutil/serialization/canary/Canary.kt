@@ -77,10 +77,6 @@ object Canary {
         }
     }
 
-    fun <T> pollInfo(loader: KSerialLoader<T>): ExtInfo? {
-        return null
-    }
-
     fun <T> pollDesc(saver: KSerialSaver<T>): SerialDescriptor? {
         return saverMap[saver]
     }
