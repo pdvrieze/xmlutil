@@ -141,7 +141,8 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                                                                                                    elementIndex), CompositeDecoder {
         override fun decodeNotNullMark() = false
 
-        override fun <T> decodeSerializable(strategy: DeserializationStrategy<T>): T {
+        override fun <T> decodeSerializable(strategy: DeserializationStrategy<T>,
+                                            oldValue: T?): T {
             val default = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
             @Suppress("UNCHECKED_CAST")
             return when (default) {

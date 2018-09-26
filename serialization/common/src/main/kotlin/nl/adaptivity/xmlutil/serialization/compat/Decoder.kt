@@ -34,9 +34,9 @@ interface Decoder {
     fun decodeString(): String
 
     // Decoder is allowed to override this default implementation
-    // todo: Add oldValue to deserialize
-    fun <T : Any?> decodeSerializable(strategy: DeserializationStrategy<T>): T =
-            strategy.deserialize(this)
+    fun <T : Any?> decodeSerializable(strategy: DeserializationStrategy<T>,
+                                      oldValue: T?): T =
+            strategy.deserialize(this, oldValue)
 
     fun beginDecodeComposite(desc: SerialDescriptor): CompositeDecoder
 }

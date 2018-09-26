@@ -38,11 +38,15 @@ open class DecoderInput(val decoder: Decoder, val serialDescriptor: SerialDescri
     override fun readStringValue() = decoder.decodeString()
 
     override fun <T> readSerializableValue(loader: KSerialLoader<T>): T { // This is called first, it gives the loader and type
-        return decoder.decodeSerializable(LoaderStrategy(loader, Canary.serialDescriptor(loader)))
+        return decoder.decodeSerializable(LoaderStrategy(loader, Canary.serialDescriptor(loader)), null)
     }
 
     override fun <T> updateSerializableValue(loader: KSerialLoader<T>, desc: KSerialClassDesc, old: T): T {
-        return super.updateSerializableValue(loader, desc, old)
+        return when(updateMode) {
+            UpdateMode.BANNED -> throw UpdateNotSupportedException(desc.name)
+            UpdateMode.OVERWRITE -> decoder.decodeSerializable(LoaderStrategy(loader, Canary.serialDescriptor(loader)), old)
+            UpdateMode.UPDATE -> loader.update(this, old)
+        }
     }
 
     override fun readBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KInput {

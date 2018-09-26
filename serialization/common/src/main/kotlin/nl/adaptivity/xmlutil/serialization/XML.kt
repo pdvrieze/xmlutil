@@ -272,8 +272,6 @@ internal fun XmlChildrenName.toQName() = QName(namespace, value, prefix)
 
 internal data class PolyInfo(val kClass: String, val tagName: QName, val index: Int)
 
-internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
-
 internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     for (e in this) {
         if (e is T) return e

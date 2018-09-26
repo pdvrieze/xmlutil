@@ -20,6 +20,9 @@ import kotlinx.serialization.SerialInfo
 
 /**
  * Specify more detailed name information than can be provided by [SerialName].
+ * @property value The local part of the name
+ * @property namespace The namespace to use
+ * @property prefix the Prefix to use
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
@@ -64,3 +67,8 @@ annotation class XmlValue(val value: Boolean /*= true*/)
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlDefault(val value: String)
+
+/**
+ * Default value for unset annotations
+ */
+internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"

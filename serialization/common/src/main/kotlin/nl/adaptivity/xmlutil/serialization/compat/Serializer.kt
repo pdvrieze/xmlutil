@@ -16,9 +16,6 @@
 
 package nl.adaptivity.xmlutil.serialization.compat
 
-import kotlinx.serialization.KSerialLoader
-import kotlinx.serialization.KSerialSaver
-
 interface SerializationStrategy<in T> {
     fun serialize(output: Encoder, obj: T)
 
