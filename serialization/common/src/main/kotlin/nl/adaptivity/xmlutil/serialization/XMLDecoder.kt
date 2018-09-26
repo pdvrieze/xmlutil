@@ -78,32 +78,15 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
             return decodeString(true).single()
         }
 
-        fun doReadAttribute(default: String?, index: Int): String {
-            val expectedNS = serialName.namespaceURI
-            val expectedName = serialName.localPart
-            val allowEmpty = serialName.namespaceURI == expectedNS
-
-            if (index < 0) {
-                if (default == null) {
-                    throw SerializationException(
-                            "No attribute for name $serialName found on element of name ${input.name}")
-                } else {
-                    return default
-                }
-            }
-
-            return input.getAttributeValue(index)
-        }
-
         override fun decodeString(): String {
             return decodeString(false)
         }
 
-        fun decodeString(defaultOverEmpty: Boolean): String {
+        private fun decodeString(defaultOverEmpty: Boolean): String {
             val defaultString = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
 
             val stringValue = if (attrIndex >= 0) {
-                doReadAttribute(defaultString, attrIndex)
+                input.getAttributeValue(attrIndex)
             } else when (parentDesc.outputKind(elementIndex)) {
                 OutputKind.Element   -> { // This may occur with list values.
                     input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
@@ -145,7 +128,6 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
     internal fun <T> DeserializationStrategy<T>.parseDefaultValue(desc: SerialDescriptor,
                                                                   index: Int,
                                                                   default: String): T {
-        val defaultValue = CompactFragment(default).getXmlReader()
         val decoder = XmlDecoderBase(context, CompactFragment(default).getXmlReader()).XmlDecoder(desc, index)
         return deserialize(decoder, null)
 
@@ -162,12 +144,13 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         override fun <T> decodeSerializable(strategy: DeserializationStrategy<T>): T {
             val default = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
             @Suppress("UNCHECKED_CAST")
-            if (default != null) {
-                val decoder = XmlDecoderBase(context, CompactFragment(default).getXmlReader()).XmlDecoder(parentDesc,
-                                                                                                          elementIndex)
-                return strategy.deserialize(decoder, null)
-            } else {
-                return null as T
+            return when (default) {
+                null -> null as T
+                else -> {
+                    val decoder = XmlDecoderBase(context, CompactFragment(default).getXmlReader())
+                            .XmlDecoder(parentDesc, elementIndex)
+                    strategy.deserialize(decoder, null)
+                }
             }
         }
 
@@ -226,22 +209,13 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                                         elementIndex: Int,
                                         polyInfo: PolyInfo? = null,
                                         attrIndex: Int = Int.MIN_VALUE) : XmlDecoder(parentDesc, elementIndex, polyInfo,
-                                                                                     attrIndex) {
-        override fun beginDecodeComposite(desc: SerialDescriptor): CompositeDecoder {
-            return super.beginDecodeComposite(desc)
-        }
-    }
-
-    internal open inner class RenamedTagDecoder(override val serialName: QName,
-                                                parentDesc: SerialDescriptor,
-                                                elementIndex: Int,
-                                                desc: SerialDescriptor) : TagDecoder(parentDesc, elementIndex, desc)
+                                                                                     attrIndex)
 
     internal open inner class TagDecoder(parentDesc: SerialDescriptor, elementIndex: Int, desc: SerialDescriptor) :
             XmlTagCodec(parentDesc, elementIndex, desc), CompositeDecoder, XML.XmlInput {
 
         private var nameToMembers: Map<QName, Int>
-        internal var polyChildren: Map<QName, PolyInfo>
+        private var polyChildren: Map<QName, PolyInfo>
 
         private val seenItems = BooleanArray(desc.elementsCount)
 
@@ -289,21 +263,12 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                                                    strategy: DeserializationStrategy<T>,
                                                    oldValue: T?,
                                                    wasRead: Boolean): T {
-/*
-            if (nulledItemsIdx >= 0) { // We are reading nulls
-                val default = desc.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
-                if (default!=null) {
-                    return strategy.parseDefaultValue(desc, index, default)
-                }
-                @Suppress("UNCHECKED_CAST")
-                return null as T
-            } else {
-            }
-*/
+
             val decoder = when {
                 nulledItemsIdx >= 0 -> NullDecoder(desc, index)
                 else                -> XmlDecoder(desc, index, currentPolyInfo, lastAttrIndex)
             }
+
             return strategy.deserialize(decoder, oldValue).also {
                 seenItems[index] = true
             }
@@ -344,7 +309,6 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
              * Fully finished when the nulled items returns a DONE value
              */
             if (nulledItemsIdx >= 0) {
-                val sn = serialName
                 input.require(EventType.END_ELEMENT, null, null)
 
                 if (nulledItemsIdx >= seenItems.size) return KInput.READ_DONE
@@ -375,7 +339,7 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                 skipRead = false
                 return readElementEnd(desc)
             }
-            // TODO validate correctness of type
+
             for (eventType in input) {
                 if (!eventType.isIgnorable) {
                     // The android reader doesn't check whitespaceness
@@ -392,11 +356,11 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
             return KInput.READ_DONE
         }
 
-        fun nextNulledItemsIdx() {
+        private fun nextNulledItemsIdx() {
             for (i in (nulledItemsIdx + 1) until seenItems.size) {
                 if (!seenItems[i]) {
                     val default = desc.getElementAnnotations(i).firstOrNull<XmlDefault>()
-                    // If a
+
                     val childDesc = desc.getElementDescriptor(i)
                     val kind = childDesc.extKind
                     val defaultOrList = childDesc.isNullable || default != null || when (kind) {
@@ -416,16 +380,6 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         override fun endDecodeComposite(desc: SerialDescriptor) {
             // TODO record the tag name used to be able to validate leaving
             input.require(EventType.END_ELEMENT, null, null)
-/*
-            loop@ while (input.hasNext()) {
-                when (input.next()) {
-                    EventType.COMMENT,
-                    EventType.IGNORABLE_WHITESPACE,
-                    EventType.PROCESSING_INSTRUCTION -> {}
-                    else                             -> break@loop
-                }
-            }
-*/
         }
 
         open fun readElementEnd(desc: SerialDescriptor): Int {
@@ -507,131 +461,13 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
 
     }
 
-    /*
-        internal inner class Element(desc: KSerialClassDesc,
-                                     serialName: QName,
-                                     childName: QName?,
-                                     private var attrIndex: Int = 0,
-                                     var extInfo: ExtInfo) : Base(desc, serialName, childName) {
-            private val seenItems = BooleanArray(desc.associatedFieldsCount)
-
-            private var nulledItemsIdx = -1
-
-            override fun readBegin(tag: ElementXmlTag): KInput {
-                val tagName = tag.useInfo.tagName
-
-                val polyInfo = polyChildren?.values?.firstOrNull { it.index == tag.useInfo.index && it.tagName.normalize() == input.name.normalize() }
-
-
-                return readBegin(tag.elementDesc, tagName, polyInfo, nulledItemsIdx >= 0, tag.extInfo)
-            }
-
-            fun nextNulledItemsIdx() {
-                for (i in (nulledItemsIdx + 1) until seenItems.size) {
-                    if (!seenItems[i]) {
-                        val childInfo = extInfo.childInfo[i]
-                        val default = childInfo.useAnnotations.firstOrNull<XmlDefault>()
-                        // If a
-                        val defaultOrList = childInfo.isNullable || default != null || when (childInfo.kind) {
-                            KSerialClassKind.SET,
-                            KSerialClassKind.MAP,
-                            KSerialClassKind.LIST -> true
-                            else                  -> false
-                        }
-                        if (defaultOrList) {
-                            nulledItemsIdx = i
-                            return
-                        }
-                    }
-                }
-                nulledItemsIdx = seenItems.size
-            }
-
-            override fun doGetTag(classDesc: KSerialClassDesc, index: Int): XmlTag {
-                markItemSeen(index)
-
-                if (index < extInfo.childInfo.size) {
-                    return XmlTagImpl(classDesc, index, classDesc.outputKind(index, extInfo),
-                                      classDesc.getSafeTagName(index), useQName = classDesc.getTagName(index))
-                } else {
-                    return XmlTagImpl(classDesc, index, OutputKind.Unknown, QName("value"), null, useQName = QName("value"))
-                }
-            }
-
-            fun markItemSeen(index: Int) {
-                seenItems[index] = true
-            }
-
-            override fun readElement(desc: KSerialClassDesc): Int {
-                if (nulledItemsIdx >= 0) {
-                    val sn = serialName
-                    input.require(EventType.END_ELEMENT, sn.namespaceURI, sn.localPart)
-
-                    if (nulledItemsIdx >= seenItems.size) return KInput.READ_DONE
-                    val i = nulledItemsIdx
-                    nextNulledItemsIdx()
-                    return i
-                }
-
-                if (attrIndex >= 0 && attrIndex < input.attributeCount) {
-
-                    val name = input.getAttributeName(attrIndex)
-
-                    return if (name.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI ||
-                               name.prefix == XMLConstants.XMLNS_ATTRIBUTE ||
-                               (name.prefix.isEmpty() && name.localPart == XMLConstants.XMLNS_ATTRIBUTE)) {
-                        // Ignore namespace decls
-                        readElement(desc)
-                    } else {
-                        desc.indexOf(name, true)
-                    }
-                }
-                attrIndex = -1 // Ensure to reset here
-
-                return super.readElement(desc)
-            }
-
-            override fun readElementEnd(desc: KSerialClassDesc): Int {
-                nextNulledItemsIdx()
-                return when {
-                    nulledItemsIdx < seenItems.size -> nulledItemsIdx
-                    else                            -> READ_DONE
-                }
-            }
-
-            override fun readTaggedNotNullMark(tag: XmlTag): Boolean {
-                return nulledItemsIdx < 0 // If we are not yet reading "missing values" we have no nulls
-            }
-
-            override fun doReadAttribute(tag: XmlTag): String {
-                return input.getAttributeValue(attrIndex).also { attrIndex++ }
-            }
-
-            override fun <T> readSerializableValue(loader: KSerialLoader<T>): T {
-                if (attrIndex >= 0) {
-                    if (currentTag.useInfo.outputKind == OutputKind.Element) { // We are having an element masquerading as attribute.
-                        // Whatever we do, increase the index
-                        attrIndex++
-                    }
-                }
-                return super.readSerializableValue(loader)
-            }
-
-            override fun readTaggedString(tag: XmlTag): String {
-                if (nulledItemsIdx >= 0) {
-                    return tag.useInfo.useAnnotations.firstOrNull<XmlDefault>()?.value ?: throw MissingFieldException(
-                            "${tag.useInfo.declChildName}:${tag.useInfo.index}")
-                }
-                return super.readTaggedString(tag)
-            }
-        }
-    */
     internal inner class AnonymousListDecoder(parentDesc: SerialDescriptor,
                                               elementIndex: Int,
                                               desc: SerialDescriptor,
-                                              val polyInfo: PolyInfo?) : TagDecoder(parentDesc, elementIndex, desc) {
+                                              private val polyInfo: PolyInfo?) : TagDecoder(parentDesc, elementIndex,
+                                                                                            desc) {
 
-        var finished: Boolean = false
+        private var finished: Boolean = false
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return when {
@@ -653,37 +489,14 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
             val decoder = RenamedDecoder(childName, desc, index, polyInfo, Int.MIN_VALUE)
             return strategy.deserialize(decoder, oldValue)
         }
-
-/*
-        override fun doReadAttribute(desc: SerialDescriptor, index: Int): String {
-            val expectedNS = serialName.namespaceURI
-            val expectedName = serialName.localPart
-            val allowEmpty = serialName.namespaceURI == expectedNS
-
-            var attrIndex = -1
-            for (i in 0 until input.attributeCount) {
-                if (input.getAttributeLocalName(i) == expectedName) {
-                    val actualNS = input.getAttributeNamespace(i)
-                    if (actualNS == expectedNS) {
-                        attrIndex = i; break
-                    } else if (actualNS.isEmpty() && allowEmpty) {
-                        attrIndex = i
-                    }
-                }
-            }
-            if (attrIndex < 0) throw SerializationException(
-                    "No attribute for name $serialName found on element of name ${input.name}")
-
-            return input.getAttributeValue(attrIndex)
-        }
-*/
     }
 
     internal inner class NamedListDecoder(parentDesc: SerialDescriptor,
                                           elementIndex: Int,
-                                          desc: SerialDescriptor, val childName: QName) :
+                                          desc: SerialDescriptor,
+                                          private val childName: QName) :
             TagDecoder(parentDesc, elementIndex, desc) {
-        var childCount = 0
+        private var childCount = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return when (input.nextTag()) {
@@ -702,15 +515,15 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         }
     }
 
-    internal inner class PolymorphicDecoder
-    constructor(override val serialName: QName,
-                parentDesc: SerialDescriptor,
-                elementIndex: Int,
-                desc: SerialDescriptor,
-                val polyInfo: PolyInfo?,
-            // TODO move to body with getter
-                val transparent: Boolean = polyInfo != null)
+    internal inner class PolymorphicDecoder(
+            override val serialName: QName,
+            parentDesc: SerialDescriptor,
+            elementIndex: Int,
+            desc: SerialDescriptor,
+            private val polyInfo: PolyInfo?)
         : TagDecoder(parentDesc, elementIndex, desc) {
+
+        private val transparent get() = polyInfo != null
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             return CompositeDecoder.READ_ALL // We don't need housekeeping this way
@@ -718,11 +531,10 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
 
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {
             return when (index) {
-                0    -> if (polyInfo != null) {
-                    polyInfo.kClass
-                } else {
-                    input.getAttributeValue(null, "type")
-                    ?: throw SerializationException("Missing type for polymorphic value")
+                0    -> when (polyInfo) {
+                    null -> input.getAttributeValue(null, "type")
+                            ?: throw SerializationException("Missing type for polymorphic value")
+                    else -> polyInfo.kClass
                 }
                 else -> super.decodeStringElement(desc, index)
             }
@@ -730,8 +542,8 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
 
         override fun doReadAttribute(desc: SerialDescriptor, index: Int): String {
             return if (!transparent) {
-                input.getAttributeValue(null, "type") ?: throw SerializationException(
-                        "Missing type for polymorphic value")
+                input.getAttributeValue(null, "type")
+                ?: throw SerializationException("Missing type for polymorphic value")
             } else {
                 polyInfo?.kClass ?: input.name.localPart // Likely to fail unless the tagname matches the type
             }
