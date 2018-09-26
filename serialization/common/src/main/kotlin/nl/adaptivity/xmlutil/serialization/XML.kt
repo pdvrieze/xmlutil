@@ -993,10 +993,10 @@ private fun outputKind(baseInfo: BaseInfo? = null): OutputKind {
     }
 
     return when (childType) {
-        ChildType.CLASS   -> OutputKind.Element
+        ChildType.STRUCTURE -> OutputKind.Element
         null,
-        ChildType.UNKNOWN -> OutputKind.Unknown
-        else              -> OutputKind.Attribute
+        ChildType.UNKNOWN   -> OutputKind.Unknown
+        else                -> OutputKind.Attribute
     }
 }
 

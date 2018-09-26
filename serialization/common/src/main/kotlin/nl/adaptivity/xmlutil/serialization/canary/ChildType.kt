@@ -27,13 +27,13 @@ enum class ChildType(private val serializer: KSerializer<*>?, val serialKind: Se
     NONSERIALIZABLE(null, StructureKind.CLASS),
     SHORT(ShortSerializer,
           PrimitiveKind.SHORT),
-    CLASS(null, StructureKind.CLASS);
+    STRUCTURE(null, StructureKind.CLASS);
 
     val isPrimitive
         get() = when(this) {
             ChildType.UNKNOWN,
             ChildType.UNIT,
-            ChildType.CLASS,
+            ChildType.STRUCTURE,
             ChildType.NONSERIALIZABLE -> false
             else                      -> true
         }

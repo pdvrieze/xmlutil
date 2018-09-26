@@ -18,192 +18,181 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumSerializer
-import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.compat.*
 import kotlin.reflect.KClass
 
 
-class OutputCanary constructor(private var kSerialClassDesc: KSerialClassDesc? = null, private val isDeep: Boolean = true) : ElementValueOutput() {
-    private var index: Int = -1
+class OutputCanary constructor(
+        kSerialClassDesc: KSerialClassDesc? = null,
+        override val isDeep: Boolean = true)
+    : ElementValueOutput(), CanaryCommon {
 
-    var type: ChildType = ChildType.UNKNOWN
-        private set
+    override var currentChildIndex: Int = -1
+
+    override lateinit var kSerialClassDesc: KSerialClassDesc
+
+    init {
+        kSerialClassDesc?.let { this.kSerialClassDesc = it }
+    }
+
+    override var type: ChildType = ChildType.UNKNOWN
 
     // If we are not deep the descriptor is going to be incomplete (only used for nullability)
-    var complete: Boolean = isDeep
+    override var isComplete: Boolean = isDeep
         private set
 
 
-    private var childInfo: Array<SerialDescriptor?> = emptyArray()
+    override var childDescriptors: Array<SerialDescriptor?> = emptyArray()
 
     // We have two nullable flags to make distinguishing easier. This is because composite and non-composite are mixed.
-    private var isNullable: Boolean = false
+    override var isClassNullable: Boolean = false
 
-    private var currentElementIsNullable: Boolean = false
+    override var isCurrentElementNullable: Boolean = false
 
     override fun writeElement(desc: KSerialClassDesc, index: Int): Boolean {
-        if (index<0)
+        if (index < 0)
             throw IndexOutOfBoundsException()
-        this.index = index
+        this.currentChildIndex = index
         return true
     }
 
     override fun writeBegin(desc: KSerialClassDesc, vararg typeParams: KSerializer<*>): KOutput {
         kSerialClassDesc = desc
+        type = ChildType.STRUCTURE
 
-        childInfo = childInfoForClassDesc(desc)
+        childDescriptors = childInfoForClassDesc(desc)
         return this
     }
 
     override fun writeEnd(desc: KSerialClassDesc) {
         if (type == ChildType.UNKNOWN) {
-            type = ChildType.CLASS
+            throw IllegalStateException("Unexpected type")
         }
     }
 
     override fun <T> writeSerializableValue(saver: KSerialSaver<T>, value: T) {
-        if (index < 0) throw IllegalStateException()
-        if (index <childInfo.size) {
+        if (currentChildIndex < 0) throw IllegalStateException()
+        if (currentChildIndex < childDescriptors.size) {
             val poll = Canary.pollDesc(saver)
 
             if (poll != null) {
-                val isNullable = OutputCanary(isDeep = false).let { saver.save(it, value); it.isNullable }
-                childInfo[index] = poll.wrapNullable(isNullable)
-            } else if(isDeep) {
+                val isNullable = OutputCanary(isDeep = false).let { saver.save(it, value); it.isClassNullable }
+                childDescriptors[currentChildIndex] = poll.wrapNullable(isNullable)
+            } else if (isDeep) {
                 OutputCanary().also {
                     saver.save(it, value)
                     val desc = it.serialDescriptor()
-                    if (it.complete) {
+                    if (it.isComplete) {
                         Canary.registerDesc(saver, desc)
                     } else {
-                        complete = false // If children are not complete we are not
+                        isComplete = false // If children are not complete we are not
                     }
-                    childInfo[index] = desc.wrapNullable()
+                    childDescriptors[currentChildIndex] = desc.wrapNullable()
                 }
             }
         }
-        index = -1
+        currentChildIndex = -1
     }
 
-    private fun setCurrentPrimitiveChildType(type: ChildType) {
-        assert(type.isPrimitive)
-        if (index < 0) {
-            kSerialClassDesc = type.primitiveSerializer.serialClassDesc
-            this.type = type
-        } else if (index < childInfo.size) {
-            childInfo[index] = type.primitiveSerialDescriptor.wrapNullable()
-        }
-        index = -1
-        currentElementIsNullable = false
+    override fun setCurrentChildType(type: ChildType) {
+        super.setCurrentChildType(type)
+        currentChildIndex = -1
     }
 
     override fun writeBooleanValue(value: Boolean) {
-        setCurrentPrimitiveChildType(ChildType.BOOLEAN)
+        setCurrentChildType(ChildType.BOOLEAN)
     }
 
     override fun writeByteValue(value: Byte) {
-        setCurrentPrimitiveChildType(ChildType.BYTE)
+        setCurrentChildType(ChildType.BYTE)
     }
 
     override fun writeCharValue(value: Char) {
-        setCurrentPrimitiveChildType(ChildType.CHAR)
+        setCurrentChildType(ChildType.CHAR)
     }
 
     override fun writeDoubleValue(value: Double) {
-        setCurrentPrimitiveChildType(ChildType.DOUBLE)
+        setCurrentChildType(ChildType.DOUBLE)
     }
 
     override fun <T : Enum<T>> writeEnumValue(enumClass: KClass<T>, value: T) {
-        if (index<0) {
+        if (currentChildIndex < 0) {
             type = ChildType.ENUM
-        } else if (index<childInfo.size) {
+        } else if (currentChildIndex < childDescriptors.size) {
             val serializer = EnumSerializer(enumClass)
             val desc = ExtSerialDescriptor(serializer.serialClassDesc, UnionKind.ENUM, emptyArray())
-            childInfo[index] = desc.wrapNullable()
-            currentElementIsNullable = false
-            index = -1
+            childDescriptors[currentChildIndex] = desc.wrapNullable()
+            isCurrentElementNullable = false
+            currentChildIndex = -1
         }
     }
 
     override fun writeFloatValue(value: Float) {
-        setCurrentPrimitiveChildType(ChildType.FLOAT)
+        setCurrentChildType(ChildType.FLOAT)
     }
 
     override fun writeIntValue(value: Int) {
-        setCurrentPrimitiveChildType(ChildType.INT)
+        setCurrentChildType(ChildType.INT)
     }
 
     override fun writeLongValue(value: Long) {
-        setCurrentPrimitiveChildType(ChildType.LONG)
+        setCurrentChildType(ChildType.LONG)
     }
 
     override fun writeNonSerializableValue(value: Any) {
-        if (index<0) {
+        if (currentChildIndex < 0) {
             type = ChildType.UNKNOWN
-        } else if (index<childInfo.size) {
-            childInfo[index] = null
+        } else if (currentChildIndex < childDescriptors.size) {
+            childDescriptors[currentChildIndex] = null
         }
-        currentElementIsNullable = false
-        index = -1
+        isCurrentElementNullable = false
+        currentChildIndex = -1
     }
 
     override fun writeNotNullMark() {
-        if (index>=0) {
-            currentElementIsNullable = true
+        if (currentChildIndex >= 0) {
+            isCurrentElementNullable = true
         } else {
-            isNullable = true
+            isClassNullable = true
         }
     }
 
     override fun writeNullValue() {
-        if (index>=0) {
-            currentElementIsNullable = true
-            if(index<childInfo.size) {
-                childInfo[index] = DUMMYCHILDINFO
-                complete = false
+        if (currentChildIndex >= 0) {
+            isCurrentElementNullable = true
+            if (currentChildIndex < childDescriptors.size) {
+                childDescriptors[currentChildIndex] = DUMMYCHILDINFO
+                isComplete = false
             }
         } else {
-            isNullable = true
+            isClassNullable = true
         }
-        index = -1
+        currentChildIndex = -1
     }
 
     override fun writeShortValue(value: Short) {
-        setCurrentPrimitiveChildType(ChildType.SHORT)
+        setCurrentChildType(ChildType.SHORT)
     }
 
     override fun writeStringValue(value: String) {
-        setCurrentPrimitiveChildType(ChildType.STRING)
+        setCurrentChildType(ChildType.STRING)
     }
 
     override fun writeUnitValue() {
-        setCurrentPrimitiveChildType(ChildType.UNIT)
+        setCurrentChildType(ChildType.UNIT)
     }
 
-    fun serialDescriptor(): SerialDescriptor {
-        val kSerialClassDesc = kSerialClassDesc!!
-        return ExtSerialDescriptor(requireNotNull(kSerialClassDesc, {"parentClassDesc"}),
-                                   kSerialClassDesc.kind.asSerialKind(type),
-                                   Array(childInfo.size) {
-                                       requireNotNull(childInfo[it],{"childInfo"}) })
-    }
-
-
-    fun SerialDescriptor.wrapNullable() = wrapNullable(currentElementIsNullable)
-
-    fun SerialDescriptor.wrapNullable(newValue: Boolean) = when {
-        !isNullable && newValue -> NullableSerialDescriptor(this)
-        else                     -> this
-    }
 
     companion object {
 
-        object DUMMYSERIALDESC: SerialDescriptor {
+        object DUMMYSERIALDESC : SerialDescriptor {
             override val name: String get() = throw UnsupportedOperationException("Dummy descriptors have no names")
             @Suppress("OverridingDeprecatedMember")
-            override val kind: KSerialClassKind get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
+            override val kind: KSerialClassKind
+                get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
 
-            override val extKind: SerialKind get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
+            override val extKind: SerialKind
+                get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
             override val elementsCount: Int get() = 0
 
             override fun getElementName(index: Int) = throw UnsupportedOperationException("No children in dummy")

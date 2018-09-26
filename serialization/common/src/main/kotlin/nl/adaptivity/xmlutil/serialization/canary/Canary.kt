@@ -33,7 +33,7 @@ object Canary {
         val output = OutputCanary((saver as? KSerializer<*>)?.serialClassDesc)
         saver.save(output, obj)
         val new: SerialDescriptor = output.serialDescriptor()
-        if(output.complete) { // Only save complete descriptors
+        if(output.isComplete) { // Only save complete descriptors
             saverMap[saver] = new
         }
 
@@ -48,7 +48,7 @@ object Canary {
         load(input, loader)
         val new = input.serialDescriptor()
 
-        if (input.complete) {
+        if (input.isComplete) {
             loaderMap2[loader] = new
         }
 

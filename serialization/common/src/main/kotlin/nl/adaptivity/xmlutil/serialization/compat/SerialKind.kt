@@ -62,18 +62,18 @@ internal fun KSerialClassKind.asSerialKind(type: ChildType?): SerialKind {
         KSerialClassKind.PRIMITIVE   -> when (type) {
 
             ChildType.DOUBLE  -> PrimitiveKind.DOUBLE
-            ChildType.INT     -> PrimitiveKind.INT
-            ChildType.FLOAT   -> PrimitiveKind.FLOAT
-            ChildType.STRING  -> PrimitiveKind.STRING
-            ChildType.BOOLEAN -> PrimitiveKind.BOOLEAN
-            ChildType.BYTE    -> PrimitiveKind.BYTE
-            ChildType.UNIT    -> PrimitiveKind.UNIT
-            ChildType.CHAR    -> PrimitiveKind.CHAR
-            ChildType.ENUM    -> PrimitiveKind.ENUM
-            ChildType.LONG    -> PrimitiveKind.LONG
-            ChildType.SHORT   -> PrimitiveKind.SHORT
-            ChildType.CLASS   -> StructureKind.CLASS
-            else              -> throw IllegalArgumentException("Serializing non-primitive primitive: $type")
+            ChildType.INT       -> PrimitiveKind.INT
+            ChildType.FLOAT     -> PrimitiveKind.FLOAT
+            ChildType.STRING    -> PrimitiveKind.STRING
+            ChildType.BOOLEAN   -> PrimitiveKind.BOOLEAN
+            ChildType.BYTE      -> PrimitiveKind.BYTE
+            ChildType.UNIT      -> PrimitiveKind.UNIT
+            ChildType.CHAR      -> PrimitiveKind.CHAR
+            ChildType.ENUM      -> PrimitiveKind.ENUM
+            ChildType.LONG      -> PrimitiveKind.LONG
+            ChildType.SHORT     -> PrimitiveKind.SHORT
+            ChildType.STRUCTURE -> StructureKind.CLASS
+            else                -> throw IllegalArgumentException("Serializing non-primitive primitive: $type")
         }
         KSerialClassKind.ENUM        -> UnionKind.ENUM
     }
