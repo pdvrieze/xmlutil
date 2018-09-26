@@ -104,21 +104,21 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         }
 
         override fun beginDecodeComposite(desc: SerialDescriptor): CompositeDecoder {
-            if (desc.isNullable) return TagDecoder(parentDesc, elementIndex, desc)
+            if (desc.isNullable) return TagDecoder(serialName, parentDesc, elementIndex, desc)
             return when (desc.extKind) {
                 is PrimitiveKind      -> throw SerializationException("A primitive is not a composite")
                 StructureKind.MAP,
-                StructureKind.CLASS   -> TagDecoder(parentDesc, elementIndex, desc)
+                StructureKind.CLASS   -> TagDecoder(serialName, parentDesc, elementIndex, desc)
                 StructureKind.LIST    -> {
                     val childName = parentDesc.requestedChildName(elementIndex)
                     if (childName != null) {
-                        NamedListDecoder(parentDesc, elementIndex, desc, childName)
+                        NamedListDecoder(serialName, parentDesc, elementIndex, desc, childName)
                     } else {
-                        AnonymousListDecoder(parentDesc, elementIndex, desc, polyInfo)
+                        AnonymousListDecoder(serialName, parentDesc, elementIndex, desc, polyInfo)
                     }
                 }
                 UnionKind.OBJECT,
-                UnionKind.ENUM        -> TagDecoder(parentDesc, elementIndex, desc)
+                UnionKind.ENUM        -> TagDecoder(serialName, parentDesc, elementIndex, desc)
                 UnionKind.SEALED,
                 UnionKind.POLYMORPHIC -> PolymorphicDecoder(serialName, parentDesc, elementIndex, desc, polyInfo)
             }
@@ -211,7 +211,10 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                                         attrIndex: Int = Int.MIN_VALUE) : XmlDecoder(parentDesc, elementIndex, polyInfo,
                                                                                      attrIndex)
 
-    internal open inner class TagDecoder(parentDesc: SerialDescriptor, elementIndex: Int, desc: SerialDescriptor) :
+    internal open inner class TagDecoder(override val serialName: QName,
+                                         parentDesc: SerialDescriptor,
+                                         elementIndex: Int,
+                                         desc: SerialDescriptor) :
             XmlTagCodec(parentDesc, elementIndex, desc), CompositeDecoder, XML.XmlInput {
 
         private var nameToMembers: Map<QName, Int>
@@ -379,6 +382,7 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
 
         override fun endDecodeComposite(desc: SerialDescriptor) {
             // TODO record the tag name used to be able to validate leaving
+//            input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             input.require(EventType.END_ELEMENT, null, null)
         }
 
@@ -461,11 +465,12 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
 
     }
 
-    internal inner class AnonymousListDecoder(parentDesc: SerialDescriptor,
+    internal inner class AnonymousListDecoder(serialName: QName,
+                                              parentDesc: SerialDescriptor,
                                               elementIndex: Int,
                                               desc: SerialDescriptor,
-                                              private val polyInfo: PolyInfo?) : TagDecoder(parentDesc, elementIndex,
-                                                                                            desc) {
+                                              private val polyInfo: PolyInfo?)
+        : TagDecoder(serialName, parentDesc, elementIndex, desc) {
 
         private var finished: Boolean = false
 
@@ -491,11 +496,12 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         }
     }
 
-    internal inner class NamedListDecoder(parentDesc: SerialDescriptor,
+    internal inner class NamedListDecoder(serialName: QName,
+                                          parentDesc: SerialDescriptor,
                                           elementIndex: Int,
                                           desc: SerialDescriptor,
                                           private val childName: QName) :
-            TagDecoder(parentDesc, elementIndex, desc) {
+            TagDecoder(serialName, parentDesc, elementIndex, desc) {
         private var childCount = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -521,7 +527,7 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
             elementIndex: Int,
             desc: SerialDescriptor,
             private val polyInfo: PolyInfo?)
-        : TagDecoder(parentDesc, elementIndex, desc) {
+        : TagDecoder(serialName, parentDesc, elementIndex, desc) {
 
         private val transparent get() = polyInfo != null
 

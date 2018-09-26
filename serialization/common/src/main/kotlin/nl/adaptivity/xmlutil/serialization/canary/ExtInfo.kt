@@ -25,8 +25,6 @@ interface BaseInfo {
 }
 
 class ExtInfo(override val kind: KSerialClassKind?,
-              val classAnnotations: List<Annotation>,
-              val childInfo: Array<OldChildInfo>,
               override val type: ChildType,
               override val isNullable: Boolean): BaseInfo {
 }

@@ -193,7 +193,7 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueIn
             kSerialClassDesc.kind == KSerialClassKind.POLYMORPHIC) {
 
             childDescriptors[0] = ChildType.STRING.primitiveSerialDescriptor
-            return "nl.adaptivity.xmlutil.serialization.canary.CanaryInput\$Dummy"
+            return "nl.adaptivity.xmlutil.serialization.canary.InputCanary\$Dummy"
         }
         setCurrentChildType(ChildType.STRING)
     }
