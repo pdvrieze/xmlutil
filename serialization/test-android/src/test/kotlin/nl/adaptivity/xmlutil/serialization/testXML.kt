@@ -71,7 +71,7 @@ object testXML : Spek(
 
         given ("A data class with optional boolean") {
             val location = Location(Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><addres houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" /></Location>"
+            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" /></Location>"
 
             on("Serialization with XML") {
                 val serialized = XML.stringify(location)
@@ -288,7 +288,7 @@ object testXML : Spek(
 
         given("A Simpler class with multiple children without specification") {
             val poly2 = Container3("name2", listOf(ChildA("data"), ChildB("xxx"), ChildA("yyy")))
-            val expected = "<Container3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\" /></member></Container3>"
+            val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\" /></member></container-3>"
             on ("serialization") {
                 val serialized = XML.stringify(poly2)
 
@@ -320,14 +320,14 @@ object testXML : Spek(
             }
         }
 
-        xgiven("A container with sealed children") {
+        given("A container with sealed children") {
             val sealed = Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data")))
             val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\" /><SealedB main=\"b-data\" ext=\"0.5\" /></Sealed>"
             on ("serialization") {
                 val serialized = XML.stringify(sealed)
 
                 // Disabled because sealed classes are broken when used in lists
-                it("should equal the expected xml form") {
+                xit("should equal the expected xml form", "Waiting for sealed support") {
                     assertEquals(expected, serialized)
                 }
 
@@ -335,7 +335,7 @@ object testXML : Spek(
                     assertEquals(sealed, XML.parse<Sealed>(serialized))
                 }
 
-                test("The expected value should also parse to the original") {
+                test("The expected value should also parse to the original", Pending.Yes("Waiting for sealed support")) {
                     assertEquals(sealed, XML.parse<Sealed>(expected))
                 }
 

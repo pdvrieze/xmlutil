@@ -48,6 +48,7 @@ data class Container(val label: String, val member: Base)
 @Serializable
 data class Container2(val name:String, @XmlPolyChildren(arrayOf("ChildA", "ChildB=better")) val children: List<Base>)
 
+@SerialName("container-3")
 @Serializable
 data class Container3(val xxx: String, @SerialName("member") val members: List<Base>)
 
@@ -66,18 +67,18 @@ data class Sealed(val name: String, val members: List<SealedParent>)
 data class SealedSingle(val name: String, val member: SealedA)
 
 @Serializable
-data class Business(val name: String, val headOffice: Address?)
+data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
 
 @Serializable
 @XmlSerialName("chamber", namespace = "", prefix = "")
-data class Chamber(val name: String, @SerialName("member") val members: List<Business>)
+data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
 
 @Serializable
 @XmlSerialName("localname", "urn:namespace", prefix = "")
 data class Special(val paramA: String = "valA",
                    @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
                    @XmlElement(true) val paramB: Int = 1,
-                   @SerialName("flags")
+                   @XmlSerialName("flags", namespace ="urn:namespace", prefix = "")
                    @XmlChildrenName("flag", namespace="urn:flag", prefix="f")
                    val param: List<Int> = listOf(2, 3, 4, 5, 6))
 
