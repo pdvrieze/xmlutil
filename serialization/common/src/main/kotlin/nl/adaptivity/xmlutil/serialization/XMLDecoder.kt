@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.compat.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
-open class XmlDecoderBase internal constructor(context: SerialContext?,
+internal open class XmlDecoderBase internal constructor(context: SerialContext?,
                                                val input: XmlReader) : XmlCodecBase(context) {
 
     var skipRead = false
@@ -47,42 +47,42 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
         }
 
         override fun decodeUnit() {
-            if (decodeString(true) != "kotlin.Unit") throw SerializationException("Did not find Unit where expected")
+            if (decodeStringImpl(true) != "kotlin.Unit") throw SerializationException("Did not find Unit where expected")
         }
 
-        override fun decodeBoolean(): Boolean = decodeString(true).toBoolean()
+        override fun decodeBoolean(): Boolean = decodeStringImpl(true).toBoolean()
 
-        override fun decodeByte(): Byte = decodeString(true).toByte()
+        override fun decodeByte(): Byte = decodeStringImpl(true).toByte()
 
         override fun decodeShort(): Short {
-            return decodeString(true).toShort()
+            return decodeStringImpl(true).toShort()
         }
 
         override fun decodeInt(): Int {
-            return decodeString(true).toInt()
+            return decodeStringImpl(true).toInt()
         }
 
         override fun decodeLong(): Long {
-            return decodeString(true).toLong()
+            return decodeStringImpl(true).toLong()
         }
 
         override fun decodeFloat(): Float {
-            return decodeString(true).toFloat()
+            return decodeStringImpl(true).toFloat()
         }
 
         override fun decodeDouble(): Double {
-            return decodeString(true).toDouble()
+            return decodeStringImpl(true).toDouble()
         }
 
         override fun decodeChar(): Char {
-            return decodeString(true).single()
+            return decodeStringImpl(true).single()
         }
 
         override fun decodeString(): String {
-            return decodeString(false)
+            return decodeStringImpl(false)
         }
 
-        private fun decodeString(defaultOverEmpty: Boolean): String {
+        private fun decodeStringImpl(defaultOverEmpty: Boolean): String {
             val defaultString = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
 
             val stringValue = if (attrIndex >= 0) {
@@ -95,7 +95,6 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                 OutputKind.Attribute -> throw SerializationException(
                         "Attribute parsing without a concrete index is unsupported")
                 OutputKind.Text      -> input.allText()
-                OutputKind.Unknown   -> throw SerializationException("Cannot deserialize unknown input kind")
             }
             return when {
                 defaultOverEmpty && stringValue.isEmpty() && defaultString != null -> defaultString
@@ -137,8 +136,8 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
      * Special class that handles null values that are not mere primitives. Nice side-effect is that XmlDefault values
      * are actually parsed as XML and can be complex
      */
-    internal inner class NullDecoder(parentDesc: SerialDescriptor, elementIndex: Int) : XmlDecoder(parentDesc,
-                                                                                                   elementIndex), CompositeDecoder {
+    internal inner class NullDecoder(parentDesc: SerialDescriptor, elementIndex: Int) :
+            XmlDecoder(parentDesc, elementIndex), CompositeDecoder {
         override fun decodeNotNullMark() = false
 
         override fun <T> decodeSerializable(strategy: DeserializationStrategy<T>,
@@ -417,7 +416,6 @@ open class XmlDecoderBase internal constructor(context: SerialContext?,
                     input.allText()
                 }
                 OutputKind.Attribute -> error("Attributes should already be read now")
-                OutputKind.Unknown   -> error("Unknown output kinds should be able to not occur here")
             }
         }
 

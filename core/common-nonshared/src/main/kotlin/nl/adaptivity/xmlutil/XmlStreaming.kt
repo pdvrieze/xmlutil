@@ -16,6 +16,8 @@
 
 package nl.adaptivity.xmlutil
 
+import kotlinx.io.Writer
+
 /**
  * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
  * Created by pdvrieze on 15/11/15.
@@ -31,5 +33,7 @@ expect object XmlStreaming {
     fun newReader(input: CharSequence): XmlReader
 
     fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+
+    fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean = false): XmlWriter
 }
 

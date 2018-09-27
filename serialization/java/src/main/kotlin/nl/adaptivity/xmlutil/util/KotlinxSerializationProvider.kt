@@ -36,7 +36,7 @@ class KotlinxSerializationProvider : SerializationProvider {
                                          val serializer: KSerializer<T>) : SerializationProvider.XmlSerializerFun<T> {
 
         override fun invoke(output: XmlWriter, value: T) {
-            XML().toXml(kClass, value, output, serializer = serializer)
+            XML().toXml(target = output, kClass = kClass, obj = value, saver = serializer)
         }
     }
 
@@ -45,7 +45,7 @@ class KotlinxSerializationProvider : SerializationProvider {
         override fun <U : Any> invoke(input: XmlReader, type: KClass<U>): U {
             @Suppress("UNCHECKED_CAST")
             val loader: KSerialLoader<U> = serializer as KSerializer<U>
-            return XML.parse<U>(type, input, loader)
+            return XML.parse<U>(input, type, loader)
         }
     }
 

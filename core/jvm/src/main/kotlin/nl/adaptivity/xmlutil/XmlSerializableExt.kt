@@ -44,13 +44,13 @@ fun XmlSerializable.toReader(): Reader
 
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-  XmlStreaming.newWriter(writer, true).use { serialize(it) }
+  XmlStreaming.newWriter(writer, true, true).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {
   return StringWriter().apply {
     XmlStreaming.newWriter(this, flags.and(
-        FLAG_REPAIR_NS) == FLAG_REPAIR_NS).use { writer ->
+        FLAG_REPAIR_NS) == FLAG_REPAIR_NS, true).use { writer ->
       serialize(writer)
     }
   }.toString()

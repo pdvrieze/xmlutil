@@ -47,7 +47,7 @@ abstract class XmlStreamingJavaCommon {
     abstract fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter
 
     fun newWriter(writer: Writer) = newWriter(writer, false)
-    abstract fun newWriter(writer: Writer, repairNamespaces: Boolean = false): XmlWriter
+    abstract fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
     abstract fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter
 
@@ -77,11 +77,11 @@ abstract class XmlStreamingJavaCommon {
         return null
     }
 
-    inline fun <reified T: Any> serializeAs(target: XmlWriter, value: T) {
+    inline fun <reified T : Any> serializeAs(target: XmlWriter, value: T) {
         serialize(T::class, target, value)
     }
 
-    fun <T: Any> serialize(target: XmlWriter, value: T) {
+    fun <T : Any> serialize(target: XmlWriter, value: T) {
         @kotlin.Suppress("UNCHECKED_CAST") // The serializer is for the actual type even when serializers
         // may not be valid for children
         val kClass = value::class as KClass<T>
@@ -103,7 +103,8 @@ abstract class XmlStreamingJavaCommon {
     fun <T : Any> deSerialize(input: Reader, type: Class<T>) = deSerialize(input, type.kotlin)
 
     fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T {
-        val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException("No deserializer for $kClass (${serializationLoader.joinToString{ it.javaClass.name }})")
+        val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException(
+                "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})")
         return deserializer(newReader(input), kClass)
     }
 
@@ -125,7 +126,7 @@ abstract class XmlStreamingJavaCommon {
         return deSerialize(input, T::class)
     }
 
-    fun <T: Any> deSerialize(reader: Source, type: Class<T>): T {
+    fun <T : Any> deSerialize(reader: Source, type: Class<T>): T {
         return deSerialize(reader, type.kotlin)
     }
 

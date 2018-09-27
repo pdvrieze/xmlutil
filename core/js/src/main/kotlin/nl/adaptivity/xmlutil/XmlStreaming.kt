@@ -16,6 +16,7 @@
 
 package nl.adaptivity.xmlutil
 
+import kotlinx.io.Writer
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
@@ -78,6 +79,10 @@ actual object XmlStreaming {
                          omitXmlDecl: Boolean): XmlWriter {
         return AppendingWriter(output, JSDomWriter())
     }
+
+    actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+        return WriterXmlWriter(writer, JSDomWriter())
+    }
 }
 
 /*
@@ -94,6 +99,17 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     override fun close() {
         delegate.close()
         target.append(delegate.toString())
+    }
+
+    override fun flush() {
+        delegate.flush()
+    }
+}
+
+internal class WriterXmlWriter(private val target: Writer, private val delegate: JSDomWriter): XmlWriter by delegate {
+    override fun close() {
+        delegate.close()
+        target.write(delegate.toString())
     }
 
     override fun flush() {

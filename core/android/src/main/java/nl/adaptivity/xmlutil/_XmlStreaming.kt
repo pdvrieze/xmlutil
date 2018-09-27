@@ -21,7 +21,6 @@ import nl.adaptivity.xmlutil.impl.XmlStreamingJavaCommon
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader
-import java.io.Writer
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
@@ -55,7 +54,7 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    override fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter {
+    actual override fun newWriter(writer: kotlinx.io.Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         return factory.newWriter(writer, repairNamespaces)
     }
 
