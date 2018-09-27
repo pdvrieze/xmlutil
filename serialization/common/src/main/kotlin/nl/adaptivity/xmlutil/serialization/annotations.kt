@@ -51,7 +51,7 @@ annotation class XmlChildrenName(val value: String,
  * Force a property that could be an attribute to be an element
  */
 @SerialInfo
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 annotation class XmlElement(val value: Boolean/* = true*/)
 
 /**

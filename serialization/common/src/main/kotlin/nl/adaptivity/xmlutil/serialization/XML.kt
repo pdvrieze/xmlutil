@@ -69,6 +69,22 @@ internal class XmlNameMap {
  *
  * **Note** that at this point not all configuration options will work on all platforms.
  *
+ * The serialization can be configured with various annotations: [XmlSerialName], [XmlChildrenName], [XmlPolyChildren],
+ * [XmlDefault], [XmlElement] [XmlValue]. These control the way the content is actually serialized. Those tags that support
+ * being set on types (rather than properties) prefer values set on properties (the property can override settings on the
+ * type).
+ *
+ * Serialization normally prefers to store values as attributes. This can be overridden by the [XmlElement] annotation
+ * to force a tag child. Similarly [XmlValue] can be used for the child to be marked as textual content of the parent tag
+ * - only one such child is allowed.
+ *
+ * Naming of tags and attributes follows some special rules. In particular attributes will be named based on their use
+ * where tags are named based on their type. Both can be overridden by specifying [XmlSerialName] on the property.
+ *
+ * When names are not specified on types, their class name is used, but the package is normally omitted if it matches the
+ * package name of the class that represents the parent. Attributes get their use site name which is either the property
+ * name or the name modified through [SerialName]
+ *
  * @property context The serialization context used to resolve serializers etc.
  * @property repairNamespaces Option for the serializer whether it should repair namespaces. Does not affect reading
  * @property omitXmlDecl When writing do not emit a `<?xml ... ?>` processing instruction. This is passed to the

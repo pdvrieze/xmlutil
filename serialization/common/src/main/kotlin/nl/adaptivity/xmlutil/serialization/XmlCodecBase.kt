@@ -93,6 +93,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
             // Lists are always elements
             val elementDesc = getElementDescriptor(index.coerceAtMost(elementsCount - 1))
             if (elementDesc.elementsCount > 1) return OutputKind.Element
+            elementDesc.getEntityAnnotations().firstOrNull<XmlElement>()?.let { if (it.value) return OutputKind.Element else OutputKind.Attribute }
 
             return when (elementDesc.extKind) {
                 is PrimitiveKind -> OutputKind.Attribute
