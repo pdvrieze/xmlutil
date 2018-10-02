@@ -31,7 +31,7 @@ base {
 
 
 val serializationVersion:String by project
-val spekVersion:String by project
+val spek2Version:String by project
 val jupiterVersion:String by project
 
 dependencies {
@@ -40,19 +40,20 @@ dependencies {
     implementation(project(":core:android"))
     implementation(project(":serialization:java"))
 
-    testImplementation("org.jetbrains.spek:spek-subject-extension:${spekVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+    testRuntimeOnly ("org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+        exclude(group="org.junit.platform")
+        exclude(group="org.jetbrains.kotlin")
+    }
 
     testImplementation("org.xmlunit:xmlunit-core:2.6.0")
 
 
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation(kotlin("reflect"))
-
-    testRuntime ("org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}") {
-        exclude(group="org.junit.platform")
-        exclude(group="org.jetbrains.kotlin")
-    }
 
 }
 

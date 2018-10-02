@@ -52,7 +52,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 
     compileOnly("net.sf.kxml:kxml2:2.3.0")
-    testRuntime("net.sf.kxml:kxml2:2.3.0")
+    testRuntimeOnly("net.sf.kxml:kxml2:2.3.0")
 
 }
 

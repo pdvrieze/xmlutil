@@ -1,15 +1,15 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test Android" type="org.spekframework.spek-jvm" factoryName="Spek - JVM">
+  <configuration default="false" name="Test Android" type="Specs2RunConfiguration" factoryName="Spek 2 - Android">
     <module name="test-android" />
-    <option name="target" value="spec" />
-    <option name="spec" value="nl.adaptivity.xmlutil.serialization.testXML" />
-    <option name="vm-parameters" value="" />
-    <option name="program-parameters" value="" />
-    <option name="working-directory" value="" />
-    <option name="alternative-jre-path" value="" />
-    <option name="pass-parent-envs" value="true" />
+    <option name="passParentEnvs" value="false" />
+    <option name="workingDirectory" value="" />
+    <option name="path" value="bmwuYWRhcHRpdml0eS54bWx1dGlsLnNlcmlhbGl6YXRpb24=/dGVzdFhNTA==" />
+    <option name="programParameters" value="" />
+    <option name="vmParameters" value="" />
+    <option name="alternativeJrePath" value="" />
+    <option name="alternativeJrePathEnabled" value="false" />
     <method v="2">
-      <option name="Make" enabled="true" />
+      <option name="Android.Gradle.BeforeRunTask" enabled="true" />
     </method>
   </configuration>
 </component>

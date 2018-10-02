@@ -45,7 +45,7 @@ group = "net.devrieze.serialization"
 description = "Serializer for XML based on kotlinx.serialization"
 
 val serializationVersion:String by project
-val spekVersion:String by project
+val spek2Version:String by project
 val jupiterVersion:String by project
 
 dependencies {
@@ -56,21 +56,24 @@ dependencies {
     expectedBy(project(":serialization:common"))
 
 
-    testImplementation("org.jetbrains.spek:spek-subject-extension:${spekVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+    testRuntimeOnly ("org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+        exclude(group="org.junit.platform")
+        exclude(group="org.jetbrains.kotlin")
+    }
 
     testImplementation("org.xmlunit:xmlunit-core:2.6.0")
     testImplementation(project(":core:jvm"))
 
 
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testRuntime("com.fasterxml.woodstox:woodstox-core:5.0.3")
+//    testRuntime("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation(kotlin("reflect"))
+    testRuntimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
 
-    testRuntime ("org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}") {
-        exclude(group="org.junit.platform")
-        exclude(group="org.jetbrains.kotlin")
-    }
 
 }
 
@@ -78,10 +81,13 @@ dependencies {
 repositories {
     jcenter()
     maven(url = "https://kotlin.bintray.com/kotlinx")
+    maven(url = "https://dl.bintray.com/spekframework/spek")
 }
 
 tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeEngines("spek2")
+    }
 }
 
 
