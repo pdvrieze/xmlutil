@@ -203,12 +203,12 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     }
 
     @Serializer(forClass = SimpleNamespaceContext::class)
-    companion object {
+    companion object: KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = Namespace.list
 
-        override val serialClassDesc: KSerialClassDesc = actualSerializer.serialClassDesc.withName(
-            SimpleNamespaceContext::class.name)
+        override val descriptor: SerialDescriptor = actualSerializer.descriptor.
+                withName(SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
@@ -216,13 +216,13 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
                 originalNSContext)
         }
 
-        override fun load(input: KInput): SimpleNamespaceContext {
+        override fun deserialize(input: Decoder): SimpleNamespaceContext {
             return SimpleNamespaceContext(
-                actualSerializer.load(input))
+                actualSerializer.deserialize(input))
         }
 
-        override fun save(output: KOutput, obj: SimpleNamespaceContext) {
-            actualSerializer.save(output, obj.toList())
+        override fun serialize(output: Encoder, obj: SimpleNamespaceContext) {
+            actualSerializer.serialize(output, obj.toList())
         }
 
     }

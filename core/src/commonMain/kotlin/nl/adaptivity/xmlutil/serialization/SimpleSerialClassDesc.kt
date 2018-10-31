@@ -19,25 +19,22 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.multiplatform.name
 
-inline fun <reified T> simpleSerialClassDesc(): KSerialClassDesc {
-    return SimpleSerialClassDescPrimitive(T::class.name)
-}
-
-inline fun <reified T> simpleSerialClassDesc(vararg elements: String): KSerialClassDesc {
+inline fun <reified T> simpleSerialClassDesc(vararg elements: String): SerialDescriptor {
     return SimpleSerialClassDesc(T::class.name, *elements)
 }
 
 
-class SimpleSerialClassDescPrimitive(override val name: String) : KSerialClassDesc {
-    override val kind: KSerialClassKind get() = KSerialClassKind.PRIMITIVE
+class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override val name: String) : SerialDescriptor {
 
     override fun getElementIndex(name: String) = KInput.UNKNOWN_NAME
 
     override fun getElementName(index: Int): String = throw IndexOutOfBoundsException(index.toString())
+
+    override fun isElementOptional(index: Int): Boolean = false
 }
 
-class SimpleSerialClassDesc(override val name: String, vararg val elements: String): KSerialClassDesc {
-    override val kind: KSerialClassKind get() = KSerialClassKind.CLASS
+class SimpleSerialClassDesc(override val name: String, vararg val elements: String): SerialDescriptor {
+    override val kind: SerialKind get() = StructureKind.CLASS
 
     override fun getElementIndex(name: String): Int {
         val index = elements.indexOf(name)
@@ -49,19 +46,21 @@ class SimpleSerialClassDesc(override val name: String, vararg val elements: Stri
 
     override fun getElementName(index: Int) = elements[index]
 
-    override val associatedFieldsCount: Int get() = elements.size
+    override fun isElementOptional(index: Int): Boolean = false
+
+    override val elementsCount: Int get() = elements.size
 }
 
-fun KSerialClassDesc.withName(name: String): KSerialClassDesc = RenameDesc(this, name)
+fun SerialDescriptor.withName(name: String): SerialDescriptor = RenameDesc(this, name)
 
-private class RenameDesc(val delegate: KSerialClassDesc, override val name:String): KSerialClassDesc by delegate
+private class RenameDesc(val delegate: SerialDescriptor, override val name:String): SerialDescriptor by delegate
 
 abstract class DelegateSerializer<T>(val delegate: KSerializer<T>): KSerializer<T> {
-    override val serialClassDesc: KSerialClassDesc get() = delegate.serialClassDesc
+    override val descriptor: SerialDescriptor get() = delegate.descriptor
 
-    override fun load(input: KInput) = delegate.load(input)
+    override fun deserialize(input: Decoder): T = delegate.deserialize(input)
 
-    override fun save(output: KOutput, obj: T) = delegate.save(output, obj)
+    override fun patch(input: Decoder, old: T): T = delegate.patch(input, old)
 
-    override fun update(input: KInput, old: T) = delegate.update(input, old)
+    override fun serialize(output: Encoder, obj: T) = delegate.serialize(output, obj)
 }

@@ -20,6 +20,7 @@ import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.serialization.readBegin
 import nl.adaptivity.xmlutil.serialization.readElements
 import nl.adaptivity.xmlutil.serialization.simpleSerialClassDesc
+import nl.adaptivity.xmlutil.serialization.writeStructure
 
 //@Serializable
 interface Namespace {
@@ -40,28 +41,28 @@ interface Namespace {
 
     @Serializer(forClass = Namespace::class)
     companion object: KSerializer<Namespace> {
-        override val serialClassDesc: KSerialClassDesc
+        override val descriptor: SerialDescriptor
             = simpleSerialClassDesc<Namespace>("prefix", "namespaceURI")
 
-        override fun load(input: KInput): Namespace {
+        override fun deserialize(input: Decoder): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
-            input.readBegin(serialClassDesc) { desc ->
+            input.readBegin(descriptor) { desc ->
                 readElements(this) {
                     when (it) {
-                        0 -> prefix = readStringElementValue(desc, it)
-                        1 -> namespaceUri = readStringElementValue(desc, it)
+                        0 -> prefix = decodeStringElement(desc, it)
+                        1 -> namespaceUri = decodeStringElement(desc, it)
                     }
                 }
             }
             return XmlEvent.NamespaceImpl(prefix, namespaceUri)
         }
 
-        override fun save(output: KOutput, obj: Namespace) {
-            val childOut = output.writeBegin(serialClassDesc)
-            childOut.writeStringElementValue(serialClassDesc, 0, obj.prefix)
-            childOut.writeStringElementValue(serialClassDesc, 1, obj.namespaceURI)
-            childOut.writeEnd(serialClassDesc)
+        override fun serialize(output: Encoder, obj : Namespace) {
+            output.writeStructure(descriptor) {
+                encodeStringElement(descriptor, 0, obj.prefix)
+                encodeStringElement(descriptor, 1, obj.namespaceURI)
+            }
         }
 
     }

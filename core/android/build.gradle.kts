@@ -22,7 +22,7 @@ import java.util.Date
 plugins {
     base
     `java-library`
-    id("kotlin-platform-jvm")
+    id("org.jetbrains.kotlin.multiplatform")
 //    id("kotlin-kapt")
     id("idea")
     id("kotlinx-serialization")
