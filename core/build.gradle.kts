@@ -30,14 +30,20 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.fromPreset
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
+import org.jetbrains.kotlin.gradle.plugin.mpp.allKotlinSourceSets
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Date
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
@@ -46,8 +52,20 @@ plugins {
     id("com.jfrog.bintray")
 }
 
+
+fun NamedDomainObjectContainer<KotlinTarget>.fromPreset2(preset: KotlinTargetPreset<*>, name: String, configureAction: KotlinTarget.()->Unit = {}):KotlinTarget {
+    val target = preset.createTarget(name)
+    add(target)
+    target.run(configureAction)
+    return target
+}
+
+val xmlutil_version: String by project
+val xmlutil_versiondesc: String by project
+
 base {
-    archivesBaseName = "xmlutil-core-common"
+    archivesBaseName = "xmlutil"
+    version = xmlutil_version
 }
 
 val serializationVersion: String by project
@@ -55,17 +73,16 @@ val serializationVersion: String by project
 val kotlin_version: String by project
 
 kotlin {
-
     targets {
-        presets["jvm"].createTarget("jvm").apply {
+        fromPreset(presets["jvm"], "jvm") {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.8"
                 }
             }
         }
-        presets["jvm"].createTarget("android")
-        presets["js"].createTarget("js").apply {
+        fromPreset(presets["jvm"], "android") {}
+        fromPreset(presets["js"], "js") {
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
                     sourceMap = true
@@ -75,6 +92,14 @@ kotlin {
                     moduleKind = "umd"
                     main = "call"
                 }
+            }
+        }
+
+        forEach { target ->
+            target.mavenPublication {
+                groupId = "net.devrieze"
+                artifactId="xmlutil-${target.targetName}"
+                version=xmlutil_version
             }
         }
     }
@@ -117,6 +142,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
+
     }
 
 }
@@ -127,6 +153,55 @@ repositories {
     jcenter()
 }
 
+extensions.configure<BintrayExtension>("bintray") {
+    val user: String?
+    val key: String?
+
+    if (rootProject.hasProperty("bintrayUser")) {
+        user = rootProject.property("bintrayUser") as String?
+        key = rootProject.property("bintrayApiKey") as String?
+    } else {
+        user = null
+        key = null
+    }
+    setPublications(*publishing.publications.map { it.name }.filter { "js" in it || "metadata" in it }.toTypedArray())
+
+    pkg(closureOf<BintrayExtension.PackageConfig> {
+        repo = "maven"
+        name = "xmlutil"
+        userOrg = "pdvrieze"
+        setLicenses("LGPL-3.0")
+        vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
+
+        version.apply {
+            name = xmlutil_version
+            desc = xmlutil_versiondesc
+            released = Date().toString()
+            vcsTag = "v$version"
+        }
+    })
+
+}
+
+
+/*
+
+val jvmSourcesJar = task<Jar>("jvmSourcesJar") {
+    from(sourceSets["jvmMain"].allSource)
+}
+
+val androidSourcesJar = task<Jar>("androidSourcesJar") {
+    from(sourceSets["androidMain"].allSource)
+}
+
+val jsSourcesJar = task<Jar>("jsSourcesJar") {
+    from(sourceSets["jsMain"].allSource)
+}
+
+val commonSourcesJar = task<Jar>("commonSourcesJar") {
+    from(sourceSets["commonMain"].allSource)
+}
+*/
 
 //val sourcesJar = task<Jar>("mySourcesJar") {
 //    from(sourceSets["main"].allSource)

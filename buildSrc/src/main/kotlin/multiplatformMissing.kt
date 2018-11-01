@@ -14,32 +14,16 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Properties
-import java.io.FileInputStream
+package net.devrieze.gradle.ext
 
-plugins {
-    `kotlin-dsl`
-}
+import org.gradle.api.NamedDomainObjectContainer
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 
-run {
-    val properties = Properties()
-    FileInputStream(file("../gradle.properties")).use { input ->
-        properties.load(input)
-    }
-    for(key in properties.stringPropertyNames()) {
-        ext[key]=properties[key]
-    }
-}
 
-val bintrayVersion: String by project
-val kotlin_version: String by project
-
-dependencies {
-    compileOnly("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion")
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
-}
-
-repositories {
-    mavenLocal()
-    jcenter()
+inline fun NamedDomainObjectContainer<KotlinTarget>.fromPreset(preset: KotlinTargetPreset<*>, name: String, configureAction: KotlinTarget.()->Unit = {}):KotlinTarget {
+    val target = preset.createTarget(name)
+    add(target)
+    target.run(configureAction)
+    return target
 }
