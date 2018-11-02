@@ -16,23 +16,21 @@
 
 package nl.adaptivity.xmlutil.impl
 
-import kotlinx.io.StringReader
-import kotlinx.io.StringWriter
+import kotlinx.io.*
+import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlSerializable
 import nl.adaptivity.xmlutil.XmlStreamingFactory
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.util.SerializationProvider
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
 
+@UseExperimental(ImplicitReflectionSerializer::class)
 abstract class XmlStreamingJavaCommon {
+    @ImplicitReflectionSerializer
     private val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
         val service = SerializationProvider::class.java
         ServiceLoader.load(service, service.classLoader)

@@ -14,6 +14,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.fromPreset
@@ -53,29 +54,53 @@ base {
 }
 
 val serializationVersion: String by project
+val spek2Version:String by project
+val jupiterVersion:String by project
 
 val kotlin_version: String by project
-
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 kotlin {
     targets {
+        val testTask = tasks.create("test") {
+            group="verification"
+        }
+        val cleanTestTask = tasks.create("cleanTest") {
+            group="verification"
+        }
         fromPreset(presets["jvm"], "jvm") {
+            attributes.attribute(androidAttribute, false)
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.8"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
+                tasks.getByName<Test>("${target.name}Test") {
+                    useJUnitPlatform {
+                        includeEngines("spek2")
+                    }
+                    testTask.dependsOn(this)
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
-            attributes.attribute(androidAttribute, false)
         }
         fromPreset(presets["jvm"], "android") {
             attributes.attribute(androidAttribute, true)
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
+                tasks.getByName<Test>("${target.name}Test") {
+                    useJUnitPlatform {
+                        includeEngines("spek2")
+                    }
+                    testTask.dependsOn(this)
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
+/*
         fromPreset(presets["js"], "js") {
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
@@ -88,11 +113,12 @@ kotlin {
                 }
             }
         }
+*/
 
         forEach { target ->
             target.mavenPublication {
                 groupId = "net.devrieze"
-                artifactId="xmlutil-${target.targetName}"
+                artifactId="xmlutil-serialization-${target.targetName}"
                 version=xmlutil_version
             }
         }
@@ -101,6 +127,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(project(":core"))
+/*
+                project.dependencies {
+                    add(implementationConfigurationName, project(":core", "commonMainImplementation"))
+                }
+*/
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
@@ -108,6 +141,7 @@ kotlin {
         val javaShared by creating {
             dependsOn(commonMain)
             dependencies {
+                api(project(":core"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
@@ -115,20 +149,80 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+                implementation(project(":core"))
+/*
+                project.dependencies {
+                    add(implementationConfigurationName, project(":core", "jvmRuntimeElements"))
+                }
+*/
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(project(":core"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+
+        //        implementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}")
+
+
+                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+
+
+
+                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+                    exclude(group="org.junit.platform")
+                    exclude(group="org.jetbrains.kotlin")
+                }
+
+
+                implementation("org.xmlunit:xmlunit-core:2.6.0")
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+                runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
+
             }
         }
         val androidMain by getting {
             dependsOn(javaShared)
             dependencies {
+                implementation(project(":core"))
                 compileOnly("net.sf.kxml:kxml2:2.3.0")
             }
         }
         val androidTest by getting {
             dependencies {
+                implementation(project(":core"))
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
+
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+
+                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+
+                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+                    exclude(group="org.junit.platform")
+                    exclude(group="org.jetbrains.kotlin")
+                }
+
+
+                implementation("org.xmlunit:xmlunit-core:2.6.0")
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+
+                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+
             }
         }
+/*
         val jsMain by getting {
             dependsOn(commonMain)
             dependencies {
@@ -136,11 +230,19 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
+*/
 
     }
 
 }
+/*
 
+tasks.create<Test>("test") {
+    group = "verification"
+    dependsOn(tasks["jvmTest"])
+    dependsOn(tasks["androidTest"])
+}
+*/
 
 
 repositories {
@@ -162,7 +264,7 @@ extensions.configure<BintrayExtension>("bintray") {
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
-        name = "xmlutil"
+        name = "xmlutil-serialization"
         userOrg = "pdvrieze"
         setLicenses("LGPL-3.0")
         vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
@@ -176,4 +278,3 @@ extensions.configure<BintrayExtension>("bintray") {
     })
 
 }
-

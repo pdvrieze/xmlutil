@@ -44,10 +44,12 @@ allprojects {
         maven("https://dl.bintray.com/jetbrains/spek")
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
+/*
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
+*/
 }
 
 idea {

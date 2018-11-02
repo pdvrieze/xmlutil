@@ -33,10 +33,10 @@ object CharArrayAsStringSerializer : KSerializer<CharArray> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun Decoder.readNullableString(): String? = decodeNullableSerializableValue(StringSerializer as KSerialLoader<String?>)
+fun Decoder.readNullableString(): String? = decodeNullableSerializableValue(StringSerializer as DeserializationStrategy<String?>)
 
 @Suppress("UNCHECKED_CAST")
-fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? = decodeNullableSerializableElement(desc, index, StringSerializer as KSerialLoader<String?>)
+fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? = decodeNullableSerializableElement(desc, index, StringSerializer as DeserializationStrategy<String?>)
 
 fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableSerializableElement(desc, index, StringSerializer, value)
 
@@ -49,7 +49,7 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
     }
 }
 
-inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: KInput.(desc: SerialDescriptor) -> T):T {
+inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T {
     val input = beginStructure(desc)
     return input.body(desc).also {
         input.endStructure(desc)

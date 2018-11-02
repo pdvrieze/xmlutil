@@ -17,6 +17,10 @@
       <module name="core-js_test" target="1.8" />
       <module name="core-jvm_main" target="1.8" />
       <module name="core-jvm_test" target="1.8" />
+      <module name="core_androidMain" target="1.6" />
+      <module name="core_androidTest" target="1.6" />
+      <module name="core_jvmMain" target="1.8" />
+      <module name="core_jvmTest" target="1.8" />
       <module name="darwin-jvm" target="1.7" />
       <module name="darwin-sql" target="1.7" />
       <module name="DarwinClients" target="1.7" />
@@ -55,6 +59,10 @@
       <module name="serialization-java_test" target="1.8" />
       <module name="serialization-js_main" target="1.8" />
       <module name="serialization-js_test" target="1.8" />
+      <module name="serialization_androidMain" target="1.6" />
+      <module name="serialization_androidTest" target="1.6" />
+      <module name="serialization_jvmMain" target="1.8" />
+      <module name="serialization_jvmTest" target="1.8" />
       <module name="shared" target="1.7" />
       <module name="structurizr" target="1.7" />
       <module name="test-android_main" target="1.8" />

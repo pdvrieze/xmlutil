@@ -14,23 +14,10 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.serialization.compat
 
-import kotlinx.serialization.ImplicitReflectionSerializer
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlWriter
-import kotlin.reflect.KClass
+@Deprecated("Use new API", ReplaceWith("kotlinx.serialization.Encoder"))
+typealias Encoder = kotlinx.serialization.Encoder
 
-@ImplicitReflectionSerializer
-interface SerializationProvider {
-    interface XmlSerializerFun<in T:Any> {
-        operator fun invoke(output: XmlWriter, value: T)
-    }
-
-    interface XmlDeserializerFun {
-        operator fun <T:Any> invoke(input: XmlReader, type: KClass<T>): T
-    }
-
-    fun <T:Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
-    fun <T:Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
-}
+@Deprecated("Use new API", ReplaceWith("kotlinx.serialization.CompositeEncoder"))
+typealias CompositeEncoder = kotlinx.serialization.CompositeEncoder

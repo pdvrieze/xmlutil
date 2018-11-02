@@ -59,11 +59,14 @@ pluginManagement {
 rootProject.name = "xmlutil"
 
 include(":core")
+include(":serialization")
 
-include(":serialization:common")
-include(":serialization:java")
-include(":serialization:js")
+enableFeaturePreview('GRADLE_METADATA')
+
+//include(":serialization:common")
+//include(":serialization:java")
+//include(":serialization:js")
 
 if (Boolean.parseBoolean(androidEnabledProp)) {
-    include(":serialization:test-android")
+//    include(":serialization:test-android")
 }
