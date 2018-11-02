@@ -21,6 +21,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
 import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.context.getOrDefault
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.name
@@ -90,11 +91,14 @@ internal class XmlNameMap {
  * @property indent The indentation to use when writing XML
  */
 class XML(
-    val context: SerialContext = defaultSerialContext(),
     val repairNamespaces: Boolean = true,
     val omitXmlDecl: Boolean = true,
     var indent: Int = 0
-         ) {
+         ) : AbstractSerialFormat(), StringFormat {
+
+    init {
+        mutableContext.registerSerializer(CompactFragment::class, CompactFragmentSerializer)
+    }
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -128,17 +132,30 @@ class XML(
      * @param saver The serializer/saver to use to write
      * @param prefix The prefix (if any) to use for the namespace
      */
-    fun <T : Any> stringify(
-        obj: T,
-        saver: SerializationStrategy<T>,
-        prefix: String? = null
-                           ): String {
+    @Deprecated(
+        "Fit within the serialization library, so reorder arguments",
+        ReplaceWith("stringify(saver, obj, prefix)")
+               )
+    fun <T : Any> stringify(obj: T, saver: SerializationStrategy<T>, prefix: String? = null): String =
+        stringify(saver, obj, prefix)
+
+    override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T) =
+        stringify(serializer, obj, null)
+
+    /**
+     * Transform into a string. This function is expected to be called indirectly.
+     *
+     * @param obj The actual object
+     * @param serializer The serializer/saver to use to write
+     * @param prefix The prefix (if any) to use for the namespace
+     */
+    fun <T> stringify(serializer: SerializationStrategy<T>, obj: T, prefix: String?): String {
         val stringWriter = StringWriter()
         val xmlWriter = XmlStreaming.newWriter(stringWriter, repairNamespaces, omitXmlDecl)
 
         var ex: Exception? = null
         try {
-            toXml(xmlWriter, obj, saver, prefix)
+            toXml(xmlWriter, serializer, obj, prefix)
         } catch (e: Exception) {
             ex = e
         } finally {
@@ -166,7 +183,7 @@ class XML(
      */
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> toXml(target: XmlWriter, obj: T, prefix: String? = null) {
-        toXml(target, obj, context.getOrDefault(T::class), prefix)
+        toXml(target, context.getOrDefault(T::class), obj, prefix)
     }
 
     @ImplicitReflectionSerializer
@@ -181,7 +198,7 @@ class XML(
         prefix: String? = null,
         serializer: SerializationStrategy<T> = context.getOrDefault(kClass)
                        ) =
-        toXml(target, obj, serializer, prefix)
+        toXml(target, serializer, obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -195,11 +212,11 @@ class XML(
     @ImplicitReflectionSerializer
     fun <T : Any> toXml(
         target: XmlWriter,
-        obj: T,
         kClass: KClass<T>,
+        obj: T,
         prefix: String? = null
                        ) {
-        toXml(target, obj, context.getOrDefault(kClass), prefix)
+        toXml(target, context.getOrDefault(kClass), obj, prefix)
     }
 
     /**
@@ -207,27 +224,27 @@ class XML(
      *
      * @param target The [XmlWriter] to append the object to
      * @param obj The actual object
-     * @param saver The serializer/saver to use to write
+     * @param serializer The serializer/saver to use to write
      * @param prefix The prefix (if any) to use for the namespace
      */
-    fun <T : Any> toXml(
+    fun <T> toXml(
         target: XmlWriter,
+        serializer: SerializationStrategy<T>,
         obj: T,
-        saver: SerializationStrategy<T>,
         prefix: String? = null
-                       ) {
+                 ) {
         target.indent = indent
 
-        val serialDescriptor = saver.descriptor
+        val serialDescriptor = serializer.descriptor
 
-        val serialName = saver.descriptor.getSerialName(prefix)
+        val serialName = serializer.descriptor.getSerialName(prefix)
         val encoder = XmlEncoderBase(context, target).XmlEncoder(
             DummyParentDescriptor(serialName, serialDescriptor),
             0,
             serialDescriptor
                                                                 )
 
-        saver.serialize(encoder, obj)
+        serializer.serialize(encoder, obj)
     }
 
     /**
@@ -235,7 +252,7 @@ class XML(
      */
     @ImplicitReflectionSerializer
     @Suppress("unused")
-    inline fun <reified T : Any> parse(reader: XmlReader) = parse(reader, T::class)
+    inline fun <reified T : Any> parse(reader: XmlReader) = parse(T::class, reader)
 
     @ImplicitReflectionSerializer
     @Deprecated("Replaced by version with consistent parameter order", ReplaceWith("parse(reader, kClass, loader)"))
@@ -244,29 +261,30 @@ class XML(
         reader: XmlReader,
         loader: DeserializationStrategy<T> = context.getOrDefault(kClass)
                        ): T =
-        parse(reader, loader)
+        parse(loader, reader)
 
     @ImplicitReflectionSerializer
     fun <T : Any> parse(
-        reader: XmlReader,
-        kClass: KClass<T>
+        kClass: KClass<T>,
+        reader: XmlReader
                        ): T =
-        parse(reader, context.getOrDefault(kClass))
+        parse(context.getOrDefault(kClass), reader)
+
 
     /**
      * Parse an object of the type [T] out of the reader. This function is intended mostly to be used indirectly where
      * though the reified function.
      *
      * @param reader An [XmlReader] that contains the XML from which to read the object
-     * @param loader The loader to use to read the object
+     * @param serializer The loader to use to read the object
      */
-    fun <T : Any> parse(
-        reader: XmlReader,
-        loader: DeserializationStrategy<T>
-                       ): T {
+    fun <T> parse(
+        serializer: DeserializationStrategy<T>,
+        reader: XmlReader
+                 ): T {
 
-        val serialName = loader.descriptor.getSerialName()
-        val serialDescriptor = loader.descriptor
+        val serialName = serializer.descriptor.getSerialName()
+        val serialDescriptor = serializer.descriptor
 
         val decoder = XmlDecoderBase(context, reader).XmlDecoder(
             DummyParentDescriptor(serialName, serialDescriptor),
@@ -278,7 +296,7 @@ class XML(
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
-        return decoder.decodeSerializableValue(loader)
+        return decoder.decodeSerializableValue(serializer)
     }
 
     /**
@@ -287,19 +305,37 @@ class XML(
      * though the reified function. The loader defaults to the loader for [kClass]
      *
      * @param kClass The actual class object to parse the object from.
-     * @param str The string that contains the XML from which to read the object
+     * @param string The string that contains the XML from which to read the object
      * @param loader The loader to use to read the object
      */
     @ImplicitReflectionSerializer
-    fun <T : Any> parse(str: String, kClass: KClass<T>): T {
-        return parse(XmlStreaming.newReader(str), context.getOrDefault(kClass))
+    fun <T : Any> parse(kClass: KClass<T>, string: String): T {
+        return parse(context.getOrDefault(kClass), XmlStreaming.newReader(string))
     }
 
-    fun <T : Any> parse(str: String, loader: DeserializationStrategy<T>): T {
-        return parse(XmlStreaming.newReader(str), loader)
+    override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
+        return parse(serializer, XmlStreaming.newReader(string))
     }
 
-    companion object {
+    companion object: StringFormat {
+        val defaultInstance = XML()
+        override val context: SerialContext
+            get() = defaultInstance.context
+
+        override fun install(module: SerialModule) {
+            defaultInstance.install(module)
+        }
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * @param obj The object to transform
+         * @param serializer The serializer to user
+         */
+        override fun <T> stringify(
+            serializer: SerializationStrategy<T>,
+            obj: T): String =
+            defaultInstance.stringify(serializer, obj)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -308,12 +344,8 @@ class XML(
          * @param serializer The serializer to user
          * @param prefix The namespace prefix to use
          */
-        fun <T : Any> stringify(
-            obj: T,
-            serializer: SerializationStrategy<T>,
-            prefix: String? = null
-                               ): String =
-            XML().stringify(obj, serializer, prefix)
+        fun <T> stringify(serializer: SerializationStrategy<T>, obj: T, prefix: String): String =
+            defaultInstance.stringify(serializer, obj, prefix)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -325,7 +357,7 @@ class XML(
         @ImplicitReflectionSerializer
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String =
-            XML().run { this.stringify(kClass, obj, prefix) }
+            defaultInstance.stringify(kClass, obj, prefix)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -353,7 +385,7 @@ class XML(
             kClass: KClass<T> = obj::class as KClass<T>,
             prefix: String? = null
                            ) =
-            XML().run { this.toXml(dest, obj, kClass, prefix) }
+            defaultInstance.toXml(dest, kClass, obj, prefix)
 
         /**
          * Write the object to the given writer
@@ -373,15 +405,16 @@ class XML(
          * @param kClass The class to parse. Used for class annotations.
          */
         @ImplicitReflectionSerializer
-        fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(str, kClass)
+        fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(kClass, str)
 
         @Deprecated(
             "Replaced by version with consistent parameter order",
             ReplaceWith("parse(str, loader)")
                    )
         fun <T : Any> parse(kClass: KClass<T>, str: String, loader: DeserializationStrategy<T>): T =
-            parse(str, loader)
+            parse(loader, str)
 
+        @Deprecated("Use better order", ReplaceWith("parse(kClass, str)"))
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
@@ -389,7 +422,7 @@ class XML(
          */
         @ImplicitReflectionSerializer
         fun <T : Any> parse(str: String, kClass: KClass<T>): T =
-            XML().parse(str, kClass)
+            parse(kClass, str)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -400,17 +433,16 @@ class XML(
 
         /**
          * Parse an object of the type [T] out of the reader
-         * @param str The source of the XML events
-         * @param loader The loader to use
+         * @param string The source of the XML events
+         * @param serializer The loader to use
          */
         @Suppress("unused")
-        fun <T : Any> parse(str: String, loader: DeserializationStrategy<T>): T = XML().parse(str, loader)
+        override fun <T> parse(
+            serializer: DeserializationStrategy<T>,
+            string: String
+                              ): T = XML().parse(serializer, string)
 
         @ImplicitReflectionSerializer
-        @Deprecated(
-            "Replaced by version with consistent parameter order",
-            ReplaceWith("parse(reader, kClass)")
-                   )
         fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader): T =
             parse(reader, kClass)
 
@@ -421,7 +453,7 @@ class XML(
          */
         @ImplicitReflectionSerializer
         fun <T : Any> parse(reader: XmlReader, kClass: KClass<T>): T =
-            XML().parse(reader, kClass)
+            defaultInstance.parse(kClass, reader)
 
         @Deprecated(
             "Replaced by version with consistent parameter order",
@@ -447,7 +479,7 @@ class XML(
          * @param reader The source of the XML events
          */
         @ImplicitReflectionSerializer
-        inline fun <reified T : Any> parse(reader: XmlReader): T = XML().parse(reader, T::class)
+        inline fun <reified T : Any> parse(reader: XmlReader): T = defaultInstance.parse(T::class, reader)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -456,7 +488,7 @@ class XML(
          */
         @Suppress("unused")
         fun <T : Any> parse(reader: XmlReader, loader: DeserializationStrategy<T>): T =
-            XML().parse(reader, loader)
+            defaultInstance.parse(loader, reader)
     }
 
     /**
@@ -605,13 +637,13 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
  * @param serializer The serializer to use. Often `T.Companion.serializer()`
  */
 fun <T : Any> T.writeAsXml(out: XmlWriter, serializer: SerializationStrategy<T>) =
-    XML().toXml(out, this, serializer)
+    XML.defaultInstance.toXml(out, serializer, this)
 
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter.
  */
 @ImplicitReflectionSerializer
-inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML().toXml(out, this)
+inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
 
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter. This version takes a [KClass]
@@ -620,4 +652,4 @@ inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML().toXml(out, thi
 @ImplicitReflectionSerializer
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
-    XML().toXml(out, obj = this, kClass = kClass)
+    XML.toXml(out, kClass = kClass, obj = this)

@@ -40,7 +40,7 @@ private inline fun <reified T : Throwable> assertThrows(noinline executable: () 
 
 
 @UseExperimental(ImplicitReflectionSerializer::class)
-object testXML : Spek(
+object testXMLAndroid : Spek(
     {
         describe("An XmlWriter") {
             val writer = XmlStreaming.newWriter(CharArrayWriter())
@@ -54,13 +54,13 @@ object testXML : Spek(
             val addrSerializer = Address.serializer()
 
             context("serialization with XML") {
-                val serialized = XML.stringify(address, addrSerializer)
+                val serialized = XML.stringify(addrSerializer, address)
                 it("should be the expected value") {
                     assertEquals(expAddressXml, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(address, XML.parse(serialized, addrSerializer))
+                    assertEquals(address, XML.parse(addrSerializer, serialized))
                 }
             }
 
@@ -86,12 +86,12 @@ object testXML : Spek(
             val ser = Location.serializer()
 
             context("Serialization with XML") {
-                val serialized = XML.stringify(location, ser)
+                val serialized = XML.stringify(ser, location)
                 it("should serialize to the expected xml") {
                     assertEquals(expectedXml,serialized)
                 }
                 it("should also parse to the original") {
-                    assertEquals(location, XML.parse<Location>(serialized, ser))
+                    assertEquals(location, XML.parse(ser, serialized))
                 }
 
             }
@@ -103,21 +103,21 @@ object testXML : Spek(
             val nullValue = NullableContainer()
             val ser = NullableContainer.serializer()
             context("serialization of a set value") {
-                val serialized = XML.stringify(setValue, ser)
+                val serialized = XML.stringify(ser, setValue)
                 it ("should match the expected value") {
                     assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\" />", serialized)
                 }
                 it ("Should parse back to the original") {
-                    assertEquals(setValue, XML.parse<NullableContainer>(serialized, ser))
+                    assertEquals(setValue, XML.parse(ser, serialized))
                 }
             }
             context("serialization of a null value") {
-                val serialized = XML.stringify(nullValue, ser)
+                val serialized = XML.stringify(ser, nullValue)
                 it ("should match the expected value") {
                     assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" />", serialized)
                 }
                 it ("Should parse back to the original") {
-                    assertEquals(nullValue, XML.parse<NullableContainer>(serialized, ser))
+                    assertEquals(nullValue, XML.parse(ser, serialized))
                 }
             }
         }
