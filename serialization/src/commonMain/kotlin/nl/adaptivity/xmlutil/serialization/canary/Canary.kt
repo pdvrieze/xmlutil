@@ -16,8 +16,13 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.*
-import nl.adaptivity.xmlutil.serialization.compat.SerialDescriptor
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.UnknownFieldException
+import nl.adaptivity.xmlutil.serialization.XmlSerialException
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 
 object Canary {
 
@@ -68,11 +73,11 @@ object Canary {
         while (true) {
             try {
                 loader.deserialize(input)
-                throw IllegalStateException("This should not be reachable")
+                throw AssertionError("This should not be reachable")
             } catch (e: InputCanary.SuspendException) {
                 if (e.finished) break
             } catch (e: UnknownFieldException) {
-                throw IllegalStateException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childDescriptors[input.currentChildIndex]}", e)
+                throw XmlSerialException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childDescriptors[input.currentChildIndex]}", e)
             }
 
         }

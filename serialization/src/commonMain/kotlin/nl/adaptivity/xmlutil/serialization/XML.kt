@@ -153,10 +153,10 @@ class XML(
         val stringWriter = StringWriter()
         val xmlWriter = XmlStreaming.newWriter(stringWriter, repairNamespaces, omitXmlDecl)
 
-        var ex: Exception? = null
+        var ex: Throwable? = null
         try {
             toXml(xmlWriter, serializer, obj, prefix)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             ex = e
         } finally {
             try {

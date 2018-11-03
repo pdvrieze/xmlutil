@@ -100,7 +100,7 @@ internal open class XmlEncoderBase internal constructor(
         desc: SerialDescriptor
                                 ): CompositeEncoder {
         return when (desc.kind) {
-            is PrimitiveKind      -> throw SerializationException("A primitive is not a composite")
+            is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
 
             StructureKind.MAP,
             StructureKind.CLASS   -> TagEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
@@ -162,13 +162,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeUnitElement(desc: SerialDescriptor, index: Int) {
-            val kind = desc.outputKind(index, null)
-            val requestedName = desc.requestedName(index, null)
-            when (kind) {
-                OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { /*Empty tag*/ } }
-                OutputKind.Attribute -> doWriteAttribute(requestedName, requestedName.getLocalPart())
-                OutputKind.Text      -> throw SerializationException("Text cannot represent Unit values")
-            }
+            encodeStringElement(desc, index, "kotlin.Unit")
         }
 
         final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) {
@@ -204,7 +198,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) {
-            throw SerializationException("Unable to serialize element ${desc.getElementName(index)}: $value")
+            throw XmlSerialException("Unable to serialize element ${desc.getElementName(index)}: $value")
         }
 
         override fun <T : Any> encodeNullableSerializableElement(

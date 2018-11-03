@@ -57,9 +57,10 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeUnit() {
-            if (decodeStringImpl(true) != "kotlin.Unit") throw SerializationException(
-                "Did not find Unit where expected"
-                                                                                     )
+            val position = input.locationInfo
+            val stringContent = decodeStringImpl(true)
+            if (stringContent != "kotlin.Unit")
+                throw XmlParsingException(position, "Did not find kotlin.Unit where expected ${stringContent}")
         }
 
         override fun decodeBoolean(): Boolean = decodeStringImpl(true).toBoolean()
@@ -121,7 +122,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            throw UnsupportedOperationException("This should not happen as decodeSerializableValue should be called first")
+            throw AssertionError("This should not happen as decodeSerializableValue should be called first")
         }
 
         override fun <T> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
@@ -148,7 +149,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             if (extDesc.isNullable) return TagDecoder(serialName, parentDesc, elementIndex, extDesc)
             return when (extDesc.kind) {
-                is PrimitiveKind      -> throw SerializationException("A primitive is not a composite")
+                is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
                 StructureKind.MAP,
                 StructureKind.CLASS   -> TagDecoder(serialName, parentDesc, elementIndex, extDesc)
                 StructureKind.LIST    -> {
@@ -221,48 +222,48 @@ internal open class XmlDecoderBase internal constructor(
             loader: DeserializationStrategy<T>,
             old: T
                                                   ): T =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeUnitElement(desc: SerialDescriptor, index: Int): Unit =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int =  // Size of map/list
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return 0
         }
 
         override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String =
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
 
         override fun <T : Any> decodeNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
             loader: DeserializationStrategy<T?>
                                                                 ): T? {
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
         }
 
         override fun <T : Any> updateNullableSerializableElement(
@@ -271,7 +272,7 @@ internal open class XmlDecoderBase internal constructor(
             loader: DeserializationStrategy<T?>,
             old: T?
                                                                 ): T? {
-            throw UnsupportedOperationException("Null objects have no members")
+            throw AssertionError("Null objects have no members")
         }
     }
 
@@ -435,10 +436,7 @@ internal open class XmlDecoderBase internal constructor(
                 polyMap[normalName.copy(namespaceURI = serialName.namespaceURI)]?.let { return it.index }
             }
 
-            throw SerializationException(
-                "Could not find a field for name $name\n  candidates " +
-                        "were: ${(nameMap.keys + polyMap.keys).joinToString()}"
-                                        )
+            throw UnknownXmlFieldException(input.locationInfo, name.toString(), (nameMap.keys + polyMap.keys))
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -489,7 +487,7 @@ internal open class XmlDecoderBase internal constructor(
                         EventType.TEXT          -> if (!input.isWhitespace()) return parentDesc.getValueChild()
                         EventType.ATTRIBUTE     -> return indexOf(input.name, true)
                         EventType.START_ELEMENT -> return indexOf(input.name, false)
-                        else                    -> throw SerializationException("Unexpected event in stream")
+                        else                    -> throw AssertionError("Unexpected event in stream")
                     }
                 }
             }
@@ -567,7 +565,8 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeUnitElement(desc: SerialDescriptor, index: Int) {
-            if (decodeStringElement(desc, index) != "kotlin.Unit") throw SerializationException("Kotlin Unit not valid")
+            val location = input.locationInfo
+            if (decodeStringElement(desc, index) != "kotlin.Unit") throw XmlParsingException(location, "Kotlin Unit not valid")
         }
 
         override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean {
@@ -708,7 +707,7 @@ internal open class XmlDecoderBase internal constructor(
             return when (index) {
                 0    -> when (polyInfo) {
                     null -> input.getAttributeValue(null, "type")
-                        ?: throw SerializationException("Missing type for polymorphic value")
+                        ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
                     else -> polyInfo.kClass
                 }
                 else -> super.decodeStringElement(desc, index)
@@ -718,7 +717,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun doReadAttribute(desc: SerialDescriptor, index: Int): String {
             return if (!transparent) {
                 input.getAttributeValue(null, "type")
-                    ?: throw SerializationException("Missing type for polymorphic value")
+                    ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
             } else {
                 polyInfo?.kClass ?: input.name.localPart // Likely to fail unless the tagname matches the type
             }

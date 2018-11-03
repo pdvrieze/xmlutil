@@ -61,7 +61,7 @@ class OutputCanary constructor(
     }
 
     override fun <T> encodeSerializableValue(saver: SerializationStrategy<T>, value: T) {
-        if (currentChildIndex < 0) throw IllegalStateException()
+        if (currentChildIndex < 0) throw AssertionError("This should not happen")
         if (currentChildIndex < childDescriptors.size) {
             val poll = Canary.pollDesc(saver)
 
@@ -158,29 +158,29 @@ class OutputCanary constructor(
     companion object {
 
         object DUMMYSERIALDESC : SerialDescriptor {
-            override val name: String get() = throw UnsupportedOperationException("Dummy descriptors have no names")
+            override val name: String get() = throw AssertionError("Dummy descriptors have no names")
             @Suppress("OverridingDeprecatedMember")
             override val kind: KSerialClassKind
-                get() = throw UnsupportedOperationException("Dummy descriptors have no kind")
+                get() = throw AssertionError("Dummy descriptors have no kind")
 
             override val elementsCount: Int get() = 0
 
-            override fun getElementName(index: Int) = throw UnsupportedOperationException("No children in dummy")
+            override fun getElementName(index: Int) = throw AssertionError("No children in dummy")
 
-            override fun getElementIndex(name: String) = throw UnsupportedOperationException("No children in dummy")
+            override fun getElementIndex(name: String) = throw AssertionError("No children in dummy")
 
             override fun getEntityAnnotations(): List<Annotation> = emptyList()
 
-            override fun getElementAnnotations(index: Int) = throw UnsupportedOperationException("No children in dummy")
+            override fun getElementAnnotations(index: Int) = throw AssertionError("No children in dummy")
 
             override fun getElementDescriptor(index: Int): SerialDescriptor {
-                throw UnsupportedOperationException("No children in dummy")
+                throw AssertionError("No children in dummy")
             }
 
             override val isNullable: Boolean get() = false
 
             override fun isElementOptional(index: Int) =
-                    throw UnsupportedOperationException("No children in dummy")
+                    throw AssertionError("No children in dummy")
         }
 
 
