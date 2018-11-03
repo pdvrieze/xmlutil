@@ -249,18 +249,27 @@ repositories {
     jcenter()
 }
 
-extensions.configure<BintrayExtension>("bintray") {
-    val user: String?
-    val key: String?
+publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
+    groupId="net.devrieze"
+    artifactId="xmlutil-serialization"
+}
 
+extensions.configure<BintrayExtension>("bintray") {
     if (rootProject.hasProperty("bintrayUser")) {
         user = rootProject.property("bintrayUser") as String?
         key = rootProject.property("bintrayApiKey") as String?
-    } else {
-        user = null
-        key = null
     }
-    setPublications(*publishing.publications.map { it.name }.filter { "js" in it || "metadata" in it }.toTypedArray())
+
+    val pubs = publishing.publications
+        .filter { it.name != "metadata" && it.name != "js" }
+        .map { it.name }
+        .apply { forEach{ logger.lifecycle("Registering publication \"${it}\" to Bintray") }}
+        .toTypedArray()
+
+
+    setPublications(*pubs)
+
+    setPublications(*publishing.publications.map { it.name }.filter { "js" !in it && "metadata" !in it }.toTypedArray())
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
