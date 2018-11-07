@@ -65,7 +65,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override var indent: Int
         get() = 0
-        set(value) {
+        set(@Suppress("UNUSED_PARAMETER") value) {
             console.warn("JS does not support indentation yet")
         }
 

@@ -95,12 +95,12 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueDe
     }
 
 
-    override fun decodeElementIndex(desc: KSerialClassDesc): Int {
+    override fun decodeElementIndex(desc: SerialDescriptor): Int {
         currentChildIndex++
         if (currentChildIndex < childDescriptors.size) {
             return currentChildIndex
         } else {
-            return KInput.READ_DONE
+            return CompositeDecoder.READ_DONE
         }
     }
 

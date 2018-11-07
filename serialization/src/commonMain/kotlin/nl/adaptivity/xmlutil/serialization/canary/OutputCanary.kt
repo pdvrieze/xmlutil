@@ -22,13 +22,13 @@ import kotlin.reflect.KClass
 
 
 class OutputCanary constructor(
-        kSerialClassDesc: KSerialClassDesc? = null,
-        override val isDeep: Boolean = true)
+    kSerialClassDesc: SerialDescriptor? = null,
+    override val isDeep: Boolean = true)
     : ElementValueEncoder(), CanaryCommon {
 
     override var currentChildIndex: Int = -1
 
-    override lateinit var kSerialClassDesc: KSerialClassDesc
+    override lateinit var kSerialClassDesc: SerialDescriptor
 
     init {
         kSerialClassDesc?.let { this.kSerialClassDesc = it }
@@ -160,7 +160,7 @@ class OutputCanary constructor(
         object DUMMYSERIALDESC : SerialDescriptor {
             override val name: String get() = throw AssertionError("Dummy descriptors have no names")
             @Suppress("OverridingDeprecatedMember")
-            override val kind: KSerialClassKind
+            override val kind: SerialKind
                 get() = throw AssertionError("Dummy descriptors have no kind")
 
             override val elementsCount: Int get() = 0

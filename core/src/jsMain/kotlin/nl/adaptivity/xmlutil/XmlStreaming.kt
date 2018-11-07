@@ -49,6 +49,7 @@ actual object XmlStreaming {
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun <T:Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
     /*: T {
         return newReader(input).deSerialize(type)

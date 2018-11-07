@@ -64,6 +64,7 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.8"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
             attributes.attribute(androidAttribute, false)
@@ -73,6 +74,7 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
         }
@@ -85,6 +87,7 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
         }

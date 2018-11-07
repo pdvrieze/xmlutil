@@ -202,25 +202,22 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     private fun getNamespace(prefix: String, includeDefault: Boolean=false): String? {
-        val namespace: Nothing
 
-        run {
-            var i = nspCounts[depth + 1] * 2 - 2
-            while (i >= 0) {
-                if (nspStack[i] == prefix && (includeDefault || nspStack[i] != "")) {
-                    var candidate: String? = nspStack[i+1]
-                    for (j in i + 2 until nspCounts[depth + 1] * 2) {
-                        if (nspStack[j+1] == candidate) {
-                            candidate = null
-                            break
-                        }
-                    }
-                    if (candidate != null) {
-                        return candidate
+        var i = nspCounts[depth + 1] * 2 - 2
+        while (i >= 0) {
+            if (nspStack[i] == prefix && (includeDefault || nspStack[i] != "")) {
+                var candidate: String? = nspStack[i+1]
+                for (j in i + 2 until nspCounts[depth + 1] * 2) {
+                    if (nspStack[j+1] == candidate) {
+                        candidate = null
+                        break
                     }
                 }
-                i -= 2
+                if (candidate != null) {
+                    return candidate
+                }
             }
+            i -= 2
         }
         return null
     }

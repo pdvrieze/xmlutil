@@ -26,7 +26,7 @@ inline fun <reified T> simpleSerialClassDesc(vararg elements: String): SerialDes
 
 class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override val name: String) : SerialDescriptor {
 
-    override fun getElementIndex(name: String) = KInput.UNKNOWN_NAME
+    override fun getElementIndex(name: String) = CompositeDecoder.UNKNOWN_NAME
 
     override fun getElementName(index: Int): String = throw IndexOutOfBoundsException(index.toString())
 
@@ -40,7 +40,7 @@ class SimpleSerialClassDesc(override val name: String, vararg val elements: Stri
         val index = elements.indexOf(name)
         return when {
             index >= 0 -> index
-            else       -> KInput.UNKNOWN_NAME
+            else       -> CompositeDecoder.UNKNOWN_NAME
         }
     }
 

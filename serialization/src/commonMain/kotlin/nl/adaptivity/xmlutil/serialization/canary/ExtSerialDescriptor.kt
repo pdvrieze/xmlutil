@@ -16,7 +16,6 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.KSerialClassKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
 import kotlinx.serialization.internal.MissingDescriptorException
@@ -45,7 +44,7 @@ internal class ExtSerialDescriptorImpl(
     override val isNullable: Boolean get() = false
 
     override val name: String get() = base.name
-    override val kind: KSerialClassKind get() = base.kind
+    override val kind: SerialKind get() = base.kind
 
     override fun getElementName(index: Int): String = base.getElementName(index)
     override fun getElementIndex(name: String): Int = base.getElementIndex(name)

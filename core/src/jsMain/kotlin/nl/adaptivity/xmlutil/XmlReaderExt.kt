@@ -30,45 +30,53 @@ import nl.adaptivity.xmlutil.util.CompactFragment
  *
  * @throws XmlException parsing failed
  */
-actual fun XmlReader.siblingsToFragment(): CompactFragment
-{
-  val dest = (this as JSDomReader).delegate.ownerDocument!!.createDocumentFragment()
-  if (!isStarted) {
-    if (hasNext()) {
-      next()
-    } else {
-      return CompactFragment(dest)
-    }
-  }
-
-  val startLocation = locationInfo
-  try {
-
-    val missingNamespaces = mutableMapOf<String, String>()
-    // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
-    val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
-    var type: EventType? = eventType
-    while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
-        when(type) {
-            EventType.START_ELEMENT -> {
-                val out = JSDomWriter(dest, true)
-                writeCurrent(out) // writes the start tag
-                out.addUndeclaredNamespaces(this, missingNamespaces)
-                out.writeElementContent(missingNamespaces, this) // writes the children and end tag
-                out.close()
-            }
-            EventType.IGNORABLE_WHITESPACE,
-            EventType.TEXT          -> dest.append(dest.ownerDocument!!.createTextNode(text))
-            EventType.CDSECT        -> dest.append(dest.ownerDocument!!.createCDATASection(text))
-            EventType.COMMENT       -> dest.append(dest.ownerDocument!!.createComment(text))
+actual fun XmlReader.siblingsToFragment(): CompactFragment {
+    val dest = (this as JSDomReader).delegate.ownerDocument!!.createDocumentFragment()
+    if (!isStarted) {
+        if (hasNext()) {
+            next()
+        } else {
+            return CompactFragment(dest)
         }
-      type = if (hasNext()) next() else null
     }
-    return CompactFragment(dest)
-  } catch (e: XmlException) {
-    throw XmlException("Failure to parse children into string at $startLocation", e)
-  } catch (e: RuntimeException) {
-    throw XmlException("Failure to parse children into string at $startLocation", e)
-  }
+
+    val startLocation = locationInfo
+    try {
+
+        val missingNamespaces = mutableMapOf<String, String>()
+        // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
+        val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
+        var type: EventType? = eventType
+        while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
+            when (type) {
+                EventType.START_ELEMENT -> {
+                    val out = JSDomWriter(dest, true)
+                    writeCurrent(out) // writes the start tag
+                    out.addUndeclaredNamespaces(this, missingNamespaces)
+                    out.writeElementContent(missingNamespaces, this) // writes the children and end tag
+                    out.close()
+                }
+
+                EventType.IGNORABLE_WHITESPACE,
+                EventType.TEXT          -> dest.append(dest.ownerDocument!!.createTextNode(text))
+
+                EventType.CDSECT        -> dest.append(dest.ownerDocument!!.createCDATASection(text))
+
+                EventType.COMMENT       -> dest.append(dest.ownerDocument!!.createComment(text))
+
+                EventType.ENTITY_REF    -> throw XmlException("Entity references are not expected here")
+
+                EventType.ATTRIBUTE     -> throw AssertionError("Attributes are not expected in the event stream")
+
+                else -> Unit // These elements are ignored/not part of a fragment
+            }
+            type = if (hasNext()) next() else null
+        }
+        return CompactFragment(dest)
+    } catch (e: XmlException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    } catch (e: RuntimeException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    }
 
 }

@@ -102,6 +102,7 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
+                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
         }

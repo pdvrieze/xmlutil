@@ -55,6 +55,7 @@ interface XmlDeserializable {
 }
 
 
+@Suppress("DEPRECATION")
 @Deprecated("Use kotlinx.serialization instead")
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()

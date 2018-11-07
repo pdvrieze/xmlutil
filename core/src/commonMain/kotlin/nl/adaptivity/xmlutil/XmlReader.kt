@@ -58,19 +58,20 @@ interface XmlReader : Closeable, Iterator<EventType> {
     val isStarted: Boolean
 
     fun require(type: EventType, namespace: String?, name: String?): Unit = when {
-        eventType !== type        ->
+        eventType !== type                ->
             throw XmlException("Unexpected event type Found: $eventType expected $type")
 
         namespace != null &&
-        namespace != namespaceURI ->
+                namespace != namespaceURI ->
             throw XmlException(
-                "Namespace uri's don't match: expected=$namespace found=$namespaceURI")
+                "Namespace uri's don't match: expected=$namespace found=$namespaceURI"
+                              )
 
         name != null &&
-        name != localName         ->
+                name != localName         ->
             throw XmlException("Local names don't match: expected=$name found=$localName")
 
-        else                      -> Unit
+        else                              -> Unit
     }
 
 
@@ -87,8 +88,10 @@ interface XmlReader : Closeable, Iterator<EventType> {
     fun getAttributeLocalName(index: Int): String
 
     fun getAttributeName(index: Int): QName =
-        qname(getAttributeNamespace(index), getAttributeLocalName(index),
-                                    getAttributePrefix(index))
+        qname(
+            getAttributeNamespace(index), getAttributeLocalName(index),
+            getAttributePrefix(index)
+             )
 
     fun getAttributeValue(index: Int): String
 
@@ -109,8 +112,8 @@ interface XmlReader : Closeable, Iterator<EventType> {
     fun getNamespacePrefix(namespaceUri: String): String?
 
     fun isWhitespace(): Boolean = eventType === EventType.IGNORABLE_WHITESPACE ||
-                                  (eventType === EventType.TEXT &&
-                                   isXmlWhitespace(text))
+            (eventType === EventType.TEXT &&
+                    isXmlWhitespace(text))
 
     fun isEndElement(): Boolean = eventType === EventType.END_ELEMENT
 
@@ -138,11 +141,13 @@ interface XmlReader : Closeable, Iterator<EventType> {
 val XmlReader.attributes: Array<out XmlEvent.Attribute>
     get() =
         Array(attributeCount) { i ->
-            XmlEvent.Attribute(locationInfo,
-                               getAttributeNamespace(i),
-                               getAttributeLocalName(i),
-                               getAttributePrefix(i),
-                               getAttributeValue(i))
+            XmlEvent.Attribute(
+                locationInfo,
+                getAttributeNamespace(i),
+                getAttributeLocalName(i),
+                getAttributePrefix(i),
+                getAttributeValue(i)
+                              )
         }
 
 val XmlReader.namespaceIndices: IntRange get() = namespaceStart..(namespaceEnd - 1)
@@ -173,7 +178,7 @@ fun XmlReader.unhandledEvent(message: String? = null) {
     val actualMessage = when (eventType) {
         EventType.CDSECT,
         EventType.TEXT          -> if (!isWhitespace()) message
-                                                        ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
+            ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
         EventType.START_ELEMENT -> message ?: "Element found where not expected [$locationInfo]: $name"
         EventType.END_DOCUMENT  -> message ?: "End of document found where not expected"
         else                    -> null
@@ -183,8 +188,10 @@ fun XmlReader.unhandledEvent(message: String? = null) {
 }
 
 fun XmlReader.isElement(elementname: QName): Boolean {
-    return isElement(EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(),
-                     elementname.getPrefix())
+    return isElement(
+        EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(),
+        elementname.getPrefix()
+                    )
 }
 
 /**
@@ -201,23 +208,26 @@ fun XmlReader.isElement(elementname: QName): Boolean {
 fun XmlReader.allText(): String {
     val t = this
     return buildString {
-        var type: EventType? = null
         if (eventType == EventType.TEXT || eventType == EventType.CDSECT) {
             append(text)
         }
 
+        var type: EventType?
+
         while ((t.next().apply { type = this@apply }) !== EventType.END_ELEMENT) {
             when (type) {
-                EventType.COMMENT              -> {
-                } // ignore
-                EventType.IGNORABLE_WHITESPACE ->
-                    // ignore whitespace starting the element.
-                    if (length != 0) append(t.text)
+                EventType.COMMENT
+                     -> Unit // ignore
+
+                // ignore whitespace starting the element.
+                EventType.IGNORABLE_WHITESPACE
+                     -> if (length != 0) append(t.text)
 
                 EventType.TEXT,
-                EventType.CDSECT               -> append(t.text)
-                else                           -> throw XmlException(
-                    "Found unexpected child tag")
+                EventType.CDSECT
+                     -> append(t.text)
+
+                else -> throw XmlException("Found unexpected child tag")
             }//ignore
 
         }
@@ -248,7 +258,8 @@ fun XmlReader.readSimpleElement(): String {
                 EventType.TEXT,
                 EventType.CDSECT                 -> append(t.text)
                 else                             -> throw XmlException(
-                    "Expected text content or end tag, found: ${t.eventType}")
+                    "Expected text content or end tag, found: ${t.eventType}"
+                                                                      )
             }/* Ignore */
         }
 
@@ -302,9 +313,11 @@ fun XmlReader.isElement(type: EventType, elementname: QName): Boolean {
  * @return `true` if it matches, otherwise `false`
  */
 @JvmOverloads
-fun XmlReader.isElement(elementNamespace: String?,
-                                              elementName: String,
-                                              elementPrefix: String? = null): Boolean {
+fun XmlReader.isElement(
+    elementNamespace: String?,
+    elementName: String,
+    elementPrefix: String? = null
+                       ): Boolean {
     return this.isElement(EventType.START_ELEMENT, elementNamespace, elementName, elementPrefix)
 }
 
@@ -319,10 +332,12 @@ fun XmlReader.isElement(elementNamespace: String?,
  *
  * @param elementPrefix The prefix to fall back on if the namespace can't be determined    @return `true` if it matches, otherwise `false`
  */
-fun XmlReader.isElement(type: EventType,
-                                              elementNamespace: String?,
-                                              elementName: String,
-                                              elementPrefix: String? = null): Boolean {
+fun XmlReader.isElement(
+    type: EventType,
+    elementNamespace: String?,
+    elementName: String,
+    elementPrefix: String? = null
+                       ): Boolean {
     val r = this
     if (r.eventType !== type) {
         return false

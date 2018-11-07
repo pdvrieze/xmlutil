@@ -120,7 +120,7 @@ class AndroidXmlWriter : XmlWriter {
     private fun ensureNamespaceIfRepairing(namespace: String?, prefix: String?) {
         if (isRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null) {
             // TODO fix more cases than missing namespaces with given prefix and uri
-            if (namespaceHolder.getNamespaceUri(prefix) != (namespace ?:"")) {
+            if (namespaceHolder.getNamespaceUri(prefix) != namespace) {
                 namespaceAttr(prefix, namespace)
             }
         }

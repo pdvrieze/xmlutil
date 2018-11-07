@@ -21,32 +21,31 @@ import kotlinx.serialization.context.MutableSerialContextImpl
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
 import kotlin.reflect.KClass
 
 @ImplicitReflectionSerializer
 class KotlinxSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
-        return getSerializer(type)?.let { SerializerFun(type, it) }
+        return getSerializer(type)?.let { SerializerFun(it) }
     }
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
-        return getSerializer(type)?.let { DeserializerFun(type, it) }
+        return getSerializer(type)?.let { DeserializerFun(it) }
     }
 
-    private class SerializerFun<T : Any>(val kClass: KClass<T>,
-                                         val serializer: KSerializer<T>) : SerializationProvider.XmlSerializerFun<T> {
+    private class SerializerFun<T : Any>(val serializer: KSerializer<T>) : SerializationProvider.XmlSerializerFun<T> {
 
         override fun invoke(output: XmlWriter, value: T) {
             XML().toXml(target = output, serializer = serializer, obj = value)
         }
     }
 
-    private class DeserializerFun<T : Any>(val kClass: KClass<T>,
-                                           val serializer: KSerializer<T>) : SerializationProvider.XmlDeserializerFun {
+    private class DeserializerFun<T : Any>(val serializer: KSerializer<T>) : SerializationProvider.XmlDeserializerFun {
         override fun <U : Any> invoke(input: XmlReader, type: KClass<U>): U {
             @Suppress("UNCHECKED_CAST")
             val loader: DeserializationStrategy<U> = serializer as KSerializer<U>
-            return XML.parse<U>(input, type, loader)
+            return parse(input, loader)
         }
     }
 

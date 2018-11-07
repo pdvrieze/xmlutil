@@ -102,7 +102,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             return when (name) {
                 "namespaces" -> 0
                 "content"    -> 1
-                else         -> KInput.UNKNOWN_NAME
+                else         -> CompositeDecoder.UNKNOWN_NAME
             }
         }
 

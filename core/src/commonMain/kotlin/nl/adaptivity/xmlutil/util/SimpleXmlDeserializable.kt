@@ -13,6 +13,8 @@
  * You should have received a copy of the GNU Lesser General Public License along with xmlutil.  If not,
  * see <http://www.gnu.org/licenses/>.
  */
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.XmlDeserializable

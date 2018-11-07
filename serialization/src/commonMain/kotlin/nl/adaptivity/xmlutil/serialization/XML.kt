@@ -25,6 +25,7 @@ import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.context.getOrDefault
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.name
+import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -107,7 +108,7 @@ class XML(
     @ImplicitReflectionSerializer
     @Suppress("unused")
     inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String =
-        stringify(obj, context.getOrDefault(T::class), prefix)
+        stringify(context.getOrDefault(T::class), obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -122,7 +123,7 @@ class XML(
         obj: T,
         prefix: String? = null
                            ): String {
-        return stringify(obj, context.getOrDefault(kClass), prefix)
+        return stringify(context.getOrDefault(kClass), obj, prefix)
     }
 
     /**
@@ -317,7 +318,7 @@ class XML(
         return parse(serializer, XmlStreaming.newReader(string))
     }
 
-    companion object: StringFormat {
+    companion object : StringFormat {
         val defaultInstance = XML()
         override val context: SerialContext
             get() = defaultInstance.context
@@ -334,7 +335,8 @@ class XML(
          */
         override fun <T> stringify(
             serializer: SerializationStrategy<T>,
-            obj: T): String =
+            obj: T
+                                  ): String =
             defaultInstance.stringify(serializer, obj)
 
         /**
@@ -407,6 +409,7 @@ class XML(
         @ImplicitReflectionSerializer
         fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(kClass, str)
 
+        @Suppress("unused", "UNUSED_PARAMETER")
         @Deprecated(
             "Replaced by version with consistent parameter order",
             ReplaceWith("parse(str, loader)")
@@ -442,6 +445,7 @@ class XML(
             string: String
                               ): T = XML().parse(serializer, string)
 
+        @Suppress("unused")
         @ImplicitReflectionSerializer
         fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader): T =
             parse(reader, kClass)
@@ -459,14 +463,17 @@ class XML(
             "Replaced by version with consistent parameter order",
             ReplaceWith("parse(reader, kClass, loader)")
                    )
-        fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader, loader: DeserializationStrategy<T>): T =
-            parse(reader, kClass, loader)
+        fun <T : Any> parse(
+            @Suppress("UNUSED_PARAMETER") kClass: KClass<T>, reader: XmlReader, loader: DeserializationStrategy<T>
+                           ): T =
+            parse(reader, loader)
 
         /**
          * Parse an object of the type [T] out of the reader
          * @param reader The source of the XML events
          * @param loader The loader to use (rather than the default)
          */
+        @Suppress("UNUSED_PARAMETER")
         @Deprecated(
             "Use the version that doesn't take a KClass",
             ReplaceWith("parse(reader, loader)", "nl.adaptivity.xmlutil.serialization.XML.Companion.parse")
@@ -531,10 +538,12 @@ class XML(
 
 private object DEFAULTSERIALCONTEXT : SerialContext {
     override fun <T : Any> get(kclass: KClass<T>): KSerializer<T>? {
+        @Suppress("UNCHECKED_CAST")
         return if (kclass == CompactFragment::class) (CompactFragmentSerializer as KSerializer<T>) else null
     }
 
     override fun <T : Any> getByValue(value: T): KSerializer<T>? {
+        @Suppress("UNCHECKED_CAST")
         return get(value::class) as KSerializer<T>
     }
 }
@@ -612,7 +621,7 @@ internal fun SerialDescriptor.getValueChild(): Int {
         for (i in 0 until elementsCount) {
             if (getElementAnnotations(i).any { it is XmlValue }) return i
         }
-        return KInput.UNKNOWN_NAME
+        return CompositeDecoder.UNKNOWN_NAME
     }
 }
 
