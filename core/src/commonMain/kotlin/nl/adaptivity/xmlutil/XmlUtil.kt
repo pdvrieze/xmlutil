@@ -21,9 +21,9 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.JvmName
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
+import kotlin.jvm.JvmName
 
 /** Determine whether the character is xml whitespace. */
 fun isXmlWhitespace(char: Char) =

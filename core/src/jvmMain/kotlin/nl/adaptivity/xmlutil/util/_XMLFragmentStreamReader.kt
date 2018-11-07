@@ -17,7 +17,6 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.multiplatform.JvmStatic
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERNAMESPACE
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERPPREFIX
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext

@@ -17,15 +17,15 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.*
-import nl.adaptivity.xmlutil.multiplatform.JvmName
-import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
+import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.withName
+import kotlin.jvm.JvmName
 
 
 /**

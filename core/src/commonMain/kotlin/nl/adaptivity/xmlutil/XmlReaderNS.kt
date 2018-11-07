@@ -19,10 +19,10 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.multiplatform.JvmName
 import nl.adaptivity.xmlutil.skipPreamble
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
+import kotlin.jvm.JvmName
 
 /**
  * Differs from [.siblingsToFragment] in that it skips the current event.

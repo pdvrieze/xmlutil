@@ -18,26 +18,6 @@ package nl.adaptivity.xmlutil.multiplatform
 
 import kotlin.reflect.KClass
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-expect annotation class JvmStatic()
-
-@Target(AnnotationTarget.TYPE)
-@MustBeDocumented
-expect annotation class JvmWildcard()
-
-expect annotation class JvmField()
-
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
-        AnnotationTarget.FILE)
-expect annotation class JvmName(val name:String)
-
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-@MustBeDocumented
-expect annotation class JvmOverloads()
-
-@Target(AnnotationTarget.FILE)
-expect annotation class JvmMultifileClass()
-
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 

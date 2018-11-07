@@ -22,16 +22,4 @@ actual val KClass<*>.name get() = java.name
 
 actual typealias Throws = kotlin.jvm.Throws
 
-actual typealias JvmStatic = kotlin.jvm.JvmStatic
-
-actual typealias JvmWildcard = kotlin.jvm.JvmWildcard
-
-actual typealias JvmField = kotlin.jvm.JvmField
-
-actual typealias JvmName = kotlin.jvm.JvmName
-
-actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
-
-actual typealias JvmMultifileClass = kotlin.jvm.JvmMultifileClass
-
 typealias URI = java.net.URI

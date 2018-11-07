@@ -19,9 +19,9 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.JvmMultifileClass
-import nl.adaptivity.xmlutil.multiplatform.JvmName
 import nl.adaptivity.xmlutil.multiplatform.Throws
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(
     this)

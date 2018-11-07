@@ -20,10 +20,10 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.multiplatform.Closeable
-import nl.adaptivity.xmlutil.multiplatform.JvmName
-import nl.adaptivity.xmlutil.multiplatform.JvmOverloads
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.util.XmlDelegatingWriter
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 
 /**
  * Created by pdvrieze on 15/11/15.
