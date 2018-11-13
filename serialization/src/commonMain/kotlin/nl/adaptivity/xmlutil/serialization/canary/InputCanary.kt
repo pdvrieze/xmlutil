@@ -19,7 +19,6 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
-import kotlin.reflect.KClass
 
 internal class InputCanary(override val isDeep: Boolean = true) : ElementValueDecoder(), CanaryCommon {
     override lateinit var kSerialClassDesc: SerialDescriptor
@@ -97,10 +96,10 @@ internal class InputCanary(override val isDeep: Boolean = true) : ElementValueDe
 
     override fun decodeElementIndex(desc: SerialDescriptor): Int {
         currentChildIndex++
-        if (currentChildIndex < childDescriptors.size) {
-            return currentChildIndex
-        } else {
-            return CompositeDecoder.READ_DONE
+        return when {
+            currentChildIndex < childDescriptors.size -> currentChildIndex
+
+            else                                      -> CompositeDecoder.READ_DONE
         }
     }
 

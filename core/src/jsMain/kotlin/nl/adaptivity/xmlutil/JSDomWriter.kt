@@ -148,7 +148,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
             prefix.isNullOrEmpty() -> cur.setAttributeNS(namespace ?: XMLConstants.NULL_NS_URI,
                                                          XMLConstants.XMLNS_ATTRIBUTE, namespace.toString())
             else                   -> cur.setAttributeNS(namespace ?: XMLConstants.NULL_NS_URI,
-                                                         "${XMLConstants.XMLNS_ATTRIBUTE}:${prefix.toString()}",
+                                                         "${XMLConstants.XMLNS_ATTRIBUTE}:$prefix",
                                                          namespace.toString())
         }
     }

@@ -18,7 +18,6 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
-import kotlin.reflect.KClass
 
 
 class OutputCanary constructor(

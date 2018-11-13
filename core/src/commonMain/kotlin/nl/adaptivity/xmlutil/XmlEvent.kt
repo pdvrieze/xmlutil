@@ -191,7 +191,7 @@ sealed class XmlEvent(val locationInfo: String?) {
 
         override fun writeTo(writer: XmlWriter) {
             if (hasNamespaceUri()) {
-                val nsPrefix = if (prefix.isNullOrEmpty()) "" else localName
+                val nsPrefix = if (prefix.isEmpty()) "" else localName
                 writer.namespaceAttr(nsPrefix, namespaceUri)
             } else {
                 writer.attribute(namespaceUri, localName, prefix, value)

@@ -62,8 +62,7 @@ interface CanaryCommon {
     fun serialDescriptor(): ExtSerialDescriptor {
         val kSerialClassDesc = kSerialClassDesc
         return ExtSerialDescriptorImpl(kSerialClassDesc,
-                                   serialKind,
-                                   Array(childDescriptors.size) {
+                                       Array(childDescriptors.size) {
                                        requireNotNull(childDescriptors[it]) {
                                            "childDescriptors[$it]"
                                        }

@@ -19,7 +19,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.SerialInfo
 
 /**
- * Specify more detailed name information than can be provided by [SerialName].
+ * Specify more detailed name information than can be provided by [kotlinx.serialization.SerialName].
  * @property value The local part of the name
  * @property namespace The namespace to use
  * @property prefix the Prefix to use

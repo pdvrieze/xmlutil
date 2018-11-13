@@ -36,7 +36,7 @@ val kotlin_version: String by project
 
 dependencies {
     compileOnly("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion")
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 }
 
 repositories {

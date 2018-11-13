@@ -32,12 +32,8 @@ class DefaultSerializationProvider: SerializationProvider {
     }
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
-        val a = type.java.getAnnotation(XmlDeserializer::class.java)
-        if (a!=null) {
-            return DeserializerFun
-        } else {
-            return null
-        }
+        val a: XmlDeserializer? = type.java.getAnnotation(XmlDeserializer::class.java)
+        return a?.let{ DeserializerFun }
     }
 
     private object DeserializerFun: SerializationProvider.XmlDeserializerFun {
@@ -45,8 +41,7 @@ class DefaultSerializationProvider: SerializationProvider {
             val factory = type.java.getAnnotation(
                 XmlDeserializer::class.java).value.java.newInstance()!!
 
-            @Suppress("UNCHECKED_CAST")
-            return factory.deserialize(input) as T
+            return factory.deserialize(input)
         }
     }
 

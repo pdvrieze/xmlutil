@@ -161,13 +161,13 @@ kotlin {
         //        implementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}")
 
 
-                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:$spek2Version") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
 
 
 
-                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:$spek2Version") {
                     exclude(group="org.junit.platform")
                     exclude(group="org.jetbrains.kotlin")
                 }
@@ -197,11 +197,11 @@ kotlin {
 
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
 
-                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:${spek2Version}") {
+                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:$spek2Version") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
 
-                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
+                project.dependencies.add(runtimeOnlyConfigurationName, "org.spekframework.spek2:spek-runner-junit5:$spek2Version") {
                     exclude(group="org.junit.platform")
                     exclude(group="org.jetbrains.kotlin")
                 }
@@ -256,7 +256,7 @@ extensions.configure<BintrayExtension>("bintray") {
     val pubs = publishing.publications
         .filter { it.name != "metadata" && it.name != "js" }
         .map { it.name }
-        .apply { forEach{ logger.lifecycle("Registering publication \"${it}\" to Bintray") }}
+        .apply { forEach{ logger.lifecycle("Registering publication \"$it\" to Bintray") }}
         .toTypedArray()
 
 

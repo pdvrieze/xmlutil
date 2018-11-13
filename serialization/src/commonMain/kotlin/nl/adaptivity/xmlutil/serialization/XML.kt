@@ -25,7 +25,6 @@ import kotlinx.serialization.context.SerialModule
 import kotlinx.serialization.context.getOrDefault
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.name
-import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 

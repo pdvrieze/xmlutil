@@ -16,6 +16,4 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 expect class PlatformXmlWriter: XmlWriter

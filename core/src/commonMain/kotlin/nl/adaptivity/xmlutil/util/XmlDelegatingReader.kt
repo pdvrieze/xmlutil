@@ -38,7 +38,7 @@ open class XmlDelegatingReader protected constructor(protected open val delegate
                || eventType == EventType.IGNORABLE_WHITESPACE
                || eventType == EventType.PROCESSING_INSTRUCTION
                || eventType == EventType.COMMENT) {
-            eventType = next();
+            eventType = next()
         }
         if (eventType != EventType.START_ELEMENT && eventType != EventType.END_ELEMENT) {
             throw XmlException("expected start or end tag");

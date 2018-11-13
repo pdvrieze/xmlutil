@@ -55,15 +55,12 @@ class KotlinxSerializationProvider : SerializationProvider {
 
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> getSerializer(type: KClass<T>): KSerializer<T>? {
-            val result =  serializers.get(type) ?: run {
-                try {
-                    type.serializer().also { serializers.registerSerializer(type, it) }
-                } catch (e: SerializationException) {
-                    null
-                }
-            }
 
-            return result
+            return serializers[type] ?: try {
+                type.serializer().also { serializers.registerSerializer(type, it) }
+            } catch (e: SerializationException) {
+                null
+            }
         }
     }
 

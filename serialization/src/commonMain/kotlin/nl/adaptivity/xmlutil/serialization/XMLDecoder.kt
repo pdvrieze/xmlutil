@@ -60,7 +60,7 @@ internal open class XmlDecoderBase internal constructor(
             val position = input.locationInfo
             val stringContent = decodeStringImpl(true)
             if (stringContent != "kotlin.Unit")
-                throw XmlParsingException(position, "Did not find kotlin.Unit where expected ${stringContent}")
+                throw XmlParsingException(position, "Did not find kotlin.Unit where expected $stringContent")
         }
 
         override fun decodeBoolean(): Boolean = decodeStringImpl(true).toBoolean()

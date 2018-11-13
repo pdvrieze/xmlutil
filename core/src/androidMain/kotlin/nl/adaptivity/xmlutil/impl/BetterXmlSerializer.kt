@@ -248,11 +248,7 @@ class BetterXmlSerializer : XmlSerializer {
     override fun setPrefix(prefix: String?, namespace: String?) {
 
         val depth: Int
-        if(pending) {
-            depth = this.depth + 2
-        } else {
-            depth = this.depth + 1
-        }
+        depth = this.depth + (if (pending) 2 else 1)
 
         var i = nspCounts[depth] * 2 - 2
         while (i >= 0) {

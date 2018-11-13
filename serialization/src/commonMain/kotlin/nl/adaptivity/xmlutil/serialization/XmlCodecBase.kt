@@ -22,7 +22,6 @@ import kotlinx.serialization.StructureKind
 import kotlinx.serialization.UnionKind
 import kotlinx.serialization.context.SerialContext
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import kotlin.jvm.JvmStatic
 
 internal open class XmlCodecBase internal constructor(val context: SerialContext) {

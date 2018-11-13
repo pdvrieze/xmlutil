@@ -31,13 +31,10 @@ interface ExtSerialDescriptor: SerialDescriptor {
  * An implementation of SerialDescriptor
  *
  * @param base The serial class descriptor that is the basis. This is used for delegation so not directly accessible
- * @property extKind The SerialKind for the property
- * @param isChildNullable An array marking for all elements whether they are nullable
  * @param childDescriptors An array with all child descriptors
  */
 internal class ExtSerialDescriptorImpl(
     private val base: SerialDescriptor,
-    val extkind: SerialKind,
     private val childDescriptors: Array<SerialDescriptor>
 ) : ExtSerialDescriptor {
 

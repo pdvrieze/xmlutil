@@ -81,7 +81,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
 
     constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>) :
-        this(Array(prefixes.size * 2, { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() }))
+        this(Array(prefixes.size * 2) { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() })
 
     constructor(prefix: CharSequence, namespace: CharSequence) :
         this(arrayOf(prefix.toString(), namespace.toString()))
@@ -235,5 +235,5 @@ private inline fun <T> flatten(namespaces: Collection<T>,
     val filler: Iterator<String> = namespaces.asSequence().flatMap {
         sequenceOf(it.prefix(), it.namespace())
     }.iterator()
-    return Array(namespaces.size * 2, { filler.next() })
+    return Array(namespaces.size * 2) { filler.next() }
 }

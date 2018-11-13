@@ -21,7 +21,7 @@ actual class SimpleQueue<E> {
     actual constructor()
 
     actual val size: Int
-        get() = data.length
+        get() = data.length as Int
 
     actual fun peekFirst(): E? = when(size) {
         0 -> null
