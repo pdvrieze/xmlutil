@@ -36,14 +36,6 @@ plugins {
     id("com.jfrog.bintray")
 }
 
-
-fun NamedDomainObjectContainer<KotlinTarget>.fromPreset2(preset: KotlinTargetPreset<*>, name: String, configureAction: KotlinTarget.()->Unit = {}):KotlinTarget {
-    val target = preset.createTarget(name)
-    add(target)
-    target.run(configureAction)
-    return target
-}
-
 val xmlutil_version: String by project
 val xmlutil_versiondesc: String by project
 
