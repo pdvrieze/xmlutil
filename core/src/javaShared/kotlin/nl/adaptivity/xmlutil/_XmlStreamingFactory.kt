@@ -16,8 +16,6 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.io.OutputStream
-import kotlinx.io.Writer
 import nl.adaptivity.xmlutil.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.impl.AppendableWriter
 import java.io.InputStream
