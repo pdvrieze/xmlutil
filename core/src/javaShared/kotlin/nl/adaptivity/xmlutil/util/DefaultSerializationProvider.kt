@@ -17,10 +17,7 @@
 package nl.adaptivity.xmlutil.util
 
 import kotlinx.serialization.ImplicitReflectionSerializer
-import nl.adaptivity.xmlutil.XmlDeserializer
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.*
 import kotlin.reflect.KClass
 
 @UseExperimental(ImplicitReflectionSerializer::class)
@@ -38,8 +35,9 @@ class DefaultSerializationProvider: SerializationProvider {
 
     private object DeserializerFun: SerializationProvider.XmlDeserializerFun {
         override fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T {
+            @Suppress("UNCHECKED_CAST")
             val factory = type.java.getAnnotation(
-                XmlDeserializer::class.java).value.java.newInstance()!!
+                XmlDeserializer::class.java).value.java.newInstance() as XmlDeserializerFactory<T>
 
             return factory.deserialize(input)
         }
