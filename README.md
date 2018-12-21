@@ -5,7 +5,7 @@
 
 # Introduction
 
-This project is a cross-platform XML serialization library compatible with kotlin serialization. It provides
+This project is a cross-platform XML serialization (wrapping) library compatible with kotlin serialization. It provides
 capabilities for Android, JVM and JS (alpha quality)
 
 It also provides serialization support
@@ -17,7 +17,46 @@ It also provides serialization support
 * Javascript support
   * Core Javascript support needs testing but should work. It is based on DOM so may be slow
   * Javascript serialization support: make serialization work on Javascript once possible
-  
+* Native support: Currently there is no implementation for Kotlin native. 
+
+# How to use
+The library is designed as a multiplatform kotlin module, but platform-specific versions can also be used were appropriate.
+## Core
+### multiplatform
+```
+   implementation("net.devrieze:xmlutil:0.8.0")
+```
+### JVM -- uses the stax API not available on Android
+```
+   implementation("net.devrieze:xmlutil-jvm:0.8.0")
+```
+### Android -- Uses the android streaming library
+```
+   implementation("net.devrieze:xmlutil-android:0.8.0")
+```
+### JS -- Wraps DOM
+```
+   implementation("net.devrieze:xmlutil-js:0.8.0")
+```
+## Serialization
+### multiplatform
+```
+   implementation("net.devrieze:xmlutil-serialization:0.8.0")
+```
+### JVM
+```
+   implementation("net.devrieze:xmlutil-serialization-jvm:0.8.0")
+```
+### Android
+```
+   implementation("net.devrieze:xmlutil-serialization-android:0.8.0")
+```
+### js
+```
+   implementation("net.devrieze:xmlutil-serialization-js:0.8.0")
+```
+
+
 ## Modules
 
 ### core
@@ -48,6 +87,10 @@ The kotlinx.serialization plugin to allow serialization to XML
 ### Serialization.java
 The java version of the serialization plugin. Please note that it does not pull in the platform specific library. The
 core library is dependent on the actual platform used (JVM or Android). This library only pulls in the shared Java code.
+
+### Serialization.jvm
+The JVM version merely uses the jvm platform xml library but the serialization is
+### Serialization.android
 
 ### Serialization.js
 The Javascript version of the serialization plugin. This is not yet implemented due to missing annotation support for
