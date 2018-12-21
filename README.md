@@ -1,7 +1,6 @@
 # Versions
 * License: [![GitHub license](https://img.shields.io/badge/License-LGPL%203-blue.svg?style=flat)](COPYING.LESSER)
-* JVM: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-jvm/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-jvm/_latestVersion) 
-* Android: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-android/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-android/_latestVersion) 
+* Core: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil/_latestVersion) 
 * Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-serialization/_latestVersion) 
 
 # Introduction
