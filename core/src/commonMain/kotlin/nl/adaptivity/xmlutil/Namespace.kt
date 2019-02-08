@@ -44,10 +44,10 @@ interface Namespace {
         override val descriptor: SerialDescriptor
             = simpleSerialClassDesc<Namespace>("prefix", "namespaceURI")
 
-        override fun deserialize(input: Decoder): Namespace {
+        override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
-            input.readBegin(descriptor) { desc ->
+            decoder.readBegin(descriptor) { desc ->
                 readElements(this) {
                     when (it) {
                         0 -> prefix = decodeStringElement(desc, it)
@@ -58,8 +58,8 @@ interface Namespace {
             return XmlEvent.NamespaceImpl(prefix, namespaceUri)
         }
 
-        override fun serialize(output: Encoder, obj : Namespace) {
-            output.writeStructure(descriptor) {
+        override fun serialize(encoder: Encoder, obj : Namespace) {
+            encoder.writeStructure(descriptor) {
                 encodeStringElement(descriptor, 0, obj.prefix)
                 encodeStringElement(descriptor, 1, obj.namespaceURI)
             }

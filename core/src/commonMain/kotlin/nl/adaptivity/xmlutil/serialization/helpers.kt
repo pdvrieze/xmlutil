@@ -24,12 +24,12 @@ import nl.adaptivity.xmlutil.multiplatform.toCharArray
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
     override val descriptor = simpleSerialClassDesc<CharArray>()
 
-    override fun serialize(output: Encoder, obj: CharArray) = output.encodeString(
+    override fun serialize(encoder: Encoder, obj: CharArray) = encoder.encodeString(
         CharArraySequence(obj).toString())
 
-    override fun deserialize(input: Decoder): CharArray = input.decodeString().toCharArray()
+    override fun deserialize(decoder: Decoder): CharArray = decoder.decodeString().toCharArray()
 
-    override fun patch(input: Decoder, old: CharArray): CharArray = deserialize(input)
+    override fun patch(decoder: Decoder, old: CharArray): CharArray = deserialize(decoder)
 }
 
 @Suppress("UNCHECKED_CAST")

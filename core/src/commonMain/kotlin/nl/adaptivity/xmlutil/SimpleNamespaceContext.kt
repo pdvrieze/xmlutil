@@ -216,13 +216,13 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
                 originalNSContext)
         }
 
-        override fun deserialize(input: Decoder): SimpleNamespaceContext {
+        override fun deserialize(decoder: Decoder): SimpleNamespaceContext {
             return SimpleNamespaceContext(
-                actualSerializer.deserialize(input))
+                actualSerializer.deserialize(decoder))
         }
 
-        override fun serialize(output: Encoder, obj: SimpleNamespaceContext) {
-            actualSerializer.serialize(output, obj.toList())
+        override fun serialize(encoder: Encoder, obj: SimpleNamespaceContext) {
+            actualSerializer.serialize(encoder, obj.toList())
         }
 
     }

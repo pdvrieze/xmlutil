@@ -58,9 +58,9 @@ private class RenameDesc(val delegate: SerialDescriptor, override val name:Strin
 abstract class DelegateSerializer<T>(val delegate: KSerializer<T>): KSerializer<T> {
     override val descriptor: SerialDescriptor get() = delegate.descriptor
 
-    override fun deserialize(input: Decoder): T = delegate.deserialize(input)
+    override fun deserialize(decoder: Decoder): T = delegate.deserialize(decoder)
 
-    override fun patch(input: Decoder, old: T): T = delegate.patch(input, old)
+    override fun patch(decoder: Decoder, old: T): T = delegate.patch(decoder, old)
 
-    override fun serialize(output: Encoder, obj: T) = delegate.serialize(output, obj)
+    override fun serialize(encoder: Encoder, obj: T) = delegate.serialize(encoder, obj)
 }
