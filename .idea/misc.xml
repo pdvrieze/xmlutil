@@ -16,7 +16,7 @@
     <option name="myDefaultNotNull" value="org.jetbrains.annotations.NotNull" />
     <option name="myNullables">
       <value>
-        <list size="10">
+        <list size="11">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
           <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
@@ -27,12 +27,13 @@
           <item index="7" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.Nullable" />
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableDecl" />
           <item index="9" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableType" />
+          <item index="10" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNullable" />
         </list>
       </value>
     </option>
     <option name="myNotNulls">
       <value>
-        <list size="9">
+        <list size="10">
           <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
           <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
           <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
@@ -42,6 +43,7 @@
           <item index="6" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.NonNull" />
           <item index="7" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullDecl" />
           <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullType" />
+          <item index="9" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNonNull" />
         </list>
       </value>
     </option>
@@ -63,109 +65,6 @@
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>
-        <entry key="$PROJECT_DIR$/DarwinClients">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinClients/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/DarwinCommon">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinCommon/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/DarwinGenerators">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinGenerators/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/DarwinJavaApi">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinJavaApi/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/DarwinRealm">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/darwinrealm" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/DarwinServices">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/DarwinServices/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/JavaCommonApi">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/JavaCommonApi/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/PE-dataservices">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PE-dataservices/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/PE-diagram">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PE-diagram/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/PE-server">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PE-server/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/PMEditor">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PMEditor/test" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/PMEditor/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/darwin-sql">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/branches" />
-                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/misc" />
-                  <option value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/darwinlib">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://darwin.bournemouth.ac.uk/pdvrieze/svn/darwin/projects/darwinlib/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
         <entry key="$USER_HOME$/workspace/DarwinClients">
           <value>
             <SvnBranchConfiguration>
@@ -208,6 +107,5 @@
         </entry>
       </map>
     </option>
-    <option name="mySupportsUserInfoFilter" value="true" />
   </component>
 </project>
