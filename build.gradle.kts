@@ -28,8 +28,10 @@ ext {
     set("myJavaVersion",JavaVersion.VERSION_1_8)
 }
 
-task<Wrapper>("wrapper") {
-    gradleVersion = "4.10.2"
+tasks {
+    named<Wrapper>("wrapper") {
+        gradleVersion = "5.2"
+    }
 }
 
 allprojects {

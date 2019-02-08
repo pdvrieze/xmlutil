@@ -16,19 +16,9 @@
 
 
 import com.jfrog.bintray.gradle.BintrayExtension
-import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.fromPreset
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.kotlin
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
-import org.jetbrains.kotlin.gradle.plugin.mpp.allKotlinSourceSets
-import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.Date
+import java.util.*
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
