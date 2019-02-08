@@ -16,10 +16,7 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.StructureKind
-import kotlinx.serialization.UnionKind
+import kotlinx.serialization.*
 
 internal fun childInfoForClassDesc(desc: kotlinx.serialization.SerialDescriptor): Array<SerialDescriptor?> = when (desc.kind) {
     is PrimitiveKind,
@@ -27,11 +24,37 @@ internal fun childInfoForClassDesc(desc: kotlinx.serialization.SerialDescriptor)
         UnionKind.OBJECT -> emptyArray()
 
     StructureKind.MAP,
-        StructureKind.LIST -> arrayOf(null, OutputCanary.Companion.DUMMYSERIALDESC)
+        StructureKind.LIST -> arrayOf(null, DUMMYSERIALDESC)
 
     UnionKind.POLYMORPHIC -> arrayOfNulls(2)
 
     else                   -> arrayOfNulls(desc.elementsCount)
 }
 
-internal val DUMMYCHILDINFO = OutputCanary.Companion.DUMMYSERIALDESC
+internal val DUMMYCHILDINFO = DUMMYSERIALDESC
+
+internal object DUMMYSERIALDESC : SerialDescriptor {
+    override val name: String get() = throw AssertionError("Dummy descriptors have no names")
+    @Suppress("OverridingDeprecatedMember")
+    override val kind: SerialKind
+        get() = throw AssertionError("Dummy descriptors have no kind")
+
+    override val elementsCount: Int get() = 0
+
+    override fun getElementName(index: Int) = throw AssertionError("No children in dummy")
+
+    override fun getElementIndex(name: String) = throw AssertionError("No children in dummy")
+
+    override fun getEntityAnnotations(): List<Annotation> = emptyList()
+
+    override fun getElementAnnotations(index: Int) = throw AssertionError("No children in dummy")
+
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        throw AssertionError("No children in dummy")
+    }
+
+    override val isNullable: Boolean get() = false
+
+    override fun isElementOptional(index: Int) =
+        throw AssertionError("No children in dummy")
+}

@@ -16,10 +16,10 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.UnknownFieldException
+import kotlinx.serialization.*
+import kotlinx.serialization.internal.GeneratedSerializer
+import kotlinx.serialization.internal.MissingDescriptorException
+import nl.adaptivity.util.kotlin.arrayMap
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import kotlin.collections.mutableMapOf
 import kotlin.collections.set
@@ -33,53 +33,30 @@ object Canary {
     fun <T> serialDescriptor(saver: SerializationStrategy<T>, obj: T): ExtSerialDescriptor {
         val current = saverMap[saver]?.also { return it }
         if (current != null) return current
-
-        val output = OutputCanary((saver as? KSerializer<*>)?.descriptor)
-        saver.serialize(output, obj)
-        val new: ExtSerialDescriptor = output.serialDescriptor()
-        if(output.isComplete) { // Only save complete descriptors
-            saverMap[saver] = new
+        if (saver is GeneratedSerializer) {
+            return ExtSerialDescriptorImpl(saver.descriptor, saver.childSerializers().arrayMap { it.descriptor }).also { saverMap[saver] = it }
         }
-
-        return new
+        val parentDesc = saver.descriptor
+        try {
+            val childDescs = Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
+            return ExtSerialDescriptorImpl(parentDesc, childDescs).also { saverMap[saver] = it }
+        } catch (e: MissingDescriptorException) {
+            return ExtSerialDescriptorImpl(parentDesc, emptyArray()).also { saverMap[saver] = it }
+        }
     }
 
     fun <T> serialDescriptor(loader: DeserializationStrategy<T>): ExtSerialDescriptor {
         val current = loaderMap[loader]
         if (current != null) return current
-
-        val input = InputCanary()
-        load(input, loader)
-        val new = input.serialDescriptor()
-
-        if (input.isComplete) {
-            loaderMap[loader] = new
+        if (loader is GeneratedSerializer) {
+            return ExtSerialDescriptorImpl(loader.descriptor, loader.childSerializers().arrayMap { it.descriptor }).also { loaderMap[loader] = it }
         }
-
-        return new
-
-    }
-
-    internal fun <T> load(input: InputCanary,
-                          loader: DeserializationStrategy<T>
-                         ) {
+        val parentDesc = loader.descriptor
         try {
-            loader.deserialize(input)
-        } catch (e: InputCanary.SuspendException) {
-            if (e.finished) {
-                return
-            }
-        }
-        while (true) {
-            try {
-                loader.deserialize(input)
-                throw AssertionError("This should not be reachable")
-            } catch (e: InputCanary.SuspendException) {
-                if (e.finished) break
-            } catch (e: UnknownFieldException) {
-                throw XmlSerialException("Could not gather information for loader $loader on field ${input.currentChildIndex} with info: ${input.childDescriptors[input.currentChildIndex]}", e)
-            }
-
+            val childDescs = Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
+            return ExtSerialDescriptorImpl(parentDesc, childDescs).also { loaderMap[loader] = it }
+        } catch (e: MissingDescriptorException) {
+            return ExtSerialDescriptorImpl(parentDesc, emptyArray()).also { loaderMap[loader] = it }
         }
     }
 
