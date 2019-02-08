@@ -30,7 +30,7 @@ ext {
 
 tasks {
     named<Wrapper>("wrapper") {
-        gradleVersion = "5.2"
+        gradleVersion = "5.1.1"
     }
 }
 
