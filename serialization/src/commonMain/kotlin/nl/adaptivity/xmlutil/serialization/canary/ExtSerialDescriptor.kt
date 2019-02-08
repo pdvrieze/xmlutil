@@ -55,6 +55,11 @@ internal class ExtSerialDescriptorImpl(
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = childDescriptors[index]
 
+    override fun getSafeElementDescriptor(index: Int): SerialDescriptor? = when {
+            index<childDescriptors.size -> childDescriptors[index]
+            else                        -> null
+        }
+
     override fun isElementOptional(index: Int): Boolean = getElementAnnotations(index).any { it is XmlDefault }
 
     override fun toString(): String {
