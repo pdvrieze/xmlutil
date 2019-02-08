@@ -114,6 +114,14 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             }
         }
 
+        override fun getElementDescriptor(index: Int): SerialDescriptor {
+            return when(index) {
+                0 -> Namespace.list.descriptor
+                1 -> String.serializer().descriptor
+                else -> throw IndexOutOfBoundsException("$index")
+            }
+        }
+
         override fun isElementOptional(index: Int): Boolean = true // Both properties work if they are left out
 
         override val elementsCount: Int get() = 2
