@@ -1,5 +1,5 @@
 <component name="CopyrightManager">
-  <settings default="">
+  <settings default="Apache 2">
     <module2copyright>
       <element module="apacheprojects" copyright="Apache 2" />
       <element module="Imported" copyright="LGPL-2.1" />
