@@ -2,9 +2,6 @@
   <settings default="Apache 2">
     <module2copyright>
       <element module="apacheprojects" copyright="Apache 2" />
-      <element module="Imported" copyright="LGPL-2.1" />
-      <element module="Non-Imported" copyright="LGPL-3" />
-      <element module="webeditor" copyright="MIT" />
     </module2copyright>
   </settings>
 </component>
