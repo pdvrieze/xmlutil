@@ -1,5 +1,5 @@
 # Versions
-* License: [![GitHub license](https://img.shields.io/badge/License-LGPL%203-blue.svg?style=flat)](COPYING.LESSER)
+* License: [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
 * Core: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil/_latestVersion) 
 * Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-serialization/_latestVersion) 
 
