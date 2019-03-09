@@ -20,7 +20,6 @@
 
 
 import com.jfrog.bintray.gradle.BintrayExtension
-import net.devrieze.gradle.ext.fromPreset
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
@@ -54,7 +53,7 @@ kotlin {
         val cleanTestTask = tasks.create("cleanTest") {
             group="verification"
         }
-        fromPreset(presets["jvm"], "jvm") {
+        jvm {
             attributes.attribute(androidAttribute, false)
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
@@ -70,7 +69,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        fromPreset(presets["jvm"], "android") {
+        jvm("android") {
             attributes.attribute(androidAttribute, true)
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
@@ -87,7 +86,7 @@ kotlin {
             }
         }
 /*
-        fromPreset(presets["js"], "js") {
+        js {
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
                     sourceMap = true
