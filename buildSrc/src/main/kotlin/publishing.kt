@@ -103,7 +103,7 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
 
     sourceJar.classifier = "sources"
 
-    extensions.configure<PublishingExtension>("publishing") {
+    configure<PublishingExtension> {
         (publications) {
             register<MavenPublication>("MyPublication") {
                 from(components["java"])
