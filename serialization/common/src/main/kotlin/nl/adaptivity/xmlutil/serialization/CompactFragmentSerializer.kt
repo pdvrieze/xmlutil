@@ -123,7 +123,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 @Serializer(forClass = ICompactFragment::class)
 object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
 
-    override val serialClassDesc: KSerialClassDesc
+    override val descriptor: SerialDescriptor
         get() = CompactFragmentSerializer.serialClassDesc
 
     override fun load(input: KInput): ICompactFragment {

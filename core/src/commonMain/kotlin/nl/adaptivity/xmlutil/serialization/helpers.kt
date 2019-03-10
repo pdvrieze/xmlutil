@@ -42,10 +42,19 @@ fun Decoder.readNullableString(): String? = decodeNullableSerializableValue(Stri
 @Suppress("UNCHECKED_CAST")
 fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? = decodeNullableSerializableElement(desc, index, StringSerializer as DeserializationStrategy<String?>)
 
-fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableSerializableElement(desc, index, StringSerializer, value)
+@Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"))
+fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableStringElement(desc, index, value)
 
+fun CompositeEncoder.encodeNullableStringElement(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableSerializableElement(desc, index, StringSerializer, value)
 
-inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body: (Int) -> Unit) {
+@Deprecated("Use newer name", ReplaceWith("decodeElements(input, body)"))
+inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body: (Int) -> Unit) =
+    decodeElements(input, body)
+
+/**
+ * Helper function that helps decoding structure elements
+ */
+inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
     var elem = input.decodeElementIndex(descriptor)
     while (elem >= 0) {
         body(elem)
@@ -53,7 +62,15 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
     }
 }
 
-inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T {
+@Deprecated("Use new named version that matches the newer api", ReplaceWith("decodeStructure(desc, body)"))
+inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T =
+    decodeStructure(desc, body)
+
+
+/**
+ * Helper function that automatically closes the decoder on close.
+ */
+inline fun <T> Decoder.decodeStructure(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T {
     val input = beginStructure(desc)
     return input.body(desc).also {
         input.endStructure(desc)

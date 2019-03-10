@@ -33,7 +33,7 @@ ext {
 }
 
 tasks {
-    named<Wrapper>("wrapper") {
+    (findByName("wrapper") as? Wrapper)?.run {
         gradleVersion = "5.1.1"
     }
 }
