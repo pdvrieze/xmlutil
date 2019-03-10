@@ -23,11 +23,11 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.Transient
+import kotlin.jvm.JvmMultifileClass
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.util.ExtXmlDeserializable
 import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmMultifileClass
 
 
 /**

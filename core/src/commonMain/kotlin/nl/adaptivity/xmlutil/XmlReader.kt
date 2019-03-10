@@ -25,8 +25,8 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.multiplatform.Closeable
 import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmName
 
 /**
  * Created by pdvrieze on 15/11/15.
