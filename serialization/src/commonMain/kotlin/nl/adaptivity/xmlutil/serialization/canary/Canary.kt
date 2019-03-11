@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.serialization.canary
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
-import nl.adaptivity.util.kotlin.arrayMap
+import nl.adaptivity.util.kotlin.xmlutil.arrayMap
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import kotlin.collections.mutableMapOf
 import kotlin.collections.set
