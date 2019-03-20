@@ -318,6 +318,21 @@ object testXMLJVM : Spek(
             }
         }
 
+        describe("A container with a property with custom deserialization") {
+            val container = CustomContainer(Custom("foobar"))
+            val expected = "<CustomContainer elem=\"foobar\"/>"
+            context("serialization") {
+                val serialized = XML.stringify(container)
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+                it("should parse back to the original") {
+                    assertEquals(container, XML.parse(CustomContainer.serializer(), serialized))
+                }
+
+            }
+        }
+
         describe("A container with a sealed child") {
             val sealed = SealedSingle("mySealed", SealedA("a-data"))
             val expected = "<SealedSingle name=\"mySealed\"><SealedA valueA=\"a-data\"/></SealedSingle>"
