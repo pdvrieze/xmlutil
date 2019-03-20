@@ -14,6 +14,6 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package nl.adaptivity.util.kotlin.xmlutilserialization
+package nl.adaptivity.util.kotlin.xmlutil
 
 internal inline fun <T, reified R> Array<T>.arrayMap(operation: (T) -> R) = Array<R>(size) { idx -> operation(get(idx)) }

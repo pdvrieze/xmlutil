@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.serialization.canary
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
-import nl.adaptivity.util.kotlin.xmlutil.arrayMap
+import nl.adaptivity.util.kotlin.xmlutilserialization.arrayMap
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import kotlin.collections.mutableMapOf
 import kotlin.collections.set
@@ -38,7 +38,8 @@ object Canary {
         val current = saverMap[saver]?.also { return it }
         if (current != null) return current
         if (saver is GeneratedSerializer) {
-            return ExtSerialDescriptorImpl(saver.descriptor, saver.childSerializers().arrayMap { it.descriptor }).also { saverMap[saver] = it }
+            return ExtSerialDescriptorImpl(saver.descriptor,
+                                           saver.childSerializers().arrayMap { it.descriptor }).also { saverMap[saver] = it }
         }
         val parentDesc = saver.descriptor
         try {
@@ -53,7 +54,8 @@ object Canary {
         val current = loaderMap[loader]
         if (current != null) return current
         if (loader is GeneratedSerializer) {
-            return ExtSerialDescriptorImpl(loader.descriptor, loader.childSerializers().arrayMap { it.descriptor }).also { loaderMap[loader] = it }
+            return ExtSerialDescriptorImpl(loader.descriptor,
+                                           loader.childSerializers().arrayMap { it.descriptor }).also { loaderMap[loader] = it }
         }
         val parentDesc = loader.descriptor
         try {

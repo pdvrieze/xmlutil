@@ -65,7 +65,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
                     "").isNullOrEmpty()) {
                 delegate.writeStartElement(localName)
             } else {
-                delegate.writeStartElement(prefix, localName, namespace)
+                delegate.writeStartElement(prefix ?: XMLConstants.DEFAULT_NS_PREFIX, localName, namespace)
             }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
@@ -80,8 +80,8 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     }
 
 
-    private fun writeIndent(newDepth:Int = depth) {
-        if (lastTagDepth>=0 && indent > 0 && lastTagDepth!=depth) {
+    private fun writeIndent(newDepth: Int = depth) {
+        if (lastTagDepth >= 0 && indent > 0 && lastTagDepth != depth) {
             delegate.writeCharacters("\n${" ".repeat(indent * depth)}")
         }
         lastTagDepth = newDepth

@@ -103,7 +103,11 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
     @Throws(XmlException::class)
     override fun require(type: EventType, namespace: String?, name: String?) {
-        delegate.require(LOCAL_TO_DELEGATE[type.ordinal], namespace, name)
+        if (delegate.eventType!=LOCAL_TO_DELEGATE[type.ordinal]) throw XmlException("Type ${DELEGATE_TO_LOCAL[delegate.eventType]} does not match expected type $eventType")
+        if (namespace!=null &&
+            delegate.namespaceURI!=namespace) throw XmlException("Namespace ${delegate.namespaceURI} does not match expected $namespace")
+        if (name!=null &&
+            delegate.localName!=name) throw XmlException("local name ${delegate.localName} does not match expected $name")
     }
 
     val namespaceCount: Int
@@ -213,7 +217,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         get() = delegate.attributeCount
 
     override fun getAttributeNamespace(index: Int): String {
-        return delegate.getAttributeNamespace(index)
+        return delegate.getAttributeNamespace(index) ?: javax.xml.XMLConstants.NULL_NS_URI
     }
 
     override fun getAttributeLocalName(index: Int): String {
@@ -238,9 +242,9 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     @Deprecated("Wrong name", ReplaceWith("getNamespaceURI(index)"))
     fun getNamespaceUri(index: Int) = getNamespaceURI(index)
 
-    override fun getNamespaceURI(index: Int): String = delegate.getNamespaceURI(index)
+    override fun getNamespaceURI(index: Int): String = delegate.getNamespaceURI(index) ?: javax.xml.XMLConstants.NULL_NS_URI
 
-    override fun getNamespacePrefix(index: Int): String = delegate.getNamespacePrefix(index)
+    override fun getNamespacePrefix(index: Int): String = delegate.getNamespacePrefix(index)  ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
 
     override val namespaceContext: NamespaceContext
         get() = delegate.namespaceContext

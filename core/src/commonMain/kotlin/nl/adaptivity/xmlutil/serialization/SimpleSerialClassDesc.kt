@@ -21,9 +21,20 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import nl.adaptivity.util.kotlin.xmlutil.arrayMap
 import nl.adaptivity.xmlutil.multiplatform.name
+import kotlin.jvm.JvmName
 
-inline fun <reified T> simpleSerialClassDesc(vararg elements: String): SerialDescriptor {
+inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, SerialDescriptor>): SerialDescriptor {
+    return SimpleSerialClassDesc(T::class.name, false, *elements)
+}
+
+inline fun <reified T> simpleSerialClassDesc(): SerialDescriptor {
+    return SimpleSerialClassDesc(T::class.name, false)
+}
+
+@JvmName("simpleSerialClassDescFromSerializer")
+inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSerializer<*>>): SerialDescriptor {
     return SimpleSerialClassDesc(T::class.name, *elements)
 }
 
@@ -37,18 +48,26 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override 
     override fun isElementOptional(index: Int): Boolean = false
 }
 
-class SimpleSerialClassDesc(override val name: String, vararg val elements: String): SerialDescriptor {
+class SimpleSerialClassDesc(override val name: String,
+                            override val isNullable: Boolean = false,
+                            vararg val elements: Pair<String, SerialDescriptor>): SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.CLASS
 
+    constructor(name:String, vararg elements: Pair<String, KSerializer<*>>): this(name, false, *(elements.arrayMap { it.first to it.second.descriptor }))
+
     override fun getElementIndex(name: String): Int {
-        val index = elements.indexOf(name)
+        val index = elements.indexOfFirst { it.first==name }
         return when {
             index >= 0 -> index
             else       -> CompositeDecoder.UNKNOWN_NAME
         }
     }
 
-    override fun getElementName(index: Int) = elements[index]
+    override fun getElementDescriptor(index: Int): SerialDescriptor {
+        return elements[index].second
+    }
+
+    override fun getElementName(index: Int) = elements[index].first
 
     override fun isElementOptional(index: Int): Boolean = false
 
