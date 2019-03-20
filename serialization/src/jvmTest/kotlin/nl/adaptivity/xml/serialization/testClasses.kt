@@ -20,9 +20,9 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.Optional
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.internal.StringDescriptor
+import kotlinx.serialization.internal.StringSerializer
 import nl.adaptivity.xmlutil.serialization.*
 
 
@@ -31,26 +31,28 @@ import nl.adaptivity.xmlutil.serialization.*
 data class Address(val houseNumber: String, val street: String, val city: String)
 
 @Serializable
-data class Location(val addres: Address,
-                    @XmlDefault("NaN")
-                    @Optional val temperature:Double = Double.NaN)
+data class Location(
+    val addres: Address,
+    @XmlDefault("NaN")
+    @Optional val temperature: Double = Double.NaN
+                   )
 
 @Serializable
 open class Base
 
 @Serializable
 @XmlSerialName("childA", namespace = "", prefix = "")
-data class ChildA(val valueA: String): Base()
+data class ChildA(val valueA: String) : Base()
 
 @Serializable
 @XmlSerialName("childB", namespace = "", prefix = "")
-data class ChildB(val valueB: String): Base()
+data class ChildB(val valueB: String) : Base()
 
 @Serializable
 data class Container(val label: String, val member: Base)
 
 @Serializable
-data class Container2(val name:String, @XmlPolyChildren(["ChildA", "ChildB=better"]) val children: List<Base>)
+data class Container2(val name: String, @XmlPolyChildren(["ChildA", "ChildB=better"]) val children: List<Base>)
 
 @SerialName("container-3")
 @Serializable
@@ -60,9 +62,10 @@ data class Container3(val xxx: String, @SerialName("member") val members: List<B
 sealed /*open*/ class SealedParent
 
 @Serializable
-data class SealedA(val data: String, val extra:String="2"): SealedParent()
+data class SealedA(val data: String, val extra: String = "2") : SealedParent()
+
 @Serializable
-data class SealedB(val main: String, val ext: Float=0.5F): SealedParent()
+data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
 
 @Serializable
 data class Sealed(val name: String, val members: List<SealedParent>)
@@ -79,20 +82,47 @@ data class Chamber(val name: String, @XmlSerialName("member", namespace = "", pr
 
 @Serializable
 @XmlSerialName("localname", "urn:namespace", prefix = "")
-data class Special(val paramA: String = "valA",
-                   @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
-                   @XmlElement(true) val paramB: Int = 1,
-                   @XmlSerialName("flags", namespace ="urn:namespace", prefix = "")
-                   @XmlChildrenName("flag", namespace="urn:flag", prefix="f")
-                   val param: List<Int> = listOf(2, 3, 4, 5, 6))
+data class Special(
+    val paramA: String = "valA",
+    @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
+    @XmlElement(true) val paramB: Int = 1,
+    @XmlSerialName("flags", namespace = "urn:namespace", prefix = "")
+    @XmlChildrenName("flag", namespace = "urn:flag", prefix = "f")
+    val param: List<Int> = listOf(2, 3, 4, 5, 6)
+                  )
 
 @Serializable
-data class Inverted(@XmlElement(true)
-                    val elem:String = "value",
-                    val arg: Short=6)
+data class Inverted(
+    @XmlElement(true)
+    val elem: String = "value",
+    val arg: Short = 6
+                   )
 
 
 @Serializable
 @XmlSerialName("NullableContainer", "urn:myurn", "p")
 data class NullableContainer(var bar: String? = null)
 
+@Serializable
+data class CustomContainer(
+    @XmlSerialName("elem", "", "")
+    @Serializable(with = CustomSerializer::class)
+    val somethingElse: Custom
+                          )
+
+data class Custom(val property: String)
+
+@Serializer(forClass = Custom::class)
+class CustomSerializer : KSerializer<Custom> {
+
+    override val descriptor: SerialDescriptor = StringSerializer.descriptor
+
+
+    override fun deserialize(decoder: Decoder): Custom {
+        return Custom(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, obj: Custom) {
+        encoder.encodeString(obj.property)
+    }
+}
