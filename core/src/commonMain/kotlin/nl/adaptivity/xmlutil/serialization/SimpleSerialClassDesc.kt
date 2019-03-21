@@ -25,17 +25,17 @@ import nl.adaptivity.util.kotlin.xmlutil.arrayMap
 import nl.adaptivity.xmlutil.multiplatform.name
 import kotlin.jvm.JvmName
 
-inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, SerialDescriptor>): SerialDescriptor {
-    return SimpleSerialClassDesc(T::class.name, false, *elements)
+inline fun <reified T> simpleSerialClassDesc(kind: SerialKind, vararg elements: Pair<String, SerialDescriptor>): SerialDescriptor {
+    return SimpleSerialClassDesc(kind, T::class.name, *elements)
 }
 
 inline fun <reified T> simpleSerialClassDesc(): SerialDescriptor {
-    return SimpleSerialClassDesc(T::class.name, false)
+    return SimpleSerialClassDesc(StructureKind.CLASS, T::class.name)
 }
 
 @JvmName("simpleSerialClassDescFromSerializer")
 inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSerializer<*>>): SerialDescriptor {
-    return SimpleSerialClassDesc(T::class.name, *elements)
+    return SimpleSerialClassDesc(T::class.name, StructureKind.CLASS, *elements)
 }
 
 
@@ -48,12 +48,11 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override 
     override fun isElementOptional(index: Int): Boolean = false
 }
 
-class SimpleSerialClassDesc(override val name: String,
-                            override val isNullable: Boolean = false,
+class SimpleSerialClassDesc(override val kind: SerialKind = StructureKind.CLASS,
+                            override val name: String,
                             vararg val elements: Pair<String, SerialDescriptor>): SerialDescriptor {
-    override val kind: SerialKind get() = StructureKind.CLASS
 
-    constructor(name:String, vararg elements: Pair<String, KSerializer<*>>): this(name, false, *(elements.arrayMap { it.first to it.second.descriptor }))
+    constructor(name:String, kind: SerialKind = StructureKind.CLASS, vararg elements: Pair<String, KSerializer<*>>): this(kind, name, *(elements.arrayMap { it.first to it.second.descriptor }))
 
     override fun getElementIndex(name: String): Int {
         val index = elements.indexOfFirst { it.first==name }

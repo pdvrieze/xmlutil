@@ -32,8 +32,8 @@ import kotlin.reflect.KClass
 object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val descriptor get() = MYSERIALCLASSDESC
 
-    override fun deserialize(input: Decoder): CompactFragment {
-        return input.readBegin(descriptor) { desc ->
+    override fun deserialize(decoder: Decoder): CompactFragment {
+        return decoder.readBegin(descriptor) { desc ->
             readCompactFragmentContent(this, desc)
         }
     }

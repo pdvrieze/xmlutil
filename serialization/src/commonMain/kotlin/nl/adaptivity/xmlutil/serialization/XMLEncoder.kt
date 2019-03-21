@@ -284,7 +284,7 @@ internal open class XmlEncoderBase internal constructor(
         override var serialName: QName = when (polyChildren) {
             null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
                 ?: parentDesc.getElementName(elementIndex).toQname()
-            else -> desc.requestedName(elementIndex, desc)
+            else -> parentDesc.requestedName(elementIndex, desc)
         }
 
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {

@@ -22,10 +22,7 @@ package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
-import nl.adaptivity.xmlutil.serialization.readBegin
-import nl.adaptivity.xmlutil.serialization.readElements
-import nl.adaptivity.xmlutil.serialization.simpleSerialClassDesc
-import nl.adaptivity.xmlutil.serialization.writeStructure
+import nl.adaptivity.xmlutil.serialization.*
 
 //@Serializable
 interface Namespace {
@@ -42,19 +39,19 @@ interface Namespace {
      * Gets the uri bound to the prefix of this namespace
      */
     val namespaceURI: String
+
     operator fun component2() = namespaceURI
 
     @Serializer(forClass = Namespace::class)
-    companion object: KSerializer<Namespace> {
-        override val descriptor: SerialDescriptor
-            = simpleSerialClassDesc<Namespace>("prefix" to StringSerializer,
-                                               "namespaceURI" to StringSerializer)
+    companion object : KSerializer<Namespace> {
+        override val descriptor: SerialDescriptor = simpleSerialClassDesc<Namespace>("prefix" to StringSerializer,
+                                                                                     "namespaceURI" to StringSerializer)
 
         override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
-            decoder.readBegin(descriptor) { desc ->
-                readElements(this) {
+            decoder.decodeStructure(descriptor) { desc ->
+                decodeElements(this) {
                     when (it) {
                         0 -> prefix = decodeStringElement(desc, it)
                         1 -> namespaceUri = decodeStringElement(desc, it)
@@ -64,7 +61,7 @@ interface Namespace {
             return XmlEvent.NamespaceImpl(prefix, namespaceUri)
         }
 
-        override fun serialize(encoder: Encoder, obj : Namespace) {
+        override fun serialize(encoder: Encoder, obj: Namespace) {
             encoder.writeStructure(descriptor) {
                 encodeStringElement(descriptor, 0, obj.prefix)
                 encodeStringElement(descriptor, 1, obj.namespaceURI)
