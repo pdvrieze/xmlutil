@@ -24,7 +24,7 @@ import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.context.SimpleModule
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import nl.adaptivity.xml.serialization.*
 import nl.adaptivity.xmlutil.StAXWriter
 import nl.adaptivity.xmlutil.XmlEvent
@@ -66,13 +66,13 @@ object testXMLJVM : Spek(
             val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
 
             context("serialization with JSON") {
-                val serialized = JSON.stringify(addrSerializer, address)
+                val serialized = Json.stringify(addrSerializer, address)
                 it("should be the expected value") {
                     assertEquals(expectedJSON, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(address, JSON.parse(addrSerializer, serialized))
+                    assertEquals(address, Json.parse(addrSerializer, serialized))
                 }
             }
         }
@@ -195,13 +195,13 @@ object testXMLJVM : Spek(
             context("serialization with JSON") {
                 val module = SimpleModule(CompactFragment::class, CompactFragmentSerializer)
 
-                val serialized = JSON().apply { install(module) }.stringify(CompactFragmentSerializer, fragment)
+                val serialized = Json().apply { install(module) }.stringify(CompactFragmentSerializer, fragment)
                 it("Should equal the expected fragment JSON") {
                     assertEquals(expectedJSON, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(fragment, JSON.apply { install(module) }.parse<CompactFragment>(CompactFragmentSerializer, serialized))
+                    assertEquals(fragment, Json.apply { install(module) }.parse(CompactFragmentSerializer, serialized))
                 }
 
             }

@@ -129,15 +129,15 @@ internal open class XmlDecoderBase internal constructor(
             throw AssertionError("This should not happen as decodeSerializableValue should be called first")
         }
 
-        override fun <T> decodeSerializableValue(loader: DeserializationStrategy<T>): T {
-            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(loader)
-            return loader.deserialize(SerialValueDecoder(parentDesc, elementIndex, extDesc, polyInfo, attrIndex))
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(deserializer)
+            return deserializer.deserialize(SerialValueDecoder(parentDesc, elementIndex, extDesc, polyInfo, attrIndex))
         }
 
-        override fun <T> updateSerializableValue(loader: DeserializationStrategy<T>, old: T): T {
-            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(loader)
+        override fun <T> updateSerializableValue(deserializer: DeserializationStrategy<T>, old: T): T {
+            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(deserializer)
             val oldSize = (old as? Collection<*>)?.size ?: -1
-            return loader.deserialize(
+            return deserializer.deserialize(
                 SerialValueDecoder(parentDesc, elementIndex, extDesc, polyInfo, attrIndex, oldSize))
         }
     }
@@ -145,10 +145,10 @@ internal open class XmlDecoderBase internal constructor(
     internal open inner class SerialValueDecoder(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
-        val extDesc: ExtSerialDescriptor,
+        private val extDesc: ExtSerialDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/,
-        val nextListIndex: Int = 0
+        private val nextListIndex: Int = 0
                                                 ) : XmlDecoder(parentDesc, elementIndex, extDesc, polyInfo, attrIndex) {
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
@@ -197,7 +197,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>
+            deserializer: DeserializationStrategy<T>
                                                   ): T {
             val default = desc.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
             @Suppress("UNCHECKED_CAST")
@@ -206,7 +206,7 @@ internal open class XmlDecoderBase internal constructor(
                 else -> {
                     val decoder = XmlDecoderBase(context, CompactFragment(default).getXmlReader())
                         .XmlDecoder(parentDesc, elementIndex, childDesc)
-                    loader.deserialize(decoder)
+                    deserializer.deserialize(decoder)
                 }
             }
         }
@@ -224,7 +224,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T =
             throw AssertionError("Null objects have no members")
@@ -266,7 +266,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T : Any> decodeNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T?>
+            deserializer: DeserializationStrategy<T?>
                                                                 ): T? {
             throw AssertionError("Null objects have no members")
         }
@@ -274,7 +274,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T : Any> updateNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T?>,
+            deserializer: DeserializationStrategy<T?>,
             old: T?
                                                                 ): T? {
             throw AssertionError("Null objects have no members")
@@ -351,19 +351,19 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>
+            deserializer: DeserializationStrategy<T>
                                                   ): T {
             val decoder = when {
                 nulledItemsIdx >= 0
-                     -> NullDecoder(desc, index, loader.descriptor)
+                     -> NullDecoder(desc, index, deserializer.descriptor)
 
                 desc.kind is PrimitiveKind
-                     -> XmlDecoder(desc, index, loader.descriptor, currentPolyInfo, lastAttrIndex)
+                     -> XmlDecoder(desc, index, deserializer.descriptor, currentPolyInfo, lastAttrIndex)
 
-                else -> SerialValueDecoder(desc, index, Canary.serialDescriptor(loader), currentPolyInfo, lastAttrIndex)
+                else -> SerialValueDecoder(desc, index, Canary.serialDescriptor(deserializer), currentPolyInfo, lastAttrIndex)
             }
 
-            return loader.deserialize(decoder).also {
+            return deserializer.deserialize(decoder).also {
                 seenItems[index] = true
             }
         }
@@ -371,18 +371,18 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T : Any> decodeNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T?>
+            deserializer: DeserializationStrategy<T?>
                                                                 ): T? {
             val decoder = when {
                 nulledItemsIdx >= 0 -> return null
-                loader.descriptor.kind is PrimitiveKind
-                                    -> XmlDecoder(desc, index, loader.descriptor, currentPolyInfo, lastAttrIndex)
+                deserializer.descriptor.kind is PrimitiveKind
+                                    -> XmlDecoder(desc, index, deserializer.descriptor, currentPolyInfo, lastAttrIndex)
 
-                else                -> SerialValueDecoder(desc, index, Canary.serialDescriptor(loader), currentPolyInfo,
+                else                -> SerialValueDecoder(desc, index, Canary.serialDescriptor(deserializer), currentPolyInfo,
                                                           lastAttrIndex)
             }
 
-            return loader.deserialize(decoder).also {
+            return deserializer.deserialize(decoder).also {
                 seenItems[index] = true
             }
         }
@@ -390,20 +390,20 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
             val decoder: XmlDecoder = when {
-                nulledItemsIdx >= 0 -> NullDecoder(desc, index, loader.descriptor)
+                nulledItemsIdx >= 0 -> NullDecoder(desc, index, deserializer.descriptor)
 
                 desc.kind is PrimitiveKind
-                                    -> XmlDecoder(desc, index, loader.descriptor, currentPolyInfo, lastAttrIndex)
+                                    -> XmlDecoder(desc, index, deserializer.descriptor, currentPolyInfo, lastAttrIndex)
 
-                else                -> SerialValueDecoder(desc, index, Canary.serialDescriptor(loader), currentPolyInfo,
+                else                -> SerialValueDecoder(desc, index, Canary.serialDescriptor(deserializer), currentPolyInfo,
                                                           lastAttrIndex)
             }
 
-            return loader.patch(decoder, old).also {
+            return deserializer.patch(decoder, old).also {
                 seenItems[index] = true
             }
         }
@@ -411,15 +411,15 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T : Any> updateNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T?>,
+            deserializer: DeserializationStrategy<T?>,
             old: T?
                                                                 ): T? {
             val decoder = when {
                 nulledItemsIdx >= 0 -> return null
-                else                -> XmlDecoder(desc, index, loader.descriptor, currentPolyInfo, lastAttrIndex)
+                else                -> XmlDecoder(desc, index, deserializer.descriptor, currentPolyInfo, lastAttrIndex)
             }
 
-            return (if (old == null) loader.deserialize(decoder) else loader.patch(decoder, old)).also {
+            return (if (old == null) deserializer.deserialize(decoder) else deserializer.patch(decoder, old)).also {
                 seenItems[index] = true
             }
         }
@@ -642,25 +642,25 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>
+            deserializer: DeserializationStrategy<T>
                                                   ): T {
             val childName = polyInfo?.tagName ?: parentDesc.requestedChildName(elementIndex) ?: serialName
 
-            val decoder = RenamedDecoder(childName, desc, index, Canary.serialDescriptor(loader), polyInfo, Int.MIN_VALUE)
-            return loader.deserialize(decoder)
+            val decoder = RenamedDecoder(childName, desc, index, Canary.serialDescriptor(deserializer), polyInfo, Int.MIN_VALUE)
+            return deserializer.deserialize(decoder)
         }
 
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
             val childName = polyInfo?.tagName ?: parentDesc.requestedChildName(elementIndex) ?: serialName
 
-            val decoder = RenamedDecoder(childName, desc, index, Canary.serialDescriptor(loader), polyInfo,
+            val decoder = RenamedDecoder(childName, desc, index, Canary.serialDescriptor(deserializer), polyInfo,
                                          Int.MIN_VALUE)
-            return loader.patch(decoder, old)
+            return deserializer.patch(decoder, old)
         }
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
@@ -689,24 +689,24 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>
+            deserializer: DeserializationStrategy<T>
                                                   ): T {
             val decoder =
-                RenamedDecoder(childName, desc, index, Canary.serialDescriptor(loader), super.currentPolyInfo,
+                RenamedDecoder(childName, desc, index, Canary.serialDescriptor(deserializer), super.currentPolyInfo,
                                super.lastAttrIndex)
-            return loader.deserialize(decoder)
+            return deserializer.deserialize(decoder)
         }
 
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
             val decoder =
-                RenamedDecoder(childName, desc, index, Canary.serialDescriptor(loader), super.currentPolyInfo,
+                RenamedDecoder(childName, desc, index, Canary.serialDescriptor(deserializer), super.currentPolyInfo,
                                super.lastAttrIndex)
-            return loader.patch(decoder, old)
+            return deserializer.patch(decoder, old)
         }
     }
 
@@ -751,26 +751,26 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>
+            deserializer: DeserializationStrategy<T>
                                                   ): T {
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.START_ELEMENT, null, "value")
             }
-            return super.decodeSerializableElement(desc, index, loader)
+            return super.decodeSerializableElement(desc, index, deserializer)
         }
 
         override fun <T> updateSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            loader: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.START_ELEMENT, null, "value")
             }
-            return super.updateSerializableElement(desc, index, loader, old)
+            return super.updateSerializableElement(desc, index, deserializer, old)
         }
 
         override fun endStructure(desc: SerialDescriptor) {

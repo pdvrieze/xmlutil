@@ -317,8 +317,8 @@ class XML(
         return parse(context.getOrDefault(kClass), XmlStreaming.newReader(string))
     }
 
-    override fun <T> parse(serializer: DeserializationStrategy<T>, string: String): T {
-        return parse(serializer, XmlStreaming.newReader(string))
+    override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
+        return parse(deserializer, XmlStreaming.newReader(string))
     }
 
     companion object : StringFormat {
@@ -440,13 +440,13 @@ class XML(
         /**
          * Parse an object of the type [T] out of the reader
          * @param string The source of the XML events
-         * @param serializer The loader to use
+         * @param deserializer The loader to use
          */
         @Suppress("unused")
         override fun <T> parse(
-            serializer: DeserializationStrategy<T>,
+            deserializer: DeserializationStrategy<T>,
             string: String
-                              ): T = XML().parse(serializer, string)
+                              ): T = XML().parse(deserializer, string)
 
         @Suppress("unused")
         @ImplicitReflectionSerializer

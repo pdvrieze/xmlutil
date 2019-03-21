@@ -20,12 +20,11 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.util.kotlin.xmlutilserialization.arrayMap
-import nl.adaptivity.xmlutil.serialization.XmlSerialException
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 object Canary {
@@ -34,7 +33,7 @@ object Canary {
 
     private val loaderMap = mutableMapOf<DeserializationStrategy<*>, ExtSerialDescriptor>()
 
-    fun <T> serialDescriptor(saver: SerializationStrategy<T>, obj: T): ExtSerialDescriptor {
+    fun <T> serialDescriptor(saver: SerializationStrategy<T>, @Suppress("UNUSED_PARAMETER") obj: T): ExtSerialDescriptor {
         val current = saverMap[saver]?.also { return it }
         if (current != null) return current
         if (saver is GeneratedSerializer) {

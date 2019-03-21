@@ -33,14 +33,14 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val descriptor get() = MYSERIALCLASSDESC
 
     override fun deserialize(decoder: Decoder): CompactFragment {
-        return decoder.readBegin(descriptor) { desc ->
+        return decoder.decodeStructure(descriptor) { desc: SerialDescriptor ->
             readCompactFragmentContent(this, desc)
         }
     }
 
     fun readCompactFragmentContent(input: CompositeDecoder, desc: SerialDescriptor): CompactFragment {
         val xmlInput = input as? XML.XmlInput
-        return if (xmlInput!=null) {
+        return if (xmlInput != null) {
 
             xmlInput.input.run {
                 next()
@@ -53,7 +53,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             val nsIndex = desc.getElementIndex("namespaces")
             val contentIndex = desc.getElementIndex("content")
 
-            readElements(input) { elem ->
+            decodeElements(input) { elem: Int ->
                 when (elem) {
                     nsIndex      -> namespaces = input.decodeSerializableElement(desc, elem, Namespace.list)
                     contentIndex -> content = input.decodeStringElement(desc, elem)
@@ -63,8 +63,8 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         }
     }
 
-    override fun serialize(output: Encoder, obj: CompactFragment) {
-        serialize(output, obj as ICompactFragment)
+    override fun serialize(encoder: Encoder, obj: CompactFragment) {
+        serialize(encoder, obj as ICompactFragment)
     }
 
     fun serialize(output: Encoder, obj: ICompactFragment) {
@@ -74,13 +74,15 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         }
     }
 
-    fun writeCompactFragmentContent(output: CompositeEncoder,
-                                    serialClassDesc: SerialDescriptor,
-                                    startIndex: Int,
-                                    obj: ICompactFragment) {
+    fun writeCompactFragmentContent(
+        output: CompositeEncoder,
+        serialClassDesc: SerialDescriptor,
+        startIndex: Int,
+        obj: ICompactFragment
+                                   ) {
         val xmlOutput = output as? XML.XmlOutput
 
-        if (xmlOutput!=null) {
+        if (xmlOutput != null) {
             val writer = xmlOutput.target
             for (namespace in obj.namespaces) {
                 if (writer.getPrefix(namespace.namespaceURI) == null) {
@@ -119,9 +121,9 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         }
 
         override fun getElementDescriptor(index: Int): SerialDescriptor {
-            return when(index) {
-                0 -> Namespace.list.descriptor
-                1 -> String.serializer().descriptor
+            return when (index) {
+                0    -> Namespace.list.descriptor
+                1    -> String.serializer().descriptor
                 else -> throw IndexOutOfBoundsException("$index")
             }
         }
@@ -142,12 +144,12 @@ object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
     override val descriptor: SerialDescriptor
         get() = CompactFragmentSerializer.descriptor
 
-    override fun deserialize(input: Decoder): ICompactFragment {
-        return CompactFragmentSerializer.deserialize(input)
+    override fun deserialize(decoder: Decoder): ICompactFragment {
+        return CompactFragmentSerializer.deserialize(decoder)
     }
 
-    override fun serialize(output: Encoder, obj: ICompactFragment) {
-        CompactFragmentSerializer.serialize(output, obj)
+    override fun serialize(encoder: Encoder, obj: ICompactFragment) {
+        CompactFragmentSerializer.serialize(encoder, obj)
     }
 }
 

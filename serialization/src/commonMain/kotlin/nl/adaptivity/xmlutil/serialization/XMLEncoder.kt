@@ -154,11 +154,11 @@ internal open class XmlEncoderBase internal constructor(
         override fun <T> encodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val encoder = XmlEncoder(this@TagEncoder.desc, index, saver.descriptor)
-            defer(index, saver.descriptor) { saver.serialize(encoder, value) }
+            val encoder = XmlEncoder(this@TagEncoder.desc, index, serializer.descriptor)
+            defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
         }
 
         override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
@@ -208,11 +208,11 @@ internal open class XmlEncoderBase internal constructor(
         override fun <T : Any> encodeNullableSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T?
                                                                 ) {
             if (value != null) {
-                encodeSerializableElement(desc, index, saver, value)
+                encodeSerializableElement(desc, index, serializer, value)
             }
             // Null is the absense of values, no need to do more
         }
@@ -320,17 +320,17 @@ internal open class XmlEncoderBase internal constructor(
         override fun <T> encodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
             if (polyChildren != null) {
                 assert(index > 0) // the first element is the type
                 // The name has been set when the type was "written"
-                val encoder = RenamedEncoder(serialName, desc, index, saver.descriptor)
-                saver.serialize(encoder, value)
+                val encoder = RenamedEncoder(serialName, desc, index, serializer.descriptor)
+                serializer.serialize(encoder, value)
             } else {
-                val encoder = RenamedEncoder(QName("value"), desc, index, saver.descriptor)
-                super.defer(index, saver.descriptor) { saver.serialize(encoder, value) }
+                val encoder = RenamedEncoder(QName("value"), desc, index, serializer.descriptor)
+                super.defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
             }
         }
 
@@ -378,13 +378,13 @@ internal open class XmlEncoderBase internal constructor(
         override fun <T> encodeSerializableElement(
             desc: SerialDescriptor,
             index: Int,
-            saver: SerializationStrategy<T>,
+            serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
             if (childrenName != null) {
-                saver.serialize(RenamedEncoder(childrenName, desc, index, saver.descriptor), value)
+                serializer.serialize(RenamedEncoder(childrenName, desc, index, serializer.descriptor), value)
             } else { // Use the outer decriptor and element index
-                saver.serialize(XmlEncoder(parentDesc, elementIndex, saver.descriptor), value)
+                serializer.serialize(XmlEncoder(parentDesc, elementIndex, serializer.descriptor), value)
             }
         }
 
