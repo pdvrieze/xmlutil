@@ -175,11 +175,11 @@ internal open class XmlDecoderBase internal constructor(
             return when (extDesc.kind) {
                 is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
                 StructureKind.MAP,
-                StructureKind.CLASS   -> TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, extDesc)
+                StructureKind.CLASS   -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
                 StructureKind.LIST    -> {
                     val childName = parentDesc.requestedChildName(elementIndex)
                     if (childName != null) {
-                        NamedListDecoder(serialName, parentNamespace, parentDesc, elementIndex, extDesc, childName)
+                        NamedListDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc, childName)
                     } else {
                         AnonymousListDecoder(
                             serialName,
@@ -193,11 +193,11 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 }
                 UnionKind.OBJECT,
-                UnionKind.ENUM_KIND   -> TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, extDesc)
+                UnionKind.ENUM_KIND   -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
                 UnionKind.SEALED,
                 UnionKind.POLYMORPHIC -> PolymorphicDecoder(
                     serialName,
-                    parentNamespace,
+                    serialName.toNamespace(),
                     parentDesc,
                     elementIndex,
                     extDesc,

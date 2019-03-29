@@ -261,7 +261,7 @@ internal open class XmlEncoderBase internal constructor(
 
     }
 
-    private inner class RenamedEncoder(
+    internal inner class RenamedEncoder(
         override val serialName: QName,
         parentNamespace: Namespace,
         desc: SerialDescriptor,
@@ -293,13 +293,13 @@ internal open class XmlEncoderBase internal constructor(
         TagEncoder(parentNamespace, parentDesc, elementIndex, desc, false), XML.XmlOutput {
 
         val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
-            polyInfo(parentDesc.requestedName(parentNamespace, elementIndex, desc), it.value)
+            polyInfo(parentDesc.requestedName(parentNamespace, elementIndex, parentDesc), it.value)
         }
 
         override var serialName: QName = when (polyChildren) {
             null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
-                ?: parentDesc.getElementName(elementIndex).toQname()
-            else -> parentDesc.requestedName(parentNamespace, elementIndex, desc)
+                ?: parentDesc.getElementName(elementIndex).toQname(parentNamespace)
+            else -> parentDesc.requestedName(parentNamespace, elementIndex, parentDesc)
         }
 
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {

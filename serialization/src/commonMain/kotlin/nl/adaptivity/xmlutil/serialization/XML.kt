@@ -242,12 +242,9 @@ class XML(
         val serialDescriptor = serializer.descriptor
 
         val serialName = serializer.descriptor.getSerialName(prefix)
-        val encoder = XmlEncoderBase(context, target).XmlEncoder(
-            XmlEvent.NamespaceImpl("", ""),
-            DummyParentDescriptor(serialName, serialDescriptor),
-            0,
-            serialDescriptor
-                                                                )
+        val encoder = XmlEncoderBase(context, target).
+            RenamedEncoder(serialName, serialName.toNamespace(), DummyParentDescriptor(serialName, serialDescriptor), 0, serialDescriptor)
+
 
         serializer.serialize(encoder, obj)
     }
