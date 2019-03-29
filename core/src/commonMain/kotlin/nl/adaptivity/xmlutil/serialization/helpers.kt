@@ -55,10 +55,19 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
  * Helper function that helps decoding structure elements
  */
 inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
-    var elem = input.decodeElementIndex(descriptor)
-    while (elem >= 0) {
-        body(elem)
-        elem = input.decodeElementIndex(descriptor)
+    var index = input.decodeElementIndex(descriptor)
+    when (index) {
+        CompositeDecoder.READ_DONE -> return
+        CompositeDecoder.READ_ALL -> {
+            for( elem in 0 until descriptor.elementsCount) {
+                body(elem)
+            }
+            return
+        }
+    }
+    while (index >= 0) {
+        body(index)
+        index = input.decodeElementIndex(descriptor)
     }
 }
 
@@ -72,16 +81,30 @@ inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.
  */
 inline fun <T> Decoder.decodeStructure(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T {
     val input = beginStructure(desc)
-    return input.body(desc).also {
-        input.endStructure(desc)
+    var skipEnd = false
+    try {
+        return input.body(desc)
+    } catch (e: Exception) {
+        skipEnd = true
+        throw e
+    } finally {
+        if (! skipEnd) {
+            input.endStructure((desc))
+        }
     }
 }
 
 inline fun Encoder.writeStructure(desc: SerialDescriptor, body: CompositeEncoder.(desc: SerialDescriptor) -> Unit) {
     val output = beginStructure(desc)
+    var skipEnd = false
     try {
-        output.body(desc)
+        return output.body(desc)
+    } catch (e: Exception) {
+        skipEnd = true
+        throw e
     } finally {
-        output.endStructure(desc)
+        if (! skipEnd) {
+            output.endStructure(desc)
+        }
     }
 }
