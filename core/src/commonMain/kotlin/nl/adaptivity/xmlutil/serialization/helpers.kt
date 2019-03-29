@@ -108,3 +108,18 @@ inline fun Encoder.writeStructure(desc: SerialDescriptor, body: CompositeEncoder
         }
     }
 }
+
+inline fun Encoder.writeCollection(desc: SerialDescriptor, collectionSize: Int, body: CompositeEncoder.(desc: SerialDescriptor) -> Unit) {
+    val output = beginCollection(desc, collectionSize)
+    var skipEnd = false
+    try {
+        return output.body(desc)
+    } catch (e: Exception) {
+        skipEnd = true
+        throw e
+    } finally {
+        if (! skipEnd) {
+            output.endStructure(desc)
+        }
+    }
+}
