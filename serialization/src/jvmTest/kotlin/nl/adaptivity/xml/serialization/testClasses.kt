@@ -98,6 +98,13 @@ data class Inverted(
     val arg: Short = 6
                    )
 
+@Serializable
+@XmlSerialName("namespaced", "http://example.org", "xo")
+data class Namespaced(
+    @XmlElement(true)
+    val elem1: String,
+    @XmlElement(true)
+    val elem2: String)
 
 @Serializable
 @XmlSerialName("NullableContainer", "urn:myurn", "p")

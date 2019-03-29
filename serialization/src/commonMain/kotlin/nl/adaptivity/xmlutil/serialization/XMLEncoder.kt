@@ -35,8 +35,13 @@ internal open class XmlEncoderBase internal constructor(
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
      */
-    internal open inner class XmlEncoder(parentDesc: SerialDescriptor, elementIndex: Int, childDesc: SerialDescriptor?) :
-        XmlCodec(parentDesc, elementIndex, childDesc), Encoder {
+    internal open inner class XmlEncoder(
+        parentNamespace: Namespace,
+        parentDesc: SerialDescriptor,
+        elementIndex: Int,
+        childDesc: SerialDescriptor?
+                                        ) :
+        XmlCodec(parentNamespace, parentDesc, elementIndex, childDesc), Encoder {
 
         override val context get() = this@XmlEncoderBase.context
 
@@ -83,8 +88,8 @@ internal open class XmlEncoderBase internal constructor(
             val outputKind = parentDesc.outputKind(elementIndex, childDesc)
             when (outputKind) {
                 OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
-                OutputKind.Element -> target.smartStartTag(serialName) { /*No content*/}
-                else -> target.text("Unit")
+                OutputKind.Element   -> target.smartStartTag(serialName) { /*No content*/ }
+                else                 -> target.text("Unit")
             }
 
         }
@@ -94,11 +99,12 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            return beginEncodeCompositeImpl(parentDesc, elementIndex, desc)
+            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, desc)
         }
     }
 
     fun beginEncodeCompositeImpl(
+        parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         desc: SerialDescriptor
@@ -107,26 +113,27 @@ internal open class XmlEncoderBase internal constructor(
             is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
 
             StructureKind.MAP,
-            StructureKind.CLASS   -> TagEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
+            StructureKind.CLASS   -> TagEncoder(parentNamespace, parentDesc, elementIndex, desc).apply { writeBegin() }
 
-            StructureKind.LIST    -> ListEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
+            StructureKind.LIST    -> ListEncoder(parentNamespace, parentDesc, elementIndex, desc).apply { writeBegin() }
 
             UnionKind.OBJECT,
-            UnionKind.ENUM_KIND   -> TagEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
+            UnionKind.ENUM_KIND   -> TagEncoder(parentNamespace, parentDesc, elementIndex, desc).apply { writeBegin() }
 
             UnionKind.SEALED,
             UnionKind.POLYMORPHIC ->
-                PolymorphicEncoder(parentDesc, elementIndex, desc).apply { writeBegin() }
+                PolymorphicEncoder(parentNamespace, parentDesc, elementIndex, desc).apply { writeBegin() }
         }
     }
 
     internal open inner class TagEncoder(
+        parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         desc: SerialDescriptor,
         private var deferring: Boolean = true
                                         ) :
-        XmlTagCodec(parentDesc, elementIndex, desc), CompositeEncoder, XML.XmlOutput {
+        XmlTagCodec(parentDesc, elementIndex, desc, parentNamespace), CompositeEncoder, XML.XmlOutput {
 
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
@@ -157,7 +164,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val encoder = XmlEncoder(this@TagEncoder.desc, index, serializer.descriptor)
+            val encoder = XmlEncoder(serialName.toNamespace(), this@TagEncoder.desc, index, serializer.descriptor)
             defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
         }
 
@@ -222,7 +229,7 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             val kind = desc.outputKind(index, null)
-            val requestedName = desc.requestedName(index, null)
+            val requestedName = desc.requestedName(serialName.toNamespace(), index, null)
             when (kind) {
                 OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(requestedName, value)
@@ -254,37 +261,45 @@ internal open class XmlEncoderBase internal constructor(
 
     }
 
-    private inner class RenamedEncoder(override val serialName: QName, desc: SerialDescriptor, index: Int, childDesc: SerialDescriptor?) :
-        XmlEncoder(desc, index, childDesc) {
+    private inner class RenamedEncoder(
+        override val serialName: QName,
+        parentNamespace: Namespace,
+        desc: SerialDescriptor,
+        index: Int,
+        childDesc: SerialDescriptor?
+                                      ) :
+        XmlEncoder(parentNamespace, desc, index, childDesc) {
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            return RenamedTagEncoder(serialName, parentDesc, elementIndex, desc).apply { writeBegin() }
+            return RenamedTagEncoder(serialName, parentNamespace, parentDesc, elementIndex, desc).apply { writeBegin() }
         }
     }
 
     private inner class RenamedTagEncoder(
         override val serialName: QName,
+        parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         desc: SerialDescriptor
                                          ) :
-        TagEncoder(parentDesc, elementIndex, desc, true)
+        TagEncoder(parentNamespace, parentDesc, elementIndex, desc, true)
 
     private inner class PolymorphicEncoder(
+        parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         desc: SerialDescriptor
                                           ) :
-        TagEncoder(parentDesc, elementIndex, desc, false), XML.XmlOutput {
+        TagEncoder(parentNamespace, parentDesc, elementIndex, desc, false), XML.XmlOutput {
 
         val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
-            polyInfo(parentDesc.requestedName(elementIndex, desc), it.value)
+            polyInfo(parentDesc.requestedName(parentNamespace, elementIndex, desc), it.value)
         }
 
         override var serialName: QName = when (polyChildren) {
             null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
                 ?: parentDesc.getElementName(elementIndex).toQname()
-            else -> parentDesc.requestedName(elementIndex, desc)
+            else -> parentDesc.requestedName(parentNamespace, elementIndex, desc)
         }
 
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
@@ -326,10 +341,10 @@ internal open class XmlEncoderBase internal constructor(
             if (polyChildren != null) {
                 assert(index > 0) // the first element is the type
                 // The name has been set when the type was "written"
-                val encoder = RenamedEncoder(serialName, desc, index, serializer.descriptor)
+                val encoder = RenamedEncoder(serialName, parentNamespace, desc, index, serializer.descriptor)
                 serializer.serialize(encoder, value)
             } else {
-                val encoder = RenamedEncoder(QName("value"), desc, index, serializer.descriptor)
+                val encoder = RenamedEncoder(QName("value"), parentNamespace, desc, index, serializer.descriptor)
                 super.defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
             }
         }
@@ -348,8 +363,13 @@ internal open class XmlEncoderBase internal constructor(
      * be wrapped inside a list (unless it is the root). If [XmlChildrenName] is not specified it will determine tag names
      * as if the list was not present and there was a single value.
      */
-    private inner class ListEncoder(parentDesc: SerialDescriptor, elementIndex: Int, desc: SerialDescriptor) :
-        TagEncoder(parentDesc, elementIndex, desc, deferring = false), XML.XmlOutput {
+    private inner class ListEncoder(
+        parentNamespace: Namespace,
+        parentDesc: SerialDescriptor,
+        elementIndex: Int,
+        desc: SerialDescriptor
+                                   ) :
+        TagEncoder(parentNamespace, parentDesc, elementIndex, desc, deferring = false), XML.XmlOutput {
 
         val childrenName = parentDesc.requestedChildName(elementIndex)
 
@@ -382,15 +402,30 @@ internal open class XmlEncoderBase internal constructor(
             value: T
                                                   ) {
             if (childrenName != null) {
-                serializer.serialize(RenamedEncoder(childrenName, desc, index, serializer.descriptor), value)
+                serializer.serialize(
+                    RenamedEncoder(
+                        childrenName,
+                        serialName.toNamespace(),
+                        desc,
+                        index,
+                        serializer.descriptor
+                                  ), value
+                                    )
             } else { // Use the outer decriptor and element index
-                serializer.serialize(XmlEncoder(parentDesc, elementIndex, serializer.descriptor), value)
+                serializer.serialize(
+                    XmlEncoder(
+                        serialName.toNamespace(),
+                        parentDesc,
+                        elementIndex,
+                        serializer.descriptor
+                              ), value
+                                    )
             }
         }
 
         override fun encodeUnitElement(desc: SerialDescriptor, index: Int) {
             if (childrenName != null) {
-                RenamedEncoder(childrenName, desc, index, null).encodeUnit()
+                RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, null).encodeUnit()
             } else {
                 target.smartStartTag(serialName) { } // Empty body to automatically get end tag
             }
@@ -399,7 +434,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
             if (index > 0) {
                 if (childrenName != null) {
-                    RenamedEncoder(childrenName, desc, index, null).encodeString(value)
+                    RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, null).encodeString(value)
                 } else { // The first element is the element count
                     // This must be as a tag with text content as we have a list, attributes cannot represent that
                     target.smartStartTag(serialName) { text(value) }

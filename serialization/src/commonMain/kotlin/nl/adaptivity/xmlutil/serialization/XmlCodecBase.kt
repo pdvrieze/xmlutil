@@ -39,31 +39,35 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
         }
 
         @JvmStatic
-        protected fun SerialDescriptor.requestedName(index: Int, childDesc: SerialDescriptor?): QName {
+        protected fun SerialDescriptor.requestedName(
+            parentNamespace: Namespace,
+            index: Int,
+            childDesc: SerialDescriptor?
+                                                    ): QName {
             getElementAnnotations(index).firstOrNull<XmlSerialName>()?.run { return toQName() }
             when (outputKind(index, childDesc)) {
                 OutputKind.Attribute -> { // Attribute will take name from use
                     childDesc?.getEntityAnnotations()?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                     return getElementName(index).toQname()
                 }
-                OutputKind.Text      -> return getElementName(index).toQname() // Will be ignored anyway
+                OutputKind.Text      -> return getElementName(index).toQname(parentNamespace) // Will be ignored anyway
                 else                 -> { // Not an attribute, will take name from type
                     if (elementsCount > 0) {
                         childDesc?.getEntityAnnotations()?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                         // elementDesc.name is the type for classes, but not for "special kinds" as those have generic names
                         return when (childDesc?.kind) {
-                            StructureKind.CLASS -> childDesc.name.substringAfterLast('.').toQname()
-                            else                -> getElementName(index).toQname()
+                            StructureKind.CLASS -> childDesc.name.substringAfterLast('.').toQname(parentNamespace)
+                            else                -> getElementName(index).toQname(parentNamespace)
                         }
                     } else if (index == 0) { // We are in a list or something that has a confused descriptor
-                        return QName(getElementName(0))
+                        return getElementName(0).toQname(parentNamespace)
                     } else { // index >0
                         if (childDesc==null || childDesc.kind is PrimitiveKind) {
-                            return getElementName(index).toQname()
+                            return getElementName(index).toQname(parentNamespace)
                         } else {
                             childDesc.getEntityAnnotations().firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                             // elementDesc.name is normally the type name. We don't want dotted names anyway so strip those
-                            return childDesc.name.substringAfterLast('.').toQname()
+                            return childDesc.name.substringAfterLast('.').toQname(parentNamespace)
                         }
                     }
                 }
@@ -107,18 +111,25 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
         }
     }
 
-    abstract inner class XmlCodec(val parentDesc: SerialDescriptor, val elementIndex: Int, protected val childDesc: SerialDescriptor?) {
+    abstract inner class XmlCodec(
+        val parentNamespace: Namespace,
+        val parentDesc: SerialDescriptor,
+        val elementIndex: Int,
+        protected val childDesc: SerialDescriptor?
+                                 ) {
         open val serialName: QName
-            get() = parentDesc.requestedName(elementIndex, childDesc)
+            get() = parentDesc.requestedName(parentNamespace, elementIndex, childDesc)
     }
 
-    internal abstract inner class XmlTagCodec(val parentDesc: SerialDescriptor,
-                                              val elementIndex: Int,
-                                              val desc: SerialDescriptor
+    internal abstract inner class XmlTagCodec(
+        val parentDesc: SerialDescriptor,
+        val elementIndex: Int,
+        val desc: SerialDescriptor,
+        val parentNamespace: Namespace
                                              ) {
         val context: SerialContext get() = this@XmlCodecBase.context
 
-        open val serialName: QName get() = parentDesc.requestedName(elementIndex, desc)
+        open val serialName: QName get() = parentDesc.requestedName(parentNamespace, elementIndex, desc)
 
         abstract val namespaceContext: NamespaceContext
 

@@ -243,6 +243,7 @@ class XML(
 
         val serialName = serializer.descriptor.getSerialName(prefix)
         val encoder = XmlEncoderBase(context, target).XmlEncoder(
+            XmlEvent.NamespaceImpl("", ""),
             DummyParentDescriptor(serialName, serialDescriptor),
             0,
             serialDescriptor
@@ -291,9 +292,10 @@ class XML(
         val serialDescriptor = serializer.descriptor
 
         val decoder = XmlDecoderBase(context, reader).XmlDecoder(
-            DummyParentDescriptor(serialName, serialDescriptor),
-            0,
-            serialDescriptor
+            parentNamespace = XmlEvent.NamespaceImpl("", ""),
+            parentDesc = DummyParentDescriptor(serialName, serialDescriptor),
+            elementIndex = 0,
+            childDesc = serialDescriptor
                                                                 )
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser

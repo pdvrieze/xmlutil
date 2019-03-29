@@ -37,6 +37,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.dsl.Skip
 import org.spekframework.spek2.style.specification.describe
 import java.io.CharArrayWriter
+import java.lang.NullPointerException
 
 @UseExperimental(ImplicitReflectionSerializer::class)
 object testXMLJVM : Spek(
@@ -202,6 +203,30 @@ object testXMLJVM : Spek(
 
                 it("should parse to the original") {
                     assertEquals(fragment, Json.apply { install(module) }.parse(CompactFragmentSerializer, serialized))
+                }
+
+            }
+        }
+
+        describe("A class with a namespace, but not explicit on its children") {
+            val value = Namespaced("foo", "bar")
+            val expectedXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+
+            context("Serialization") {
+                val serialized = XML.stringify(value)
+                it("should equal the expected xml") {
+                    assertEquals(expectedXml, serialized)
+                }
+                it("should deserialize to the original") {
+                    assertEquals(value, XML.parse(Namespaced.serializer(), serialized))
+                }
+            }
+            context("Invalid xml") {
+                val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+                it("should fail") {
+                    assertThrows<UnknownXmlFieldException> {
+                        XML.parse(Namespaced.serializer(), invalidXml)
+                    }
                 }
 
             }

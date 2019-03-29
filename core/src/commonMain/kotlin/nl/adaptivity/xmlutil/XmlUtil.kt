@@ -48,7 +48,9 @@ fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS
                                 localname,
                                 prefix ?: DEFAULT_NS_PREFIX)
 
-
+/**
+ * Convert the string as fqn literal to an actual qname
+ */
 fun CharSequence.toQname(): QName {
     val split = indexOf('}')
     val localname: String
@@ -59,6 +61,24 @@ fun CharSequence.toQname(): QName {
         localname = substring(split + 1)
     } else {
         nsUri = XMLConstants.NULL_NS_URI
+        localname = toString()
+    }
+    return QName(nsUri, localname)
+}
+
+/**
+ * Convert the string as fqn literal to actual name, but use the namespace parameter to fill in namespace (but not prefix)
+ */
+fun CharSequence.toQname(namespace: Namespace): QName {
+    val split = indexOf('}')
+    val localname: String
+    val nsUri: String
+    if (split >= 0) {
+        if (this[0] != '{') throw IllegalArgumentException("Not a valid qname literal")
+        nsUri = substring(1, split)
+        localname = substring(split + 1)
+    } else {
+        nsUri = namespace.namespaceURI // We don't need the prefix
         localname = toString()
     }
     return QName(nsUri, localname)

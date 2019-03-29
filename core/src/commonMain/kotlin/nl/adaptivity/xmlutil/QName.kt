@@ -33,3 +33,7 @@ expect class QName {
 inline val QName.prefix get() = getPrefix()
 inline val QName.localPart get() = getLocalPart()
 inline val QName.namespaceURI get() = getNamespaceURI()
+
+fun QName.toNamespace(): Namespace {
+    return XmlEvent.NamespaceImpl(prefix, namespaceURI)
+}
