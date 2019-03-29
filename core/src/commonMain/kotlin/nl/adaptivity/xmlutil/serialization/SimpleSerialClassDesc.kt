@@ -22,20 +22,34 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import nl.adaptivity.util.kotlin.xmlutil.arrayMap
+import nl.adaptivity.xmlutil.multiplatform.maybeAnnotations
 import nl.adaptivity.xmlutil.multiplatform.name
 import kotlin.jvm.JvmName
 
 inline fun <reified T> simpleSerialClassDesc(kind: SerialKind, vararg elements: Pair<String, SerialDescriptor>): SerialDescriptor {
-    return SimpleSerialClassDesc(kind, T::class.name, *elements)
+    return SimpleSerialClassDesc(kind, T::class.name, T::class.maybeAnnotations, *elements)
+}
+
+inline fun <reified T> simpleSerialClassDesc(kind: SerialKind, entityAnnotations: List<Annotation>, vararg elements: Pair<String, SerialDescriptor>): SerialDescriptor {
+    return SimpleSerialClassDesc(kind, T::class.name, entityAnnotations, *elements)
 }
 
 inline fun <reified T> simpleSerialClassDesc(): SerialDescriptor {
-    return SimpleSerialClassDesc(StructureKind.CLASS, T::class.name)
+    return SimpleSerialClassDesc(StructureKind.CLASS, T::class.name, T::class.maybeAnnotations)
+}
+
+inline fun <reified T> simpleSerialClassDesc(entityAnnotations: List<Annotation>): SerialDescriptor {
+    return SimpleSerialClassDesc(StructureKind.CLASS, T::class.name, entityAnnotations)
 }
 
 @JvmName("simpleSerialClassDescFromSerializer")
 inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSerializer<*>>): SerialDescriptor {
-    return SimpleSerialClassDesc(T::class.name, StructureKind.CLASS, *elements)
+    return SimpleSerialClassDesc(T::class.name, StructureKind.CLASS, T::class.maybeAnnotations, *elements)
+}
+
+@JvmName("simpleSerialClassDescFromSerializer")
+inline fun <reified T> simpleSerialClassDesc(entityAnnotations: List<Annotation>, vararg elements: Pair<String, KSerializer<*>>): SerialDescriptor {
+    return SimpleSerialClassDesc(T::class.name, StructureKind.CLASS, entityAnnotations, *elements)
 }
 
 
@@ -50,9 +64,10 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override 
 
 class SimpleSerialClassDesc(override val kind: SerialKind = StructureKind.CLASS,
                             override val name: String,
+                            private val entityAnnotations: List<Annotation>,
                             vararg val elements: Pair<String, SerialDescriptor>): SerialDescriptor {
 
-    constructor(name:String, kind: SerialKind = StructureKind.CLASS, vararg elements: Pair<String, KSerializer<*>>): this(kind, name, *(elements.arrayMap { it.first to it.second.descriptor }))
+    constructor(name:String, kind: SerialKind = StructureKind.CLASS, entityAnnotations: List<Annotation>, vararg elements: Pair<String, KSerializer<*>>): this(kind, name, entityAnnotations, *(elements.arrayMap { it.first to it.second.descriptor }))
 
     override fun getElementIndex(name: String): Int {
         val index = elements.indexOfFirst { it.first==name }
@@ -60,6 +75,10 @@ class SimpleSerialClassDesc(override val kind: SerialKind = StructureKind.CLASS,
             index >= 0 -> index
             else       -> CompositeDecoder.UNKNOWN_NAME
         }
+    }
+
+    override fun getEntityAnnotations(): List<Annotation> {
+        return entityAnnotations
     }
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {

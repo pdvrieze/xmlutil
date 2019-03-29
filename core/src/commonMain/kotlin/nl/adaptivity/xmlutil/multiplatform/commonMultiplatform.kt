@@ -36,3 +36,5 @@ expect interface AutoCloseable {
 }
 
 expect interface Closeable: AutoCloseable
+
+expect val KClass<*>.maybeAnnotations: List<Annotation>

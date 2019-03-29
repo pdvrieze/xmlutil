@@ -42,3 +42,5 @@ actual interface AutoCloseable {
 }
 
 actual interface Closeable: AutoCloseable
+
+actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
