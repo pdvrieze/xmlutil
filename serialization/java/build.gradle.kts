@@ -45,7 +45,7 @@ group = "net.devrieze.serialization"
 description = "Serializer for XML based on kotlinx.serialization"
 
 val serializationVersion:String by project
-val spekVersion:String by project
+val spek2Version:String by project
 val jupiterVersion:String by project
 
 dependencies {
@@ -56,7 +56,7 @@ dependencies {
     expectedBy(project(":serialization:common"))
 
 
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${spekVersion}")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
     testImplementation("org.xmlunit:xmlunit-core:2.6.0")
@@ -67,7 +67,7 @@ dependencies {
     testRuntime("com.fasterxml.woodstox:woodstox-core:5.0.3")
     testImplementation(kotlin("reflect"))
 
-    testRuntime ("org.spekframework.spek2:spek-runner-junit5:${spekVersion}") {
+    testRuntime ("org.spekframework.spek2:spek-runner-junit5:${spek2Version}") {
         exclude(group="org.junit.platform")
         exclude(group="org.jetbrains.kotlin")
     }

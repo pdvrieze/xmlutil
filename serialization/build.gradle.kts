@@ -28,6 +28,7 @@ plugins {
     id("kotlinx-serialization")
     id("maven-publish")
     id("com.jfrog.bintray")
+    idea
 }
 
 val xmlutil_version: String by project
@@ -272,4 +273,8 @@ extensions.configure<BintrayExtension>("bintray") {
         }
     })
 
+}
+
+idea {
+    this.module.name = "xmlutil-serialization"
 }
