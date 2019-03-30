@@ -534,10 +534,18 @@ internal open class XmlDecoderBase internal constructor(
                 return it.index
             }
 
+            val containingNamespaceUri = serialName.namespaceURI
+            // Allow attributes in the null namespace to match candidates with a name that is that of the parent tag
             if (attr && name.namespaceURI.isEmpty()) {
-                val attrName = normalName.copy(namespaceURI = serialName.namespaceURI)
+                val attrName = normalName.copy(namespaceURI = containingNamespaceUri)
                 nameMap[attrName]?.let { return it }
-                polyMap[normalName.copy(namespaceURI = serialName.namespaceURI)]?.let { return it.index }
+                polyMap[normalName.copy(namespaceURI = containingNamespaceUri)]?.let { return it.index }
+            }
+
+            // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
+            // with a null namespace instead
+            if (containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
+                nameMap[QName(name.getLocalPart())]?.let { return it }
             }
 
             throw UnknownXmlFieldException(input.locationInfo, name.toString(), (nameMap.keys + polyMap.keys))
