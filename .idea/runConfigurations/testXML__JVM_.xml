@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="testXML (JVM)" type="org.spekframework.spek2-jvm" factoryName="Spek 2 - JVM">
-    <module name="serialization_jvmTest" />
+    <module name="xmlutil-serialization_jvmTest" />
     <option name="passParentEnvs" value="true" />
     <option name="workingDirectory" value="" />
     <option name="programParameters" value="" />

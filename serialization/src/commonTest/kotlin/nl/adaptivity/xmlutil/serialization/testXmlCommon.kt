@@ -26,39 +26,26 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.context.SimpleModule
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xml.serialization.*
-import nl.adaptivity.xmlutil.AndroidXmlWriter
 import nl.adaptivity.xmlutil.XmlEvent
-import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.util.CompactFragment
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.function.Executable
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.dsl.Skip
 import org.spekframework.spek2.style.specification.describe
-import java.io.CharArrayWriter
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-private inline fun <reified T : Throwable> assertThrows(noinline executable: () -> Unit): T =
-    Assertions.assertThrows(T::class.java, Executable(executable))
-
+private fun String.normalize() = replace(" />", "/>")
 
 @UseExperimental(ImplicitReflectionSerializer::class)
-object testXMLAndroid : Spek(
+object testXmlCommon : Spek(
     {
-        describe("An XmlWriter") {
-            val writer = XmlStreaming.newWriter(CharArrayWriter())
-            it("should be an androidXmlWriter") {
-                assertTrue(writer is AndroidXmlWriter)
-            }
-        }
         describe("A simple data class") {
-            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" />"
+            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
             val address = Address("10", "Downing Street", "London")
             val addrSerializer = Address.serializer()
 
             context("serialization with XML") {
-                val serialized = XML.stringify(addrSerializer, address)
+                val serialized = XML.stringify(addrSerializer, address).normalize()
                 it("should be the expected value") {
                     assertEquals(expAddressXml, serialized)
                 }
@@ -71,7 +58,7 @@ object testXMLAndroid : Spek(
             val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
 
             context("serialization with JSON") {
-                val serialized = Json.stringify(addrSerializer, address)
+                val serialized = Json.stringify(addrSerializer, address).normalize()
                 it("should be the expected value") {
                     assertEquals(expectedJSON, serialized)
                 }
@@ -85,12 +72,12 @@ object testXMLAndroid : Spek(
         describe ("A data class with optional boolean") {
             val location = Location(
                 Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" /></Location>"
+            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
 
             val ser = Location.serializer()
 
             context("Serialization with XML") {
-                val serialized = XML.stringify(ser, location)
+                val serialized = XML.stringify(ser, location).normalize()
                 it("should serialize to the expected xml") {
                     assertEquals(expectedXml,serialized)
                 }
@@ -107,18 +94,18 @@ object testXMLAndroid : Spek(
             val nullValue = NullableContainer()
             val ser = NullableContainer.serializer()
             context("serialization of a set value") {
-                val serialized = XML.stringify(ser, setValue)
+                val serialized = XML.stringify(ser, setValue).normalize()
                 it ("should match the expected value") {
-                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\" />", serialized)
+                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>", serialized)
                 }
                 it ("Should parse back to the original") {
                     assertEquals(setValue, XML.parse(ser, serialized))
                 }
             }
             context("serialization of a null value") {
-                val serialized = XML.stringify(ser, nullValue)
+                val serialized = XML.stringify(ser, nullValue).normalize()
                 it ("should match the expected value") {
-                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" />", serialized)
+                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\"/>", serialized)
                 }
                 it ("Should parse back to the original") {
                     assertEquals(nullValue, XML.parse(ser, serialized))
@@ -129,11 +116,11 @@ object testXMLAndroid : Spek(
 
         describe("A simple business") {
             val expBusinessXml =
-                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\" /></Business>"
+                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
 
             val business = Business("ABC Corp", Address("1", "ABC road", "ABCVille"))
             context("serialization") {
-                val serialized = XML.stringify(business)
+                val serialized = XML.stringify(business).normalize()
                 it("should equal the expected business xml") {
                     assertEquals(expBusinessXml, serialized)
                 }
@@ -146,14 +133,14 @@ object testXMLAndroid : Spek(
 
         describe("A chamber of commerce") {
             val expChamber="<chamber name=\"hightech\">"+
-                           "<member name=\"foo\" />" +
-                           "<member name=\"bar\" />" +
+                           "<member name=\"foo\"/>" +
+                           "<member name=\"bar\"/>" +
                            "</chamber>"
             val chamber = Chamber("hightech", listOf(Business("foo", null),
                                                      Business("bar", null)))
 
             context("serialization") {
-                val serialized = XML.stringify(chamber)
+                val serialized = XML.stringify(chamber).normalize()
                 it("Should equal the chamber xml") {
                     assertEquals(expChamber, serialized)
                 }
@@ -165,11 +152,11 @@ object testXMLAndroid : Spek(
         }
 
         describe("An empty chamber") {
-            val expChamber="<chamber name=\"lowtech\" />"
+            val expChamber="<chamber name=\"lowtech\"/>"
             val chamber = Chamber("lowtech", emptyList())
 
             context("serialization") {
-                val serialized = XML.stringify(chamber)
+                val serialized = XML.stringify(chamber).normalize()
                 it("Should equal the chamber xml") {
                     assertEquals(expChamber, serialized)
                 }
@@ -185,7 +172,7 @@ object testXMLAndroid : Spek(
             val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
 
             context("serialization with XML") {
-                val serialized = XML.stringify(fragment)
+                val serialized = XML.stringify(fragment).normalize()
                 it("Should equal the expected fragment xml") {
                     assertEquals(expectedXml, serialized)
                 }
@@ -200,13 +187,37 @@ object testXMLAndroid : Spek(
             context("serialization with JSON") {
                 val module = SimpleModule(CompactFragment::class, CompactFragmentSerializer)
 
-                val serialized = Json().apply { install(module) }.stringify(CompactFragmentSerializer, fragment)
+                val serialized = Json().apply { install(module) }.stringify(CompactFragmentSerializer, fragment).normalize()
                 it("Should equal the expected fragment JSON") {
                     assertEquals(expectedJSON, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(fragment, Json.apply { install(module) }.parse<CompactFragment>(CompactFragmentSerializer, serialized))
+                    assertEquals(fragment, Json.apply { install(module) }.parse(CompactFragmentSerializer, serialized))
+                }
+
+            }
+        }
+
+        describe("A class with a namespace, but not explicit on its children") {
+            val value = Namespaced("foo", "bar")
+            val expectedXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+
+            context("Serialization") {
+                val serialized = XML.stringify(value).normalize()
+                it("should equal the expected xml") {
+                    assertEquals(expectedXml, serialized)
+                }
+                it("should deserialize to the original") {
+                    assertEquals(value, XML.parse(Namespaced.serializer(), serialized))
+                }
+            }
+            context("Invalid xml") {
+                val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+                it("should fail") {
+                    assertFailsWith<UnknownXmlFieldException> {
+                        XML.parse(Namespaced.serializer(), invalidXml)
+                    }
                 }
 
             }
@@ -223,7 +234,7 @@ object testXMLAndroid : Spek(
                                 "</flags></localname>"
 
             context("serialization") {
-                val serialized = XML.stringify(special)
+                val serialized = XML.stringify(special).normalize()
                 it("Should equal the special xml") {
                     assertEquals(expectedSpecial, serialized)
                 }
@@ -239,7 +250,7 @@ object testXMLAndroid : Spek(
             val expected = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
 
             context("serialization") {
-                val serialized = XML.stringify(inverted)
+                val serialized = XML.stringify(inverted).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
@@ -253,9 +264,9 @@ object testXMLAndroid : Spek(
         }
 
         describe("a missing child for inverted") {
-            val xml = "<Inverted arg='5' />"
+            val xml = "<Inverted arg='5'/>"
             it("should throw an exception when parsing") {
-                assertThrows<MissingFieldException> {
+                assertFailsWith<MissingFieldException> {
                     XML.parse<Inverted>(xml)
                 }
             }
@@ -264,7 +275,7 @@ object testXMLAndroid : Spek(
         describe("An incomplete xml specification for inverted") {
             val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
             it("should throw an exception when parsing") {
-                assertThrows<SerializationException> {
+                assertFailsWith<SerializationException> {
                     XML.parse<Inverted>(xml)
                 }
             }
@@ -272,9 +283,9 @@ object testXMLAndroid : Spek(
 
         describe("A class with polymorphic children") {
             val poly = Container("lbl", ChildA("data"))
-            val expected = "<Container label=\"lbl\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\" /></member></Container>"
+            val expected = "<Container label=\"lbl\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member></Container>"
             context ("serialization") {
-                val serialized = XML.stringify(poly)
+                val serialized = XML.stringify(poly).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
@@ -289,9 +300,9 @@ object testXMLAndroid : Spek(
         describe("A class with multiple children") {
             val poly2 = Container2("name2", listOf(ChildA("data"),
                                                    ChildB("xxx")))
-            val expected = "<Container2 name=\"name2\"><ChildA valueA=\"data\" /><better valueB=\"xxx\" /></Container2>"
+            val expected = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
             context ("serialization") {
-                val serialized = XML.stringify(poly2)
+                val serialized = XML.stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
@@ -308,9 +319,9 @@ object testXMLAndroid : Spek(
             val poly2 = Container3("name2", listOf(ChildA("data"),
                                                    ChildB("xxx"),
                                                    ChildA("yyy")))
-            val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\" /></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\" /></member></container-3>"
+            val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
             context ("serialization") {
-                val serialized = XML.stringify(poly2)
+                val serialized = XML.stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
@@ -323,11 +334,26 @@ object testXMLAndroid : Spek(
             }
         }
 
+        describe("A container with a property with custom deserialization") {
+            val container = CustomContainer(Custom("foobar"))
+            val expected = "<CustomContainer elem=\"foobar\"/>"
+            context("serialization") {
+                val serialized = XML.stringify(container).normalize()
+                it("should equal the expected xml form") {
+                    assertEquals(expected, serialized)
+                }
+                it("should parse back to the original") {
+                    assertEquals(container, XML.parse(CustomContainer.serializer(), serialized))
+                }
+
+            }
+        }
+
         describe("A container with a sealed child") {
             val sealed = SealedSingle("mySealed", SealedA("a-data"))
-            val expected = "<SealedSingle name=\"mySealed\"><SealedA valueA=\"a-data\" /></SealedSingle>"
+            val expected = "<SealedSingle name=\"mySealed\"><SealedA valueA=\"a-data\"/></SealedSingle>"
             context ("serialization") {
-                val serialized = XML.stringify(sealed)
+                val serialized = XML.stringify(sealed).normalize()
 
                 xit("should equal the expected xml form") {
                     assertEquals(expected, serialized)
@@ -343,9 +369,9 @@ object testXMLAndroid : Spek(
         describe("A container with sealed children") {
             val sealed = Sealed("mySealed", listOf(SealedA("a-data"),
                                                    SealedB("b-data")))
-            val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\" /><SealedB main=\"b-data\" ext=\"0.5\" /></Sealed>"
+            val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
             context ("serialization") {
-                val serialized = XML.stringify(sealed)
+                val serialized = XML.stringify(sealed).normalize()
 
                 // Disabled because sealed classes are broken when used in lists
                 xit("should equal the expected xml form", "Waiting for sealed support") {

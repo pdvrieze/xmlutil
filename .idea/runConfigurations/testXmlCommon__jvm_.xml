@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="testXML (Android)" type="org.spekframework.spek2-jvm" factoryName="Spek 2 - JVM">
-    <module name="serialization_androidTest" />
+  <configuration default="false" name="testXmlCommon [jvm]" type="org.spekframework.spek2-jvm" factoryName="Spek 2 - JVM">
+    <module name="xmlutil-serialization_jvmTest" />
     <option name="passParentEnvs" value="true" />
     <option name="workingDirectory" value="" />
     <option name="programParameters" value="" />
-    <option name="path" value="bmw=/YWRhcHRpdml0eQ==/eG1sdXRpbA==/c2VyaWFsaXphdGlvbg==/dGVzdFhNTEFuZHJvaWQ=" />
+    <option name="path" value="bmw=/YWRhcHRpdml0eQ==/eG1sdXRpbA==/c2VyaWFsaXphdGlvbg==/dGVzdFhtbENvbW1vbg==" />
     <option name="vmParameters" value="" />
     <option name="alternativeJrePath" value="" />
     <option name="alternativeJrePathEnabled" value="false" />

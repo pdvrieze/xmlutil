@@ -125,6 +125,14 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                project.dependencies.add(implementationConfigurationName, "org.spekframework.spek2:spek-dsl-jvm:$spek2Version") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+            }
+        }
         val javaShared by creating {
             dependsOn(commonMain)
             dependencies {
@@ -149,6 +157,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(project(":core"))
+                implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
 
@@ -185,6 +194,7 @@ kotlin {
         val androidTest by getting {
             dependencies {
                 implementation(project(":core"))
+                implementation(kotlin("test-junit5"))
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
 
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
