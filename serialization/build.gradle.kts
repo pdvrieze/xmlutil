@@ -20,6 +20,7 @@
 
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
@@ -35,7 +36,7 @@ val xmlutil_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlutil"
+    archivesBaseName = "xmlutil-serialization"
     version = xmlutil_version
 }
 
@@ -86,7 +87,6 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-/*
         js {
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
@@ -100,7 +100,6 @@ kotlin {
                 }
             }
         }
-*/
 
         forEach { target ->
             target.mavenPublication {
@@ -219,16 +218,18 @@ kotlin {
 
             }
         }
-/*
         val jsMain by getting {
-            dependsOn(commonMain)
+//            dependsOn(commonMain)
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
-*/
-
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
     }
 
 }
