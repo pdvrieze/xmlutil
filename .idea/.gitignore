@@ -3,3 +3,5 @@ artifacts
 libraries
 dataSources.xml
 modules.xml
+compiler.xml
+misc.xml
