@@ -24,6 +24,7 @@ import kotlinx.io.Writer
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
+import org.w3c.dom.parsing.XMLSerializer
 import kotlin.reflect.KClass
 
 actual interface XmlStreamingFactory
@@ -113,8 +114,13 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
 
 internal class WriterXmlWriter(private val target: Writer, private val delegate: JSDomWriter): XmlWriter by delegate {
     override fun close() {
-        delegate.close()
-        target.write(delegate.toString())
+        try {
+            val xmls = XMLSerializer()
+            val domText = xmls.serializeToString(delegate.target)
+            target.write(domText)
+        } finally {
+            delegate.close()
+        }
     }
 
     override fun flush() {

@@ -69,6 +69,7 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
                     sourceMap = true
+                    sourceMapEmbedSources = "always"
                     suppressWarnings = false
                     verbose = true
                     metaInfo = true
