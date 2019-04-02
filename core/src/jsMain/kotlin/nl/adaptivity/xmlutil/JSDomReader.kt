@@ -22,7 +22,9 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.js.util.asElement
 import org.w3c.dom.CharacterData
+import org.w3c.dom.Element
 import org.w3c.dom.Node
+import org.w3c.dom.get
 import kotlin.dom.isElement
 import kotlin.dom.isText
 
@@ -32,157 +34,193 @@ actual typealias PlatformXmlReader = JSDomReader
  * Created by pdvrieze on 22/03/17.
  */
 class JSDomReader(val delegate: Node) : XmlReader {
-  private var current: Node? = null
+    private var current: Node? = null
 
-  override val namespaceURI: String get() = current?.asElement()?.namespaceURI ?: throw XmlException(
-      "Only elements have a namespace uri")
-  override val localName: String get() = current?.asElement()?.localName ?: throw XmlException(
-      "Only elements have a local name")
-  override val prefix: String get() = current?.asElement()?.prefix ?: throw XmlException(
-      "Only elements have a namespace uri")
-  override var isStarted: Boolean = false
-    private set
+    override val namespaceURI: String
+        get() = current?.asElement()?.namespaceURI ?: throw XmlException(
+            "Only elements have a namespace uri"
+                                                                        )
+    override val localName: String
+        get() = current?.asElement()?.localName ?: throw XmlException(
+            "Only elements have a local name"
+                                                                     )
+    override val prefix: String
+        get() = current?.asElement()?.prefix ?: throw XmlException(
+            "Only elements have a namespace uri"
+                                                                  )
+    override var isStarted: Boolean = false
+        private set
 
-  private var isClosing: Boolean = false
+    private var currentAttribute: Int = -1
+    private var atEndOfElement: Boolean = false
 
-  override var depth: Int = 0
-    private set
+    override var depth: Int = 0
+        private set
 
-  override val text: String
-      get() = when (current?.nodeType) {
-      Node.ENTITY_REFERENCE_NODE,
-      Node.COMMENT_NODE,
-      Node.TEXT_NODE,
-      Node.PROCESSING_INSTRUCTION_NODE,
-      Node.CDATA_SECTION_NODE -> (current as CharacterData).data
-    else -> throw XmlException("Node is not a text node")
-  }
+    override val text: String
+        get() = when (current?.nodeType) {
+            Node.ENTITY_REFERENCE_NODE,
+            Node.COMMENT_NODE,
+            Node.TEXT_NODE,
+            Node.PROCESSING_INSTRUCTION_NODE,
+            Node.CDATA_SECTION_NODE -> (current as CharacterData).data
+            else                    -> throw XmlException("Node is not a text node")
+        }
 
-  override val attributeCount get() = current?.asElement()?.attributes?.length ?: 0
+    override val attributeCount get() = current?.asElement()?.attributes?.length ?: 0
 
-  override val eventType get() = current?.nodeType?.toEventType() ?: EventType.START_DOCUMENT
-
-  override val namespaceStart get() = TODO("Namespaces will need to be implemented independently")
-
-  override val namespaceEnd: Int get() = TODO("Not correctly implemented yet")
-
-  override val locationInfo: String?
-    get() {
-      var c: Node? = current
-      var r:String = when{
-        c!!.isElement -> c.nodeName
-        c.isText -> "text()"
-        else -> "."
-      }
-      c = c.parentNode
-      while (c!=null && c.isElement) {
-        r = "${c.parentNode}/$r"
-      }
-      return r
+    override val eventType get() = when {
+        atEndOfElement==false                  -> current?.nodeType?.toEventType() ?: EventType.START_DOCUMENT
+        current?.nodeType == Node.ELEMENT_NODE -> EventType.END_ELEMENT
+        else                                   -> EventType.END_DOCUMENT
     }
-  override val namespaceContext: NamespaceContext
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-  override val encoding: String? get() = delegate.ownerDocument!!.inputEncoding
 
-  override val standalone: Boolean?
-    get() = TODO("Not implemented")
-  override val version: String? get() = "1.0"
+    override val namespaceStart get() = TODO("Namespaces will need to be implemented independently")
 
-  override fun hasNext(): Boolean
-  {
-    return !isClosing || current != delegate
-  }
+    override val namespaceEnd: Int get() = TODO("Not correctly implemented yet")
 
-  override fun next(): EventType
-  {
-    val c = current
-    if (c == null) {
-      isStarted = true
-      current = delegate
-      return EventType.START_DOCUMENT
-    } else {
-      when {
-        isClosing -> {
-          if (c.parentNode!!.nextSibling == null) {
-            current = c.parentNode
-          } else {
-            isClosing = false
-            current = c.parentNode!!.nextSibling
-          }
+    override val locationInfo: String?
+        get() {
+            var c: Node? = current
+            var r: String = when {
+                c!!.isElement -> c.nodeName
+                c.isText      -> "text()"
+                else          -> "."
+            }
+            c = c.parentNode
+            while (c != null && c.isElement) {
+                r = "${c.parentNode}/$r"
+            }
+            return r
         }
-        c.firstChild != null -> {
-          current = c.firstChild
+
+    private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
+    private val currentElement get() = current as? Element ?: throw IllegalStateException("Node is not an element")
+
+    override val namespaceContext: NamespaceContext = object : NamespaceContext {
+        override fun getNamespaceURI(prefix: String): String? {
+            return delegate.lookupNamespaceURI(prefix)
         }
-        c.nextSibling != null -> {
-          current = c.nextSibling
+
+        override fun getPrefix(namespaceURI: String): String? {
+            return delegate.lookupPrefix(namespaceURI)
         }
-        else -> {
-          isClosing = true
+
+        override fun getPrefixes(namespaceURI: String): Iterator<String> {
+            // TODO return all possible ones by doing so recursively
+            return listOfNotNull(getPrefix(namespaceURI)).iterator()
         }
-      }
-      return when {
-        isClosing && current?.nodeType == Node.ELEMENT_NODE -> EventType.END_ELEMENT
-        isClosing -> EventType.END_DOCUMENT
-        else -> current!!.nodeType.toEventType()
-      }
+
     }
-  }
 
-  override fun getAttributeNamespace(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override val encoding: String? get() = delegate.ownerDocument!!.inputEncoding
 
-  override fun getAttributePrefix(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override val standalone: Boolean?
+        get() = TODO("Not implemented")
 
-  override fun getAttributeLocalName(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override val version: String? get() = "1.0"
 
-  override fun getAttributeValue(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun hasNext(): Boolean {
+        return !atEndOfElement || current != delegate
+    }
 
-  override fun getAttributeValue(nsUri: String?, localName: String): String? {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun next(): EventType {
+        val c = current
+        if (c == null) {
+            isStarted = true
+            current = delegate
+            return EventType.START_DOCUMENT
+        } else { // set current to the new element
+            when {
+                atEndOfElement        -> {
+                    if (c.nextSibling != null) {
+                        current = c.nextSibling
+                        atEndOfElement = false
+                        // This falls back all the way to the bottom to return the current even type (starting the sibling)
+                    } else { // no more siblings, go back to parent
+                        current = c.parentNode
+                        if (current?.nodeType == Node.ELEMENT_NODE) return EventType.END_ELEMENT
+                        return EventType.END_DOCUMENT
+                    }
+                }
+                c.firstChild != null  -> { // If we have a child, the next element is the first child
+                    current = c.firstChild
+                }
+                else -> {
+                    // We have no children, but we have a sibling. We are at the end of this element, next we will return
+                    // the sibling, or close the parent if there is no sibling
+                    atEndOfElement = true
+                    return EventType.END_ELEMENT
+                }
+/*
+                else                  -> {
+                    atEndOfElement = true // We are the last item in the parent, so the parent needs to be end of an element as well
+                    return EventType.END_ELEMENT
+                }
+*/
+            }
+            return current!!.nodeType.toEventType()
+        }
+    }
 
-  override fun getNamespacePrefix(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun getAttributeNamespace(index: Int): String {
+        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        return attr.namespaceURI ?: ""
+    }
 
-  override fun close()
-  {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun getAttributePrefix(index: Int): String {
+        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        return attr.prefix ?: ""
+    }
 
-  override fun getNamespaceURI(index: Int): String {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun getAttributeLocalName(index: Int): String {
+        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        return attr.localName
+    }
 
-  override fun getNamespacePrefix(namespaceUri: String): String? {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun getAttributeValue(index: Int): String {
+        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        return attr.value
+    }
 
-  override fun getNamespaceURI(prefix: String): String? {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+    override fun getAttributeValue(nsUri: String?, localName: String): String? {
+        return currentElement.getAttributeNS(nsUri, localName)
+    }
+
+    override fun getNamespacePrefix(index: Int): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun close() {
+        current = null
+    }
+
+    override fun getNamespaceURI(index: Int): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getNamespacePrefix(namespaceUri: String): String? {
+        return requireCurrent.lookupPrefix(namespaceUri)
+    }
+
+    override fun getNamespaceURI(prefix: String): String? {
+        return requireCurrent.lookupNamespaceURI(prefix)
+    }
 }
 
 private fun Short.toEventType(): EventType {
-  return when(this) {
-    Node.ATTRIBUTE_NODE -> EventType.ATTRIBUTE
-    Node.CDATA_SECTION_NODE -> EventType.CDSECT
-    Node.COMMENT_NODE -> EventType.COMMENT
-    Node.DOCUMENT_TYPE_NODE -> EventType.DOCDECL
-    Node.ENTITY_REFERENCE_NODE -> EventType.ENTITY_REF
-    Node.DOCUMENT_NODE -> EventType.START_DOCUMENT
+    return when (this) {
+        Node.ATTRIBUTE_NODE              -> EventType.ATTRIBUTE
+        Node.CDATA_SECTION_NODE          -> EventType.CDSECT
+        Node.COMMENT_NODE                -> EventType.COMMENT
+        Node.DOCUMENT_TYPE_NODE          -> EventType.DOCDECL
+        Node.ENTITY_REFERENCE_NODE       -> EventType.ENTITY_REF
+        Node.DOCUMENT_NODE               -> EventType.START_DOCUMENT
 //    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
-    Node.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
-    Node.TEXT_NODE -> EventType.TEXT
-    Node.ELEMENT_NODE -> EventType.START_ELEMENT
+        Node.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
+        Node.TEXT_NODE                   -> EventType.TEXT
+        Node.ELEMENT_NODE                -> EventType.START_ELEMENT
 //    Node.ELEMENT_NODE -> EventType.END_ELEMENT
-    else -> throw XmlException("Unsupported event type")
-  }
+        else                             -> throw XmlException("Unsupported event type")
+    }
 }

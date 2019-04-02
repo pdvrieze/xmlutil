@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil.serialization
 import nl.adaptivity.xml.serialization.Address
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 private fun String.normalize() = replace(" />", "/>")
 
@@ -39,12 +38,10 @@ class TestJs {
         assertEquals(expectedAddressXml, serializedAddress())
     }
 
-/*
     @Test
     fun deserialize_simple_data_class() {
         assertEquals(address, XML.parse(addrSerializer, serializedAddress()))
     }
-*/
 
 }
 
