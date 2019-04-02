@@ -32,4 +32,26 @@ actual class QName actual constructor(private val namespaceURI: String, private 
 
     actual fun getNamespaceURI(): String = namespaceURI
 
+    override fun toString(): String {
+        if (namespaceURI==XMLConstants.NULL_NS_URI) return localPart
+        return "{$namespaceURI}$localPart"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class.js != other::class.js) return false
+
+        other as QName
+
+        if (namespaceURI != other.namespaceURI) return false
+        if (localPart != other.localPart) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = namespaceURI.hashCode()
+        result = 31 * result + localPart.hashCode()
+        return result
+    }
 }
