@@ -313,12 +313,14 @@ tasks {
 
     val assembleWeb by registering(Copy::class) {
         dependsOn(compileTestKotlinJs)
+//        dependsOn(project(":core").tasks.getByName("jsJar"))
 
-        from(compileKotlinJs.get().outputs)
+        from(compileKotlinJs/*.get().outputs*/)
         into("${buildDir}/node_modules")
 
         val configuration = configurations.named("jsTestRuntimeClasspath")
         val copiedFiles = files({
+            // This must be in a lambda as the files zip files are only available after they are built.
                                     configuration.get().map { file: File ->
                                         if (file.name.endsWith(".jar")) {
                                             zipTree(file).matching {
@@ -330,9 +332,7 @@ tasks {
                                         }
                                     }
                                 }).builtBy(configuration)
-        for (file in copiedFiles) {
-            logger.lifecycle("  file that should be included: $file")
-        }
+        
         from(copiedFiles)
     }
 
@@ -352,7 +352,7 @@ tasks {
                 "mocha-headless-chrome@1.8.2",
                 "source-map-support@0.5.3",
 //                "jsdom@14.0.0",
-                "text-encoding",
+//                "text-encoding",
                 "--no-save"
                   )
                )
