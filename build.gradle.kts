@@ -19,7 +19,6 @@
  */
 
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     idea
@@ -34,7 +33,7 @@ ext {
 
 tasks {
     (findByName("wrapper") as? Wrapper)?.run {
-        gradleVersion = "5.3.1"
+        gradleVersion = "5.1.1"
     }
 }
 
