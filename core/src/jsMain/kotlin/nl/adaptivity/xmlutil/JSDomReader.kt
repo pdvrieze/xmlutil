@@ -21,10 +21,10 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.js.util.asElement
-import org.w3c.dom.CharacterData
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.get
+import nl.adaptivity.js.util.filter
+import nl.adaptivity.js.util.myLookupNamespaceURI
+import nl.adaptivity.js.util.myLookupPrefix
+import org.w3c.dom.*
 import kotlin.dom.isElement
 import kotlin.dom.isText
 
@@ -52,7 +52,6 @@ class JSDomReader(val delegate: Node) : XmlReader {
     override var isStarted: Boolean = false
         private set
 
-    private var currentAttribute: Int = -1
     private var atEndOfElement: Boolean = false
 
     override var depth: Int = 0
@@ -71,33 +70,45 @@ class JSDomReader(val delegate: Node) : XmlReader {
     override val attributeCount get() = current?.asElement()?.attributes?.length ?: 0
 
     override val eventType
-        get() = when {
-            atEndOfElement == false                -> current?.nodeType?.toEventType() ?: EventType.START_DOCUMENT
-            current?.nodeType == Node.ELEMENT_NODE -> EventType.END_ELEMENT
-            else                                   -> EventType.END_DOCUMENT
+        get() = when (val c = current) {
+            null -> EventType.END_DOCUMENT
+            else -> c.nodeType.toEventType(atEndOfElement)
         }
 
-    override val namespaceStart get() = TODO("Namespaces will need to be implemented independently")
+    override val namespaceStart get() = 0
 
-    override val namespaceEnd: Int get() = TODO("Not correctly implemented yet")
+    override val namespaceEnd: Int
+        get() {
+            return namespaceAttrs.size
+        }
+
+    private var _namespaceAttrs: List<Attr>? = null
+    internal val namespaceAttrs: List<Attr>
+        get() {
+
+            return _namespaceAttrs ?: (
+                    currentElement.attributes.filter { it.prefix == "xmlns" || (it.prefix == "" && it.localName == "xmlns") }.also {
+                        _namespaceAttrs = it
+                    })
+
+        }
 
     override val locationInfo: String?
         get() {
-            var c: Node? = current
-            var r: String = when {
-                c!!.isElement -> c.nodeName
-                c.isText      -> "text()"
-                else          -> "."
+
+            fun <A: Appendable>helper(node: Node?, result: A):A = when {
+                node == null ||
+                node.nodeType == Node.DOCUMENT_NODE -> result
+                node.isElement -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
+                node.isText -> helper(node.parentNode, result).apply { append("/text()") }
+                else -> helper(node.parentNode, result).apply { append("/.") }
             }
-            c = c.parentNode
-            while (c != null && c.isElement) {
-                r = "${c.parentNode}/$r"
-            }
-            return r
+
+            return helper(current, StringBuilder()).toString()
         }
 
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
-    private val currentElement get() = current as? Element ?: throw IllegalStateException("Node is not an element")
+    internal val currentElement get() = current as? Element ?: throw IllegalStateException("Node is not an element")
 
     override val namespaceContext: NamespaceContext = object : NamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
@@ -115,10 +126,14 @@ class JSDomReader(val delegate: Node) : XmlReader {
 
     }
 
-    override val encoding: String? get() = delegate.ownerDocument!!.inputEncoding
+    override val encoding: String?
+        get() = when (val d = delegate) {
+            is Document -> d.inputEncoding
+            else        -> d.ownerDocument!!.inputEncoding
+        }
 
     override val standalone: Boolean?
-        get() = TODO("Not implemented")
+        get() = null // not defined on DOM.
 
     override val version: String? get() = "1.0"
 
@@ -127,6 +142,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
 
     override fun next(): EventType {
+        _namespaceAttrs = null // reset lazy value
         val c = current
         if (c == null) {
             isStarted = true
@@ -141,8 +157,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
                         // This falls back all the way to the bottom to return the current even type (starting the sibling)
                     } else { // no more siblings, go back to parent
                         current = c.parentNode
-                        if (current?.nodeType == Node.ELEMENT_NODE) return EventType.END_ELEMENT
-                        return EventType.END_DOCUMENT
+                        return current?.nodeType?.toEventType(true) ?: EventType.END_DOCUMENT
                     }
                 }
                 c.firstChild != null -> { // If we have a child, the next element is the first child
@@ -161,7 +176,11 @@ class JSDomReader(val delegate: Node) : XmlReader {
                 }
 */
             }
-            return current!!.nodeType.toEventType()
+            val nodeType = current!!.nodeType
+            if (nodeType != Node.ELEMENT_NODE && nodeType != Node.DOCUMENT_NODE) {
+                atEndOfElement = true // No child elements for things like text
+            }
+            return nodeType.toEventType(atEndOfElement)
         }
     }
 
@@ -190,38 +209,39 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
 
     override fun getNamespacePrefix(index: Int): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return namespaceAttrs[index].prefix ?: ""
+    }
+
+    override fun getNamespaceURI(index: Int): String {
+        return namespaceAttrs[index].value ?: ""
     }
 
     override fun close() {
         current = null
     }
 
-    override fun getNamespaceURI(index: Int): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun getNamespacePrefix(namespaceUri: String): String? {
-        return requireCurrent.lookupPrefix(namespaceUri)
+        return requireCurrent.myLookupPrefix(namespaceUri)
     }
 
     override fun getNamespaceURI(prefix: String): String? {
-        return requireCurrent.lookupNamespaceURI(prefix)
+        return requireCurrent.myLookupNamespaceURI(prefix)
     }
 }
 
-private fun Short.toEventType(): EventType {
+
+private fun Short.toEventType(endOfElement: Boolean): EventType {
     return when (this) {
         Node.ATTRIBUTE_NODE              -> EventType.ATTRIBUTE
         Node.CDATA_SECTION_NODE          -> EventType.CDSECT
         Node.COMMENT_NODE                -> EventType.COMMENT
         Node.DOCUMENT_TYPE_NODE          -> EventType.DOCDECL
         Node.ENTITY_REFERENCE_NODE       -> EventType.ENTITY_REF
-        Node.DOCUMENT_NODE               -> EventType.START_DOCUMENT
+        Node.DOCUMENT_NODE               -> if (endOfElement) EventType.START_DOCUMENT else EventType.END_DOCUMENT
 //    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
         Node.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
         Node.TEXT_NODE                   -> EventType.TEXT
-        Node.ELEMENT_NODE                -> EventType.START_ELEMENT
+        Node.ELEMENT_NODE                -> if (endOfElement) EventType.END_ELEMENT else EventType.START_ELEMENT
 //    Node.ELEMENT_NODE -> EventType.END_ELEMENT
         else                             -> throw XmlException("Unsupported event type")
     }

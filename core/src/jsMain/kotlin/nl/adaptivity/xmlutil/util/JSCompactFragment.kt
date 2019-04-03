@@ -20,10 +20,10 @@
 
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.*
 import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Node
+import org.w3c.dom.parsing.XMLSerializer
 
 
 typealias JSCompactFragment = CompactFragment
@@ -61,8 +61,10 @@ actual class CompactFragment : ICompactFragment {
     /** Convenience constructor for content without namespaces.  */
     actual constructor(content: String) : this(emptyList(), content)
 
-    constructor(documentFragment: DocumentFragment):this(documentFragment.toString())
-    constructor(node: Node):this(node.toString())
+    constructor(documentFragment: DocumentFragment):this(
+        XMLSerializer().serializeToString(documentFragment)
+                                                        )
+    constructor(node: Node):this(XMLSerializer().serializeToString(node))
 
     /** Convenience constructor for content without namespaces.  */
     actual constructor(namespaces: Iterable<Namespace>, content: String) {
@@ -109,7 +111,7 @@ actual class CompactFragment : ICompactFragment {
     override fun toString(): String {
         return buildString {
             append("{namespaces=[")
-            namespaces.joinTo(this) { "\"${it.prefix} -> ${it.namespaceURI}" }
+            namespaces.joinTo(this) { "\"${it.prefix} -> ${it.namespaceURI}\"" }
 
             append("], content=")
                 .append(contentString)
