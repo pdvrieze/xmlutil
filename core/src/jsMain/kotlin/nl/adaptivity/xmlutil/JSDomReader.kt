@@ -37,17 +37,18 @@ class JSDomReader(val delegate: Node) : XmlReader {
     private var current: Node? = null
 
     override val namespaceURI: String
-        get() = current?.asElement()?.namespaceURI ?: throw XmlException(
-            "Only elements have a namespace uri"
-                                                                        )
+        get() = current?.asElement()?.run { namespaceURI ?: "" }
+            ?: throw XmlException("Only elements have a namespace uri")
+
     override val localName: String
-        get() = current?.asElement()?.localName ?: throw XmlException(
-            "Only elements have a local name"
-                                                                     )
+        get() = current?.asElement()?.localName
+            ?: throw XmlException("Only elements have a local name")
+
     override val prefix: String
-        get() = current?.asElement()?.prefix ?: throw XmlException(
-            "Only elements have a namespace uri"
-                                                                  )
+        get() = current?.asElement()?.run { prefix ?: "" }
+            ?: throw XmlException("Only elements have a prefix")
+
+
     override var isStarted: Boolean = false
         private set
 
@@ -69,11 +70,12 @@ class JSDomReader(val delegate: Node) : XmlReader {
 
     override val attributeCount get() = current?.asElement()?.attributes?.length ?: 0
 
-    override val eventType get() = when {
-        atEndOfElement==false                  -> current?.nodeType?.toEventType() ?: EventType.START_DOCUMENT
-        current?.nodeType == Node.ELEMENT_NODE -> EventType.END_ELEMENT
-        else                                   -> EventType.END_DOCUMENT
-    }
+    override val eventType
+        get() = when {
+            atEndOfElement == false                -> current?.nodeType?.toEventType() ?: EventType.START_DOCUMENT
+            current?.nodeType == Node.ELEMENT_NODE -> EventType.END_ELEMENT
+            else                                   -> EventType.END_DOCUMENT
+        }
 
     override val namespaceStart get() = TODO("Namespaces will need to be implemented independently")
 
@@ -132,7 +134,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
             return EventType.START_DOCUMENT
         } else { // set current to the new element
             when {
-                atEndOfElement        -> {
+                atEndOfElement       -> {
                     if (c.nextSibling != null) {
                         current = c.nextSibling
                         atEndOfElement = false
@@ -143,10 +145,10 @@ class JSDomReader(val delegate: Node) : XmlReader {
                         return EventType.END_DOCUMENT
                     }
                 }
-                c.firstChild != null  -> { // If we have a child, the next element is the first child
+                c.firstChild != null -> { // If we have a child, the next element is the first child
                     current = c.firstChild
                 }
-                else -> {
+                else                 -> {
                     // We have no children, but we have a sibling. We are at the end of this element, next we will return
                     // the sibling, or close the parent if there is no sibling
                     atEndOfElement = true
