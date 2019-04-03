@@ -23,6 +23,7 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 plugins {
     idea
     kotlin("android") apply false
+    id("com.jfrog.bintray")
 }
 
 description = "The overall project for cross-platform xml access"
