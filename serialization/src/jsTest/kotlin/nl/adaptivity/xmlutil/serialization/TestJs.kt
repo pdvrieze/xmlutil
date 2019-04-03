@@ -20,194 +20,130 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import nl.adaptivity.xml.serialization.Address
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import nl.adaptivity.xml.serialization.*
+import nl.adaptivity.xmlutil.XmlEvent
+import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private fun String.normalize() = replace(" />", "/>")
 
 class TestJs {
-    val address get() =  Address("10", "Downing Street", "London")
-    val expectedAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
-    val addrSerializer = Address.serializer()
 
-    fun serializedAddress()= XML.stringify(addrSerializer, address)
+    abstract class TestBase<T>(val value: T, val serializer: KSerializer<T>) {
+        abstract val expectedXML: String
+        abstract val expectedJson: String
 
-    @Test
-    fun serialize_simple_data_class() {
-        assertEquals(expectedAddressXml, serializedAddress())
+        fun serializeXml(): String = XML.stringify(serializer, value)
+        fun serializeJson(): String = Json(strictMode = false).stringify(serializer, value)
+
+        @Test
+        fun testSerializeXml() {
+            assertEquals(expectedXML, serializeXml())
+        }
+
+        @Test
+        fun testDeserializeXml() {
+            assertEquals(value, XML.parse(serializer, expectedXML))
+        }
+
+        @Test
+        fun testSerializeJson() {
+            assertEquals(expectedJson, serializeJson())
+        }
+
+        @Test
+        fun testDeserializeJson() {
+            assertEquals(value, Json(strictMode = false).parse(serializer, expectedJson))
+        }
+
     }
 
-    @Test
-    fun deserialize_simple_data_class() {
-        assertEquals(address, XML.parse(addrSerializer, serializedAddress()))
+    class SimpleDataTest : TestBase<Address>(
+        Address("10", "Downing Street", "London"),
+        Address.serializer()
+                                            ) {
+        override val expectedXML: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
+
+        override val expectedJson: String = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
+
     }
 
+    class OptionalBooleanTest : TestBase<Location>(
+        Location(Address("1600", "Pensylvania Avenue", "Washington DC")),
+        Location.serializer()
+                                                  ) {
+        override val expectedXML: String =
+            "<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
+        override val expectedJson: String =
+            "{\"addres\":{\"houseNumber\":\"1600\",\"street\":\"Pensylvania Avenue\",\"city\":\"Washington DC\"},\"temperature\":NaN}"
+    }
+
+    class SimpleClassWithNullablValueNONNULL : TestBase<NullableContainer>(
+        NullableContainer("myBar"),
+        NullableContainer.serializer()
+                                                                          ) {
+        override val expectedXML: String = "<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>"
+        override val expectedJson: String = "{\"bar\":\"myBar\"}"
+    }
+
+    class SimpleClassWithNullablValueNULL : TestBase<NullableContainer>(
+        NullableContainer(),
+        NullableContainer.serializer()
+                                                                       ) {
+        override val expectedXML: String = "<p:NullableContainer xmlns:p=\"urn:myurn\"/>"
+        override val expectedJson: String = "{\"bar\":null}"
+    }
+
+    class ASimpleBusiness : TestBase<Business>(
+        Business("ABC Corp", Address("1", "ABC road", "ABCVille")),
+        Business.serializer()
+                                              ) {
+        override val expectedXML: String =
+            "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
+        override val expectedJson: String = "{\"name\":\"ABC Corp\",\"headOffice\":{\"houseNumber\":\"1\",\"street\":\"ABC road\",\"city\":\"ABCVille\"}}"
+    }
+
+    class AChamberOfCommerce : TestBase<Chamber>(
+        Chamber(
+            "hightech", listOf(
+                Business("foo", null),
+                Business("bar", null)
+                              )
+               ),
+        Chamber.serializer()
+                                                ) {
+        override val expectedXML: String = "<chamber name=\"hightech\">" +
+                "<member name=\"foo\"/>" +
+                "<member name=\"bar\"/>" +
+                "</chamber>"
+        override val expectedJson: String = "{\"name\":\"hightech\",\"members\":[{\"name\":\"foo\",\"headOffice\":null},{\"name\":\"bar\",\"headOffice\":null}]}"
+    }
+
+    class AnEmptyChamber: TestBase<Chamber>(
+        Chamber("lowtech", emptyList()),
+        Chamber.serializer()
+                                           ) {
+        override val expectedXML: String = "<chamber name=\"lowtech\"/>"
+        override val expectedJson: String = "{\"name\":\"lowtech\",\"members\":[]}"
+    }
+
+    class ACompactFragment: TestBase<CompactFragment>(
+        CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>"),
+        CompactFragment.serializer()
+        ) {
+        override val expectedXML: String = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
+        override val expectedJson: String = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
+    }
 }
+
 
 /*
 @UseExperimental(ImplicitReflectionSerializer::class)
 object testXmlCommon : Spek(
     {
-        describe("A simple data class") {
-            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
-            val address = Address("10", "Downing Street", "London")
-            val addrSerializer = Address.serializer()
-
-            context("serialization with XML") {
-                val serialized = XML.stringify(addrSerializer, address).normalize()
-                it("should be the expected value") {
-                    assertEquals(expAddressXml, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(address, XML.parse(addrSerializer, serialized))
-                }
-            }
-
-            val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
-
-            context("serialization with JSON") {
-                val serialized = Json.stringify(addrSerializer, address).normalize()
-                it("should be the expected value") {
-                    assertEquals(expectedJSON, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(address, Json.parse(addrSerializer, serialized))
-                }
-            }
-        }
-
-        describe ("A data class with optional boolean") {
-            val location = Location(
-                Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
-
-            val ser = Location.serializer()
-
-            context("Serialization with XML") {
-                val serialized = XML.stringify(ser, location).normalize()
-                it("should serialize to the expected xml") {
-                    assertEquals(expectedXml,serialized)
-                }
-                it("should also parse to the original") {
-                    assertEquals(location, XML.parse(ser, serialized))
-                }
-
-            }
-        }
-
-
-        describe("A simple class with a nullable value"){
-            val setValue = NullableContainer("myBar")
-            val nullValue = NullableContainer()
-            val ser = NullableContainer.serializer()
-            context("serialization of a set value") {
-                val serialized = XML.stringify(ser, setValue).normalize()
-                it ("should match the expected value") {
-                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>", serialized)
-                }
-                it ("Should parse back to the original") {
-                    assertEquals(setValue, XML.parse(ser, serialized))
-                }
-            }
-            context("serialization of a null value") {
-                val serialized = XML.stringify(ser, nullValue).normalize()
-                it ("should match the expected value") {
-                    assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\"/>", serialized)
-                }
-                it ("Should parse back to the original") {
-                    assertEquals(nullValue, XML.parse(ser, serialized))
-                }
-            }
-        }
-
-
-        describe("A simple business") {
-            val expBusinessXml =
-                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
-
-            val business = Business("ABC Corp", Address("1", "ABC road", "ABCVille"))
-            context("serialization") {
-                val serialized = XML.stringify(business).normalize()
-                it("should equal the expected business xml") {
-                    assertEquals(expBusinessXml, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(business, XML.parse<Business>(serialized))
-                }
-            }
-        }
-
-        describe("A chamber of commerce") {
-            val expChamber="<chamber name=\"hightech\">"+
-                           "<member name=\"foo\"/>" +
-                           "<member name=\"bar\"/>" +
-                           "</chamber>"
-            val chamber = Chamber("hightech", listOf(Business("foo", null),
-                                                     Business("bar", null)))
-
-            context("serialization") {
-                val serialized = XML.stringify(chamber).normalize()
-                it("Should equal the chamber xml") {
-                    assertEquals(expChamber, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(chamber, XML.parse<Chamber>(serialized))
-                }
-            }
-        }
-
-        describe("An empty chamber") {
-            val expChamber="<chamber name=\"lowtech\"/>"
-            val chamber = Chamber("lowtech", emptyList())
-
-            context("serialization") {
-                val serialized = XML.stringify(chamber).normalize()
-                it("Should equal the chamber xml") {
-                    assertEquals(expChamber, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(chamber, XML.parse<Chamber>(serialized))
-                }
-            }
-        }
-
-        describe("a compactFragment") {
-            val expectedXml = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
-            val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
-
-            context("serialization with XML") {
-                val serialized = XML.stringify(fragment).normalize()
-                it("Should equal the expected fragment xml") {
-                    assertEquals(expectedXml, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(fragment, XML.parse<CompactFragment>(serialized))
-                }
-
-            }
-            val expectedJSON = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
-
-            context("serialization with JSON") {
-                val module = SimpleModule(CompactFragment::class, CompactFragmentSerializer)
-
-                val serialized = Json().apply { install(module) }.stringify(CompactFragmentSerializer, fragment).normalize()
-                it("Should equal the expected fragment JSON") {
-                    assertEquals(expectedJSON, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(fragment, Json.apply { install(module) }.parse(CompactFragmentSerializer, serialized))
-                }
-
-            }
-        }
 
         describe("A class with a namespace, but not explicit on its children") {
             val value = Namespaced("foo", "bar")

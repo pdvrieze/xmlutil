@@ -75,7 +75,7 @@ data class Sealed(val name: String, val members: List<SealedParent>)
 
 @Serializable
 data class SealedSingle(val name: String, val member: SealedA)
-
+*/
 @Serializable
 data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
 
@@ -136,4 +136,4 @@ class CustomSerializer : KSerializer<Custom> {
         encoder.encodeString(obj.property)
     }
 }
-*/
+

@@ -388,12 +388,17 @@ private fun undeclaredPrefixes(reader: XmlReader,
 
 fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, String>?, reader: XmlReader) {
     reader.forEach { type ->
+        // We already moved to the next event. Add the namespaces before writing as for a DOM implementation
+        // it is too late to do it afterwards.
+        if (reader.eventType==EventType.START_ELEMENT && missingNamespaces != null) {
+            addUndeclaredNamespaces(reader, missingNamespaces)
+        }
+
         reader.writeCurrent(this)
 
         @Suppress("NON_EXHAUSTIVE_WHEN")
         when (type) {
             EventType.START_ELEMENT -> {
-                if (missingNamespaces != null) addUndeclaredNamespaces(reader, missingNamespaces)
 
                 writeElementContent(missingNamespaces, reader)
             }
