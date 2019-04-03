@@ -443,7 +443,7 @@ extensions.configure<BintrayExtension>("bintray") {
     }
 
     val pubs = publishing.publications
-        .filter { it.name != "metadata" && it.name != "js" }
+        .filter { it.name != "metadata" }
         .map { it.name }
         .apply { forEach { logger.lifecycle("Registering publication \"$it\" to Bintray") } }
         .toTypedArray()
