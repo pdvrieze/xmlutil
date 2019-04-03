@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 private fun String.normalize() = replace(" />", "/>")
 
@@ -40,22 +41,22 @@ class TestJs {
         fun serializeJson(): String = Json(strictMode = false).stringify(serializer, value)
 
         @Test
-        fun testSerializeXml() {
+        open fun testSerializeXml() {
             assertEquals(expectedXML, serializeXml())
         }
 
         @Test
-        fun testDeserializeXml() {
+        open fun testDeserializeXml() {
             assertEquals(value, XML.parse(serializer, expectedXML))
         }
 
         @Test
-        fun testSerializeJson() {
+        open fun testSerializeJson() {
             assertEquals(expectedJson, serializeJson())
         }
 
         @Test
-        fun testDeserializeJson() {
+        open fun testDeserializeJson() {
             assertEquals(value, Json(strictMode = false).parse(serializer, expectedJson))
         }
 
@@ -136,6 +137,21 @@ class TestJs {
         ) {
         override val expectedXML: String = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
         override val expectedJson: String = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
+    }
+    class ClassWithImplicitChildNamespace: TestBase<Namespaced>(
+        Namespaced("foo", "bar"),
+        Namespaced.serializer()
+                                                               ) {
+        override val expectedXML: String = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+        val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+        override val expectedJson: String = "{\"elem1\":\"foo\",\"elem2\":\"bar\"}"
+
+        @Test
+        fun invalidXmlDoesNotDeserialize() {
+            assertFailsWith<UnknownXmlFieldException> {
+                XML.parse(serializer, invalidXml)
+            }
+        }
     }
 }
 

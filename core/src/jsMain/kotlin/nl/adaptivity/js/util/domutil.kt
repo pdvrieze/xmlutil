@@ -80,7 +80,7 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? = when {
         (it.prefix == "xmlns" ||
                 (it.prefix == "" && it.localName == "xmlns")) &&
                 it.value == namespaceUri
-    }.firstOrNull()?.let { if (it.prefix == "xmlns") localName else "" } ?: parentNode?.myLookupPrefix(namespaceUri)
+    }.firstOrNull()?.let { if (it.prefix == "xmlns") it.localName else "" } ?: parentNode?.myLookupPrefix(namespaceUri)
 }
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
