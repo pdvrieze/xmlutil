@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xml.serialization.*
 import nl.adaptivity.xmlutil.XmlEvent
@@ -104,7 +105,8 @@ class TestJs {
                                               ) {
         override val expectedXML: String =
             "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
-        override val expectedJson: String = "{\"name\":\"ABC Corp\",\"headOffice\":{\"houseNumber\":\"1\",\"street\":\"ABC road\",\"city\":\"ABCVille\"}}"
+        override val expectedJson: String =
+            "{\"name\":\"ABC Corp\",\"headOffice\":{\"houseNumber\":\"1\",\"street\":\"ABC road\",\"city\":\"ABCVille\"}}"
     }
 
     class AChamberOfCommerce : TestBase<Chamber>(
@@ -120,30 +122,36 @@ class TestJs {
                 "<member name=\"foo\"/>" +
                 "<member name=\"bar\"/>" +
                 "</chamber>"
-        override val expectedJson: String = "{\"name\":\"hightech\",\"members\":[{\"name\":\"foo\",\"headOffice\":null},{\"name\":\"bar\",\"headOffice\":null}]}"
+        override val expectedJson: String =
+            "{\"name\":\"hightech\",\"members\":[{\"name\":\"foo\",\"headOffice\":null},{\"name\":\"bar\",\"headOffice\":null}]}"
     }
 
-    class AnEmptyChamber: TestBase<Chamber>(
+    class AnEmptyChamber : TestBase<Chamber>(
         Chamber("lowtech", emptyList()),
         Chamber.serializer()
-                                           ) {
+                                            ) {
         override val expectedXML: String = "<chamber name=\"lowtech\"/>"
         override val expectedJson: String = "{\"name\":\"lowtech\",\"members\":[]}"
     }
 
-    class ACompactFragment: TestBase<CompactFragment>(
+    class ACompactFragment : TestBase<CompactFragment>(
         CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>"),
         CompactFragment.serializer()
-        ) {
-        override val expectedXML: String = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
-        override val expectedJson: String = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
+                                                      ) {
+        override val expectedXML: String =
+            "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
+        override val expectedJson: String =
+            "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
     }
-    class ClassWithImplicitChildNamespace: TestBase<Namespaced>(
+
+    class ClassWithImplicitChildNamespace : TestBase<Namespaced>(
         Namespaced("foo", "bar"),
         Namespaced.serializer()
-                                                               ) {
-        override val expectedXML: String = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
-        val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+                                                                ) {
+        override val expectedXML: String =
+            "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+        val invalidXml =
+            "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
         override val expectedJson: String = "{\"elem1\":\"foo\",\"elem2\":\"bar\"}"
 
         @Test
@@ -153,6 +161,56 @@ class TestJs {
             }
         }
     }
+
+    class AComplexElement : TestBase<Special>(
+        Special(),
+        Special.serializer()
+                                             ) {
+        override val expectedXML: String = """<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
+                "<f:flag>2</f:flag>" +
+                "<f:flag>3</f:flag>" +
+                "<f:flag>4</f:flag>" +
+                "<f:flag>5</f:flag>" +
+                "<f:flag>6</f:flag>" +
+                "</flags></localname>"
+        override val expectedJson: String = "{\"paramA\":\"valA\",\"paramB\":1,\"flagValues\":[2,3,4,5,6]}"
+    }
+
+    class InvertedPropertyOrder: TestBase<Inverted>(
+        Inverted("value2", 7),
+        Inverted.serializer()
+                                                   ) {
+        override val expectedXML: String = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
+        override val expectedJson: String = "{\"elem\":\"value2\",\"arg\":7}"
+
+        @Test
+        fun noticeMissingChild() {
+            val xml = "<Inverted arg='5'/>"
+            assertFailsWith<MissingFieldException> {
+                XML.parse(serializer, xml)
+            }
+        }
+
+        @Test
+        fun noticeIncompleteSpecification() {
+            val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
+            assertFailsWith<UnknownXmlFieldException>("Could not find a field for name argx") {
+                XML.parse(serializer, xml)
+            }
+
+        }
+    }
+
+    class CustomSerializedClass: TestBase<CustomContainer>(
+        CustomContainer(Custom("foobar")),
+        CustomContainer.serializer()
+                                                          ) {
+
+        override val expectedXML: String ="<CustomContainer elem=\"foobar\"/>"
+        override val expectedJson: String ="{\"nonXmlElemName\":\"foobar\"}"
+
+    }
+
 }
 
 
@@ -161,87 +219,22 @@ class TestJs {
 object testXmlCommon : Spek(
     {
 
-        describe("A class with a namespace, but not explicit on its children") {
-            val value = Namespaced("foo", "bar")
-            val expectedXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
-
-            context("Serialization") {
-                val serialized = XML.stringify(value).normalize()
-                it("should equal the expected xml") {
-                    assertEquals(expectedXml, serialized)
-                }
-                it("should deserialize to the original") {
-                    assertEquals(value, XML.parse(Namespaced.serializer(), serialized))
-                }
-            }
-            context("Invalid xml") {
-                val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
-                it("should fail") {
-                    assertFailsWith<UnknownXmlFieldException> {
-                        XML.parse(Namespaced.serializer(), invalidXml)
-                    }
-                }
-
-            }
-        }
-
-        describe("a more complex element") {
-            val special = Special()
-            val expectedSpecial="""<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
-                                "<f:flag>2</f:flag>" +
-                                "<f:flag>3</f:flag>" +
-                                "<f:flag>4</f:flag>" +
-                                "<f:flag>5</f:flag>" +
-                                "<f:flag>6</f:flag>" +
-                                "</flags></localname>"
-
+        describe("A container with a property with custom deserialization") {
+            val container = CustomContainer(Custom("foobar"))
+            val expected = "<CustomContainer elem=\"foobar\"/>"
             context("serialization") {
-                val serialized = XML.stringify(special).normalize()
-                it("Should equal the special xml") {
-                    assertEquals(expectedSpecial, serialized)
-                }
-
-                it("should parse to the original") {
-                    assertEquals(special, XML.parse<Special>(serialized))
-                }
-            }
-        }
-
-        describe("a class that has inverted property order") {
-            val inverted = Inverted("value2", 7)
-            val expected = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
-
-            context("serialization") {
-                val serialized = XML.stringify(inverted).normalize()
+                val serialized = XML.stringify(container).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
-
-                it("should parse to the original") {
-                    assertEquals(inverted, XML.parse<Inverted>(serialized))
+                it("should parse back to the original") {
+                    assertEquals(container, XML.parse(CustomContainer.serializer(), serialized))
                 }
 
             }
-
         }
 
-        describe("a missing child for inverted") {
-            val xml = "<Inverted arg='5'/>"
-            it("should throw an exception when parsing") {
-                assertFailsWith<MissingFieldException> {
-                    XML.parse<Inverted>(xml)
-                }
-            }
-        }
 
-        describe("An incomplete xml specification for inverted") {
-            val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
-            it("should throw an exception when parsing") {
-                assertFailsWith<SerializationException> {
-                    XML.parse<Inverted>(xml)
-                }
-            }
-        }
 
         describe("A class with polymorphic children") {
             val poly = Container("lbl", ChildA("data"))
@@ -291,21 +284,6 @@ object testXmlCommon : Spek(
 
                 it("should parse to the original") {
                     assertEquals(poly2, XML.parse<Container3>(serialized))
-                }
-
-            }
-        }
-
-        describe("A container with a property with custom deserialization") {
-            val container = CustomContainer(Custom("foobar"))
-            val expected = "<CustomContainer elem=\"foobar\"/>"
-            context("serialization") {
-                val serialized = XML.stringify(container).normalize()
-                it("should equal the expected xml form") {
-                    assertEquals(expected, serialized)
-                }
-                it("should parse back to the original") {
-                    assertEquals(container, XML.parse(CustomContainer.serializer(), serialized))
                 }
 
             }

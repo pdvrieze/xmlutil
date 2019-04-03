@@ -21,9 +21,11 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.internal.StringSerializer
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlChildrenName
+import nl.adaptivity.xmlutil.serialization.XmlDefault
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 
 @Serializable
@@ -89,6 +91,7 @@ data class Special(
     val paramA: String = "valA",
     @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
     @XmlElement(true) val paramB: Int = 1,
+    @SerialName("flagValues")
     @XmlSerialName("flags", namespace = "urn:namespace", prefix = "")
     @XmlChildrenName("flag", namespace = "urn:flag", prefix = "f")
     val param: List<Int> = listOf(2, 3, 4, 5, 6)
@@ -115,6 +118,7 @@ data class NullableContainer(var bar: String? = null)
 
 @Serializable
 data class CustomContainer(
+    @SerialName("nonXmlElemName")
     @XmlSerialName("elem", "", "")
     @Serializable(with = CustomSerializer::class)
     val somethingElse: Custom
