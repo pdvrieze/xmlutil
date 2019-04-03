@@ -103,17 +103,30 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
     fun getAttributeValue(nsUri: String?, localName: String): String?
 
+    /**
+     * Index of the first namespace relevant at this level. This allows the underlying implementation
+     * to implement namespaces as a stack.
+     */
     val namespaceStart: Int
 
+    /**
+     * Index of the last namespace relevant at this level
+     */
     val namespaceEnd: Int
 
+    /**
+     * Namespace prefix at the given index
+     */
     fun getNamespacePrefix(index: Int): String
 
-    override fun close()
-
+    /**
+     * Namespace uri at the given index
+     */
     fun getNamespaceURI(index: Int): String
 
     fun getNamespacePrefix(namespaceUri: String): String?
+
+    override fun close()
 
     fun isWhitespace(): Boolean = eventType === EventType.IGNORABLE_WHITESPACE ||
             (eventType === EventType.TEXT &&
