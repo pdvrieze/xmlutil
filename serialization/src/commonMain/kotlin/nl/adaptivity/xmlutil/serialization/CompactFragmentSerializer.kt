@@ -28,6 +28,9 @@ import nl.adaptivity.xmlutil.util.ICompactFragment
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun CompactFragment.Companion.serializer() = CompactFragmentSerializer
+
 @Serializer(forClass = CompactFragment::class)
 object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val descriptor get() = MYSERIALCLASSDESC
