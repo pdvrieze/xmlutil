@@ -24,9 +24,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.SerialModule
-import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -65,6 +63,8 @@ internal class XmlNameMap {
     }
 }
 
+private val defaultXmlModule = serializersModuleOf(CompactFragment::class, CompactFragmentSerializer)
+
 @Suppress("MemberVisibilityCanBePrivate")
 /**
  * Class that provides access to XML parsing and serialization for the Kotlin Serialization system. In most cases the
@@ -97,12 +97,9 @@ internal class XmlNameMap {
 class XML(
     val repairNamespaces: Boolean = true,
     val omitXmlDecl: Boolean = true,
-    var indent: Int = 0
-         ) : AbstractSerialFormat(), StringFormat {
-
-    init {
-        mutableContext.registerSerializer(CompactFragment::class, CompactFragmentSerializer)
-    }
+    var indent: Int = 0,
+    context: SerialModule = EmptyModule
+         ) : AbstractSerialFormat(context + defaultXmlModule), StringFormat {
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -111,7 +108,7 @@ class XML(
     @ImplicitReflectionSerializer
     @Suppress("unused")
     inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String =
-        stringify(context.getOrDefault(T::class), obj, prefix)
+        stringify(context.getContextualOrDefault(T::class), obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -126,7 +123,7 @@ class XML(
         obj: T,
         prefix: String? = null
                            ): String {
-        return stringify(context.getOrDefault(kClass), obj, prefix)
+        return stringify(context.getContextualOrDefault(kClass), obj, prefix)
     }
 
     /**
@@ -187,7 +184,7 @@ class XML(
      */
     @ImplicitReflectionSerializer
     inline fun <reified T : Any> toXml(target: XmlWriter, obj: T, prefix: String? = null) {
-        toXml(target, context.getOrDefault(T::class), obj, prefix)
+        toXml(target, context.getContextualOrDefault(T::class), obj, prefix)
     }
 
     @ImplicitReflectionSerializer
@@ -200,7 +197,7 @@ class XML(
         obj: T,
         target: XmlWriter,
         prefix: String? = null,
-        serializer: SerializationStrategy<T> = context.getOrDefault(kClass)
+        serializer: SerializationStrategy<T> = context.getContextualOrDefault(kClass)
                        ) =
         toXml(target, serializer, obj, prefix)
 
@@ -220,7 +217,7 @@ class XML(
         obj: T,
         prefix: String? = null
                        ) {
-        toXml(target, context.getOrDefault(kClass), obj, prefix)
+        toXml(target, context.getContextualOrDefault(kClass), obj, prefix)
     }
 
     /**
@@ -261,7 +258,7 @@ class XML(
     fun <T : Any> parse(
         kClass: KClass<T>,
         reader: XmlReader,
-        loader: DeserializationStrategy<T> = context.getOrDefault(kClass)
+        loader: DeserializationStrategy<T> = context.getContextualOrDefault(kClass)
                        ): T =
         parse(loader, reader)
 
@@ -270,7 +267,7 @@ class XML(
         kClass: KClass<T>,
         reader: XmlReader
                        ): T =
-        parse(context.getOrDefault(kClass), reader)
+        parse(context.getContextualOrDefault(kClass), reader)
 
 
     /**
@@ -313,7 +310,7 @@ class XML(
      */
     @ImplicitReflectionSerializer
     fun <T : Any> parse(kClass: KClass<T>, string: String): T {
-        return parse(context.getOrDefault(kClass), XmlStreaming.newReader(string))
+        return parse(context.getContextualOrDefault(kClass), XmlStreaming.newReader(string))
     }
 
     override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
@@ -322,12 +319,8 @@ class XML(
 
     companion object : StringFormat {
         val defaultInstance = XML()
-        override val context: SerialContext
+        override val context: SerialModule
             get() = defaultInstance.context
-
-        override fun install(module: SerialModule) {
-            defaultInstance.install(module)
-        }
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -516,7 +509,7 @@ class XML(
                 /**
                  * The currently active serialization context
                  */
-        val context: SerialContext?
+        val context: SerialModule?
         /**
          * The XmlWriter used. Can be used directly by serializers
          */
@@ -537,20 +530,6 @@ class XML(
     }
 
 }
-
-private object DEFAULTSERIALCONTEXT : SerialContext {
-    override fun <T : Any> get(kclass: KClass<T>): KSerializer<T>? {
-        @Suppress("UNCHECKED_CAST")
-        return if (kclass == CompactFragment::class) (CompactFragmentSerializer as KSerializer<T>) else null
-    }
-
-    override fun <T : Any> getByValue(value: T): KSerializer<T>? {
-        @Suppress("UNCHECKED_CAST")
-        return get(value::class) as KSerializer<T>
-    }
-}
-
-private fun defaultSerialContext(): SerialContext = DEFAULTSERIALCONTEXT
 
 private fun Collection<Annotation>.getXmlSerialName(): QName? {
     val serialName = firstOrNull<XmlSerialName>()

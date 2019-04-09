@@ -21,7 +21,8 @@
 package nl.adaptivity.xmlutil.util
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.MutableSerialContextImpl
+import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.serialization.XML
@@ -55,13 +56,13 @@ class KotlinxSerializationProvider : SerializationProvider {
 
     private companion object {
 
-        private val serializers = MutableSerialContextImpl()
+        private val serializers = mutableMapOf<KClass<*>, KSerializer<*>>()
 
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> getSerializer(type: KClass<T>): KSerializer<T>? {
 
-            return serializers[type] ?: try {
-                type.serializer().also { serializers.registerSerializer(type, it) }
+            return serializers[type] as? KSerializer<T> ?: try {
+                type.serializer().also { serializers.put(type, it) }
             } catch (e: SerializationException) {
                 null
             }

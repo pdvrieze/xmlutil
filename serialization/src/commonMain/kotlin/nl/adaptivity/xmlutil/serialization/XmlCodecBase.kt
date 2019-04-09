@@ -24,11 +24,11 @@ import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.StructureKind
 import kotlinx.serialization.UnionKind
-import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import kotlin.jvm.JvmStatic
 
-internal open class XmlCodecBase internal constructor(val context: SerialContext) {
+internal open class XmlCodecBase internal constructor(val context: SerialModule) {
 
     companion object {
 
@@ -127,7 +127,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
         val desc: SerialDescriptor,
         val parentNamespace: Namespace
                                              ) {
-        val context: SerialContext get() = this@XmlCodecBase.context
+        val context: SerialModule get() = this@XmlCodecBase.context
 
         open val serialName: QName get() = parentDesc.requestedName(parentNamespace, elementIndex, desc)
 

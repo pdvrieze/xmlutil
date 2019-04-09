@@ -21,13 +21,13 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 
 internal open class XmlEncoderBase internal constructor(
-    context: SerialContext,
+    context: SerialModule,
     val target: XmlWriter
                                                        ) : XmlCodecBase(context) {
 

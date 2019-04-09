@@ -143,15 +143,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":core"))
-/*
-                project.dependencies {
-                    add(implementationConfigurationName, project(":core", "commonMainImplementation"))
-                }
-*/
+                api(project(":core"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
         val commonTest by getting {
@@ -168,9 +162,7 @@ kotlin {
         val javaShared by creating {
             dependsOn(commonMain)
             dependencies {
-                api(project(":core"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
         val javaSharedTest by creating {
@@ -180,13 +172,6 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation(project(":core"))
-/*
-                project.dependencies {
-                    add(implementationConfigurationName, project(":core", "jvmRuntimeElements"))
-                }
-*/
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
             }
         }
@@ -196,10 +181,6 @@ kotlin {
                 implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
-
-                //        implementation("org.spekframework.spek2:spek-dsl-jvm:${spek2Version}")
-
 
                 project.dependencies.add(
                     implementationConfigurationName,
@@ -272,6 +253,7 @@ kotlin {
         val jsMain by getting {
             //            dependsOn(commonMain)
             dependencies {
+                api(project(":core"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
