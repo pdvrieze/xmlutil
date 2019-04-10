@@ -70,7 +70,8 @@ internal class ExtSerialDescriptorImpl(
         return buildString {
             append(name)
             (0 until elementsCount).joinTo(this, prefix = "(", postfix = ")") { idx ->
-                "${getElementName(idx)}:${getElementDescriptor(idx).name}${if (childDescriptors[idx].isNullable) "?" else ""}"
+                val elemDesc = try { getElementDescriptor(idx) } catch (e: Exception) { null }
+                "${getElementName(idx)}:${elemDesc?.name}${if (elemDesc?.isNullable ==true) "?" else ""}"
             }
         }
     }

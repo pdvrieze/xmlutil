@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform")
+    kotlin("multiplatform")
     id("kotlinx-serialization")
     id("maven-publish")
     id("com.jfrog.bintray")
@@ -145,7 +145,7 @@ kotlin {
             dependencies {
                 api(project(":core"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+                implementation(kotlin("stdlib"))
             }
         }
         val commonTest by getting {
@@ -162,7 +162,7 @@ kotlin {
         val javaShared by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+                implementation(kotlin("stdlib-jdk7"))
             }
         }
         val javaSharedTest by creating {
@@ -172,7 +172,7 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+                implementation(kotlin("stdlib-jdk8"))
             }
         }
         val jvmTest by getting {
@@ -224,7 +224,7 @@ kotlin {
 
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+                implementation(kotlin("stdlib-jdk8"))
 
                 project.dependencies.add(
                     implementationConfigurationName,
@@ -411,6 +411,7 @@ tasks.create<Test>("test") {
 
 repositories {
     jcenter()
+    maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
 }
 
 publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
