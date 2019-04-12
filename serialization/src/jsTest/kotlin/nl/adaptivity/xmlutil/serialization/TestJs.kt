@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import nl.adaptivity.xml.serialization.*
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -32,6 +33,8 @@ import kotlin.test.assertFailsWith
 
 private fun String.normalize() = replace(" />", "/>")
 
+val testConfiguration = JsonConfiguration(strictMode = false)
+
 class TestJs {
 
     abstract class TestBase<T>(val value: T, val serializer: KSerializer<T>) {
@@ -39,7 +42,7 @@ class TestJs {
         abstract val expectedJson: String
 
         fun serializeXml(): String = XML.stringify(serializer, value)
-        fun serializeJson(): String = Json(strictMode = false).stringify(serializer, value)
+        fun serializeJson(): String = Json(testConfiguration).stringify(serializer, value)
 
         @Test
         open fun testSerializeXml() {
@@ -58,7 +61,7 @@ class TestJs {
 
         @Test
         open fun testDeserializeJson() {
-            assertEquals(value, Json(strictMode = false).parse(serializer, expectedJson))
+            assertEquals(value, Json(testConfiguration).parse(serializer, expectedJson))
         }
 
     }

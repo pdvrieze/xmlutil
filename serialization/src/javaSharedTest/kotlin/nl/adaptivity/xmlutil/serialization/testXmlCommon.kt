@@ -23,8 +23,10 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.context.SimpleModule
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SimpleModule
+import kotlinx.serialization.modules.serializersModuleOf
+import kotlinx.serialization.parse
 import nl.adaptivity.xml.serialization.*
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -185,15 +187,15 @@ object testXmlCommon : Spek(
             val expectedJSON = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
 
             context("serialization with JSON") {
-                val module = SimpleModule(CompactFragment::class, CompactFragmentSerializer)
+                val module = serializersModuleOf(CompactFragment::class, CompactFragmentSerializer)
 
-                val serialized = Json().apply { install(module) }.stringify(CompactFragmentSerializer, fragment).normalize()
+                val serialized = Json(context = module).stringify(CompactFragmentSerializer, fragment).normalize()
                 it("Should equal the expected fragment JSON") {
                     assertEquals(expectedJSON, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(fragment, Json().apply { install(module) }.parse(CompactFragmentSerializer, serialized))
+                    assertEquals(fragment, Json(context = module).parse(CompactFragmentSerializer, serialized))
                 }
 
             }
@@ -285,13 +287,13 @@ object testXmlCommon : Spek(
             val poly = Container("lbl", ChildA("data"))
             val expected = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
             context ("serialization") {
-                val serialized = XML.stringify(poly).normalize()
+                val serialized = XML(context = baseModule).stringify(poly).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(poly, XML.parse<Container>(serialized))
+                    assertEquals(poly, XML(context = baseModule).parse(Container.serializer(), serialized))
                 }
 
             }
@@ -302,14 +304,14 @@ object testXmlCommon : Spek(
                                                    ChildB("xxx")))
             val expected = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
             context ("serialization") {
-                val serialized = XML.stringify(poly2).normalize()
+                val serialized = XML(context = baseModule).stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(poly2, XML.parse<Container2>(serialized))
+                    assertEquals(poly2, XML(context = baseModule).parse<Container2>(serialized))
                 }
 
             }
@@ -321,14 +323,14 @@ object testXmlCommon : Spek(
                                                    ChildA("yyy")))
             val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
             context ("serialization") {
-                val serialized = XML.stringify(poly2).normalize()
+                val serialized = XML(context = baseModule).stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(poly2, XML.parse<Container3>(serialized))
+                    assertEquals(poly2, XML(context = baseModule).parse<Container3>(serialized))
                 }
 
             }
@@ -371,7 +373,7 @@ object testXmlCommon : Spek(
                                                    SealedB("b-data")))
             val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
             context ("serialization") {
-                val serialized = XML.stringify(sealed).normalize()
+                val serialized = XML(context = sealedModule).stringify(sealed).normalize()
 
                 // Disabled because sealed classes are broken when used in lists
                 xit("should equal the expected xml form") {
@@ -379,11 +381,11 @@ object testXmlCommon : Spek(
                 }
 
                 it("should parse to the original") {
-                    assertEquals(sealed, XML.parse<Sealed>(serialized))
+                    assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(serialized))
                 }
 
                 delegate.test("The expected value should also parse to the original", Skip.Yes("Waiting for sealed support")) {
-                    assertEquals(sealed, XML.parse<Sealed>(expected))
+                    assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(expected))
                 }
 
             }

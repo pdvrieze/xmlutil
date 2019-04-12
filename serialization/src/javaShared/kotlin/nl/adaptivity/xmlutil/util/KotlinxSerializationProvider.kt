@@ -21,6 +21,8 @@
 package nl.adaptivity.xmlutil.util
 
 import kotlinx.serialization.*
+import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.serialization.XML

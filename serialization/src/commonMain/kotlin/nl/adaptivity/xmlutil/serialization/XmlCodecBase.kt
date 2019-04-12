@@ -24,12 +24,11 @@ import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.StructureKind
 import kotlinx.serialization.UnionKind
-import kotlinx.serialization.context.SerialContext
+import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.tryShortenTypeName
 import kotlin.jvm.JvmStatic
 
-internal open class XmlCodecBase internal constructor(val context: SerialContext) {
+internal open class XmlCodecBase internal constructor(val context: SerialModule) {
 
     companion object {
 
@@ -148,7 +147,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
         val desc: SerialDescriptor,
         val parentNamespace: Namespace
                                              ) {
-        val context: SerialContext get() = this@XmlCodecBase.context
+        val context: SerialModule get() = this@XmlCodecBase.context
 
         open val serialName: QName get() = parentDesc.requestedName(parentNamespace, elementIndex, desc)
 
@@ -156,10 +155,8 @@ internal open class XmlCodecBase internal constructor(val context: SerialContext
 
         internal fun QName.normalize(): QName {
             return when {
-                namespaceURI.isEmpty() -> copy(
-                    namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
-                    prefix = ""
-                                              )
+                namespaceURI.isEmpty() -> copy(namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
+                                               prefix = "")
                 else                   -> copy(prefix = "")
             }
         }

@@ -21,13 +21,13 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 
 internal open class XmlEncoderBase internal constructor(
-    context: SerialContext,
+    context: SerialModule,
     val target: XmlWriter
                                                        ) : XmlCodecBase(context) {
 
@@ -134,7 +134,6 @@ internal open class XmlEncoderBase internal constructor(
         private var deferring: Boolean = true
                                         ) :
         XmlTagCodec(parentDesc, elementIndex, desc, parentNamespace), CompositeEncoder, XML.XmlOutput {
-
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext

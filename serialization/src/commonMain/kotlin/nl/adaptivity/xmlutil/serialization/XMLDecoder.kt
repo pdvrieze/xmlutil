@@ -21,8 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.Canary
@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
 internal open class XmlDecoderBase internal constructor(
-    context: SerialContext,
+    context: SerialModule,
     val input: XmlReader
                                                        ) : XmlCodecBase(context) {
 
@@ -596,7 +596,7 @@ internal open class XmlDecoderBase internal constructor(
 
                     when (eventType) {
                         EventType.END_ELEMENT   -> return readElementEnd(desc)
-                        EventType.TEXT          -> if (!input.isWhitespace()) return parentDesc.getValueChild()
+                        EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChild()
                         EventType.ATTRIBUTE     -> return indexOf(input.name, true)
                         EventType.START_ELEMENT -> return indexOf(input.name, false)
                         else                    -> throw AssertionError("Unexpected event in stream")

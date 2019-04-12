@@ -24,9 +24,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.io.StringWriter
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
-import kotlinx.serialization.context.SerialModule
-import kotlinx.serialization.context.getOrDefault
+import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -65,6 +63,8 @@ internal class XmlNameMap {
     }
 }
 
+private val defaultXmlModule = serializersModuleOf(CompactFragment::class, CompactFragmentSerializer)
+
 @Suppress("MemberVisibilityCanBePrivate")
 /**
  * Class that provides access to XML parsing and serialization for the Kotlin Serialization system. In most cases the
@@ -97,12 +97,9 @@ internal class XmlNameMap {
 class XML(
     val repairNamespaces: Boolean = true,
     val omitXmlDecl: Boolean = true,
-    var indent: Int = 0
-         ) : AbstractSerialFormat(), StringFormat {
-
-    init {
-        mutableContext.registerSerializer(CompactFragment::class, CompactFragmentSerializer)
-    }
+    var indent: Int = 0,
+    context: SerialModule = EmptyModule
+         ) : AbstractSerialFormat(context + defaultXmlModule), StringFormat {
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -322,12 +319,8 @@ class XML(
 
     companion object : StringFormat {
         val defaultInstance = XML()
-        override val context: SerialContext
+        override val context: SerialModule
             get() = defaultInstance.context
-
-        override fun install(module: SerialModule) {
-            defaultInstance.install(module)
-        }
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -516,7 +509,7 @@ class XML(
                 /**
                  * The currently active serialization context
                  */
-        val context: SerialContext?
+        val context: SerialModule?
         /**
          * The XmlWriter used. Can be used directly by serializers
          */
@@ -536,18 +529,6 @@ class XML(
         val input: XmlReader
     }
 
-}
-
-private object defaultXmlModule : SerialContext {
-    override fun <T : Any> get(kclass: KClass<T>): KSerializer<T>? {
-        @Suppress("UNCHECKED_CAST")
-        return if (kclass == CompactFragment::class) (CompactFragmentSerializer as KSerializer<T>) else null
-    }
-
-    override fun <T : Any> getByValue(value: T): KSerializer<T>? {
-        @Suppress("UNCHECKED_CAST")
-        return get(value::class) as KSerializer<T>
-    }
 }
 
 private fun Collection<Annotation>.getXmlSerialName(): QName? {
@@ -621,7 +602,7 @@ internal fun SerialDescriptor.getValueChild(): Int {
         for (i in 0 until elementsCount) {
             if (getElementAnnotations(i).any { it is XmlValue }) return i
         }
-        return CompositeDecoder.UNKNOWN_NAME
+        throw XmlSerialException("No value child found for type with descriptor: $this")
     }
 }
 
@@ -662,6 +643,3 @@ inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
     XML.toXml(out, kClass = kClass, obj = this)
-
-@ImplicitReflectionSerializer
-inline fun <T:Any> SerialContext.getContextualOrDefault(klass: KClass<T>) = getOrDefault(klass)

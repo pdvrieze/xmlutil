@@ -17,29 +17,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+@file:ContextualSerialization(ChildA::class, ChildB::class)
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.serialization.*
-
-/*
-@Serializable
-@XmlSerialName("address", namespace = "", prefix = "")
-data class Address(val houseNumber: String, val street: String, val city: String)
-
-@Serializable
-data class Location(
-    val addres: Address,
-    @XmlDefault("NaN")
-    @Optional val temperature: Double = Double.NaN
-                   )
-*/
 
 @Serializable
 open class Base
+
+val baseModule = SerializersModule {
+    polymorphic(Base::class) {
+        ChildA::class with ChildA.serializer()
+        ChildB::class with ChildB.serializer()
+    }
+}
 
 @Serializable
 @XmlSerialName("childA", namespace = "", prefix = "")
@@ -62,6 +57,13 @@ data class Container3(val xxx: String, @SerialName("member") val members: List<@
 @Serializable
 sealed /*open*/ class SealedParent
 
+val sealedModule = SerializersModule {
+    polymorphic(SealedParent::class) {
+        SealedA::class with SealedA.serializer()
+        SealedB::class with SealedB.serializer()
+    }
+}
+
 @Serializable
 data class SealedA(val data: String, val extra: String = "2") : SealedParent()
 
@@ -73,66 +75,3 @@ data class Sealed(val name: String, val members: List<@Polymorphic SealedParent>
 
 @Serializable
 data class SealedSingle(val name: String, val member: SealedA)
-
-/*
-@Serializable
-data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
-
-@Serializable
-@XmlSerialName("chamber", namespace = "", prefix = "")
-data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
-
-@Serializable
-@XmlSerialName("localname", "urn:namespace", prefix = "")
-data class Special(
-    val paramA: String = "valA",
-    @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
-    @XmlElement(true) val paramB: Int = 1,
-    @XmlSerialName("flags", namespace = "urn:namespace", prefix = "")
-    @XmlChildrenName("flag", namespace = "urn:flag", prefix = "f")
-    val param: List<Int> = listOf(2, 3, 4, 5, 6)
-                  )
-
-@Serializable
-data class Inverted(
-    @XmlElement(true)
-    val elem: String = "value",
-    val arg: Short = 6
-                   )
-
-@Serializable
-@XmlSerialName("namespaced", "http://example.org", "xo")
-data class Namespaced(
-    @XmlElement(true)
-    val elem1: String,
-    @XmlElement(true)
-    val elem2: String)
-
-@Serializable
-@XmlSerialName("NullableContainer", "urn:myurn", "p")
-data class NullableContainer(var bar: String? = null)
-
-@Serializable
-data class CustomContainer(
-    @XmlSerialName("elem", "", "")
-    @Serializable(with = CustomSerializer::class)
-    val somethingElse: Custom
-                          )
-
-data class Custom(val property: String)
-
-@Serializer(forClass = Custom::class)
-class CustomSerializer : KSerializer<Custom> {
-
-    override val descriptor: SerialDescriptor = StringSerializer.descriptor
-
-
-    override fun deserialize(decoder: Decoder): Custom {
-        return Custom(decoder.decodeString())
-    }
-
-    override fun serialize(encoder: Encoder, obj: Custom) {
-        encoder.encodeString(obj.property)
-    }
-}
-*/
