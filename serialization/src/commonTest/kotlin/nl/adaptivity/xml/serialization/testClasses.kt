@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2019.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -38,46 +38,7 @@ data class Location(
     @XmlDefault("NaN")
     @Optional val temperature: Double = Double.NaN
                    )
-/*
 
-@Serializable
-open class JsIncompatBase
-
-@Serializable
-@XmlSerialName("childA", namespace = "", prefix = "")
-data class ChildA(val valueA: String) : JsIncompatBase()
-
-@Serializable
-@XmlSerialName("childB", namespace = "", prefix = "")
-data class ChildB(val valueB: String) : JsIncompatBase()
-
-//@Serializable
-data class Container(val label: String, val member: JsIncompatBase)
-
-//@Serializable
-data class Container2(val name: String, @XmlPolyChildren(["ChildA", "ChildB=better"]) val children: List<JsIncompatBase>)
-
-@SerialName("container-3")
-//@Serializable
-data class Container3(val xxx: String, @SerialName("member") val members: List<JsIncompatBase>)
-
-@Serializable
-sealed */
-/*open*//*
- class SealedParent
-
-@Serializable
-data class SealedA(val data: String, val extra: String = "2") : SealedParent()
-
-@Serializable
-data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
-
-//@Serializable
-data class Sealed(val name: String, val members: List<SealedParent>)
-
-@Serializable
-data class SealedSingle(val name: String, val member: SealedA)
-*/
 @Serializable
 data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
 
@@ -99,8 +60,10 @@ data class Special(
 
 @Serializable
 data class Inverted(
+    @Required
     @XmlElement(true)
     val elem: String = "value",
+    @Required
     val arg: Short = 6
                    )
 

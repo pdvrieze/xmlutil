@@ -21,13 +21,13 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 
 internal open class XmlEncoderBase internal constructor(
-    context: SerialModule,
+    context: SerialContext,
     val target: XmlWriter
                                                        ) : XmlCodecBase(context) {
 
@@ -324,7 +324,7 @@ internal open class XmlEncoderBase internal constructor(
                 }
             } else {
                 if (index == 0) { // The attribute name is renamed to type and forced to attribute
-                    doWriteAttribute(QName("type"), value)
+                    doWriteAttribute(QName("type"), value.tryShortenTypeName(parentDesc.name))
                 } else {
                     super.encodeStringElement(desc, index, value)
                 }

@@ -56,7 +56,7 @@ pluginManagement {
                     useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
                     break
                 case "kotlinx-serialization":
-                    def version = (requested.version == null || requested.version.length() == 0) ? serializationPluginVersion : requested.version
+                    def version = (requested.version == null || requested.version.length() == 0) ? kotin_version : requested.version
                     useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
                 case "com.jfrog.bintray":
                     useVersion(requested.version!=null ? requested.version : bintrayVersion)

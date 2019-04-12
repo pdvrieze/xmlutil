@@ -144,7 +144,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                project.dependencies.add(apiConfigurationName,
+                "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
                 implementation(kotlin("stdlib"))
             }
         }
@@ -255,10 +258,15 @@ kotlin {
             dependencies {
                 api(project(":core"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
+                project.dependencies.add(
+                    implementationConfigurationName,
+                    "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
             }
         }
         val jsTest by getting {
+            dependsOn(commonTest)
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -400,14 +408,6 @@ tasks {
         dependsOn(testMochaChrome)
     }
 }
-/*
-
-tasks.create<Test>("test") {
-    group = "verification"
-    dependsOn(tasks["jvmTest"])
-    dependsOn(tasks["androidTest"])
-}
-*/
 
 repositories {
     jcenter()

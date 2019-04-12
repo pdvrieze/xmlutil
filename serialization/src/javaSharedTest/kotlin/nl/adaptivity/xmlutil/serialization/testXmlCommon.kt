@@ -193,7 +193,7 @@ object testXmlCommon : Spek(
                 }
 
                 it("should parse to the original") {
-                    assertEquals(fragment, Json.apply { install(module) }.parse(CompactFragmentSerializer, serialized))
+                    assertEquals(fragment, Json().apply { install(module) }.parse(CompactFragmentSerializer, serialized))
                 }
 
             }
@@ -281,9 +281,9 @@ object testXmlCommon : Spek(
             }
         }
 
-        describe("A class with polymorphic children") {
+        describe("A class with a polymorphic child") {
             val poly = Container("lbl", ChildA("data"))
-            val expected = "<Container label=\"lbl\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member></Container>"
+            val expected = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
             context ("serialization") {
                 val serialized = XML.stringify(poly).normalize()
                 it("should equal the expected xml form") {
@@ -351,11 +351,11 @@ object testXmlCommon : Spek(
 
         describe("A container with a sealed child") {
             val sealed = SealedSingle("mySealed", SealedA("a-data"))
-            val expected = "<SealedSingle name=\"mySealed\"><SealedA valueA=\"a-data\"/></SealedSingle>"
+            val expected = "<SealedSingle name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/></SealedSingle>"
             context ("serialization") {
                 val serialized = XML.stringify(sealed).normalize()
 
-                xit("should equal the expected xml form") {
+                it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 
@@ -374,7 +374,7 @@ object testXmlCommon : Spek(
                 val serialized = XML.stringify(sealed).normalize()
 
                 // Disabled because sealed classes are broken when used in lists
-                xit("should equal the expected xml form", "Waiting for sealed support") {
+                xit("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 

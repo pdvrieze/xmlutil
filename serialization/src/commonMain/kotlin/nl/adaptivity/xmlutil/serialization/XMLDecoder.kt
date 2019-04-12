@@ -21,8 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.Canary
@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
 internal open class XmlDecoderBase internal constructor(
-    context: SerialModule,
+    context: SerialContext,
     val input: XmlReader
                                                        ) : XmlCodecBase(context) {
 
@@ -758,12 +758,14 @@ internal open class XmlDecoderBase internal constructor(
                                                   ): T {
             val childName = polyInfo?.tagName ?: parentDesc.requestedChildName(elementIndex) ?: serialName
 
+            // This is an anonymous list decoder. The descriptor passed here is for a list, not the xml parent element.
+
             val decoder =
                 RenamedDecoder(
                     childName,
                     parentNamespace,
-                    desc,
-                    index,
+                    parentDesc,
+                    elementIndex,
                     Canary.serialDescriptor(deserializer),
                     polyInfo,
                     Int.MIN_VALUE
@@ -859,7 +861,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {
             return when (index) {
                 0    -> when (polyInfo) {
-                    null -> input.getAttributeValue(null, "type")
+                    null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.name)
                         ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
                     else -> polyInfo.kClass
                 }

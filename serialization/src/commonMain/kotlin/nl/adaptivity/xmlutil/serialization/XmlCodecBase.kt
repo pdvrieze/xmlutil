@@ -24,11 +24,12 @@ import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.StructureKind
 import kotlinx.serialization.UnionKind
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.context.SerialContext
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.tryShortenTypeName
 import kotlin.jvm.JvmStatic
 
-internal open class XmlCodecBase internal constructor(val context: SerialModule) {
+internal open class XmlCodecBase internal constructor(val context: SerialContext) {
 
     companion object {
 
@@ -62,7 +63,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
                     } else if (index == 0) { // We are in a list or something that has a confused descriptor
                         return getElementName(0).toQname(parentNamespace)
                     } else { // index >0
-                        if (childDesc==null || childDesc.kind is PrimitiveKind) {
+                        if (childDesc == null || childDesc.kind is PrimitiveKind) {
                             return getElementName(index).toQname(parentNamespace)
                         } else {
                             childDesc.getEntityAnnotations().firstOrNull<XmlSerialName>()?.let { return it.toQName() }
@@ -97,7 +98,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
             }
 
             // Lists are always elements
-            if (childDesc !=null) {
+            if (childDesc != null) {
                 if (childDesc.elementsCount > 1) return OutputKind.Element
                 childDesc.getEntityAnnotations().firstOrNull<XmlElement>()
                     ?.let { if (it.value) return OutputKind.Element else OutputKind.Attribute }
@@ -108,6 +109,26 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
                 is PrimitiveKind -> OutputKind.Attribute
                 else             -> OutputKind.Element
             }
+        }
+
+        internal fun String.expandTypeNameIfNeeded(parentType: String): String {
+            if (!startsWith('.')) return this
+            val parentPkg = parentType.lastIndexOf('.').let { idx ->
+                if (idx<0) return substring(1)
+                parentType.substring(0, idx)
+            }
+            return "$parentPkg$this"
+        }
+
+        internal fun String.tryShortenTypeName(parentType: String): String {
+            val parentPkg = parentType.lastIndexOf('.').let { idx ->
+                if (idx<0) return this
+                parentType.substring(0, idx)
+            }
+            if(startsWith(parentPkg) && indexOf('.', parentPkg.length+1)<0) {
+                return substring(parentPkg.length) // include starting . to signal relative type
+            }
+            return this
         }
     }
 
@@ -127,7 +148,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
         val desc: SerialDescriptor,
         val parentNamespace: Namespace
                                              ) {
-        val context: SerialModule get() = this@XmlCodecBase.context
+        val context: SerialContext get() = this@XmlCodecBase.context
 
         open val serialName: QName get() = parentDesc.requestedName(parentNamespace, elementIndex, desc)
 
@@ -135,16 +156,20 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
 
         internal fun QName.normalize(): QName {
             return when {
-                namespaceURI.isEmpty() -> copy(namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
-                                               prefix = "")
+                namespaceURI.isEmpty() -> copy(
+                    namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
+                    prefix = ""
+                                              )
                 else                   -> copy(prefix = "")
             }
         }
 
 
-        fun polyTagName(parentTag: QName,
-                        polyChild: String,
-                        itemIdx: Int): PolyInfo {
+        fun polyTagName(
+            parentTag: QName,
+            polyChild: String,
+            itemIdx: Int
+                       ): PolyInfo {
             val currentTypeName = parentDesc.name
             val currentPkg = currentTypeName.substringBeforeLast('.', "")
             val eqPos = polyChild.indexOf('=')
@@ -175,7 +200,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
             }
 
             val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
-                                       ?: parentTag.namespaceURI else parentTag.namespaceURI
+                ?: parentTag.namespaceURI else parentTag.namespaceURI
 
             val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
 
@@ -184,8 +209,10 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
             return PolyInfo(typename, name, itemIdx)
         }
 
-        fun polyInfo(parentTag: QName,
-                     polyChildren: Array<String>): XmlNameMap {
+        fun polyInfo(
+            parentTag: QName,
+            polyChildren: Array<String>
+                    ): XmlNameMap {
             val result = XmlNameMap()
 
             for (polyChild in polyChildren) {

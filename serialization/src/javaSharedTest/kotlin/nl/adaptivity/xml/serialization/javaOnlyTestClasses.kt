@@ -25,7 +25,7 @@ import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.internal.StringSerializer
 import nl.adaptivity.xmlutil.serialization.*
 
-
+/*
 @Serializable
 @XmlSerialName("address", namespace = "", prefix = "")
 data class Address(val houseNumber: String, val street: String, val city: String)
@@ -36,6 +36,7 @@ data class Location(
     @XmlDefault("NaN")
     @Optional val temperature: Double = Double.NaN
                    )
+*/
 
 @Serializable
 open class Base
@@ -49,14 +50,14 @@ data class ChildA(val valueA: String) : Base()
 data class ChildB(val valueB: String) : Base()
 
 @Serializable
-data class Container(val label: String, val member: Base)
+data class Container(val label: String, @Polymorphic val member: Base)
 
 @Serializable
-data class Container2(val name: String, @XmlPolyChildren(["ChildA", "ChildB=better"]) val children: List<Base>)
+data class Container2(val name: String, @XmlPolyChildren(["ChildA", "ChildB=better"]) val children: List<@Polymorphic Base>)
 
 @SerialName("container-3")
 @Serializable
-data class Container3(val xxx: String, @SerialName("member") val members: List<Base>)
+data class Container3(val xxx: String, @SerialName("member") val members: List<@Polymorphic Base>)
 
 @Serializable
 sealed /*open*/ class SealedParent
@@ -68,11 +69,12 @@ data class SealedA(val data: String, val extra: String = "2") : SealedParent()
 data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
 
 @Serializable
-data class Sealed(val name: String, val members: List<SealedParent>)
+data class Sealed(val name: String, val members: List<@Polymorphic SealedParent>)
 
 @Serializable
 data class SealedSingle(val name: String, val member: SealedA)
 
+/*
 @Serializable
 data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
 
@@ -133,3 +135,4 @@ class CustomSerializer : KSerializer<Custom> {
         encoder.encodeString(obj.property)
     }
 }
+*/
