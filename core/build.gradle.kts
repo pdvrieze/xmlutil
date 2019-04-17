@@ -20,6 +20,7 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
@@ -43,8 +44,6 @@ val serializationVersion: String by project
 
 val kotlin_version: String by project
 
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
-
 kotlin {
     targets {
         jvm {
@@ -54,10 +53,9 @@ kotlin {
                     freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
             }
-            attributes.attribute(androidAttribute, false)
         }
         jvm("android") {
-            attributes.attribute(androidAttribute, true)
+            attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
