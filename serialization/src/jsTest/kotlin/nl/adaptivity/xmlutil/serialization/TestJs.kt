@@ -70,9 +70,9 @@ class TestJs {
         Address("10", "Downing Street", "London"),
         Address.serializer()
                                             ) {
-        override val expectedXML: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
+        override val expectedXML: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
 
-        override val expectedJson: String = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
+        override val expectedJson: String = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
 
     }
 
@@ -81,9 +81,9 @@ class TestJs {
         Location.serializer()
                                                   ) {
         override val expectedXML: String =
-            "<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
+            "<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
         override val expectedJson: String =
-            "{\"addres\":{\"houseNumber\":\"1600\",\"street\":\"Pensylvania Avenue\",\"city\":\"Washington DC\"},\"temperature\":NaN}"
+            "{\"addres\":{\"houseNumber\":\"1600\",\"street\":\"Pensylvania Avenue\",\"city\":\"Washington DC\",\"status\":\"VALID\"},\"temperature\":NaN}"
     }
 
     class SimpleClassWithNullablValueNONNULL : TestBase<NullableContainer>(
@@ -107,9 +107,9 @@ class TestJs {
         Business.serializer()
                                               ) {
         override val expectedXML: String =
-            "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
+            "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\" status=\"VALID\"/></Business>"
         override val expectedJson: String =
-            "{\"name\":\"ABC Corp\",\"headOffice\":{\"houseNumber\":\"1\",\"street\":\"ABC road\",\"city\":\"ABCVille\"}}"
+            "{\"name\":\"ABC Corp\",\"headOffice\":{\"houseNumber\":\"1\",\"street\":\"ABC road\",\"city\":\"ABCVille\",\"status\":\"VALID\"}}"
     }
 
     class AChamberOfCommerce : TestBase<Chamber>(
