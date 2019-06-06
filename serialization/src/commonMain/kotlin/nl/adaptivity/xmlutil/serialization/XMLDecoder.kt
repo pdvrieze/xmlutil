@@ -102,7 +102,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeEnum(enumDescription: EnumDescriptor): Int {
             val name = decodeString()
-            return enumDescription.elementDescriptors().indexOfFirst { it.name == name }
+            return enumDescription.getElementIndex(name)
         }
 
         private fun decodeStringImpl(defaultOverEmpty: Boolean): String {
