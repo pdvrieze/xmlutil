@@ -127,10 +127,11 @@ class NamespaceHolder {
         }
 
         @Suppress("OverridingDeprecatedMember")
-        override fun getPrefixes(namespaceURI: String): Iterator<Any?> {
+        override fun getPrefixes(namespaceURI: String): Iterator<String?> {
             return ((totalNamespaceCount - 1) downTo 0)
                 .asSequence()
                 .filter { getNamespace(it) == namespaceURI }
+                .map { getNamespace(it) }
                 .iterator()
         }
     }
