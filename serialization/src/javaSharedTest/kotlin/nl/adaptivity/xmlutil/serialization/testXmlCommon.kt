@@ -42,7 +42,7 @@ private fun String.normalize() = replace(" />", "/>")
 object testXmlCommon : Spek(
     {
         describe("A simple data class") {
-            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\"/>"
+            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
             val address = Address("10", "Downing Street", "London")
             val addrSerializer = Address.serializer()
 
@@ -57,7 +57,7 @@ object testXmlCommon : Spek(
                 }
             }
 
-            val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\"}"
+            val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
 
             context("serialization with JSON") {
                 val serialized = Json.stringify(addrSerializer, address).normalize()
@@ -74,7 +74,7 @@ object testXmlCommon : Spek(
         describe ("A data class with optional boolean") {
             val location = Location(
                 Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\"/></Location>"
+            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
 
             val ser = Location.serializer()
 
@@ -118,7 +118,7 @@ object testXmlCommon : Spek(
 
         describe("A simple business") {
             val expBusinessXml =
-                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\"/></Business>"
+                "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\" status=\"VALID\"/></Business>"
 
             val business = Business("ABC Corp", Address("1", "ABC road", "ABCVille"))
             context("serialization") {
