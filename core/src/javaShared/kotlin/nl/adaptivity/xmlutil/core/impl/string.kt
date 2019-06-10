@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2019.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,10 +18,10 @@
  * under the License.
  */
 
-package nl.adaptivity.util
+package nl.adaptivity.xmlutil.core.impl
 
 @Deprecated("Don't use, just use string comparison")
-fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
+internal fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
   if (this==null) return other==null
   if (other==null) return false
   if (length!=other.length) return false
@@ -32,6 +32,6 @@ fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
 }
 
 @Deprecated("Use string equals", ReplaceWith("this == other"))
-fun String?.contentEquals(other: String?): Boolean {
+internal fun String?.contentEquals(other: String?): Boolean {
     return this == other
 }

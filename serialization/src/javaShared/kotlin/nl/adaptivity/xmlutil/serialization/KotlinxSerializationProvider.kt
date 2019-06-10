@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2019.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,15 +18,13 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
+import nl.adaptivity.xmlutil.util.SerializationProvider
 import kotlin.reflect.KClass
 
 @ImplicitReflectionSerializer
