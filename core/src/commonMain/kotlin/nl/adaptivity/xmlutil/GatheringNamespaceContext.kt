@@ -28,37 +28,5 @@ import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
  * Created by pdvrieze on 20/10/15.
  */
-class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
-                                private val resultMap: MutableMap<String, String>) : NamespaceContext {
-
-    override fun getNamespaceURI(prefix: String): String? {
-        return parentContext?.getNamespaceURI(prefix)?.apply {
-            if (!isEmpty() && prefix != XMLNS_ATTRIBUTE) {
-                resultMap[prefix] = this
-            }
-        }
-    }
-
-    override fun getPrefix(namespaceURI: String): String? {
-        return parentContext?.getPrefix(namespaceURI)?.apply {
-            if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
-                resultMap[this] = namespaceURI
-            }
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST", "DEPRECATION", "OverridingDeprecatedMember")// Somehow this type has no proper generic parameter
-    override fun getPrefixes(namespaceURI: String): Iterator<String> {
-        if (parentContext == null) {
-            return emptyList<String>().iterator()
-        }
-        if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
-
-            val it = parentContext.getPrefixes(namespaceURI) as Iterator<String>
-            while (it.hasNext()) {
-                resultMap[it.next()] = namespaceURI
-            }
-        }
-        return parentContext.getPrefixes(namespaceURI) as Iterator<String>
-    }
-}
+@Deprecated("Use actual class", ReplaceWith("nl.adaptivity.xmlutil.util.GatheringNamespaceContext"))
+typealias GatheringNamespaceContext=nl.adaptivity.xmlutil.util.GatheringNamespaceContext

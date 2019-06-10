@@ -20,9 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.SimpleQueue
-import nl.adaptivity.xmlutil.multiplatform.addAll
-import nl.adaptivity.xmlutil.multiplatform.isNotEmpty
+import nl.adaptivity.xmlutil.core.impl.multiplatform.SimpleQueue
+import nl.adaptivity.xmlutil.core.impl.multiplatform.addAll
+import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty
 
 /**
  * An xml reader that has a buffer that allows peeking events as well as injecting events into the stream. Note that

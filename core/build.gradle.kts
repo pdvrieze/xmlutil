@@ -49,10 +49,18 @@ kotlin {
     targets {
         jvm {
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
-                    jvmTarget = "1.8"
-                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                    kotlinOptions {
+                        jvmTarget = "1.8"
+                        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    }
                 }
+                tasks.named<Jar>("jvmJar") {
+                    manifest {
+                        attributes("Automatic-Module-Name" to "net.devrieze.xmlutil.core")
+                    }
+                }
+//                tasks.named<Jar>()
             }
             attributes.attribute(androidAttribute, false)
         }
@@ -94,6 +102,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                implementation(project(":serialutil"))
             }
         }
         val javaShared by creating {

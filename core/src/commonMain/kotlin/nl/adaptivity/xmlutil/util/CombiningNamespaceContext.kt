@@ -26,10 +26,14 @@ import nl.adaptivity.xmlutil.prefixesFor
 
 
 /**
- * Created by pdvrieze on 28/08/15.
+ * A namespace context that combines two namespace contexts. Resolution will first attempt to use
+ * the `primary` context, The secondary namespace is a fallback.
+ *
+ * @property primary The context to first use for looking up
+ * @property secondary The fallback context if the name cannot be resolved on the primary.
  */
-class CombiningNamespaceContext(private val primary: NamespaceContext,
-                                private val secondary: NamespaceContext) : NamespaceContext {
+class CombiningNamespaceContext(val primary: NamespaceContext,
+                                val secondary: NamespaceContext) : NamespaceContext {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)

@@ -22,7 +22,10 @@ package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.serialutil.decodeElements
+import nl.adaptivity.serialutil.decodeStructure
+import nl.adaptivity.serialutil.simpleSerialClassDesc
+import nl.adaptivity.serialutil.writeStructure
 
 //@Serializable
 interface Namespace {

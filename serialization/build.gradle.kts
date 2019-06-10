@@ -61,17 +61,24 @@ kotlin {
         jvm {
             attributes.attribute(androidAttribute, false)
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
-                    jvmTarget = "1.8"
-                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                    kotlinOptions {
+                        jvmTarget = "1.8"
+                        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    }
                 }
-                tasks.getByName<Test>("${target.name}Test") {
+                tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform {
                         includeEngines("spek2")
                     }
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+                tasks.named<Jar>("jvmJar") {
+                    manifest {
+                        attributes("Automatic-Module-Name" to "net.devrieze.xmlutil.serialization")
+                    }
+                }
             }
         }
         jvm("android") {
@@ -144,6 +151,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
+                implementation(project(":serialutil"))
                 project.dependencies.add(apiConfigurationName,
                 "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion") {
                     exclude(group = "org.jetbrains.kotlin")

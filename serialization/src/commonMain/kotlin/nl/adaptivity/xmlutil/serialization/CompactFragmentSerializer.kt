@@ -21,6 +21,9 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import nl.adaptivity.serialutil.decodeElements
+import nl.adaptivity.serialutil.decodeStructure
+import nl.adaptivity.serialutil.writeStructure
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment

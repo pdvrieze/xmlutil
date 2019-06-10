@@ -20,7 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.impl.BetterXmlSerializer
+import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
+import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlSerializer
 import java.io.IOException

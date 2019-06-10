@@ -23,7 +23,9 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.Closeable
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmName
@@ -167,9 +169,9 @@ val XmlReader.attributes: Array<out XmlEvent.Attribute>
                               )
         }
 
-val XmlReader.namespaceIndices: IntRange get() = namespaceStart..(namespaceEnd - 1)
+val XmlReader.namespaceIndices: IntRange get() = namespaceStart until namespaceEnd
 
-val XmlReader.attributeIndices: IntRange get() = 0..(attributeCount - 1)
+val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
 val XmlReader.namespaceDecls: Array<out Namespace>
     get() =
@@ -191,7 +193,7 @@ fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
 }
 
 @JvmOverloads
-fun XmlReader.unhandledEvent(message: String? = null) {
+internal fun XmlReader.unhandledEvent(message: String? = null) {
     val actualMessage = when (eventType) {
         EventType.CDSECT,
         EventType.TEXT          -> if (!isWhitespace()) message
@@ -252,6 +254,10 @@ fun XmlReader.allText(): String {
     }
 }
 
+/**
+ * From a start element, skip all element content until the corresponding end element has been read. After
+ * invocation the end element has just been read (and would be returned on relevant state calls).
+ */
 fun XmlReader.skipElement() {
     val t = this
     t.require(EventType.START_ELEMENT, null, null)
@@ -262,6 +268,10 @@ fun XmlReader.skipElement() {
     }
 }
 
+/**
+ * From a start tag read the text only content of the element. Comments are allowed and handled, but subtags are not
+ * allowed. This tag finishes at the end of the element.
+ */
 fun XmlReader.readSimpleElement(): String {
     val t = this
     t.require(EventType.START_ELEMENT, null, null)

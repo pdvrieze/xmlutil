@@ -26,7 +26,7 @@ import kotlinx.io.StringWriter
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.multiplatform.name
+import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 

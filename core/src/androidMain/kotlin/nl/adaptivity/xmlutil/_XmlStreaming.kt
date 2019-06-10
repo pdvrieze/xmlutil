@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
-import nl.adaptivity.xmlutil.impl.XmlStreamingJavaCommon
+import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader

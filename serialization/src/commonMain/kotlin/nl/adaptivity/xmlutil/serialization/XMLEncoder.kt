@@ -24,7 +24,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
