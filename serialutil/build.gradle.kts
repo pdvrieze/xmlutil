@@ -52,6 +52,8 @@ val moduleName = "net.devrieze.serialutil"
 
 val moduleName = "net.devrieze.serialutil"
 
+val moduleName = "net.devrieze.serialutil"
+
 kotlin {
     targets {
         jvm("jvm9") {
