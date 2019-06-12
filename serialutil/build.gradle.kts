@@ -50,6 +50,16 @@ val moduleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
+        targetFromPreset(presets.getByName("jvmWithJava"), "jvm9") {
+            compilations.all {
+                tasks.withType<KotlinCompile> {
+                    kotlinOptions {
+                        jvmTarget = "9"
+                        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    }
+                }
+            }
+        }
         jvm {
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
@@ -124,6 +134,12 @@ kotlin {
                 implementation(kotlin("stdlib-jdk7"))
             }
         }
+        val jvm9Main by getting {
+            dependsOn(jvmMain)
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib:modular")
+            }
+        }
         val androidMain by getting {
             dependsOn(javaShared)
         }
@@ -139,7 +155,25 @@ kotlin {
 
 }
 
+tasks.named<JavaCompile>("compileJava") {
+    sourceCompatibility="9"
+    targetCompatibility="9"
+    doFirst {
+        options.compilerArgs = listOf(
+            "--module-path", classpath.asPath,
+            "--patch-module", "$moduleName=${sourceSets["main"].output.asPath}"
+                                     )
+        classpath = files()
+    }
+}
 
+tasks.named<Jar>("jar") {
+    
+}
+
+dependencies {
+    "compileClasspath"("org.jetbrains.kotlin:kotlin-stdlib:modular")
+}
 
 repositories {
     jcenter()
