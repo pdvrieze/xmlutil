@@ -79,7 +79,6 @@ kotlin {
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
