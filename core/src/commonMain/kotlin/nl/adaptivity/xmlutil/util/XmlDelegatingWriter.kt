@@ -31,4 +31,5 @@ import nl.adaptivity.xmlutil.XmlWriter
  * Created by pdvrieze on 17/11/15.
  *
  */
-abstract class XmlDelegatingWriter(private val delegate: XmlWriter) : XmlWriter by delegate
+@Deprecated("Use main package version", ReplaceWith("nl.adaptivity.xmlutil.XmlDelegatingWriter"))
+abstract class XmlDelegatingWriter(delegate: XmlWriter) : nl.adaptivity.xmlutil.XmlDelegatingWriter(delegate)

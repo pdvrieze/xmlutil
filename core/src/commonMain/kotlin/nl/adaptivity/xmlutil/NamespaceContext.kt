@@ -24,7 +24,7 @@ expect interface NamespaceContext {
     fun getNamespaceURI(prefix: String): String?
     fun getPrefix(namespaceURI: String): String?
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
-    fun getPrefixes(namespaceURI: String): Iterator<Any?>
+    fun getPrefixes(namespaceURI: String): Iterator<String?>
 }
 
 interface IterableNamespaceContext: NamespaceContext, Iterable<Namespace>

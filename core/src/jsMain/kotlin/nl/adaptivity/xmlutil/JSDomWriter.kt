@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.js.util.myLookupNamespaceURI
 import nl.adaptivity.js.util.myLookupPrefix
 import nl.adaptivity.js.util.removeElementChildren
-import nl.adaptivity.xmlutil.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
 import kotlin.browser.document
 

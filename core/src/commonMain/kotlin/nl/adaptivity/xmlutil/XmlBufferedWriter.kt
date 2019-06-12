@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegateNamespaceContext: NamespaceContext?=null) : XmlWriter {

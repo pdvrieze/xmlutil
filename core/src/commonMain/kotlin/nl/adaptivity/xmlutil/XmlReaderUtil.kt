@@ -23,7 +23,7 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.Throws
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Throws
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 

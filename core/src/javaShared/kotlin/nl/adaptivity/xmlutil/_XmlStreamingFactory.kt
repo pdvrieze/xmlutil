@@ -20,8 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.impl.CharsequenceReader
-import nl.adaptivity.xmlutil.impl.AppendableWriter
+import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
+import nl.adaptivity.xmlutil.core.impl.AppendableWriter
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader

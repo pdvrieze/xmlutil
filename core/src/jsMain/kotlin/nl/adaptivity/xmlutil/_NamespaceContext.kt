@@ -24,5 +24,5 @@ actual interface NamespaceContext {
     actual fun getNamespaceURI(prefix: String): String?
     actual fun getPrefix(namespaceURI: String): String?
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
-    actual fun getPrefixes(namespaceURI: String): Iterator<Any?>
+    actual fun getPrefixes(namespaceURI: String): Iterator<String?>
 }

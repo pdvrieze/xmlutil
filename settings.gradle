@@ -65,6 +65,7 @@ pluginManagement {
 
 rootProject.name = "xmlutil"
 
+include(":serialutil")
 include(":core")
 include(":serialization")
 

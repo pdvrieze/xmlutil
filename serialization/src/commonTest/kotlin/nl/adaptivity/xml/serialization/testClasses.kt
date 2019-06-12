@@ -28,9 +28,20 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 
+enum class AddresStatus {
+    VALID,
+    INVALID,
+    TEMPORARY
+}
+
 @Serializable
 @XmlSerialName("address", namespace = "", prefix = "")
-data class Address(val houseNumber: String, val street: String, val city: String)
+data class Address(
+    val houseNumber: String,
+    val street: String,
+    val city: String,
+    @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
+                  )
 
 @Serializable
 data class Location(
@@ -73,7 +84,8 @@ data class Namespaced(
     @XmlElement(true)
     val elem1: String,
     @XmlElement(true)
-    val elem2: String)
+    val elem2: String
+                     )
 
 @Serializable
 @XmlSerialName("NullableContainer", "urn:myurn", "p")

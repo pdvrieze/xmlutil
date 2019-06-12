@@ -21,14 +21,14 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.*
+import nl.adaptivity.serialutil.withName
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
-import nl.adaptivity.xmlutil.multiplatform.name
-import nl.adaptivity.xmlutil.serialization.withName
+import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import kotlin.jvm.JvmName
 
 
@@ -229,15 +229,15 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
             actualSerializer.serialize(encoder, obj.toList())
         }
 
+        private inline fun <T> flatten(namespaces: Collection<T>,
+                                       crossinline prefix: T.() -> String,
+                                       crossinline namespace: T.() -> String): Array<String> {
+            val filler: Iterator<String> = namespaces.asSequence().flatMap {
+                sequenceOf(it.prefix(), it.namespace())
+            }.iterator()
+            return Array(namespaces.size * 2) { filler.next() }
+        }
+
     }
 }
 
-
-private inline fun <T> flatten(namespaces: Collection<T>,
-                               crossinline prefix: T.() -> String,
-                               crossinline namespace: T.() -> String): Array<String> {
-    val filler: Iterator<String> = namespaces.asSequence().flatMap {
-        sequenceOf(it.prefix(), it.namespace())
-    }.iterator()
-    return Array(namespaces.size * 2) { filler.next() }
-}

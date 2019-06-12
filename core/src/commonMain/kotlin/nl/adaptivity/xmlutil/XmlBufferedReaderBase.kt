@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2019.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlEvent.*
+import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
 
 abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
@@ -161,7 +162,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     return emptyList()
   }
 
-  override fun hasNext(): Boolean {
+  final override fun hasNext(): Boolean {
     if (hasPeekItems) {
       return true
     }

@@ -136,7 +136,7 @@ internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNa
         return localNamespaces.firstOrNull { it.namespaceURI == namespaceURI}?.prefix ?: parent.getPrefix(namespaceURI)
     }
 
-    override fun getPrefixes(namespaceURI: String): Iterator<Any?> {
+    override fun getPrefixes(namespaceURI: String): Iterator<String?> {
         TODO("not implemented")
     }
 

@@ -25,7 +25,7 @@ import kotlinx.serialization.SerialKind
 import kotlinx.serialization.StructureKind
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.namespaceURI
 
 internal class DummyParentDescriptor(private val serialName: QName?, private val childDesc: SerialDescriptor):

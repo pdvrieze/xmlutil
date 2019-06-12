@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.multiplatform.IOException
+import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 
 
 /**

@@ -24,7 +24,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
-import nl.adaptivity.util.kotlin.xmlutilserialization.arrayMap
+import nl.adaptivity.xmlutil.serialization.impl.arrayMap
 import kotlin.collections.set
 
 object Canary {
