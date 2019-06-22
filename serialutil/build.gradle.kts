@@ -19,6 +19,7 @@
  */
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -45,12 +46,16 @@ val serializationVersion: String by project
 val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val javaVersionAttribute = Attribute.of("net.devrieze.javaVersion", String::class.java)
 
 val moduleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
-        targetFromPreset(presets.getByName("jvmWithJava"), "jvm9") {
+        jvm("jvm9") {
+            attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+            withJava()
+
             compilations.all {
                 tasks.withType<KotlinCompile> {
                     kotlinOptions {
@@ -58,9 +63,15 @@ kotlin {
                         freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                     }
                 }
+                if (name=="main") {
+                    tasks.withType<JavaCompile> {
+                        destinationDir = tasks.named<KotlinCompile>(compileKotlinTaskName).get().destinationDir
+                    }
+                }
             }
         }
         jvm {
+            attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_8.toString())
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
@@ -79,6 +90,7 @@ kotlin {
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
+                attribute(javaVersionAttribute, JavaVersion.VERSION_1_6.toString())
             }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
@@ -136,7 +148,7 @@ kotlin {
         val jvm9Main by getting {
             dependsOn(jvmMain)
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib:modular")
+                api("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version:modular")
             }
         }
         val androidMain by getting {
@@ -155,8 +167,8 @@ kotlin {
 }
 
 tasks.named<JavaCompile>("compileJava") {
-    sourceCompatibility="9"
-    targetCompatibility="9"
+    sourceCompatibility = "9"
+    targetCompatibility = "9"
     doFirst {
         options.compilerArgs = listOf(
             "--module-path", classpath.asPath,
@@ -166,12 +178,18 @@ tasks.named<JavaCompile>("compileJava") {
     }
 }
 
-tasks.named<Jar>("jar") {
-    
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
 }
 
 dependencies {
-    "compileClasspath"("org.jetbrains.kotlin:kotlin-stdlib:modular")
+    "compileClasspath"("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version:modular")
+}
+
+configurations.named("compileClasspath") {
+    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
 }
 
 repositories {
@@ -219,5 +237,6 @@ extensions.configure<BintrayExtension>("bintray") {
 idea {
     module {
         name = "xmlutil-serialutil"
+        languageLevel = IdeaLanguageLevel(JavaVersion.VERSION_1_9)
     }
 }

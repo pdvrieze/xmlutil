@@ -48,20 +48,51 @@ val jupiterVersion: String by project
 
 val kotlin_version: String by project
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val javaVersionAttribute = Attribute.of("net.devrieze.javaVersion", String::class.java)
 
 val moduleName = "net.devrieze.xmlutil.serialization"
 
 
 kotlin {
     targets {
-        val testTask = tasks.create("test") {
+        val testTask = tasks.create("testAll") {
             group = "verification"
         }
         val cleanTestTask = tasks.create("cleanTest") {
             group = "verification"
         }
+        jvm("jvm9") {
+            withJava()
+            attributes {
+                attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+                attribute(androidAttribute, false)
+            }
+            compilations.all {
+                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                    kotlinOptions {
+                        jvmTarget = "9"
+                        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    }
+                }
+                tasks.named<Test>("${target.name}Test") {
+                    useJUnitPlatform {
+                        includeEngines("spek2")
+                    }
+                    testTask.dependsOn(this)
+                }
+                if (name=="main") {
+                    tasks.withType<JavaCompile> {
+                        destinationDir = tasks.named<KotlinCompile>(compileKotlinTaskName).get().destinationDir
+                    }
+                }
+
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+
+            }
+        }
         jvm {
             attributes {
+                attribute(javaVersionAttribute, JavaVersion.VERSION_1_8.toString())
                 attribute(androidAttribute, false)
             }
             compilations.all {
@@ -87,6 +118,7 @@ kotlin {
         }
         jvm("android") {
             attributes {
+                attribute(javaVersionAttribute, JavaVersion.VERSION_1_6.toString())
                 attribute(androidAttribute, true)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
@@ -170,7 +202,47 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
             }
         }
+        val jvm9Main by getting {
+            dependsOn(javaShared)
+            dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+                api("org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}:modular")
+            }
+        }
         val jvmTest by getting {
+            dependencies {
+                dependsOn(javaSharedTest)
+                implementation(project(":core"))
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+
+                project.dependencies.add(
+                    implementationConfigurationName,
+                    "org.spekframework.spek2:spek-dsl-jvm:$spek2Version"
+                                        ) {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+
+
+
+                project.dependencies.add(
+                    runtimeOnlyConfigurationName,
+                    "org.spekframework.spek2:spek-runner-junit5:$spek2Version"
+                                        ) {
+                    exclude(group = "org.junit.platform")
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+
+
+                implementation("org.xmlunit:xmlunit-core:2.6.0")
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+                runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
+
+            }
+        }
+        val jvm9Test by getting {
             dependencies {
                 dependsOn(javaSharedTest)
                 implementation(project(":core"))
@@ -268,6 +340,40 @@ kotlin {
 
 }
 
+}
+
+/*
+configurations.named("compileClasspath") {
+    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+}
+*/
+
+configurations.named("compileClasspath") {
+    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+}
+
+configurations.named("testCompileClasspath") {
+    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    sourceCompatibility = "9"
+    targetCompatibility = "9"
+//    dependsOn(project(":serialutil").tasks.named("jvm9Jar"))
+    doFirst {
+        logger.lifecycle("Compiling module info - Classpath: ${classpath.asPath}")
+        options.compilerArgs = listOf(
+            "--module-path", classpath.asPath,
+            "--patch-module", "$moduleName=${sourceSets["main"].output.asPath}"
+                                     )
+        classpath = files()
+    }
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
 repositories {
     jcenter()
     maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }

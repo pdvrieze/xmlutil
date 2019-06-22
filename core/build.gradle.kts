@@ -19,6 +19,7 @@
  */
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -45,12 +46,36 @@ val serializationVersion: String by project
 val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val javaVersionAttribute = Attribute.of("net.devrieze.javaVersion", String::class.java)
 
 val moduleName = "net.devrieze.xmlutil.core"
 
 kotlin {
     targets {
+        jvm("jvm9") {
+            attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+            withJava()
+
+            compilations.all {
+                tasks.withType<KotlinCompile> {
+                    kotlinOptions {
+                        jvmTarget = "9"
+                        freeCompilerArgs = listOf(
+                            "-Xuse-experimental=kotlin.Experimental"
+                                                 )
+                    }
+                }
+                if (name=="main") {
+                    tasks.withType<JavaCompile> {
+                        destinationDir = tasks.named<KotlinCompile>(compileKotlinTaskName).get().destinationDir
+                    }
+                }
+
+            }
+        }
         jvm {
+            attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_8.toString())
+
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
@@ -69,6 +94,7 @@ kotlin {
         }
         jvm("android") {
             attributes {
+                attribute(javaVersionAttribute, JavaVersion.VERSION_1_6.toString())
                 attribute(androidAttribute, true)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
@@ -119,10 +145,23 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
-        val jvmMain by getting {
+        val jvmShared by creating {
             dependsOn(javaShared)
             dependencies {
                 implementation(kotlin("stdlib-jdk7"))
+            }
+        }
+        val jvmMain by getting {
+            dependsOn(jvmShared)
+            dependencies {
+                implementation(kotlin("stdlib-jdk7"))
+            }
+        }
+        val jvm9Main by getting {
+            dependsOn(jvmShared)
+            dependencies {
+                implementation(kotlin("stdlib-jdk7"))
+                api("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version:modular")
             }
         }
         val androidMain by getting {
@@ -160,6 +199,31 @@ publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
     artifactId = "xmlutil"
 }
 
+configurations.named("compileClasspath") {
+    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    sourceCompatibility = "9"
+    targetCompatibility = "9"
+//    dependsOn(project(":serialutil").tasks.named("jvm9Jar"))
+    doFirst {
+        logger.lifecycle("Compiling module info - Classpath: ${classpath.asPath}")
+        options.compilerArgs = listOf(
+            "--module-path", classpath.asPath,
+            "--patch-module", "$moduleName=${sourceSets["main"].output.asPath}"
+                                     )
+        classpath = files()
+    }
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
+
 extensions.configure<BintrayExtension>("bintray") {
     if (rootProject.hasProperty("bintrayUser")) {
         user = rootProject.property("bintrayUser") as String?
@@ -195,5 +259,6 @@ extensions.configure<BintrayExtension>("bintray") {
 idea {
     module {
         name = "xmlutil-core"
+        languageLevel = IdeaLanguageLevel(JavaVersion.VERSION_1_9)
     }
 }
