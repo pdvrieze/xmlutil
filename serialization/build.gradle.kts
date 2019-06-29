@@ -23,6 +23,7 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import com.moowork.gradle.node.npm.NpmTask
 import com.moowork.gradle.node.task.NodeTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
@@ -50,6 +51,9 @@ val jupiterVersion: String by project
 val kotlin_version: String by project
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
+val moduleName = "net.devrieze.xmlutil.serialization"
+
+
 kotlin {
     targets {
         val testTask = tasks.create("test") {
@@ -59,7 +63,9 @@ kotlin {
             group = "verification"
         }
         jvm {
-            attributes.attribute(androidAttribute, false)
+            attributes {
+                attribute(androidAttribute, false)
+            }
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
@@ -76,13 +82,16 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
                     manifest {
-                        attributes("Automatic-Module-Name" to "net.devrieze.xmlutil.serialization")
+                        attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
             }
         }
         jvm("android") {
-            attributes.attribute(androidAttribute, true)
+            attributes {
+                attribute(androidAttribute, true)
+                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+            }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
@@ -330,7 +339,7 @@ tasks {
                                         }
                                     }
                                 }).builtBy(configuration)
-        
+
         from(copiedFiles)
     }
 
@@ -422,7 +431,7 @@ repositories {
     maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
 }
 
-publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
+publishing.publications.named<MavenPublication>("kotlinMultiplatform") {
     groupId = "net.devrieze"
     artifactId = "xmlutil-serialization"
 }

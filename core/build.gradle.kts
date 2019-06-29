@@ -20,6 +20,7 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
@@ -45,6 +46,8 @@ val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
+val moduleName = "net.devrieze.xmlutil.core"
+
 kotlin {
     targets {
         jvm {
@@ -57,7 +60,7 @@ kotlin {
                 }
                 tasks.named<Jar>("jvmJar") {
                     manifest {
-                        attributes("Automatic-Module-Name" to "net.devrieze.xmlutil.core")
+                        attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
 //                tasks.named<Jar>()
@@ -65,7 +68,10 @@ kotlin {
             attributes.attribute(androidAttribute, false)
         }
         jvm("android") {
-            attributes.attribute(androidAttribute, true)
+            attributes {
+                attribute(androidAttribute, true)
+                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+            }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
@@ -91,8 +97,8 @@ kotlin {
         forEach { target ->
             target.mavenPublication {
                 groupId = "net.devrieze"
-                artifactId="xmlutil-${target.targetName}"
-                version=xmlutil_version
+                artifactId = "xmlutil-${target.targetName}"
+                version = xmlutil_version
             }
         }
     }
@@ -149,8 +155,8 @@ repositories {
 }
 
 publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
-    groupId="net.devrieze"
-    artifactId="xmlutil"
+    groupId = "net.devrieze"
+    artifactId = "xmlutil"
 }
 
 extensions.configure<BintrayExtension>("bintray") {
@@ -162,7 +168,7 @@ extensions.configure<BintrayExtension>("bintray") {
     val pubs = publishing.publications
         .filter { it.name != "metadata" }
         .map { it.name }
-        .apply { forEach{ logger.lifecycle("Registering publication \"$it\" to Bintray") }}
+        .apply { forEach { logger.lifecycle("Registering publication \"$it\" to Bintray") } }
         .toTypedArray()
 
 
@@ -186,5 +192,7 @@ extensions.configure<BintrayExtension>("bintray") {
 }
 
 idea {
-    this.module.name = "xmlutil-core"
+    module {
+        name = "xmlutil-core"
+    }
 }
