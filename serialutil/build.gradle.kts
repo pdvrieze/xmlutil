@@ -91,6 +91,7 @@ kotlin {
             attributes {
                 attribute(androidAttribute, true)
                 attribute(javaVersionAttribute, JavaVersion.VERSION_1_6.toString())
+                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
