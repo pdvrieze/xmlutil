@@ -20,8 +20,6 @@
 
 
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.moowork.gradle.node.npm.NpmTask
-import com.moowork.gradle.node.task.NodeTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -32,7 +30,7 @@ plugins {
     id("kotlinx-serialization")
     id("maven-publish")
     id("com.jfrog.bintray")
-    id("com.moowork.node") version "1.3.1"
+//    id("com.moowork.node") version "1.3.1"
     idea
 }
 
@@ -107,6 +105,7 @@ kotlin {
             }
         }
         js {
+            browser()
             compilations.all {
                 val compileTask = tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).apply {
                     kotlinOptions {
@@ -120,30 +119,6 @@ kotlin {
                         freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                     }
                 }
-/*
-
-                if (compilationName=="test") {
-
-                    val populateNodeModules = tasks.register<Copy>("populateTestNodeModules") {
-                        from(compileTask.outputs)
-                        for (it in configurations.named("jsTestRuntime").get().files) {
-                            from(zipTree(it.absolutePath).matching { include("*.js") })
-                        }
-                        into("${buildDir}/node_modules")
-                    }
-
-                    val installJasmine = tasks.register<NpmTask>("installTestJasmine") {
-                        setArgs(listOf("install", "jasmine"))
-                        setWorkingDir(file(buildDir))
-                    }
-                    val runJasmine = tasks.register<NodeTask>("runTestJasmine") {
-                        dependsOn(compileTask, populateNodeModules, installJasmine)
-                        setScript(file("${buildDir}/node_modules/jasmine/bin/jasmine.js"))
-                        setArgs(listOf(compileTask.outputs))
-                    }
-                    tasks.named("jsTest") { dependsOn(runJasmine) }
-                }
-*/
             }
         }
 
@@ -274,6 +249,7 @@ kotlin {
             //            dependsOn(commonMain)
             dependencies {
                 api(project(":core"))
+                implementation(project(":serialutil"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
                 project.dependencies.add(
                     implementationConfigurationName,
@@ -290,140 +266,6 @@ kotlin {
         }
     }
 
-}
-
-node {
-    //    version = "10.14.1"
-//    npmVersion = "6.4.1"
-//    download = true
-    nodeModulesDir = file(buildDir)
-}
-
-tasks {
-    // configuration based upon https://github.com/Kotlin/kotlinx-io/blob/master/gradle/js.gradle
-
-    val prepareNodePackage by registering(Copy::class) {
-        from("npm") {
-            include("package.json")
-            expand(project.properties + mapOf("kotlinDependency" to ""))
-        }
-        from("npm") {
-            exclude("package.json")
-        }
-        into(node.nodeModulesDir)
-    }
-
-
-    val compileKotlinJs by existing(KotlinJsCompile::class)
-    val compileTestKotlinJs by existing(KotlinJsCompile::class)
-
-
-    val assembleWeb by registering(Copy::class) {
-        dependsOn(compileTestKotlinJs)
-//        dependsOn(project(":core").tasks.getByName("jsJar"))
-
-        from(compileKotlinJs/*.get().outputs*/)
-        into("${buildDir}/node_modules")
-
-        val configuration = configurations.named("jsTestRuntimeClasspath")
-        val copiedFiles = files({
-            // This must be in a lambda as the files zip files are only available after they are built.
-                                    configuration.get().map { file: File ->
-                                        if (file.name.endsWith(".jar")) {
-                                            zipTree(file).matching {
-                                                include("*.js")
-                                                include("*.js.map")
-                                            }
-                                        } else {
-                                            files()
-                                        }
-                                    }
-                                }).builtBy(configuration)
-
-        from(copiedFiles)
-    }
-
-    val npmInstall by existing {
-        dependsOn(prepareNodePackage)
-        dependsOn(assembleWeb)
-    }
-
-    val installDependenciesMocha by registering(NpmTask::class) {
-        setWorkingDir(file(buildDir))
-//        dependsOn(prepareNodePackage)
-        dependsOn(npmInstall)
-        setArgs(
-            listOf(
-                "install",
-                "mocha@6.0.2",
-                "mocha-headless-chrome@1.8.2",
-                "source-map-support@0.5.3",
-//                "jsdom@14.0.0",
-//                "text-encoding",
-                "--no-save"
-                  )
-               )
-//        outputs.files("${buildDir}/node_modules")
-    }
-
-    val mochaChromeTestPage = file("$buildDir/testPage.html")
-
-    val prepareMocha by registering {
-        dependsOn(installDependenciesMocha)
-        outputs.file(mochaChromeTestPage)
-        doLast {
-            val libraryPath = "node_modules"
-            val javascriptFile = compileTestKotlinJs.get().outputs.files.first{it.name.endsWith(".js")}.relativeTo(file(buildDir))
-            mochaChromeTestPage.writeText(
-                """<!DOCTYPE html>
-        <html>
-        <head>
-            <title>Mocha Tests</title>
-            <meta charset="utf-8">
-            <link rel="stylesheet" href="$libraryPath/mocha/mocha.css">
-        </head>
-        <body>
-        <div id="mocha"></div>
-        <script src="$libraryPath/mocha/mocha.js"></script>
-        <script>mocha.timeout(10000000);</script>
-        <script>mocha.setup('bdd');</script>
-        <script src="$libraryPath/kotlin.js"></script>
-        <script src="$libraryPath/kotlin-test.js"></script>
-        <script src="$libraryPath/kotlinx-serialization-runtime-js.js"></script>
-        <script src="$libraryPath/xmlutil.js"></script>
-        <script src="$libraryPath/xmlutil-serialization.js"></script>
-        <script src="${javascriptFile}"></script>
-        <script>mocha.run();</script>
-        </body>
-        </html>
-    """
-                                         )
-        }
-    }
-
-
-
-    val testMochaChrome by creating(NodeTask::class) {
-        group="verification"
-        dependsOn(prepareMocha)
-        setScript(file("${node.nodeModulesDir}/node_modules/mocha-headless-chrome/bin/start"))
-        description = "Run js tests in mocha-headless-chrome"
-        val reportDir = file("$buildDir/mocha-results/")
-        reportDir.mkdir()
-        setArgs(compileTestKotlinJs.get().outputs.files + listOf("--file", mochaChromeTestPage, "-o", reportDir.resolve("mochaChrome.json")))
-    }
-
-    val testMochaNode by creating(NodeTask::class) {
-        group="verification"
-        dependsOn(installDependenciesMocha)
-        setScript(file("${node.nodeModulesDir}/node_modules/mocha/bin/mocha"))
-        description = "Run js tests in mocha-nodejs"
-        setArgs(compileTestKotlinJs.get().outputs.files + listOf("--require", "source-map-support/register"))
-    }
-
-    val jsTest by existing {
-        dependsOn(testMochaChrome)
-    }
 }
 
 repositories {

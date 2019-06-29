@@ -80,6 +80,7 @@ kotlin {
             }
         }
         js {
+            browser()
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
                     sourceMap = true
