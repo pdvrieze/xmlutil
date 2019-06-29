@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.prefixesFor
 import java.util.HashSet
 
 class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
@@ -36,15 +37,15 @@ class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    override fun getPrefixes(namespaceURI: String): Iterator<String> {
+    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         if (parent == null) {
-            return super.getPrefixes(namespaceURI)
+            return super.getPrefixesCompat(namespaceURI)
         }
         val prefixes = HashSet<String>()
 
-        super.getPrefixes(namespaceURI).forEach { prefixes.add(it) }
+        super.getPrefixesCompat(namespaceURI).forEach { prefixes.add(it) }
 
-        parent.getPrefixes(namespaceURI).asSequence()
+        parent.prefixesFor(namespaceURI).asSequence()
             .filter { prefix -> getLocalNamespaceUri(prefix)==null }
             .forEach { prefixes.add(it) }
 

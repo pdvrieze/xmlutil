@@ -132,7 +132,7 @@ sealed class XmlEvent(val locationInfo: String?) {
                             prefix: String,
                             val attributes: Array<out Attribute>,
                             val namespaceDecls: Array<out Namespace>) :
-        NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContext {
+        NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContextImpl {
 
         override fun writeTo(writer: XmlWriter) {
             writer.startTag(namespaceUri, localName, prefix)
@@ -167,7 +167,7 @@ sealed class XmlEvent(val locationInfo: String?) {
         val namespaceContext: NamespaceContext get() = this
 
         @Suppress("OverridingDeprecatedMember")
-        override fun getPrefixes(namespaceURI: String): Iterator<String> {
+        override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
             return namespaceDecls
                 .asSequence()
                 .filter { ns -> ns.namespaceURI == namespaceUri }

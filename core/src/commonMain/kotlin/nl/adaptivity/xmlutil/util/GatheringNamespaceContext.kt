@@ -20,9 +20,11 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.NamespaceContextImpl
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
+import nl.adaptivity.xmlutil.prefixesFor
 
 
 /**
@@ -30,7 +32,7 @@ import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
  * Created by pdvrieze on 20/10/15.
  */
 class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
-                                private val resultMap: MutableMap<String, String>) : NamespaceContext {
+                                private val resultMap: MutableMap<String, String>) : NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         return parentContext?.getNamespaceURI(prefix)?.apply {
@@ -49,17 +51,17 @@ class GatheringNamespaceContext(private val parentContext: NamespaceContext?,
     }
 
     @Suppress("UNCHECKED_CAST", "DEPRECATION", "OverridingDeprecatedMember")// Somehow this type has no proper generic parameter
-    override fun getPrefixes(namespaceURI: String): Iterator<String> {
+    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         if (parentContext == null) {
             return emptyList<String>().iterator()
         }
         if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
 
-            val it = parentContext.getPrefixes(namespaceURI) as Iterator<String>
+            val it = parentContext.prefixesFor(namespaceURI)
             while (it.hasNext()) {
                 resultMap[it.next()] = namespaceURI
             }
         }
-        return parentContext.getPrefixes(namespaceURI) as Iterator<String>
+        return parentContext.prefixesFor(namespaceURI)
     }
 }

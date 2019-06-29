@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.NamespaceContextImpl
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.prefixesFor
 
@@ -33,7 +34,7 @@ import nl.adaptivity.xmlutil.prefixesFor
  * @property secondary The fallback context if the name cannot be resolved on the primary.
  */
 class CombiningNamespaceContext(val primary: NamespaceContext,
-                                val secondary: NamespaceContext) : NamespaceContext {
+                                val secondary: NamespaceContext) : NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)
@@ -50,7 +51,7 @@ class CombiningNamespaceContext(val primary: NamespaceContext,
     }
 
     @Suppress("OverridingDeprecatedMember")
-    override fun getPrefixes(namespaceURI: String): Iterator<String> {
+    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         val prefixes1 = primary.prefixesFor(namespaceURI)
         val prefixes2 = secondary.prefixesFor(namespaceURI)
         val prefixes = hashSetOf<String>()
