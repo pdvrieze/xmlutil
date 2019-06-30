@@ -137,7 +137,7 @@ kotlin {
                 api(project(":core"))
                 implementation(project(":serialutil"))
                 project.dependencies.add(apiConfigurationName,
-                "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion") {
+                "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
                 implementation(kotlin("stdlib"))
