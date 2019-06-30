@@ -50,10 +50,6 @@ val javaVersionAttribute = Attribute.of("net.devrieze.javaVersion", String::clas
 
 val moduleName = "net.devrieze.serialutil"
 
-val moduleName = "net.devrieze.serialutil"
-
-val moduleName = "net.devrieze.serialutil"
-
 kotlin {
     targets {
         jvm("jvm9") {
@@ -183,10 +179,6 @@ tasks.named<JavaCompile>("compileJava") {
     }
 }
 
-tasks.named<Jar>("jar") {
-    
-}
-
 dependencies {
     "compileClasspath"("org.jetbrains.kotlin:kotlin-stdlib:modular")
 }
@@ -200,8 +192,10 @@ dependencies {
     "compileClasspath"("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version:modular")
 }
 
-configurations.named("compileClasspath") {
-    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+for (c in listOf("compileClasspath", "testCompileClasspath", "testRuntimeClasspath")) {
+    configurations.named(c) {
+        attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+    }
 }
 
 repositories {

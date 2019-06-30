@@ -313,33 +313,36 @@ kotlin {
 
 }
 
-}
-
 /*
 configurations.named("compileClasspath") {
     attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
 }
 */
 
-configurations.named("compileClasspath") {
-    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+for (c in listOf("compileClasspath", "testCompileClasspath", "testRuntimeClasspath")) {
+    configurations.named(c) {
+        attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
+    }
 }
 
-configurations.named("testCompileClasspath") {
-    attributes.attribute(javaVersionAttribute, JavaVersion.VERSION_1_9.toString())
-}
-
-tasks.named<JavaCompile>("compileJava") {
-    sourceCompatibility = "9"
-    targetCompatibility = "9"
+tasks{
+    named<JavaCompile>("compileJava") {
+        sourceCompatibility = "9"
+        targetCompatibility = "9"
 //    dependsOn(project(":serialutil").tasks.named("jvm9Jar"))
-    doFirst {
-        logger.lifecycle("Compiling module info - Classpath: ${classpath.asPath}")
-        options.compilerArgs = listOf(
-            "--module-path", classpath.asPath,
-            "--patch-module", "$moduleName=${sourceSets["main"].output.asPath}"
-                                     )
-        classpath = files()
+        doFirst {
+            logger.lifecycle("Compiling module info - Classpath: ${classpath.asPath}")
+            options.compilerArgs = listOf(
+                "--module-path", classpath.asPath,
+                "--patch-module", "$moduleName=${sourceSets["main"].output.asPath}"
+                                         )
+            classpath = files()
+        }
+    }
+    named<Test>("jvm9Test") {
+        filter {
+            exclude("**/module-info.class")
+        }
     }
 }
 
@@ -347,6 +350,8 @@ tasks.named<JavaCompile>("compileJava") {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_9
     targetCompatibility = JavaVersion.VERSION_1_9
+}
+
 repositories {
     jcenter()
     maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
