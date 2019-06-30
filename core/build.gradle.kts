@@ -250,7 +250,7 @@ extensions.configure<BintrayExtension>("bintray") {
             name = xmlutil_version
             desc = xmlutil_versiondesc
             released = Date().toString()
-            vcsTag = "v$version"
+            vcsTag = "v$xmlutil_version"
         }
     })
 
