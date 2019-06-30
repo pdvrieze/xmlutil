@@ -158,6 +158,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(kotlin("stdlib-jdk7"))
+                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
         val javaSharedTest by creating {
@@ -252,7 +253,7 @@ kotlin {
                 implementation(project(":serialutil"))
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
                 project.dependencies.add(
-                    implementationConfigurationName,
+                    apiConfigurationName,
                     "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
@@ -306,7 +307,7 @@ extensions.configure<BintrayExtension>("bintray") {
             name = xmlutil_version
             desc = xmlutil_versiondesc
             released = Date().toString()
-            vcsTag = "v$version"
+            vcsTag = "v$xmlutil_version"
         }
     })
 
