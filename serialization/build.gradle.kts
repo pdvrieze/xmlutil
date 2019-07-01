@@ -275,8 +275,14 @@ repositories {
 }
 
 publishing.publications.named<MavenPublication>("kotlinMultiplatform") {
+    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze:xmlutil-serialization")
     groupId = "net.devrieze"
     artifactId = "xmlutil-serialization"
+}
+
+publishing.publications.getByName<MavenPublication>("metadata") {
+    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze:xmlutil-serialization-common")
+    artifactId = "xmlutil-serialization-common"
 }
 
 extensions.configure<BintrayExtension>("bintray") {
