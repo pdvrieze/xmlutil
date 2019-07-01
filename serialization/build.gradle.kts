@@ -95,6 +95,7 @@ kotlin {
             attributes {
                 attribute(javaVersionAttribute, JavaVersion.VERSION_1_8.toString())
                 attribute(androidAttribute, false)
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
             }
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
@@ -122,6 +123,7 @@ kotlin {
                 attribute(javaVersionAttribute, JavaVersion.VERSION_1_6.toString())
                 attribute(androidAttribute, true)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
             }
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
