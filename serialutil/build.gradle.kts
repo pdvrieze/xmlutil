@@ -19,6 +19,8 @@
  */
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
+import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -188,6 +190,8 @@ extensions.configure<BintrayExtension>("bintray") {
     })
 
 }
+
+fixBintrayModuleUpload()
 
 idea {
     module {

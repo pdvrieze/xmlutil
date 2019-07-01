@@ -20,6 +20,7 @@
 
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -300,7 +301,7 @@ extensions.configure<BintrayExtension>("bintray") {
 
     setPublications(*pubs)
 
-    setPublications(*publishing.publications.map { it.name }.filter { "js" !in it && "metadata" !in it }.toTypedArray())
+    setPublications(*publishing.publications.map { it.name }.filter { "js" !in it }.toTypedArray())
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
@@ -318,6 +319,8 @@ extensions.configure<BintrayExtension>("bintray") {
     })
 
 }
+
+fixBintrayModuleUpload()
 
 idea {
     this.module.name = "xmlutil-serialization"

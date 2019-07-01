@@ -37,6 +37,7 @@ import org.gradle.api.internal.file.CompositeFileTree
 import org.gradle.api.logging.Logging
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.internal.artifact.FileBasedMavenArtifact
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskDependency
 import org.gradle.jvm.tasks.Jar
@@ -156,4 +157,22 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
         dependsOn(sourceJar)
     }
 
+}
+
+fun Project.fixBintrayModuleUpload() {
+    tasks.withType<BintrayUploadTask> {
+        doFirst {
+            extensions.getByName<PublishingExtension>("publishing")
+                .publications
+                .filterIsInstance<MavenPublication>()
+                .forEach { publication ->
+                    val moduleFile = buildDir.resolve("publications/${publication.name}/module.json")
+                    if (moduleFile.exists()) {
+                        publication.artifact(object : FileBasedMavenArtifact(moduleFile) {
+                            override fun getDefaultExtension() = "module"
+                        })
+                    }
+                }
+        }
+    }
 }
