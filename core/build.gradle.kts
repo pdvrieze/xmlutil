@@ -52,6 +52,10 @@ val moduleName = "net.devrieze.xmlutil.core"
 kotlin {
     targets {
         jvm {
+            attributes {
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+                attribute(androidAttribute, false)
+            }
             compilations.all {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
@@ -66,11 +70,11 @@ kotlin {
                 }
 //                tasks.named<Jar>()
             }
-            attributes.attribute(androidAttribute, false)
         }
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
