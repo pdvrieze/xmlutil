@@ -24,7 +24,12 @@ import kotlin.reflect.KClass
 
 actual val KClass<*>.name get() = js.name
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR
+       )
 @Retention(AnnotationRetention.SOURCE)
 actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
 
@@ -41,6 +46,6 @@ actual interface AutoCloseable {
     actual fun close()
 }
 
-actual interface Closeable: AutoCloseable
+actual interface Closeable : AutoCloseable
 
 actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()

@@ -47,8 +47,8 @@ interface Namespace {
 
     @Serializer(forClass = Namespace::class)
     companion object : KSerializer<Namespace> {
-        override val descriptor: SerialDescriptor = simpleSerialClassDesc<Namespace>("prefix" to StringSerializer,
-                                                                                     "namespaceURI" to StringSerializer)
+        override val descriptor: SerialDescriptor =
+            simpleSerialClassDesc<Namespace>("prefix" to StringSerializer, "namespaceURI" to StringSerializer)
 
         override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String

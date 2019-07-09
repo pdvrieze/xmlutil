@@ -21,7 +21,10 @@
 package nl.adaptivity.xmlutil
 
 import org.xmlpull.v1.XmlPullParserException
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.Writer
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
@@ -36,7 +39,12 @@ class AndroidStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
-    override fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    override fun newWriter(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean,
+        omitXmlDecl: Boolean
+                          ): XmlWriter {
         return AndroidXmlWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
     }
 

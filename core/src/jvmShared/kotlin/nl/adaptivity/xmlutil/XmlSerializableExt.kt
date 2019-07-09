@@ -18,6 +18,7 @@
  * under the License.
  */
 @file:JvmName("XmlSerializableExtJvm")
+
 package nl.adaptivity.xmlutil
 
 import java.io.*
@@ -26,36 +27,37 @@ import java.io.*
  * Extension functions for writing that need different js/jvm implementations
  */
 fun XmlSerializable.toCharArray(): CharArray {
-  val caw = CharArrayWriter()
-  XmlStreaming.newWriter(caw).use { writer ->
-    serialize(writer)
-  }
-  return caw.toCharArray()
+    val caw = CharArrayWriter()
+    XmlStreaming.newWriter(caw).use { writer ->
+        serialize(writer)
+    }
+    return caw.toCharArray()
 }
 
 
-
 @Throws(XmlException::class)
-fun XmlSerializable.toReader(): Reader
-{
-  val buffer = CharArrayWriter()
-  XmlStreaming.newWriter(buffer).use {
-    serialize(it)
+fun XmlSerializable.toReader(): Reader {
+    val buffer = CharArrayWriter()
+    XmlStreaming.newWriter(buffer).use {
+        serialize(it)
 
-  }
-  return CharArrayReader(buffer.toCharArray())
+    }
+    return CharArrayReader(buffer.toCharArray())
 }
 
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-  XmlStreaming.newWriter(writer, true, true).use { serialize(it) }
+    XmlStreaming.newWriter(writer, true, true).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {
-  return StringWriter().apply {
-    XmlStreaming.newWriter(this, flags.and(
-        FLAG_REPAIR_NS) == FLAG_REPAIR_NS, true).use { writer ->
-      serialize(writer)
-    }
-  }.toString()
+    return StringWriter().apply {
+        XmlStreaming.newWriter(
+            this, flags.and(
+                FLAG_REPAIR_NS
+                           ) == FLAG_REPAIR_NS, true
+                              ).use { writer ->
+            serialize(writer)
+        }
+    }.toString()
 }

@@ -113,7 +113,7 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
         internal fun String.expandTypeNameIfNeeded(parentType: String): String {
             if (!startsWith('.')) return this
             val parentPkg = parentType.lastIndexOf('.').let { idx ->
-                if (idx<0) return substring(1)
+                if (idx < 0) return substring(1)
                 parentType.substring(0, idx)
             }
             return "$parentPkg$this"
@@ -121,10 +121,10 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
 
         internal fun String.tryShortenTypeName(parentType: String): String {
             val parentPkg = parentType.lastIndexOf('.').let { idx ->
-                if (idx<0) return this
+                if (idx < 0) return this
                 parentType.substring(0, idx)
             }
-            if(startsWith(parentPkg) && indexOf('.', parentPkg.length+1)<0) {
+            if (startsWith(parentPkg) && indexOf('.', parentPkg.length + 1) < 0) {
                 return substring(parentPkg.length) // include starting . to signal relative type
             }
             return this
@@ -155,8 +155,10 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
 
         internal fun QName.normalize(): QName {
             return when {
-                namespaceURI.isEmpty() -> copy(namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
-                                               prefix = "")
+                namespaceURI.isEmpty() -> copy(
+                    namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
+                    prefix = ""
+                                              )
                 else                   -> copy(prefix = "")
             }
         }

@@ -173,7 +173,7 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
  */
 class HashFormat(override val context: SerialModule) : SerialFormat {
 
-    fun <T> hashCode(serializer: KSerializer<T>, obj: T):Int {
+    fun <T> hashCode(serializer: KSerializer<T>, obj: T): Int {
         return HashEncoder(context).also { enc -> serializer.serialize(enc, obj) }.hash
     }
 
@@ -184,7 +184,7 @@ class HashFormat(override val context: SerialModule) : SerialFormat {
         /**
          * This function uses the default (empty) context to create a hashcode for the parameter.
          */
-        fun <T> hashCode(serializer: KSerializer<T>, obj: T):Int {
+        fun <T> hashCode(serializer: KSerializer<T>, obj: T): Int {
             return defaultFormat.hashCode(serializer, obj)
         }
     }

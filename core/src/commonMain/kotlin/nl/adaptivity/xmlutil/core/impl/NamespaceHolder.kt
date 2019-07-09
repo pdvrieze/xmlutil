@@ -100,7 +100,7 @@ internal open class NamespaceHolder {
 
 
     fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
-        val prevCounts = if(depth>=1)namespaceCounts[depth - 1] else 0
+        val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0
         for (i in prevCounts until namespaceCounts[depth]) {
             if (getPrefix(i) == prefix && getNamespace(i) == namespaceUri) return
         }
@@ -146,8 +146,8 @@ internal open class NamespaceHolder {
             XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
 
             else            -> ((totalNamespaceCount - 1) downTo 0)
-                                   .firstOrNull { getPrefix(it) == prefixStr }
-                                   ?.let { getNamespace(it) } ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
+                .firstOrNull { getPrefix(it) == prefixStr }
+                ?.let { getNamespace(it) } ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
         }
     }
 
@@ -157,9 +157,9 @@ internal open class NamespaceHolder {
             XML_NS_URI             -> XML_NS_PREFIX
             XMLNS_ATTRIBUTE_NS_URI -> XMLNS_ATTRIBUTE
             else                   -> ((totalNamespaceCount - 1) downTo 0)
-                                          .firstOrNull { getNamespace(it) == namespaceUriStr }
-                                          ?.let { getPrefix(it) }
-                                      ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null
+                .firstOrNull { getNamespace(it) == namespaceUriStr }
+                ?.let { getPrefix(it) }
+                ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null
 
         }
     }

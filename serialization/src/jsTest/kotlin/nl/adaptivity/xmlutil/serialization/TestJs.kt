@@ -70,9 +70,11 @@ class TestJs {
         Address("10", "Downing Street", "London"),
         Address.serializer()
                                             ) {
-        override val expectedXML: String = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
+        override val expectedXML: String =
+            "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
 
-        override val expectedJson: String = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
+        override val expectedJson: String =
+            "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
 
     }
 
@@ -169,20 +171,21 @@ class TestJs {
         Special(),
         Special.serializer()
                                              ) {
-        override val expectedXML: String = """<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
-                "<f:flag>2</f:flag>" +
-                "<f:flag>3</f:flag>" +
-                "<f:flag>4</f:flag>" +
-                "<f:flag>5</f:flag>" +
-                "<f:flag>6</f:flag>" +
-                "</flags></localname>"
+        override val expectedXML: String =
+            """<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">""" +
+                    "<f:flag>2</f:flag>" +
+                    "<f:flag>3</f:flag>" +
+                    "<f:flag>4</f:flag>" +
+                    "<f:flag>5</f:flag>" +
+                    "<f:flag>6</f:flag>" +
+                    "</flags></localname>"
         override val expectedJson: String = "{\"paramA\":\"valA\",\"paramB\":1,\"flagValues\":[2,3,4,5,6]}"
     }
 
-    class InvertedPropertyOrder: TestBase<Inverted>(
+    class InvertedPropertyOrder : TestBase<Inverted>(
         Inverted("value2", 7),
         Inverted.serializer()
-                                                   ) {
+                                                    ) {
         override val expectedXML: String = """<Inverted arg="7"><elem>value2</elem></Inverted>"""
         override val expectedJson: String = "{\"elem\":\"value2\",\"arg\":7}"
 
@@ -204,13 +207,13 @@ class TestJs {
         }
     }
 
-    class CustomSerializedClass: TestBase<CustomContainer>(
+    class CustomSerializedClass : TestBase<CustomContainer>(
         CustomContainer(Custom("foobar")),
         CustomContainer.serializer()
-                                                          ) {
+                                                           ) {
 
-        override val expectedXML: String ="<CustomContainer elem=\"foobar\"/>"
-        override val expectedJson: String ="{\"nonXmlElemName\":\"foobar\"}"
+        override val expectedXML: String = "<CustomContainer elem=\"foobar\"/>"
+        override val expectedJson: String = "{\"nonXmlElemName\":\"foobar\"}"
 
     }
 

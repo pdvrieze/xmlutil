@@ -22,18 +22,19 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 
-internal fun childInfoForClassDesc(desc: kotlinx.serialization.SerialDescriptor): Array<SerialDescriptor?> = when (desc.kind) {
-    is PrimitiveKind,
+internal fun childInfoForClassDesc(desc: kotlinx.serialization.SerialDescriptor): Array<SerialDescriptor?> =
+    when (desc.kind) {
+        is PrimitiveKind,
         UnionKind.ENUM_KIND,
-        UnionKind.OBJECT -> emptyArray()
+        UnionKind.OBJECT      -> emptyArray()
 
-    StructureKind.MAP,
-        StructureKind.LIST -> arrayOf(null, DUMMYSERIALDESC)
+        StructureKind.MAP,
+        StructureKind.LIST    -> arrayOf(null, DUMMYSERIALDESC)
 
-    UnionKind.POLYMORPHIC -> arrayOfNulls(2)
+        UnionKind.POLYMORPHIC -> arrayOfNulls(2)
 
-    else                   -> arrayOfNulls(desc.elementsCount)
-}
+        else                  -> arrayOfNulls(desc.elementsCount)
+    }
 
 internal val DUMMYCHILDINFO = DUMMYSERIALDESC
 

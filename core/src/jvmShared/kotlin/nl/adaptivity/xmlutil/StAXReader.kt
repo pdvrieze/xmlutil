@@ -46,9 +46,12 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     constructor(reader: Reader) : this(XMLInputFactory.newFactory().createXMLStreamReader(reader))
 
     @Throws(XMLStreamException::class)
-    constructor(inputStream: InputStream, encoding: String?) : this(XMLInputFactory.newFactory().createXMLStreamReader(
-        inputStream,
-        encoding))
+    constructor(inputStream: InputStream, encoding: String?) : this(
+        XMLInputFactory.newFactory().createXMLStreamReader(
+            inputStream,
+            encoding
+                                                          )
+                                                                   )
 
     @Throws(XMLStreamException::class)
     constructor(source: Source) : this(XMLInputFactory.newFactory().createXMLStreamReader(source))
@@ -104,11 +107,13 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     @Throws(XmlException::class)
     override fun require(type: EventType, namespace: String?, name: String?) {
         val actualType = DELEGATE_TO_LOCAL[delegate.eventType]
-        if (actualType!=type) throw XmlException("Type ${actualType} does not match expected type $type")
-        if (namespace!=null &&
-            delegate.namespaceURI!=namespace) throw XmlException("Namespace ${delegate.namespaceURI} does not match expected $namespace")
-        if (name!=null &&
-            delegate.localName!=name) throw XmlException("local name ${delegate.localName} does not match expected $name")
+        if (actualType != type) throw XmlException("Type ${actualType} does not match expected type $type")
+        if (namespace != null &&
+            delegate.namespaceURI != namespace
+        ) throw XmlException("Namespace ${delegate.namespaceURI} does not match expected $namespace")
+        if (name != null &&
+            delegate.localName != name
+        ) throw XmlException("local name ${delegate.localName} does not match expected $name")
         delegate.require(LOCAL_TO_DELEGATE[type.ordinal], namespace, name)
     }
 
@@ -172,7 +177,8 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     }
 
     private fun delegateToLocal(eventType: Int) = DELEGATE_TO_LOCAL[eventType] ?: throw XmlException(
-        "Unsupported event type")
+        "Unsupported event type"
+                                                                                                    )
 
     @Throws(XmlException::class)
     override fun nextTag(): EventType {
@@ -244,9 +250,11 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     @Deprecated("Wrong name", ReplaceWith("getNamespaceURI(index)"))
     fun getNamespaceUri(index: Int) = getNamespaceURI(index)
 
-    override fun getNamespaceURI(index: Int): String = delegate.getNamespaceURI(index) ?: javax.xml.XMLConstants.NULL_NS_URI
+    override fun getNamespaceURI(index: Int): String =
+        delegate.getNamespaceURI(index) ?: javax.xml.XMLConstants.NULL_NS_URI
 
-    override fun getNamespacePrefix(index: Int): String = delegate.getNamespacePrefix(index)  ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
+    override fun getNamespacePrefix(index: Int): String =
+        delegate.getNamespacePrefix(index) ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
 
     override val namespaceContext: NamespaceContext
         get() = delegate.namespaceContext

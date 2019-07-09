@@ -37,16 +37,23 @@ fun isXmlWhitespace(data: CharArray) = data.all { isXmlWhitespace(it) }
 
 fun isXmlWhitespace(data: CharSequence) = data.all { isXmlWhitespace(it) }
 
-@Deprecated("Use the version that takes string parameters", ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())"))
+@Deprecated(
+    "Use the version that takes string parameters",
+    ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())")
+           )
 fun qname(namespaceUri: CharSequence?, localname: CharSequence, prefix: CharSequence? = DEFAULT_NS_PREFIX) =
-    QName(namespaceUri?.toString() ?: NULL_NS_URI,
-                                localname.toString(),
-                                prefix?.toString() ?: DEFAULT_NS_PREFIX)
+    QName(
+        namespaceUri?.toString() ?: NULL_NS_URI,
+        localname.toString(),
+        prefix?.toString() ?: DEFAULT_NS_PREFIX
+         )
 
 fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX) =
-    QName(namespaceUri ?: NULL_NS_URI,
-                                localname,
-                                prefix ?: DEFAULT_NS_PREFIX)
+    QName(
+        namespaceUri ?: NULL_NS_URI,
+        localname,
+        prefix ?: DEFAULT_NS_PREFIX
+         )
 
 /**
  * Convert the string as fqn literal to an actual qname
@@ -103,11 +110,15 @@ fun NamespaceContext.asQName(name: String): QName {
     val colPos = name.indexOf(':')
     return if (colPos >= 0) {
         val prefix = name.substring(0, colPos)
-        QName(reference.getNamespaceURI(prefix) ?: NULL_NS_URI, name.substring(colPos + 1),
-                                    prefix)
+        QName(
+            reference.getNamespaceURI(prefix) ?: NULL_NS_URI, name.substring(colPos + 1),
+            prefix
+             )
     } else {
-        QName(reference.getNamespaceURI(DEFAULT_NS_PREFIX) ?: NULL_NS_URI, name,
-                                    DEFAULT_NS_PREFIX)
+        QName(
+            reference.getNamespaceURI(DEFAULT_NS_PREFIX) ?: NULL_NS_URI, name,
+            DEFAULT_NS_PREFIX
+             )
     }
 
 }
@@ -126,9 +137,9 @@ fun CharSequence.xmlEncode(): String {
     return buildString {
         for (c in this@xmlEncode) {
             when (c) {
-                '<'  -> append("&lt;")
-                '>'  -> append("&gt;")
-                '&'  -> append("&amp;")
+                '<' -> append("&lt;")
+                '>' -> append("&gt;")
+                '&' -> append("&amp;")
                 else -> append(c)
             }
         }

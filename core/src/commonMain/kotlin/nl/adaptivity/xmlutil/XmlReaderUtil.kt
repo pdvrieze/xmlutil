@@ -28,21 +28,22 @@ import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(
-    this)
+    this
+                                                              )
 
 /**
  * A class that filters an xml stream such that it will only contain expected elements.
  */
 private class SubstreamFilterReader(delegate: XmlReader) : XmlBufferedReader(delegate) {
 
-  @Throws(XmlException::class)
-  override fun doPeek(): List<XmlEvent> {
-    return super.doPeek().filter {
-      when (it.eventType) {
-        EventType.START_DOCUMENT, EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.END_DOCUMENT -> false
-        else                                                                                                  -> true
-      }
+    @Throws(XmlException::class)
+    override fun doPeek(): List<XmlEvent> {
+        return super.doPeek().filter {
+            when (it.eventType) {
+                EventType.START_DOCUMENT, EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.END_DOCUMENT -> false
+                else                                                                                                  -> true
+            }
+        }
     }
-  }
 }
 

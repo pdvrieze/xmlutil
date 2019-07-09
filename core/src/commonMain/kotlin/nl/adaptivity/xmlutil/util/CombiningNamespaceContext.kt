@@ -33,8 +33,10 @@ import nl.adaptivity.xmlutil.prefixesFor
  * @property primary The context to first use for looking up
  * @property secondary The fallback context if the name cannot be resolved on the primary.
  */
-class CombiningNamespaceContext(val primary: NamespaceContext,
-                                val secondary: NamespaceContext) : NamespaceContextImpl {
+class CombiningNamespaceContext(
+    val primary: NamespaceContext,
+    val secondary: NamespaceContext
+                               ) : NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)

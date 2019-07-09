@@ -27,9 +27,9 @@ import nl.adaptivity.xmlutil.*
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-actual class CompactFragment: ICompactFragment {
+actual class CompactFragment : ICompactFragment {
 
-  actual class Factory : XmlDeserializerFactory<CompactFragment> {
+    actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
             @Suppress("RedundantCompanionReference")
@@ -37,80 +37,83 @@ actual class CompactFragment: ICompactFragment {
         }
     }
 
-  override val isEmpty: Boolean
-      get() = content.isEmpty()
+    override val isEmpty: Boolean
+        get() = content.isEmpty()
 
-  override val namespaces: IterableNamespaceContext
+    override val namespaces: IterableNamespaceContext
 
-  @Transient
-  override val content: CharArray
+    @Transient
+    override val content: CharArray
 
-  actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
-    this.namespaces = SimpleNamespaceContext.from(namespaces)
-    this.content = content ?: CharArray(0)
-  }
+    actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
+        this.namespaces = SimpleNamespaceContext.from(namespaces)
+        this.content = content ?: CharArray(0)
+    }
 
-  /** Convenience constructor for content without namespaces.  */
-  actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
+    /** Convenience constructor for content without namespaces.  */
+    actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
 
-  actual constructor(orig: ICompactFragment) {
-    namespaces = SimpleNamespaceContext.from(orig.namespaces)
-    content = orig.content
-  }
+    actual constructor(orig: ICompactFragment) {
+        namespaces = SimpleNamespaceContext.from(orig.namespaces)
+        content = orig.content
+    }
 
-  @Throws(XmlException::class)
-  actual constructor(content: XmlSerializable) {
-    namespaces = SimpleNamespaceContext(emptyList())
-    this.content = content.toCharArray()
-  }
+    @Throws(XmlException::class)
+    actual constructor(content: XmlSerializable) {
+        namespaces = SimpleNamespaceContext(emptyList())
+        this.content = content.toCharArray()
+    }
 
-  actual constructor(namespaces: Iterable<Namespace>, content: String):
-      this(namespaces, content.toCharArray())
+    actual constructor(namespaces: Iterable<Namespace>, content: String) :
+            this(namespaces, content.toCharArray())
 
 
     @Throws(XmlException::class)
-  override fun serialize(out: XmlWriter) {
-    XMLFragmentStreamReader.from(this).use { reader ->
-      out.serialize(reader)
+    override fun serialize(out: XmlWriter) {
+        XMLFragmentStreamReader.from(this).use { reader ->
+            out.serialize(reader)
+        }
     }
-  }
 
-  override fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+    override fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other == null || javaClass != other.javaClass) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
 
-    val that = other as ICompactFragment?
+        val that = other as ICompactFragment?
 
-    if (namespaces != that!!.namespaces) return false
-    return content.contentEquals(that.content)
+        if (namespaces != that!!.namespaces) return false
+        return content.contentEquals(that.content)
 
-  }
-
-  override fun hashCode(): Int {
-    var result = namespaces.hashCode()
-    result = 31 * result + content.contentHashCode()
-    return result
-  }
-
-  override fun toString(): String {
-      return namespaces.joinToString(prefix="{namespaces=[", postfix = "], content=$contentString}") { "${it.prefix} -> ${it.namespaceURI}" }
-  }
-
-  override val contentString: String
-    get() = String(content)
-
-  actual companion object {
-
-    @JvmStatic
-    val FACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()
-
-    @Throws(XmlException::class)
-    actual fun deserialize(reader: XmlReader): CompactFragment {
-      return reader.siblingsToFragment()
     }
-  }
+
+    override fun hashCode(): Int {
+        var result = namespaces.hashCode()
+        result = 31 * result + content.contentHashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return namespaces.joinToString(
+            prefix = "{namespaces=[",
+            postfix = "], content=$contentString}"
+                                      ) { "${it.prefix} -> ${it.namespaceURI}" }
+    }
+
+    override val contentString: String
+        get() = String(content)
+
+    actual companion object {
+
+        @JvmStatic
+        val FACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()
+
+        @Throws(XmlException::class)
+        actual fun deserialize(reader: XmlReader): CompactFragment {
+            return reader.siblingsToFragment()
+        }
+    }
 }
 
 val COMPACTFRAGMENTFACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()

@@ -22,9 +22,10 @@ package nl.adaptivity.xmlutil
 
 actual typealias NamespaceContext = javax.xml.namespace.NamespaceContext
 
-actual interface NamespaceContextImpl: javax.xml.namespace.NamespaceContext {
+actual interface NamespaceContextImpl : javax.xml.namespace.NamespaceContext {
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
-    actual fun  getPrefixesCompat(namespaceURI: String): Iterator<String>
+    actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
-actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> = getPrefixes(namespaceURI) as Iterator<String>
+actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
+    getPrefixes(namespaceURI) as Iterator<String>

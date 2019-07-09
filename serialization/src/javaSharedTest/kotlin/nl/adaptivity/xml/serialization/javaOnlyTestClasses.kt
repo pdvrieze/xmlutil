@@ -18,13 +18,16 @@
  * under the License.
  */
 @file:ContextualSerialization(ChildA::class, ChildB::class)
+
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringDescriptor
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 open class Base

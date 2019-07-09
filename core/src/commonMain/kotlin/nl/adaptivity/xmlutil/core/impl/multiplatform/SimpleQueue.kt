@@ -30,14 +30,14 @@ expect class SimpleQueue<E>() {
     fun removeFirst(): E
     fun removeLast(): E
 
-    fun addLast(e:E)
+    fun addLast(e: E)
     fun add(element: E): Boolean
 
     fun clear()
 }
 
 fun SimpleQueue<*>.isNotEmpty() = size > 0
-fun <E> SimpleQueue<E>.addAll(elements: Iterable<E>):Boolean {
+fun <E> SimpleQueue<E>.addAll(elements: Iterable<E>): Boolean {
     return elements.fold(false) { acc, e ->
         acc or add(e)
     }

@@ -22,26 +22,30 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 actual class SimpleQueue<E> {
     private var data = js("[]")
+
     actual constructor()
 
     actual val size: Int
         get() = data.length as Int
 
-    actual fun peekFirst(): E? = when(size) {
-        0 -> null
+    actual fun peekFirst(): E? = when (size) {
+        0    -> null
         else -> data[0]
     }
 
-    actual fun peekLast(): E? = when(size) {
-        0 -> null
-        else -> data[size-1]
+    actual fun peekLast(): E? = when (size) {
+        0    -> null
+        else -> data[size - 1]
     }
 
     actual fun removeFirst(): E = data.shift()
 
     actual fun removeLast(): E = data.pop()
 
-    actual fun addLast(e: E) { data.push(e) }
+    actual fun addLast(e: E) {
+        data.push(e)
+    }
+
     actual fun add(element: E): Boolean {
         data.push(element)
         return true

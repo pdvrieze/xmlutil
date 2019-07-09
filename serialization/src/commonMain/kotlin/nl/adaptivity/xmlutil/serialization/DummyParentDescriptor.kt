@@ -24,11 +24,11 @@ import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
 import kotlinx.serialization.StructureKind
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-internal class DummyParentDescriptor(private val serialName: QName?, private val childDesc: SerialDescriptor):
+internal class DummyParentDescriptor(private val serialName: QName?, private val childDesc: SerialDescriptor) :
     SerialDescriptor {
     /** This merely mirrors the parent name as tags need a basis and this object is only used at top level. */
     override val name: String get() = childDesc.name
@@ -40,9 +40,9 @@ internal class DummyParentDescriptor(private val serialName: QName?, private val
     override fun getElementName(index: Int): String {
         assert(index == 0)
         return when {
-            serialName == null -> childDesc.name
-            serialName.namespaceURI=="" -> serialName.localPart
-            else -> "{${serialName.namespaceURI}}${serialName.localPart}"
+            serialName == null            -> childDesc.name
+            serialName.namespaceURI == "" -> serialName.localPart
+            else                          -> "{${serialName.namespaceURI}}${serialName.localPart}"
         }
     }
 
@@ -51,7 +51,7 @@ internal class DummyParentDescriptor(private val serialName: QName?, private val
     override fun getEntityAnnotations(): List<Annotation> = emptyList()
 
     // The element annotations are use site annotations, Entity annotations are declaration site
-    override fun getElementAnnotations(index: Int): List<Annotation>  = emptyList()
+    override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         assert(index == 0)

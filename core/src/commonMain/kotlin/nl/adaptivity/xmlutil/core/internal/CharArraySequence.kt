@@ -20,9 +20,11 @@
 
 package nl.adaptivity.xmlutil.core.internal
 
-internal class CharArraySequence(private val data: CharArray,
-                                 private val offset: Int = 0,
-                                 override val length: Int = data.size - offset) : CharSequence {
+internal class CharArraySequence(
+    private val data: CharArray,
+    private val offset: Int = 0,
+    override val length: Int = data.size - offset
+                                ) : CharSequence {
 
     override fun get(index: Int): Char {
         if (index < 0 || index >= (offset + length)) throw IndexOutOfBoundsException("$index")

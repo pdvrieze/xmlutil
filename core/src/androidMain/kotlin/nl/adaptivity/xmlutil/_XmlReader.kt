@@ -19,6 +19,7 @@
  */
 
 @file:JvmName("XmlReaderUtilJava")
+
 package nl.adaptivity.xmlutil
 
 import java.io.CharArrayWriter

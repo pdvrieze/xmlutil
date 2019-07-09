@@ -40,7 +40,8 @@ import kotlin.jvm.JvmName
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
 
     @Transient
-    val indices: IntRange get() = 0..(size - 1)
+    val indices: IntRange
+        get() = 0..(size - 1)
 
     @Transient
     @get:JvmName("size")
@@ -82,19 +83,19 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     constructor() : this(emptyArray())
 
     constructor(prefixMap: Map<out CharSequence, CharSequence>) :
-        this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
+            this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
 
     constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>) :
-        this(Array(prefixes.size * 2) { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() })
+            this(Array(prefixes.size * 2) { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() })
 
     constructor(prefix: CharSequence, namespace: CharSequence) :
-        this(arrayOf(prefix.toString(), namespace.toString()))
+            this(arrayOf(prefix.toString(), namespace.toString()))
 
     constructor(namespaces: Collection<Namespace>) :
-        this(flatten(namespaces, { prefix }, { namespaceURI }))
+            this(flatten(namespaces, { prefix }, { namespaceURI }))
 
     constructor(namespaces: Iterable<Namespace>) :
-        this(namespaces as? Collection<Namespace> ?: namespaces.toList())
+            this(namespaces as? Collection<Namespace> ?: namespaces.toList())
 
     /**
      * Create a context that combines both. This will "forget" overlapped prefixes.
@@ -149,9 +150,9 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
             XML_NS_PREFIX   -> XML_NS_URI
             XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
             else            -> indices.reversed()
-                                   .filter { getPrefix(it) == prefix }
-                                   .map { getNamespaceURI(it) }
-                                   .firstOrNull() ?: NULL_NS_URI
+                .filter { getPrefix(it) == prefix }
+                .map { getNamespaceURI(it) }
+                .firstOrNull() ?: NULL_NS_URI
         }
     }
 
@@ -207,31 +208,35 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     }
 
     @Serializer(forClass = SimpleNamespaceContext::class)
-    companion object: KSerializer<SimpleNamespaceContext> {
+    companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = Namespace.list
 
-        override val descriptor: SerialDescriptor = actualSerializer.descriptor.
-                withName(SimpleNamespaceContext::class.name)
+        override val descriptor: SerialDescriptor =
+            actualSerializer.descriptor.withName(SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
-            else                                            -> SimpleNamespaceContext(
-                originalNSContext)
+            else                      -> SimpleNamespaceContext(
+                originalNSContext
+                                                               )
         }
 
         override fun deserialize(decoder: Decoder): SimpleNamespaceContext {
             return SimpleNamespaceContext(
-                actualSerializer.deserialize(decoder))
+                actualSerializer.deserialize(decoder)
+                                         )
         }
 
         override fun serialize(encoder: Encoder, obj: SimpleNamespaceContext) {
             actualSerializer.serialize(encoder, obj.toList())
         }
 
-        private inline fun <T> flatten(namespaces: Collection<T>,
-                                       crossinline prefix: T.() -> String,
-                                       crossinline namespace: T.() -> String): Array<String> {
+        private inline fun <T> flatten(
+            namespaces: Collection<T>,
+            crossinline prefix: T.() -> String,
+            crossinline namespace: T.() -> String
+                                      ): Array<String> {
             val filler: Iterator<String> = namespaces.asSequence().flatMap {
                 sequenceOf(it.prefix(), it.namespace())
             }.iterator()

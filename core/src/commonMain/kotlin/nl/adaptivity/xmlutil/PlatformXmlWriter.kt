@@ -20,4 +20,4 @@
 
 package nl.adaptivity.xmlutil
 
-expect class PlatformXmlWriter: XmlWriter
+expect class PlatformXmlWriter : XmlWriter

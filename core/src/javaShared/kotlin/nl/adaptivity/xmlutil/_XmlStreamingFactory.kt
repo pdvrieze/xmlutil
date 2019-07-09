@@ -20,8 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.core.impl.AppendableWriter
+import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader
@@ -31,20 +31,25 @@ import javax.xml.transform.Source
 
 actual interface XmlStreamingFactory {
 
-  fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
-  fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false, omitXmlDecl: Boolean= false): XmlWriter
+    fun newWriter(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean = false,
+        omitXmlDecl: Boolean = false
+                 ): XmlWriter
 
-  fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
-  fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false) =
-      newWriter(AppendableWriter(output), repairNamespaces, omitXmlDecl)
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false) =
+        newWriter(AppendableWriter(output), repairNamespaces, omitXmlDecl)
 
-  fun newReader(source: Source): XmlReader
+    fun newReader(source: Source): XmlReader
 
-  fun newReader(reader: Reader): XmlReader
+    fun newReader(reader: Reader): XmlReader
 
-  fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
+    fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
 
-  fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
+    fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
 }

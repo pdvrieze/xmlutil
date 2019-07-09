@@ -45,16 +45,17 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XMLStreamException::class)
     constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-        : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), omitXmlDecl)
+            : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), omitXmlDecl)
 
     @Throws(XMLStreamException::class)
     constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-        : this(
-        newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), omitXmlDecl)
+            : this(
+        newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), omitXmlDecl
+                  )
 
     @Throws(XMLStreamException::class)
     constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-        : this(newFactory(repairNamespaces).createXMLStreamWriter(result), omitXmlDecl)
+            : this(newFactory(repairNamespaces).createXMLStreamWriter(result), omitXmlDecl)
 
     @Throws(XmlException::class)
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
@@ -62,7 +63,9 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         depth++
         try {
             if (namespace.isNullOrEmpty() && prefix.isNullOrEmpty() && delegate.namespaceContext.getNamespaceURI(
-                    "").isNullOrEmpty()) {
+                    ""
+                                                                                                                ).isNullOrEmpty()
+            ) {
                 delegate.writeStartElement(localName)
             } else {
                 delegate.writeStartElement(prefix ?: XMLConstants.DEFAULT_NS_PREFIX, localName, namespace)
@@ -259,7 +262,9 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         if (!omitXmlDecl) {
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
             if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(
-                    delegate) == true) {
+                    delegate
+                                                                                                     ) == true
+            ) {
                 mtdWriteStartDocument.invoke(delegate, version, encoding, standalone)
             } else {
                 delegate.writeStartDocument(encoding, version) // standalone doesn't work

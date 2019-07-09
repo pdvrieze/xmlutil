@@ -50,17 +50,17 @@ actual object XmlStreaming {
     }
 
     actual fun setFactory(factory: XmlStreamingFactory?) {
-        if (factory!=null)
+        if (factory != null)
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun <T:Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
+    fun <T : Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
     /*: T {
         return newReader(input).deSerialize(type)
     }*/
 
-    actual inline fun <reified T:Any> deSerialize(input:String): T = TODO("JS does not support annotations")
+    actual inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
     /*: T {
         return deSerialize(input, T::class)
     }*/
@@ -80,9 +80,11 @@ actual object XmlStreaming {
         return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
     }
 
-    actual fun newWriter(output: Appendable,
-                         repairNamespaces: Boolean,
-                         omitXmlDecl: Boolean): XmlWriter {
+    actual fun newWriter(
+        output: Appendable,
+        repairNamespaces: Boolean,
+        omitXmlDecl: Boolean
+                        ): XmlWriter {
         return AppendingWriter(output, JSDomWriter())
     }
 
@@ -101,7 +103,8 @@ fun <T:Any> JSDomReader.deSerialize(type: KClass<T>): T {
 }
  */
 
-internal class AppendingWriter(private val target: Appendable, private val delegate: JSDomWriter): XmlWriter by delegate {
+internal class AppendingWriter(private val target: Appendable, private val delegate: JSDomWriter) :
+    XmlWriter by delegate {
     override fun close() {
         delegate.close()
         target.append(delegate.toString())
@@ -112,7 +115,7 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     }
 }
 
-internal class WriterXmlWriter(private val target: Writer, private val delegate: JSDomWriter): XmlWriter by delegate {
+internal class WriterXmlWriter(private val target: Writer, private val delegate: JSDomWriter) : XmlWriter by delegate {
     override fun close() {
         try {
             val xmls = XMLSerializer()

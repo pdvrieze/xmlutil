@@ -34,13 +34,13 @@ import javax.xml.XMLConstants
 
  * Created by pdvrieze on 04/11/15.
  */
-actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>)
-    : XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
+actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
+    XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
 
-    override var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(
-        null, emptyArray(), emptyArray())
+    override var localNamespaceContext: FragmentNamespaceContext =
+        FragmentNamespaceContext(null, emptyArray(), emptyArray())
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
@@ -74,8 +74,10 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
 
     actual companion object {
 
-        private fun getDelegate(reader: Reader,
-                                wrapperNamespaceContext: Iterable<Namespace>): XmlReader {
+        private fun getDelegate(
+            reader: Reader,
+            wrapperNamespaceContext: Iterable<Namespace>
+                               ): XmlReader {
             val wrapper = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
                 for (ns in wrapperNamespaceContext) {

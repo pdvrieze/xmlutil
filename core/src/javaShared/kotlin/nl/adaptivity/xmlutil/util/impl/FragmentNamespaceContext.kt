@@ -24,9 +24,11 @@ import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.prefixesFor
 import java.util.HashSet
 
-class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
-                               prefixes: Array<String>,
-                               namespaces: Array<String>) : SimpleNamespaceContext(prefixes, namespaces) {
+class FragmentNamespaceContext(
+    val parent: FragmentNamespaceContext?,
+    prefixes: Array<String>,
+    namespaces: Array<String>
+                              ) : SimpleNamespaceContext(prefixes, namespaces) {
 
     override fun getNamespaceURI(prefix: String): String {
         return parent?.getNamespaceURI(prefix) ?: super.getNamespaceURI(prefix)
@@ -46,7 +48,7 @@ class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
         super.getPrefixesCompat(namespaceURI).forEach { prefixes.add(it) }
 
         parent.prefixesFor(namespaceURI).asSequence()
-            .filter { prefix -> getLocalNamespaceUri(prefix)==null }
+            .filter { prefix -> getLocalNamespaceUri(prefix) == null }
             .forEach { prefixes.add(it) }
 
         return prefixes.iterator()

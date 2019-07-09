@@ -106,7 +106,8 @@ abstract class XmlStreamingJavaCommon {
 
     fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T {
         val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException(
-                "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})")
+            "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})"
+                                                                                    )
         return deserializer(newReader(input), kClass)
     }
 

@@ -19,6 +19,7 @@
  */
 
 @file:JvmName("QNameJvmKt")
+
 package nl.adaptivity.xmlutil
 
-actual typealias QName=javax.xml.namespace.QName
+actual typealias QName = javax.xml.namespace.QName

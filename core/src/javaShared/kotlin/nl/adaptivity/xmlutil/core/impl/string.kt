@@ -21,14 +21,14 @@
 package nl.adaptivity.xmlutil.core.impl
 
 @Deprecated("Don't use, just use string comparison")
-internal fun CharSequence?.contentEquals(other:CharSequence?):Boolean {
-  if (this==null) return other==null
-  if (other==null) return false
-  if (length!=other.length) return false
-  for (i in 0 until length) {
-    if (this[i]!=other[i]) return false
-  }
-  return true
+internal fun CharSequence?.contentEquals(other: CharSequence?): Boolean {
+    if (this == null) return other == null
+    if (other == null) return false
+    if (length != other.length) return false
+    for (i in 0 until length) {
+        if (this[i] != other[i]) return false
+    }
+    return true
 }
 
 @Deprecated("Use string equals", ReplaceWith("this == other"))

@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.XmlSerializable
 /**
  * Base interface for CompactFragment implementations.
  */
-interface ICompactFragment: XmlSerializable {
+interface ICompactFragment : XmlSerializable {
     @Transient
     val isEmpty: Boolean
 

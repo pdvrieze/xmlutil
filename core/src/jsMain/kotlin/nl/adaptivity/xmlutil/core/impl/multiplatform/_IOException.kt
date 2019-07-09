@@ -22,11 +22,11 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 
 actual open class IOException : Exception {
-    actual constructor(): super()
+    actual constructor() : super()
 
-    actual constructor(message: String?): super(message)
+    actual constructor(message: String?) : super(message)
 
-    actual constructor(message: String?, cause: Throwable?): super(message, cause)
+    actual constructor(message: String?, cause: Throwable?) : super(message, cause)
 
-    actual constructor(cause: Throwable?): super(cause)
+    actual constructor(cause: Throwable?) : super(cause)
 }

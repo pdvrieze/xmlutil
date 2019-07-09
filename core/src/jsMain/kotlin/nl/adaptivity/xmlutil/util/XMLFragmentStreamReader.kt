@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.NamespaceContext
 import org.w3c.dom.parsing.DOMParser
 
 
@@ -30,13 +29,17 @@ import org.w3c.dom.parsing.DOMParser
 
  * Created by pdvrieze on 04/11/15.
  */
-actual class XMLFragmentStreamReader constructor(text: String,
-                                                 wrapperNamespaceContext: Iterable<Namespace>)
-    : XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(text, wrapperNamespaceContext)) {
+actual class XMLFragmentStreamReader constructor(
+    text: String,
+    wrapperNamespaceContext: Iterable<Namespace>
+                                                ) :
+    XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(text, wrapperNamespaceContext)) {
 
-    private class FragmentNamespaceContext(val parent: FragmentNamespaceContext?,
-                                           prefixes: Array<String>,
-                                           namespaces: Array<String>) : SimpleNamespaceContext(prefixes, namespaces) {
+    private class FragmentNamespaceContext(
+        val parent: FragmentNamespaceContext?,
+        prefixes: Array<String>,
+        namespaces: Array<String>
+                                          ) : SimpleNamespaceContext(prefixes, namespaces) {
 
         override fun getNamespaceURI(prefix: String): String {
             val namespaceURI = super.getNamespaceURI(prefix)
@@ -91,8 +94,10 @@ actual class XMLFragmentStreamReader constructor(text: String,
         }
     }
 
-    private var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(null, emptyArray(),
-                                                                                           emptyArray())
+    private var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(
+        null, emptyArray(),
+        emptyArray()
+                                                                                          )
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
@@ -173,8 +178,10 @@ actual class XMLFragmentStreamReader constructor(text: String,
         private const val WRAPPERNAMESPACE = "http://wrapperns"
 
 
-        private fun getDelegate(text: String,
-                                wrapperNamespaceContext: Iterable<Namespace>): XmlReader {
+        private fun getDelegate(
+            text: String,
+            wrapperNamespaceContext: Iterable<Namespace>
+                               ): XmlReader {
             val wrapper = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
                 for (ns in wrapperNamespaceContext) {

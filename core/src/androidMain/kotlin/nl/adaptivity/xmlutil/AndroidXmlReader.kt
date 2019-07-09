@@ -37,7 +37,7 @@ actual typealias PlatformXmlReader = AndroidXmlReader
 class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     override var isStarted = false
 
-    private constructor(): this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
+    private constructor() : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
 
     constructor(reader: Reader) : this() {
         parser.setInput(reader)
@@ -94,12 +94,12 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     override fun getAttributeLocalName(index: Int): String = parser.getAttributeName(index)
 
     override fun getAttributePrefix(index: Int): String = parser.getAttributePrefix(index)
-                                                          ?: XMLConstants.DEFAULT_NS_PREFIX
+        ?: XMLConstants.DEFAULT_NS_PREFIX
 
     override fun getAttributeValue(index: Int): String = parser.getAttributeValue(index)
 
     override fun getAttributeNamespace(index: Int): String = parser.getAttributeNamespace(index)
-                                                             ?: XMLConstants.NULL_NS_URI
+        ?: XMLConstants.NULL_NS_URI
 
     override val namespaceStart: Int
         get() {
@@ -145,7 +145,8 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
 
     override val locationInfo: String?
         get() = StringBuilder(Integer.toString(parser.lineNumber)).append(':').append(
-            Integer.toString(parser.columnNumber)).toString()
+            Integer.toString(parser.columnNumber)
+                                                                                     ).toString()
 
     override val standalone: Boolean?
         get() = parser.getProperty("xmldecl-standalone") as Boolean
