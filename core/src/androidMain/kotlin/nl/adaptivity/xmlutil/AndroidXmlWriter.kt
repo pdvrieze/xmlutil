@@ -28,6 +28,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.io.Writer
 import javax.xml.XMLConstants
+import javax.xml.XMLConstants.*
 import javax.xml.namespace.NamespaceContext
 
 actual typealias PlatformXmlWriter = AndroidXmlWriter
@@ -52,7 +53,9 @@ class AndroidXmlWriter : XmlWriter {
         get() = namespaceHolder.depth
 
     @Throws(XmlPullParserException::class, IOException::class)
-    @JvmOverloads constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) : this(repairNamespaces, omitXmlDecl) {
+    @JvmOverloads
+    constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) :
+            this(repairNamespaces, omitXmlDecl) {
         this.writer.setOutput(writer)
         initWriter(this.writer)
     }
@@ -65,15 +68,22 @@ class AndroidXmlWriter : XmlWriter {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    @JvmOverloads constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) :
-        this(repairNamespaces, omitXmlDecl) {
+    @JvmOverloads
+    constructor(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean = true,
+        omitXmlDecl: Boolean = false
+               ) :
+            this(repairNamespaces, omitXmlDecl) {
+
         writer.setOutput(outputStream, encoding)
         initWriter(writer)
     }
 
     private fun initWriter(writer: XmlSerializer) {
         try {
-            writer.setPrefix(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI)
+            writer.setPrefix(XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
@@ -87,8 +97,8 @@ class AndroidXmlWriter : XmlWriter {
         initWriter(writer)
     }
 
-    private fun writeIndent(newDepth:Int = depth) {
-        if (lastTagDepth>=0 && indent > 0 && lastTagDepth!=depth) {
+    private fun writeIndent(newDepth: Int = depth) {
+        if (lastTagDepth >= 0 && indent > 0 && lastTagDepth != depth) {
             writer.ignorableWhitespace("\n${" ".repeat(indent * depth)}")
         }
         lastTagDepth = newDepth
@@ -175,7 +185,7 @@ class AndroidXmlWriter : XmlWriter {
         }
         val writer = writer
         if (writer is BetterXmlSerializer) {
-            writer.attribute(namespace, prefix?:"", name, value)
+            writer.attribute(namespace, prefix ?: "", name, value)
         } else {
             writer.attribute(namespace, name, value)
         }
@@ -222,10 +232,9 @@ class AndroidXmlWriter : XmlWriter {
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
         if (namespacePrefix.isNotEmpty()) {
-            writer.attribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, namespacePrefix,
-                             namespaceUri)
+            writer.attribute(XMLNS_ATTRIBUTE_NS_URI, namespacePrefix, namespaceUri)
         } else {
-            writer.attribute(XMLConstants.NULL_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, namespaceUri)
+            writer.attribute(NULL_NS_URI, XMLNS_ATTRIBUTE, namespaceUri)
         }
     }
 
@@ -241,8 +250,6 @@ class AndroidXmlWriter : XmlWriter {
     override fun close() {
         namespaceHolder.clear()
     }
-
-
 
     companion object {
         const val TAG_DEPTH_NOT_TAG = -1

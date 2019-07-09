@@ -24,11 +24,9 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 
 /**
  * Created by pdvrieze on 15/11/15.

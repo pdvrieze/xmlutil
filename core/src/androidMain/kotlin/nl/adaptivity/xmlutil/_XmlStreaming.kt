@@ -18,6 +18,7 @@
  * under the License.
  */
 @file:JvmName("XmlStreamingAndroidKt")
+
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
@@ -34,7 +35,7 @@ import javax.xml.transform.Source
  * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
  * Created by pdvrieze on 15/11/15.
  */
-actual object XmlStreaming: XmlStreamingJavaCommon() {
+actual object XmlStreaming : XmlStreamingJavaCommon() {
 
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
@@ -58,7 +59,11 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    actual override fun newWriter(writer: kotlinx.io.Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    actual override fun newWriter(
+        writer: kotlinx.io.Writer,
+        repairNamespaces: Boolean,
+        omitXmlDecl: Boolean
+                                 ): XmlWriter {
         return factory.newWriter(writer, repairNamespaces)
     }
 
@@ -102,7 +107,6 @@ inline fun <reified T : Any> deserialize(input: InputStream) = deSerialize(input
 inline fun <reified T : Any> deserialize(input: Reader) = deSerialize(input, T::class.java)
 
 inline fun <reified T : Any> deserialize(input: String) = deSerialize(input, T::class.java)
-
 
 
 @JvmField

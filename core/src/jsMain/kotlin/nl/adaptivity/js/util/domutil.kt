@@ -86,8 +86,8 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? = when {
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
     this !is Element -> null
     else             -> attributes.filter {
-        (prefix=="" && it.localName=="xmlns") ||
-        (it.prefix == "xmlns"  && it.localName==prefix)
+        (prefix == "" && it.localName == "xmlns") ||
+                (it.prefix == "xmlns" && it.localName == prefix)
     }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
 }
 
@@ -100,14 +100,14 @@ internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceCo
         val toRemove = mutableListOf<Attr>()
 
         elem.attributes.forEach { attr ->
-            if (attr.prefix=="xmlns") {
+            if (attr.prefix == "xmlns") {
                 val knownUri = knownNamespaces.parent.getNamespaceURI(attr.localName)
                 if (attr.value == knownUri) {
                     toRemove.add(attr)
                 } else {
                     knownNamespaces.addNamespace(attr.localName, attr.value)
                 }
-            } else if (attr.prefix=="" && attr.localName=="xmlns") {
+            } else if (attr.prefix == "" && attr.localName == "xmlns") {
                 val knownUri = knownNamespaces.parent.getNamespaceURI("")
                 if (attr.value == knownUri) {
                     toRemove.add(attr)
@@ -125,7 +125,9 @@ internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceCo
     }
 }
 
-internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNamespaceContext("", "")): NamespaceContext {
+internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNamespaceContext("", "")) :
+    NamespaceContext {
+
     private val localNamespaces = mutableListOf<Namespace>()
 
     override fun getNamespaceURI(prefix: String): String? {
@@ -133,7 +135,7 @@ internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNa
     }
 
     override fun getPrefix(namespaceURI: String): String? {
-        return localNamespaces.firstOrNull { it.namespaceURI == namespaceURI}?.prefix ?: parent.getPrefix(namespaceURI)
+        return localNamespaces.firstOrNull { it.namespaceURI == namespaceURI }?.prefix ?: parent.getPrefix(namespaceURI)
     }
 
     override fun getPrefixes(namespaceURI: String): Iterator<String?> {

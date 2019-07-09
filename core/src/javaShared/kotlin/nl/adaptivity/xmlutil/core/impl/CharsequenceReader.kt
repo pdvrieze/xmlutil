@@ -24,7 +24,7 @@ import java.io.Reader
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
-internal class CharsequenceReader(private val sequence: CharSequence): Reader() {
+internal class CharsequenceReader(private val sequence: CharSequence) : Reader() {
     private var pos: Int = 0
     private var mark: Int = 0
 
@@ -36,16 +36,16 @@ internal class CharsequenceReader(private val sequence: CharSequence): Reader() 
 
     override fun read(): Int = lock {
         when {
-            pos<0 -> throw IllegalStateException("Reader closed")
-            pos>=sequence.length -> -1
-            else ->sequence[pos].toInt().apply { pos++ }
+            pos < 0                -> throw IllegalStateException("Reader closed")
+            pos >= sequence.length -> -1
+            else                   -> sequence[pos].toInt().apply { pos++ }
         }
     }
 
     override fun skip(n: Long): Long {
         lock {
             val origPos = pos
-            pos = (pos+n.toInt()).coerceAtMost(sequence.length)
+            pos = (pos + n.toInt()).coerceAtMost(sequence.length)
             return (pos - origPos).toLong()
         }
     }
@@ -69,7 +69,7 @@ internal class CharsequenceReader(private val sequence: CharSequence): Reader() 
     override fun read(cbuf: CharArray, off: Int, len: Int): Int {
         lock {
             // Make sure to signal end of file
-            if (pos >=sequence.length) return -1
+            if (pos >= sequence.length) return -1
 
             val origPos = pos
             for (i in off until (off + len).coerceAtMost(sequence.length - pos)) {

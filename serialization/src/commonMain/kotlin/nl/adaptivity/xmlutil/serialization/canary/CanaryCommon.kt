@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.*
+import kotlinx.serialization.PrimitiveKind
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerialKind
 import kotlinx.serialization.internal.*
 
 interface CanaryCommon {
@@ -67,23 +69,24 @@ interface CanaryCommon {
         val kSerialClassDesc = kSerialClassDesc
         return ExtSerialDescriptorImpl(kSerialClassDesc,
                                        Array(childDescriptors.size) {
-                                       requireNotNull(childDescriptors[it]) {
-                                           "childDescriptors[$it]"
-                                       }
-                                   })
+                                           requireNotNull(childDescriptors[it]) {
+                                               "childDescriptors[$it]"
+                                           }
+                                       })
     }
 
 }
 
-val PrimitiveKind.primitiveSerializer get() = when (this) {
-    PrimitiveKind.INT     -> IntSerializer
-    PrimitiveKind.UNIT    -> UnitSerializer
-    PrimitiveKind.BOOLEAN -> BooleanSerializer
-    PrimitiveKind.BYTE    -> ByteSerializer
-    PrimitiveKind.SHORT   -> ShortSerializer
-    PrimitiveKind.LONG    -> LongSerializer
-    PrimitiveKind.FLOAT   -> FloatSerializer
-    PrimitiveKind.DOUBLE  -> DoubleSerializer
-    PrimitiveKind.CHAR    -> CharSerializer
-    PrimitiveKind.STRING  -> StringSerializer
-}
+val PrimitiveKind.primitiveSerializer
+    get() = when (this) {
+        PrimitiveKind.INT     -> IntSerializer
+        PrimitiveKind.UNIT    -> UnitSerializer
+        PrimitiveKind.BOOLEAN -> BooleanSerializer
+        PrimitiveKind.BYTE    -> ByteSerializer
+        PrimitiveKind.SHORT   -> ShortSerializer
+        PrimitiveKind.LONG    -> LongSerializer
+        PrimitiveKind.FLOAT   -> FloatSerializer
+        PrimitiveKind.DOUBLE  -> DoubleSerializer
+        PrimitiveKind.CHAR    -> CharSerializer
+        PrimitiveKind.STRING  -> StringSerializer
+    }

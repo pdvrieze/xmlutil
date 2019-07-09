@@ -25,9 +25,13 @@ import kotlinx.serialization.SerialKind
 import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.xmlutil.serialization.XmlDefault
 
-interface ExtSerialDescriptor: SerialDescriptor {
+interface ExtSerialDescriptor : SerialDescriptor {
     fun getSafeElementDescriptor(index: Int): SerialDescriptor? {
-        return try { getElementDescriptor(index) } catch (e: MissingDescriptorException) { null }
+        return try {
+            getElementDescriptor(index)
+        } catch (e: MissingDescriptorException) {
+            null
+        }
     }
 }
 
@@ -40,7 +44,7 @@ interface ExtSerialDescriptor: SerialDescriptor {
 internal class ExtSerialDescriptorImpl(
     private val base: SerialDescriptor,
     private val childDescriptors: Array<SerialDescriptor>
-) : ExtSerialDescriptor {
+                                      ) : ExtSerialDescriptor {
 
     override val isNullable: Boolean get() = false
 
@@ -53,16 +57,16 @@ internal class ExtSerialDescriptorImpl(
     override fun getEntityAnnotations(): List<Annotation> = base.getEntityAnnotations()
 
     override fun getElementAnnotations(index: Int) =
-            if (index < elementsCount) base.getElementAnnotations(index) else emptyList()
+        if (index < elementsCount) base.getElementAnnotations(index) else emptyList()
 
     override val elementsCount: Int get() = base.elementsCount
 
     override fun getElementDescriptor(index: Int): SerialDescriptor = childDescriptors[index]
 
     override fun getSafeElementDescriptor(index: Int): SerialDescriptor? = when {
-            index<childDescriptors.size -> childDescriptors[index]
-            else                        -> null
-        }
+        index < childDescriptors.size -> childDescriptors[index]
+        else                          -> null
+    }
 
     override fun isElementOptional(index: Int): Boolean = getElementAnnotations(index).any { it is XmlDefault }
 
@@ -70,13 +74,17 @@ internal class ExtSerialDescriptorImpl(
         return buildString {
             append(name)
             (0 until elementsCount).joinTo(this, prefix = "(", postfix = ")") { idx ->
-                val elemDesc = try { getElementDescriptor(idx) } catch (e: Exception) { null }
-                "${getElementName(idx)}:${elemDesc?.name}${if (elemDesc?.isNullable ==true) "?" else ""}"
+                val elemDesc = try {
+                    getElementDescriptor(idx)
+                } catch (e: Exception) {
+                    null
+                }
+                "${getElementName(idx)}:${elemDesc?.name}${if (elemDesc?.isNullable == true) "?" else ""}"
             }
         }
     }
 }
 
-class NullableSerialDescriptor(val original: SerialDescriptor): SerialDescriptor by original {
+class NullableSerialDescriptor(val original: SerialDescriptor) : SerialDescriptor by original {
     override val isNullable: Boolean get() = true
 }

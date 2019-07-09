@@ -20,8 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 /**
  *
  * Simple delegating writer that passes all calls on to the delegate. This class is abstract for the only reason that any

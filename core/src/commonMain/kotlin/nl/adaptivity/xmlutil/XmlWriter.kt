@@ -38,18 +38,24 @@ interface XmlWriter : Closeable {
     /** The indentation level to use for autoindenting the output */
     var indent: Int
 
-    @Deprecated("Use the version that takes strings",
-                ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())"))
-    fun setPrefix(prefix:CharSequence, namespaceUri: CharSequence) = setPrefix(prefix.toString(), namespaceUri.toString())
+    @Deprecated(
+        "Use the version that takes strings",
+        ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())")
+               )
+    fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) =
+        setPrefix(prefix.toString(), namespaceUri.toString())
 
     /**
      * Bind the prefix to the given uri for this element.
      */
     fun setPrefix(prefix: String, namespaceUri: String)
 
-    @Deprecated("Use the version that takes strings",
-                ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())"))
-    fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) = namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())
+    @Deprecated(
+        "Use the version that takes strings",
+        ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())")
+               )
+    fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) =
+        namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())
 
     fun namespaceAttr(namespacePrefix: String, namespaceUri: String)
 
@@ -162,7 +168,7 @@ fun XmlWriter.serialize(reader: XmlReader) {
             }
             EventType.IGNORABLE_WHITESPACE -> {
                 // Only write ignorable whitespace if we are not formatting with a set indent.
-                if (indent==0) writeCurrentEvent(reader)
+                if (indent == 0) writeCurrentEvent(reader)
             }
             else                           -> writeCurrentEvent(reader)
         }
@@ -181,17 +187,23 @@ fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
             }
             run {
                 for (i in reader.attributeIndices) {
-                    attribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
-                              null, reader.getAttributeValue(i))
+                    attribute(
+                        reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
+                        null, reader.getAttributeValue(i)
+                             )
                 }
             }
         }
-        EventType.END_ELEMENT            -> endTag(reader.namespaceURI, reader.localName,
-                                                   reader.prefix)
+        EventType.END_ELEMENT            -> endTag(
+            reader.namespaceURI, reader.localName,
+            reader.prefix
+                                                  )
         EventType.COMMENT                -> comment(reader.text)
         EventType.TEXT                   -> text(reader.text)
-        EventType.ATTRIBUTE              -> attribute(reader.namespaceURI, reader.localName,
-                                                      reader.prefix, reader.text)
+        EventType.ATTRIBUTE              -> attribute(
+            reader.namespaceURI, reader.localName,
+            reader.prefix, reader.text
+                                                     )
         EventType.CDSECT                 -> cdsect(reader.text)
         EventType.DOCDECL                -> docdecl(reader.text)
         EventType.END_DOCUMENT           -> endDocument()
@@ -218,7 +230,7 @@ inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.() -> Unit) {
 
 @Deprecated("Use strings", ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())"))
 @JvmOverloads
-fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence, prefix: CharSequence? = null)=
+fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence, prefix: CharSequence? = null) =
     smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())
 
 /**
@@ -234,7 +246,9 @@ fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? =
 
         val usedPrefix = getPrefix(nsUri) ?: run {
             val currentNs = prefix?.let { getNamespaceUri(it) } ?: NULL_NS_URI
-            if (nsUri != currentNs) { writeNs = true }; prefix ?: DEFAULT_NS_PREFIX
+            if (nsUri != currentNs) {
+                writeNs = true
+            }; prefix ?: DEFAULT_NS_PREFIX
         }
 
         startTag(nsUri, localName, usedPrefix)
@@ -243,30 +257,38 @@ fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? =
     }
 }
 
-@Deprecated("Use strings",
-            ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)"))
-inline fun XmlWriter.smartStartTag(nsUri: CharSequence?,
-                                                         localName: CharSequence,
-                                                         prefix: CharSequence? = null,
-                                                         body: XmlWriter.() -> Unit) =
+@Deprecated(
+    "Use strings",
+    ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)")
+           )
+inline fun XmlWriter.smartStartTag(
+    nsUri: CharSequence?,
+    localName: CharSequence,
+    prefix: CharSequence? = null,
+    body: XmlWriter.() -> Unit
+                                  ) =
     smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)
 
 @JvmOverloads
-inline fun XmlWriter.smartStartTag(nsUri: String?,
-                                                         localName: String,
-                                                         prefix: String? = null,
-                                                         body: XmlWriter.() -> Unit) {
+inline fun XmlWriter.smartStartTag(
+    nsUri: String?,
+    localName: String,
+    prefix: String? = null,
+    body: XmlWriter.() -> Unit
+                                  ) {
     smartStartTag(nsUri, localName, prefix)
     body()
     endTag(nsUri, localName, prefix)
 }
 
 
-inline fun <T> XmlWriter.writeListIfNotEmpty(iterable: Iterable<T>,
-                                                                   nsUri: String?,
-                                                                   localName: String,
-                                                                   prefix: String? = null,
-                                                                   body: XmlWriter.(T) -> Unit) {
+inline fun <T> XmlWriter.writeListIfNotEmpty(
+    iterable: Iterable<T>,
+    nsUri: String?,
+    localName: String,
+    prefix: String? = null,
+    body: XmlWriter.(T) -> Unit
+                                            ) {
     val it = iterable.iterator()
     if (it.hasNext()) {
         smartStartTag(nsUri, localName, prefix)
@@ -284,10 +306,12 @@ inline fun <T : XmlSerializable> XmlWriter.serializeAll(iterable: Iterable<T>) =
 inline fun <T : XmlSerializable> XmlWriter.serializeAll(sequence: Sequence<T>) = sequence.forEach { it.serialize(this) }
 
 
-inline fun XmlWriter.startTag(nsUri: String?,
-                                                    localName: String,
-                                                    prefix: String? = null,
-                                                    body: XmlWriter.() -> Unit) {
+inline fun XmlWriter.startTag(
+    nsUri: String?,
+    localName: String,
+    prefix: String? = null,
+    body: XmlWriter.() -> Unit
+                             ) {
     startTag(nsUri, localName, prefix)
     body()
     endTag(nsUri, localName, prefix)
@@ -297,10 +321,12 @@ fun XmlWriter.writeSimpleElement(qName: QName, value: String?) {
     writeSimpleElement(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), value)
 }
 
-fun XmlWriter.writeSimpleElement(nsUri: String?,
-                                                       localName: String,
-                                                       prefix: String?,
-                                                       value: String?) {
+fun XmlWriter.writeSimpleElement(
+    nsUri: String?,
+    localName: String,
+    prefix: String?,
+    value: String?
+                                ) {
     smartStartTag(nsUri, localName, prefix)
     if (!value.isNullOrEmpty()) {
         text(value.toString())
@@ -352,7 +378,8 @@ fun XmlWriter.writeAttribute(name: String, value: QName?) {
         } else { // namespace not specified
             prefix = value.getPrefix()
             if (prefix.let { namespaceContext.getNamespaceURI(it) } == null) throw IllegalArgumentException(
-                "Cannot determine namespace of qname")
+                "Cannot determine namespace of qname"
+                                                                                                           )
         }
         attribute(null, name, null, prefix + ':' + value.getLocalPart())
     }
@@ -367,15 +394,18 @@ fun XmlWriter.filterSubstream(): XmlWriter {
 }
 
 
-private fun undeclaredPrefixes(reader: XmlReader,
-                               reference: XmlWriter,
-                               missingNamespaces: MutableMap<String, String>) {
+private fun undeclaredPrefixes(
+    reader: XmlReader,
+    reference: XmlWriter,
+    missingNamespaces: MutableMap<String, String>
+                              ) {
     assert(reader.eventType === EventType.START_ELEMENT)
     val prefix = reader.prefix
     if (!missingNamespaces.containsKey(prefix)) {
         val uri = reader.namespaceURI
         if (uri == reference.getNamespaceUri(prefix)
-            && reader.isPrefixDeclaredInElement(prefix)) {
+            && reader.isPrefixDeclaredInElement(prefix)
+        ) {
             return
         } else if (uri.isNotEmpty()) {
             if (uri != reference.getNamespaceUri(prefix)) {
@@ -389,7 +419,7 @@ fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, String>?
     reader.forEach { type ->
         // We already moved to the next event. Add the namespaces before writing as for a DOM implementation
         // it is too late to do it afterwards.
-        if (reader.eventType==EventType.START_ELEMENT && missingNamespaces != null) {
+        if (reader.eventType == EventType.START_ELEMENT && missingNamespaces != null) {
             addUndeclaredNamespaces(reader, missingNamespaces)
         }
 
@@ -409,11 +439,15 @@ fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, String>?
 
 private class SubstreamFilterWriter(delegate: XmlWriter) : XmlDelegatingWriter(delegate) {
 
-    override fun processingInstruction(text: String) { /* ignore */ }
+    override fun processingInstruction(text: String) { /* ignore */
+    }
 
-    override fun endDocument() { /* ignore */ }
+    override fun endDocument() { /* ignore */
+    }
 
-    override fun docdecl(text: String) { /* ignore */ }
+    override fun docdecl(text: String) { /* ignore */
+    }
 
-    override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) { /* ignore */ }
+    override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) { /* ignore */
+    }
 }

@@ -173,36 +173,29 @@ internal open class XmlDecoderBase internal constructor(
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             if (extDesc.isNullable) return TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, extDesc)
             return when (extDesc.kind) {
-                is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
+                is PrimitiveKind
+                -> throw AssertionError("A primitive is not a composite")
+
                 StructureKind.MAP,
-                StructureKind.CLASS   -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
-                StructureKind.LIST    -> {
+                StructureKind.CLASS
+                -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
+
+                StructureKind.LIST
+                -> {
                     val childName = parentDesc.requestedChildName(elementIndex)
                     if (childName != null) {
                         NamedListDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc, childName)
                     } else {
-                        AnonymousListDecoder(
-                            serialName,
-                            parentNamespace,
-                            parentDesc,
-                            elementIndex,
-                            extDesc,
-                            polyInfo,
-                            nextListIndex
-                                            )
+                        AnonymousListDecoder(serialName, parentNamespace, parentDesc, elementIndex, extDesc, polyInfo, nextListIndex)
                     }
                 }
                 UnionKind.OBJECT,
-                UnionKind.ENUM_KIND   -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
+                UnionKind.ENUM_KIND
+                -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc)
+
                 UnionKind.SEALED,
-                UnionKind.POLYMORPHIC -> PolymorphicDecoder(
-                    serialName,
-                    serialName.toNamespace(),
-                    parentDesc,
-                    elementIndex,
-                    extDesc,
-                    polyInfo
-                                                           )
+                UnionKind.POLYMORPHIC
+                -> PolymorphicDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, extDesc, polyInfo)
             }
         }
 
@@ -737,7 +730,9 @@ internal open class XmlDecoderBase internal constructor(
         desc: ExtSerialDescriptor,
         private val polyInfo: PolyInfo?,
         private val listIndex: Int
-                                             ) : TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, desc) {
+                                             ) :
+        TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, desc) {
+
         override val updateMode: UpdateMode get() = UpdateMode.UPDATE
 
         private var finished: Boolean = false

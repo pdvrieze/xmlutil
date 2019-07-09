@@ -22,7 +22,12 @@ package nl.adaptivity.serialutil.impl
 
 import kotlin.reflect.KClass
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CONSTRUCTOR)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR
+       )
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
 expect val KClass<*>.name: String
@@ -35,6 +40,6 @@ expect interface AutoCloseable {
     fun close()
 }
 
-expect interface Closeable: AutoCloseable
+expect interface Closeable : AutoCloseable
 
 expect val KClass<*>.maybeAnnotations: List<Annotation>

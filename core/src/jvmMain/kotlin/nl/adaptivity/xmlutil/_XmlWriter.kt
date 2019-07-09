@@ -19,6 +19,7 @@
  */
 @file:JvmMultifileClass
 @file:JvmName("XmlWriterUtilJVM")
+
 package nl.adaptivity.xmlutil
 
 import org.w3c.dom.Node

@@ -19,6 +19,7 @@
  */
 @file:JvmMultifileClass
 @file:JvmName("XmlReaderUtil")
+
 package nl.adaptivity.xml
 
 import nl.adaptivity.xmlutil.XmlDeserializer
@@ -35,8 +36,8 @@ inline fun <reified T : Any> XmlReader.deSerialize(): T {
 
 
 fun <T> XmlReader.deSerialize(type: Class<T>): T {
-    val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?:
-                       throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
+    val deserializer = type.getAnnotation(XmlDeserializer::class.java)
+        ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
 
     return type.cast(deserializer.value.java.newInstance().deserialize(this))
 }

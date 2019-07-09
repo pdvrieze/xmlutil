@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 
-expect open class IOException: Exception {
+expect open class IOException : Exception {
     constructor()
     constructor(message: String?)
     constructor(message: String?, cause: Throwable?)

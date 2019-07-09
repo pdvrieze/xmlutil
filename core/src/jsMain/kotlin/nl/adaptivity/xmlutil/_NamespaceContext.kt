@@ -27,9 +27,10 @@ actual interface NamespaceContext {
     fun getPrefixes(namespaceURI: String): Iterator<String?>
 }
 
-actual interface NamespaceContextImpl: NamespaceContext {
+actual interface NamespaceContextImpl : NamespaceContext {
     actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
 }
 
-actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> = getPrefixes(namespaceURI) as Iterator<String>
+actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
+    getPrefixes(namespaceURI) as Iterator<String>

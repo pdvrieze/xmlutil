@@ -23,10 +23,10 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.Transient
-import kotlin.jvm.JvmMultifileClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.util.ExtXmlDeserializable
 import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
+import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 
@@ -46,9 +46,11 @@ interface XmlDeserializable {
      *
      * @return `true` if handled, `false` if not. (The caller may use this for errors)
      */
-    fun deserializeAttribute(attributeNamespace: String?,
-                             attributeLocalName: String,
-                             attributeValue: String): Boolean = false
+    fun deserializeAttribute(
+        attributeNamespace: String?,
+        attributeLocalName: String,
+        attributeValue: String
+                            ): Boolean = false
 
     /** Listener called just before the children are deserialized. After attributes have been processed.  */
     fun onBeforeDeserializeChildren(reader: XmlReader) {}
@@ -66,11 +68,14 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
 
     val elementName = elementName
     assert(
-        reader.isElement(elementName)) { "Expected $elementName but found ${reader.localName}" }
+        reader.isElement(elementName)
+          ) { "Expected $elementName but found ${reader.localName}" }
 
     for (i in reader.attributeIndices.reversed()) {
-        deserializeAttribute(reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
-                             reader.getAttributeValue(i))
+        deserializeAttribute(
+            reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
+            reader.getAttributeValue(i)
+                            )
     }
 
     onBeforeDeserializeChildren(reader)
@@ -80,7 +85,7 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
             when (reader.eventType) {
                 EventType.START_ELEMENT          -> if (!deserializeChild(reader)) reader.unhandledEvent()
                 EventType.TEXT, EventType.CDSECT -> if (!deserializeChildText(reader.text)) reader.unhandledEvent()
-            // If the text was not deserialized, then just fall through
+                // If the text was not deserialized, then just fall through
                 else                             -> reader.unhandledEvent()
             }
         }

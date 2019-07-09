@@ -20,4 +20,4 @@
 
 package nl.adaptivity.xmlutil
 
-expect class PlatformXmlReader: XmlReader
+expect class PlatformXmlReader : XmlReader

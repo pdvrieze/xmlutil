@@ -38,7 +38,9 @@ object Canary {
         if (current != null) return current
         if (saver is GeneratedSerializer) {
             return ExtSerialDescriptorImpl(saver.descriptor,
-                                           saver.childSerializers().arrayMap { it.descriptor }).also { saverMap[saver] = it }
+                                           saver.childSerializers().arrayMap { it.descriptor }).also {
+                saverMap[saver] = it
+            }
         }
         val parentDesc = saver.descriptor
         try {
@@ -54,7 +56,9 @@ object Canary {
         if (current != null) return current
         if (loader is GeneratedSerializer) {
             return ExtSerialDescriptorImpl(loader.descriptor,
-                                           loader.childSerializers().arrayMap { it.descriptor }).also { loaderMap[loader] = it }
+                                           loader.childSerializers().arrayMap { it.descriptor }).also {
+                loaderMap[loader] = it
+            }
         }
         val parentDesc = loader.descriptor
         try {

@@ -36,15 +36,19 @@ object CharArrayAsStringSerializer : KSerializer<CharArray> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun Decoder.readNullableString(): String? = decodeNullableSerializableValue(StringSerializer as DeserializationStrategy<String?>)
+fun Decoder.readNullableString(): String? =
+    decodeNullableSerializableValue(StringSerializer as DeserializationStrategy<String?>)
 
 @Suppress("UNCHECKED_CAST")
-fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? = decodeNullableSerializableElement(desc, index, StringSerializer as DeserializationStrategy<String?>)
+fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? =
+    decodeNullableSerializableElement(desc, index, StringSerializer as DeserializationStrategy<String?>)
 
 @Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"))
-fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableStringElement(desc, index, value)
+fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) =
+    encodeNullableStringElement(desc, index, value)
 
-fun CompositeEncoder.encodeNullableStringElement(desc: SerialDescriptor, index: Int, value: String?) = encodeNullableSerializableElement(desc, index, StringSerializer, value)
+fun CompositeEncoder.encodeNullableStringElement(desc: SerialDescriptor, index: Int, value: String?) =
+    encodeNullableSerializableElement(desc, index, StringSerializer, value)
 
 @Deprecated("Use newer name", ReplaceWith("decodeElements(input, body)"))
 inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body: (Int) -> Unit) =
@@ -57,8 +61,8 @@ inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, bo
     var index = input.decodeElementIndex(descriptor)
     when (index) {
         CompositeDecoder.READ_DONE -> return
-        CompositeDecoder.READ_ALL -> {
-            for( elem in 0 until descriptor.elementsCount) {
+        CompositeDecoder.READ_ALL  -> {
+            for (elem in 0 until descriptor.elementsCount) {
                 body(elem)
             }
             return
@@ -71,14 +75,17 @@ inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, bo
 }
 
 @Deprecated("Use new named version that matches the newer api", ReplaceWith("decodeStructure(desc, body)"))
-inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T =
+inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T): T =
     decodeStructure(desc, body)
 
 
 /**
  * Helper function that automatically closes the decoder on close.
  */
-inline fun <T> Decoder.decodeStructure(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T):T {
+inline fun <T> Decoder.decodeStructure(
+    desc: SerialDescriptor,
+    body: CompositeDecoder.(desc: SerialDescriptor) -> T
+                                      ): T {
     val input = beginStructure(desc)
     var skipEnd = false
     try {
@@ -87,7 +94,7 @@ inline fun <T> Decoder.decodeStructure(desc: SerialDescriptor, body: CompositeDe
         skipEnd = true
         throw e
     } finally {
-        if (! skipEnd) {
+        if (!skipEnd) {
             input.endStructure((desc))
         }
     }
@@ -102,13 +109,17 @@ inline fun Encoder.writeStructure(desc: SerialDescriptor, body: CompositeEncoder
         skipEnd = true
         throw e
     } finally {
-        if (! skipEnd) {
+        if (!skipEnd) {
             output.endStructure(desc)
         }
     }
 }
 
-inline fun Encoder.writeCollection(desc: SerialDescriptor, collectionSize: Int, body: CompositeEncoder.(desc: SerialDescriptor) -> Unit) {
+inline fun Encoder.writeCollection(
+    desc: SerialDescriptor,
+    collectionSize: Int,
+    body: CompositeEncoder.(desc: SerialDescriptor) -> Unit
+                                  ) {
     val output = beginCollection(desc, collectionSize)
     var skipEnd = false
     try {
@@ -117,7 +128,7 @@ inline fun Encoder.writeCollection(desc: SerialDescriptor, collectionSize: Int, 
         skipEnd = true
         throw e
     } finally {
-        if (! skipEnd) {
+        if (!skipEnd) {
             output.endStructure(desc)
         }
     }

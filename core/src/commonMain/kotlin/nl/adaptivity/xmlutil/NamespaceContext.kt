@@ -25,12 +25,12 @@ expect interface NamespaceContext {
     fun getPrefix(namespaceURI: String): String?
 }
 
-expect interface NamespaceContextImpl: NamespaceContext {
+expect interface NamespaceContextImpl : NamespaceContext {
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
     fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
-interface IterableNamespaceContext: NamespaceContextImpl, Iterable<Namespace>
+interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace>
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")
 expect inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String>

@@ -24,7 +24,6 @@ import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SimpleModule
 import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.parse
 import nl.adaptivity.xml.serialization.*
@@ -42,7 +41,8 @@ private fun String.normalize() = replace(" />", "/>")
 object testXmlCommon : Spek(
     {
         describe("A simple data class") {
-            val expAddressXml = "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
+            val expAddressXml =
+                "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
             val address = Address("10", "Downing Street", "London")
             val addrSerializer = Address.serializer()
 
@@ -57,7 +57,8 @@ object testXmlCommon : Spek(
                 }
             }
 
-            val expectedJSON = "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
+            val expectedJSON =
+                "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
 
             context("serialization with JSON") {
                 val serialized = Json.stringify(addrSerializer, address).normalize()
@@ -71,17 +72,19 @@ object testXmlCommon : Spek(
             }
         }
 
-        describe ("A data class with optional boolean") {
+        describe("A data class with optional boolean") {
             val location = Location(
-                Address("1600", "Pensylvania Avenue", "Washington DC"))
-            val expectedXml="<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
+                Address("1600", "Pensylvania Avenue", "Washington DC")
+                                   )
+            val expectedXml =
+                "<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
 
             val ser = Location.serializer()
 
             context("Serialization with XML") {
                 val serialized = XML.stringify(ser, location).normalize()
                 it("should serialize to the expected xml") {
-                    assertEquals(expectedXml,serialized)
+                    assertEquals(expectedXml, serialized)
                 }
                 it("should also parse to the original") {
                     assertEquals(location, XML.parse(ser, serialized))
@@ -91,25 +94,25 @@ object testXmlCommon : Spek(
         }
 
 
-        describe("A simple class with a nullable value"){
+        describe("A simple class with a nullable value") {
             val setValue = NullableContainer("myBar")
             val nullValue = NullableContainer()
             val ser = NullableContainer.serializer()
             context("serialization of a set value") {
                 val serialized = XML.stringify(ser, setValue).normalize()
-                it ("should match the expected value") {
+                it("should match the expected value") {
                     assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>", serialized)
                 }
-                it ("Should parse back to the original") {
+                it("Should parse back to the original") {
                     assertEquals(setValue, XML.parse(ser, serialized))
                 }
             }
             context("serialization of a null value") {
                 val serialized = XML.stringify(ser, nullValue).normalize()
-                it ("should match the expected value") {
+                it("should match the expected value") {
                     assertEquals("<p:NullableContainer xmlns:p=\"urn:myurn\"/>", serialized)
                 }
-                it ("Should parse back to the original") {
+                it("Should parse back to the original") {
                     assertEquals(nullValue, XML.parse(ser, serialized))
                 }
             }
@@ -134,12 +137,16 @@ object testXmlCommon : Spek(
         }
 
         describe("A chamber of commerce") {
-            val expChamber="<chamber name=\"hightech\">"+
-                           "<member name=\"foo\"/>" +
-                           "<member name=\"bar\"/>" +
-                           "</chamber>"
-            val chamber = Chamber("hightech", listOf(Business("foo", null),
-                                                     Business("bar", null)))
+            val expChamber = "<chamber name=\"hightech\">" +
+                    "<member name=\"foo\"/>" +
+                    "<member name=\"bar\"/>" +
+                    "</chamber>"
+            val chamber = Chamber(
+                "hightech", listOf(
+                    Business("foo", null),
+                    Business("bar", null)
+                                  )
+                                 )
 
             context("serialization") {
                 val serialized = XML.stringify(chamber).normalize()
@@ -154,7 +161,7 @@ object testXmlCommon : Spek(
         }
 
         describe("An empty chamber") {
-            val expChamber="<chamber name=\"lowtech\"/>"
+            val expChamber = "<chamber name=\"lowtech\"/>"
             val chamber = Chamber("lowtech", emptyList())
 
             context("serialization") {
@@ -171,7 +178,8 @@ object testXmlCommon : Spek(
 
         describe("a compactFragment") {
             val expectedXml = "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
-            val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
+            val fragment =
+                CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>")
 
             context("serialization with XML") {
                 val serialized = XML.stringify(fragment).normalize()
@@ -184,7 +192,8 @@ object testXmlCommon : Spek(
                 }
 
             }
-            val expectedJSON = "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
+            val expectedJSON =
+                "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
 
             context("serialization with JSON") {
                 val module = serializersModuleOf(CompactFragment::class, CompactFragmentSerializer)
@@ -203,7 +212,8 @@ object testXmlCommon : Spek(
 
         describe("A class with a namespace, but not explicit on its children") {
             val value = Namespaced("foo", "bar")
-            val expectedXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+            val expectedXml =
+                "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
 
             context("Serialization") {
                 val serialized = XML.stringify(value).normalize()
@@ -215,7 +225,8 @@ object testXmlCommon : Spek(
                 }
             }
             context("Invalid xml") {
-                val invalidXml = "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+                val invalidXml =
+                    "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
                 it("should fail") {
                     assertFailsWith<UnknownXmlFieldException> {
                         XML.parse(Namespaced.serializer(), invalidXml)
@@ -227,13 +238,14 @@ object testXmlCommon : Spek(
 
         describe("a more complex element") {
             val special = Special()
-            val expectedSpecial="""<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">"""+
-                                "<f:flag>2</f:flag>" +
-                                "<f:flag>3</f:flag>" +
-                                "<f:flag>4</f:flag>" +
-                                "<f:flag>5</f:flag>" +
-                                "<f:flag>6</f:flag>" +
-                                "</flags></localname>"
+            val expectedSpecial =
+                """<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">""" +
+                        "<f:flag>2</f:flag>" +
+                        "<f:flag>3</f:flag>" +
+                        "<f:flag>4</f:flag>" +
+                        "<f:flag>5</f:flag>" +
+                        "<f:flag>6</f:flag>" +
+                        "</flags></localname>"
 
             context("serialization") {
                 val serialized = XML.stringify(special).normalize()
@@ -285,8 +297,9 @@ object testXmlCommon : Spek(
 
         describe("A class with a polymorphic child") {
             val poly = Container("lbl", ChildA("data"))
-            val expected = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
-            context ("serialization") {
+            val expected =
+                "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
+            context("serialization") {
                 val serialized = XML(context = baseModule).stringify(poly).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
@@ -300,10 +313,14 @@ object testXmlCommon : Spek(
         }
 
         describe("A class with multiple children") {
-            val poly2 = Container2("name2", listOf(ChildA("data"),
-                                                   ChildB("xxx")))
+            val poly2 = Container2(
+                "name2", listOf(
+                    ChildA("data"),
+                    ChildB("xxx")
+                               )
+                                  )
             val expected = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
-            context ("serialization") {
+            context("serialization") {
                 val serialized = XML(context = baseModule).stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
@@ -318,11 +335,16 @@ object testXmlCommon : Spek(
         }
 
         describe("A Simpler class with multiple children without specification") {
-            val poly2 = Container3("name2", listOf(ChildA("data"),
-                                                   ChildB("xxx"),
-                                                   ChildA("yyy")))
-            val expected = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
-            context ("serialization") {
+            val poly2 = Container3(
+                "name2", listOf(
+                    ChildA("data"),
+                    ChildB("xxx"),
+                    ChildA("yyy")
+                               )
+                                  )
+            val expected =
+                "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
+            context("serialization") {
                 val serialized = XML(context = baseModule).stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
@@ -354,7 +376,7 @@ object testXmlCommon : Spek(
         describe("A container with a sealed child") {
             val sealed = SealedSingle("mySealed", SealedA("a-data"))
             val expected = "<SealedSingle name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/></SealedSingle>"
-            context ("serialization") {
+            context("serialization") {
                 val serialized = XML.stringify(sealed).normalize()
 
                 it("should equal the expected xml form") {
@@ -369,10 +391,15 @@ object testXmlCommon : Spek(
         }
 
         describe("A container with sealed children") {
-            val sealed = Sealed("mySealed", listOf(SealedA("a-data"),
-                                                   SealedB("b-data")))
-            val expected = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
-            context ("serialization") {
+            val sealed = Sealed(
+                "mySealed", listOf(
+                    SealedA("a-data"),
+                    SealedB("b-data")
+                                  )
+                               )
+            val expected =
+                "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
+            context("serialization") {
                 val serialized = XML(context = sealedModule).stringify(sealed).normalize()
 
                 // Disabled because sealed classes are broken when used in lists
@@ -384,7 +411,10 @@ object testXmlCommon : Spek(
                     assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(serialized))
                 }
 
-                delegate.test("The expected value should also parse to the original", Skip.Yes("Waiting for sealed support")) {
+                delegate.test(
+                    "The expected value should also parse to the original",
+                    Skip.Yes("Waiting for sealed support")
+                             ) {
                     assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(expected))
                 }
 

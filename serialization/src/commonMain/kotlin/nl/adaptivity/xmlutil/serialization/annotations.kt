@@ -30,9 +30,11 @@ import kotlinx.serialization.SerialInfo
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-annotation class XmlSerialName(val value: String,
-                               val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
-                               val prefix: String/* = UNSET_ANNOTATION_VALUE*/)
+annotation class XmlSerialName(
+    val value: String,
+    val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
+    val prefix: String/* = UNSET_ANNOTATION_VALUE*/
+                              )
 
 /**
  * Indicate the valid poly children for this element
@@ -47,9 +49,11 @@ annotation class XmlPolyChildren(val value: Array<String>)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-annotation class XmlChildrenName(val value: String,
-                                 val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
-                                 val prefix: String/* = UNSET_ANNOTATION_VALUE*/)
+annotation class XmlChildrenName(
+    val value: String,
+    val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
+    val prefix: String/* = UNSET_ANNOTATION_VALUE*/
+                                )
 
 /**
  * Force a property that could be an attribute to be an element

@@ -20,10 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.XmlException
-import nl.adaptivity.xmlutil.XmlReader
-
 
 /**
  * Simple baseclass for a delating XmlReader.
@@ -37,11 +33,12 @@ open class XmlDelegatingReader protected constructor(protected open val delegate
         var eventType = next()
 
         while ((eventType == EventType.TEXT && isWhitespace()) // skip whitespace
-               || (eventType == EventType.CDSECT && isWhitespace())
-               // skip whitespace
-               || eventType == EventType.IGNORABLE_WHITESPACE
-               || eventType == EventType.PROCESSING_INSTRUCTION
-               || eventType == EventType.COMMENT) {
+            || (eventType == EventType.CDSECT && isWhitespace())
+            // skip whitespace
+            || eventType == EventType.IGNORABLE_WHITESPACE
+            || eventType == EventType.PROCESSING_INSTRUCTION
+            || eventType == EventType.COMMENT
+        ) {
             eventType = next()
         }
         if (eventType != EventType.START_ELEMENT && eventType != EventType.END_ELEMENT) {

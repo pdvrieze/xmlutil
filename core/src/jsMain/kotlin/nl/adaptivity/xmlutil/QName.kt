@@ -20,11 +20,19 @@
 
 package nl.adaptivity.xmlutil
 
-actual class QName actual constructor(private val namespaceURI: String, private val localPart: String, private val prefix: String) {
+actual class QName actual constructor(
+    private val namespaceURI: String,
+    private val localPart: String,
+    private val prefix: String
+                                     ) {
 
-    actual constructor(namespaceURI: String, localPart: String): this(namespaceURI, localPart, XMLConstants.DEFAULT_NS_PREFIX)
+    actual constructor(namespaceURI: String, localPart: String) : this(
+        namespaceURI,
+        localPart,
+        XMLConstants.DEFAULT_NS_PREFIX
+                                                                      )
 
-    actual constructor(localPart: String): this(XMLConstants.NULL_NS_URI, localPart, XMLConstants.DEFAULT_NS_PREFIX)
+    actual constructor(localPart: String) : this(XMLConstants.NULL_NS_URI, localPart, XMLConstants.DEFAULT_NS_PREFIX)
 
     actual fun getPrefix(): String = prefix
 
@@ -33,7 +41,7 @@ actual class QName actual constructor(private val namespaceURI: String, private 
     actual fun getNamespaceURI(): String = namespaceURI
 
     override fun toString(): String {
-        if (namespaceURI==XMLConstants.NULL_NS_URI) return localPart
+        if (namespaceURI == XMLConstants.NULL_NS_URI) return localPart
         return "{$namespaceURI}$localPart"
     }
 

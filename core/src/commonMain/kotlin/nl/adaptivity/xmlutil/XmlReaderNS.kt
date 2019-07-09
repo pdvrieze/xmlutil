@@ -19,6 +19,7 @@
  */
 
 @file:JvmName("XmlReaderNS")
+
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.util.CompactFragment

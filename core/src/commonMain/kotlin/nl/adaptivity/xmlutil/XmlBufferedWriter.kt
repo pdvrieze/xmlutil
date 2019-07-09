@@ -23,7 +23,10 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
-class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegateNamespaceContext: NamespaceContext?=null) : XmlWriter {
+class XmlBufferedWriter(
+    buffer: MutableList<XmlEvent> = mutableListOf(),
+    delegateNamespaceContext: NamespaceContext? = null
+                       ) : XmlWriter {
     private val _buffer = buffer
 
     val buffer: List<XmlEvent> get() = _buffer
@@ -36,7 +39,7 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
         get() = 0
         set(@Suppress("UNUSED_PARAMETER") value) {} // Buffered writers don't add synthetic elements
 
-    override val namespaceContext: NamespaceContext = if (delegateNamespaceContext==null) {
+    override val namespaceContext: NamespaceContext = if (delegateNamespaceContext == null) {
         namespaceHolder.namespaceContext
     } else {
         CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
@@ -60,8 +63,11 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
         val effPrefix = effectivePrefix(prefix, effNamespace)
 
         _buffer.add(
-            XmlEvent.StartElementEvent(null, effNamespace ?: "", localName, effPrefix ?: "",
-                                       emptyArray(), emptyArray()))
+            XmlEvent.StartElementEvent(
+                null, effNamespace ?: "", localName, effPrefix ?: "",
+                emptyArray(), emptyArray()
+                                      )
+                   )
     }
 
     private fun effectivePrefix(prefix: String?, namespace: String?) =
@@ -83,8 +89,11 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
         }
 
         _buffer.add(
-            XmlEvent.Attribute(null, XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                               localName, prefix, namespaceUri))
+            XmlEvent.Attribute(
+                null, XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                localName, prefix, namespaceUri
+                              )
+                   )
     }
 
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
@@ -100,8 +109,11 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override fun processingInstruction(text: String) {
         _buffer.add(
-            XmlEvent.TextEvent(null, EventType.PROCESSING_INSTRUCTION,
-                               text))
+            XmlEvent.TextEvent(
+                null, EventType.PROCESSING_INSTRUCTION,
+                text
+                              )
+                   )
     }
 
     override fun docdecl(text: String) {
@@ -110,7 +122,8 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
         if (namespace == XMLConstants.XMLNS_ATTRIBUTE_NS_URI || prefix == XMLConstants.XMLNS_ATTRIBUTE ||
-            (prefix.isNullOrEmpty() && name == XMLConstants.XMLNS_ATTRIBUTE)) {
+            (prefix.isNullOrEmpty() && name == XMLConstants.XMLNS_ATTRIBUTE)
+        ) {
             namespaceAttr(name, value)
         } else {
             val effNamespace = effectiveNamespace(namespace, prefix)
@@ -137,7 +150,8 @@ class XmlBufferedWriter(buffer: MutableList<XmlEvent> = mutableListOf(), delegat
 
     override fun ignorableWhitespace(text: String) {
         _buffer.add(
-            XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, text))
+            XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, text)
+                   )
     }
 
     override fun endDocument() {

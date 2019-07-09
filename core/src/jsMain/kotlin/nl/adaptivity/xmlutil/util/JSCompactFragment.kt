@@ -61,10 +61,11 @@ actual class CompactFragment : ICompactFragment {
     /** Convenience constructor for content without namespaces.  */
     actual constructor(content: String) : this(emptyList(), content)
 
-    constructor(documentFragment: DocumentFragment):this(
+    constructor(documentFragment: DocumentFragment) : this(
         XMLSerializer().serializeToString(documentFragment)
-                                                        )
-    constructor(node: Node):this(XMLSerializer().serializeToString(node))
+                                                          )
+
+    constructor(node: Node) : this(XMLSerializer().serializeToString(node))
 
     /** Convenience constructor for content without namespaces.  */
     actual constructor(namespaces: Iterable<Namespace>, content: String) {
@@ -134,11 +135,12 @@ actual class CompactFragment : ICompactFragment {
 /**
  * Helper function that exposes the prototype object of javascript objects.
  */
-private val Any.prototype:dynamic get() {
+private val Any.prototype: dynamic
+    get() {
 
-    inline fun prototype(o:dynamic):dynamic {
-        return o.prototype
+        inline fun prototype(o: dynamic): dynamic {
+            return o.prototype
+        }
+
+        return prototype(this)
     }
-
-    return prototype(this)
-}

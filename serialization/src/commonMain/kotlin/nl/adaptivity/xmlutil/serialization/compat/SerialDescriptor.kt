@@ -26,5 +26,6 @@ import kotlinx.serialization.SerialDescriptor
 typealias SerialDescriptor = kotlinx.serialization.SerialDescriptor
 
 @Deprecated("Use kind directly", ReplaceWith("kind"))
-val SerialDescriptor.extKind get()=kind
+val SerialDescriptor.extKind
+    get() = kind
 

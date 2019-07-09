@@ -266,7 +266,7 @@ internal open class XmlEncoderBase internal constructor(
         desc: SerialDescriptor,
         index: Int,
         childDesc: SerialDescriptor?
-                                      ) :
+                                       ) :
         XmlEncoder(parentNamespace, desc, index, childDesc) {
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {

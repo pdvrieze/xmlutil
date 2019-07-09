@@ -35,7 +35,7 @@ import javax.xml.transform.Source
  * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
  * Created by pdvrieze on 15/11/15.
  */
-actual object XmlStreaming: XmlStreamingJavaCommon() {
+actual object XmlStreaming : XmlStreamingJavaCommon() {
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
         val service = XmlStreamingFactory::class.java
@@ -46,10 +46,7 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
     private var _factory: XmlStreamingFactory? = StAXStreamingFactory()
 
     private val factory: XmlStreamingFactory
-        get() {
-            return _factory
-                   ?: serviceLoader.first().apply { _factory = this }
-        }
+        get() = _factory ?: serviceLoader.first().apply { _factory = this }
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
@@ -59,7 +56,11 @@ actual object XmlStreaming: XmlStreamingJavaCommon() {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    actual override fun newWriter(writer: kotlinx.io.Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    actual override fun newWriter(
+        writer: kotlinx.io.Writer,
+        repairNamespaces: Boolean,
+        omitXmlDecl: Boolean
+                                 ): XmlWriter {
         return factory.newWriter(writer, repairNamespaces)
     }
 

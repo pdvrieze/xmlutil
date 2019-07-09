@@ -19,14 +19,10 @@
  */
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
-import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
-
 
 /**
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
  * Created by pdvrieze on 20/10/15.
  */
 @Deprecated("Use actual class", ReplaceWith("nl.adaptivity.xmlutil.util.GatheringNamespaceContext"))
-typealias GatheringNamespaceContext=nl.adaptivity.xmlutil.util.GatheringNamespaceContext
+typealias GatheringNamespaceContext = nl.adaptivity.xmlutil.util.GatheringNamespaceContext

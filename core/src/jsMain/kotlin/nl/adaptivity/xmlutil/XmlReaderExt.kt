@@ -91,7 +91,11 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
             type = if (hasNext()) next() else null
         }
         val ns = missingNamespaces.entries.map { (prefix, uri) ->
-            wrapperElement.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, if(prefix=="") "xmlns" else "xmlns:$prefix", uri)
+            wrapperElement.setAttributeNS(
+                XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                if (prefix == "") "xmlns" else "xmlns:$prefix",
+                uri
+                                         )
             XmlEvent.NamespaceImpl(prefix, uri)
         }
 

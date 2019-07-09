@@ -47,16 +47,18 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     var currentNode: ParentNode? = current
         private set
 
-    private val pendingOperations: List<(Document)->Unit> = mutableListOf()
+    private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
 
-    private fun addToPending(operation: (Document)->Unit) {
-        if (docDelegate==null) {
+    private fun addToPending(operation: (Document) -> Unit) {
+        if (docDelegate == null) {
             (pendingOperations as MutableList).add(operation)
         } else throw IllegalStateException("Use of pending list when there is a document already")
     }
 
     private val requireCurrent get() = (currentNode ?: throw IllegalStateException("No current element")) as Element
-    private fun requireCurrent(error: String) = currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
+
+    private fun requireCurrent(error: String) =
+        currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
 
     @Suppress("OverridingDeprecatedMember")
     override val namespaceContext = object : NamespaceContext {
@@ -87,26 +89,30 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         val cur = requireCurrent("Namespace attribute")
         when {
-            namespacePrefix.isEmpty() -> {
+            namespacePrefix.isEmpty()
                 // Also ignore setting the namespace to empty if it is set.
-                if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("").isNullOrEmpty()))) {
-                    cur.setAttributeNS(
-                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                        XMLConstants.XMLNS_ATTRIBUTE, namespaceUri
+                 -> if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("").isNullOrEmpty()))) {
+                     cur.setAttributeNS(
+                         XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                         XMLConstants.XMLNS_ATTRIBUTE, namespaceUri
+                                       )
+                 }
+
+            else -> cur.setAttributeNS(
+                XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                "${XMLConstants.XMLNS_ATTRIBUTE}:$namespacePrefix",
+                namespaceUri
                                       )
-                }
-            }
-            else                      -> cur.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                                                            "${XMLConstants.XMLNS_ATTRIBUTE}:$namespacePrefix",
-                                                            namespaceUri)
         }
     }
 
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         when {
             currentNode == null && docDelegate == null -> {
-                docDelegate = document.implementation.createDocument(namespace ?: "",
-                                                                     qname(prefix, localName))
+                docDelegate = document.implementation.createDocument(
+                    namespace ?: "",
+                    qname(prefix, localName)
+                                                                    )
 
                 for (pending in pendingOperations) {
                     pending(docDelegate!!)
@@ -131,7 +137,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override fun comment(text: String) {
         val ce = currentNode
-        if (ce==null) {
+        if (ce == null) {
             addToPending { comment(text) }
         } else {
             target.createComment(text).let { comment ->
@@ -142,8 +148,8 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override fun text(text: String) {
         val ce = currentNode
-        if (ce==null) {
-            if(text.isBlank()) addToPending { ignorableWhitespace(text) } else throw XmlException("Not in an element -- text")
+        if (ce == null) {
+            if (text.isBlank()) addToPending { ignorableWhitespace(text) } else throw XmlException("Not in an element -- text")
         } else {
             target.createTextNode(text).let { textNode ->
                 ce.append(textNode)
@@ -180,7 +186,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override fun ignorableWhitespace(text: String) {
         val ce = currentNode
-        if (ce==null) {
+        if (ce == null) {
             addToPending { ignorableWhitespace(text) }
         } else {
             target.createTextNode(text).let { textNode ->
@@ -193,9 +199,11 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
         val cur = requireCurrent("attribute")
         when {
             prefix.isNullOrEmpty() -> cur.setAttribute(name, value)
-            else                   -> cur.setAttributeNS(namespace ?: XMLConstants.NULL_NS_URI,
-                                                         "${prefix}:$name",
-                                                         value)
+            else                   -> cur.setAttributeNS(
+                namespace ?: XMLConstants.NULL_NS_URI,
+                "${prefix}:$name",
+                value
+                                                        )
         }
     }
 
@@ -244,13 +252,14 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun getPrefix(namespaceUri: String?): String? {
-        return (currentNode as? Node)?.myLookupPrefix(namespaceUri?:"")
+        return (currentNode as? Node)?.myLookupPrefix(namespaceUri ?: "")
     }
 
     override fun setPrefix(prefix: String, namespaceUri: String) {
         val docDelegate = docDelegate
-        if (docDelegate==null) { addToPending { setPrefix(prefix, namespaceUri) } }
-        else {
+        if (docDelegate == null) {
+            addToPending { setPrefix(prefix, namespaceUri) }
+        } else {
             if (docDelegate.lookupNamespaceURI(prefix) != namespaceUri) {
                 val qname = if (prefix.isEmpty()) "xmlns" else "xmlns:$prefix"
                 (currentNode as? Element)?.setAttribute(qname, namespaceUri)

@@ -96,11 +96,17 @@ class JSDomReader(val delegate: Node) : XmlReader {
     override val locationInfo: String?
         get() {
 
-            fun <A: Appendable>helper(node: Node?, result: A):A = when {
+            fun <A : Appendable> helper(node: Node?, result: A): A = when {
                 node == null ||
-                node.nodeType == Node.DOCUMENT_NODE -> result
-                node.isElement -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
-                node.isText -> helper(node.parentNode, result).apply { append("/text()") }
+                        node.nodeType == Node.DOCUMENT_NODE
+                     -> result
+
+                node.isElement
+                     -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
+
+                node.isText
+                     -> helper(node.parentNode, result).apply { append("/text()") }
+
                 else -> helper(node.parentNode, result).apply { append("/.") }
             }
 

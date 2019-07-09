@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.*
 import kotlin.reflect.KClass
 
 @UseExperimental(ImplicitReflectionSerializer::class)
-class DefaultSerializationProvider: SerializationProvider {
+class DefaultSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype
         if (type is XmlSerializable) return (SerializableSerializer as SerializationProvider.XmlSerializerFun<T>)
@@ -34,21 +34,21 @@ class DefaultSerializationProvider: SerializationProvider {
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
         val a: XmlDeserializer? = type.java.getAnnotation(XmlDeserializer::class.java)
-        return a?.let{ DeserializerFun }
+        return a?.let { DeserializerFun }
     }
 
-    private object DeserializerFun: SerializationProvider.XmlDeserializerFun {
+    private object DeserializerFun : SerializationProvider.XmlDeserializerFun {
         override fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T {
             @Suppress("UNCHECKED_CAST")
-            val factory = type.java.getAnnotation(
-                XmlDeserializer::class.java).value.java.newInstance() as XmlDeserializerFactory<T>
+            val factory = type.java.getAnnotation(XmlDeserializer::class.java)
+                .value.java.newInstance() as XmlDeserializerFactory<T>
 
             return factory.deserialize(input)
         }
     }
 
 
-    private object SerializableSerializer: SerializationProvider.XmlSerializerFun<XmlSerializable> {
+    private object SerializableSerializer : SerializationProvider.XmlSerializerFun<XmlSerializable> {
         override fun invoke(output: XmlWriter, value: XmlSerializable) {
             value.serialize(output)
         }
