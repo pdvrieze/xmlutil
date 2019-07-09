@@ -163,7 +163,9 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
             }
         }
 
-
+        /**
+         * Determine the polymorphic tag name for a particular element.
+         */
         fun polyTagName(
             parentTag: QName,
             polyChild: String,
@@ -208,6 +210,9 @@ internal open class XmlCodecBase internal constructor(val context: SerialModule)
             return PolyInfo(typename, name, itemIdx)
         }
 
+        /**
+         * Given a parent tag, record all polymorphic children.
+         */
         fun polyInfo(
             parentTag: QName,
             polyChildren: Array<String>
