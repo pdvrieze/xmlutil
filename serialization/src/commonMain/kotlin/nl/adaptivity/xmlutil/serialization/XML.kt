@@ -648,3 +648,40 @@ inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
     XML.toXml(out, kClass = kClass, obj = this)
+
+/**
+ * Configuration for the xml parser. This can be used
+ *
+ * @property repairNamespaces Should namespaces automatically be repaired. This option will be passed on to the [XmlWriter]
+ * @property omitXmlDecl Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
+ * @property indent The indentation level (in spaces) to use. This is passed to the [XmlWriter]
+ * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+ *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
+ *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
+ * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+ *                     but the function can silently ignore it as well.
+ */
+class XmlConfig(
+    val repairNamespaces: Boolean = true,
+    val omitXmlDecl: Boolean = true,
+    val indent: Int = 0,
+    val autoPolymorphic: Boolean = false,
+    val unknownChildHandler: (EventType, QName) -> Unit
+               ) {
+
+    constructor(builder: Builder) : this(
+        builder.repairNamespaces,
+        builder.omitXmlDecl,
+        builder.indent,
+        builder.autoPolymorphic,
+        builder.unknownChildHandler
+                                        )
+
+    class Builder(
+        var repairNamespaces: Boolean = true,
+        var omitXmlDecl: Boolean = true,
+        var indent: Int = 0,
+        var autoPolymorphic: Boolean = false,
+        var unknownChildHandler: (EventType, QName) -> Unit = { ev, name -> throw XmlSerialException("Unknown ${ev.name} found with name $name") }
+                 )
+}
