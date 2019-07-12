@@ -115,7 +115,11 @@ class XML(
         indent: Int = 0,
         context: SerialModule = EmptyModule
                )
-            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), context + defaultXmlModule)
+            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), context)
+
+    constructor(config: XmlConfig.Builder, context: SerialModule = EmptyModule): this(XmlConfig(config), context)
+
+    constructor(context: SerialModule = EmptyModule, configure: XmlConfig.Builder.()->Unit): this(XmlConfig.Builder().apply(configure), context)
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -706,4 +710,3 @@ class XmlConfig(
             { ev, name -> throw XmlSerialException("Unknown ${ev.name} found with name $name") }
     }
 }
-
