@@ -32,8 +32,9 @@ import kotlin.collections.set
 
 internal open class XmlDecoderBase internal constructor(
     context: SerialModule,
+    config: XmlConfig,
     val input: XmlReader
-                                                       ) : XmlCodecBase(context) {
+                                                       ) : XmlCodecBase(context, config) {
 
     var skipRead = false
 
@@ -209,7 +210,7 @@ internal open class XmlDecoderBase internal constructor(
         childDesc: SerialDescriptor?
                                                                  ): T {
         val decoder =
-            XmlDecoderBase(context, CompactFragment(default).getXmlReader()).XmlDecoder(
+            XmlDecoderBase(context, config, CompactFragment(default).getXmlReader()).XmlDecoder(
                 parentNamespace = parentNamespace,
                 parentDesc = desc,
                 elementIndex = index,
@@ -243,7 +244,7 @@ internal open class XmlDecoderBase internal constructor(
             return when (default) {
                 null -> null as T
                 else -> {
-                    val decoder = XmlDecoderBase(context, CompactFragment(default).getXmlReader())
+                    val decoder = XmlDecoderBase(context, config, CompactFragment(default).getXmlReader())
                         .XmlDecoder(
                             parentNamespace = parentNamespace,
                             parentDesc = parentDesc,

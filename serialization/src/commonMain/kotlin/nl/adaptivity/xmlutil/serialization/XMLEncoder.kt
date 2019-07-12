@@ -30,8 +30,9 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
+    config: XmlConfig,
     val target: XmlWriter
-                                                       ) : XmlCodecBase(context) {
+                                                       ) : XmlCodecBase(context, config) {
 
     /**
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not

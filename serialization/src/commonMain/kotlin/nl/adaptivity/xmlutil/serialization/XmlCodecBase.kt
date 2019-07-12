@@ -28,7 +28,10 @@ import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import kotlin.jvm.JvmStatic
 
-internal open class XmlCodecBase internal constructor(val context: SerialModule) {
+internal open class XmlCodecBase internal constructor(
+    val context: SerialModule,
+    val config: XmlConfig
+                                                     ) {
 
     companion object {
 
