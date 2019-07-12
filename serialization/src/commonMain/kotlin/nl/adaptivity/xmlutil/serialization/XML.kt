@@ -95,11 +95,27 @@ private val defaultXmlModule = serializersModuleOf(CompactFragment::class, Compa
  * @property indent The indentation to use when writing XML
  */
 class XML(
-    val repairNamespaces: Boolean = true,
-    val omitXmlDecl: Boolean = true,
-    var indent: Int = 0,
+    val config: XmlConfig,
     context: SerialModule = EmptyModule
          ) : AbstractSerialFormat(context + defaultXmlModule), StringFormat {
+
+    @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
+    val repairNamespaces: Boolean get() = config.repairNamespaces
+
+    @Deprecated("Use config directly", ReplaceWith("config.omitXmlDecl"))
+    val omitXmlDecl: Boolean get() = config.omitXmlDecl
+
+    @Deprecated("Use config directly", ReplaceWith("config.indent"))
+    val indent: Int get() = config.indent
+
+    @Deprecated("Use the new configuration system")
+    constructor(
+        repairNamespaces: Boolean = true,
+        omitXmlDecl: Boolean = true,
+        indent: Int = 0,
+        context: SerialModule = EmptyModule
+               )
+            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), context + defaultXmlModule)
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -152,7 +168,7 @@ class XML(
      */
     fun <T> stringify(serializer: SerializationStrategy<T>, obj: T, prefix: String?): String {
         val stringWriter = StringWriter()
-        val xmlWriter = XmlStreaming.newWriter(stringWriter, repairNamespaces, omitXmlDecl)
+        val xmlWriter = XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.omitXmlDecl)
 
         var ex: Throwable? = null
         try {
@@ -234,11 +250,11 @@ class XML(
         obj: T,
         prefix: String? = null
                  ) {
-        target.indent = indent
+        target.indent = config.indent
 
         val serialName = serializer.descriptor.getSerialName(prefix)
 
-        val encoder = XmlEncoderBase(context, target)
+        val encoder = XmlEncoderBase(context, config, target)
             .RenamedEncoder(
                 serialName,
                 serialName.toNamespace(),
@@ -290,7 +306,7 @@ class XML(
         val serialName = serializer.descriptor.getSerialName()
         val serialDescriptor = serializer.descriptor
 
-        val decoder = XmlDecoderBase(context, reader).XmlDecoder(
+        val decoder = XmlDecoderBase(context, config, reader).XmlDecoder(
             parentNamespace = XmlEvent.NamespaceImpl("", ""),
             parentDesc = DummyParentDescriptor(serialName, serialDescriptor),
             elementIndex = 0,
@@ -323,7 +339,7 @@ class XML(
     }
 
     companion object : StringFormat {
-        val defaultInstance = XML()
+        val defaultInstance = XML(XmlConfig())
         override val context: SerialModule
             get() = defaultInstance.context
 
@@ -666,7 +682,7 @@ class XmlConfig(
     val omitXmlDecl: Boolean = true,
     val indent: Int = 0,
     val autoPolymorphic: Boolean = false,
-    val unknownChildHandler: (EventType, QName) -> Unit
+    val unknownChildHandler: (EventType, QName) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) {
 
     constructor(builder: Builder) : this(
@@ -682,6 +698,12 @@ class XmlConfig(
         var omitXmlDecl: Boolean = true,
         var indent: Int = 0,
         var autoPolymorphic: Boolean = false,
-        var unknownChildHandler: (EventType, QName) -> Unit = { ev, name -> throw XmlSerialException("Unknown ${ev.name} found with name $name") }
+        var unknownChildHandler: (EventType, QName) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
                  )
+
+    companion object {
+        val DEFAULT_UNKNOWN_CHILD_HANDLER: (EventType, QName) -> Unit =
+            { ev, name -> throw XmlSerialException("Unknown ${ev.name} found with name $name") }
+    }
 }
+
