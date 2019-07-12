@@ -20,10 +20,13 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
 import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.xmlutil.serialization.XmlDefault
+import kotlin.reflect.KClass
 
 interface ExtSerialDescriptor : SerialDescriptor {
     fun getSafeElementDescriptor(index: Int): SerialDescriptor? {
@@ -87,4 +90,9 @@ internal class ExtSerialDescriptorImpl(
 
 class NullableSerialDescriptor(val original: SerialDescriptor) : SerialDescriptor by original {
     override val isNullable: Boolean get() = true
+}
+
+
+internal class PolymorphicParentDescriptor(base: SerialDescriptor, val baseClass: KClass<*>): SerialDescriptor by base {
+    constructor(deserializer: PolymorphicSerializer<*>): this(deserializer.descriptor, deserializer.getBaseClass())
 }

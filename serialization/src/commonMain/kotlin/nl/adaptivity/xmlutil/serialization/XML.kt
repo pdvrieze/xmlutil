@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
-internal data class NameHolder(val name: QName, val specified: Boolean)
+internal data class NameHolder(val name: QName, val specified: Boolean, val serializer: KSerializer<*>?)
 
 internal class XmlNameMap {
     private val classMap = mutableMapOf<QName, String>()
@@ -42,7 +42,8 @@ internal class XmlNameMap {
 
     @ImplicitReflectionSerializer
     fun registerClass(kClass: KClass<*>) {
-        val serialInfo = kClass.serializer().descriptor
+        val serializer = kClass.serializer()
+        val serialInfo = serializer.descriptor
         val serialName = serialInfo.getEntityAnnotations().getXmlSerialName()
 
         val name: QName
@@ -54,12 +55,17 @@ internal class XmlNameMap {
             specified = true
             name = serialName
         }
-        registerClass(name, kClass.name, specified)
+        registerClass(name, kClass.name, serializer, specified)
     }
 
     fun registerClass(name: QName, kClass: String, specified: Boolean) {
         classMap[name.copy(prefix = "")] = kClass
-        nameMap[kClass] = NameHolder(name, specified)
+        nameMap[kClass] = NameHolder(name, specified, null)
+    }
+
+    fun registerClass(name: QName, kClass: String, serializer: KSerializer<*>, specified: Boolean) {
+        classMap[name.copy(prefix = "")] = kClass
+        nameMap[kClass] = NameHolder(name, specified, serializer)
     }
 }
 
@@ -89,10 +95,7 @@ private val defaultXmlModule = serializersModuleOf(CompactFragment::class, Compa
  * name or the name modified through [SerialName]
  *
  * @property context The serialization context used to resolve serializers etc.
- * @property repairNamespaces Option for the serializer whether it should repair namespaces. Does not affect reading
- * @property omitXmlDecl When writing do not emit a `<?xml ... ?>` processing instruction. This is passed to the
- *                       [XmlWriter] constructor
- * @property indent The indentation to use when writing XML
+ * @property config The configuration of the various options that may apply.
  */
 class XML(
     val config: XmlConfig,
@@ -100,13 +103,16 @@ class XML(
          ) : AbstractSerialFormat(context + defaultXmlModule), StringFormat {
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
-    val repairNamespaces: Boolean get() = config.repairNamespaces
+    val repairNamespaces: Boolean
+        get() = config.repairNamespaces
 
     @Deprecated("Use config directly", ReplaceWith("config.omitXmlDecl"))
-    val omitXmlDecl: Boolean get() = config.omitXmlDecl
+    val omitXmlDecl: Boolean
+        get() = config.omitXmlDecl
 
     @Deprecated("Use config directly", ReplaceWith("config.indent"))
-    val indent: Int get() = config.indent
+    val indent: Int
+        get() = config.indent
 
     @Deprecated("Use the new configuration system")
     constructor(
@@ -117,9 +123,12 @@ class XML(
                )
             : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), context)
 
-    constructor(config: XmlConfig.Builder, context: SerialModule = EmptyModule): this(XmlConfig(config), context)
+    constructor(config: XmlConfig.Builder, context: SerialModule = EmptyModule) : this(XmlConfig(config), context)
 
-    constructor(context: SerialModule = EmptyModule, configure: XmlConfig.Builder.()->Unit): this(XmlConfig.Builder().apply(configure), context)
+    constructor(
+        context: SerialModule = EmptyModule,
+        configure: XmlConfig.Builder.() -> Unit
+               ) : this(XmlConfig.Builder().apply(configure), context)
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
@@ -300,28 +309,29 @@ class XML(
      * though the reified function.
      *
      * @param reader An [XmlReader] that contains the XML from which to read the object
-     * @param serializer The loader to use to read the object
+     * @param deserializer The loader to use to read the object
      */
     fun <T> parse(
-        serializer: DeserializationStrategy<T>,
+        deserializer: DeserializationStrategy<T>,
         reader: XmlReader
                  ): T {
 
-        val serialName = serializer.descriptor.getSerialName()
-        val serialDescriptor = serializer.descriptor
+        val serialName = deserializer.descriptor.getSerialName()
+        val serialDescriptor = deserializer.descriptor
 
         val decoder = XmlDecoderBase(context, config, reader).XmlDecoder(
             parentNamespace = XmlEvent.NamespaceImpl("", ""),
             parentDesc = DummyParentDescriptor(serialName, serialDescriptor),
             elementIndex = 0,
+            deserializer = deserializer,
             childDesc = serialDescriptor
-                                                                )
+                                                                        )
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
-        return decoder.decodeSerializableValue(serializer)
+        return decoder.decodeSerializableValue(deserializer)
     }
 
     /**
@@ -610,7 +620,13 @@ internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
 
 internal fun XmlChildrenName.toQName() = QName(namespace, value, prefix)
 
-internal data class PolyInfo(val kClass: String, val tagName: QName, val index: Int)
+internal data class PolyInfo(
+    val kClass: String,
+    val tagName: QName,
+    val index: Int,
+    val serializer: SerializationStrategy<*>? = null,
+    val deserializer: DeserializationStrategy<*>? = serializer as? DeserializationStrategy<*>
+                            )
 
 internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     for (e in this) {
@@ -686,7 +702,7 @@ class XmlConfig(
     val omitXmlDecl: Boolean = true,
     val indent: Int = 0,
     val autoPolymorphic: Boolean = false,
-    val unknownChildHandler: (EventType, QName) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
+    val unknownChildHandler: (String?, EventType, QName, Collection<Any>) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) {
 
     constructor(builder: Builder) : this(
@@ -702,11 +718,11 @@ class XmlConfig(
         var omitXmlDecl: Boolean = true,
         var indent: Int = 0,
         var autoPolymorphic: Boolean = false,
-        var unknownChildHandler: (EventType, QName) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
+        var unknownChildHandler: (String?, EventType, QName, Collection<Any>) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
                  )
 
     companion object {
-        val DEFAULT_UNKNOWN_CHILD_HANDLER: (EventType, QName) -> Unit =
-            { ev, name -> throw XmlSerialException("Unknown ${ev.name} found with name $name") }
+        val DEFAULT_UNKNOWN_CHILD_HANDLER: (String?, EventType, QName, Collection<Any>) -> Unit =
+            { location, ev, name, candidates -> throw UnknownXmlFieldException(location, name.toString(), candidates) }
     }
 }
