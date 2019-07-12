@@ -21,11 +21,21 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.xmlutil.serialization.impl.arrayMap
 import kotlin.collections.set
+
+private val <T> DeserializationStrategy<T>.polymorphicDescriptor: SerialDescriptor
+    get() {
+        return when (this) {
+            is PolymorphicSerializer<*> -> PolymorphicParentDescriptor(this)
+            else                        -> descriptor
+        }
+    }
 
 object Canary {
 
@@ -38,7 +48,7 @@ object Canary {
         if (current != null) return current
         if (saver is GeneratedSerializer) {
             return ExtSerialDescriptorImpl(saver.descriptor,
-                                           saver.childSerializers().arrayMap { it.descriptor }).also {
+                                           saver.childSerializers().arrayMap { it.polymorphicDescriptor }).also {
                 saverMap[saver] = it
             }
         }
@@ -56,7 +66,7 @@ object Canary {
         if (current != null) return current
         if (loader is GeneratedSerializer) {
             return ExtSerialDescriptorImpl(loader.descriptor,
-                                           loader.childSerializers().arrayMap { it.descriptor }).also {
+                                           loader.childSerializers().arrayMap { it.polymorphicDescriptor }).also {
                 loaderMap[loader] = it
             }
         }

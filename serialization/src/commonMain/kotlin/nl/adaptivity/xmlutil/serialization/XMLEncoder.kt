@@ -27,6 +27,8 @@ import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.canary.getBaseClass
+import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
@@ -323,8 +325,31 @@ internal open class XmlEncoderBase internal constructor(
                                           ) :
         TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, false), XML.XmlOutput {
 
-        val polyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()?.let {
-            polyInfo(parentDesc.requestedName(parentNamespace, elementIndex, parentDesc), it.value)
+        val polyChildren: XmlNameMap?
+
+        init {
+            val xmlPolyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()
+            polyChildren =
+                when {
+                    xmlPolyChildren != null
+                         -> polyInfo(
+                        parentDesc.requestedName(parentNamespace, elementIndex, parentDesc),
+                        xmlPolyChildren.value
+                                    )
+                    config.autoPolymorphic &&
+                    serializer is PolymorphicSerializer<*>
+                         -> {
+                        val baseClass = serializer.getBaseClass()
+                        val childCollector = ChildCollector(baseClass)
+                        context.dumpTo(childCollector)
+                        childCollector.getPolyInfo(
+                            this,
+                            parentDesc.requestedName(parentNamespace, elementIndex, parentDesc)
+                                                  )
+                    }
+
+                    else -> null
+                }
         }
 
         override var serialName: QName = when (polyChildren) {
@@ -456,7 +481,9 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
             if (index > 0) {
                 if (childrenName != null) {
-                    RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, StringSerializer).encodeString(value)
+                    RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, StringSerializer).encodeString(
+                        value
+                                                                                                                      )
                 } else { // The first element is the element count
                     // This must be as a tag with text content as we have a list, attributes cannot represent that
                     target.smartStartTag(serialName) { text(value) }

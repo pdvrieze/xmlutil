@@ -32,6 +32,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.dsl.Skip
 import org.spekframework.spek2.style.specification.describe
+import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -299,6 +300,8 @@ object testXmlCommon : Spek(
             val poly = Container("lbl", ChildA("data"))
             val expected =
                 "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
+            val expectedAutoPoly =
+                "<Container label=\"lbl\"><childA valueA=\"data\"/></Container>"
             context("serialization") {
                 val serialized = XML(context = baseModule).stringify(poly).normalize()
                 it("should equal the expected xml form") {
@@ -307,6 +310,17 @@ object testXmlCommon : Spek(
 
                 it("should parse to the original") {
                     assertEquals(poly, XML(context = baseModule).parse(Container.serializer(), serialized))
+                }
+
+            }
+            context("new polymorphic serialization") {
+                val serialized = XML(context = baseModule){ autoPolymorphic=true }.stringify(poly).normalize()
+                it("should equal the expected xml form") {
+                    assertEquals(expectedAutoPoly, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(poly, XML(context = baseModule){ autoPolymorphic=true }.parse(Container.serializer(), serialized))
                 }
 
             }

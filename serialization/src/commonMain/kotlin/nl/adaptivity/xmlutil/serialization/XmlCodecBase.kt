@@ -77,6 +77,11 @@ internal open class XmlCodecBase internal constructor(
             }
         }
 
+        internal fun SerialDescriptor.declRequestedName(parentNamespace: Namespace): QName {
+            getEntityAnnotations().firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+            return name.substringAfterLast('.').toQname(parentNamespace)
+        }
+
         @JvmStatic
         internal fun SerialDescriptor.outputKind(index: Int, childDesc: SerialDescriptor?): OutputKind {
             if (index < 0) {
