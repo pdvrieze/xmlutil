@@ -25,6 +25,7 @@ import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.internal.GeneratedSerializer
+import kotlinx.serialization.internal.ListLikeSerializer
 import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.xmlutil.serialization.impl.arrayMap
 import kotlin.collections.set
@@ -62,21 +63,34 @@ object Canary {
     }
 
     fun <T> serialDescriptor(loader: DeserializationStrategy<T>): ExtSerialDescriptor {
-        val current = loaderMap[loader]
-        if (current != null) return current
-        if (loader is GeneratedSerializer) {
-            return ExtSerialDescriptorImpl(loader.descriptor,
-                                           loader.childSerializers().arrayMap { it.polymorphicDescriptor }).also {
-                loaderMap[loader] = it
+        loaderMap[loader]?.let { return it }
+
+        val result = when (loader) {
+            is PolymorphicSerializer<*>
+            -> PolymorphicParentDescriptor(loader)
+
+            is GeneratedSerializer
+            -> ExtSerialDescriptorImpl(
+                loader.descriptor,
+                loader.childSerializers().arrayMap { serialDescriptor(it) })
+
+            is ListLikeSerializer<*, *, *>
+            -> ExtSerialDescriptorImpl(loader.descriptor, arrayOf(serialDescriptor(loader.elementSerializer)))
+
+            else -> {
+                val parentDesc = loader.descriptor
+                val childDescs = try {
+                    Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
+                } catch (e: MissingDescriptorException) {
+                    emptyArray<SerialDescriptor>()
+                }
+                ExtSerialDescriptorImpl(parentDesc, childDescs)
+
             }
+
         }
-        val parentDesc = loader.descriptor
-        try {
-            val childDescs = Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
-            return ExtSerialDescriptorImpl(parentDesc, childDescs).also { loaderMap[loader] = it }
-        } catch (e: MissingDescriptorException) {
-            return ExtSerialDescriptorImpl(parentDesc, emptyArray()).also { loaderMap[loader] = it }
-        }
+        loaderMap[loader] = result
+        return result
     }
 
     fun <T> pollDesc(saver: SerializationStrategy<T>): ExtSerialDescriptor? {

@@ -49,7 +49,7 @@ internal class ExtSerialDescriptorImpl(
     private val childDescriptors: Array<SerialDescriptor>
                                       ) : ExtSerialDescriptor {
 
-    override val isNullable: Boolean get() = false
+    override val isNullable: Boolean get() = base.isNullable
 
     override val name: String get() = base.name
     override val kind: SerialKind get() = base.kind
@@ -93,6 +93,6 @@ class NullableSerialDescriptor(val original: SerialDescriptor) : SerialDescripto
 }
 
 
-internal class PolymorphicParentDescriptor(base: SerialDescriptor, val baseClass: KClass<*>): SerialDescriptor by base {
+internal class PolymorphicParentDescriptor(base: SerialDescriptor, val baseClass: KClass<*>): SerialDescriptor by base, ExtSerialDescriptor {
     constructor(deserializer: PolymorphicSerializer<*>): this(deserializer.descriptor, deserializer.getBaseClass())
 }
