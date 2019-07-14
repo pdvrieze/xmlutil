@@ -32,7 +32,6 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.dsl.Skip
 import org.spekframework.spek2.style.specification.describe
-import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -314,13 +313,19 @@ object testXmlCommon : Spek(
 
             }
             context("new polymorphic serialization") {
-                val serialized = XML(context = baseModule){ autoPolymorphic=true }.stringify(poly).normalize()
+                val serialized = XML(context = baseModule) { autoPolymorphic = true }.stringify(poly).normalize()
                 it("should equal the expected xml form") {
                     assertEquals(expectedAutoPoly, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(poly, XML(context = baseModule){ autoPolymorphic=true }.parse(Container.serializer(), serialized))
+                    assertEquals(
+                        poly,
+                        XML(context = baseModule) { autoPolymorphic = true }.parse(
+                            Container.serializer(),
+                            serialized
+                                                                                  )
+                                )
                 }
 
             }
@@ -340,9 +345,22 @@ object testXmlCommon : Spek(
                 it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
+                it("should still be the same with autopolymorphism enabled") {
+                    assertEquals(
+                        expected,
+                        XML(context = baseModule) { autoPolymorphic = true }.stringify(poly2).normalize()
+                                )
+                }
 
                 it("should parse to the original") {
                     assertEquals(poly2, XML(context = baseModule).parse<Container2>(serialized))
+                }
+
+                it("should parse to the original with autopolymorphism enabled") {
+                    assertEquals(
+                        poly2,
+                        XML(context = baseModule) { autoPolymorphic = true }.parse<Container2>(serialized)
+                                )
                 }
 
             }
@@ -356,9 +374,9 @@ object testXmlCommon : Spek(
                     ChildA("yyy")
                                )
                                   )
-            val expected =
-                "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
             context("serialization") {
+                val expected =
+                    "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildB\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
                 val serialized = XML(context = baseModule).stringify(poly2).normalize()
 
                 it("should equal the expected xml form") {
@@ -367,6 +385,20 @@ object testXmlCommon : Spek(
 
                 it("should parse to the original") {
                     assertEquals(poly2, XML(context = baseModule).parse<Container3>(serialized))
+                }
+
+            }
+            context("autopolymporphism") {
+                val expectedAuto =
+                    "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
+                val serialized = XML(context = baseModule) { autoPolymorphic = true }.stringify(poly2).normalize()
+
+                it("should equal the expected xml form") {
+                    assertEquals(expectedAuto, serialized)
+                }
+
+                it("should parse to the original") {
+                    assertEquals(poly2, XML(context = baseModule) { autoPolymorphic = true }.parse<Container3>(serialized))
                 }
 
             }
@@ -414,22 +446,15 @@ object testXmlCommon : Spek(
             val expected =
                 "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
             context("serialization") {
-                val serialized = XML(context = sealedModule).stringify(sealed).normalize()
+                val serialized = XML(context = sealedModule){autoPolymorphic = true}.stringify(sealed).normalize()
 
                 // Disabled because sealed classes are broken when used in lists
-                xit("should equal the expected xml form") {
+                it("should equal the expected xml form") {
                     assertEquals(expected, serialized)
                 }
 
                 it("should parse to the original") {
-                    assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(serialized))
-                }
-
-                delegate.test(
-                    "The expected value should also parse to the original",
-                    Skip.Yes("Waiting for sealed support")
-                             ) {
-                    assertEquals(sealed, XML(context = sealedModule).parse<Sealed>(expected))
+                    assertEquals(sealed, XML(context = sealedModule){autoPolymorphic = true}.parse<Sealed>(serialized))
                 }
 
             }
