@@ -27,6 +27,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.serializersModuleOf
 import kotlinx.serialization.parse
 import nl.adaptivity.xml.serialization.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.util.CompactFragment
 import org.spekframework.spek2.Spek
@@ -54,6 +57,30 @@ object testXmlCommon : Spek(
 
                 it("should parse to the original") {
                     assertEquals(address, XML.parse(addrSerializer, serialized))
+                }
+
+                context("XML with additional attributes") {
+                    val unknownValues =
+                        "<address xml:lang=\"en\" houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
+                    it("should fail by default") {
+
+                        assertFailsWith<UnknownXmlFieldException> {
+                            XML.parse(addrSerializer, unknownValues)
+                        }
+                    }
+                    it("should be ignorable using configuration options") {
+                        var ignoredName: QName? = null
+                        var ignoredEvent: EventType? = null
+                        val xml = XML {
+                            unknownChildHandler = {_, event, name,_->
+                                ignoredName = name
+                                ignoredEvent = event
+                            }
+                        }
+                        assertEquals(address, xml.parse(addrSerializer, unknownValues))
+                        assertEquals(QName(XMLConstants.XML_NS_URI, "lang", "xml"), ignoredName)
+                        assertEquals(EventType.ATTRIBUTE, ignoredEvent)
+                    }
                 }
             }
 
@@ -88,6 +115,31 @@ object testXmlCommon : Spek(
                 }
                 it("should also parse to the original") {
                     assertEquals(location, XML.parse(ser, serialized))
+                }
+
+            }
+
+            context("Containing unexpected element content") {
+                val noisyXml =
+                    "<Location><unexpected><address>Foo</address></unexpected><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
+                it("should fail by default") {
+
+                    assertFailsWith<UnknownXmlFieldException> {
+                        XML.parse(ser, noisyXml)
+                    }
+                }
+                it("should be ignorable using configuration options") {
+                    var ignoredName: QName? = null
+                    var ignoredEvent: EventType? = null
+                    val xml = XML {
+                        unknownChildHandler = {_, event, name,_->
+                            ignoredName = name
+                            ignoredEvent = event
+                        }
+                    }
+                    assertEquals(location, xml.parse(ser, noisyXml))
+                    assertEquals(QName(XMLConstants.NULL_NS_URI, "unexpected", ""), ignoredName)
+                    assertEquals(EventType.START_ELEMENT, ignoredEvent)
                 }
 
             }
