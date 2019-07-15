@@ -27,6 +27,7 @@ import kotlinx.serialization.internal.ListLikeSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
@@ -459,7 +460,7 @@ internal open class XmlDecoderBase internal constructor(
                                     val name =
                                         actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
                                             .normalize()
-                                    polyMap[name] = PolyInfo(actualClass.qualifiedName!!, name, idx, actualSerializer)
+                                    polyMap[name] = PolyInfo(actualClass.name, name, idx, actualSerializer)
                                 }
                             }
                         } else {

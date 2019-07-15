@@ -52,7 +52,7 @@ internal class ChildCollector(val baseClass: KClass<*>) : SerialModuleCollector 
         else -> XmlNameMap().apply {
             for ((actualClass, actualSerializer) in children) {
                 val declName = with(XmlCodecBase) { actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace()) }
-                val polyInfo = PolyInfo(actualClass.qualifiedName!!, declName, -1, actualSerializer)
+                val polyInfo = PolyInfo(actualClass.name, declName, -1, actualSerializer)
 
                 // The class is always treated as specified in automatic polymorphic mode. It should never use the field
                 // name as that cannot be correct.
