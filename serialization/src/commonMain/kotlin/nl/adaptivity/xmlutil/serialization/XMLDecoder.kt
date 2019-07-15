@@ -22,8 +22,6 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.internal.GeneratedSerializer
-import kotlinx.serialization.internal.ListLikeSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -406,7 +404,8 @@ internal open class XmlDecoderBase internal constructor(
         val deserializer: DeserializationStrategy<*>,
         descXX: ExtSerialDescriptor
                                         ) :
-        XmlTagCodec(parentDesc, elementIndex, Canary.serialDescriptor(deserializer), parentNamespace), CompositeDecoder, XML.XmlInput {
+        XmlTagCodec(parentDesc, elementIndex, Canary.serialDescriptor(deserializer), parentNamespace), CompositeDecoder,
+        XML.XmlInput {
 
         final override val serialName: QName = serialName
 
@@ -639,8 +638,9 @@ internal open class XmlDecoderBase internal constructor(
                 nameMap[QName(name.getLocalPart())]?.let { return it }
             }
 
-            config.unknownChildHandler(input.locationInfo, input.eventType, name, (nameMap.keys + polyMap.keys))
-            return -1 // Special value to indicate the element is unknown (but possibly ignored)
+            // Hook that will normally throw an exception on an unknown name.
+            config.unknownChildHandler(input.locationInfo, if(isNameOfAttr) EventType.ATTRIBUTE else input.eventType, name, (nameMap.keys + polyMap.keys))
+            return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -670,10 +670,7 @@ internal open class XmlDecoderBase internal constructor(
                     // Ignore namespace decls
                     decodeElementIndex(desc)
                 } else {
-                    return when (val i = indexOf(name, true)) {
-                        -1   -> decodeElementIndex(desc) // Recursively look at the next element
-                        else -> i
-                    }
+                    return indexOf(name, true).ifNegative { decodeElementIndex(desc) }
                 }
             }
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
@@ -692,8 +689,14 @@ internal open class XmlDecoderBase internal constructor(
                     when (eventType) {
                         EventType.END_ELEMENT   -> return readElementEnd(desc)
                         EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChild()
-                        EventType.ATTRIBUTE     -> return indexOf(input.name, true)
-                        EventType.START_ELEMENT -> return indexOf(input.name, false)
+                        EventType.ATTRIBUTE     -> return indexOf(
+                            input.name,
+                            true
+                                                                 ).ifNegative { decodeElementIndex(desc) }
+                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, false)) {
+                            CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment() // Create a content fragment and drop it.
+                            else                          -> return i
+                        }
                         else                    -> throw AssertionError("Unexpected event in stream")
                     }
                 }
@@ -1025,3 +1028,5 @@ internal open class XmlDecoderBase internal constructor(
     }
 
 }
+
+inline fun Int.ifNegative(body: () -> Int) = if (this >= 0) this else body()
