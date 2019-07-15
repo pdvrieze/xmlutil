@@ -79,4 +79,4 @@ annotation class XmlDefault(val value: String)
 /**
  * Default value for unset annotations
  */
-internal const val UNSET_ANNOTATION_VALUE = "ZXCVBNBVCXZ"
+internal const val UNSET_ANNOTATION_VALUE = "ZXC\u0001VBNBVCXZ"
