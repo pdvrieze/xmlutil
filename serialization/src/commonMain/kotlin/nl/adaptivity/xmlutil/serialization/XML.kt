@@ -689,7 +689,7 @@ class XmlConfig(
     val omitXmlDecl: Boolean = true,
     val indent: Int = 0,
     val autoPolymorphic: Boolean = false,
-    val unknownChildHandler: (String?, EventType, QName, Collection<Any>) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
+    val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) {
 
     constructor(builder: Builder) : this(
@@ -709,7 +709,9 @@ class XmlConfig(
                  )
 
     companion object {
-        val DEFAULT_UNKNOWN_CHILD_HANDLER: (String?, EventType, QName, Collection<Any>) -> Unit =
+        val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             { location, ev, name, candidates -> throw UnknownXmlFieldException(location, name.toString(), candidates) }
     }
 }
+
+typealias UnknownChildHandler = (String?, EventType, QName, Collection<Any>) -> Unit
