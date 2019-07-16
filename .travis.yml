@@ -3,7 +3,7 @@ jdk:
   - openjdk8
   - openjdk11
 install:
-  - ./gradlew assemble --info --stacktrace
+  - ./gradlew assemble --info --stacktrace --scan
 script:
   - ./gradlew check --info --stacktrace
 before_install:
