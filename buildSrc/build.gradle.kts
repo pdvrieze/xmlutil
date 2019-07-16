@@ -45,7 +45,8 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        force("org.apache.httpcomponents:httpclient:4.5.3")
+        force("org.apache.httpcomponents:httpclient:4.5.9")
+        force("org.apache.httpcomponents:httpcore:4.4.11")
     }
 }
 
