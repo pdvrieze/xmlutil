@@ -22,5 +22,3 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlin.reflect.KClass
 
-internal expect val KClass<*>.myAnnotations: Collection<Annotation>
-

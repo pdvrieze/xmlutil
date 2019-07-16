@@ -36,7 +36,6 @@ internal class XmlNameMap {
     private val classMap = mutableMapOf<QName, String>()
     private val nameMap = mutableMapOf<String, NameHolder>()
 
-    fun lookupName(kClass: KClass<*>) = lookupName(kClass.name)
     fun lookupClass(name: QName) = classMap[name.copy(prefix = "")]
     fun lookupName(kClass: String) = nameMap[kClass]
 
@@ -127,7 +126,7 @@ class XML(
 
     constructor(
         context: SerialModule = EmptyModule,
-        configure: XmlConfig.Builder.() -> Unit
+        configure: XmlConfig.Builder.() -> Unit = {}
                ) : this(XmlConfig.Builder().apply(configure), context)
 
     /**
@@ -597,18 +596,6 @@ internal fun Collection<Annotation>.getChildName(): QName? {
     }
 }
 
-internal fun <T : Any> KClass<T>.getSerialName(serializer: KSerializer<*>?, prefix: String?): QName {
-    return getSerialName(serializer).let {
-        if (prefix == null) it else it.copy(prefix = prefix)
-    }
-}
-
-internal fun <T : Any> KClass<T>.getSerialName(serializer: SerializationStrategy<*>?): QName {
-    return myAnnotations.getXmlSerialName()
-        ?: serializer?.run { QName(descriptor.name.substringAfterLast('.')) }
-        ?: QName(name.substringAfterLast('.'))
-}
-
 internal fun SerialDescriptor.getSerialName(prefix: String? = null): QName {
     return getEntityAnnotations().getXmlSerialName()?.let { if (prefix == null) it else it.copy(prefix) }
         ?: QName(name.substringAfterLast('.'))
@@ -621,7 +608,7 @@ internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
 internal fun XmlChildrenName.toQName() = QName(namespace, value, prefix)
 
 internal data class PolyInfo(
-    val kClass: String,
+    val describedName: String,
     val tagName: QName,
     val index: Int,
     val serializer: SerializationStrategy<*>? = null,

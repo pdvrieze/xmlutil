@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.toNamespace
 import kotlin.reflect.KClass
 
 internal class ChildCollector(val baseClass: KClass<*>) : SerialModuleCollector {
-    internal val children = mutableListOf<ActualChildInfo<*>>()
+    internal val children = mutableListOf<KSerializer<*>>()
 
     override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
         // ignore
@@ -43,20 +43,20 @@ internal class ChildCollector(val baseClass: KClass<*>) : SerialModuleCollector 
         actualSerializer: KSerializer<Sub>
                                                      ) {
         if (baseClass == this.baseClass) {
-            children.add(ActualChildInfo(actualClass, actualSerializer))
+            children.add(actualSerializer)
         }
     }
 
     fun getPolyInfo(codec: XmlCodecBase.XmlTagCodec, parentTagName: QName): XmlNameMap? = when (children.size) {
         0    -> null
         else -> XmlNameMap().apply {
-            for ((actualClass, actualSerializer) in children) {
+            for (actualSerializer in children) {
                 val declName = with(XmlCodecBase) { actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace()) }
-                val polyInfo = PolyInfo(actualClass.name, declName, -1, actualSerializer)
 
                 // The class is always treated as specified in automatic polymorphic mode. It should never use the field
                 // name as that cannot be correct.
-                registerClass(declName, actualClass.name, actualSerializer, true)
+                val nameInSerializer = actualSerializer.descriptor.name
+                registerClass(declName, nameInSerializer, actualSerializer, true)
             }
         }
     }

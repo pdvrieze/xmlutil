@@ -22,10 +22,8 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
-import nl.adaptivity.xmlutil.serialization.XmlChildrenName
-import nl.adaptivity.xmlutil.serialization.XmlDefault
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.serialization.*
 
 
 enum class AddresStatus {
@@ -47,7 +45,7 @@ data class Address(
 data class Location(
     val addres: Address,
     @XmlDefault("NaN")
-    @Optional val temperature: Double = Double.NaN
+    val temperature: Double = Double.NaN
                    )
 
 @Serializable
@@ -116,3 +114,56 @@ class CustomSerializer : KSerializer<Custom> {
     }
 }
 
+@Serializable
+open class Base
+
+val baseModule = SerializersModule {
+    polymorphic(Base::class) {
+        ChildA::class with ChildA.serializer()
+        ChildB::class with ChildB.serializer()
+    }
+}
+
+@Serializable
+@XmlSerialName("childA", namespace = "", prefix = "")
+data class ChildA(val valueA: String) : Base()
+
+@Serializable
+@XmlSerialName("childB", namespace = "", prefix = "")
+data class ChildB(val valueB: String) : Base()
+
+@Serializable
+data class Container(val label: String, @Polymorphic val member: Base)
+
+@Serializable
+data class Container2(val name: String, @XmlPolyChildren(arrayOf("ChildA", "ChildB=better")) val children: List<@Polymorphic Base>)
+
+@SerialName("container-3")
+@Serializable
+data class Container3(val xxx: String, @SerialName("member") val members: List<@Polymorphic Base>)
+
+@Serializable
+sealed /*open*/ class SealedParent
+
+val sealedModule = SerializersModule {
+    polymorphic(SealedParent::class) {
+        SealedA::class with SealedA.serializer()
+        SealedB::class with SealedB.serializer()
+    }
+}
+
+@Serializable
+data class SealedA(val data: String, val extra: String = "2") : SealedParent()
+
+@Serializable
+data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
+
+@Serializable
+data class Sealed(
+    val name: String,
+    @XmlSerialName("member", "", "")
+    val members: List<@Polymorphic SealedParent>
+                 )
+
+@Serializable
+data class SealedSingle(val name: String, val member: SealedA)

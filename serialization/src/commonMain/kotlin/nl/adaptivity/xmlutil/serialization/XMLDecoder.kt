@@ -437,36 +437,41 @@ internal open class XmlDecoderBase internal constructor(
                             polyMap[polyInfo.tagName.normalize()] = polyInfo
                         }
                     } else {
-                        val elemDesc = desc.getSafeElementDescriptor(idx)?.let { tmpDesc ->
-                            when (tmpDesc.kind) {
-                                StructureKind.LIST -> {
+                        val actualElementDesc = desc.getSafeElementDescriptor(idx)
 
-                                    tmpDesc.getElementDescriptor(0)
-                                }
-                                else               -> tmpDesc
+                        val effectiveElementDesc = when {
+                                actualElementDesc?.kind == StructureKind.LIST
+                                     -> actualElementDesc.getElementDescriptor(0)
+
+                                else -> actualElementDesc
                             }
-                        }
-                        if (config.autoPolymorphic && elemDesc is PolymorphicParentDescriptor) {
-                            val baseClass = elemDesc.baseClass
+
+                        if (config.autoPolymorphic && effectiveElementDesc is PolymorphicParentDescriptor) {
+                            val baseClass = effectiveElementDesc.baseClass
                             val childCollector = ChildCollector(baseClass)
                             context.dumpTo(childCollector)
-                            val parentName = desc.requestedName(serialName.toNamespace(), idx, elemDesc)
+                            val parentName = desc.requestedName(serialName.toNamespace(), idx, effectiveElementDesc)
                             if (childCollector.children.isEmpty()) {
-                                val n = desc.requestedName(serialName.toNamespace(), idx, elemDesc).normalize()
+                                val n =
+                                    desc.requestedName(serialName.toNamespace(), idx, effectiveElementDesc).normalize()
                                 nameMap[n] = idx
                             } else {
-                                for ((actualClass, actualSerializer) in childCollector.children) {
+                                for (actualSerializer in childCollector.children) {
                                     val name =
                                         actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
                                             .normalize()
-                                    polyMap[name] = PolyInfo(actualClass.name, name, idx, actualSerializer)
+                                    polyMap[name] = PolyInfo(actualSerializer.descriptor.name, name, idx, actualSerializer)
                                 }
                             }
                         } else {
-                            val tagName = when (elemDesc?.kind) {
+                            val tagName = when (actualElementDesc?.kind) {
                                 UnionKind.SEALED, // For now sealed is treated like polymorphic. We can't enumerate elements yet.
                                 UnionKind.POLYMORPHIC -> desc.getElementName(idx).toQname(serialName.toNamespace())
-                                else                  -> desc.requestedName(serialName.toNamespace(), idx, elemDesc)
+                                else                  -> desc.requestedName(
+                                    serialName.toNamespace(),
+                                    idx,
+                                    actualElementDesc
+                                                                           )
                             }
                             nameMap[tagName.normalize()] = idx
                         }
@@ -639,7 +644,12 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             // Hook that will normally throw an exception on an unknown name.
-            config.unknownChildHandler(input.locationInfo, if(isNameOfAttr) EventType.ATTRIBUTE else input.eventType, name, (nameMap.keys + polyMap.keys))
+            config.unknownChildHandler(
+                input.locationInfo,
+                if (isNameOfAttr) EventType.ATTRIBUTE else input.eventType,
+                name,
+                (nameMap.keys + polyMap.keys)
+                                      )
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
 
@@ -974,7 +984,7 @@ internal open class XmlDecoderBase internal constructor(
                 0    -> when (polyInfo) {
                     null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.name)
                         ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
-                    else -> polyInfo.kClass
+                    else -> polyInfo.describedName
                 }
                 else -> super.decodeStringElement(desc, index)
             }
@@ -985,7 +995,7 @@ internal open class XmlDecoderBase internal constructor(
                 input.getAttributeValue(null, "type")
                     ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
             } else {
-                polyInfo?.kClass ?: input.name.localPart // Likely to fail unless the tagname matches the type
+                polyInfo?.describedName ?: input.name.localPart // Likely to fail unless the tagname matches the type
             }
         }
 
