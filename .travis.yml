@@ -2,9 +2,7 @@ language: java
 jdk:
   - openjdk8
   - openjdk11
-install:
-  - ./gradlew assemble --info --stacktrace --scan
-script:
-  - ./gradlew check --info --stacktrace
-before_install:
-  - nvm install 11.8.0
+#install:
+#  - ./gradlew assemble --info --stacktrace --scan
+#script:
+#  - ./gradlew check --info --stacktrace
