@@ -43,6 +43,12 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.httpcomponents:httpclient:4.5.3")
+    }
+}
+
 repositories {
     mavenLocal()
     jcenter()
