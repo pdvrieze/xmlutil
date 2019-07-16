@@ -2,5 +2,7 @@ language: java
 jdk:
   - openjdk8
   - openjdk11
+script:
+  - ./gradlew check --info
 before_install:
   - nvm install 11.8.0
