@@ -24,6 +24,7 @@ plugins {
     idea
     kotlin("android") apply false
     id("com.jfrog.bintray") apply false
+    id("com.gradle.build-scan") version "2.3"
 }
 
 description = "The overall project for cross-platform xml access"
@@ -56,6 +57,17 @@ allprojects {
         kotlinOptions.jvmTarget = "1.8"
     }
  */
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.httpcomponents:httpclient:4.5.3")
+    }
+}
+
+buildScan {
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
+    termsOfServiceAgree = "yes"
 }
 
 idea {
