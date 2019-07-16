@@ -20,10 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.StructureKind
-import kotlinx.serialization.UnionKind
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import kotlin.jvm.JvmStatic
@@ -211,7 +208,12 @@ internal open class XmlCodecBase internal constructor(
             val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
                 ?: parentTag.namespaceURI else parentTag.namespaceURI
 
-            val typename = if (pkgPos >= 0 || currentPkg.isEmpty()) typeNameBase else "$currentPkg.$typeNameBase"
+            val typename = when {
+                pkgPos != 0 || currentPkg.isEmpty()
+                     -> typeNameBase
+
+                else -> "$currentPkg.${typeNameBase.substring(1)}"
+            }
 
             val name = QName(ns, localPart, prefix)
 
