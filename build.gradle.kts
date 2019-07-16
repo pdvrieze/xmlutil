@@ -69,6 +69,8 @@ configurations.all {
 buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
+
+    publishOnFailureIf("true".equals(System.getenv("TRAVIS")))
 }
 
 idea {
