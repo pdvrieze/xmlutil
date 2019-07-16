@@ -129,6 +129,7 @@ val baseModule = SerializersModule {
 data class ChildA(val valueA: String) : Base()
 
 @Serializable
+@SerialName("childBNameFromAnnotation")
 @XmlSerialName("childB", namespace = "", prefix = "")
 data class ChildB(val valueB: String) : Base()
 
@@ -136,7 +137,7 @@ data class ChildB(val valueB: String) : Base()
 data class Container(val label: String, @Polymorphic val member: Base)
 
 @Serializable
-data class Container2(val name: String, @XmlPolyChildren(arrayOf("ChildA", "ChildB=better")) val children: List<@Polymorphic Base>)
+data class Container2(val name: String, @XmlPolyChildren(arrayOf(".ChildA", "childBNameFromAnnotation=better")) val children: List<@Polymorphic Base>)
 
 @SerialName("container-3")
 @Serializable
