@@ -35,7 +35,7 @@ import org.w3c.dom.parsing.XMLSerializer
 actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val doc = when (val d = (this as JSDomReader).delegate) {
         is Document -> d
-        else        -> d!!.ownerDocument!!
+        else        -> d.ownerDocument!!
     }
     val frag = doc.createDocumentFragment()
     val wrapperElement = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)

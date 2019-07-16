@@ -141,7 +141,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
             addToPending { comment(text) }
         } else {
             target.createComment(text).let { comment ->
-                ce.append(comment) ?: addToPending { comment(text) }
+                ce.append(comment)
             }
         }
     }
@@ -190,7 +190,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
             addToPending { ignorableWhitespace(text) }
         } else {
             target.createTextNode(text).let { textNode ->
-                ce.append(textNode) ?: throw XmlException("Not in an element -- whitespace")
+                ce.append(textNode)
             }
         }
     }

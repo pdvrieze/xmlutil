@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.XmlDelegatingReader
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERNAMESPACE
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERPPREFIX
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext

@@ -32,5 +32,6 @@ actual interface NamespaceContextImpl : NamespaceContext {
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
 }
 
+@Suppress("NOTHING_TO_INLINE", "DEPRECATION", "UNCHECKED_CAST")
 actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
     getPrefixes(namespaceURI) as Iterator<String>

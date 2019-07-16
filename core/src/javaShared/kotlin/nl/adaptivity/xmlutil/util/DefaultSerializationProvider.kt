@@ -41,7 +41,7 @@ class DefaultSerializationProvider : SerializationProvider {
         override fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T {
             @Suppress("UNCHECKED_CAST")
             val factory = type.java.getAnnotation(XmlDeserializer::class.java)
-                .value.java.newInstance() as XmlDeserializerFactory<T>
+                .value.java.getConstructor().newInstance() as XmlDeserializerFactory<T>
 
             return factory.deserialize(input)
         }
