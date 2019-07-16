@@ -22,6 +22,7 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
@@ -40,6 +41,7 @@ import kotlin.test.assertFailsWith
 
 private fun String.normalize() = replace(" />", "/>")
 
+@UseExperimental(UnstableDefault::class)
 val testConfiguration = JsonConfiguration(strictMode = false)
 
 class TestCommon {

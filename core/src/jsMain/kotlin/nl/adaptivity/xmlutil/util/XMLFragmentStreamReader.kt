@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.XmlDelegatingReader
 import org.w3c.dom.parsing.DOMParser
 
 

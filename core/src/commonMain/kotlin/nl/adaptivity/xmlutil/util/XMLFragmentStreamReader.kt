@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
+import nl.adaptivity.xmlutil.XmlDelegatingReader
 
 /**
  * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper

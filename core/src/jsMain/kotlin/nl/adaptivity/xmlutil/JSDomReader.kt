@@ -219,6 +219,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
 
     override fun getNamespaceURI(index: Int): String {
+        @Suppress("USELESS_ELVIS")
         return namespaceAttrs[index].value ?: ""
     }
 

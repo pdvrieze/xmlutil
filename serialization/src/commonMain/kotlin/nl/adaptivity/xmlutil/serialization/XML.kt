@@ -709,6 +709,7 @@ class XmlConfig(
                  )
 
     companion object {
+        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             { input, isAttribute, name, candidates -> throw UnknownXmlFieldException(input.locationInfo, name.toString(), candidates) }
     }
