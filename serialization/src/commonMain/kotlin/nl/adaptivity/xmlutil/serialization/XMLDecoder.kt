@@ -645,8 +645,8 @@ internal open class XmlDecoderBase internal constructor(
 
             // Hook that will normally throw an exception on an unknown name.
             config.unknownChildHandler(
-                input.locationInfo,
-                if (isNameOfAttr) EventType.ATTRIBUTE else input.eventType,
+                input,
+                isNameOfAttr,
                 name,
                 (nameMap.keys + polyMap.keys)
                                       )

@@ -705,13 +705,13 @@ class XmlConfig(
         var omitXmlDecl: Boolean = true,
         var indent: Int = 0,
         var autoPolymorphic: Boolean = false,
-        var unknownChildHandler: (String?, EventType, QName, Collection<Any>) -> Unit = DEFAULT_UNKNOWN_CHILD_HANDLER
+        var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                  )
 
     companion object {
         val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
-            { location, ev, name, candidates -> throw UnknownXmlFieldException(location, name.toString(), candidates) }
+            { input, isAttribute, name, candidates -> throw UnknownXmlFieldException(input.locationInfo, name.toString(), candidates) }
     }
 }
 
-typealias UnknownChildHandler = (String?, EventType, QName, Collection<Any>) -> Unit
+typealias UnknownChildHandler = (input: XmlReader, isAttribute: Boolean, name: QName, candidates: Collection<Any>) -> Unit

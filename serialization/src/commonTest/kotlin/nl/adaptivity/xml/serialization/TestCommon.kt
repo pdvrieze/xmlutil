@@ -133,16 +133,16 @@ class TestCommon {
         @Test
         fun deserialize_with_unused_attributes_and_custom_handler() {
             var ignoredName: QName? = null
-            var ignoredEvent: EventType? = null
+            var ignoredIsAttribute: Boolean? = null
             val xml = XML {
-                unknownChildHandler = { _, event, name, _ ->
+                unknownChildHandler = { _, isAttribute, name, _ ->
                     ignoredName = name
-                    ignoredEvent = event
+                    ignoredIsAttribute = isAttribute
                 }
             }
             assertEquals(value, xml.parse(serializer, unknownValues))
             assertEquals(QName(XMLConstants.XML_NS_URI, "lang", "xml"), ignoredName)
-            assertEquals(EventType.ATTRIBUTE, ignoredEvent)
+            assertEquals(true, ignoredIsAttribute)
         }
 
     }
@@ -175,16 +175,16 @@ class TestCommon {
         @Test
         fun deserialize_with_unused_attributes_and_custom_handler() {
             var ignoredName: QName? = null
-            var ignoredEvent: EventType? = null
+            var ignoredIsAttribute: Boolean? = null
             val xml = XML {
-                unknownChildHandler = { _, event, name, _ ->
+                unknownChildHandler = { _, isAttribute, name, _ ->
                     ignoredName = name
-                    ignoredEvent = event
+                    ignoredIsAttribute = isAttribute
                 }
             }
             assertEquals(value, xml.parse(serializer, noisyXml))
             assertEquals(QName(XMLConstants.NULL_NS_URI, "unexpected", ""), ignoredName)
-            assertEquals(EventType.START_ELEMENT, ignoredEvent)
+            assertEquals(false, ignoredIsAttribute)
         }
 
     }
