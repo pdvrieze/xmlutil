@@ -2,7 +2,7 @@ language: java
 jdk:
   - openjdk8
   - openjdk11
-install
+install:
   - ./gradlew assemble --info --stacktrace
 script:
   - ./gradlew check --info --stacktrace
