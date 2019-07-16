@@ -24,6 +24,7 @@ import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.psi.psiUtil.checkReservedPrefixWord
 import java.util.*
 
 plugins {
@@ -74,9 +75,7 @@ kotlin {
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform {
-                        includeEngines("spek2")
-                    }
+                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -99,9 +98,7 @@ kotlin {
                     freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
                 tasks.getByName<Test>("${target.name}Test") {
-                    useJUnitPlatform {
-                        includeEngines("spek2")
-                    }
+                    useJUnitPlatform ()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -149,12 +146,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                project.dependencies.add(
-                    implementationConfigurationName,
-                    "org.spekframework.spek2:spek-dsl-jvm:$spek2Version"
-                                        ) {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
+                implementation(kotlin("test-annotations-common"))
+//                implementation("org.spekframework.spek2:spek-dsl-common:$spek2Version")
             }
         }
         val javaShared by creating {
@@ -181,22 +174,9 @@ kotlin {
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
-                project.dependencies.add(
-                    implementationConfigurationName,
-                    "org.spekframework.spek2:spek-dsl-jvm:$spek2Version"
-                                        ) {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-
-
-
-                project.dependencies.add(
-                    runtimeOnlyConfigurationName,
-                    "org.spekframework.spek2:spek-runner-junit5:$spek2Version"
-                                        ) {
-                    exclude(group = "org.junit.platform")
-                    exclude(group = "org.jetbrains.kotlin")
-                }
+                implementation("org.spekframework.spek2:spek-dsl-jvm:$spek2Version")
+                runtimeOnly("org.spekframework.spek2:spek-runtime-jvm:$spek2Version")
+                runtimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek2Version")
 
 
                 implementation("org.xmlunit:xmlunit-core:2.6.0")
@@ -225,21 +205,8 @@ kotlin {
 
                 implementation(kotlin("stdlib-jdk8"))
 
-                project.dependencies.add(
-                    implementationConfigurationName,
-                    "org.spekframework.spek2:spek-dsl-jvm:$spek2Version"
-                                        ) {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-
-                project.dependencies.add(
-                    runtimeOnlyConfigurationName,
-                    "org.spekframework.spek2:spek-runner-junit5:$spek2Version"
-                                        ) {
-                    exclude(group = "org.junit.platform")
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-
+//                implementation("org.spekframework.spek2:spek-dsl-jvm:$spek2Version")
+//                runtimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek2Version")
 
                 implementation("org.xmlunit:xmlunit-core:2.6.0")
 

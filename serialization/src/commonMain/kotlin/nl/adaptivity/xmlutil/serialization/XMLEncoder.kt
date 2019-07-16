@@ -308,7 +308,7 @@ internal open class XmlEncoderBase internal constructor(
         }
     }
 
-    private inner class RenamedTagEncoder(
+    internal inner class RenamedTagEncoder(
         override val serialName: QName,
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
@@ -317,7 +317,7 @@ internal open class XmlEncoderBase internal constructor(
                                          ) :
         TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, true)
 
-    private inner class PolymorphicEncoder(
+    internal inner class PolymorphicEncoder(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
@@ -355,7 +355,7 @@ internal open class XmlEncoderBase internal constructor(
         override var serialName: QName = when (polyChildren) {
             null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
                 ?: parentDesc.getElementName(elementIndex).toQname(parentNamespace)
-            else -> parentDesc.requestedName(parentNamespace, elementIndex, parentDesc)
+            else -> parentDesc.requestedName(parentNamespace, elementIndex, parentDesc.getElementDescriptor(elementIndex))
         }
 
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
@@ -419,7 +419,7 @@ internal open class XmlEncoderBase internal constructor(
      * be wrapped inside a list (unless it is the root). If [XmlChildrenName] is not specified it will determine tag names
      * as if the list was not present and there was a single value.
      */
-    private inner class ListEncoder(
+    internal inner class ListEncoder(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,

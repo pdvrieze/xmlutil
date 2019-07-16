@@ -230,7 +230,7 @@ internal open class XmlCodecBase internal constructor(
             for (polyChild in polyChildren) {
                 val polyInfo = polyTagName(parentTag, polyChild, -1)
 
-                result.registerClass(polyInfo.tagName, polyInfo.kClass, polyChild.indexOf('=') >= 0)
+                result.registerClass(polyInfo.tagName, polyInfo.describedName, polyChild.indexOf('=') >= 0)
             }
 
             return result
