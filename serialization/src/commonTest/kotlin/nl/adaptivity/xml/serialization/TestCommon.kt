@@ -47,17 +47,16 @@ class TestCommon {
     abstract class TestBase<T>(
         val value: T,
         val serializer: KSerializer<T>,
-        val serialModule: SerialModule = EmptyModule
+        val serialModule: SerialModule = EmptyModule,
+        private val baseXmlFormat: XML = XML(serialModule),
+        private val baseJsonFormat: Json = Json(testConfiguration, serialModule)
                               ) {
         abstract val expectedXML: String
         abstract val expectedJson: String
 
-        private val json = Json(testConfiguration, serialModule)
-        private val xml = XML(serialModule)
+        fun serializeXml(): String = baseXmlFormat.stringify(serializer, value).normalize()
 
-        fun serializeXml(): String = xml.stringify(serializer, value).normalize()
-
-        fun serializeJson(): String = json.stringify(serializer, value)
+        fun serializeJson(): String = baseJsonFormat.stringify(serializer, value)
 
         @Test
         open fun testSerializeXml() {
@@ -66,7 +65,7 @@ class TestCommon {
 
         @Test
         open fun testDeserializeXml() {
-            assertEquals(value, xml.parse(serializer, expectedXML))
+            assertEquals(value, baseXmlFormat.parse(serializer, expectedXML))
         }
 
         @Test
@@ -76,27 +75,27 @@ class TestCommon {
 
         @Test
         open fun testDeserializeJson() {
-            assertEquals(value, json.parse(serializer, expectedJson))
+            assertEquals(value, baseJsonFormat.parse(serializer, expectedJson))
         }
 
     }
 
     abstract class TestPolymorphicBase<T>(value: T, serializer: KSerializer<T>, serialModule: SerialModule)
-        :TestBase<T>(value, serializer, serialModule) {
+        :TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }) {
 
-        abstract val expectedAutoPolymorphicXML: String
+        abstract val expectedNonAutoPolymorphicXML: String
 
         @Test
-        fun autoPolymorphic_serialization_should_work() {
+        fun nonAutoPolymorphic_serialization_should_work() {
             val serialized =
-                XML(context = serialModule) { autoPolymorphic = true }.stringify(serializer, value).normalize()
-            assertEquals(expectedAutoPolymorphicXML, serialized)
+                XML(context = serialModule) { autoPolymorphic = false }.stringify(serializer, value).normalize()
+            assertEquals(expectedNonAutoPolymorphicXML, serialized)
         }
 
         @Test
-        fun autoPolymorphic_deserialization_should_work() {
-            val actualValue = XML(context = serialModule) { autoPolymorphic = true }
-                .parse(serializer, expectedAutoPolymorphicXML)
+        fun nonAutoPolymorphic_deserialization_should_work() {
+            val actualValue = XML(context = serialModule) { autoPolymorphic = false }
+                .parse(serializer, expectedNonAutoPolymorphicXML)
 
             assertEquals(value, actualValue)
         }
@@ -314,11 +313,11 @@ class TestCommon {
         Container.serializer(),
         baseModule
                                                           ) {
-        override val expectedXML: String get() = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
-        override val expectedAutoPolymorphicXML: String
+        override val expectedXML: String
             get() = "<Container label=\"lbl\"><childA valueA=\"data\"/></Container>"
         override val expectedJson: String
             get() = "{\"label\":\"lbl\",\"member\":{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"}}"
+        override val expectedNonAutoPolymorphicXML: String get() = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
     }
 
     class AClassWithMultipleChildren: TestPolymorphicBase<Container2>(
@@ -328,7 +327,7 @@ class TestCommon {
                                                           ) {
         override val expectedXML: String
             get() = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
-        override val expectedAutoPolymorphicXML: String
+        override val expectedNonAutoPolymorphicXML: String
             get() = expectedXML
         override val expectedJson: String
             get() = "{\"name\":\"name2\",\"children\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"valueB\":\"xxx\"}]}"
@@ -342,11 +341,11 @@ class TestCommon {
         baseModule
                                                                                ) {
         override val expectedXML: String
-            get() = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"childBNameFromAnnotation\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
-        override val expectedAutoPolymorphicXML: String
             get() = "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
         override val expectedJson: String
             get() = "{\"xxx\":\"name2\",\"member\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"valueB\":\"xxx\"},{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"yyy\"}]}"
+        override val expectedNonAutoPolymorphicXML: String
+            get() = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"childBNameFromAnnotation\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
     }
 
 
@@ -376,11 +375,11 @@ class TestCommon {
         sealedModule
                                                                    ) {
         override val expectedXML: String
-            get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
-        override val expectedAutoPolymorphicXML: String
             get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
         override val expectedJson: String
             get() = "{\"name\":\"mySealed\",\"members\":[{\"type\":\"nl.adaptivity.xml.serialization.SealedA\",\"data\":\"a-data\",\"extra\":\"2\"},{\"type\":\"nl.adaptivity.xml.serialization.SealedB\",\"main\":\"b-data\",\"ext\":0.5}]}"
+        override val expectedNonAutoPolymorphicXML: String
+            get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
     }
 
 
