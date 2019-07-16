@@ -100,7 +100,7 @@ The way a field is stored is determined as follows:
 - Otherwise it will be written as a tag   
 
 ### Tag/attribute name
-The effective name for an attribute is determined as follows:
+Based upon the storage type, the effective name for an attribute is determined as follows:
 - `@XmlSerialName` at property declaration site
 - `@XmlSerialName` at type declaration site
 - `@SerialName` at property declaration site
@@ -116,7 +116,7 @@ The effective name for a tag is determined as follows for normal serializers:
 
 | Annotation | property | description |
 | --- | --- | --- |
-|`@XmlSerialName` | | Specify more detailed name information than can be provided by `kotlinx.serialization.SerialName`. |
+|`@XmlSerialName` | | Specify more detailed name information than can be provided by `kotlinx.serialization.SerialName`. In particular, it is not reliably possible to distinguish between `@SerialName` and the type name. We also need to specify namespace and prefix information. |
 | | `value: String` | the local part of the name |
 | | `namespace: String` | the namespace to use |
 | | `val prefix: String` | The prefix to use |
@@ -126,8 +126,8 @@ The effective name for a tag is determined as follows for normal serializers:
 |`@XmlElement` | | Force a property to be either serialized as tag or attribute. |
 | | `value: Boolean` | `true` to indicate serialization as tag, `false` to indicate serialization as attribute. Note that not all values can be serialized as attribute |
 |`@XmlValue` | | Force a property to be element content. Note that only one field can be element content and tags would not be expected. |
-| `@XmlDefault` | | Older versions of the framework do not support default values. This annotation allows a default value to be specified. The default value will not be written out if matched.
-| | `value: String` | The default value used if no value is specified. The value is parsed as if there was textual substitution of this value into the serialized XML.
+| `@XmlDefault` | | Older versions of the framework do not support default values. This annotation allows a default value to be specified. The default value will not be written out if matched. |
+| | `value: String` | The default value used if no value is specified. The value is parsed as if there was textual substitution of this value into the serialized XML. |
 
 
 ## Special type
