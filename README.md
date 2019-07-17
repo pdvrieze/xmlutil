@@ -1,7 +1,8 @@
 # Versions
 * License: [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
-* Core: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil/_latestVersion) 
-* Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/xmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/xmlutil-serialization/_latestVersion) 
+* Core: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Axmlutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Axmlutil/_latestVersion) 
+* Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Axmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Axmlutil-serialization/_latestVersion) 
+* Serialutil: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Aserialutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Aserialutil/_latestVersion) 
 * Build: [![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
 # Introduction
 
