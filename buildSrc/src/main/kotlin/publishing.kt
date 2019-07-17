@@ -162,15 +162,17 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
 fun Project.fixBintrayModuleUpload() {
     tasks.withType<BintrayUploadTask> {
         doFirst {
-            extensions.getByName<PublishingExtension>("publishing")
-                .publications
-                .filterIsInstance<MavenPublication>()
-                .forEach { publication ->
-                    val moduleFile = buildDir.resolve("publications/${publication.name}/module.json")
-                    if (moduleFile.exists()) {
-                        publication.artifact(object : FileBasedMavenArtifact(moduleFile) {
-                            override fun getDefaultExtension() = "module"
-                        })
+            (project.extensions.findByType<PublishingExtension>())//("publishing") as PublishingExtension?)
+                ?.run {
+                    this.publications
+                    .filterIsInstance<MavenPublication>()
+                    .forEach { publication ->
+                        val moduleFile = buildDir.resolve("publications/${publication.name}/module.json")
+                        if (moduleFile.exists()) {
+                            publication.artifact(object : FileBasedMavenArtifact(moduleFile) {
+                                override fun getDefaultExtension() = "module"
+                            })
+                        }
                     }
                 }
         }
