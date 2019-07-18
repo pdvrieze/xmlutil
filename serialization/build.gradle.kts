@@ -255,6 +255,12 @@ publishing.publications.getByName<MavenPublication>("metadata") {
     artifactId = "xmlutil-serialization-common"
 }
 
+tasks.withType<Test>() {
+    reports {
+        junitXml.isEnabled = true
+    }
+}
+
 extensions.configure<BintrayExtension>("bintray") {
     if (rootProject.hasProperty("bintrayUser")) {
         user = rootProject.property("bintrayUser") as String?
