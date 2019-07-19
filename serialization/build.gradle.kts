@@ -361,7 +361,12 @@ publishing.publications.getByName<MavenPublication>("metadata") {
     artifactId = "xmlutil-serialization-common"
 }
 
+tasks.named("check") {
+    dependsOn(tasks.named("test"))
+}
+
 tasks.withType<Test>() {
+    logger.lifecycle("Enabling xml reports on task ${project.name}:${name}")
     reports {
         junitXml.isEnabled = true
     }
@@ -381,8 +386,6 @@ extensions.configure<BintrayExtension>("bintray") {
 
 
     setPublications(*pubs)
-
-    setPublications(*publishing.publications.map { it.name }.filter { "js" !in it }.toTypedArray())
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
