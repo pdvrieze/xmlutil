@@ -339,7 +339,7 @@ internal open class XmlEncoderBase internal constructor(
                     config.autoPolymorphic &&
                     serializer is PolymorphicSerializer<*>
                          -> {
-                        val baseClass = serializer.getBaseClass()
+                        val baseClass = serializer.baseClass
                         val childCollector = ChildCollector(baseClass)
                         context.dumpTo(childCollector)
                         childCollector.getPolyInfo(

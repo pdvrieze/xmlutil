@@ -20,13 +20,9 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.PolymorphicSerializer
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.*
 import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.internal.ListLikeSerializer
-import kotlinx.serialization.internal.MissingDescriptorException
 import nl.adaptivity.xmlutil.serialization.impl.arrayMap
 import kotlin.collections.set
 
@@ -57,7 +53,7 @@ object Canary {
         try {
             val childDescs = Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
             return ExtSerialDescriptorImpl(parentDesc, childDescs).also { saverMap[saver] = it }
-        } catch (e: MissingDescriptorException) {
+        } catch (e: SerializationException) {
             return ExtSerialDescriptorImpl(parentDesc, emptyArray()).also { saverMap[saver] = it }
         }
     }
@@ -81,7 +77,7 @@ object Canary {
                 val parentDesc = loader.descriptor
                 val childDescs = try {
                     Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
-                } catch (e: MissingDescriptorException) {
+                } catch (e: SerializationException) {
                     emptyArray<SerialDescriptor>()
                 }
                 ExtSerialDescriptorImpl(parentDesc, childDescs)

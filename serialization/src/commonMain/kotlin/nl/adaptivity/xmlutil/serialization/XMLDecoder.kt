@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
+import nl.adaptivity.xmlutil.serialization.canary.getSafeElementDescriptor
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
