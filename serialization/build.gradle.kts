@@ -283,7 +283,7 @@ extensions.configure<BintrayExtension>("bintray") {
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
-        name = "xmlutil-serialization"
+        name = "net.devrieze:xmlutil-serialization"
         userOrg = "pdvrieze"
         setLicenses("Apache-2.0")
         vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
