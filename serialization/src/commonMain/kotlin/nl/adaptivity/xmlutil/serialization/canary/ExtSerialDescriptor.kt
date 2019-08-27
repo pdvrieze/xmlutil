@@ -20,22 +20,12 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.PolymorphicSerializer
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.SerialKind
-import kotlinx.serialization.internal.MissingDescriptorException
+import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlDefault
 import kotlin.reflect.KClass
 
 interface ExtSerialDescriptor : SerialDescriptor {
-    fun getSafeElementDescriptor(index: Int): SerialDescriptor? {
-        return try {
-            getElementDescriptor(index)
-        } catch (e: MissingDescriptorException) {
-            null
-        }
-    }
+    fun getSafeElementDescriptor(index: Int): SerialDescriptor?
 }
 
 /**
@@ -93,6 +83,21 @@ class NullableSerialDescriptor(val original: SerialDescriptor) : SerialDescripto
 }
 
 
-internal class PolymorphicParentDescriptor(base: SerialDescriptor, val baseClass: KClass<*>): SerialDescriptor by base, ExtSerialDescriptor {
-    constructor(deserializer: PolymorphicSerializer<*>): this(deserializer.descriptor, deserializer.getBaseClass())
+internal class PolymorphicParentDescriptor(private val base: SerialDescriptor, val baseClass: KClass<*>) :
+    SerialDescriptor by base, ExtSerialDescriptor {
+    constructor(deserializer: PolymorphicSerializer<*>) : this(deserializer.descriptor, deserializer.baseClass)
+
+    override fun getSafeElementDescriptor(index: Int): SerialDescriptor? {
+        return base.getSafeElementDescriptor(index)
+    }
+}
+
+fun SerialDescriptor.getSafeElementDescriptor(index: Int): SerialDescriptor? = when (this) {
+    is PolymorphicClassDescriptor -> null
+    is ExtSerialDescriptor -> this.getSafeElementDescriptor(index)
+    else                          -> try {
+        getElementDescriptor(index)
+    } catch (e: SerializationException) {
+        null
+    }
 }
