@@ -32,36 +32,36 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ## Core
 ### multiplatform
 ```
-   implementation("net.devrieze:xmlutil:0.8.0")
+   implementation("net.devrieze:xmlutil:0.13.0.0")
 ```
 ### JVM -- uses the stax API not available on Android
 ```
-   implementation("net.devrieze:xmlutil-jvm:0.8.0")
+   implementation("net.devrieze:xmlutil-jvm:0.13.0.0")
 ```
 ### Android -- Uses the android streaming library
 ```
-   implementation("net.devrieze:xmlutil-android:0.8.0")
+   implementation("net.devrieze:xmlutil-android:0.13.0.0")
 ```
 ### JS -- Wraps DOM
 ```
-   implementation("net.devrieze:xmlutil-js:0.8.0")
+   implementation("net.devrieze:xmlutil-js:0.13.0.0")
 ```
 ## Serialization
 ### multiplatform
 ```
-   implementation("net.devrieze:xmlutil-serialization:0.8.0")
+   implementation("net.devrieze:xmlutil-serialization:0.13.0.0")
 ```
 ### JVM
 ```
-   implementation("net.devrieze:xmlutil-serialization-jvm:0.8.0")
+   implementation("net.devrieze:xmlutil-serialization-jvm:0.13.0.0")
 ```
 ### Android
 ```
-   implementation("net.devrieze:xmlutil-serialization-android:0.8.0")
+   implementation("net.devrieze:xmlutil-serialization-android:0.13.0.0")
 ```
 ### js
 ```
-   implementation("net.devrieze:xmlutil-serialization-js:0.8.0")
+   implementation("net.devrieze:xmlutil-serialization-js:0.13.0.0")
 ```
 
 # Serialization help
