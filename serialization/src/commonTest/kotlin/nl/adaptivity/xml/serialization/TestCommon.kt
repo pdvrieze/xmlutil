@@ -337,6 +337,21 @@ class TestCommon {
 
     }
 
+    class AClassWithXMLPolymorphicNullableChild: TestPolymorphicBase<Container4>(
+        Container4("name2", ChildA("data")),
+        Container4.serializer(),
+        baseModule
+                                                          ) {
+        override val expectedXML: String
+            get() = "<Container4 name=\"name2\"><ChildA valueA=\"data\"/></Container4>"
+        override val expectedNonAutoPolymorphicXML: String
+            get() = expectedXML
+        override val expectedJson: String
+            get() = "{\"name\":\"name2\",\"child\":{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"}}"
+
+
+    }
+
     class ASimplerClassWithUnspecifiedChildren: TestPolymorphicBase<Container3>(
         Container3("name2", listOf(ChildA("data"), ChildB("xxx"), ChildA("yyy"))),
         Container3.serializer(),
