@@ -144,6 +144,9 @@ data class Container2(val name: String, @XmlPolyChildren(arrayOf(".ChildA", "chi
 data class Container3(val xxx: String, @SerialName("member") val members: List<@Polymorphic Base>)
 
 @Serializable
+data class Container4(val name: String, @XmlPolyChildren(arrayOf(".ChildA", "childBNameFromAnnotation=better")) val child: @Polymorphic Base?)
+
+@Serializable
 sealed /*open*/ class SealedParent
 
 val sealedModule = SerializersModule {
