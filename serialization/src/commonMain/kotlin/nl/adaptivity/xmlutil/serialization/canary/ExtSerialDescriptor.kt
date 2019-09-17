@@ -93,7 +93,6 @@ internal class PolymorphicParentDescriptor(private val base: SerialDescriptor, v
 }
 
 fun SerialDescriptor.getSafeElementDescriptor(index: Int): SerialDescriptor? = when (this) {
-    is PolymorphicClassDescriptor -> null
     is ExtSerialDescriptor -> this.getSafeElementDescriptor(index)
     else                          -> try {
         getElementDescriptor(index)
