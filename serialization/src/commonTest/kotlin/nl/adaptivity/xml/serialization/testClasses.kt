@@ -129,6 +129,10 @@ val baseModule = SerializersModule {
 data class ChildA(val valueA: String) : Base()
 
 @Serializable
+@XmlSerialName("valueContainer", namespace="", prefix="")
+data class ValueContainer(@XmlValue(true) val content:String)
+
+@Serializable
 @SerialName("childBNameFromAnnotation")
 @XmlSerialName("childB", namespace = "", prefix = "")
 data class ChildB(val valueB: String) : Base()

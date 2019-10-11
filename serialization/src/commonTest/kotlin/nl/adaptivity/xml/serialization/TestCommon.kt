@@ -50,7 +50,7 @@ class TestCommon {
         val value: T,
         val serializer: KSerializer<T>,
         val serialModule: SerialModule = EmptyModule,
-        private val baseXmlFormat: XML = XML(serialModule),
+        protected val baseXmlFormat: XML = XML(serialModule),
         private val baseJsonFormat: Json = Json(testConfiguration, serialModule)
                               ) {
         abstract val expectedXML: String
@@ -145,6 +145,21 @@ class TestCommon {
             assertEquals(value, xml.parse(serializer, unknownValues))
             assertEquals(QName(XMLConstants.XML_NS_URI, "lang", "xml"), ignoredName)
             assertEquals(true, ignoredIsAttribute)
+        }
+
+    }
+
+    class ValueContainerTest: TestBase<ValueContainer>(
+        ValueContainer("foobar"),
+        ValueContainer.serializer()
+                                                      ) {
+        override val expectedXML: String = "<valueContainer>foobar</valueContainer>"
+        override val expectedJson: String = "{\"content\":\"foobar\"}"
+
+        @Test
+        fun testAlternativeXml() {
+            val alternativeXml = "<valueContainer><![CDATA[foobar]]></valueContainer>"
+            assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
         }
 
     }
