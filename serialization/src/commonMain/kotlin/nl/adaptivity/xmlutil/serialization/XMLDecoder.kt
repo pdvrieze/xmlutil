@@ -693,6 +693,7 @@ internal open class XmlDecoderBase internal constructor(
 
                     when (eventType) {
                         EventType.END_ELEMENT   -> return readElementEnd(desc)
+                        EventType.CDSECT,
                         EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChild()
                         EventType.ATTRIBUTE     -> return indexOf(
                             input.name,
