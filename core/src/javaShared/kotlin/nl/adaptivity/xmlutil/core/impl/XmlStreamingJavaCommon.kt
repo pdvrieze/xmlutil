@@ -61,6 +61,8 @@ abstract class XmlStreamingJavaCommon {
 
     abstract fun newReader(input: CharSequence): XmlReader
 
+    open fun newReader(inputStr: String): XmlReader = newReader(input=inputStr as CharSequence)
+
     abstract fun setFactory(factory: XmlStreamingFactory?)
 
     fun <T : Any> deserializerFor(type: Class<T>) = deserializerFor(type.kotlin)

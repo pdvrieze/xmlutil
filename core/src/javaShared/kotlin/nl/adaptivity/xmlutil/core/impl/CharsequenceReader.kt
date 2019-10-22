@@ -20,11 +20,17 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
+import kotlinx.io.StringReader
 import java.io.Reader
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
-internal class CharsequenceReader(private val sequence: CharSequence) : Reader() {
+internal fun CharsequenceReader(sequence: CharSequence): Reader = when(sequence) {
+    is String -> StringReader(sequence)
+    else -> CharsequenceReader(sequence, 0)
+}
+
+internal class CharsequenceReader(private val sequence: CharSequence, dummy: Int) : Reader() {
     private var pos: Int = 0
     private var mark: Int = 0
 
