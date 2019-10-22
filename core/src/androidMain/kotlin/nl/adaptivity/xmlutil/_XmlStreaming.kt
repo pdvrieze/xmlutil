@@ -87,6 +87,10 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newReader(input)
     }
 
+    override fun newReader(inputStr: String): XmlReader {
+        return factory.newReader(inputStr)
+    }
+
     actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory ?: AndroidStreamingFactory()
     }

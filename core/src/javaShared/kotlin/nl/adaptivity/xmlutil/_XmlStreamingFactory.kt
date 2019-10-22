@@ -26,6 +26,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader
 import java.io.Writer
+import java.io.StringReader
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
@@ -52,4 +53,6 @@ actual interface XmlStreamingFactory {
     fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
 
     fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
+
+    fun newReader(input: String): XmlReader = newReader(StringReader(input))
 }
