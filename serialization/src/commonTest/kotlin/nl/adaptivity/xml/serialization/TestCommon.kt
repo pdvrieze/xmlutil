@@ -158,7 +158,7 @@ class TestCommon {
 
         @Test
         fun testAlternativeXml() {
-            val alternativeXml = "<valueContainer><![CDATA[foobar]]></valueContainer>"
+            val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
             assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
         }
 
