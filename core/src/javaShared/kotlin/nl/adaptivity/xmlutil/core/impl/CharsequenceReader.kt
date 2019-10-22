@@ -72,7 +72,7 @@ internal class CharsequenceReader(private val sequence: CharSequence) : Reader()
             if (pos >= sequence.length) return -1
 
             val origPos = pos
-            for (i in off until (off + len).coerceAtMost(sequence.length - pos)) {
+            for (i in off until (off + len.coerceAtMost(sequence.length - pos))) {
                 cbuf[i] = sequence[pos]
                 pos++
             }
