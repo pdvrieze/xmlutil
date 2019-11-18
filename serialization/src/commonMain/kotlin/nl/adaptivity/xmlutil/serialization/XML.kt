@@ -624,13 +624,20 @@ internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
 
 
 internal fun SerialDescriptor.getValueChild(): Int {
+    for (i in 0 until elementsCount) {
+        if (getElementAnnotations(i).any { it is XmlValue }) return i
+    }
+    return -1
+}
+
+@Deprecated("Use index version that returns -1 for missing child")
+internal fun SerialDescriptor.getValueChildOrThrow(): Int {
     if (elementsCount == 1) {
         return 0
     } else {
-        for (i in 0 until elementsCount) {
-            if (getElementAnnotations(i).any { it is XmlValue }) return i
+        return getValueChild().also {
+            if (it<0) throw XmlSerialException("No value child found for type with descriptor: $this")
         }
-        throw XmlSerialException("No value child found for type with descriptor: $this")
     }
 }
 

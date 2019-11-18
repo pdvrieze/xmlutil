@@ -84,34 +84,50 @@ internal open class XmlCodecBase internal constructor(
             if (index < 0) {
                 return OutputKind.Element
             }
+
+            val valueChildIndex = this.getValueChild()
+
+            fun OutputKind.checkValueChild(): OutputKind = also {
+                if (valueChildIndex >= 0 && index != valueChildIndex && it == OutputKind.Element) {
+                    throw XmlSerialException("Types with an @XmlValue member may not contain other child elements")
+                }
+            }
+
+
             // The children of these are always elements
             when (kind) {
                 StructureKind.LIST,
                 StructureKind.MAP,
                 UnionKind.POLYMORPHIC,
-                UnionKind.SEALED -> return OutputKind.Element
+                UnionKind.SEALED -> return OutputKind.Element.checkValueChild()
             }
-            if (index < elementsCount) {// This can be false for lists, they are always elements anyway
+            if (index == valueChildIndex) {
+                return when (childDesc?.kind) {
+                    null,
+                    is PrimitiveKind      -> OutputKind.Text
+                    is StructureKind.LIST -> throw UnsupportedOperationException("Mixed content for @XmlValue is not yet supported") //OutputKind.Element
+                    else                  -> throw XmlSerialException("@XmlValue annotations can only be put on primitive and list types, not ${childDesc?.kind}")
+                }
+            } else if (index < elementsCount) {// This can be false for lists, they are always elements anyway
                 for (annotation in getElementAnnotations(index)) {
                     when (annotation) {
-                        is XmlChildrenName -> return OutputKind.Element
-                        is XmlElement      -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
-                        is XmlValue        -> if (annotation.value) return OutputKind.Text
+                        is XmlChildrenName -> return OutputKind.Element.checkValueChild()
+                        is XmlElement      -> return if (annotation.value) OutputKind.Element.checkValueChild() else OutputKind.Attribute
                     }
                 }
             }
 
             // Lists are always elements
             if (childDesc != null) {
-                if (childDesc.elementsCount > 1) return OutputKind.Element
+                if (childDesc.elementsCount > 1) return OutputKind.Element.checkValueChild()
                 childDesc.getEntityAnnotations().firstOrNull<XmlElement>()
-                    ?.let { if (it.value) return OutputKind.Element else OutputKind.Attribute }
+                    ?.let { if (it.value) return OutputKind.Element.checkValueChild() else OutputKind.Attribute }
             }
 
             return when (childDesc?.kind) {
                 null,
                 is PrimitiveKind -> OutputKind.Attribute
-                else             -> OutputKind.Element
+                else             -> OutputKind.Element.checkValueChild()
             }
         }
 

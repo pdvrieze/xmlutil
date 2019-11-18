@@ -133,6 +133,9 @@ data class ChildA(val valueA: String) : Base()
 data class ValueContainer(@XmlValue(true) val content:String)
 
 @Serializable
+data class InvalidValueContainer(@XmlValue(true) val content:String, val element: Address)
+
+@Serializable
 @SerialName("childBNameFromAnnotation")
 @XmlSerialName("childB", namespace = "", prefix = "")
 data class ChildB(val valueB: String) : Base()
