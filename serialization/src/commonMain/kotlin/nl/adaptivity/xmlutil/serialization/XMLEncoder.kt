@@ -27,7 +27,6 @@ import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.canary.getBaseClass
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 
 internal open class XmlEncoderBase internal constructor(
@@ -78,6 +77,7 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Attribute -> {
                     target.attribute(serialName.namespaceURI, serialName.localPart, serialName.prefix, value)
                 }
+                OutputKind.Mixed,
                 OutputKind.Text      -> target.text(value)
             }
         }
@@ -94,8 +94,9 @@ internal open class XmlEncoderBase internal constructor(
             val outputKind = parentDesc.outputKind(elementIndex, childDesc)
             when (outputKind) {
                 OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
+                OutputKind.Mixed,
                 OutputKind.Element   -> target.smartStartTag(serialName) { /*No content*/ }
-                else                 -> target.text("Unit")
+                OutputKind.Text -> target.text("Unit")
             }
 
         }
@@ -109,7 +110,9 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
-            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeParams)
+            val isMixed = parentDesc.outputKind(elementIndex, childDesc) ==OutputKind.Mixed
+
+            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeParams, isMixed)
         }
     }
 
@@ -118,7 +121,8 @@ internal open class XmlEncoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         serializer: SerializationStrategy<*>,
-        otherSerializers: Array<out KSerializer<*>>
+        otherSerializers: Array<out KSerializer<*>>,
+        isMixed: Boolean
                                 ): CompositeEncoder {
         val desc = serializer.descriptor
         return when (desc.kind) {
@@ -137,7 +141,8 @@ internal open class XmlEncoderBase internal constructor(
                 parentDesc,
                 elementIndex,
                 serializer,
-                otherSerializers.singleOrNull()
+                otherSerializers.singleOrNull(),
+                isMixed
                                                 ).apply { writeBegin() }
 
             UnionKind.OBJECT,
@@ -150,7 +155,7 @@ internal open class XmlEncoderBase internal constructor(
 
             UnionKind.SEALED,
             UnionKind.POLYMORPHIC ->
-                PolymorphicEncoder(parentNamespace, parentDesc, elementIndex, serializer).apply { writeBegin() }
+                PolymorphicEncoder(parentNamespace, parentDesc, elementIndex, serializer, isMixed).apply { writeBegin() }
         }
     }
 
@@ -260,6 +265,7 @@ internal open class XmlEncoderBase internal constructor(
             when (kind) {
                 OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(requestedName, value)
+                OutputKind.Mixed,
                 OutputKind.Text      -> defer(index, null) { target.text(value) }
             }
         }
@@ -321,7 +327,8 @@ internal open class XmlEncoderBase internal constructor(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
-        serializer: SerializationStrategy<*>
+        serializer: SerializationStrategy<*>,
+        val isMixed: Boolean
                                           ) :
         TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, false), XML.XmlOutput {
 
@@ -396,9 +403,13 @@ internal open class XmlEncoderBase internal constructor(
                                                   ) {
             if (polyChildren != null) {
                 assert(index > 0) // the first element is the type
-                // The name has been set when the type was "written"
-                val encoder = RenamedEncoder(serialName, parentNamespace, desc, index, serializer)
-                serializer.serialize(encoder, value)
+                if (isMixed && serializer.descriptor.kind is PrimitiveKind) {
+                    serializer.serialize(XmlEncoder(parentNamespace, parentDesc, elementIndex, serializer), value)
+                } else {
+                    // The name has been set when the type was "written"
+                    val encoder = RenamedEncoder(serialName, parentNamespace, desc, index, serializer)
+                    serializer.serialize(encoder, value)
+                }
             } else {
                 val encoder = RenamedEncoder(QName("value"), parentNamespace, desc, index, serializer)
                 super.defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
@@ -424,7 +435,8 @@ internal open class XmlEncoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         serializer: SerializationStrategy<*>,
-        val typeParam: KSerializer<*>?
+        val typeParam: KSerializer<*>?,
+        val isMixed: Boolean
                                    ) :
         TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, deferring = false), XML.XmlOutput {
 
@@ -484,6 +496,8 @@ internal open class XmlEncoderBase internal constructor(
                     RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, StringSerializer).encodeString(
                         value
                                                                                                                       )
+                } else if(isMixed){ // Mixed will be a list of strings and other stuff
+                    target.text(value)
                 } else { // The first element is the element count
                     // This must be as a tag with text content as we have a list, attributes cannot represent that
                     target.smartStartTag(serialName) { text(value) }

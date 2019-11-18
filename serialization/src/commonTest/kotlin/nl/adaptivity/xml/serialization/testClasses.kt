@@ -22,7 +22,9 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.serializersModuleOf
 import nl.adaptivity.xmlutil.serialization.*
 
 
@@ -134,6 +136,18 @@ data class ValueContainer(@XmlValue(true) val content:String)
 
 @Serializable
 data class InvalidValueContainer(@XmlValue(true) val content:String, val element: Address)
+
+@Serializable
+data class MixedValueContainer(@XmlValue(true) val data: List<@Polymorphic Any>) {
+    companion object {
+        fun module(): SerialModule {
+            return SerializersModule {
+                polymorphic(Any::class, String::class, StringSerializer)
+                polymorphic(Any::class, Address::class, Address.serializer())
+            }
+        }
+    }
+}
 
 @Serializable
 @SerialName("childBNameFromAnnotation")
