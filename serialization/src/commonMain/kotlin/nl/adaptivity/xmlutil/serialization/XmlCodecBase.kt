@@ -51,7 +51,7 @@ internal open class XmlCodecBase internal constructor(
                     return getElementName(index).toQname()
                 }
                 OutputKind.Text      -> return getElementName(index).toQname(parentNamespace) // Will be ignored anyway
-                else                 -> { // Not an attribute, will take name from type
+                else                 -> { // Not an attribute, will take name from type (mixed will be the same)
                     if (elementsCount > 0) {
                         childDesc?.getEntityAnnotations()?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                         // elementDesc.name is the type for classes, but not for "special kinds" as those have generic names
@@ -105,8 +105,9 @@ internal open class XmlCodecBase internal constructor(
                 return when (childDesc?.kind) {
                     null,
                     is PrimitiveKind      -> OutputKind.Text
-                    is StructureKind.LIST -> throw UnsupportedOperationException("Mixed content for @XmlValue is not yet supported") //OutputKind.Element
-                    else                  -> throw XmlSerialException("@XmlValue annotations can only be put on primitive and list types, not ${childDesc?.kind}")
+                    is UnionKind.POLYMORPHIC,
+                    is StructureKind.LIST -> OutputKind.Mixed
+                    else                  -> OutputKind.Element//throw XmlSerialException("@XmlValue annotations can only be put on primitive and list types, not ${childDesc?.kind}")
                 }
             } else if (index < elementsCount) {// This can be false for lists, they are always elements anyway
                 for (annotation in getElementAnnotations(index)) {

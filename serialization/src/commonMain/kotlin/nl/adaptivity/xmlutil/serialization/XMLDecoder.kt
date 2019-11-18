@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -122,6 +123,7 @@ internal open class XmlDecoderBase internal constructor(
                 OutputKind.Attribute -> throw SerializationException(
                     "Attribute parsing without a concrete index is unsupported"
                                                                     )
+                OutputKind.Mixed     -> input.text//.also { input.next() } // Move to the next element
                 OutputKind.Text      -> input.allText()
             }
             return when {
@@ -194,6 +196,7 @@ internal open class XmlDecoderBase internal constructor(
                 elementIndex,
                 deserializer
                                                      )
+            val isMixed = parentDesc.outputKind(elementIndex, desc) == OutputKind.Mixed
             return when (extDesc.kind) {
                 is PrimitiveKind
                 -> throw AssertionError("A primitive is not a composite")
@@ -212,7 +215,8 @@ internal open class XmlDecoderBase internal constructor(
                             parentDesc,
                             elementIndex,
                             deserializer,
-                            childName
+                            childName,
+                            isMixed
                                         )
                     } else {
                         AnonymousListDecoder(
@@ -222,7 +226,8 @@ internal open class XmlDecoderBase internal constructor(
                             elementIndex,
                             deserializer,
                             polyInfo,
-                            nextListIndex
+                            nextListIndex,
+                            isMixed
                                             )
                     }
                 }
@@ -238,7 +243,8 @@ internal open class XmlDecoderBase internal constructor(
                     parentDesc,
                     elementIndex,
                     deserializer,
-                    polyInfo
+                    polyInfo,
+                    isMixed
                                      )
             }
         }
@@ -312,7 +318,7 @@ internal open class XmlDecoderBase internal constructor(
             when (childDesc?.kind) {
                 // Exception to allow for empty lists. They will read the index even if a 0 size was returned
                 is StructureKind.LIST -> return CompositeDecoder.READ_DONE
-                else -> throw AssertionError("Null objects have no members")
+                else                  -> throw AssertionError("Null objects have no members")
             }
         }
 
@@ -438,11 +444,11 @@ internal open class XmlDecoderBase internal constructor(
                         val actualElementDesc = desc.getSafeElementDescriptor(idx)
 
                         val effectiveElementDesc = when {
-                                actualElementDesc?.kind == StructureKind.LIST
-                                     -> actualElementDesc.getElementDescriptor(0)
+                            actualElementDesc?.kind == StructureKind.LIST
+                                 -> actualElementDesc.getElementDescriptor(0)
 
-                                else -> actualElementDesc
-                            }
+                            else -> actualElementDesc
+                        }
 
                         if (config.autoPolymorphic && effectiveElementDesc is PolymorphicParentDescriptor) {
                             val baseClass = effectiveElementDesc.baseClass
@@ -458,7 +464,8 @@ internal open class XmlDecoderBase internal constructor(
                                     val name =
                                         actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
                                             .normalize()
-                                    polyMap[name] = PolyInfo(actualSerializer.descriptor.name, name, idx, actualSerializer)
+                                    polyMap[name] =
+                                        PolyInfo(actualSerializer.descriptor.name, name, idx, actualSerializer)
                                 }
                             }
                         } else {
@@ -779,6 +786,7 @@ internal open class XmlDecoderBase internal constructor(
             val outputKind = desc.outputKind(index, null)
             return when (outputKind) {
                 OutputKind.Element   -> input.readSimpleElement()
+                OutputKind.Mixed,
                 OutputKind.Text      -> {
                     skipRead = true
                     input.allText()
@@ -843,7 +851,8 @@ internal open class XmlDecoderBase internal constructor(
         elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
         private val polyInfo: PolyInfo?,
-        private val listIndex: Int
+        private val listIndex: Int,
+        val isMixed: Boolean
                                              ) :
         TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, deserializer) {
 
@@ -901,6 +910,10 @@ internal open class XmlDecoderBase internal constructor(
             return deserializer.patch(decoder, old)
         }
 
+        override fun endStructure(desc: SerialDescriptor) {
+            // Do nothing. There are no tags. Verifying the presence of an end tag here is invalid
+        }
+
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return 1
         }
@@ -912,7 +925,8 @@ internal open class XmlDecoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
-        private val childName: QName
+        private val childName: QName,
+        val isMixed: Boolean
                                          ) :
         TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, deserializer) {
         override val updateMode: UpdateMode get() = UpdateMode.UPDATE
@@ -965,11 +979,12 @@ internal open class XmlDecoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
-        private val polyInfo: PolyInfo?
+        private val polyInfo: PolyInfo?,
+        val isMixed: Boolean
                                            ) :
         TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, deserializer) {
 
-        private val transparent get() = polyInfo != null
+        private val transparent get() = polyInfo != null || (isMixed && config.autoPolymorphic)
         private var nextIndex = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
@@ -980,11 +995,16 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {
+
             return when (index) {
-                0    -> when (polyInfo) {
-                    null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.name)
+                0    -> when {
+                    isMixed && (input.eventType == EventType.TEXT ||
+                            input.eventType == EventType.CDSECT)
+                                     -> StringDescriptor.name
+
+                    polyInfo == null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.name)
                         ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
-                    else -> polyInfo.describedName
+                    else             -> polyInfo.describedName
                 }
                 else -> super.decodeStringElement(desc, index)
             }
@@ -1011,8 +1031,13 @@ internal open class XmlDecoderBase internal constructor(
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.START_ELEMENT, null, "value")
+                return super.decodeSerializableElement(desc, index, deserializer)
             }
-            return super.decodeSerializableElement(desc, index, deserializer)
+            if (isMixed && deserializer.descriptor.kind is PrimitiveKind) {
+                return deserializer.deserialize(XmlDecoder(parentNamespace, parentDesc, elementIndex, deserializer, desc))
+            } else {
+                return super.decodeSerializableElement(parentDesc, elementIndex, deserializer)
+            }
         }
 
         override fun <T> updateSerializableElement(
@@ -1033,7 +1058,9 @@ internal open class XmlDecoderBase internal constructor(
                 input.nextTag()
                 input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             }
-            super.endStructure(desc)
+            if (!isMixed || !config.autoPolymorphic) { // Don't check in mixed mode as we could have just had raw text
+                super.endStructure(desc)
+            }
         }
     }
 

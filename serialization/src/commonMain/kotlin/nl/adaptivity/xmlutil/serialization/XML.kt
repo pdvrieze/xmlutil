@@ -601,7 +601,7 @@ internal fun SerialDescriptor.getSerialName(prefix: String? = null): QName {
         ?: QName(name.substringAfterLast('.'))
 }
 
-internal enum class OutputKind { Element, Attribute, Text; }
+internal enum class OutputKind { Element, Attribute, Text, Mixed; }
 
 internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
 

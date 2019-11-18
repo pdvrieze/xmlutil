@@ -82,8 +82,8 @@ class TestCommon {
 
     }
 
-    abstract class TestPolymorphicBase<T>(value: T, serializer: KSerializer<T>, serialModule: SerialModule)
-        :TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }) {
+    abstract class TestPolymorphicBase<T>(value: T, serializer: KSerializer<T>, serialModule: SerialModule, baseJsonFormat: Json= Json(testConfiguration, serialModule))
+        :TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }, baseJsonFormat) {
 
         abstract val expectedNonAutoPolymorphicXML: String
 
@@ -161,6 +161,19 @@ class TestCommon {
             val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
             assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
         }
+
+    }
+
+    @UnstableDefault
+    class MixedValueContainerTest: TestPolymorphicBase<MixedValueContainer>(
+        MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"),"bar")),
+        MixedValueContainer.serializer(),
+        MixedValueContainer.module(),
+        baseJsonFormat = Json(JsonConfiguration(useArrayPolymorphism = true), context = MixedValueContainer.module())
+                                                                ) {
+        override val expectedXML: String = "<MixedValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</MixedValueContainer>"
+        override val expectedNonAutoPolymorphicXML: String = "<MixedValueContainer><data type=\"kotlin.String\"><value>foo</value></data><data type=\".Address\"><value houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></data><data type=\"kotlin.String\"><value>bar</value></data></MixedValueContainer>"
+        override val expectedJson: String = "{\"data\":[[\"kotlin.String\",\"foo\"],[\"nl.adaptivity.xml.serialization.Address\",{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}],[\"kotlin.String\",\"bar\"]]}"
 
     }
 
