@@ -333,7 +333,7 @@ internal open class XmlEncoderBase internal constructor(
                 when {
                     xmlPolyChildren != null
                          -> polyInfo(
-                        parentDesc.requestedName(parentNamespace, elementIndex, parentDesc),
+                        parentDesc.requestedName(parentNamespace, elementIndex, null),
                         xmlPolyChildren.value
                                     )
                     config.autoPolymorphic &&
@@ -344,7 +344,7 @@ internal open class XmlEncoderBase internal constructor(
                         context.dumpTo(childCollector)
                         childCollector.getPolyInfo(
                             this,
-                            parentDesc.requestedName(parentNamespace, elementIndex, parentDesc)
+                            parentDesc.requestedName(parentNamespace, elementIndex, null)
                                                   )
                     }
 
