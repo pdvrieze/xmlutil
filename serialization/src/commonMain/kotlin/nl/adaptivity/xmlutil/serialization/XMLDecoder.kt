@@ -309,7 +309,11 @@ internal open class XmlDecoderBase internal constructor(
         override fun endStructure(desc: SerialDescriptor) {}
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            return CompositeDecoder.READ_ALL // Let the reader worry about position (and only read the size: 0)
+            when (childDesc?.kind) {
+                // Exception to allow for empty lists. They will read the index even if a 0 size was returned
+                is StructureKind.LIST -> return CompositeDecoder.READ_DONE
+                else -> throw AssertionError("Null objects have no members")
+            }
         }
 
         override fun <T> updateSerializableElement(
@@ -966,9 +970,13 @@ internal open class XmlDecoderBase internal constructor(
         TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, deserializer) {
 
         private val transparent get() = polyInfo != null
+        private var nextIndex = 0
 
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
-            return CompositeDecoder.READ_ALL // We don't need housekeeping this way
+            when (nextIndex) {
+                0, 1 -> return nextIndex++
+                else -> return CompositeDecoder.READ_DONE
+            }
         }
 
         override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {

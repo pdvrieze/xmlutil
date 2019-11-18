@@ -120,13 +120,16 @@ object Canary {
 
     private class CollectionElementLoaderCanary : Decoder, CompositeDecoder {
         lateinit var actualDeserializer: DeserializationStrategy<*>
+        var nextIdx = 0
 
         override fun decodeCollectionSize(desc: SerialDescriptor): Int {
             return 1 // always one element
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int
-                = CompositeDecoder.READ_ALL
+        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+            if (nextIdx>=desc.elementsCount) return CompositeDecoder.READ_DONE
+            return nextIdx++
+        }
 
         override fun <T> decodeSerializableElement(
             desc: SerialDescriptor,
