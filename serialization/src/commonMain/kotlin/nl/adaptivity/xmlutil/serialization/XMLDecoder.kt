@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
-import nl.adaptivity.xmlutil.serialization.canary.getSafeElementDescriptor
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
@@ -694,7 +693,7 @@ internal open class XmlDecoderBase internal constructor(
                     when (eventType) {
                         EventType.END_ELEMENT   -> return readElementEnd(desc)
                         EventType.CDSECT,
-                        EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChild()
+                        EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChildOrThrow()
                         EventType.ATTRIBUTE     -> return indexOf(
                             input.name,
                             true

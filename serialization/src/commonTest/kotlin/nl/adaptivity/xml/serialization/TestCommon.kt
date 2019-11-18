@@ -33,11 +33,11 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.UnknownXmlFieldException
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.serialization.serializer
 import nl.adaptivity.xmlutil.util.CompactFragment
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.reflect.typeOf
+import kotlin.test.*
 
 private fun String.normalize() = replace(" />", "/>")
 
@@ -160,6 +160,52 @@ class TestCommon {
         fun testAlternativeXml() {
             val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
             assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
+        }
+
+    }
+
+    class InvalidValueContainerTest {
+        val format = XML()
+        val data = InvalidValueContainer("foobar", Address("10", "Downing Street", "London"))
+        val serializer = InvalidValueContainer.serializer()
+        val invalidXML1: String = "<InvalidValueContainer><address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>foobar</InvalidValueContainer>"
+        val invalidXML2: String = "<InvalidValueContainer>foobar<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></InvalidValueContainer>"
+        val invalidXML3: String = "<InvalidValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</InvalidValueContainer>"
+
+        @Test
+        fun testSerializeInvalid() {
+            val e = assertFails {
+                format.stringify(serializer, data)
+            }
+            assertTrue(e is XmlSerialException)
+            assertTrue(e.message?.contains("@XmlValue")==true)
+        }
+
+        @Test
+        fun testDeserializeInvalid1() {
+            val e = assertFails {
+                format.parse(serializer, invalidXML1)
+            }
+            assertTrue(e is XmlSerialException)
+            assertTrue(e.message?.contains("@XmlValue")==true)
+        }
+
+        @Test
+        fun testDeserializeInvalid2() {
+            val e = assertFails {
+                format.parse(serializer, invalidXML2)
+            }
+            assertTrue(e is XmlSerialException)
+            assertTrue(e.message?.contains("@XmlValue")==true)
+        }
+
+        @Test
+        fun testDeserializeInvalid3() {
+            val e = assertFails {
+                format.parse(serializer, invalidXML3)
+            }
+            assertTrue(e is XmlSerialException)
+            assertTrue(e.message?.contains("@XmlValue")==true)
         }
 
     }
