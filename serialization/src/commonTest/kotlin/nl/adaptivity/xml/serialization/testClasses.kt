@@ -181,6 +181,7 @@ val sealedModule = SerializersModule {
 data class SealedA(val data: String, val extra: String = "2") : SealedParent()
 
 @Serializable
+@XmlSerialName("SealedB_renamed", "", "")
 data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
 
 @Serializable
