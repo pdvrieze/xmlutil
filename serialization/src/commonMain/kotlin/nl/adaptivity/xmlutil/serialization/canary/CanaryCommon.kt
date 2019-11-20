@@ -47,7 +47,7 @@ interface CanaryCommon {
 
     }
 
-    fun setCurrentEnumChildType(enumDescription: EnumDescriptor) {
+    fun setCurrentEnumChildType(enumDescription: SerialDescriptor) {
         if (currentChildIndex < 0) {
             kSerialClassDesc = enumDescription
         } else if (currentChildIndex < childDescriptors.size) {

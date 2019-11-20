@@ -105,7 +105,7 @@ internal open class XmlDecoderBase internal constructor(
             return decodeStringImpl(false)
         }
 
-        override fun decodeEnum(enumDescription: EnumDescriptor): Int {
+        override fun decodeEnum(enumDescription: SerialDescriptor): Int {
             val name = decodeString()
             return enumDescription.getElementIndex(name)
         }
@@ -235,8 +235,7 @@ internal open class XmlDecoderBase internal constructor(
                 UnionKind.ENUM_KIND
                 -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, deserializer)
 
-                UnionKind.SEALED,
-                UnionKind.POLYMORPHIC
+                is PolymorphicKind
                 -> PolymorphicDecoder(
                     serialName,
                     serialName.toNamespace(),
@@ -470,13 +469,13 @@ internal open class XmlDecoderBase internal constructor(
                             }
                         } else {
                             val tagName = when (actualElementDesc?.kind) {
-                                UnionKind.SEALED, // For now sealed is treated like polymorphic. We can't enumerate elements yet.
-                                UnionKind.POLYMORPHIC -> desc.getElementName(idx).toQname(serialName.toNamespace())
-                                else                  -> desc.requestedName(
+                                is PolymorphicKind -> // TODO For now sealed is treated like polymorphic. We can't enumerate elements yet.
+                                    desc.getElementName(idx).toQname(serialName.toNamespace())
+                                else               -> desc.requestedName(
                                     serialName.toNamespace(),
                                     idx,
                                     actualElementDesc
-                                                                           )
+                                                                        )
                             }
                             nameMap[tagName.normalize()] = idx
                         }
@@ -1034,7 +1033,15 @@ internal open class XmlDecoderBase internal constructor(
                 return super.decodeSerializableElement(desc, index, deserializer)
             }
             if (isMixed && deserializer.descriptor.kind is PrimitiveKind) {
-                return deserializer.deserialize(XmlDecoder(parentNamespace, parentDesc, elementIndex, deserializer, desc))
+                return deserializer.deserialize(
+                    XmlDecoder(
+                        parentNamespace,
+                        parentDesc,
+                        elementIndex,
+                        deserializer,
+                        desc
+                              )
+                                               )
             } else {
                 return super.decodeSerializableElement(parentDesc, elementIndex, deserializer)
             }

@@ -27,7 +27,7 @@ import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerialModuleCollector
 import kotlin.reflect.KClass
 
-@Deprecated("Use property", ReplaceWith("this.baseClass"))
+@Deprecated("Use property", ReplaceWith("this.baseClass"), DeprecationLevel.ERROR)
 fun PolymorphicSerializer<*>.getBaseClass(): KClass<*> {
     return baseClass
 }

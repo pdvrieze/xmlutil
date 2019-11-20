@@ -98,14 +98,13 @@ internal open class XmlCodecBase internal constructor(
             when (kind) {
                 StructureKind.LIST,
                 StructureKind.MAP,
-                UnionKind.POLYMORPHIC,
-                UnionKind.SEALED -> return OutputKind.Element.checkValueChild()
+                is PolymorphicKind -> return OutputKind.Element.checkValueChild()
             }
             if (index == valueChildIndex) {
                 return when (childDesc?.kind) {
                     null,
                     is PrimitiveKind      -> OutputKind.Text
-                    is UnionKind.POLYMORPHIC,
+                    is PolymorphicKind,
                     is StructureKind.LIST -> OutputKind.Mixed
                     else                  -> OutputKind.Element//throw XmlSerialException("@XmlValue annotations can only be put on primitive and list types, not ${childDesc?.kind}")
                 }

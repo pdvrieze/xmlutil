@@ -48,7 +48,7 @@ private class HashEncoder(override val context: SerialModule) : Encoder {
         hash = value.hashCode()
     }
 
-    override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
         hash = enumDescription.getElementName(ordinal).hashCode()
     }
 
