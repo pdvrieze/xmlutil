@@ -341,7 +341,17 @@ internal open class XmlEncoderBase internal constructor(
                         parentDesc.requestedName(parentNamespace, elementIndex, null),
                         xmlPolyChildren.value
                                     )
-                    config.autoPolymorphic &&
+                    ! config.autoPolymorphic -> null // Don't help for the non-auto case
+                    serializer.descriptor.kind == PolymorphicKind.SEALED -> {
+                        val d = serializer.descriptor
+                        XmlNameMap().apply {
+                            for (i in 0 until d.elementsCount) {
+                                val childName = d.requestedName(parentNamespace, i, d.getElementDescriptor(i))
+                                registerClass(childName, d.getElementDescriptor(i).name, false)
+                            }
+                        }
+                    }
+
                     serializer is PolymorphicSerializer<*>
                          -> {
                         val baseClass = serializer.baseClass

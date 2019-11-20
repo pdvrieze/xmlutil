@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
@@ -433,21 +432,31 @@ internal open class XmlDecoderBase internal constructor(
             val desc = this.desc as ExtSerialDescriptor
 
             for (idx in 0 until desc.elementsCount) {
-                desc.getElementAnnotations(idx).firstOrNull<XmlPolyChildren>().let { xmlPolyChildren ->
-                    if (xmlPolyChildren != null) {
-                        for (child in xmlPolyChildren.value) {
-                            val polyInfo = polyTagName(serialName, child, idx)
-                            polyMap[polyInfo.tagName.normalize()] = polyInfo
+                val xmlPolyChildren = desc.getElementAnnotations(idx).firstOrNull<XmlPolyChildren>()
+
+                if (xmlPolyChildren != null) {
+                    for (child in xmlPolyChildren.value) {
+                        val polyInfo = polyTagName(serialName, child, idx)
+                        polyMap[polyInfo.tagName.normalize()] = polyInfo
+                    }
+                } else {
+                    val actualElementDesc = desc.getSafeElementDescriptor(idx)
+                    val effectiveElementDesc = when {
+                        actualElementDesc?.kind == StructureKind.LIST
+                             -> actualElementDesc.getElementDescriptor(0)
+
+                        else -> actualElementDesc
+                    }
+                    // Only when we do automatic polymorphism do we elide the type descriptors. This is also true
+                    // for sealed classes where we can determine all children from the descriptor.
+                    if (config.autoPolymorphic && effectiveElementDesc?.kind == PolymorphicKind.SEALED) {
+                        for(i in 0 until effectiveElementDesc.elementsCount) {
+                            val klassName = effectiveElementDesc.getElementDescriptor(i).name
+                            val childName = effectiveElementDesc.requestedName(parentNamespace, i, effectiveElementDesc.getElementDescriptor(i))
+                            polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx)
                         }
                     } else {
-                        val actualElementDesc = desc.getSafeElementDescriptor(idx)
 
-                        val effectiveElementDesc = when {
-                            actualElementDesc?.kind == StructureKind.LIST
-                                 -> actualElementDesc.getElementDescriptor(0)
-
-                            else -> actualElementDesc
-                        }
 
                         if (config.autoPolymorphic && effectiveElementDesc is PolymorphicParentDescriptor) {
                             val baseClass = effectiveElementDesc.baseClass
@@ -480,7 +489,6 @@ internal open class XmlDecoderBase internal constructor(
                             nameMap[tagName.normalize()] = idx
                         }
                     }
-
                 }
             }
             polyChildren = polyMap

@@ -463,7 +463,7 @@ class TestCommon {
     class AContainerWithSealedChildren: TestPolymorphicBase<Sealed>(
         Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
         Sealed.serializer(),
-        sealedModule
+        EmptyModule//sealedModule
                                                                    ) {
         override val expectedXML: String
             get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
