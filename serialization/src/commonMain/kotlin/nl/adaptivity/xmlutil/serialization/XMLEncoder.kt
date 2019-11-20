@@ -347,7 +347,7 @@ internal open class XmlEncoderBase internal constructor(
                         XmlNameMap().apply {
                             for (i in 0 until d.elementsCount) {
                                 val childName = d.requestedName(parentNamespace, i, d.getElementDescriptor(i))
-                                registerClass(childName, d.getElementDescriptor(i).name, false)
+                                registerClass(childName, d.getElementDescriptor(i).name, true)
                             }
                         }
                     }

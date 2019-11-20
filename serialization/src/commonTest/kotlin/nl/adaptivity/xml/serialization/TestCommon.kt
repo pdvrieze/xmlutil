@@ -466,7 +466,7 @@ class TestCommon {
         EmptyModule//sealedModule
                                                                    ) {
         override val expectedXML: String
-            get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB main=\"b-data\" ext=\"0.5\"/></Sealed>"
+            get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB_renamed main=\"b-data\" ext=\"0.5\"/></Sealed>"
         override val expectedJson: String
             get() = "{\"name\":\"mySealed\",\"members\":[{\"type\":\"nl.adaptivity.xml.serialization.SealedA\",\"data\":\"a-data\",\"extra\":\"2\"},{\"type\":\"nl.adaptivity.xml.serialization.SealedB\",\"main\":\"b-data\",\"ext\":0.5}]}"
         override val expectedNonAutoPolymorphicXML: String
