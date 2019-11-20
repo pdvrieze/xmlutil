@@ -187,7 +187,7 @@ data class SealedB(val main: String, val ext: Float = 0.5F) : SealedParent()
 data class Sealed(
     val name: String,
     @XmlSerialName("member", "", "")
-    val members: List<@Polymorphic SealedParent>
+    val members: List<SealedParent>
                  )
 
 @Serializable
