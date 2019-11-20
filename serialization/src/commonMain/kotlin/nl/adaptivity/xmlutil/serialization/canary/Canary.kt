@@ -185,7 +185,7 @@ object Canary {
         override fun decodeDouble(): Nothing
                 = throw UnsupportedOperationException("Not valid here")
 
-        override fun decodeEnum(enumDescription: EnumDescriptor): Nothing
+        override fun decodeEnum(enumDescription: SerialDescriptor): Nothing
                 = throw UnsupportedOperationException("Not valid here")
 
         override fun decodeFloat(): Nothing

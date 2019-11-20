@@ -102,12 +102,12 @@ kotlin {
             }
         }
 
-        forEach { target ->
-            target.mavenPublication {
-                groupId = "net.devrieze"
-                artifactId = "serialutil-${target.targetName}"
-                version = xmlutil_version
-            }
+    }
+    targets.forEach { target ->
+        target.mavenPublication {
+            groupId = "net.devrieze"
+            artifactId = "serialutil-${target.targetName}"
+            version = xmlutil_version
         }
     }
 

@@ -82,7 +82,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
+        override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
             encodeString(enumDescription.getElementName(ordinal))
         }
 
@@ -152,9 +152,7 @@ internal open class XmlEncoderBase internal constructor(
                 elementIndex,
                 serializer
                                                ).apply { writeBegin() }
-
-            UnionKind.SEALED,
-            UnionKind.POLYMORPHIC ->
+            is PolymorphicKind ->
                 PolymorphicEncoder(parentNamespace, parentDesc, elementIndex, serializer, isMixed).apply { writeBegin() }
         }
     }
