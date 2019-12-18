@@ -27,16 +27,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlEvent
-import nl.adaptivity.xmlutil.serialization.UnknownXmlFieldException
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlSerialException
-import nl.adaptivity.xmlutil.serialization.serializer
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
-import kotlin.reflect.typeOf
 import kotlin.test.*
 
 private fun String.normalize() = replace(" />", "/>")
@@ -397,16 +392,16 @@ class TestCommon {
     }
 
     class AClassWithMultipleChildren: TestPolymorphicBase<Container2>(
-        Container2("name2", listOf(ChildA("data"), ChildB("xxx"))),
+        Container2("name2", listOf(ChildA("data"), ChildB(1, 2, 3, "xxx"))),
         Container2.serializer(),
         baseModule
                                                           ) {
         override val expectedXML: String
-            get() = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better valueB=\"xxx\"/></Container2>"
+            get() = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better a=\"1\" b=\"2\" c=\"3\" valueB=\"xxx\"/></Container2>"
         override val expectedNonAutoPolymorphicXML: String
             get() = expectedXML
         override val expectedJson: String
-            get() = "{\"name\":\"name2\",\"children\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"valueB\":\"xxx\"}]}"
+            get() = "{\"name\":\"name2\",\"children\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"a\":1,\"b\":2,\"c\":3,\"valueB\":\"xxx\"}]}"
 
 
     }
@@ -427,16 +422,16 @@ class TestCommon {
     }
 
     class ASimplerClassWithUnspecifiedChildren: TestPolymorphicBase<Container3>(
-        Container3("name2", listOf(ChildA("data"), ChildB("xxx"), ChildA("yyy"))),
+        Container3("name2", listOf(ChildA("data"), ChildB(4, 5, 6, "xxx"), ChildA("yyy"))),
         Container3.serializer(),
         baseModule
                                                                                ) {
         override val expectedXML: String
-            get() = "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
+            get() = "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
         override val expectedJson: String
-            get() = "{\"xxx\":\"name2\",\"member\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"valueB\":\"xxx\"},{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"yyy\"}]}"
+            get() = "{\"xxx\":\"name2\",\"member\":[{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"a\":4,\"b\":5,\"c\":6,\"valueB\":\"xxx\"},{\"type\":\"nl.adaptivity.xml.serialization.ChildA\",\"valueA\":\"yyy\"}]}"
         override val expectedNonAutoPolymorphicXML: String
-            get() = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"childBNameFromAnnotation\"><value valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
+            get() = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"data\"/></member><member type=\"childBNameFromAnnotation\"><value a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
     }
 
 
@@ -473,5 +468,16 @@ class TestCommon {
             get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
     }
 
+    class ComplexSealedTest: TestBase<ComplexSealedHolder>(
+        ComplexSealedHolder("a", 1, 1f, OptionB(5, 6, 7)),
+        ComplexSealedHolder.serializer(),
+        EmptyModule,
+        XML(XmlConfig(autoPolymorphic = true))
+                                                          ) {
+        override val expectedXML: String
+            get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.0\"><OptionB g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"
+        override val expectedJson: String
+            get() = "{\"a\":\"a\",\"b\":1,\"c\":1.0,\"options\":{\"type\":\"nl.adaptivity.xml.serialization.OptionB\",\"g\":5,\"h\":6,\"i\":7}}"
+    }
 
 }

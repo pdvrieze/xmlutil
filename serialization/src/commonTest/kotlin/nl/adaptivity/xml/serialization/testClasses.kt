@@ -152,7 +152,7 @@ data class MixedValueContainer(@XmlValue(true) val data: List<@Polymorphic Any>)
 @Serializable
 @SerialName("childBNameFromAnnotation")
 @XmlSerialName("childB", namespace = "", prefix = "")
-data class ChildB(val valueB: String) : Base()
+data class ChildB(val a: Int, val b: Int, val c: Int, val valueB: String) : Base()
 
 @Serializable
 data class Container(val label: String, @Polymorphic val member: Base)
@@ -193,3 +193,51 @@ data class Sealed(
 
 @Serializable
 data class SealedSingle(val name: String, val member: SealedA)
+
+@Serializable
+sealed class Option
+
+@Serializable
+class OptionA(val d:Int, val e:Int, val f: Int): Option() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OptionA) return false
+
+        if (d != other.d) return false
+        if (e != other.e) return false
+        if (f != other.f) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = d
+        result = 31 * result + e
+        result = 31 * result + f
+        return result
+    }
+}
+
+@Serializable
+class OptionB(val g:Int, val h:Int, val i: Int): Option() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OptionB) return false
+
+        if (g != other.g) return false
+        if (h != other.h) return false
+        if (i != other.i) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = g
+        result = 31 * result + h
+        result = 31 * result + i
+        return result
+    }
+}
+
+@Serializable
+data class ComplexSealedHolder(val a: String, val b: Int, val c:Float, val options:Option?)
