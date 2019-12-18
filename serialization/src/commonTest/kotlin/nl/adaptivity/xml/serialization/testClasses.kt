@@ -24,7 +24,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.serializersModuleOf
 import nl.adaptivity.xmlutil.serialization.*
 
 
@@ -198,6 +197,9 @@ data class SealedSingle(val name: String, val member: SealedA)
 sealed class Option
 
 @Serializable
+sealed class OptionB: Option()
+
+@Serializable
 class OptionA(val d:Int, val e:Int, val f: Int): Option() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -219,10 +221,10 @@ class OptionA(val d:Int, val e:Int, val f: Int): Option() {
 }
 
 @Serializable
-class OptionB(val g:Int, val h:Int, val i: Int): Option() {
+class OptionB1(val g:Int, val h:Int, val i: Int): OptionB() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is OptionB) return false
+        if (other !is OptionB1) return false
 
         if (g != other.g) return false
         if (h != other.h) return false
@@ -235,6 +237,27 @@ class OptionB(val g:Int, val h:Int, val i: Int): Option() {
         var result = g
         result = 31 * result + h
         result = 31 * result + i
+        return result
+    }
+}
+
+@Serializable
+class OptionB2(val j:Int, val k:Int, val l: Int): OptionB() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OptionB2) return false
+
+        if (j != other.j) return false
+        if (k != other.k) return false
+        if (l != other.l) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = j
+        result = 31 * result + k
+        result = 31 * result + l
         return result
     }
 }
