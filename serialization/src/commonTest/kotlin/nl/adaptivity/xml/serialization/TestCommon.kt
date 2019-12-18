@@ -469,15 +469,15 @@ class TestCommon {
     }
 
     class ComplexSealedTest: TestBase<ComplexSealedHolder>(
-        ComplexSealedHolder("a", 1, 1f, OptionB1(5, 6, 7)),
+        ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
         ComplexSealedHolder.serializer(),
         EmptyModule,
         XML(XmlConfig(autoPolymorphic = true))
                                                           ) {
         override val expectedXML: String
-            get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.0\"><OptionB1 g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"
+            get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.5\"><OptionB1 g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"
         override val expectedJson: String
-            get() = "{\"a\":\"a\",\"b\":1,\"c\":1.0,\"options\":{\"type\":\"nl.adaptivity.xml.serialization.OptionB1\",\"g\":5,\"h\":6,\"i\":7}}"
+            get() = "{\"a\":\"a\",\"b\":1,\"c\":1.5,\"options\":{\"type\":\"nl.adaptivity.xml.serialization.OptionB1\",\"g\":5,\"h\":6,\"i\":7}}"
     }
 
 }
