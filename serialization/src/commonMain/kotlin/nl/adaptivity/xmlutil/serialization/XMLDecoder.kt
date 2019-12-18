@@ -1051,7 +1051,7 @@ internal open class XmlDecoderBase internal constructor(
                               )
                                                )
             } else {
-                return super.decodeSerializableElement(parentDesc, elementIndex, deserializer)
+                return super.decodeSerializableElement(desc, index, deserializer)
             }
         }
 
