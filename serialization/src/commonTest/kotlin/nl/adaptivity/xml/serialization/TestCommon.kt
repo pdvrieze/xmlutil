@@ -491,7 +491,7 @@ class TestCommon {
             get() = "{\"a\":\"a\",\"b\":1,\"c\":1.5,\"options\":{\"type\":\"nl.adaptivity.xml.serialization.OptionB1\",\"g\":5,\"h\":6,\"i\":7}}"
     }
 
-    class NullableListTest : TestBase<NullList>(
+    class NullableListTestWithElements : TestBase<NullList>(
         NullList("A String", listOf(
                 NullListElement("Another String1"),
                 NullListElement("Another String2")
@@ -502,6 +502,17 @@ class TestCommon {
             get() = "<Baz><Str>A String</Str><Bar><AnotherStr>Another String1</AnotherStr></Bar><Bar><AnotherStr>Another String2</AnotherStr></Bar></Baz>"
         override val expectedJson: String
             get() = "{\"Str\":\"A String\",\"Bar\":[{\"AnotherStr\":\"Another String1\"},{\"AnotherStr\":\"Another String2\"}]}"
+    }
+
+    class NullableListTestNull : TestBase<NullList>(
+        NullList("A String"),
+        NullList.serializer()
+                                               ) {
+        override val expectedXML: String
+            get() = "<Baz><Str>A String</Str></Baz>"
+        override val expectedJson: String
+            get() = "{\"Str\":\"A String\",\"Bar\":null}"
+
     }
 
 }
