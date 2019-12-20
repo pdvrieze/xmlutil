@@ -317,6 +317,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeElementIndex(desc: SerialDescriptor): Int {
             when (childDesc?.kind) {
                 // Exception to allow for empty lists. They will read the index even if a 0 size was returned
+                is StructureKind.MAP,
                 is StructureKind.LIST -> return CompositeDecoder.READ_DONE
                 else                  -> throw AssertionError("Null objects have no members")
             }
@@ -493,49 +494,13 @@ internal open class XmlDecoderBase internal constructor(
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
-        override fun <T> decodeSerializableElement(
+        private fun <T> serialElementDecoder(
             desc: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
-                                                  ): T {
+                                            ): XmlDecoder? {
             val decoder = when {
-                nulledItemsIdx >= 0
-                     -> NullDecoder(parentNamespace, desc, index, deserializer)
-
-                desc.kind is PrimitiveKind
-                     -> XmlDecoder(
-                    parentNamespace,
-                    desc,
-                    index,
-                    deserializer,
-                    deserializer.descriptor,
-                    currentPolyInfo,
-                    lastAttrIndex
-                                  )
-
-                else -> SerialValueDecoder(
-                    parentNamespace,
-                    desc,
-                    index,
-                    deserializer,
-                    Canary.serialDescriptor(deserializer),
-                    currentPolyInfo,
-                    lastAttrIndex
-                                          )
-            }
-
-            return deserializer.deserialize(decoder).also {
-                seenItems[index] = true
-            }
-        }
-
-        override fun <T : Any> decodeNullableSerializableElement(
-            desc: SerialDescriptor,
-            index: Int,
-            deserializer: DeserializationStrategy<T?>
-                                                                ): T? {
-            val decoder = when {
-                nulledItemsIdx >= 0 -> return null
+                nulledItemsIdx >= 0 -> null
                 deserializer.descriptor.kind is PrimitiveKind
                                     -> XmlDecoder(
                     parentNamespace,
@@ -557,10 +522,31 @@ internal open class XmlDecoderBase internal constructor(
                     lastAttrIndex
                                                          )
             }
+            return decoder
+        }
 
-            return deserializer.deserialize(decoder).also {
-                seenItems[index] = true
-            }
+        override fun <T> decodeSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T>
+                                                  ): T {
+            val decoder = serialElementDecoder(desc, index, deserializer) ?: NullDecoder(parentNamespace, desc, index, deserializer)
+
+            val result = deserializer.deserialize(decoder)
+            seenItems[index] = true
+            return result
+        }
+
+        override fun <T : Any> decodeNullableSerializableElement(
+            desc: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T?>
+                                                                ): T? {
+            val decoder = serialElementDecoder(desc, index, deserializer)
+
+            val result = decoder?.let{ deserializer.deserialize(it) }
+            seenItems[index] = true
+            return result
         }
 
         override fun <T> updateSerializableElement(
@@ -569,32 +555,11 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
-            val decoder: XmlDecoder = when {
-                nulledItemsIdx >= 0 -> NullDecoder(parentNamespace, desc, index, deserializer)
+            val decoder = serialElementDecoder(desc, index, deserializer) ?: NullDecoder(parentNamespace, desc, index, deserializer)
 
-                desc.kind is PrimitiveKind
-                                    -> XmlDecoder(
-                    parentNamespace,
-                    desc,
-                    index,
-                    deserializer,
-                    deserializer.descriptor,
-                    currentPolyInfo,
-                    lastAttrIndex
-                                                 )
-
-                else                -> SerialValueDecoder(
-                    parentNamespace, desc, index,
-                    deserializer,
-                    Canary.serialDescriptor(deserializer),
-                    currentPolyInfo,
-                    lastAttrIndex
-                                                         )
-            }
-
-            return deserializer.patch(decoder, old).also {
-                seenItems[index] = true
-            }
+            val result = deserializer.patch(decoder, old)
+            seenItems[index] = true
+            return result
         }
 
         override fun <T : Any> updateNullableSerializableElement(
@@ -603,22 +568,13 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T?>,
             old: T?
                                                                 ): T? {
-            val decoder = when {
-                nulledItemsIdx >= 0 -> return null
-                else                -> XmlDecoder(
-                    parentNamespace,
-                    desc,
-                    index,
-                    deserializer,
-                    deserializer.descriptor,
-                    currentPolyInfo,
-                    lastAttrIndex
-                                                 )
-            }
+            val decoder = serialElementDecoder(desc, index, deserializer)
 
-            return (if (old == null) deserializer.deserialize(decoder) else deserializer.patch(decoder, old)).also {
-                seenItems[index] = true
+            val result = decoder?.let { d ->
+                deserializer.patch(d, old)
             }
+            seenItems[index] = true
+            return result
         }
 
         open fun indexOf(name: QName, isNameOfAttr: Boolean): Int {
