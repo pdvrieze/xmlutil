@@ -35,7 +35,7 @@ ext {
 
 tasks {
     (findByName("wrapper") as? Wrapper)?.run {
-        gradleVersion = "5.4.1"
+        gradleVersion = "5.6.1"
     }
 }
 
