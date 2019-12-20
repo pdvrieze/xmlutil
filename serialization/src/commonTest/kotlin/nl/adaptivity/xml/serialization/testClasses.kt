@@ -264,3 +264,23 @@ class OptionB2(val j:Int, val k:Int, val l: Int): OptionB() {
 
 @Serializable
 data class ComplexSealedHolder(val a: String, val b: Int, val c:Float, val options:Option?)
+
+@Serializable
+@SerialName("Bar")
+data class NullListElement(
+    @XmlElement(true)
+    @SerialName("AnotherStr")
+    val anotherString: String
+                          )
+
+@Serializable
+@SerialName("Baz")
+data class NullList(
+    @XmlElement(true)
+    @SerialName("Str")
+    val aString: String,
+
+    @XmlElement(true)
+    @SerialName("Bar")
+    val aList: List<NullListElement>? = null
+                   )

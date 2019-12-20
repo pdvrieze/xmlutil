@@ -77,8 +77,13 @@ class TestCommon {
 
     }
 
-    abstract class TestPolymorphicBase<T>(value: T, serializer: KSerializer<T>, serialModule: SerialModule, baseJsonFormat: Json= Json(testConfiguration, serialModule))
-        :TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }, baseJsonFormat) {
+    abstract class TestPolymorphicBase<T>(
+        value: T,
+        serializer: KSerializer<T>,
+        serialModule: SerialModule,
+        baseJsonFormat: Json = Json(testConfiguration, serialModule)
+                                         ) :
+        TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }, baseJsonFormat) {
 
         abstract val expectedNonAutoPolymorphicXML: String
 
@@ -144,10 +149,10 @@ class TestCommon {
 
     }
 
-    class ValueContainerTest: TestBase<ValueContainer>(
+    class ValueContainerTest : TestBase<ValueContainer>(
         ValueContainer("foobar"),
         ValueContainer.serializer()
-                                                      ) {
+                                                       ) {
         override val expectedXML: String = "<valueContainer>foobar</valueContainer>"
         override val expectedJson: String = "{\"content\":\"foobar\"}"
 
@@ -160,15 +165,18 @@ class TestCommon {
     }
 
     @UnstableDefault
-    class MixedValueContainerTest: TestPolymorphicBase<MixedValueContainer>(
-        MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"),"bar")),
+    class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainer>(
+        MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"), "bar")),
         MixedValueContainer.serializer(),
         MixedValueContainer.module(),
         baseJsonFormat = Json(JsonConfiguration(useArrayPolymorphism = true), context = MixedValueContainer.module())
-                                                                ) {
-        override val expectedXML: String = "<MixedValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</MixedValueContainer>"
-        override val expectedNonAutoPolymorphicXML: String = "<MixedValueContainer><data type=\"kotlin.String\"><value>foo</value></data><data type=\".Address\"><value houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></data><data type=\"kotlin.String\"><value>bar</value></data></MixedValueContainer>"
-        override val expectedJson: String = "{\"data\":[[\"kotlin.String\",\"foo\"],[\"nl.adaptivity.xml.serialization.Address\",{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}],[\"kotlin.String\",\"bar\"]]}"
+                                                                            ) {
+        override val expectedXML: String =
+            "<MixedValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</MixedValueContainer>"
+        override val expectedNonAutoPolymorphicXML: String =
+            "<MixedValueContainer><data type=\"kotlin.String\"><value>foo</value></data><data type=\".Address\"><value houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></data><data type=\"kotlin.String\"><value>bar</value></data></MixedValueContainer>"
+        override val expectedJson: String =
+            "{\"data\":[[\"kotlin.String\",\"foo\"],[\"nl.adaptivity.xml.serialization.Address\",{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}],[\"kotlin.String\",\"bar\"]]}"
 
     }
 
@@ -176,9 +184,12 @@ class TestCommon {
         val format = XML()
         val data = InvalidValueContainer("foobar", Address("10", "Downing Street", "London"))
         val serializer = InvalidValueContainer.serializer()
-        val invalidXML1: String = "<InvalidValueContainer><address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>foobar</InvalidValueContainer>"
-        val invalidXML2: String = "<InvalidValueContainer>foobar<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></InvalidValueContainer>"
-        val invalidXML3: String = "<InvalidValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</InvalidValueContainer>"
+        val invalidXML1: String =
+            "<InvalidValueContainer><address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>foobar</InvalidValueContainer>"
+        val invalidXML2: String =
+            "<InvalidValueContainer>foobar<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></InvalidValueContainer>"
+        val invalidXML3: String =
+            "<InvalidValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</InvalidValueContainer>"
 
         @Test
         fun testSerializeInvalid() {
@@ -186,7 +197,7 @@ class TestCommon {
                 format.stringify(serializer, data)
             }
             assertTrue(e is XmlSerialException)
-            assertTrue(e.message?.contains("@XmlValue")==true)
+            assertTrue(e.message?.contains("@XmlValue") == true)
         }
 
         @Test
@@ -195,7 +206,7 @@ class TestCommon {
                 format.parse(serializer, invalidXML1)
             }
             assertTrue(e is XmlSerialException)
-            assertTrue(e.message?.contains("@XmlValue")==true)
+            assertTrue(e.message?.contains("@XmlValue") == true)
         }
 
         @Test
@@ -204,7 +215,7 @@ class TestCommon {
                 format.parse(serializer, invalidXML2)
             }
             assertTrue(e is XmlSerialException)
-            assertTrue(e.message?.contains("@XmlValue")==true)
+            assertTrue(e.message?.contains("@XmlValue") == true)
         }
 
         @Test
@@ -213,7 +224,7 @@ class TestCommon {
                 format.parse(serializer, invalidXML3)
             }
             assertTrue(e is XmlSerialException)
-            assertTrue(e.message?.contains("@XmlValue")==true)
+            assertTrue(e.message?.contains("@XmlValue") == true)
         }
 
     }
@@ -383,7 +394,7 @@ class TestCommon {
         Container("lbl", ChildA("data")),
         Container.serializer(),
         baseModule
-                                                          ) {
+                                                                     ) {
         override val expectedXML: String
             get() = "<Container label=\"lbl\"><childA valueA=\"data\"/></Container>"
         override val expectedJson: String
@@ -391,11 +402,11 @@ class TestCommon {
         override val expectedNonAutoPolymorphicXML: String get() = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
     }
 
-    class AClassWithMultipleChildren: TestPolymorphicBase<Container2>(
+    class AClassWithMultipleChildren : TestPolymorphicBase<Container2>(
         Container2("name2", listOf(ChildA("data"), ChildB(1, 2, 3, "xxx"))),
         Container2.serializer(),
         baseModule
-                                                          ) {
+                                                                      ) {
         override val expectedXML: String
             get() = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better a=\"1\" b=\"2\" c=\"3\" valueB=\"xxx\"/></Container2>"
         override val expectedNonAutoPolymorphicXML: String
@@ -406,11 +417,11 @@ class TestCommon {
 
     }
 
-    class AClassWithXMLPolymorphicNullableChild: TestPolymorphicBase<Container4>(
+    class AClassWithXMLPolymorphicNullableChild : TestPolymorphicBase<Container4>(
         Container4("name2", ChildA("data")),
         Container4.serializer(),
         baseModule
-                                                          ) {
+                                                                                 ) {
         override val expectedXML: String
             get() = "<Container4 name=\"name2\"><ChildA valueA=\"data\"/></Container4>"
         override val expectedNonAutoPolymorphicXML: String
@@ -421,11 +432,11 @@ class TestCommon {
 
     }
 
-    class ASimplerClassWithUnspecifiedChildren: TestPolymorphicBase<Container3>(
+    class ASimplerClassWithUnspecifiedChildren : TestPolymorphicBase<Container3>(
         Container3("name2", listOf(ChildA("data"), ChildB(4, 5, 6, "xxx"), ChildA("yyy"))),
         Container3.serializer(),
         baseModule
-                                                                               ) {
+                                                                                ) {
         override val expectedXML: String
             get() = "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
         override val expectedJson: String
@@ -445,21 +456,21 @@ class TestCommon {
 
     }
 
-    class AContainerWithSealedChild: TestBase<SealedSingle>(
+    class AContainerWithSealedChild : TestBase<SealedSingle>(
         SealedSingle("mySealed", SealedA("a-data")),
         SealedSingle.serializer()
-                                                           ) {
+                                                            ) {
         override val expectedXML: String
             get() = "<SealedSingle name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/></SealedSingle>"
         override val expectedJson: String
             get() = "{\"name\":\"mySealed\",\"member\":{\"data\":\"a-data\",\"extra\":\"2\"}}"
     }
 
-    class AContainerWithSealedChildren: TestPolymorphicBase<Sealed>(
+    class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
         Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
         Sealed.serializer(),
         EmptyModule//sealedModule
-                                                                   ) {
+                                                                    ) {
         override val expectedXML: String
             get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB_renamed main=\"b-data\" ext=\"0.5\"/></Sealed>"
         override val expectedJson: String
@@ -468,16 +479,29 @@ class TestCommon {
             get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
     }
 
-    class ComplexSealedTest: TestBase<ComplexSealedHolder>(
+    class ComplexSealedTest : TestBase<ComplexSealedHolder>(
         ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
         ComplexSealedHolder.serializer(),
         EmptyModule,
         XML(XmlConfig(autoPolymorphic = true))
-                                                          ) {
+                                                           ) {
         override val expectedXML: String
             get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.5\"><OptionB1 g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"
         override val expectedJson: String
             get() = "{\"a\":\"a\",\"b\":1,\"c\":1.5,\"options\":{\"type\":\"nl.adaptivity.xml.serialization.OptionB1\",\"g\":5,\"h\":6,\"i\":7}}"
+    }
+
+    class NullableListTest : TestBase<NullList>(
+        NullList("A String", listOf(
+                NullListElement("Another String1"),
+                NullListElement("Another String2")
+                              )),
+        NullList.serializer()
+                                               ) {
+        override val expectedXML: String
+            get() = "<Baz><Str>A String</Str><Bar><AnotherStr>Another String1</AnotherStr></Bar><Bar><AnotherStr>Another String2</AnotherStr></Bar></Baz>"
+        override val expectedJson: String
+            get() = "{\"Str\":\"A String\",\"Bar\":[{\"AnotherStr\":\"Another String1\"},{\"AnotherStr\":\"Another String2\"}]}"
     }
 
 }
