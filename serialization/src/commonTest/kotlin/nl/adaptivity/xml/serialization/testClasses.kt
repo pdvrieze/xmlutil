@@ -24,7 +24,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.serializersModuleOf
 import nl.adaptivity.xmlutil.serialization.*
 
 
@@ -192,3 +191,23 @@ data class Sealed(
 
 @Serializable
 data class SealedSingle(val name: String, val member: SealedA)
+
+@Serializable
+@SerialName("Bar")
+data class NullListElement(
+    @XmlElement(true)
+    @SerialName("AnotherStr")
+    val anotherString: String
+                          )
+
+@Serializable
+@SerialName("Baz")
+data class NullList(
+    @XmlElement(true)
+    @SerialName("Str")
+    val aString: String,
+
+    @XmlElement(true)
+    @SerialName("Bar")
+    val aList: List<NullListElement>? = null
+                   )

@@ -27,7 +27,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlEvent
@@ -36,7 +35,6 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.serialization.serializer
 import nl.adaptivity.xmlutil.util.CompactFragment
-import kotlin.reflect.typeOf
 import kotlin.test.*
 
 private fun String.normalize() = replace(" />", "/>")
@@ -473,5 +471,18 @@ class TestCommon {
             get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
     }
 
+
+    class NullableListTest : TestBase<NullList>(
+        NullList("A String", listOf(
+                NullListElement("Another String1"),
+                NullListElement("Another String2")
+                              )),
+        NullList.serializer()
+                                               ) {
+        override val expectedXML: String
+            get() = "<Baz><Str>A String</Str><Bar><AnotherStr>Another String1</AnotherStr></Bar><Bar><AnotherStr>Another String2</AnotherStr></Bar></Baz>"
+        override val expectedJson: String
+            get() = "{\"Str\":\"A String\",\"Bar\":[{\"AnotherStr\":\"Another String1\"},{\"AnotherStr\":\"Another String2\"}]}"
+    }
 
 }
