@@ -5,6 +5,7 @@
 * Serialutil: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Aserialutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Aserialutil/_latestVersion) 
 * Build: [![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
 # Introduction
+* Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
 
 This project is a cross-platform XML serialization (wrapping) library compatible with kotlin serialization. It provides
 capabilities for Android, JVM and JS (alpha quality)
