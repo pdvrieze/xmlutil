@@ -36,7 +36,8 @@ actual typealias PlatformXmlWriter = StAXWriter
  * Created by pdvrieze on 16/11/15.
  */
 class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false) : XmlWriter {
-    override var indent: Int = 0
+
+    override var indentString: String = ""
 
     var lastTagDepth = -1
 
@@ -84,8 +85,8 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indent > 0 && lastTagDepth != depth) {
-            delegate.writeCharacters("\n${" ".repeat(indent * depth)}")
+        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
+            delegate.writeCharacters("\n${indentString.repeat(depth)}")
         }
         lastTagDepth = newDepth
     }

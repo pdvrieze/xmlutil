@@ -45,12 +45,21 @@ val serializationVersion: String by project
 
 val kotlin_version: String by project
 
+val jupiterVersion: String by project
+
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 val moduleName = "net.devrieze.xmlutil.core"
 
 kotlin {
     targets {
+        val testTask = tasks.create("test") {
+            group = "verification"
+        }
+        val cleanTestTask = tasks.create("cleanTest") {
+            group = "verification"
+        }
+
         jvm {
             attributes {
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
@@ -63,6 +72,11 @@ kotlin {
                         freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                     }
                 }
+                tasks.named<Test>("${target.name}Test") {
+                    useJUnitPlatform()
+                    testTask.dependsOn(this)
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
                     manifest {
                         attributes("Automatic-Module-Name" to moduleName)
@@ -82,6 +96,11 @@ kotlin {
                     jvmTarget = "1.6"
                     freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
                 }
+                tasks.getByName<Test>("${target.name}Test") {
+                    useJUnitPlatform ()
+                    testTask.dependsOn(this)
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
         js {
@@ -117,6 +136,13 @@ kotlin {
                 implementation(project(":serialutil"))
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-annotations-common"))
+//                implementation("org.spekframework.spek2:spek-dsl-common:$spek2Version")
+            }
+        }
         val javaShared by creating {
             dependsOn(commonMain)
             dependencies {
@@ -130,6 +156,16 @@ kotlin {
                 implementation(kotlin("stdlib-jdk7"))
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                dependsOn(commonTest)
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
+            }
+        }
         val androidMain by getting {
             dependsOn(javaShared)
             dependencies {
@@ -138,9 +174,16 @@ kotlin {
         }
         val androidTest by getting {
             dependencies {
+                dependsOn(commonTest)
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(kotlin("stdlib-jdk8"))
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
             }
         }
+
         val jsMain by getting {
             dependsOn(commonMain)
             dependencies {
@@ -148,11 +191,16 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
             }
         }
+        val jsTest by getting {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
 
     }
 
 }
-
 
 
 repositories {

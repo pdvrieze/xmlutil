@@ -19,12 +19,10 @@
  */
 
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.attributes.java.TargetJvmVersion
 import java.util.*
 
 plugins {
@@ -146,7 +144,10 @@ kotlin {
 
 }
 
+components.forEach { component ->
 
+    logger.lifecycle("Found component ${component.name} of type: ${component.javaClass} (isAdhoc:${component is AdhocComponentWithVariants})")
+}
 
 repositories {
     jcenter()

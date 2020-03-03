@@ -35,8 +35,17 @@ interface XmlWriter : Closeable {
 
     val depth: Int
 
+    /** The indentation string to use for autoindenting the output */
+    var indentString: String
+
     /** The indentation level to use for autoindenting the output */
     var indent: Int
+        @Deprecated("Use indentString for better accuracy")
+        get() = indentString.fold(0) { acc, c -> acc + when(c) {
+            '\t' -> 8
+            else -> 1
+        } }
+        set(value) {indentString = " ".repeat(value)}
 
     @Deprecated(
         "Use the version that takes strings",

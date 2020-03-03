@@ -35,8 +35,8 @@ class XmlBufferedWriter(
 
     override val depth: Int get() = namespaceHolder.depth
 
-    override var indent: Int
-        get() = 0
+    override var indentString: String
+        get() = ""
         set(@Suppress("UNUSED_PARAMETER") value) {} // Buffered writers don't add synthetic elements
 
     override val namespaceContext: NamespaceContext = if (delegateNamespaceContext == null) {

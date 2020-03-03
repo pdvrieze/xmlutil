@@ -27,7 +27,6 @@ import org.xmlpull.v1.XmlSerializer
 import java.io.IOException
 import java.io.OutputStream
 import java.io.Writer
-import javax.xml.XMLConstants
 import javax.xml.XMLConstants.*
 import javax.xml.namespace.NamespaceContext
 
@@ -43,7 +42,8 @@ class AndroidXmlWriter : XmlWriter {
     private val isRepairNamespaces: Boolean
     private val writer: XmlSerializer
 
-    override var indent: Int = 0
+    override var indentString: String = ""
+
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
     override val namespaceContext: NamespaceContext
@@ -98,8 +98,8 @@ class AndroidXmlWriter : XmlWriter {
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indent > 0 && lastTagDepth != depth) {
-            writer.ignorableWhitespace("\n${" ".repeat(indent * depth)}")
+        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
+            writer.ignorableWhitespace("\n${indentString.repeat(depth)}")
         }
         lastTagDepth = newDepth
     }
