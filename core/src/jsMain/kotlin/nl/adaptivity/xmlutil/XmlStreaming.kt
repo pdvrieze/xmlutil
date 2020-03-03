@@ -106,8 +106,13 @@ fun <T:Any> JSDomReader.deSerialize(type: KClass<T>): T {
 internal class AppendingWriter(private val target: Appendable, private val delegate: JSDomWriter) :
     XmlWriter by delegate {
     override fun close() {
-        delegate.close()
-        target.append(delegate.toString())
+        try {
+            val xmls = XMLSerializer()
+            val domText = xmls.serializeToString(delegate.target)
+            target.append(domText)
+        } finally {
+            delegate.close()
+        }
     }
 
     override fun flush() {
