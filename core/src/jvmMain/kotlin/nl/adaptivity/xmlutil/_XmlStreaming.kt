@@ -57,7 +57,7 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
     }
 
     actual override fun newWriter(
-        writer: kotlinx.io.Writer,
+        writer: java.io.Writer,
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
                                  ): XmlWriter {

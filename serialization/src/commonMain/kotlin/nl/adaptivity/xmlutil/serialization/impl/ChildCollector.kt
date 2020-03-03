@@ -22,9 +22,7 @@ package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.modules.SerialModuleCollector
-import nl.adaptivity.serialutil.impl.name
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.PolyInfo
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase
 import nl.adaptivity.xmlutil.serialization.XmlNameMap
 import nl.adaptivity.xmlutil.toNamespace
@@ -55,7 +53,7 @@ internal class ChildCollector(val baseClass: KClass<*>) : SerialModuleCollector 
 
                 // The class is always treated as specified in automatic polymorphic mode. It should never use the field
                 // name as that cannot be correct.
-                val nameInSerializer = actualSerializer.descriptor.name
+                val nameInSerializer = actualSerializer.descriptor.serialName
                 registerClass(declName, nameInSerializer, actualSerializer, true)
             }
         }

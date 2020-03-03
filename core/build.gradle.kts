@@ -69,7 +69,7 @@ kotlin {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {
@@ -94,7 +94,7 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
-                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
                 tasks.getByName<Test>("${target.name}Test") {
                     useJUnitPlatform ()
@@ -114,7 +114,7 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
-                    freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }

@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.*
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerialKind
+import kotlinx.serialization.SerializationException
 import nl.adaptivity.xmlutil.serialization.XmlDefault
 import kotlin.reflect.KClass
 
@@ -41,13 +44,13 @@ internal class ExtSerialDescriptorImpl(
 
     override val isNullable: Boolean get() = base.isNullable
 
-    override val name: String get() = base.name
+    override val serialName: String get() = base.serialName
     override val kind: SerialKind get() = base.kind
 
     override fun getElementName(index: Int): String = base.getElementName(index)
     override fun getElementIndex(name: String): Int = base.getElementIndex(name)
 
-    override fun getEntityAnnotations(): List<Annotation> = base.getEntityAnnotations()
+    override val annotations: List<Annotation> get() = base.annotations
 
     override fun getElementAnnotations(index: Int) =
         if (index < elementsCount) base.getElementAnnotations(index) else emptyList()
@@ -65,14 +68,14 @@ internal class ExtSerialDescriptorImpl(
 
     override fun toString(): String {
         return buildString {
-            append(name)
+            append(serialName)
             (0 until elementsCount).joinTo(this, prefix = "(", postfix = ")") { idx ->
                 val elemDesc = try {
                     getElementDescriptor(idx)
                 } catch (e: Exception) {
                     null
                 }
-                "${getElementName(idx)}:${elemDesc?.name}${if (elemDesc?.isNullable == true) "?" else ""}"
+                "${getElementName(idx)}:${elemDesc?.serialName}${if (elemDesc?.isNullable == true) "?" else ""}"
             }
         }
     }

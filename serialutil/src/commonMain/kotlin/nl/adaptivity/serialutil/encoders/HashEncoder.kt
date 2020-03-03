@@ -21,14 +21,13 @@
 package nl.adaptivity.serialutil.encoders
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
 
 private class HashEncoder(override val context: SerialModule) : Encoder {
     internal var hash: Int = 1
 
-    override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
         return CompositeHashEncoder(this)
     }
 
@@ -48,8 +47,8 @@ private class HashEncoder(override val context: SerialModule) : Encoder {
         hash = value.hashCode()
     }
 
-    override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
-        hash = enumDescription.getElementName(ordinal).hashCode()
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        hash = enumDescriptor.getElementName(index).hashCode()
     }
 
     override fun encodeFloat(value: Float) {
@@ -97,40 +96,40 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
     }
 
 
-    override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) {
+    override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) {
+    override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) {
+    override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) {
+    override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) {
+    override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) {
+    override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) {
+    override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) {
+    override fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) {
         addHash { value.hashCode() }
     }
 
     override fun <T : Any> encodeNullableSerializableElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T?
@@ -138,12 +137,12 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         if (value == null) {
             addHash { 0 }
         } else {
-            encodeSerializableElement(desc, index, serializer, value)
+            encodeSerializableElement(descriptor, index, serializer, value)
         }
     }
 
     override fun <T> encodeSerializableElement(
-        desc: SerialDescriptor,
+        descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T
@@ -153,17 +152,17 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         addHash { subEnc.hash }
     }
 
-    override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) {
+    override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
+    override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
         addHash { value.hashCode() }
     }
 
-    override fun encodeUnitElement(desc: SerialDescriptor, index: Int) {}
+    override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {}
 
-    override fun endStructure(desc: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         elementEncoder.hash = hash
     }
 }

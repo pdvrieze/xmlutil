@@ -20,11 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization.canary
 
-import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.modules.SerialModuleCollector
+import kotlinx.serialization.PolymorphicSerializer
 import kotlin.reflect.KClass
 
 @Deprecated("Use property", ReplaceWith("this.baseClass"), DeprecationLevel.ERROR)

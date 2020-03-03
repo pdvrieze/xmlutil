@@ -82,11 +82,18 @@ inline fun <reified T> simpleSerialClassDesc(
 }
 
 
-class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override val name: String) : SerialDescriptor {
+class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, name: String) : SerialDescriptor {
+    override val serialName: String = name
+
+    override val elementsCount: Int get() = 0
 
     override fun getElementIndex(name: String) = CompositeDecoder.UNKNOWN_NAME
 
-    override fun getElementName(index: Int): String = throw IndexOutOfBoundsException(index.toString())
+    override fun getElementAnnotations(index: Int): Nothing = throw IllegalStateException("No Children")
+
+    override fun getElementName(index: Int): Nothing = throw IllegalStateException("No Children")
+
+    override fun getElementDescriptor(index: Int): Nothing = throw IllegalStateException("No Children")
 
     override fun isElementOptional(index: Int): Boolean = false
 }
@@ -97,8 +104,8 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, override 
  */
 class SimpleSerialClassDesc(
     override val kind: SerialKind = StructureKind.CLASS,
-    override val name: String,
-    private val entityAnnotations: List<Annotation>,
+    name: String,
+    override val annotations: List<Annotation>,
     vararg val elements: Pair<String, SerialDescriptor>
                            ) : SerialDescriptor {
 
@@ -109,6 +116,8 @@ class SimpleSerialClassDesc(
         vararg elements: Pair<String, KSerializer<*>>
                ) : this(kind, name, entityAnnotations, *(elements.arrayMap { it.first to it.second.descriptor }))
 
+    override val serialName: String = name
+
     override fun getElementIndex(name: String): Int {
         val index = elements.indexOfFirst { it.first == name }
         return when {
@@ -117,15 +126,16 @@ class SimpleSerialClassDesc(
         }
     }
 
-    override fun getEntityAnnotations(): List<Annotation> {
-        return entityAnnotations
-    }
-
     override fun getElementDescriptor(index: Int): SerialDescriptor {
         return elements[index].second
     }
 
     override fun getElementName(index: Int) = elements[index].first
+
+    override fun getElementAnnotations(index: Int): List<Annotation> {
+        if (index <0 || index >elements.size) throw IndexOutOfBoundsException(index.toString())
+        return emptyList()
+    }
 
     override fun isElementOptional(index: Int): Boolean = false
 
@@ -134,7 +144,7 @@ class SimpleSerialClassDesc(
 
 fun SerialDescriptor.withName(name: String): SerialDescriptor = RenameDesc(this, name)
 
-private class RenameDesc(val delegate: SerialDescriptor, override val name: String) : SerialDescriptor by delegate
+private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
 
 abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer<T> {
     override val descriptor: SerialDescriptor get() = delegate.descriptor
@@ -143,5 +153,5 @@ abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer
 
     override fun patch(decoder: Decoder, old: T): T = delegate.patch(decoder, old)
 
-    override fun serialize(encoder: Encoder, obj: T) = delegate.serialize(encoder, obj)
+    override fun serialize(encoder: Encoder, value: T) = delegate.serialize(encoder, value)
 }

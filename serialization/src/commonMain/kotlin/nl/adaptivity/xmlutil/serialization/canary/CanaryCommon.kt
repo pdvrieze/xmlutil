@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.serialization.canary
 import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.builtins.serializer
 
 interface CanaryCommon {
     var kSerialClassDesc: SerialDescriptor
@@ -78,15 +78,17 @@ interface CanaryCommon {
 }
 
 val PrimitiveKind.primitiveSerializer
+    @Suppress("DEPRECATION")
     get() = when (this) {
-        PrimitiveKind.INT     -> IntSerializer
-        PrimitiveKind.UNIT    -> UnitSerializer
-        PrimitiveKind.BOOLEAN -> BooleanSerializer
-        PrimitiveKind.BYTE    -> ByteSerializer
-        PrimitiveKind.SHORT   -> ShortSerializer
-        PrimitiveKind.LONG    -> LongSerializer
-        PrimitiveKind.FLOAT   -> FloatSerializer
-        PrimitiveKind.DOUBLE  -> DoubleSerializer
-        PrimitiveKind.CHAR    -> CharSerializer
-        PrimitiveKind.STRING  -> StringSerializer
+        PrimitiveKind.INT     -> Int.serializer()
+        PrimitiveKind.BOOLEAN -> Boolean.serializer()
+        PrimitiveKind.BYTE    -> Byte.serializer()
+        PrimitiveKind.SHORT   -> Short.serializer()
+        PrimitiveKind.LONG    -> Long.serializer()
+        PrimitiveKind.FLOAT   -> Float.serializer()
+        PrimitiveKind.DOUBLE  -> Double.serializer()
+        PrimitiveKind.CHAR    -> Char.serializer()
+        PrimitiveKind.STRING  -> String.serializer()
+        /*PrimitiveKind.UNIT*/ else -> throw UnsupportedOperationException("Unit primitives are no longer allowed") // TODO remove else branch once Unit is gone
+
     }

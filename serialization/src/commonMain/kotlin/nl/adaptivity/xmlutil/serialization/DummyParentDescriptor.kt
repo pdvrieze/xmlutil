@@ -28,10 +28,10 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-internal class DummyParentDescriptor(private val serialName: QName?, private val childDesc: SerialDescriptor) :
+internal class DummyParentDescriptor(private val serialQName: QName?, private val childDesc: SerialDescriptor) :
     SerialDescriptor {
     /** This merely mirrors the parent name as tags need a basis and this object is only used at top level. */
-    override val name: String get() = childDesc.name
+    override val serialName: String get() = childDesc.serialName
 
     override val kind: SerialKind get() = StructureKind.CLASS
 
@@ -40,15 +40,16 @@ internal class DummyParentDescriptor(private val serialName: QName?, private val
     override fun getElementName(index: Int): String {
         assert(index == 0)
         return when {
-            serialName == null            -> childDesc.name
-            serialName.namespaceURI == "" -> serialName.localPart
-            else                          -> "{${serialName.namespaceURI}}${serialName.localPart}"
+            serialQName == null            -> childDesc.serialName
+            serialQName.namespaceURI == "" -> serialQName.localPart
+            else                           -> "{${serialQName.namespaceURI}}${serialQName.localPart}"
         }
     }
 
     override fun getElementIndex(name: String): Int = 0
 
-    override fun getEntityAnnotations(): List<Annotation> = emptyList()
+    override val annotations: List<Annotation>
+        get() = emptyList()
 
     // The element annotations are use site annotations, Entity annotations are declaration site
     override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()

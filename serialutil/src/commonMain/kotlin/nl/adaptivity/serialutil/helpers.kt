@@ -21,7 +21,7 @@
 package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.impl.toCharArray
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
@@ -37,18 +37,18 @@ object CharArrayAsStringSerializer : KSerializer<CharArray> {
 
 @Suppress("UNCHECKED_CAST")
 fun Decoder.readNullableString(): String? =
-    decodeNullableSerializableValue(StringSerializer as DeserializationStrategy<String?>)
+    decodeNullableSerializableValue(String.serializer() as DeserializationStrategy<String?>)
 
 @Suppress("UNCHECKED_CAST")
 fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? =
-    decodeNullableSerializableElement(desc, index, StringSerializer as DeserializationStrategy<String?>)
+    decodeNullableSerializableElement(desc, index, String.serializer() as DeserializationStrategy<String?>)
 
 @Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"))
 fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) =
     encodeNullableStringElement(desc, index, value)
 
 fun CompositeEncoder.encodeNullableStringElement(desc: SerialDescriptor, index: Int, value: String?) =
-    encodeNullableSerializableElement(desc, index, StringSerializer, value)
+    encodeNullableSerializableElement(desc, index, String.serializer(), value)
 
 @Deprecated("Use newer name", ReplaceWith("decodeElements(input, body)"))
 inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body: (Int) -> Unit) =

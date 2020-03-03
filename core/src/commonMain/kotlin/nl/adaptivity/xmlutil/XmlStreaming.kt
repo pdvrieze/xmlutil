@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.io.Writer
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 
 /**
  * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.

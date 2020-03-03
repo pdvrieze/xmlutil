@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.io.Writer
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser

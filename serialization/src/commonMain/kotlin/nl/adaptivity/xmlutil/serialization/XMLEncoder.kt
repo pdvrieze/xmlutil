@@ -21,9 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.internal.UnitSerializer
+import kotlinx.serialization.builtins.UnitSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -82,8 +81,8 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
-            encodeString(enumDescription.getElementName(ordinal))
+        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+            encodeString(enumDescriptor.getElementName(index))
         }
 
         override fun encodeNotNullMark() {
@@ -109,10 +108,10 @@ internal open class XmlEncoderBase internal constructor(
             serializer.serialize(this, value)
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
             val isMixed = parentDesc.outputKind(elementIndex, childDesc) ==OutputKind.Mixed
 
-            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeParams, isMixed)
+            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeSerializers, isMixed)
         }
     }
 
@@ -128,6 +127,7 @@ internal open class XmlEncoderBase internal constructor(
         return when (desc.kind) {
             is PrimitiveKind      -> throw AssertionError("A primitive is not a composite")
 
+            UnionKind.CONTEXTUAL, // TODO handle contextual in a more elegant way
             StructureKind.MAP,
             StructureKind.CLASS   -> TagEncoder(
                 parentNamespace,
@@ -145,7 +145,7 @@ internal open class XmlEncoderBase internal constructor(
                 isMixed
                                                 ).apply { writeBegin() }
 
-            UnionKind.OBJECT,
+            StructureKind.OBJECT,
             UnionKind.ENUM_KIND   -> TagEncoder(
                 parentNamespace,
                 parentDesc,
@@ -189,7 +189,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun <T> encodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             serializer: SerializationStrategy<T>,
             value: T
@@ -198,68 +198,64 @@ internal open class XmlEncoderBase internal constructor(
             defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
         }
 
-        override fun shouldEncodeElementDefault(desc: SerialDescriptor, index: Int): Boolean {
-            return desc.getElementAnnotations(index).none { it is XmlDefault }
+        override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
+            return descriptor.getElementAnnotations(index).none { it is XmlDefault }
         }
 
-        override fun encodeUnitElement(desc: SerialDescriptor, index: Int) {
-            encodeStringElement(desc, index, "kotlin.Unit")
+        override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
+            encodeStringElement(descriptor, index, "kotlin.Unit")
         }
 
-        final override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeByteElement(desc: SerialDescriptor, index: Int, value: Byte) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeShortElement(desc: SerialDescriptor, index: Int, value: Short) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeIntElement(desc: SerialDescriptor, index: Int, value: Int) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeLongElement(desc: SerialDescriptor, index: Int, value: Long) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeFloatElement(desc: SerialDescriptor, index: Int, value: Float) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeDoubleElement(desc: SerialDescriptor, index: Int, value: Double) {
-            encodeStringElement(desc, index, value.toString())
+        final override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
-        final override fun encodeCharElement(desc: SerialDescriptor, index: Int, value: Char) {
-            encodeStringElement(desc, index, value.toString())
-        }
-
-        override fun encodeNonSerializableElement(desc: SerialDescriptor, index: Int, value: Any) {
-            throw XmlSerialException("Unable to serialize element ${desc.getElementName(index)}: $value")
+        final override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
+            encodeStringElement(descriptor, index, value.toString())
         }
 
         override fun <T : Any> encodeNullableSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             serializer: SerializationStrategy<T>,
             value: T?
                                                                 ) {
             if (value != null) {
-                encodeSerializableElement(desc, index, serializer, value)
+                encodeSerializableElement(descriptor, index, serializer, value)
             }
             // Null is the absense of values, no need to do more
         }
 
-        override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
-            val defaultValue = desc.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
+        override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
+            val defaultValue = descriptor.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
             if (value == defaultValue) return
 
-            val kind = desc.outputKind(index, null)
-            val requestedName = desc.requestedName(serialName.toNamespace(), index, null)
+            val kind = descriptor.outputKind(index, null)
+            val requestedName = descriptor.requestedName(serialName.toNamespace(), index, null)
             when (kind) {
                 OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(requestedName, value)
@@ -268,7 +264,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             deferring = false
             for (deferred in deferredBuffer) {
                 deferred()
@@ -301,7 +297,7 @@ internal open class XmlEncoderBase internal constructor(
                                        ) :
         XmlEncoder(parentNamespace, desc, index, serializer) {
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
             return RenamedTagEncoder(
                 serialName,
                 parentNamespace,
@@ -347,7 +343,7 @@ internal open class XmlEncoderBase internal constructor(
                         XmlNameMap().apply {
                             for (i in 0 until d.elementsCount) {
                                 val childName = d.requestedName(parentNamespace, i, d.getElementDescriptor(i))
-                                registerClass(childName, d.getElementDescriptor(i).name, true)
+                                registerClass(childName, d.getElementDescriptor(i).serialName, true)
                             }
                         }
                     }
@@ -382,7 +378,7 @@ internal open class XmlEncoderBase internal constructor(
             if (polyChildren == null) super.writeBegin()
         }
 
-        override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
+        override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             if (polyChildren != null) {
                 if (index == 0) {
                     val regName = polyChildren.lookupName(value)
@@ -395,16 +391,16 @@ internal open class XmlEncoderBase internal constructor(
                 }
             } else {
                 if (index == 0) { // The attribute name is renamed to type and forced to attribute
-                    doWriteAttribute(QName("type"), value.tryShortenTypeName(parentDesc.name))
+                    doWriteAttribute(QName("type"), value.tryShortenTypeName(parentDesc.serialName))
                 } else {
-                    super.encodeStringElement(desc, index, value)
+                    super.encodeStringElement(descriptor, index, value)
                 }
 
             }
         }
 
         override fun <T> encodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             serializer: SerializationStrategy<T>,
             value: T
@@ -415,19 +411,19 @@ internal open class XmlEncoderBase internal constructor(
                     serializer.serialize(XmlEncoder(parentNamespace, parentDesc, elementIndex, serializer), value)
                 } else {
                     // The name has been set when the type was "written"
-                    val encoder = RenamedEncoder(serialName, parentNamespace, desc, index, serializer)
+                    val encoder = RenamedEncoder(serialName, parentNamespace, descriptor, index, serializer)
                     serializer.serialize(encoder, value)
                 }
             } else {
-                val encoder = RenamedEncoder(QName("value"), parentNamespace, desc, index, serializer)
+                val encoder = RenamedEncoder(QName("value"), parentNamespace, descriptor, index, serializer)
                 super.defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
             }
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             // Don't write anything if we're transparent
             if (polyChildren == null) {
-                super.endStructure(desc)
+                super.endStructure(descriptor)
             }
         }
 
@@ -473,14 +469,14 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun <T> encodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
             if (childrenName != null) {
                 serializer.serialize(
-                    RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, serializer),
+                    RenamedEncoder(childrenName, serialName.toNamespace(), descriptor, 0, serializer),
                     value
                                     )
             } else { // Use the outer decriptor and element index
@@ -490,20 +486,20 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun encodeUnitElement(desc: SerialDescriptor, index: Int) {
+        override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
             if (childrenName != null) {
-                RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, UnitSerializer).encodeUnit()
+                RenamedEncoder(childrenName, serialName.toNamespace(), descriptor, index, UnitSerializer()).encodeUnit()
             } else {
                 target.smartStartTag(serialName) { } // Empty body to automatically get end tag
             }
         }
 
-        override fun encodeStringElement(desc: SerialDescriptor, index: Int, value: String) {
+        override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             if (index > 0) {
                 if (childrenName != null) {
-                    RenamedEncoder(childrenName, serialName.toNamespace(), desc, index, StringSerializer).encodeString(
+                    RenamedEncoder(childrenName, serialName.toNamespace(), descriptor, index, String.serializer()).encodeString(
                         value
-                                                                                                                      )
+                                                                                                                               )
                 } else if(isMixed){ // Mixed will be a list of strings and other stuff
                     target.text(value)
                 } else { // The first element is the element count
@@ -513,9 +509,9 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             if (childrenName != null) {
-                super.endStructure(desc)
+                super.endStructure(descriptor)
             }
         }
     }

@@ -24,7 +24,6 @@ plugins {
     idea
     kotlin("android") apply false
     id("com.jfrog.bintray") apply false
-    id("com.gradle.build-scan") version "2.3"
 }
 
 description = "The overall project for cross-platform xml access"

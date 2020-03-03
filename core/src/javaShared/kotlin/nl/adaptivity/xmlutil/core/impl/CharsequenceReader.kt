@@ -20,8 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import kotlinx.io.StringReader
 import java.io.Reader
+import java.io.StringReader
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 

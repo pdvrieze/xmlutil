@@ -20,13 +20,13 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import kotlinx.io.*
 import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlSerializable
 import nl.adaptivity.xmlutil.XmlStreamingFactory
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.util.SerializationProvider
+import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source

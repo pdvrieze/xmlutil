@@ -49,3 +49,19 @@ actual interface AutoCloseable {
 actual interface Closeable : AutoCloseable
 
 actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
+
+
+actual abstract class Writer {
+    abstract fun write(text: String)
+}
+
+actual open class StringWriter: Writer() {
+    private val buffer = StringBuilder()
+    override fun write(text: String) {
+        buffer.append(text)
+    }
+
+    override fun toString(): String {
+        return buffer.toString()
+    }
+}

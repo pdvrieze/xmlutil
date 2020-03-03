@@ -20,5 +20,3 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlin.reflect.KClass
-

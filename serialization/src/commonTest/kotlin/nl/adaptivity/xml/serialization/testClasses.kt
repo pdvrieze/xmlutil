@@ -21,7 +21,7 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.serialization.*
@@ -103,7 +103,7 @@ data class Custom(val property: String)
 @Serializer(forClass = Custom::class)
 class CustomSerializer : KSerializer<Custom> {
 
-    override val descriptor: SerialDescriptor = StringSerializer.descriptor
+    override val descriptor: SerialDescriptor = String.serializer().descriptor
 
 
     override fun deserialize(decoder: Decoder): Custom {
@@ -141,7 +141,7 @@ data class MixedValueContainer(@XmlValue(true) val data: List<@Polymorphic Any>)
     companion object {
         fun module(): SerialModule {
             return SerializersModule {
-                polymorphic(Any::class, String::class, StringSerializer)
+                polymorphic(Any::class, String::class, String.serializer())
                 polymorphic(Any::class, Address::class, Address.serializer())
             }
         }

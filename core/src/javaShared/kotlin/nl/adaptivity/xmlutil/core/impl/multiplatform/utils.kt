@@ -29,3 +29,6 @@ actual fun assert(value: Boolean) = kotlin.assert(value)
 actual typealias AutoCloseable = java.lang.AutoCloseable
 
 actual typealias Closeable = java.io.Closeable
+
+actual typealias Writer = java.io.Writer
+actual typealias StringWriter = java.io.StringWriter

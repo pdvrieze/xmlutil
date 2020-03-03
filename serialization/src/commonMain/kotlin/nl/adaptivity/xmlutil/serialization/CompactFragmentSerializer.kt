@@ -21,6 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.serialutil.decodeStructure
 import nl.adaptivity.serialutil.writeStructure
@@ -108,7 +110,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
     val MYSERIALCLASSDESC = object : SerialDescriptor {
         override val kind: SerialKind get() = StructureKind.CLASS
 
-        override val name: String get() = "compactFragment"
+        override val serialName: String get() = "compactFragment"
 
         override fun getElementIndex(name: String): Int {
             return when (name) {
@@ -125,6 +127,8 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
                 else -> throw IndexOutOfBoundsException("$index")
             }
         }
+
+        override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
 
         override fun getElementDescriptor(index: Int): SerialDescriptor {
             return when (index) {

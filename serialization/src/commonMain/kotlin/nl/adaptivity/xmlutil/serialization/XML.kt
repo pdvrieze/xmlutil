@@ -22,10 +22,10 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.io.StringWriter
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
@@ -43,7 +43,7 @@ internal class XmlNameMap {
     fun registerClass(kClass: KClass<*>) {
         val serializer = kClass.serializer()
         val serialInfo = serializer.descriptor
-        val serialName = serialInfo.getEntityAnnotations().getXmlSerialName()
+        val serialName = serialInfo.annotations.getXmlSerialName()
 
         val name: QName
         val specified: Boolean
@@ -597,8 +597,8 @@ internal fun Collection<Annotation>.getChildName(): QName? {
 }
 
 internal fun SerialDescriptor.getSerialName(prefix: String? = null): QName {
-    return getEntityAnnotations().getXmlSerialName()?.let { if (prefix == null) it else it.copy(prefix) }
-        ?: QName(name.substringAfterLast('.'))
+    return annotations.getXmlSerialName()?.let { if (prefix == null) it else it.copy(prefix) }
+        ?: QName(serialName.substringAfterLast('.'))
 }
 
 internal enum class OutputKind { Element, Attribute, Text, Mixed; }

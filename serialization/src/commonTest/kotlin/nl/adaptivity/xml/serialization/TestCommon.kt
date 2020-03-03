@@ -36,8 +36,11 @@ import kotlin.test.*
 
 private fun String.normalize() = replace(" />", "/>")
 
-@UseExperimental(UnstableDefault::class)
-val testConfiguration = JsonConfiguration(strictMode = false)
+@OptIn(UnstableDefault::class)
+val testConfiguration = JsonConfiguration(
+    isLenient = true,
+    serializeSpecialFloatingPointValues = true
+                                         )
 
 class TestCommon {
 

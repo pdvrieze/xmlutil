@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.PolymorphicKind
+import kotlinx.serialization.PrimitiveKind
+import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.StructureKind
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import kotlin.jvm.JvmStatic
@@ -47,16 +50,16 @@ internal open class XmlCodecBase internal constructor(
             getElementAnnotations(index).firstOrNull<XmlSerialName>()?.run { return toQName() }
             when (outputKind(index, childDesc)) {
                 OutputKind.Attribute -> { // Attribute will take name from use
-                    childDesc?.getEntityAnnotations()?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+                    childDesc?.annotations?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                     return getElementName(index).toQname()
                 }
                 OutputKind.Text      -> return getElementName(index).toQname(parentNamespace) // Will be ignored anyway
                 else                 -> { // Not an attribute, will take name from type (mixed will be the same)
                     if (elementsCount > 0) {
-                        childDesc?.getEntityAnnotations()?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+                        childDesc?.annotations?.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                         // elementDesc.name is the type for classes, but not for "special kinds" as those have generic names
                         return when (childDesc?.kind) {
-                            StructureKind.CLASS -> childDesc.name.substringAfterLast('.').toQname(parentNamespace)
+                            StructureKind.CLASS -> childDesc.serialName.substringAfterLast('.').toQname(parentNamespace)
                             else                -> getElementName(index).toQname(parentNamespace)
                         }
                     } else if (index == 0) { // We are in a list or something that has a confused descriptor
@@ -65,9 +68,9 @@ internal open class XmlCodecBase internal constructor(
                         if (childDesc == null || childDesc.kind is PrimitiveKind) {
                             return getElementName(index).toQname(parentNamespace)
                         } else {
-                            childDesc.getEntityAnnotations().firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+                            childDesc.annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
                             // elementDesc.name is normally the type name. We don't want dotted names anyway so strip those
-                            return childDesc.name.substringAfterLast('.').toQname(parentNamespace)
+                            return childDesc.serialName.substringAfterLast('.').toQname(parentNamespace)
                         }
                     }
                 }
@@ -75,8 +78,8 @@ internal open class XmlCodecBase internal constructor(
         }
 
         internal fun SerialDescriptor.declRequestedName(parentNamespace: Namespace): QName {
-            getEntityAnnotations().firstOrNull<XmlSerialName>()?.let { return it.toQName() }
-            return name.substringAfterLast('.').toQname(parentNamespace)
+            annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+            return serialName.substringAfterLast('.').toQname(parentNamespace)
         }
 
         @JvmStatic
@@ -120,7 +123,7 @@ internal open class XmlCodecBase internal constructor(
             // Lists are always elements
             if (childDesc != null) {
                 if (childDesc.elementsCount > 1) return OutputKind.Element.checkValueChild()
-                childDesc.getEntityAnnotations().firstOrNull<XmlElement>()
+                childDesc.annotations.firstOrNull<XmlElement>()
                     ?.let { if (it.value) return OutputKind.Element.checkValueChild() else OutputKind.Attribute }
             }
 
@@ -192,7 +195,7 @@ internal open class XmlCodecBase internal constructor(
             polyChild: String,
             itemIdx: Int
                        ): PolyInfo {
-            val currentTypeName = parentDesc.name
+            val currentTypeName = parentDesc.serialName
             val currentPkg = currentTypeName.substringBeforeLast('.', "")
             val eqPos = polyChild.indexOf('=')
             val pkgPos: Int

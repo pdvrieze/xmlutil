@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.internal.GeneratedSerializer
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.serialization.impl.arrayMap
@@ -60,20 +60,20 @@ object Canary {
         }
     }
 
-    @UseExperimental(InternalSerializationApi::class)
+    @OptIn(InternalSerializationApi::class)
     fun <T> serialDescriptor(loader: DeserializationStrategy<T>): ExtSerialDescriptor {
         loaderMap[loader]?.let { return it }
 
-        val result = when (loader) {
-            is PolymorphicSerializer<*>
+        val result = when {
+            loader is PolymorphicSerializer<*>
             -> PolymorphicParentDescriptor(loader)
 
-            is GeneratedSerializer
+            loader is GeneratedSerializer
             -> ExtSerialDescriptorImpl(
                 loader.descriptor,
                 loader.childSerializers().arrayMap { serialDescriptor(it) })
 
-            is ListLikeSerializer<*, *, *>
+            loader.descriptor.kind== StructureKind.LIST
             -> {
                 val elementLoader = probeElementLoader(loader)
                 ExtSerialDescriptorImpl(loader.descriptor, arrayOf(serialDescriptor(elementLoader)))
@@ -95,7 +95,7 @@ object Canary {
         return result
     }
 
-    private fun probeElementLoader(loader: ListLikeSerializer<*, *, *>): DeserializationStrategy<*> {
+    private fun probeElementLoader(loader: DeserializationStrategy<*>): DeserializationStrategy<*> {
         val canaryDecoder = CollectionElementLoaderCanary()
         loader.deserialize(canaryDecoder)
         return canaryDecoder.actualDeserializer
@@ -146,6 +146,8 @@ object Canary {
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return this
         }
+
+        override fun endStructure(descriptor: SerialDescriptor) {}
 
         override fun <T : Any> decodeNullableSerializableElement(
             desc: SerialDescriptor,

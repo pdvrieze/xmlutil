@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.StringDescriptor
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -200,6 +199,8 @@ internal open class XmlDecoderBase internal constructor(
                 is PrimitiveKind
                 -> throw AssertionError("A primitive is not a composite")
 
+                // TODO see if contextual can do polymorphism
+                UnionKind.CONTEXTUAL, // Treat contextual like a dumb type.
                 StructureKind.MAP,
                 StructureKind.CLASS
                 -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, deserializer)
@@ -230,7 +231,7 @@ internal open class XmlDecoderBase internal constructor(
                                             )
                     }
                 }
-                UnionKind.OBJECT,
+                StructureKind.OBJECT,
                 UnionKind.ENUM_KIND
                 -> TagDecoder(serialName, serialName.toNamespace(), parentDesc, elementIndex, deserializer)
 
@@ -451,9 +452,13 @@ internal open class XmlDecoderBase internal constructor(
                     // Only when we do automatic polymorphism do we elide the type descriptors. This is also true
                     // for sealed classes where we can determine all children from the descriptor.
                     if (config.autoPolymorphic && effectiveElementDesc?.kind == PolymorphicKind.SEALED) {
-                        for(i in 0 until effectiveElementDesc.elementsCount) {
-                            val klassName = effectiveElementDesc.getElementDescriptor(i).name
-                            val childName = effectiveElementDesc.requestedName(parentNamespace, i, effectiveElementDesc.getElementDescriptor(i))
+                        for (i in 0 until effectiveElementDesc.elementsCount) {
+                            val klassName = effectiveElementDesc.getElementDescriptor(i).serialName
+                            val childName = effectiveElementDesc.requestedName(
+                                parentNamespace,
+                                i,
+                                effectiveElementDesc.getElementDescriptor(i)
+                                                                              )
                             polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx)
                         }
                     } else {
@@ -474,7 +479,7 @@ internal open class XmlDecoderBase internal constructor(
                                         actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
                                             .normalize()
                                     polyMap[name] =
-                                        PolyInfo(actualSerializer.descriptor.name, name, idx, actualSerializer)
+                                        PolyInfo(actualSerializer.descriptor.serialName, name, idx, actualSerializer)
                                 }
                             }
                         } else {
@@ -533,11 +538,16 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
-            val decoder = serialElementDecoder(desc, index, deserializer) ?: NullDecoder(parentNamespace, desc, index, deserializer)
+            val decoder = serialElementDecoder(descriptor, index, deserializer) ?: NullDecoder(
+                parentNamespace,
+                descriptor,
+                index,
+                deserializer
+                                                                                              )
 
             val result = deserializer.deserialize(decoder)
             seenItems[index] = true
@@ -545,24 +555,29 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T : Any> decodeNullableSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T?>
                                                                 ): T? {
-            val decoder = serialElementDecoder(desc, index, deserializer)
+            val decoder = serialElementDecoder(descriptor, index, deserializer)
 
-            val result = decoder?.let{ deserializer.deserialize(it) }
+            val result = decoder?.let { deserializer.deserialize(it) }
             seenItems[index] = true
             return result
         }
 
         override fun <T> updateSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
-            val decoder = serialElementDecoder(desc, index, deserializer) ?: NullDecoder(parentNamespace, desc, index, deserializer)
+            val decoder = serialElementDecoder(descriptor, index, deserializer) ?: NullDecoder(
+                parentNamespace,
+                descriptor,
+                index,
+                deserializer
+                                                                                              )
 
             val result = deserializer.patch(decoder, old)
             seenItems[index] = true
@@ -570,12 +585,12 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T : Any> updateNullableSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T?>,
             old: T?
                                                                 ): T? {
-            val decoder = serialElementDecoder(desc, index, deserializer)
+            val decoder = serialElementDecoder(descriptor, index, deserializer)
 
             val result = decoder?.let { d ->
                 deserializer.patch(d, old)
@@ -621,7 +636,7 @@ internal open class XmlDecoderBase internal constructor(
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             /* Decoding works in 3 stages: attributes, child content, null values.
              * Attribute decoding is finished when attrIndex<0
              * child content is finished when nulledItemsIdx >=0
@@ -646,9 +661,9 @@ internal open class XmlDecoderBase internal constructor(
                     (name.prefix.isEmpty() && name.localPart == XMLConstants.XMLNS_ATTRIBUTE)
                 ) {
                     // Ignore namespace decls
-                    decodeElementIndex(desc)
+                    decodeElementIndex(descriptor)
                 } else {
-                    return indexOf(name, true).ifNegative { decodeElementIndex(desc) }
+                    return indexOf(name, true).ifNegative { decodeElementIndex(descriptor) }
                 }
             }
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
@@ -657,7 +672,7 @@ internal open class XmlDecoderBase internal constructor(
             if (skipRead) { // reading values will already move to the end tag.
                 assert(input.isEndElement())
                 skipRead = false
-                return readElementEnd(desc)
+                return readElementEnd(descriptor)
             }
 
             for (eventType in input) {
@@ -665,13 +680,13 @@ internal open class XmlDecoderBase internal constructor(
                     // The android reader doesn't check whitespaceness
 
                     when (eventType) {
-                        EventType.END_ELEMENT   -> return readElementEnd(desc)
+                        EventType.END_ELEMENT   -> return readElementEnd(descriptor)
                         EventType.CDSECT,
-                        EventType.TEXT          -> if (!input.isWhitespace()) return desc.getValueChildOrThrow()
+                        EventType.TEXT          -> if (!input.isWhitespace()) return descriptor.getValueChildOrThrow()
                         EventType.ATTRIBUTE     -> return indexOf(
                             input.name,
                             true
-                                                                 ).ifNegative { decodeElementIndex(desc) }
+                                                                 ).ifNegative { decodeElementIndex(descriptor) }
                         EventType.START_ELEMENT -> when (val i = indexOf(input.name, false)) {
                             CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment() // Create a content fragment and drop it.
                             else                          -> return i
@@ -718,7 +733,7 @@ internal open class XmlDecoderBase internal constructor(
             nulledItemsIdx = seenItems.size
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             // TODO record the tag name used to be able to validate leaving
 //            input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             input.require(EventType.END_ELEMENT, null, null)
@@ -736,17 +751,17 @@ internal open class XmlDecoderBase internal constructor(
             return input.getAttributeValue(lastAttrIndex)
         }
 
-        override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {
+        override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
             seenItems[index] = true
             val isAttribute = lastAttrIndex >= 0
             if (isAttribute) {
-                return doReadAttribute(desc, index)
+                return doReadAttribute(descriptor, index)
             } else if (nulledItemsIdx >= 0) { // Now reading nulls
-                return desc.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
-                    ?: throw MissingFieldException("${desc.getElementName(index)}:$index")
+                return descriptor.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
+                    ?: throw MissingFieldException("${descriptor.getElementName(index)}:$index")
             }
 
-            val outputKind = desc.outputKind(index, null)
+            val outputKind = descriptor.outputKind(index, null)
             return when (outputKind) {
                 OutputKind.Element   -> input.readSimpleElement()
                 OutputKind.Mixed,
@@ -758,50 +773,50 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int {
-            when (desc.kind) {
+        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int {
+            when (descriptor.kind) {
                 is StructureKind.MAP,
                 is StructureKind.LIST -> if (index == 0) {
                     seenItems[0] = true; return 1
                 }// Always read a list element by element
             }
-            return decodeStringElement(desc, index).toInt()
+            return decodeStringElement(descriptor, index).toInt()
         }
 
-        override fun decodeUnitElement(desc: SerialDescriptor, index: Int) {
+        override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int) {
             val location = input.locationInfo
-            if (decodeStringElement(desc, index) != "kotlin.Unit") throw XmlParsingException(
+            if (decodeStringElement(descriptor, index) != "kotlin.Unit") throw XmlParsingException(
                 location,
                 "Kotlin Unit not valid"
-                                                                                            )
+                                                                                                  )
         }
 
-        override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean {
-            return decodeStringElement(desc, index).toBoolean()
+        override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
+            return decodeStringElement(descriptor, index).toBoolean()
         }
 
-        override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte {
-            return decodeStringElement(desc, index).toByte()
+        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {
+            return decodeStringElement(descriptor, index).toByte()
         }
 
-        override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short {
-            return decodeStringElement(desc, index).toShort()
+        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short {
+            return decodeStringElement(descriptor, index).toShort()
         }
 
-        override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long {
-            return decodeStringElement(desc, index).toLong()
+        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long {
+            return decodeStringElement(descriptor, index).toLong()
         }
 
-        override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float {
-            return decodeStringElement(desc, index).toFloat()
+        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float {
+            return decodeStringElement(descriptor, index).toFloat()
         }
 
-        override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double {
-            return decodeStringElement(desc, index).toDouble()
+        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double {
+            return decodeStringElement(descriptor, index).toDouble()
         }
 
-        override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char {
-            return decodeStringElement(desc, index).single()
+        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char {
+            return decodeStringElement(descriptor, index).single()
         }
 
 
@@ -823,7 +838,7 @@ internal open class XmlDecoderBase internal constructor(
 
         private var finished: Boolean = false
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             return when {
                 finished -> CompositeDecoder.READ_DONE
                 else     -> {
@@ -833,7 +848,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
@@ -856,7 +871,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> updateSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>,
             old: T
@@ -864,7 +879,7 @@ internal open class XmlDecoderBase internal constructor(
             val childName = polyInfo?.tagName ?: parentDesc.requestedChildName(elementIndex) ?: serialName
 
             val decoder = RenamedDecoder(
-                childName, parentNamespace, desc, index,
+                childName, parentNamespace, descriptor, index,
                 deserializer,
                 Canary.serialDescriptor(deserializer),
                 polyInfo,
@@ -873,11 +888,11 @@ internal open class XmlDecoderBase internal constructor(
             return deserializer.patch(decoder, old)
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             // Do nothing. There are no tags. Verifying the presence of an end tag here is invalid
         }
 
-        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
             return 1
         }
     }
@@ -895,7 +910,7 @@ internal open class XmlDecoderBase internal constructor(
         override val updateMode: UpdateMode get() = UpdateMode.UPDATE
         private var childCount = 0
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             return when (input.nextTag()) {
                 EventType.END_ELEMENT -> CompositeDecoder.READ_DONE
                 else                  -> childCount++ // This is important to ensure appending in the list.
@@ -903,13 +918,13 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
             val decoder =
                 RenamedDecoder(
-                    childName, serialName.toNamespace(), desc, index,
+                    childName, serialName.toNamespace(), descriptor, 0,
                     deserializer,
                     Canary.serialDescriptor(deserializer),
                     super.currentPolyInfo,
@@ -919,14 +934,14 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> updateSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T {
             val decoder =
                 RenamedDecoder(
-                    childName, serialName.toNamespace(), desc, index,
+                    childName, serialName.toNamespace(), descriptor, index,
                     deserializer,
                     Canary.serialDescriptor(deserializer),
                     super.currentPolyInfo,
@@ -950,26 +965,26 @@ internal open class XmlDecoderBase internal constructor(
         private val transparent get() = polyInfo != null || (isMixed && config.autoPolymorphic)
         private var nextIndex = 0
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             when (nextIndex) {
                 0, 1 -> return nextIndex++
                 else -> return CompositeDecoder.READ_DONE
             }
         }
 
-        override fun decodeStringElement(desc: SerialDescriptor, index: Int): String {
+        override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
 
             return when (index) {
                 0    -> when {
                     isMixed && (input.eventType == EventType.TEXT ||
                             input.eventType == EventType.CDSECT)
-                                     -> StringDescriptor.name
+                                     -> "kotlin.String"
 
-                    polyInfo == null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.name)
+                    polyInfo == null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.serialName)
                         ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
                     else             -> polyInfo.describedName
                 }
-                else -> super.decodeStringElement(desc, index)
+                else -> super.decodeStringElement(descriptor, index)
             }
         }
 
