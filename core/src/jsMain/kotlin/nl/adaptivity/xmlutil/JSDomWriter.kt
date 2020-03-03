@@ -49,6 +49,16 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
 
+    private var lastTagDepth = TAG_DEPTH_NOT_TAG
+
+    private fun writeIndent(newDepth: Int = depth) {
+        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
+            val ws = "\n${indentString.repeat(depth)}"
+            ignorableWhitespace(ws) // will set lastTagDepth, but we reset that after the condition anyway
+        }
+        lastTagDepth = newDepth
+    }
+
     private fun addToPending(operation: (Document) -> Unit) {
         if (docDelegate == null) {
             (pendingOperations as MutableList).add(operation)
@@ -80,17 +90,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     override var depth: Int = 0
         private set
 
-    override var indentString: String
-        get() = ""
-        set(value) {
-            console.warn("JS does not support indentation yet")
-        }
-
-    override var indent: Int
-        get() = 0
-        set(@Suppress("UNUSED_PARAMETER") value) {
-            console.warn("JS does not support indentation yet")
-        }
+    override var indentString: String = ""
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         val cur = requireCurrent("Namespace attribute")
@@ -113,6 +113,8 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        writeIndent()
+        depth++
         when {
             currentNode == null && docDelegate == null -> {
                 docDelegate = document.implementation.createDocument(
@@ -142,6 +144,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun comment(text: String) {
+        writeIndent()
         val ce = currentNode
         if (ce == null) {
             addToPending { comment(text) }
@@ -153,6 +156,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun text(text: String) {
+        lastTagDepth = TAG_DEPTH_NOT_TAG
         val ce = currentNode
         if (ce == null) {
             if (text.isBlank()) addToPending { ignorableWhitespace(text) } else throw XmlException("Not in an element -- text")
@@ -165,16 +169,19 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun cdsect(text: String) {
+        lastTagDepth = TAG_DEPTH_NOT_TAG
         target.createCDATASection(text).let { cdataSection ->
             currentNode?.append(cdataSection) ?: throw XmlException("Not in an element -- cdsect")
         }
     }
 
     override fun entityRef(text: String) {
+        lastTagDepth = TAG_DEPTH_NOT_TAG
         TODO("Not implemented yet. Lacks Kotlin support")
     }
 
     override fun processingInstruction(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         if (currentNode is Element) throw XmlException("Document already started")
         if (docDelegate == null) {
             addToPending { processingInstruction(text) }
@@ -199,6 +206,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
                 ce.append(textNode)
             }
         }
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
@@ -214,6 +222,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun docdecl(text: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         val target = docDelegate
         if (target == null) {
             addToPending { docdecl(text) }
@@ -239,6 +248,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
         private set
 
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         // Ignore everything for now as this cannot be set on a dom tree
         requestedVersion = version
         requestedEncoding = encoding
@@ -250,6 +260,9 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
+        depth--
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+
         currentNode = requireCurrent("No current element or no parent element").parentElement
     }
 
@@ -279,6 +292,12 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     }
 
     override fun flush() {}
+
+    companion object {
+        const val TAG_DEPTH_NOT_TAG = -1
+        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+    }
+
 }
 
 private fun qname(prefix: String?, localName: String) = when {
