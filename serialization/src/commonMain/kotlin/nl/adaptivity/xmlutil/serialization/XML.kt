@@ -110,6 +110,7 @@ class XML(
     val omitXmlDecl: Boolean
         get() = config.omitXmlDecl
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use config directly, consider using indentString", ReplaceWith("config.indent"))
     val indent: Int
         get() = config.indent

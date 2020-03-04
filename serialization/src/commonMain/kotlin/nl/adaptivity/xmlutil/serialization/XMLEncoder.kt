@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.internal.EnumDescriptor
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.modules.SerialModule
@@ -82,8 +81,8 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun encodeEnum(enumDescription: SerialDescriptor, ordinal: Int) {
-            encodeString(enumDescription.getElementName(ordinal))
+        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+            encodeString(enumDescriptor.getElementName(index))
         }
 
         override fun encodeNotNullMark() {
@@ -109,10 +108,10 @@ internal open class XmlEncoderBase internal constructor(
             serializer.serialize(this, value)
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
             val isMixed = parentDesc.outputKind(elementIndex, childDesc) ==OutputKind.Mixed
 
-            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeParams, isMixed)
+            return beginEncodeCompositeImpl(parentNamespace, parentDesc, elementIndex, serializier, typeSerializers, isMixed)
         }
     }
 
@@ -337,10 +336,14 @@ internal open class XmlEncoderBase internal constructor(
             polyChildren =
                 when {
                     xmlPolyChildren != null
-                         -> polyInfo(
-                        parentDesc.requestedName(parentNamespace, elementIndex, null),
-                        xmlPolyChildren.value
-                                    )
+                         -> {
+                        val baseClass = (serializer as? PolymorphicSerializer)?.baseClass ?: Any::class
+                        polyInfo(
+                            parentDesc.requestedName(parentNamespace, elementIndex, null),
+                            xmlPolyChildren.value,
+                                baseClass
+                                )
+                         }
                     ! config.autoPolymorphic -> null // Don't help for the non-auto case
                     serializer.descriptor.kind == PolymorphicKind.SEALED -> {
                         val d = serializer.descriptor
@@ -414,8 +417,9 @@ internal open class XmlEncoderBase internal constructor(
                 if (isMixed && serializer.descriptor.kind is PrimitiveKind) {
                     serializer.serialize(XmlEncoder(parentNamespace, parentDesc, elementIndex, serializer), value)
                 } else {
+                    val polyInfoName = polyChildren.lookupName(serializer.descriptor.name)?.name ?: serialName
                     // The name has been set when the type was "written"
-                    val encoder = RenamedEncoder(serialName, parentNamespace, desc, index, serializer)
+                    val encoder = RenamedEncoder(polyInfoName, parentNamespace, desc, index, serializer)
                     serializer.serialize(encoder, value)
                 }
             } else {
