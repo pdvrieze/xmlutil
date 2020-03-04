@@ -411,7 +411,7 @@ class TestCommon {
         baseModule
                                                                       ) {
         override val expectedXML: String
-            get() = "<Container2 name=\"name2\"><ChildA valueA=\"data\"/><better a=\"1\" b=\"2\" c=\"3\" valueB=\"xxx\"/></Container2>"
+            get() = "<Container2 name=\"name2\"><childA valueA=\"data\"/><better a=\"1\" b=\"2\" c=\"3\" valueB=\"xxx\"/></Container2>"
         override val expectedNonAutoPolymorphicXML: String
             get() = expectedXML
         override val expectedJson: String
@@ -426,7 +426,7 @@ class TestCommon {
         baseModule
                                                                                  ) {
         override val expectedXML: String
-            get() = "<Container4 name=\"name2\"><ChildA valueA=\"data\"/></Container4>"
+            get() = "<Container4 name=\"name2\"><childA valueA=\"data\"/></Container4>"
         override val expectedNonAutoPolymorphicXML: String
             get() = expectedXML
         override val expectedJson: String

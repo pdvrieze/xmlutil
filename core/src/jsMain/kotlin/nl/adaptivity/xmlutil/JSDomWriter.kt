@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.js.util.forEach
 import nl.adaptivity.js.util.myLookupNamespaceURI
 import nl.adaptivity.js.util.myLookupPrefix
 import nl.adaptivity.js.util.removeElementChildren
@@ -80,9 +81,28 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
             return requireCurrent.lookupPrefix(namespaceURI)
         }
 
+        private fun Element.collectDeclaredPrefixes(namespaceUri: String, result: MutableSet<String>, redeclared: MutableCollection<String>) {
+            attributes.forEach {attr ->
+                val prefix = when {
+                    attr.prefix=="xmlns" -> attr.localName
+                    attr.prefix.isNullOrEmpty() && attr.localName=="xmlns" -> ""
+                    else ->null
+                }
+                if (prefix!=null) {
+                    if (prefix in redeclared) {
+                        if (attr.value == namespaceUri) result.add(prefix)
+                        redeclared.add(prefix)
+                    }
+                }
+            }
+            parentElement?.collectDeclaredPrefixes(namespaceUri, result, redeclared)
+        }
+
+        @OptIn(ExperimentalStdlibApi::class)
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
-            // TODO return all possible ones by doing so recursively
-            return listOfNotNull(getPrefix(namespaceURI)).iterator()
+            return buildSet<String> {
+                requireCurrent.collectDeclaredPrefixes(namespaceURI, this, mutableListOf<String>())
+            }.iterator()
         }
 
     }
@@ -177,7 +197,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override fun entityRef(text: String) {
         lastTagDepth = TAG_DEPTH_NOT_TAG
-        TODO("Not implemented yet. Lacks Kotlin support")
+        throw UnsupportedOperationException("Creating entity references is not supported (or incorrect) in most browsers")
     }
 
     override fun processingInstruction(text: String) {

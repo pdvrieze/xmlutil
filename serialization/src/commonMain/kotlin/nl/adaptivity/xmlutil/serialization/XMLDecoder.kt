@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
+import nl.adaptivity.xmlutil.serialization.canary.getChildDeserializer
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
@@ -438,7 +439,16 @@ internal open class XmlDecoderBase internal constructor(
 
                 if (xmlPolyChildren != null) {
                     for (child in xmlPolyChildren.value) {
-                        val polyInfo = polyTagName(serialName, child, idx)
+                        var childDesc: SerialDescriptor = Canary.serialDescriptor(deserializer.getChildDeserializer(idx))
+//                        var childDesc2 = desc.getElementDescriptor(idx)
+                        if (childDesc.kind == StructureKind.LIST) {
+                           childDesc = childDesc.getElementDescriptor(0)
+                        }
+                        val baseClass = when (childDesc) {
+                            is PolymorphicParentDescriptor -> childDesc.baseClass
+                            else                       -> Any::class // TODO can we get more?
+                        }
+                        val polyInfo = polyTagName(serialName, child, idx, baseClass)
                         polyMap[polyInfo.tagName.normalize()] = polyInfo
                     }
                 } else {
@@ -506,7 +516,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
-        private fun <T> serialElementDecoder(
+        internal open fun <T> serialElementDecoder(
             desc: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
@@ -735,8 +745,8 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // TODO record the tag name used to be able to validate leaving
-//            input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
-            input.require(EventType.END_ELEMENT, null, null)
+            input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+//            input.require(EventType.END_ELEMENT, null, null)
         }
 
         open fun readElementEnd(desc: SerialDescriptor): Int {
@@ -1001,15 +1011,37 @@ internal open class XmlDecoderBase internal constructor(
             return if (name.namespaceURI == "" && name.localPart == "type") 0 else 1
         }
 
-        override fun <T> decodeSerializableElement(
+        override fun <T> serialElementDecoder(
             desc: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T>
+                                             ): XmlDecoder? {
+            val serialNameToUseForChild = when {
+                !transparent -> "value".toQname()
+                polyInfo!=null -> polyInfo.tagName
+                else         -> serialName
+            }
+
+            return RenamedDecoder(serialNameToUseForChild,
+                                  parentNamespace,
+                                  desc,
+                                  index,
+                                  deserializer,
+                                  Canary.serialDescriptor(deserializer),
+                                  currentPolyInfo,
+                                  lastAttrIndex
+                                 )
+        }
+
+        override fun <T> decodeSerializableElement(
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.START_ELEMENT, null, "value")
-                return super.decodeSerializableElement(desc, index, deserializer)
+                return super.decodeSerializableElement(descriptor, index, deserializer)
             }
             if (isMixed && deserializer.descriptor.kind is PrimitiveKind) {
                 return deserializer.deserialize(
@@ -1018,11 +1050,11 @@ internal open class XmlDecoderBase internal constructor(
                         parentDesc,
                         elementIndex,
                         deserializer,
-                        desc
+                        descriptor
                               )
                                                )
             } else {
-                return super.decodeSerializableElement(desc, index, deserializer)
+                return super.decodeSerializableElement(descriptor, index, deserializer)
             }
         }
 
@@ -1043,9 +1075,13 @@ internal open class XmlDecoderBase internal constructor(
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
-            }
-            if (!isMixed || !config.autoPolymorphic) { // Don't check in mixed mode as we could have just had raw text
-                super.endStructure(desc)
+            } else if (!isMixed || !config.autoPolymorphic) { // Don't check in mixed mode as we could have just had raw text
+                val t = polyInfo?.tagName
+                if (t!=null) {
+                    input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
+                } else {
+                    super.endStructure(desc)
+                }
             }
         }
     }

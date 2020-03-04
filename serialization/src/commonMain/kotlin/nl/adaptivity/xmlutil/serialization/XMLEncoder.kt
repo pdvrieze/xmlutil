@@ -333,10 +333,14 @@ internal open class XmlEncoderBase internal constructor(
             polyChildren =
                 when {
                     xmlPolyChildren != null
-                         -> polyInfo(
-                        parentDesc.requestedName(parentNamespace, elementIndex, null),
-                        xmlPolyChildren.value
-                                    )
+                         -> {
+                        val baseClass = (serializer as? PolymorphicSerializer)?.baseClass ?: Any::class
+                        polyInfo(
+                            parentDesc.requestedName(parentNamespace, elementIndex, null),
+                            xmlPolyChildren.value,
+                                baseClass
+                                )
+                         }
                     ! config.autoPolymorphic -> null // Don't help for the non-auto case
                     serializer.descriptor.kind == PolymorphicKind.SEALED -> {
                         val d = serializer.descriptor
@@ -410,8 +414,9 @@ internal open class XmlEncoderBase internal constructor(
                 if (isMixed && serializer.descriptor.kind is PrimitiveKind) {
                     serializer.serialize(XmlEncoder(parentNamespace, parentDesc, elementIndex, serializer), value)
                 } else {
+                    val polyInfoName = polyChildren.lookupName(serializer.descriptor.serialName)?.name ?: serialName
                     // The name has been set when the type was "written"
-                    val encoder = RenamedEncoder(serialName, parentNamespace, descriptor, index, serializer)
+                    val encoder = RenamedEncoder(polyInfoName, parentNamespace, descriptor, index, serializer)
                     serializer.serialize(encoder, value)
                 }
             } else {

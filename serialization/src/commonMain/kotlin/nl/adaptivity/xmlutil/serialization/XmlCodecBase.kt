@@ -27,6 +27,7 @@ import kotlinx.serialization.StructureKind
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 internal open class XmlCodecBase internal constructor(
     val context: SerialModule,
@@ -193,7 +194,8 @@ internal open class XmlCodecBase internal constructor(
         fun polyTagName(
             parentTag: QName,
             polyChild: String,
-            itemIdx: Int
+            itemIdx: Int,
+            baseClass: KClass<*>
                        ): PolyInfo {
             val currentTypeName = parentDesc.serialName
             val currentPkg = currentTypeName.substringBeforeLast('.', "")
@@ -234,7 +236,16 @@ internal open class XmlCodecBase internal constructor(
                 else -> "$currentPkg.${typeNameBase.substring(1)}"
             }
 
-            val name = QName(ns, localPart, prefix)
+            val name: QName = if (eqPos < 0) {
+                context.getPolymorphic(baseClass, typename)
+                    ?.descriptor
+                    ?.annotations
+                    ?.firstOrNull<XmlSerialName>()
+                    ?.toQName()
+                    ?: QName(ns, localPart, prefix)
+            } else {
+                QName(ns, localPart, prefix)
+            }
 
             return PolyInfo(typename, name, itemIdx)
         }
@@ -244,12 +255,13 @@ internal open class XmlCodecBase internal constructor(
          */
         fun polyInfo(
             parentTag: QName,
-            polyChildren: Array<String>
+            polyChildren: Array<String>,
+            baseClass: KClass<*>
                     ): XmlNameMap {
             val result = XmlNameMap()
 
             for (polyChild in polyChildren) {
-                val polyInfo = polyTagName(parentTag, polyChild, -1)
+                val polyInfo = polyTagName(parentTag, polyChild, -1, baseClass)
 
                 result.registerClass(polyInfo.tagName, polyInfo.describedName, polyChild.indexOf('=') >= 0)
             }
