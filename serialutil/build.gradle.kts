@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("PropertyName")
+
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile

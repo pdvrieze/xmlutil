@@ -124,6 +124,7 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         addHash { value.hashCode() }
     }
 
+    @Suppress("OverridingDeprecatedMember")
     override fun encodeNonSerializableElement(descriptor: SerialDescriptor, index: Int, value: Any) {
         addHash { value.hashCode() }
     }
