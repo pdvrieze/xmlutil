@@ -19,6 +19,8 @@
  */
 
 
+@file:Suppress("PropertyName")
+
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
@@ -260,7 +262,7 @@ tasks.named("check") {
     dependsOn(tasks.named("test"))
 }
 
-tasks.withType<Test>() {
+tasks.withType<Test> {
     logger.lifecycle("Enabling xml reports on task ${project.name}:${name}")
     reports {
         junitXml.isEnabled = true

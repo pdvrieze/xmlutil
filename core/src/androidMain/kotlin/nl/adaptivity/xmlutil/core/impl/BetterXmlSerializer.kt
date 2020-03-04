@@ -88,8 +88,7 @@ class BetterXmlSerializer : XmlSerializer {
     private fun writeEscaped(s: String, quot: Int) {
 
         loop@ for (i in 0 until s.length) {
-            val c = s[i]
-            when (c) {
+            when (val c = s[i]) {
                 '&'              -> writer.write("&amp;")
                 '>'              -> writer.write("&gt;")
                 '<'              -> writer.write("&lt;")
@@ -372,7 +371,7 @@ class BetterXmlSerializer : XmlSerializer {
             elementStack = hlp
         }
 
-        val prefix = namespace?.let { getPrefix(namespace, true, true) } ?: ""
+        val prefix = namespace?.let { getPrefix(namespace, includeDefault = true, create = true) } ?: ""
 
         if (namespace.isNullOrEmpty()) {
             for (i in nspCounts[depth] until nspCounts[depth + 1]) {
@@ -418,7 +417,7 @@ class BetterXmlSerializer : XmlSerializer {
 
         val prefix = when (ns) {
             ""   -> ""
-            else -> getPrefix(ns, false, true)
+            else -> getPrefix(ns, includeDefault = false, create = true)
         }
 
         writer.write(' ')
@@ -452,7 +451,7 @@ class BetterXmlSerializer : XmlSerializer {
 
         val actualPrefix = if (prefix.isNotEmpty()) {
             if (getNamespace(prefix) != namespace) {
-                getPrefix(ns, false, true) ?: ""
+                getPrefix(ns, includeDefault = false, create = true) ?: ""
             } else prefix
         } else {
             prefix

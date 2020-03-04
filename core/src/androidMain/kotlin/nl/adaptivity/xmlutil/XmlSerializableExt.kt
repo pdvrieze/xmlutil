@@ -53,7 +53,7 @@ fun XmlSerializable.toReader(): Reader {
  */
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-    XmlStreaming.newWriter(writer, true, true).use { serialize(it) }
+    XmlStreaming.newWriter(writer, repairNamespaces = true, omitXmlDecl = true).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {

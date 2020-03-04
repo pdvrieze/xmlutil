@@ -25,6 +25,7 @@ import java.io.StringReader
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
+@Suppress("FunctionName")
 internal fun CharsequenceReader(sequence: CharSequence): Reader = when(sequence) {
     is String -> StringReader(sequence)
     else -> CharsequenceReader(sequence, 0)

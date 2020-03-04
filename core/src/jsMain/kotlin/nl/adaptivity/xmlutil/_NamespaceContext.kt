@@ -29,6 +29,7 @@ actual interface NamespaceContext {
 
 actual interface NamespaceContextImpl : NamespaceContext {
     actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
+    @Suppress("OverridingDeprecatedMember")
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
 }
 

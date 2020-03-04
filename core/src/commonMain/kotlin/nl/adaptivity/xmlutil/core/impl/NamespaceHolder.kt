@@ -140,8 +140,7 @@ internal open class NamespaceHolder {
     }
 
     fun getNamespaceUri(prefix: CharSequence): String? {
-        val prefixStr = prefix.toString()
-        return when (prefixStr) {
+        return when (val prefixStr = prefix.toString()) {
             XML_NS_PREFIX   -> return XML_NS_URI
             XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
 
@@ -152,8 +151,7 @@ internal open class NamespaceHolder {
     }
 
     fun getPrefix(namespaceUri: CharSequence): String? {
-        val namespaceUriStr = namespaceUri.toString()
-        return when (namespaceUriStr) {
+        return when (val namespaceUriStr = namespaceUri.toString()) {
             XML_NS_URI             -> XML_NS_PREFIX
             XMLNS_ATTRIBUTE_NS_URI -> XMLNS_ATTRIBUTE
             else                   -> ((totalNamespaceCount - 1) downTo 0)

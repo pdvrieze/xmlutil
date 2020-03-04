@@ -31,8 +31,7 @@ interface XMLFragmentStreamReaderJava : XmlReader {
 
 
     override fun next(): EventType {
-        val delegateNext = delegate.next()
-        return when (delegateNext) {
+        return when (val delegateNext = delegate.next()) {
             EventType.END_DOCUMENT  -> delegateNext
             EventType.START_DOCUMENT,
             EventType.PROCESSING_INSTRUCTION,

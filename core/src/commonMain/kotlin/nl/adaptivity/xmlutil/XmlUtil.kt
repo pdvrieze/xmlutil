@@ -67,7 +67,7 @@ fun CharSequence.toQname(): QName {
         nsUri = substring(1, split)
         localname = substring(split + 1)
     } else {
-        nsUri = XMLConstants.NULL_NS_URI
+        nsUri = NULL_NS_URI
         localname = toString()
     }
     return QName(nsUri, localname)

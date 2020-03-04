@@ -453,10 +453,9 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 } else {
                     val actualElementDesc = desc.getSafeElementDescriptor(idx)
-                    val effectiveElementDesc = when {
-                        actualElementDesc?.kind == StructureKind.LIST
+                    val effectiveElementDesc = when (actualElementDesc?.kind) {
+                        StructureKind.LIST
                              -> actualElementDesc.getElementDescriptor(0)
-
                         else -> actualElementDesc
                     }
                     // Only when we do automatic polymorphism do we elide the type descriptors. This is also true
@@ -521,7 +520,7 @@ internal open class XmlDecoderBase internal constructor(
             index: Int,
             deserializer: DeserializationStrategy<T>
                                             ): XmlDecoder? {
-            val decoder = when {
+            return when {
                 nulledItemsIdx >= 0 -> null
                 deserializer.descriptor.kind is PrimitiveKind
                                     -> XmlDecoder(
@@ -544,7 +543,6 @@ internal open class XmlDecoderBase internal constructor(
                     lastAttrIndex
                                                          )
             }
-            return decoder
         }
 
         override fun <T> decodeSerializableElement(
@@ -771,8 +769,7 @@ internal open class XmlDecoderBase internal constructor(
                     ?: throw MissingFieldException("${descriptor.getElementName(index)}:$index")
             }
 
-            val outputKind = descriptor.outputKind(index, null)
-            return when (outputKind) {
+            return when (descriptor.outputKind(index, null)) {
                 OutputKind.Element   -> input.readSimpleElement()
                 OutputKind.Mixed,
                 OutputKind.Text      -> {

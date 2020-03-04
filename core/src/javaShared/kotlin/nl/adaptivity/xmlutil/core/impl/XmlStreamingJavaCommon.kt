@@ -32,7 +32,7 @@ import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
 
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 abstract class XmlStreamingJavaCommon {
     @ImplicitReflectionSerializer
     private val serializationLoader: ServiceLoader<SerializationProvider> by lazy {

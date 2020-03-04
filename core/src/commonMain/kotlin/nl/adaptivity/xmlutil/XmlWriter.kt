@@ -165,8 +165,7 @@ fun XmlWriter.writeChildren(children: Iterable<XmlSerializable>?) {
 
 fun XmlWriter.serialize(reader: XmlReader) {
     while (reader.hasNext()) {
-        val eventType = reader.next()
-        when (eventType) {
+        when (reader.next()) {
             EventType.START_DOCUMENT,
             EventType.PROCESSING_INSTRUCTION,
             EventType.DOCDECL,

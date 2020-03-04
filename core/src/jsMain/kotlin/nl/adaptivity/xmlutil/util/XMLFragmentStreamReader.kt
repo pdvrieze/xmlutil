@@ -34,7 +34,7 @@ actual class XMLFragmentStreamReader constructor(
     text: String,
     wrapperNamespaceContext: Iterable<Namespace>
                                                 ) :
-    XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(text, wrapperNamespaceContext)) {
+    XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
 
     private class FragmentNamespaceContext(
         val parent: FragmentNamespaceContext?,

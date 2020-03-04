@@ -31,8 +31,8 @@ import java.io.CharArrayWriter
 /**
  * This test only tests JVM specific things, everything else is in the common tests.
  */
-@UseExperimental(ImplicitReflectionSerializer::class)
-object testXMLJVM : Spek(
+@OptIn(ImplicitReflectionSerializer::class)
+object TestXMLJVM : Spek(
     {
         describe("A simple writer") {
             val writer = XmlStreaming.newWriter(CharArrayWriter())

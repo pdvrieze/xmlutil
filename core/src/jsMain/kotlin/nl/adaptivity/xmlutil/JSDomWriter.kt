@@ -101,7 +101,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
         @OptIn(ExperimentalStdlibApi::class)
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             return buildSet<String> {
-                requireCurrent.collectDeclaredPrefixes(namespaceURI, this, mutableListOf<String>())
+                requireCurrent.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
             }.iterator()
         }
 

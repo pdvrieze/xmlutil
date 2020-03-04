@@ -27,7 +27,7 @@ class TestXmlWriter {
     @Test
     fun testSerializeSimplest() {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, false, true)
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
             w.smartStartTag("foobar".toQname()) { text("xx")}
             w.close()
         }
@@ -37,7 +37,7 @@ class TestXmlWriter {
     @Test
     fun testIndentXml5Spaces() {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, false, true)
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
             w.indentString="     "
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {
@@ -64,7 +64,7 @@ class TestXmlWriter {
     @Test
     fun testIndentXmlTab() {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, false, true)
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
             w.indentString="\t"
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {

@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("PropertyName")
+
 import java.util.Properties
 import java.io.FileInputStream
 

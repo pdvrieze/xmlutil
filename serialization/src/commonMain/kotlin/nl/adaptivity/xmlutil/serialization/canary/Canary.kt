@@ -215,10 +215,10 @@ object Canary {
 
             else -> {
                 val parentDesc = loader.descriptor
-                val childDescs = try {
+                val childDescs: Array<SerialDescriptor> = try {
                     Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
                 } catch (e: SerializationException) {
-                    emptyArray<SerialDescriptor>()
+                    emptyArray()
                 }
                 ExtSerialDescriptorImpl(parentDesc, childDescs)
 

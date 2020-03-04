@@ -68,8 +68,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeString(value: String) {
             val defaultValue = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
             if (value == defaultValue) return
-            val outputKind = parentDesc.outputKind(elementIndex, childDesc)
-            when (outputKind) {
+            when (parentDesc.outputKind(elementIndex, childDesc)) {
                 OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }
@@ -90,8 +89,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeUnit() {
-            val outputKind = parentDesc.outputKind(elementIndex, childDesc)
-            when (outputKind) {
+            when (parentDesc.outputKind(elementIndex, childDesc)) {
                 OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
                 OutputKind.Mixed,
                 OutputKind.Element   -> target.smartStartTag(serialName) { /*No content*/ }

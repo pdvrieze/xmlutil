@@ -20,10 +20,7 @@
 
 package nl.adaptivity.js.util
 
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.SimpleNamespaceContext
-import nl.adaptivity.xmlutil.XmlEvent
+import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
 import kotlin.dom.isElement
 import kotlin.dom.isText
@@ -74,18 +71,18 @@ inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
 }
 
 
-internal fun Node.myLookupPrefix(namespaceUri: String): String? = when {
-    this !is Element -> null
-    else             -> attributes.filter {
+internal fun Node.myLookupPrefix(namespaceUri: String): String? = when (this) {
+    !is Element -> null
+    else    -> attributes.filter {
         (it.prefix == "xmlns" ||
                 (it.prefix == "" && it.localName == "xmlns")) &&
                 it.value == namespaceUri
     }.firstOrNull()?.let { if (it.prefix == "xmlns") it.localName else "" } ?: parentNode?.myLookupPrefix(namespaceUri)
 }
 
-internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
-    this !is Element -> null
-    else             -> attributes.filter {
+internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
+    !is Element -> null
+    else    -> attributes.filter {
         (prefix == "" && it.localName == "xmlns") ||
                 (it.prefix == "xmlns" && it.localName == prefix)
     }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
@@ -145,7 +142,7 @@ internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNa
             localNamespaces.asSequence()
                 .filter { it.namespaceURI == namespaceURI }
                 .mapTo(this) { it.prefix }
-            parent.getPrefixes(namespaceURI).forEach { add(it) }
+            parent.prefixesFor(namespaceURI).forEach { add(it) }
         }.iterator()
     }
 

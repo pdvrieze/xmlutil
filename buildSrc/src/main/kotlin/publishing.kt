@@ -22,28 +22,15 @@ package net.devrieze.gradle.ext
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
-import groovy.lang.Closure
 import groovy.util.Node
 import groovy.xml.QName
-import org.gradle.api.Buildable
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.component.Component
-import org.gradle.api.file.FileTree
-import org.gradle.api.internal.file.CompositeFileTree
-import org.gradle.api.logging.Logging
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.artifact.FileBasedMavenArtifact
-import org.gradle.api.tasks.SourceTask
-import org.gradle.api.tasks.TaskDependency
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
-import org.gradle.language.base.DependentSourceSet
-
 
 
 inline fun XmlProvider.dependencies(config: Node.() -> Unit): Unit {
@@ -90,6 +77,7 @@ fun Node.dependency(groupId: String,
 }
  */
 
+@Suppress("LocalVariableName")
 fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
     val xmlutil_version: String by project
     val xmlutil_versiondesc: String by project

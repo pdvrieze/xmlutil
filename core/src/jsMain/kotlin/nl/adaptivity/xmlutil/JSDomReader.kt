@@ -125,6 +125,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
             return delegate.lookupPrefix(namespaceURI)
         }
 
+        @Suppress("OverridingDeprecatedMember")
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             // TODO return all possible ones by doing so recursively
             return listOfNotNull(getPrefix(namespaceURI)).iterator()

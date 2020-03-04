@@ -99,7 +99,8 @@ private val defaultXmlModule = serializersModuleOf(CompactFragment::class, Compa
 class XML(
     val config: XmlConfig,
     context: SerialModule = EmptyModule
-         ) : AbstractSerialFormat(context + defaultXmlModule), StringFormat {
+         ) : StringFormat {
+    override val context: SerialModule = context + defaultXmlModule
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
     val repairNamespaces: Boolean

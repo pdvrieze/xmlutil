@@ -21,4 +21,4 @@
 package nl.adaptivity.xmlutil.serialization.impl
 
 internal inline fun <T, reified R> Array<T>.arrayMap(operation: (T) -> R) =
-    Array<R>(size) { idx -> operation(get(idx)) }
+    Array(size) { idx -> operation(get(idx)) }

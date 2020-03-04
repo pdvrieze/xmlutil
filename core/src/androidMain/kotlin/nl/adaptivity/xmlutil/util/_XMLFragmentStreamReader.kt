@@ -40,7 +40,7 @@ import javax.xml.XMLConstants
  * Created by pdvrieze on 04/11/15.
  */
 actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
-    XmlDelegatingReader(XMLFragmentStreamReader.getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
+    XmlDelegatingReader(getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
 

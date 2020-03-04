@@ -20,12 +20,12 @@
 
 package nl.adaptivity.xmlutil.serialization.compat
 
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.SerialDescriptor as KSerialDescriptor
 
-@Deprecated("Use standard type", ReplaceWith("kotlinx.serialization.SerialDescriptor"))
-typealias SerialDescriptor = kotlinx.serialization.SerialDescriptor
+@Deprecated("Use standard type", ReplaceWith("kotlinx.serialization.SerialDescriptor"), DeprecationLevel.ERROR)
+typealias SerialDescriptor = KSerialDescriptor
 
-@Deprecated("Use kind directly", ReplaceWith("kind"))
-val SerialDescriptor.extKind
+@Deprecated("Use kind directly", ReplaceWith("kind"), DeprecationLevel.ERROR)
+val KSerialDescriptor.extKind
     get() = kind
 

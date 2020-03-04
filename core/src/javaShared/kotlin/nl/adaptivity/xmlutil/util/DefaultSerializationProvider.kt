@@ -24,7 +24,7 @@ import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.*
 import kotlin.reflect.KClass
 
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 class DefaultSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype

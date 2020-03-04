@@ -20,26 +20,28 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-actual class SimpleQueue<E> {
+actual class SimpleQueue<E> actual constructor() {
     private var data = js("[]")
-
-    actual constructor()
 
     actual val size: Int
         get() = data.length as Int
 
+    @Suppress("UnsafeCastFromDynamic")
     actual fun peekFirst(): E? = when (size) {
         0    -> null
         else -> data[0]
     }
 
+    @Suppress("UnsafeCastFromDynamic")
     actual fun peekLast(): E? = when (size) {
         0    -> null
         else -> data[size - 1]
     }
 
+    @Suppress("UnsafeCastFromDynamic")
     actual fun removeFirst(): E = data.shift()
 
+    @Suppress("UnsafeCastFromDynamic")
     actual fun removeLast(): E = data.pop()
 
     actual fun addLast(e: E) {
