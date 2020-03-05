@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.internal.countLength
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
@@ -41,10 +42,7 @@ interface XmlWriter : Closeable {
     /** The indentation level to use for autoindenting the output */
     var indent: Int
         @Deprecated("Use indentString for better accuracy")
-        get() = indentString.fold(0) { acc, c -> acc + when(c) {
-            '\t' -> 8
-            else -> 1
-        } }
+        get() = indentString.countLength()
         set(value) {indentString = " ".repeat(value)}
 
     @Deprecated(

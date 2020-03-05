@@ -27,6 +27,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
+import nl.adaptivity.xmlutil.core.internal.countLength
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -109,7 +110,7 @@ class XML(
     val omitXmlDecl: Boolean
         get() = config.omitXmlDecl
 
-    @Deprecated("Use config directly", ReplaceWith("config.indent"))
+    @Deprecated("Use config directly, consider using indentString", ReplaceWith("config.indent"))
     val indent: Int
         get() = config.indent
 
@@ -262,7 +263,7 @@ class XML(
         obj: T,
         prefix: String? = null
                  ) {
-        target.indent = config.indent
+        target.indentString = config.indentString
 
         val serialName = serializer.descriptor.getSerialName(prefix)
 
@@ -274,7 +275,6 @@ class XML(
                 0,
                 serializer
                            )
-
 
         serializer.serialize(encoder, obj)
     }
@@ -544,6 +544,7 @@ class XML(
                  * The currently active serialization context
                  */
         val context: SerialModule?
+
         /**
          * The XmlWriter used. Can be used directly by serializers
          */
@@ -636,7 +637,7 @@ internal fun SerialDescriptor.getValueChildOrThrow(): Int {
         return 0
     } else {
         return getValueChild().also {
-            if (it<0) throw XmlSerialException("No value child found for type with descriptor: $this")
+            if (it < 0) throw XmlSerialException("No value child found for type with descriptor: $this")
         }
     }
 }
@@ -680,11 +681,14 @@ inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
     XML.toXml(out, kClass = kClass, obj = this)
 
 /**
- * Configuration for the xml parser. This can be used
+ * Configuration for the xml parser.
  *
  * @property repairNamespaces Should namespaces automatically be repaired. This option will be passed on to the [XmlWriter]
  * @property omitXmlDecl Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
- * @property indent The indentation level (in spaces) to use. This is passed to the [XmlWriter]
+ * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
+ *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
+ * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
+ *                  characters, everything else as 1
  * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
  *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
  *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
@@ -694,31 +698,77 @@ inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
 class XmlConfig(
     val repairNamespaces: Boolean = true,
     val omitXmlDecl: Boolean = true,
-    val indent: Int = 0,
+    val indentString: String = "",
     val autoPolymorphic: Boolean = false,
     val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) {
 
+    constructor(
+        repairNamespaces: Boolean = true,
+        omitXmlDecl: Boolean = true,
+        indent: Int,
+        autoPolymorphic: Boolean = false,
+        unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+               ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
+
     constructor(builder: Builder) : this(
         builder.repairNamespaces,
         builder.omitXmlDecl,
-        builder.indent,
+        builder.indentString,
         builder.autoPolymorphic,
         builder.unknownChildHandler
                                         )
 
+    @Deprecated("Use indentString for better accuracy")
+    val indent: Int
+        get() = indentString.countLength()
+
+    /**
+     * Configuration for the xml parser.
+     *
+     * @property repairNamespaces Should namespaces automatically be repaired. This option will be passed on to the [XmlWriter]
+     * @property omitXmlDecl Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
+     * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
+     *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
+     * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
+     *                  characters, everything else as 1. When setting it it will update [indentString] with `indent` space characters
+     * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+     *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
+     *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
+     * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+     *                     but the function can silently ignore it as well.
+     */
     class Builder(
         var repairNamespaces: Boolean = true,
         var omitXmlDecl: Boolean = true,
-        var indent: Int = 0,
+        var indentString: String = "",
         var autoPolymorphic: Boolean = false,
         var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
-                 )
+                 ) {
+        constructor(
+            repairNamespaces: Boolean = true,
+            omitXmlDecl: Boolean = true,
+            indent: Int,
+            autoPolymorphic: Boolean = false,
+            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+                   ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
+
+        var indent: Int
+            @Deprecated("Use indentString for better accuracy")
+            get() = indentString.countLength()
+            set(value) { indentString = " ".repeat(value) }
+    }
 
     companion object {
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
-            { input, isAttribute, name, candidates -> throw UnknownXmlFieldException(input.locationInfo, name.toString(), candidates) }
+            { input, isAttribute, name, candidates ->
+                throw UnknownXmlFieldException(
+                    input.locationInfo,
+                    name.toString(),
+                    candidates
+                                              )
+            }
     }
 }
 
