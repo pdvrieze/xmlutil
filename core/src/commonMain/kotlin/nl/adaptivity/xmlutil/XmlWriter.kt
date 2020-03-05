@@ -175,7 +175,7 @@ fun XmlWriter.serialize(reader: XmlReader) {
             }
             EventType.IGNORABLE_WHITESPACE -> {
                 // Only write ignorable whitespace if we are not formatting with a set indent.
-                if (indent == 0) writeCurrentEvent(reader)
+                if (indentString.isEmpty()) writeCurrentEvent(reader)
             }
             else                           -> writeCurrentEvent(reader)
         }
