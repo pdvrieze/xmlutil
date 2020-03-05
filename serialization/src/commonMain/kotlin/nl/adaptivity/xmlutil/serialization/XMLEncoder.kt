@@ -341,7 +341,8 @@ internal open class XmlEncoderBase internal constructor(
                          }
                     ! config.autoPolymorphic -> null // Don't help for the non-auto case
                     serializer.descriptor.kind == PolymorphicKind.SEALED -> {
-                        val d = serializer.descriptor
+                        // A sealed descriptor has 2 elements: 0 name: String, 1: value: elementDescriptor
+                        val d = serializer.descriptor.getElementDescriptor(1)
                         XmlNameMap().apply {
                             for (i in 0 until d.elementsCount) {
                                 val childName = d.requestedName(parentNamespace, i, d.getElementDescriptor(i))

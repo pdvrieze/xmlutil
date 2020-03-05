@@ -461,13 +461,15 @@ internal open class XmlDecoderBase internal constructor(
                     // Only when we do automatic polymorphism do we elide the type descriptors. This is also true
                     // for sealed classes where we can determine all children from the descriptor.
                     if (config.autoPolymorphic && effectiveElementDesc?.kind == PolymorphicKind.SEALED) {
-                        for (i in 0 until effectiveElementDesc.elementsCount) {
-                            val klassName = effectiveElementDesc.getElementDescriptor(i).serialName
-                            val childName = effectiveElementDesc.requestedName(
+                        // A sealed descriptor has 2 elements: 0 name: String, 1: value: elementDescriptor
+                        val elementDescriptor = effectiveElementDesc.getElementDescriptor(1)
+                        for (i in 0 until elementDescriptor.elementsCount) {
+                            val klassName = elementDescriptor.getElementDescriptor(i).serialName
+                            val childName = elementDescriptor.requestedName(
                                 parentNamespace,
                                 i,
-                                effectiveElementDesc.getElementDescriptor(i)
-                                                                              )
+                                elementDescriptor.getElementDescriptor(i)
+                                                                           )
                             polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx)
                         }
                     } else {
