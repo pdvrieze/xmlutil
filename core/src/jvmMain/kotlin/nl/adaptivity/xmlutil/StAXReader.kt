@@ -104,19 +104,6 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return delegate.hasText()
     }
 
-    @Throws(XmlException::class)
-    override fun require(type: EventType, namespace: String?, name: String?) {
-        val actualType = DELEGATE_TO_LOCAL[delegate.eventType]
-        if (actualType != type) throw XmlException("Type ${actualType} does not match expected type \"$type\"")
-        if (namespace != null &&
-            delegate.namespaceURI != namespace
-        ) throw XmlException("Namespace ${delegate.namespaceURI} does not match expected \"$namespace\"")
-        if (name != null &&
-            delegate.localName != name
-        ) throw XmlException("local name ${delegate.localName} does not match expected \"$name\"")
-        delegate.require(LOCAL_TO_DELEGATE[type.ordinal], namespace, name)
-    }
-
     val namespaceCount: Int
         @Deprecated("Not needed", ReplaceWith("namespaceEnd - namespaceStart"))
         @Throws(XmlException::class)

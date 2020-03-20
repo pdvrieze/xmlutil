@@ -24,6 +24,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Throws
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
@@ -61,21 +62,20 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
     val isStarted: Boolean
 
-    fun require(type: EventType, namespace: String?, name: String?): Unit = when {
-        eventType !== type                ->
-            throw XmlException("Unexpected event type Found: $eventType expected $type")
+    @Throws(XmlException::class)
+    fun require(type: EventType, namespace: String?, name: String?) {
+        when {
+            eventType != type ->
+                throw XmlException("Type $eventType does not match expected type \"$type\"")
 
-        namespace != null &&
-                namespace != namespaceURI ->
-            throw XmlException(
-                "Namespace uri's don't match: expected=$namespace found=$namespaceURI"
-                              )
+            namespace != null &&
+                    namespaceURI != namespace ->
+                throw XmlException("Namespace ${namespaceURI} does not match expected \"$namespace\"")
 
-        name != null &&
-                name != localName         ->
-            throw XmlException("Local names don't match: expected=$name found=$localName")
-
-        else                              -> Unit
+            name != null &&
+                    localName != name         ->
+                throw XmlException("local name ${localName} does not match expected \"$name\"")
+        }
     }
 
 

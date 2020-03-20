@@ -68,11 +68,6 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     @Throws(XmlException::class)
     override fun nextTag(): EventType = DELEGATE_TO_LOCAL[parser.nextTag()].also { isStarted = true }
 
-    @Throws(XmlException::class)
-    override fun require(type: EventType, namespace: String?, name: String?) {
-        parser.require(LOCAL_TO_DELEGATE[type.ordinal], namespace, name)
-    }
-
     override val depth: Int
         get() = parser.depth
 
