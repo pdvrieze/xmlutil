@@ -390,6 +390,11 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     @Throws(XmlException::class)
     override fun getPrefix(namespaceUri: String?): String? {
         try {
+            pendingWrites.asSequence()
+                .filterIsInstance<XmlEvent.Attribute>()
+                .firstOrNull() { it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && it.value == namespaceUri
+                }?.let { return if (it.prefix.isBlank()) "" else it.localName }
+
             return delegate.getPrefix(namespaceUri)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
@@ -409,6 +414,14 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun getNamespaceUri(prefix: String): String? {
+        pendingWrites.asSequence()
+            .filterIsInstance<XmlEvent.Attribute>()
+            .firstOrNull() { it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && (
+                    ( prefix.isEmpty() && it.prefix.isEmpty() ) ||
+                            (prefix.isNotEmpty() && prefix == it.localName))
+            }?.let { return if (it.prefix.isBlank()) "" else it.localName }
+
+
         return delegate.namespaceContext.getNamespaceURI(prefix)
     }
 
