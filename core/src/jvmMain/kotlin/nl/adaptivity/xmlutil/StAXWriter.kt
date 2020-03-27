@@ -35,11 +35,16 @@ actual typealias PlatformXmlWriter = StAXWriter
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
-class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false) : XmlWriter {
+class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false, val autoCloseEmpty: Boolean = true) :
+    XmlWriter {
 
     override var indentString: String = ""
 
+    private val pendingWrites = mutableListOf<XmlEvent>()
+
     var lastTagDepth = -1
+
+    private var state = State.Empty
 
     override var depth: Int = 0
         private set
@@ -59,28 +64,79 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
             : this(newFactory(repairNamespaces).createXMLStreamWriter(result), omitXmlDecl)
 
     @Throws(XmlException::class)
-    override fun startTag(namespace: String?, localName: String, prefix: String?) {
+    override fun startTag(namespace: String?, localName: String, prefix: String?) = flushPending {
+        if (state == State.Empty) startDocument(null, null, null)
+        depth++
+        if (autoCloseEmpty) {
+            pendingWrites.add(XmlEvent.StartElementEvent(namespace ?: "", localName, prefix ?: ""))
+        } else {
+            doStartTag(namespace, prefix, localName, false)
+        }
+    }
+
+    private fun doStartTag(namespace: String?, prefix: String?, localName: String, isEmpty: Boolean) {
+        depth-- // the depth was already increased because this can be called
+        // from a pending context. This needs to be undone for indentation
         writeIndent()
         depth++
+
         try {
-            if (namespace.isNullOrEmpty() && prefix.isNullOrEmpty() && delegate.namespaceContext.getNamespaceURI(
-                    ""
-                                                                                                                ).isNullOrEmpty()
+            if (namespace.isNullOrEmpty() &&
+                prefix.isNullOrEmpty() &&
+                delegate.namespaceContext.getNamespaceURI("").isNullOrEmpty()
             ) {
-                delegate.writeStartElement(localName)
+                if (isEmpty) {
+                    delegate.writeEmptyElement(localName)
+                } else {
+                    delegate.writeStartElement(localName)
+                }
             } else {
-                delegate.writeStartElement(prefix ?: XMLConstants.DEFAULT_NS_PREFIX, localName, namespace)
+                if (isEmpty) {
+                    delegate.writeEmptyElement(prefix ?: XMLConstants.DEFAULT_NS_PREFIX, localName, namespace)
+                } else {
+                    delegate.writeStartElement(prefix ?: XMLConstants.DEFAULT_NS_PREFIX, localName, namespace)
+                }
             }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
     }
 
+    private inline fun flushPending(isEndTag: Boolean = false, body: () -> Unit) {
+        if (pendingWrites.isNotEmpty()) doFlushPending(isEndTag)
+        return body()
+    }
+
+    private fun doFlushPending(isEndTag: Boolean = false) {
+        val it = pendingWrites.toList().iterator()
+        pendingWrites.clear()
+        val start = it.next() as XmlEvent.StartElementEvent
+        doStartTag(start.namespaceUri, start.prefix, start.localName, isEndTag)
+        while (it.hasNext()) {
+            val at = it.next() as XmlEvent.Attribute
+            when {
+                at.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+                     -> doAttribute(at.namespaceUri, at.prefix, at.localName, at.value)
+
+                at.prefix == ""
+                     -> doNamespaceAttr("", at.value)
+
+                else -> doNamespaceAttr(at.localName, at.value)
+            }
+        }
+    }
+
     @Throws(XmlException::class)
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
-        depth--
-        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
-        delegate.writeEndElement()
+        if (pendingWrites.isNotEmpty()) {
+            doFlushPending(true) // if we write an empty tag don't write an end element
+            depth--
+            writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        } else {
+            depth--
+            writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+            delegate.writeEndElement()
+        }
     }
 
 
@@ -93,6 +149,9 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun endDocument() {
+        assert(state==State.StartDocWritten)
+        state = State.EndDocWritten
+        assert(pendingWrites.isEmpty()) // no pending start tags allowed here
         assert(depth == 0) // Don't write this until really the end of the document
         try {
             delegate.writeEndDocument()
@@ -110,6 +169,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun close() {
+        if (state!=State.EndDocWritten) endDocument()
         try {
             delegate.close()
         } catch (e: XMLStreamException) {
@@ -121,6 +181,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     @Throws(XmlException::class)
     override fun flush() {
         try {
+            if (pendingWrites.isNotEmpty()) doFlushPending(false)
             delegate.flush()
         } catch (e: XMLStreamException) {
             throw XmlException(e)
@@ -130,6 +191,14 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
+        if (pendingWrites.isNotEmpty()) {
+            pendingWrites.add(XmlEvent.Attribute(namespace ?: "", name, prefix ?: "", value))
+        } else {
+            doAttribute(namespace, prefix, name, value)
+        }
+    }
+
+    private fun doAttribute(namespace: String?, prefix: String?, name: String, value: String) {
         try {
             if (namespace.isNullOrEmpty() || prefix.isNullOrEmpty()) {
                 delegate.writeAttribute(name, value)
@@ -139,7 +208,6 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
-
     }
 
     @Deprecated("", ReplaceWith("attribute(null, localName, null, value)"))
@@ -161,14 +229,40 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     }
 
     @Throws(XmlException::class)
-    override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) = try {
-        delegate.writeNamespace(namespacePrefix, namespaceUri)
-    } catch (e: XMLStreamException) {
-        throw XmlException(e)
+    override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
+        when (pendingWrites.isEmpty()) {
+            true -> doNamespaceAttr(namespacePrefix, namespaceUri)
+            else -> when (namespacePrefix) {
+                ""   -> pendingWrites.add(
+                    XmlEvent.Attribute(
+                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                        XMLConstants.XMLNS_ATTRIBUTE,
+                        "",
+                        namespaceUri
+                                      )
+                                         )
+                else -> pendingWrites.add(
+                    XmlEvent.Attribute(
+                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                        namespacePrefix,
+                        XMLConstants.XMLNS_ATTRIBUTE,
+                        namespaceUri
+                                      )
+                                         )
+            }
+        }
+    }
+
+    private fun doNamespaceAttr(namespacePrefix: String, namespaceUri: String) {
+        try {
+            delegate.writeNamespace(namespacePrefix, namespaceUri)
+        } catch (e: XMLStreamException) {
+            throw XmlException(e)
+        }
     }
 
     @Throws(XmlException::class)
-    override fun comment(text: String) {
+    override fun comment(text: String) = flushPending {
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         try {
             delegate.writeComment(text)
@@ -185,6 +279,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun processingInstruction(text: String) {
+        assert(pendingWrites.isEmpty())
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         val split = text.indexOf(' ')
         try {
@@ -211,7 +306,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     }
 
     @Throws(XmlException::class)
-    override fun cdsect(text: String) {
+    override fun cdsect(text: String) = flushPending {
         try {
             delegate.writeCData(text)
         } catch (e: XMLStreamException) {
@@ -228,6 +323,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun docdecl(text: String) {
+        assert(pendingWrites.isEmpty())
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         try {
             delegate.writeDTD(text)
@@ -243,7 +339,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     }
 
     @Throws(XmlException::class)
-    override fun entityRef(text: String) {
+    override fun entityRef(text: String) = flushPending {
         try {
             delegate.writeEntityRef(text)
         } catch (e: XMLStreamException) {
@@ -260,6 +356,8 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
+        state = State.StartDocWritten
+        assert(pendingWrites.isEmpty())
         if (!omitXmlDecl) {
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
             if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(
@@ -275,12 +373,12 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     }
 
     @Throws(XmlException::class)
-    override fun ignorableWhitespace(text: String) {
+    override fun ignorableWhitespace(text: String) = flushPending {
         text(text)
     }
 
     @Throws(XmlException::class)
-    override fun text(text: String) {
+    override fun text(text: String) = flushPending {
         try {
             delegate.writeCharacters(text)
         } catch (e: XMLStreamException) {
@@ -361,4 +459,6 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         }
 
     }
+
+    private enum class State { Empty, StartDocWritten, EndDocWritten }
 }

@@ -153,6 +153,15 @@ sealed class XmlEvent(val locationInfo: String?) {
                            ) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContextImpl {
 
+        constructor(namespaceUri: String, localName: String, prefix: String) : this(
+            null,
+            namespaceUri,
+            localName,
+            prefix,
+            emptyArray(),
+            emptyArray()
+                                                                                   )
+
         override fun writeTo(writer: XmlWriter) {
             writer.startTag(namespaceUri, localName, prefix)
 
@@ -213,6 +222,13 @@ sealed class XmlEvent(val locationInfo: String?) {
         value: CharSequence
                    ) : XmlEvent(locationInfo) {
 
+        constructor(
+            namespaceUri: CharSequence,
+            localName: CharSequence,
+            prefix: CharSequence,
+            value: CharSequence
+                   ) : this(null, namespaceUri, localName, prefix, value)
+
         val value = value.toString()
         val prefix = prefix.toString()
         val localName = localName.toString()
@@ -231,6 +247,11 @@ sealed class XmlEvent(val locationInfo: String?) {
         fun hasNamespaceUri(): Boolean {
             return XMLConstants.XMLNS_ATTRIBUTE_NS_URI == namespaceUri ||
                     (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE == localName)
+        }
+
+        override fun toString(): String = when (prefix.isBlank()) {
+            true -> "$localName=\"$value\""
+            else -> "$prefix.$localName=\"$value\""
         }
     }
 
