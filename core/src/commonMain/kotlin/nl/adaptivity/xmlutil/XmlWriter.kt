@@ -145,9 +145,7 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
         if (getNamespaceUri(prefix) == uri && reader.isPrefixDeclaredInElement(prefix)) {
             return
         } else if (uri.isNotEmpty()) {
-            if (getNamespaceUri(prefix) != uri) {
-                missingNamespaces[prefix] = uri
-            }
+            missingNamespaces[prefix] = uri
         }
     }
 }

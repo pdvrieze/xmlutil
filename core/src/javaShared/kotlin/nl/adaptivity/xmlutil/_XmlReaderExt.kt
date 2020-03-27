@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2020.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -55,17 +55,21 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
         val missingNamespaces = TreeMap<String, String>()
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
         val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
+
+
         var type: EventType? = eventType
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
-                EventType.START_ELEMENT        -> {
-                    val out = XmlStreaming.newWriter(caw)
-                    writeCurrent(out) // writes the start tag
-                    out.addUndeclaredNamespaces(this, missingNamespaces)
-                    out.writeElementContent(missingNamespaces, this) // writes the children and end tag
-                    out.close()
-                }
+                EventType.START_ELEMENT        ->
+                    XmlStreaming.newWriter(caw).use { out: XmlWriter ->
+                        val namespaceForPrefix = out.getNamespaceUri(prefix)
+                        writeCurrent(out) // writes the start tag
+                        if (namespaceForPrefix!=namespaceURI) {
+                            out.addUndeclaredNamespaces(this, missingNamespaces)
+                        }
+                        out.writeElementContent(missingNamespaces, this) // writes the children and end tag
+                    }
 
                 EventType.IGNORABLE_WHITESPACE ->
                     if (text.isNotEmpty()) caw.append(text.xmlEncode())
