@@ -61,7 +61,7 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
                                  ): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces)
+        return factory.newWriter(writer, repairNamespaces = repairNamespaces, omitXmlDecl = omitXmlDecl)
     }
 
     actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
