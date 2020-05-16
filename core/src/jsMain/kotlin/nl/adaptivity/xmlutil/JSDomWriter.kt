@@ -59,9 +59,15 @@ class JSDomWriter constructor(
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indentSequence.isNotEmpty() && lastTagDepth != depth) {
+        val indentSeq = indentSequence
+        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            repeat(depth) { indentSequence.forEach { it.writeTo(this) }}
+            try {
+                indentSequence = emptyList()
+                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
+            } finally {
+                indentSequence = indentSeq
+            }
         }
         lastTagDepth = newDepth
     }
