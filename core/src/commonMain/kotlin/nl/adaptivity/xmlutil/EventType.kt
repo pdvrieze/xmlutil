@@ -24,7 +24,7 @@ enum class EventType {
     START_DOCUMENT {
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader) = reader.run {
+        override fun createEvent(reader: XmlReader): XmlEvent.StartDocumentEvent = reader.run {
             XmlEvent.StartDocumentEvent(locationInfo, version, encoding, standalone)
         }
 
@@ -32,7 +32,7 @@ enum class EventType {
             writer.startDocument(reader.version, reader.encoding, reader.standalone)
     },
     START_ELEMENT {
-        override fun createEvent(reader: XmlReader) = reader.run {
+        override fun createEvent(reader: XmlReader): XmlEvent.StartElementEvent = reader.run {
             XmlEvent.StartElementEvent(
                 locationInfo, namespaceURI, localName, prefix, attributes,
                 namespaceDecls
@@ -63,7 +63,7 @@ enum class EventType {
     COMMENT {
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader) = reader.run {
+        override fun createEvent(reader: XmlReader): XmlEvent.TextEvent = reader.run {
             XmlEvent.TextEvent(locationInfo, COMMENT, text)
         }
 
@@ -95,7 +95,7 @@ enum class EventType {
     DOCDECL {
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader) = reader.run {
+        override fun createEvent(reader: XmlReader): XmlEvent.TextEvent = reader.run {
             XmlEvent.TextEvent(locationInfo, DOCDECL, text)
         }
 
@@ -127,11 +127,8 @@ enum class EventType {
     IGNORABLE_WHITESPACE {
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader) = reader.run {
-            XmlEvent.TextEvent(
-                locationInfo, IGNORABLE_WHITESPACE,
-                text
-                              )
+        override fun createEvent(reader: XmlReader): XmlEvent.TextEvent = reader.run {
+            XmlEvent.TextEvent(locationInfo, IGNORABLE_WHITESPACE, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.ignorableWhitespace(
@@ -153,10 +150,8 @@ enum class EventType {
 
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader) = XmlEvent.TextEvent(
-            reader.locationInfo, PROCESSING_INSTRUCTION, reader.text
-                                                                        )
-
+        override fun createEvent(reader: XmlReader): XmlEvent.TextEvent =
+            XmlEvent.TextEvent(reader.locationInfo, PROCESSING_INSTRUCTION, reader.text)
 
         override fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent) = writer.processingInstruction(
             textEvent.text

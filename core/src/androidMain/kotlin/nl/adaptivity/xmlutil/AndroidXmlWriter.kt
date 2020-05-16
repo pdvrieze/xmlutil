@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
+import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlSerializer
 import java.io.IOException
@@ -36,13 +37,11 @@ actual typealias PlatformXmlWriter = AndroidXmlWriter
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-class AndroidXmlWriter : XmlWriter {
+class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     private val namespaceHolder = NamespaceHolder()
     private val isRepairNamespaces: Boolean
     private val writer: XmlSerializer
-
-    override var indentString: String = ""
 
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
@@ -113,8 +112,9 @@ class AndroidXmlWriter : XmlWriter {
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
-            writer.ignorableWhitespace("\n${indentString.repeat(depth)}")
+        if (lastTagDepth >= 0 && indentSequence.isNotEmpty() && lastTagDepth != depth) {
+            ignorableWhitespace("\n")
+            repeat(depth) { indentSequence.forEach { it.writeTo(this) }}
         }
         lastTagDepth = newDepth
     }

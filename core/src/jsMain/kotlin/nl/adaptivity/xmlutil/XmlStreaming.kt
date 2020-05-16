@@ -159,7 +159,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
                     target.write("\"")
                 }
                 target.write("?>")
-                if(delegate.indentString.isNotEmpty()) {
+                if(delegate.indentSequence.isNotEmpty()) {
                     target.write("\n")
                 }
             }

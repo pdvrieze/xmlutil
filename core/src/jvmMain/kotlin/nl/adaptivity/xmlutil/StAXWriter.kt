@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import java.io.OutputStream
 import java.io.Writer
 import java.lang.invoke.MethodHandle
@@ -40,10 +41,8 @@ class StAXWriter(
     val delegate: XMLStreamWriter,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val autoCloseEmpty: Boolean = true
-                ) :
+                ) : PlatformXmlWriterBase(),
     XmlWriter {
-
-    override var indentString: String = ""
 
     private val pendingWrites = mutableListOf<XmlEvent>()
 
@@ -170,8 +169,16 @@ class StAXWriter(
 
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
-            delegate.writeCharacters("\n${indentString.repeat(depth)}")
+        val indentSeq = indentSequence
+        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != depth) {
+            try {
+                // Unset the indentation so that comments will not make things work correctly.
+                indentSequence = emptyList()
+                ignorableWhitespace("\n")
+                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
+            } finally {
+                indentSequence = indentSeq
+            }
         }
         lastTagDepth = newDepth
     }

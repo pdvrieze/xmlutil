@@ -24,6 +24,7 @@ import nl.adaptivity.js.util.forEach
 import nl.adaptivity.js.util.myLookupNamespaceURI
 import nl.adaptivity.js.util.myLookupPrefix
 import nl.adaptivity.js.util.removeElementChildren
+import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
 import kotlin.browser.document
@@ -33,7 +34,12 @@ actual typealias PlatformXmlWriter = JSDomWriter
 /**
  * Created by pdvrieze on 04/04/17.
  */
-class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = false, val xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : XmlWriter {
+class JSDomWriter constructor(
+    current: ParentNode?,
+    val isAppend: Boolean = false,
+    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+                             ) : PlatformXmlWriterBase(), XmlWriter {
+
     private var docDelegate: Document? = when (current) {
         null                -> null
         is Node             -> current.ownerDocument
@@ -53,9 +59,9 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
-            val ws = "\n${indentString.repeat(depth)}"
-            ignorableWhitespace(ws) // will set lastTagDepth, but we reset that after the condition anyway
+        if (lastTagDepth >= 0 && indentSequence.isNotEmpty() && lastTagDepth != depth) {
+            ignorableWhitespace("\n")
+            repeat(depth) { indentSequence.forEach { it.writeTo(this) }}
         }
         lastTagDepth = newDepth
     }
@@ -109,8 +115,6 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
 
     override var depth: Int = 0
         private set
-
-    override var indentString: String = ""
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         val cur = requireCurrent("Namespace attribute")

@@ -22,23 +22,13 @@ package nl.adaptivity.xmlutil
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class TestXmlWriter {
-    @Test
-    fun testSerializeSimplest() {
+    private fun testIndentImpl1(indent: String) {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
-            w.smartStartTag("foobar".toQname()) { text("xx")}
-            w.close()
-        }
-        assertEquals("<foobar>xx</foobar>", serialized)
-    }
-
-    @Test
-    fun testIndentXml5Spaces() {
-        val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
-            w.indentString="     "
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
+            w.indentString = indent
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {
                     smartStartTag("deeper".toQname()) {
@@ -50,22 +40,21 @@ class TestXmlWriter {
             w.close()
         }.replace(" />", "/>")
         val expected = """
-            <foo>
-                 <bar>
-                      <deeper>something</deeper>
-                      <shallow/>
-                 </bar>
-            </foo>
-        """.trimIndent()
+                <foo>
+                $indent<bar>
+                $indent$indent<deeper>something</deeper>
+                $indent$indent<shallow/>
+                $indent</bar>
+                </foo>
+            """.trimIndent()
 
         assertEquals(expected, serialized)
     }
 
-    @Test
-    fun testIndentXmlTab() {
+    private fun testIndentImpl2(indent: String) {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
-            w.indentString="\t"
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
+            w.indentString = indent
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {
                     text("something")
@@ -74,11 +63,86 @@ class TestXmlWriter {
             w.close()
         }
         val expected = """
-            <foo>
-            ${'\t'}<bar>something</bar>
-            </foo>
-        """.trimIndent()
+                <foo>
+                $indent<bar>something</bar>
+                </foo>
+            """.trimIndent()
 
         assertEquals(expected, serialized)
+    }
+
+    @Test
+    fun testSerializeSimplest() {
+        val serialized = buildString {
+            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
+            w.smartStartTag("foobar".toQname()) { text("xx")}
+            w.close()
+        }
+        assertEquals("<foobar>xx</foobar>", serialized)
+    }
+
+    @Test
+    fun testIndentXml5Spaces1() {
+        testIndentImpl1("     ")
+    }
+
+    @Test
+    fun testIndentXml5Spaces2() {
+        testIndentImpl2("     ")
+    }
+
+    @Test
+    fun testIndentXmlTab1() {
+        testIndentImpl1("\t")
+    }
+
+    @Test
+    fun testIndentXmlTab2() {
+        testIndentImpl2("\t")
+    }
+
+    @Test
+    fun testIndentXmlMixed1() {
+        testIndentImpl1("  <!--\t__-->")
+    }
+
+    @Test
+    fun testIndentXmlMixed2() {
+        testIndentImpl2("<!-- -->\t  ")
+    }
+
+    @Test
+    fun testIndentXmlComment1() {
+        testIndentImpl1("<!--.-->")
+    }
+
+    @Test
+    fun testIndentXmlComment2() {
+        testIndentImpl2("<!--xxx-->")
+    }
+
+    @Test
+    fun testIndentTextContent() {
+        val w = XmlStreaming.newWriter(StringBuilder())
+        assertFailsWith<XmlException> {
+            w.indentString="  ..."
+        }
+    }
+
+    @Test
+    fun testIndentIncompleteComment() {
+        val w = XmlStreaming.newWriter(StringBuilder())
+        assertFailsWith<XmlException> {
+            w.indentString="<!--"
+        }
+        assertFailsWith<XmlException> {
+            w.indentString="<!-- "
+        }
+        assertFailsWith<XmlException> {
+            w.indentString="<!-- -"
+        }
+        assertFailsWith<XmlException> {
+            w.indentString="<!-- --"
+        }
     }
 }

@@ -545,15 +545,15 @@ class TestCommon {
         val expectedXml = """
             <?xml version="1.0"?>
             <prefix:model xmlns:prefix="namespace" version="0.0.1" anAttribute="attrValue">
-                   <prefix:anElement>elementValue</prefix:anElement>
-                   <prefix:aBlankElement/>
+            <!--i--><prefix:anElement>elementValue</prefix:anElement>
+            <!--i--><prefix:aBlankElement/>
             </prefix:model>""".trimIndent()
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
         val format = XML {
             xmlDeclMode = XmlDeclMode.Minimal
-            indentString = "       "
+            indentString = "<!--i-->"
         }
 
         val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
