@@ -22,6 +22,8 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
+import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.XmlException
 import org.xmlpull.v1.XmlSerializer
 import java.io.IOException
 import java.io.OutputStream
@@ -49,10 +51,11 @@ class BetterXmlSerializer : XmlSerializer {
     private var unicode: Boolean = false
     private var encoding: String? = null
     private val escapeAggressive = false
-    var isOmitXmlDecl = false
+    var xmlDeclMode = XmlDeclMode.None
     var addTrailingSpaceBeforeEnd = true
+    private var state: WriteState = WriteState.BeforeDocument
 
-    private fun check(close: Boolean) {
+    private fun checkPending(close: Boolean) {
         if (!pending) {
             return
         }
@@ -121,12 +124,28 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun docdecl(dd: String) {
+        @Suppress("NON_EXHAUSTIVE_WHEN")
+        when (state) {
+            WriteState.BeforeDocument -> {
+                if (xmlDeclMode != XmlDeclMode.None) {
+                    startDocument(null, null)
+                }
+                state = WriteState.AfterXmlDecl
+            }
+            WriteState.AfterXmlDecl -> {}
+            else ->
+                throw XmlException("Writing a DTD is only allowed once, in the prolog")
+        }
+        state = WriteState.AfterDocTypeDecl
         writer.write("<!DOCTYPE")
         writer.write(dd)
         writer.write(">")
     }
 
     override fun endDocument() {
+        if (state!=WriteState.InTagContent) {
+            throw XmlException("Attempting to end document when in invalid state: $state")
+        }
         while (depth > 0) {
             endTag(elementStack[depth * 3 - 3], elementStack[depth * 3 - 1]!!)
         }
@@ -135,7 +154,7 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun entityRef(name: String) {
-        check(false)
+        checkPending(false)
         writer.write('&')
         writer.write(name)
         writer.write(';')
@@ -230,6 +249,7 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun ignorableWhitespace(s: String) {
+        triggerStartDocument() // whitespace is not allowed before the xml declaration
         text(s)
     }
 
@@ -324,34 +344,57 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun startDocument(encoding: String?, standalone: Boolean?) {
-        if (!isOmitXmlDecl) {
-            writer.write("<?xml version='1.0' ")
+        if (state!=WriteState.BeforeDocument) {
+            throw XmlException("Attempting to write start document after document already started")
+        }
+        state = WriteState.AfterXmlDecl
+
+        if (xmlDeclMode!=XmlDeclMode.None) {
+            writer.write("<?xml version='1.0'")
 
             if (encoding != null) {
                 this.encoding = encoding
                 if (encoding.toLowerCase(Locale.ENGLISH).startsWith("utf")) {
                     unicode = true
                 }
+            } else if (xmlDeclMode == XmlDeclMode.Charset) {
+                this.encoding = "UTF-8"
             }
 
-            if (this.encoding != null) {
-                writer.write("encoding='")
-                writer.write(this.encoding!!)
-                writer.write("' ")
-            }
+            if (xmlDeclMode!=XmlDeclMode.Minimal || !unicode) {
 
-            if (standalone != null) {
-                writer.write("standalone='")
-                writer.write(if (standalone) "yes" else "no")
-                writer.write("' ")
+                this.encoding?.let { encoding ->
+                    writer.write(" encoding='")
+                    writer.write(this.encoding!!)
+                    writer.write('\'')
+                }
+
+                if (standalone != null) {
+                    writer.write(" standalone='")
+                    writer.write(if (standalone) "yes" else "no")
+                    writer.write('\'')
+                }
             }
             writer.write("?>")
+            indent[depth]=true
         }
     }
 
     @Throws(IOException::class)
     override fun startTag(namespace: String?, name: String): BetterXmlSerializer {
-        check(false)
+        @Suppress("NON_EXHAUSTIVE_WHEN")
+        when (state) {
+            WriteState.BeforeDocument -> {
+                if (xmlDeclMode != XmlDeclMode.None) {
+                    startDocument(null, null)
+                }
+            }
+            WriteState.Finished ->
+                throw XmlException("Attempting to write tag after the document finished")
+        }
+        state = WriteState.InTagContent
+
+        checkPending(false)
 
         //        if (namespace == null)
         //            namespace = "";
@@ -530,7 +573,7 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun flush() {
-        check(false)
+        checkPending(false)
         writer.flush()
     }
 
@@ -551,7 +594,7 @@ class BetterXmlSerializer : XmlSerializer {
         }
 
         if (pending) {
-            check(true)
+            checkPending(true)
             depth--
         } else {
             if (indent[depth + 1]) {
@@ -591,7 +634,7 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun text(text: String): BetterXmlSerializer {
-        check(false)
+        checkPending(false)
         indent[depth] = false
         writeEscaped(text, -1)
         return this
@@ -605,7 +648,7 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun cdsect(data: String) {
-        check(false)
+        checkPending(false)
         writer.write("<![CDATA[")
         writer.write(data)
         writer.write("]]>")
@@ -613,7 +656,8 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun comment(comment: String) {
-        check(false)
+        triggerStartDocument() // No content before XmlDeclaration
+        checkPending(false)
         writer.write("<!--")
         writer.write(comment)
         writer.write("-->")
@@ -621,12 +665,35 @@ class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun processingInstruction(pi: String) {
-        check(false)
+        triggerStartDocument()
+
+        checkPending(false)
         writer.write("<?")
         writer.write(pi)
         writer.write("?>")
+    }
+
+    private fun triggerStartDocument() {
+        // Non-before states are not modified
+        @Suppress("NON_EXHAUSTIVE_WHEN")
+        when (state) {
+            WriteState.BeforeDocument -> {
+                if (xmlDeclMode != XmlDeclMode.None) {
+                    startDocument(null, null)
+                }
+                state = WriteState.AfterXmlDecl
+            }
+        }
     }
 }
 
 @Suppress("NOTHING_TO_INLINE")
 private inline fun Writer.write(c: Char) = write(c.toInt())
+
+private enum class WriteState {
+    BeforeDocument,
+    AfterXmlDecl,
+    AfterDocTypeDecl,
+    InTagContent,
+    Finished
+}

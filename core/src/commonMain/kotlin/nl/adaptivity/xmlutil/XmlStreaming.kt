@@ -36,8 +36,32 @@ expect object XmlStreaming {
 
     fun newReader(input: CharSequence): XmlReader
 
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+    @Deprecated("Use the version that takes an xmlDeclMode")
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
 
-    fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean = false): XmlWriter
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    @Deprecated("Use the version that takes an xmlDeclMode")
+    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
+
+    fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
 }
 
+
+enum class XmlDeclMode {
+    /** Don't emit XML Declaration */
+    None,
+    /** Emit an xml declaration just containing the xml version number. Only charsets that aren't UTF will be emitted. */
+    Minimal,
+    /** Emit an xml declaration whatever is provided by default, if possible minimal. */
+    Auto,
+    /** Emit an xml declaration that includes the character set. */
+    Charset;
+
+    companion object {
+        fun from(value: Boolean): XmlDeclMode = when(value) {
+            true -> None
+            else -> Auto
+        }
+    }
+}

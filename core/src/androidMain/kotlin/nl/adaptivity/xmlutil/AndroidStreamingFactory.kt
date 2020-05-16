@@ -34,8 +34,8 @@ import javax.xml.transform.Source
 class AndroidStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
-    override fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        return AndroidXmlWriter(writer, repairNamespaces, omitXmlDecl)
+    override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+        return AndroidXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
     @Throws(XmlException::class)
@@ -43,19 +43,19 @@ class AndroidStreamingFactory : XmlStreamingFactory {
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
-        omitXmlDecl: Boolean
+        xmlDeclMode: XmlDeclMode
                           ): XmlWriter {
-        return AndroidXmlWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
+        return AndroidXmlWriter(outputStream, encoding, repairNamespaces, xmlDeclMode)
     }
 
     @Throws(XmlException::class)
-    override fun newWriter(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        throw UnsupportedOperationException("Results are not supported")
+    override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+        throw UnsupportedOperationException("Results are not supported on Android")
     }
 
     @Throws(XmlException::class)
     override fun newReader(source: Source): XmlReader {
-        throw UnsupportedOperationException("Sources are not supported")
+        throw UnsupportedOperationException("Sources are not supported on Android")
     }
 
     @Throws(XmlException::class)

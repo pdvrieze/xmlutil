@@ -33,7 +33,7 @@ actual typealias PlatformXmlWriter = JSDomWriter
 /**
  * Created by pdvrieze on 04/04/17.
  */
-class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = false) : XmlWriter {
+class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = false, val xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : XmlWriter {
     private var docDelegate: Document? = when (current) {
         null                -> null
         is Node             -> current.ownerDocument
@@ -42,7 +42,7 @@ class JSDomWriter constructor(current: ParentNode?, val isAppend: Boolean = fals
         else                -> throw IllegalArgumentException("Unexpected parent node. Cannot determine document")
     }
 
-    constructor() : this(null)
+    constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
 
     val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
     var currentNode: ParentNode? = current

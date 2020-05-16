@@ -29,12 +29,13 @@ import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
-private fun String.normalize() = replace(" />", "/>")
+private fun String.normalize() = replace(" />", "/>").replace("\r\n","\n")
 
 @OptIn(UnstableDefault::class)
 val testConfiguration = JsonConfiguration(
@@ -516,6 +517,48 @@ class TestCommon {
         override val expectedJson: String
             get() = "{\"Str\":\"A String\",\"Bar\":null}"
 
+    }
+
+    @Test
+    fun testEmitXmlDeclFull() {
+        val expectedXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <prefix:model xmlns:prefix="namespace" version="0.0.1" anAttribute="attrValue">
+                <prefix:anElement>elementValue</prefix:anElement>
+                <prefix:aBlankElement/>
+            </prefix:model>""".trimIndent()
+
+        val model = SampleModel1("0.0.1", "attrValue", "elementValue")
+
+        val format = XML {
+            xmlDeclMode = XmlDeclMode.Charset
+            indent = 4
+        }
+
+        val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
+
+        assertEquals(expectedXml, serializedModel)
+    }
+
+    @Test
+    fun testEmitXmlDeclMinimal() {
+        val expectedXml = """
+            <?xml version="1.0"?>
+            <prefix:model xmlns:prefix="namespace" version="0.0.1" anAttribute="attrValue">
+                <prefix:anElement>elementValue</prefix:anElement>
+                <prefix:aBlankElement/>
+            </prefix:model>""".trimIndent()
+
+        val model = SampleModel1("0.0.1", "attrValue", "elementValue")
+
+        val format = XML {
+            xmlDeclMode = XmlDeclMode.Minimal
+            indent = 4
+        }
+
+        val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
+
+        assertEquals(expectedXml, serializedModel)
     }
 
 }

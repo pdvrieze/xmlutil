@@ -53,19 +53,34 @@ class AndroidXmlWriter : XmlWriter {
         get() = namespaceHolder.depth
 
     @Throws(XmlPullParserException::class, IOException::class)
+    @Deprecated("Use xmlDeclMode")
+    constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean) :
+            this (writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    @Throws(XmlPullParserException::class, IOException::class)
     @JvmOverloads
-    constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean = false) :
-            this(repairNamespaces, omitXmlDecl) {
+    constructor(writer: Writer, repairNamespaces: Boolean = true, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) :
+            this(repairNamespaces, xmlDeclMode) {
         this.writer.setOutput(writer)
         initWriter(this.writer)
     }
 
     @Throws(XmlPullParserException::class)
-    private constructor(repairNamespaces: Boolean, omitXmlDecl: Boolean) {
+    private constructor(repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) {
         isRepairNamespaces = repairNamespaces
-        writer = BetterXmlSerializer().apply { isOmitXmlDecl = omitXmlDecl }
+        writer = BetterXmlSerializer().apply { this.xmlDeclMode = xmlDeclMode }
         initWriter(writer)
     }
+
+    @Deprecated("Use xmlDeclMode")
+    @Throws(XmlPullParserException::class, IOException::class)
+    constructor(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean = true,
+        omitXmlDecl: Boolean
+               ) :
+            this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XmlPullParserException::class, IOException::class)
     @JvmOverloads
@@ -73,9 +88,9 @@ class AndroidXmlWriter : XmlWriter {
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = true,
-        omitXmlDecl: Boolean = false
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
                ) :
-            this(repairNamespaces, omitXmlDecl) {
+            this(repairNamespaces, xmlDeclMode) {
 
         writer.setOutput(outputStream, encoding)
         initWriter(writer)

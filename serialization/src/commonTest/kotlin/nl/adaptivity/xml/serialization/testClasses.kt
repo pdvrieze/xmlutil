@@ -284,3 +284,13 @@ data class NullList(
     @SerialName("Bar")
     val aList: List<NullListElement>? = null
                    )
+
+@Serializable
+@XmlSerialName("model", "namespace", "prefix")
+data class SampleModel1(
+    val version: String,
+    val anAttribute: String,
+    @XmlElement(true)
+    val anElement: String,
+    val aBlankElement: Unit? = Unit
+                       )

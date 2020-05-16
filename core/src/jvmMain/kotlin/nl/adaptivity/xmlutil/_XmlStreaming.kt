@@ -59,13 +59,13 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
     actual override fun newWriter(
         writer: java.io.Writer,
         repairNamespaces: Boolean,
-        omitXmlDecl: Boolean
+        xmlDeclMode: XmlDeclMode
                                  ): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces = repairNamespaces, omitXmlDecl = omitXmlDecl)
+        return factory.newWriter(writer, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
     }
 
-    actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        return factory.newWriter(output, repairNamespaces, omitXmlDecl)
+    actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+        return factory.newWriter(output, repairNamespaces, xmlDeclMode)
     }
 
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {

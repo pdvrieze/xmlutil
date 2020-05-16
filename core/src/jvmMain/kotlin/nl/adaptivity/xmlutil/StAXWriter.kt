@@ -24,6 +24,7 @@ import java.io.OutputStream
 import java.io.Writer
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
+import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamWriter
@@ -35,7 +36,11 @@ actual typealias PlatformXmlWriter = StAXWriter
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
-class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false, val autoCloseEmpty: Boolean = true) :
+class StAXWriter(
+    val delegate: XMLStreamWriter,
+    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    val autoCloseEmpty: Boolean = true
+                ) :
     XmlWriter {
 
     override var indentString: String = ""
@@ -49,19 +54,43 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     override var depth: Int = 0
         private set
 
+    @Deprecated("Use version taking XmlDeclMode")
+    constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean = false, autoCloseEmpty: Boolean = true) :
+            this(delegate, XmlDeclMode.from(omitXmlDecl), autoCloseEmpty)
+
+    @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
     constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-            : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), omitXmlDecl)
+            : this(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
+    @Throws(XMLStreamException::class)
+    constructor(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
+            : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), xmlDeclMode)
+
+    @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
     constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-            : this(
-        newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), omitXmlDecl
-                  )
+            : this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
+    constructor(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+               )
+            : this(
+        newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), xmlDeclMode
+                  )
+
+    @Deprecated("Use version taking XmlDeclMode")
+    @Throws(XMLStreamException::class)
     constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-            : this(newFactory(repairNamespaces).createXMLStreamWriter(result), omitXmlDecl)
+            : this(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    @Throws(XMLStreamException::class)
+    constructor(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
+            : this(newFactory(repairNamespaces).createXMLStreamWriter(result), xmlDeclMode)
 
     @Throws(XmlException::class)
     override fun startTag(namespace: String?, localName: String, prefix: String?) = flushPending {
@@ -149,7 +178,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun endDocument() {
-        assert(state==State.StartDocWritten)
+        assert(state == State.StartDocWritten)
         state = State.EndDocWritten
         assert(pendingWrites.isEmpty()) // no pending start tags allowed here
         assert(depth == 0) // Don't write this until really the end of the document
@@ -169,7 +198,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
 
     @Throws(XmlException::class)
     override fun close() {
-        if (state!=State.EndDocWritten) endDocument()
+        if (state != State.EndDocWritten) endDocument()
         try {
             delegate.close()
         } catch (e: XMLStreamException) {
@@ -358,15 +387,24 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
         state = State.StartDocWritten
         assert(pendingWrites.isEmpty())
-        if (!omitXmlDecl) {
+        if (xmlDeclMode != XmlDeclMode.None) {
+            val effectiveEncoding = when (xmlDeclMode) {
+                XmlDeclMode.Minimal -> when (encoding?.toLowerCase(Locale.ENGLISH)?.startsWith("utf-")) {
+                    false -> encoding
+                    else  -> null
+                }
+                XmlDeclMode.Charset -> encoding ?: "UTF-8"
+                else -> encoding
+            }
+
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
             if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(
                     delegate
                                                                                                      ) == true
             ) {
-                mtdWriteStartDocument.invoke(delegate, version, encoding, standalone)
+                mtdWriteStartDocument.invoke(delegate, version, effectiveEncoding, standalone)
             } else {
-                delegate.writeStartDocument(encoding, version) // standalone doesn't work
+                delegate.writeStartDocument(effectiveEncoding, version) // standalone doesn't work
             }
         }
 
@@ -392,7 +430,8 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         try {
             pendingWrites.asSequence()
                 .filterIsInstance<XmlEvent.Attribute>()
-                .firstOrNull() { it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && it.value == namespaceUri
+                .firstOrNull() {
+                    it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && it.value == namespaceUri
                 }?.let { return if (it.prefix.isBlank()) "" else it.localName }
 
             return delegate.getPrefix(namespaceUri)
@@ -416,9 +455,10 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
     override fun getNamespaceUri(prefix: String): String? {
         pendingWrites.asSequence()
             .filterIsInstance<XmlEvent.Attribute>()
-            .firstOrNull() { it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && (
-                    ( prefix.isEmpty() && it.prefix.isEmpty() ) ||
-                            (prefix.isNotEmpty() && prefix == it.localName))
+            .firstOrNull() {
+                it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && (
+                        (prefix.isEmpty() && it.prefix.isEmpty()) ||
+                                (prefix.isNotEmpty() && prefix == it.localName))
             }?.let { return if (it.prefix.isBlank()) "" else it.localName }
 
 
@@ -450,7 +490,7 @@ class StAXWriter(val delegate: XMLStreamWriter, val omitXmlDecl: Boolean = false
         init {
             var mh: MethodHandle? = null
             val clazz = try {
-                Class.forName("org.codehaus.stax2.XMLStreamWriter").apply {
+                Class.forName("org.codehaus.stax2.XMLStreamWriter2").apply {
                     val m = getMethod("writeStartDocument", String::class.java, String::class.java, Boolean::class.java)
                     mh = MethodHandles.lookup().unreflect(m)
                 }

@@ -31,9 +31,9 @@ import javax.xml.transform.Source
 class StAXStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
-    override fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         try {
-            return StAXWriter(writer, repairNamespaces, omitXmlDecl)
+            return StAXWriter(writer, repairNamespaces, xmlDeclMode)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
@@ -44,19 +44,19 @@ class StAXStreamingFactory : XmlStreamingFactory {
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
-        omitXmlDecl: Boolean
+        xmlDeclMode: XmlDeclMode
                           ): XmlWriter {
         try {
-            return StAXWriter(outputStream, encoding, repairNamespaces, omitXmlDecl)
+            return StAXWriter(outputStream, encoding, repairNamespaces, xmlDeclMode)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
     }
 
     @Throws(XmlException::class)
-    override fun newWriter(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         try {
-            return StAXWriter(result, repairNamespaces, omitXmlDecl)
+            return StAXWriter(result, repairNamespaces, xmlDeclMode)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }

@@ -85,11 +85,23 @@ actual object XmlStreaming {
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
                         ): XmlWriter {
-        return AppendingWriter(output, JSDomWriter())
+        return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+    }
+
+    actual fun newWriter(
+        output: Appendable,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode
+                        ): XmlWriter {
+        return AppendingWriter(output, JSDomWriter(xmlDeclMode))
     }
 
     actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        return WriterXmlWriter(writer, JSDomWriter())
+        return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+    }
+
+    actual fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+        return WriterXmlWriter(writer, JSDomWriter(xmlDeclMode))
     }
 }
 
@@ -125,6 +137,33 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
         try {
             val xmls = XMLSerializer()
             val domText = xmls.serializeToString(delegate.target)
+
+            val xmlDeclMode = delegate.xmlDeclMode
+            if (xmlDeclMode!=XmlDeclMode.None) {
+                val encoding = when (xmlDeclMode) {
+                    XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
+                    else -> when (delegate.requestedEncoding?.toLowerCase()?.startsWith("utf-")) {
+                        false -> delegate.requestedEncoding
+                        else -> null
+                    }
+                }
+
+                val xmlVersion = delegate.requestedVersion ?: "1.0"
+
+                target.write("<?xml version=\"")
+                target.write(xmlVersion)
+                target.write("\"")
+                if (encoding!=null) {
+                    target.write(" encoding=\"")
+                    target.write(encoding)
+                    target.write("\"")
+                }
+                target.write("?>")
+                if(delegate.indentString.isNotEmpty()) {
+                    target.write("\n")
+                }
+            }
+
             target.write(domText)
         } finally {
             delegate.close()

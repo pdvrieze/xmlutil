@@ -21,10 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl
 
 import kotlinx.serialization.ImplicitReflectionSerializer
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.XmlStreamingFactory
-import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.*
 import java.util.*
@@ -49,9 +46,18 @@ abstract class XmlStreamingJavaCommon {
     abstract fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter
 
     fun newWriter(writer: Writer) = newWriter(writer, false)
-    abstract fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
 
-    abstract fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter
+    @Deprecated("Use version that takes XmlDeclMode")
+    final fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    abstract fun newWriter(writer: Writer, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    @Deprecated("Use version that takes XmlDeclMode")
+    final fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    abstract fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
 
     abstract fun newReader(inputStream: InputStream, encoding: String): XmlReader
 

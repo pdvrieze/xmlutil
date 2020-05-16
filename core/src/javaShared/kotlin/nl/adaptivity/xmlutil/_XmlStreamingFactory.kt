@@ -32,19 +32,40 @@ import javax.xml.transform.Source
 
 actual interface XmlStreamingFactory {
 
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+    @Deprecated("Use version with xmlDeclMode")
+    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    @Deprecated("Use version with xmlDeclMode")
+    fun newWriter(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean = false,
+        omitXmlDecl: Boolean
+                 ): XmlWriter =
+        newWriter(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     fun newWriter(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = false,
-        omitXmlDecl: Boolean = false
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
                  ): XmlWriter
 
-    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false): XmlWriter
+    @Deprecated("Use version with xmlDeclMode")
+    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean = false) =
-        newWriter(AppendableWriter(output), repairNamespaces, omitXmlDecl)
+    fun newWriter(result: Result, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    @Deprecated("Use version with xmlDeclMode")
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean) =
+        newWriter(AppendableWriter(output), repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+
+    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) =
+        newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode)
 
     fun newReader(source: Source): XmlReader
 

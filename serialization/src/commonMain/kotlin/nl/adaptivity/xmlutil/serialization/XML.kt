@@ -182,7 +182,7 @@ class XML(
      */
     fun <T> stringify(serializer: SerializationStrategy<T>, obj: T, prefix: String?): String {
         val stringWriter = StringWriter()
-        val xmlWriter = XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.omitXmlDecl)
+        val xmlWriter = XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
 
         var ex: Throwable? = null
         try {
@@ -698,15 +698,31 @@ inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
  */
 class XmlConfig(
     val repairNamespaces: Boolean = true,
-    val omitXmlDecl: Boolean = true,
+    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val indentString: String = "",
     val autoPolymorphic: Boolean = false,
     val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) {
 
+    @Deprecated("Use version taking XmlDeclMode")
+    constructor(
+            repairNamespaces: Boolean = true,
+            omitXmlDecl: Boolean,
+            indentString: String = "",
+            autoPolymorphic: Boolean = false,
+            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+               ): this(
+        repairNamespaces,
+        if(omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
+        indentString,
+        autoPolymorphic,
+        unknownChildHandler
+                      )
+
+    @Deprecated("Use version taking XmlDeclMode")
     constructor(
         repairNamespaces: Boolean = true,
-        omitXmlDecl: Boolean = true,
+        omitXmlDecl: Boolean,
         indent: Int,
         autoPolymorphic: Boolean = false,
         unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
@@ -714,7 +730,7 @@ class XmlConfig(
 
     constructor(builder: Builder) : this(
         builder.repairNamespaces,
-        builder.omitXmlDecl,
+        builder.xmlDeclMode,
         builder.indentString,
         builder.autoPolymorphic,
         builder.unknownChildHandler
@@ -723,6 +739,10 @@ class XmlConfig(
     @Deprecated("Use indentString for better accuracy")
     val indent: Int
         get() = indentString.countLength()
+
+    @Deprecated("Use xmlDeclMode with more options")
+    val omitXmlDecl: Boolean
+        get() = xmlDeclMode==XmlDeclMode.None
 
     /**
      * Configuration for the xml parser.
@@ -741,23 +761,56 @@ class XmlConfig(
      */
     class Builder(
         var repairNamespaces: Boolean = true,
-        var omitXmlDecl: Boolean = true,
+        var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         var indentString: String = "",
         var autoPolymorphic: Boolean = false,
         var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                  ) {
+
+        @Deprecated("Use version taking XmlDeclMode")
         constructor(
             repairNamespaces: Boolean = true,
-            omitXmlDecl: Boolean = true,
+            omitXmlDecl: Boolean,
+            indentString: String = "",
+            autoPolymorphic: Boolean = false,
+            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+                   ): this(
+            repairNamespaces,
+            if(omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
+            indentString,
+            autoPolymorphic,
+            unknownChildHandler
+                          )
+
+        @Deprecated("Use version taking XmlDeclMode")
+        constructor(
+            repairNamespaces: Boolean = true,
+            omitXmlDecl: Boolean,
             indent: Int,
             autoPolymorphic: Boolean = false,
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                    ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
+        constructor(
+            repairNamespaces: Boolean = true,
+            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+            indent: Int,
+            autoPolymorphic: Boolean = false,
+            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+                   ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
+
         var indent: Int
             @Deprecated("Use indentString for better accuracy")
             get() = indentString.countLength()
             set(value) { indentString = " ".repeat(value) }
+
+        @Deprecated("Use xmlDeclMode for this now multi-valued property")
+        var omitXmlDecl
+            get() = xmlDeclMode == XmlDeclMode.None
+            set(value) { xmlDeclMode = when(value) {
+                true -> XmlDeclMode.None
+                else -> XmlDeclMode.Auto
+            }}
     }
 
     companion object {
