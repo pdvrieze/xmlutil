@@ -33,28 +33,28 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ## Core
 ### multiplatform
 ```
-   implementation("net.devrieze:xmlutil:0.13.0.1")
+   implementation("net.devrieze:xmlutil:0.20.0.1")
 ```
 ### JVM -- uses the stax API not available on Android
 ```
-   implementation("net.devrieze:xmlutil-jvm:0.13.0.1")
+   implementation("net.devrieze:xmlutil-jvm:0.20.0.1")
 ```
 ### Android -- Uses the android streaming library
 ```
-   implementation("net.devrieze:xmlutil-android:0.13.0.1")
+   implementation("net.devrieze:xmlutil-android:0.20.0.1")
 ```
 ### JS -- Wraps DOM
 ```
-   implementation("net.devrieze:xmlutil-js:0.13.0.1")
+   implementation("net.devrieze:xmlutil-js:0.20.0.1")
 ```
 ## Serialization
 ### multiplatform
 ```
-   implementation("net.devrieze:xmlutil-serialization:0.13.0.1")
+   implementation("net.devrieze:xmlutil-serialization:0.20.0.1")
 ```
 ### JVM
 ```
-   implementation("net.devrieze:xmlutil-serialization-jvm:0.13.0.1")
+   implementation("net.devrieze:xmlutil-serialization-jvm:0.20.0.1")
 ```
 ### Android
 ```
@@ -62,7 +62,7 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ```
 ### js
 ```
-   implementation("net.devrieze:xmlutil-serialization-js:0.13.0.1")
+   implementation("net.devrieze:xmlutil-serialization-js:0.20.0.1")
 ```
 
 # Serialization help
@@ -77,13 +77,15 @@ val format = XML(mySerialModule) {
 ```
 The options available are:
 
-| option              | description |
+| option                | description |
 | --- | --- | 
-| repairNamespaces    | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter` |
-| omitXmlDecl         | Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter` |
-| indent              | The indentation level (in spaces) to use. This is passed to the `XmlWriter` |
-| autoPolymorphic     | Should polymorphic information be retrieved using `SerializersModule` configuration. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
-| unknownChildHandler | A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well. |
+| `repairNamespaces`    | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter` |
+| `xmlDeclMode`         | The mode to use for emitting XML declarations (<?xml ...?>). Replaces omitXmlDecl for more finegrained control |
+| -`omitXmlDecl`-       | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter` |
+| `indentString`        | The indentation to use. Must be a combination of XML whitespace or comments (this is checked). This is passed to the `XmlWriter` |
+| `indent`              | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces. |
+| autoPolymorphic       | Should polymorphic information be retrieved using `SerializersModule` configuration. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
+| `unknownChildHandler` | A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well. |
 
 ## Algorithms
 XML and Kotlin data types are not perfectly alligned. As such there are some algorithms that aim to automatically do the
