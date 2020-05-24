@@ -20,13 +20,12 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.MissingFieldException
-import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlDeclMode
@@ -559,6 +558,33 @@ class TestCommon {
         val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
 
         assertEquals(expectedXml, serializedModel)
+    }
+
+    @Test
+    fun `deserialize mixed content from xml`() {
+        val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
+        val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
+
+        val xml = XML(Tag.module) {
+            autoPolymorphic = true
+        }
+        val deserialized = xml.parse(Tag.serializer(), contentText)
+
+        assertEquals(expectedObj, deserialized)
+    }
+
+    @Test
+    fun `serialize mixed content to xml`() {
+        val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
+        val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
+
+        val xml = XML(Tag.module) {
+            indentString = ""
+            autoPolymorphic = true
+        }
+
+        val serialized = xml.stringify(Tag.serializer(), expectedObj)
+        assertEquals(contentText, serialized)
     }
 
 }

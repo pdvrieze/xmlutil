@@ -294,3 +294,43 @@ data class SampleModel1(
     val anElement: String,
     val aBlankElement: Unit? = Unit
                        )
+
+@Serializable
+@SerialName("b")
+internal data class B(
+    @XmlValue(true)
+    val data: List<@Polymorphic Any>
+                    ) {
+    constructor(vararg data: Any): this(data.toList())
+
+}
+
+@Serializable
+@SerialName("i")
+internal data class I(
+    @XmlValue(true)
+    val data: List<@Polymorphic Any>
+                    ) {
+    constructor(vararg data: Any): this(data.toList())
+
+}
+
+@Serializable
+@SerialName("tag")
+internal data class Tag(
+    @XmlValue(true)
+    val data: List<@Polymorphic Any>
+                      ) {
+
+    constructor(vararg data: Any): this(data.toList())
+
+    companion object {
+        val module = SerializersModule {
+            polymorphic(Any::class) {
+                B::class with B.serializer()
+                I::class with I.serializer()
+            }
+        }
+    }
+
+}
