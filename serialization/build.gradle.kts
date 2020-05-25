@@ -93,9 +93,7 @@ kotlin {
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
             }
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
-                    jvmTarget = "1.6"
-                }
+                kotlinOptions.jvmTarget = "1.6"
                 tasks.getByName<Test>("${target.name}Test") {
                     useJUnitPlatform ()
                     testTask.dependsOn(this)
@@ -106,16 +104,14 @@ kotlin {
         js {
             browser()
             compilations.all {
-                val compileTask = tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).apply {
-                    kotlinOptions {
-                        sourceMap = true
-                        sourceMapEmbedSources = "always"
-                        suppressWarnings = false
-                        verbose = true
-                        metaInfo = true
-                        moduleKind = "umd"
-                        main = "call"
-                    }
+                kotlinOptions {
+                    sourceMap = true
+                    sourceMapEmbedSources = "always"
+                    suppressWarnings = false
+                    verbose = true
+                    metaInfo = true
+                    moduleKind = "umd"
+                    main = "call"
                 }
             }
         }
