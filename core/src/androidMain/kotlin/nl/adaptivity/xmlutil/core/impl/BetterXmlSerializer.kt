@@ -363,9 +363,9 @@ class BetterXmlSerializer : XmlSerializer {
 
             if (xmlDeclMode!=XmlDeclMode.Minimal || !unicode) {
 
-                this.encoding?.let { encoding ->
+                this.encoding?.let { enc ->
                     writer.write(" encoding='")
-                    writer.write(this.encoding!!)
+                    writer.write(enc)
                     writer.write('\'')
                 }
 
