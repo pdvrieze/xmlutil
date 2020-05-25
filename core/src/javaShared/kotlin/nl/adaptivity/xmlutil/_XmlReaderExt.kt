@@ -88,3 +88,16 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
     }
 
 }
+
+
+fun XmlReader.toCharArrayWriter(): CharArrayWriter {
+    return CharArrayWriter().apply {
+        XmlStreaming.newWriter(this).use { out ->
+            while(hasNext()) {
+                next()
+                writeCurrent(out)
+            }
+        }
+    }
+}
+

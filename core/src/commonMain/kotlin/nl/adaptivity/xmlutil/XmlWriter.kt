@@ -419,6 +419,19 @@ private fun undeclaredPrefixes(
     }
 }
 
+/**
+ * Write
+ */
+fun XmlWriter.writeElement(missingNamespaces: MutableMap<String, String>?, reader: XmlReader) {
+    if (reader.eventType==EventType.END_ELEMENT) throw IllegalArgumentException("Cannot really validly write an end element here")
+    reader.writeCurrent(this)
+    if (reader.eventType == EventType.START_ELEMENT) writeElementContent(missingNamespaces, reader)
+}
+
+/**
+ * Write the child content of the current element in the reader to the output This does
+ * not write the container itself
+ */
 fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, String>?, reader: XmlReader) {
     reader.forEach { type ->
         // We already moved to the next event. Add the namespaces before writing as for a DOM implementation

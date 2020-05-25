@@ -24,13 +24,3 @@ package nl.adaptivity.xmlutil
 
 import java.io.CharArrayWriter
 
-
-fun XmlReader.toCharArrayWriter(): CharArrayWriter {
-    return CharArrayWriter().apply {
-        XmlStreaming.newWriter(this).use { out ->
-            while (hasNext()) {
-                writeCurrent(out)
-            }
-        }
-    }
-}
