@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import nl.adaptivity.xmlutil.XmlStreaming
@@ -106,12 +107,13 @@ class JvmSerializationTest {
             })
         }
 
-        val json = Json(JsonConfiguration.Default)
+        val json = Json(JsonConfiguration.Stable)
 
         val serialized = json.stringify(ElementSerializer, element)
         assertEquals(expected, serialized)
     }
 
+    @OptIn(UnstableDefault::class)
     @Test
     fun `deserialize DOM node from json`() {
         val contentText = "{\"localname\":\"tag\",\"attributes\":{},\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"attributes\":{},\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"attributes\":{},\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
@@ -126,8 +128,9 @@ class JvmSerializationTest {
             })
         }
 
-        val jsonConfig = JsonConfiguration(isLenient = true)
-        val json = Json(jsonConfig)
+        val json = Json {
+            isLenient = true
+        }
 
         val deserialized = json.parse(ElementSerializer, contentText)
 

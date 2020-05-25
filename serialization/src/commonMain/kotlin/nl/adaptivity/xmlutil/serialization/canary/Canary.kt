@@ -70,6 +70,8 @@ private open class LoaderCanaryBase: Decoder, CompositeDecoder {
         deserializer: DeserializationStrategy<T>
                                               ): T {
         actualDeserializer = deserializer
+        // We're doing nasty stuff here anyway
+        @Suppress("UNCHECKED_CAST")
         return null as T
     }
 

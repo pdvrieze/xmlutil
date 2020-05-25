@@ -111,14 +111,17 @@ class XML(
     val repairNamespaces: Boolean
         get() = config.repairNamespaces
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use config directly", ReplaceWith("config.omitXmlDecl"))
     val omitXmlDecl: Boolean
         get() = config.omitXmlDecl
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use config directly, consider using indentString", ReplaceWith("config.indent"))
     val indent: Int
         get() = config.indent
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use the new configuration system")
     constructor(
         repairNamespaces: Boolean = true,
@@ -174,8 +177,8 @@ class XML(
     fun <T : Any> stringify(obj: T, saver: SerializationStrategy<T>, prefix: String? = null): String =
         stringify(saver, obj, prefix)
 
-    override fun <T> stringify(serializer: SerializationStrategy<T>, obj: T) =
-        stringify(serializer, obj, null)
+    override fun <T> stringify(serializer: SerializationStrategy<T>, value: T) =
+        stringify(serializer, value, null)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -364,14 +367,14 @@ class XML(
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
          * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
-         * @param obj The object to transform
+         * @param value The object to transform
          * @param serializer The serializer to user
          */
         override fun <T> stringify(
             serializer: SerializationStrategy<T>,
-            obj: T
+            value: T
                                   ): String =
-            defaultInstance.stringify(serializer, obj)
+            defaultInstance.stringify(serializer, value)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -723,6 +726,7 @@ class XmlConfig(
         unknownChildHandler
                       )
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use version taking XmlDeclMode")
     constructor(
         repairNamespaces: Boolean = true,
@@ -786,6 +790,7 @@ class XmlConfig(
             unknownChildHandler
                           )
 
+        @Suppress("DEPRECATION")
         @Deprecated("Use version taking XmlDeclMode")
         constructor(
             repairNamespaces: Boolean = true,

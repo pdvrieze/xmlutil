@@ -106,9 +106,9 @@ internal open class XmlDecoderBase internal constructor(
             return decodeStringImpl(false)
         }
 
-        override fun decodeEnum(enumDescription: SerialDescriptor): Int {
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             val name = decodeString()
-            return enumDescription.getElementIndex(name)
+            return enumDescriptor.getElementIndex(name)
         }
 
         private fun decodeStringImpl(defaultOverEmpty: Boolean): String {
@@ -133,7 +133,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             throw AssertionError("This should not happen as decodeSerializableValue should be called first")
         }
 
@@ -189,7 +189,7 @@ internal open class XmlDecoderBase internal constructor(
         attrIndex
                                                               ) {
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             if (extDesc.isNullable) return TagDecoder(
                 serialName,
                 parentNamespace,
@@ -197,7 +197,7 @@ internal open class XmlDecoderBase internal constructor(
                 elementIndex,
                 deserializer
                                                      )
-            val isMixed = parentDesc.outputKind(elementIndex, desc) == OutputKind.Mixed
+            val isMixed = parentDesc.outputKind(elementIndex, descriptor) == OutputKind.Mixed
             return when (extDesc.kind) {
                 is PrimitiveKind
                 -> throw AssertionError("A primitive is not a composite")
@@ -288,11 +288,11 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeNotNullMark() = false
 
         override fun <T> decodeSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
-            val default = desc.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
+            val default = descriptor.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
             @Suppress("UNCHECKED_CAST")
             return when (default) {
                 null -> null as T
@@ -310,13 +310,13 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             return this
         }
 
-        override fun endStructure(desc: SerialDescriptor) {}
+        override fun endStructure(descriptor: SerialDescriptor) {}
 
-        override fun decodeElementIndex(desc: SerialDescriptor): Int {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             when (childDesc?.kind) {
                 // Exception to allow for empty lists. They will read the index even if a 0 size was returned
                 is StructureKind.MAP,
@@ -326,49 +326,49 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> updateSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>,
             old: T
                                                   ): T =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeUnitElement(desc: SerialDescriptor, index: Int): Unit =
+        override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int): Unit =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean =
+        override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeByteElement(desc: SerialDescriptor, index: Int): Byte =
+        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeShortElement(desc: SerialDescriptor, index: Int): Short =
+        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeIntElement(desc: SerialDescriptor, index: Int): Int =  // Size of map/list
+        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int =  // Size of map/list
             throw AssertionError("Null objects have no members")
 
-        override fun decodeCollectionSize(desc: SerialDescriptor): Int {
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
             return 0
         }
 
-        override fun decodeLongElement(desc: SerialDescriptor, index: Int): Long =
+        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeFloatElement(desc: SerialDescriptor, index: Int): Float =
+        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeDoubleElement(desc: SerialDescriptor, index: Int): Double =
+        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeCharElement(desc: SerialDescriptor, index: Int): Char =
+        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char =
             throw AssertionError("Null objects have no members")
 
-        override fun decodeStringElement(desc: SerialDescriptor, index: Int): String =
+        override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String =
             throw AssertionError("Null objects have no members")
 
         override fun <T : Any> decodeNullableSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T?>
                                                                 ): T? {
@@ -376,7 +376,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T : Any> updateNullableSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T?>,
             old: T?
@@ -405,16 +405,14 @@ internal open class XmlDecoderBase internal constructor(
                                                              )
 
     internal open inner class TagDecoder(
-        serialName: QName,
+        final override val serialName: QName,
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
-        val deserializer: DeserializationStrategy<*>
+        deserializer: DeserializationStrategy<*>
                                         ) :
         XmlTagCodec(parentDesc, elementIndex, Canary.serialDescriptor(deserializer), parentNamespace), CompositeDecoder,
         XML.XmlInput {
-
-        final override val serialName: QName = serialName
 
         override val updateMode: UpdateMode get() = UpdateMode.BANNED
 
@@ -694,13 +692,18 @@ internal open class XmlDecoderBase internal constructor(
                     when (eventType) {
                         EventType.END_ELEMENT   -> return readElementEnd(descriptor)
                         EventType.CDSECT,
-                        EventType.TEXT          -> if (!input.isWhitespace()) return descriptor.getValueChildOrThrow()
+                        EventType.TEXT          -> {
+                            @Suppress("DEPRECATION")
+                            if (!input.isWhitespace()) return descriptor.getValueChildOrThrow()
+                        }
                         EventType.ATTRIBUTE     -> return indexOf(
                             input.name,
                             true
                                                                  ).ifNegative { decodeElementIndex(descriptor) }
                         EventType.START_ELEMENT -> when (val i = indexOf(input.name, false)) {
-                            CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment() // Create a content fragment and drop it.
+                            // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
+                            // as a shortcut.
+                            CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
                             else                          -> return i
                         }
                         else                    -> throw AssertionError("Unexpected event in stream")
@@ -746,9 +749,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            // TODO record the tag name used to be able to validate leaving
             input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
-//            input.require(EventType.END_ELEMENT, null, null)
         }
 
         open fun readElementEnd(desc: SerialDescriptor): Int {
@@ -969,7 +970,7 @@ internal open class XmlDecoderBase internal constructor(
         elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
         private val polyInfo: PolyInfo?,
-        val isMixed: Boolean
+        private val isMixed: Boolean
                                            ) :
         TagDecoder(serialName, parentNamespace, parentDesc, elementIndex, deserializer) {
 
@@ -977,9 +978,9 @@ internal open class XmlDecoderBase internal constructor(
         private var nextIndex = 0
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            when (nextIndex) {
-                0, 1 -> return nextIndex++
-                else -> return CompositeDecoder.READ_DONE
+            return when (nextIndex) {
+                0, 1 -> nextIndex++
+                else -> CompositeDecoder.READ_DONE
             }
         }
 
@@ -1060,7 +1061,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> updateSerializableElement(
-            desc: SerialDescriptor,
+            descriptor: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>,
             old: T
@@ -1069,10 +1070,10 @@ internal open class XmlDecoderBase internal constructor(
                 input.nextTag()
                 input.require(EventType.START_ELEMENT, null, "value")
             }
-            return super.updateSerializableElement(desc, index, deserializer, old)
+            return super.updateSerializableElement(descriptor, index, deserializer, old)
         }
 
-        override fun endStructure(desc: SerialDescriptor) {
+        override fun endStructure(descriptor: SerialDescriptor) {
             if (!transparent) {
                 input.nextTag()
                 input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
@@ -1081,7 +1082,7 @@ internal open class XmlDecoderBase internal constructor(
                 if (t!=null) {
                     input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
                 } else {
-                    super.endStructure(desc)
+                    super.endStructure(descriptor)
                 }
             }
         }

@@ -24,6 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.modules.SerialModuleCollector
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase
+import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlNameMap
 import nl.adaptivity.xmlutil.toNamespace
 import kotlin.reflect.KClass
@@ -45,11 +46,14 @@ internal class ChildCollector(val baseClass: KClass<*>) : SerialModuleCollector 
         }
     }
 
-    fun getPolyInfo(codec: XmlCodecBase.XmlTagCodec, parentTagName: QName): XmlNameMap? = when (children.size) {
+    /**
+     * Get the polymorphic information for the found children.
+     */
+    fun getPolyInfo(parentTagName: QName): XmlNameMap? = when (children.size) {
         0    -> null
         else -> XmlNameMap().apply {
             for (actualSerializer in children) {
-                val declName = with(XmlCodecBase) { actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace()) }
+                val declName = actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace())
 
                 // The class is always treated as specified in automatic polymorphic mode. It should never use the field
                 // name as that cannot be correct.

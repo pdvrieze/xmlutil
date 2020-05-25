@@ -110,8 +110,8 @@ class CustomSerializer : KSerializer<Custom> {
         return Custom(decoder.decodeString())
     }
 
-    override fun serialize(encoder: Encoder, obj: Custom) {
-        encoder.encodeString(obj.property)
+    override fun serialize(encoder: Encoder, value: Custom) {
+        encoder.encodeString(value.property)
     }
 }
 

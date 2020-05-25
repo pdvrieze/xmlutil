@@ -359,7 +359,6 @@ internal open class XmlEncoderBase internal constructor(
                         val childCollector = ChildCollector(baseClass)
                         context.dumpTo(childCollector)
                         childCollector.getPolyInfo(
-                            this,
                             parentDesc.requestedName(parentNamespace, elementIndex, null)
                                                   )
                     }
