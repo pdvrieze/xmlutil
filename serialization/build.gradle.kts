@@ -173,6 +173,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 dependsOn(javaSharedTest)
+                dependsOn(jvmMain)
                 implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
@@ -181,8 +182,10 @@ kotlin {
                 runtimeOnly("org.spekframework.spek2:spek-runtime-jvm:$spek2Version")
                 runtimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek2Version")
 
-
-                implementation("org.xmlunit:xmlunit-core:2.6.0")
+                implementation("net.bytebuddy:byte-buddy:1.10.10")
+                implementation("org.assertj:assertj-core:3.16.1")
+                implementation("org.xmlunit:xmlunit-core:2.7.0")
+                implementation("org.xmlunit:xmlunit-assertj:2.7.0")
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")

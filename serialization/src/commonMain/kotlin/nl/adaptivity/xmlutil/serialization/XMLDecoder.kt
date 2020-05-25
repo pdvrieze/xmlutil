@@ -49,7 +49,9 @@ internal open class XmlDecoderBase internal constructor(
         protected val polyInfo: PolyInfo? = null,
         private val attrIndex: Int = -1
                                         ) :
-        XmlCodec(parentNamespace, parentDesc, elementIndex, childDesc), Decoder {
+        XmlCodec(parentNamespace, parentDesc, elementIndex, childDesc), Decoder, XML.XmlInput {
+
+        override val input: XmlReader get() = this@XmlDecoderBase.input
 
         override val context get() = this@XmlDecoderBase.context
 

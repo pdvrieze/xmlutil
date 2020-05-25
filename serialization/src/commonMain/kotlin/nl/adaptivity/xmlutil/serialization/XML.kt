@@ -69,7 +69,11 @@ internal class XmlNameMap {
     }
 }
 
-private val defaultXmlModule = serializersModuleOf(CompactFragment::class, CompactFragmentSerializer)
+expect fun getPlatformDefaultModule(): SerialModule
+
+private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
+    contextual(CompactFragment::class, CompactFragmentSerializer)
+}
 
 @Suppress("MemberVisibilityCanBePrivate")
 /**

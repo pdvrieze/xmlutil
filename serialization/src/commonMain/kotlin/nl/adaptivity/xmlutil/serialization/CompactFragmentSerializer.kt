@@ -24,7 +24,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.decodeElements
-import nl.adaptivity.serialutil.decodeStructure
 import nl.adaptivity.serialutil.writeStructure
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
@@ -41,8 +40,8 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val descriptor get() = MYSERIALCLASSDESC
 
     override fun deserialize(decoder: Decoder): CompactFragment {
-        return decoder.decodeStructure(descriptor) { desc: SerialDescriptor ->
-            readCompactFragmentContent(this, desc)
+        return decoder.decodeStructure(descriptor) {
+            readCompactFragmentContent(this, descriptor)
         }
     }
 
@@ -71,8 +70,8 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         }
     }
 
-    override fun serialize(encoder: Encoder, obj: CompactFragment) {
-        serialize(encoder, obj as ICompactFragment)
+    override fun serialize(encoder: Encoder, value: CompactFragment) {
+        serialize(encoder, value as ICompactFragment)
     }
 
     fun serialize(output: Encoder, obj: ICompactFragment) {
