@@ -72,7 +72,6 @@ kotlin {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {
@@ -96,7 +95,6 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
                 tasks.getByName<Test>("${target.name}Test") {
                     useJUnitPlatform ()
@@ -117,7 +115,6 @@ kotlin {
                         metaInfo = true
                         moduleKind = "umd"
                         main = "call"
-                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
             }
@@ -126,6 +123,10 @@ kotlin {
     }
 
     targets.forEach { target ->
+        target.compilations.all {
+            kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+        }
+
         target.mavenPublication {
             groupId = "net.devrieze"
             artifactId = "xmlutil-serialization-${target.targetName}"

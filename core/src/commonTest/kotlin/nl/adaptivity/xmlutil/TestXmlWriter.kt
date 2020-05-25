@@ -74,7 +74,11 @@ class TestXmlWriter {
     @Test
     fun testSerializeSimplest() {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, omitXmlDecl = true)
+            val w = XmlStreaming.newWriter(
+                this,
+                repairNamespaces = false,
+                xmlDeclMode = XmlDeclMode.None
+                                          )
             w.smartStartTag("foobar".toQname()) { text("xx")}
             w.close()
         }
