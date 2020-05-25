@@ -159,6 +159,9 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
 
     override fun getPrefix(namespaceURI: String) = getPrefixSequence(namespaceURI).firstOrNull()
 
+    /**
+     * Get all prefixes for this particular namespace in the namespace context.
+     */
     fun getPrefixSequence(namespaceURI: String): Sequence<String> {
         return when (namespaceURI) {
             XML_NS_URI             -> sequenceOf(XML_NS_PREFIX)
@@ -229,8 +232,8 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
                                          )
         }
 
-        override fun serialize(encoder: Encoder, obj: SimpleNamespaceContext) {
-            actualSerializer.serialize(encoder, obj.toList())
+        override fun serialize(encoder: Encoder, value: SimpleNamespaceContext) {
+            actualSerializer.serialize(encoder, value.toList())
         }
 
         private inline fun <T> flatten(

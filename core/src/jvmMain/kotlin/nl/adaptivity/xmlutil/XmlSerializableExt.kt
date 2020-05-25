@@ -47,15 +47,15 @@ fun XmlSerializable.toReader(): Reader {
 
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-    XmlStreaming.newWriter(writer, repairNamespaces = true, omitXmlDecl = true).use { serialize(it) }
+    XmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {
     return StringWriter().apply {
         XmlStreaming.newWriter(
-            this, flags.and(
-                FLAG_REPAIR_NS
-                           ) == FLAG_REPAIR_NS, true
+            this,
+            flags and FLAG_REPAIR_NS == FLAG_REPAIR_NS,
+            XmlDeclMode.None
                               ).use { writer ->
             serialize(writer)
         }

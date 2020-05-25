@@ -36,7 +36,7 @@ fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
     val deserializer = type.getAnnotation(XmlDeserializer::class.java)
         ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
 
-    val factory: XmlDeserializerFactory<*> = deserializer.value.java.newInstance() as XmlDeserializerFactory<*>
+    val factory: XmlDeserializerFactory<*> = deserializer.value.java.getConstructor().newInstance() as XmlDeserializerFactory<*>
 
     return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }
 }

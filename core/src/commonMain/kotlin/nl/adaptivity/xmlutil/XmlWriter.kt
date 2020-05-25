@@ -172,7 +172,7 @@ fun XmlWriter.serialize(reader: XmlReader) {
             }
             EventType.IGNORABLE_WHITESPACE -> {
                 // Only write ignorable whitespace if we are not formatting with a set indent.
-                if (indent == 0) writeCurrentEvent(reader)
+                if (indentString.isEmpty()) writeCurrentEvent(reader)
             }
             else                           -> writeCurrentEvent(reader)
         }
@@ -221,6 +221,7 @@ fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
 /**
  * Enhanced function for writing start tags, that will attempt to reuse prefixes.
  */
+@Suppress("unused")
 fun XmlWriter.smartStartTag(qName: QName) {
     smartStartTag(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix())
 }
@@ -285,7 +286,10 @@ inline fun XmlWriter.smartStartTag(
     endTag(nsUri, localName, prefix)
 }
 
-
+/**
+ * Helper function for writing a list only if it contains any element.
+ */
+@Suppress("unused")
 inline fun <T> XmlWriter.writeListIfNotEmpty(
     iterable: Iterable<T>,
     nsUri: String?,

@@ -23,9 +23,9 @@ package nl.adaptivity.xmlutil
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.decodeElements
-import nl.adaptivity.serialutil.decodeStructure
+import kotlinx.serialization.decodeStructure
 import nl.adaptivity.serialutil.simpleSerialClassDesc
-import nl.adaptivity.serialutil.writeStructure
+import kotlinx.serialization.encodeStructure
 
 //@Serializable
 interface Namespace {
@@ -53,11 +53,11 @@ interface Namespace {
         override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
-            decoder.decodeStructure(descriptor) { desc ->
+            decoder.decodeStructure(descriptor) {
                 decodeElements(this) {
                     when (it) {
-                        0 -> prefix = decodeStringElement(desc, it)
-                        1 -> namespaceUri = decodeStringElement(desc, it)
+                        0 -> prefix = decodeStringElement(descriptor, it)
+                        1 -> namespaceUri = decodeStringElement(descriptor, it)
                     }
                 }
             }
@@ -65,7 +65,7 @@ interface Namespace {
         }
 
         override fun serialize(encoder: Encoder, value: Namespace) {
-            encoder.writeStructure(descriptor) {
+            encoder.encodeStructure(descriptor) {
                 encodeStringElement(descriptor, 0, value.prefix)
                 encodeStringElement(descriptor, 1, value.namespaceURI)
             }

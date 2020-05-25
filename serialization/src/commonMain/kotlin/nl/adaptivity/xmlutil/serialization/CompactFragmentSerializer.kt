@@ -24,7 +24,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.decodeElements
-import nl.adaptivity.serialutil.writeStructure
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -36,6 +35,7 @@ import kotlin.reflect.KClass
 inline fun CompactFragment.Companion.serializer() = CompactFragmentSerializer
 
 @Serializer(forClass = CompactFragment::class)
+@OptIn(WillBePrivate::class)
 object CompactFragmentSerializer : KSerializer<CompactFragment> {
     override val descriptor get() = MYSERIALCLASSDESC
 
@@ -76,11 +76,12 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
     fun serialize(output: Encoder, obj: ICompactFragment) {
         val descriptor = descriptor
-        output.writeStructure(descriptor) { desc ->
-            writeCompactFragmentContent(this, desc, 0, obj)
+        output.encodeStructure(descriptor) {
+            writeCompactFragmentContent(this, descriptor, 0, obj)
         }
     }
 
+    @WillBePrivate
     fun writeCompactFragmentContent(
         output: CompositeEncoder,
         serialClassDesc: SerialDescriptor,
@@ -157,8 +158,8 @@ object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
         return CompactFragmentSerializer.deserialize(decoder)
     }
 
-    override fun serialize(encoder: Encoder, obj: ICompactFragment) {
-        CompactFragmentSerializer.serialize(encoder, obj)
+    override fun serialize(encoder: Encoder, value: ICompactFragment) {
+        CompactFragmentSerializer.serialize(encoder, value)
     }
 }
 

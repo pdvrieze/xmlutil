@@ -62,7 +62,7 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
                 EventType.START_ELEMENT        ->
-                    XmlStreaming.newWriter(caw, omitXmlDecl = true).use { out: XmlWriter ->
+                    XmlStreaming.newWriter(caw, xmlDeclMode = XmlDeclMode.None).use { out: XmlWriter ->
                         val namespaceForPrefix = out.getNamespaceUri(prefix)
                         writeCurrent(out) // writes the start tag
                         if (namespaceForPrefix!=namespaceURI) {

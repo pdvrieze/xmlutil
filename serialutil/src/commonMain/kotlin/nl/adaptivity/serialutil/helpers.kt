@@ -27,8 +27,8 @@ import nl.adaptivity.serialutil.impl.toCharArray
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
     override val descriptor = simpleSerialClassDesc<CharArray>()
 
-    override fun serialize(encoder: Encoder, obj: CharArray) =
-        encoder.encodeString(String(obj))
+    override fun serialize(encoder: Encoder, value: CharArray) =
+        encoder.encodeString(String(value))
 
     override fun deserialize(decoder: Decoder): CharArray = decoder.decodeString().toCharArray()
 
@@ -59,6 +59,7 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
  */
 inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
     var index = input.decodeElementIndex(descriptor)
+    @Suppress("DEPRECATION")
     when (index) {
         CompositeDecoder.READ_DONE -> return
         CompositeDecoder.READ_ALL  -> {
@@ -74,6 +75,7 @@ inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, bo
     }
 }
 
+@Suppress("DEPRECATION")
 @Deprecated("Use new named version that matches the newer api", ReplaceWith("decodeStructure(desc, body)"))
 inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.(desc: SerialDescriptor) -> T): T =
     decodeStructure(desc, body)
@@ -82,6 +84,7 @@ inline fun <T> Decoder.readBegin(desc: SerialDescriptor, body: CompositeDecoder.
 /**
  * Helper function that automatically closes the decoder on close.
  */
+@Deprecated("Use kotlinx.serialization.decodeStructure instead", ReplaceWith("this.decodeStructure(desc, body)", "kotlinx.serialization.decodeStructure"))
 inline fun <T> Decoder.decodeStructure(
     desc: SerialDescriptor,
     body: CompositeDecoder.(desc: SerialDescriptor) -> T
@@ -100,6 +103,7 @@ inline fun <T> Decoder.decodeStructure(
     }
 }
 
+@Deprecated("Just use the version now in kotlinx.serialization", ReplaceWith("this.encodeStructure(desc)", "kotlinx.serialization.encodeStructure"))
 inline fun Encoder.writeStructure(desc: SerialDescriptor, body: CompositeEncoder.(desc: SerialDescriptor) -> Unit) {
     val output = beginStructure(desc)
     var skipEnd = false

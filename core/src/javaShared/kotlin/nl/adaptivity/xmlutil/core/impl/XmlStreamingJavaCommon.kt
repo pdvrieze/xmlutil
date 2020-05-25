@@ -23,6 +23,8 @@ package nl.adaptivity.xmlutil.core.impl
 import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.util.SerializationProvider
+import nl.adaptivity.xmlutil.util.SerializationProvider.XmlDeserializerFun
+import nl.adaptivity.xmlutil.util.SerializationProvider.XmlSerializerFun
 import java.io.*
 import java.util.*
 import javax.xml.transform.Result
@@ -72,17 +74,19 @@ abstract class XmlStreamingJavaCommon {
     abstract fun setFactory(factory: XmlStreamingFactory?)
 
     fun <T : Any> deserializerFor(type: Class<T>) = deserializerFor(type.kotlin)
-    fun <T : Any> deserializerFor(klass: KClass<T>): SerializationProvider.XmlDeserializerFun? {
+    fun <T : Any> deserializerFor(klass: KClass<T>): XmlDeserializerFun? {
         for (candidate in serializationLoader) {
-            candidate.deSerializer(klass)?.let { return it }
+            val deSerializer: XmlDeserializerFun? = candidate.deSerializer(klass)
+            deSerializer?.let { return it }
         }
         return null
     }
 
     fun <T : Any> serializerFor(type: Class<T>) = serializerFor(type.kotlin)
-    fun <T : Any> serializerFor(klass: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
+    fun <T : Any> serializerFor(klass: KClass<T>): XmlSerializerFun<T>? {
         for (candidate in serializationLoader) {
-            candidate.serializer(klass)?.let { return it }
+            val serializer: XmlSerializerFun<T>? = candidate.serializer(klass)
+            serializer?.let { return it }
         }
         return null
     }

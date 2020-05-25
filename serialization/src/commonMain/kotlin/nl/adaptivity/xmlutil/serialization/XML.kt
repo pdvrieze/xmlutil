@@ -831,3 +831,6 @@ class XmlConfig(
 }
 
 typealias UnknownChildHandler = (input: XmlReader, isAttribute: Boolean, name: QName, candidates: Collection<Any>) -> Unit
+
+@RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
+annotation class WillBePrivate

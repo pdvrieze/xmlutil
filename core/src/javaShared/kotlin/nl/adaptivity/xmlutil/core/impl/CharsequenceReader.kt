@@ -26,12 +26,16 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("FunctionName")
-internal fun CharsequenceReader(sequence: CharSequence): Reader = when(sequence) {
+internal fun CharsequenceReader(sequence: CharSequence): Reader = when (sequence) {
     is String -> StringReader(sequence)
-    else -> CharsequenceReader(sequence, 0)
+    else      -> CharsequenceReader(sequence, 0)
 }
 
-internal class CharsequenceReader(private val sequence: CharSequence, dummy: Int) : Reader() {
+internal class CharsequenceReader(
+    private val sequence: CharSequence,
+    @Suppress("UNUSED_PARAMETER") dummy: Int
+                                 ) :
+    Reader() {
     private var pos: Int = 0
     private var mark: Int = 0
 
