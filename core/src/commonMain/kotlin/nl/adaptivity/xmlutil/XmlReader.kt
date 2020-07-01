@@ -278,6 +278,7 @@ fun XmlReader.readSimpleElement(): String {
         while ((t.next()) !== EventType.END_ELEMENT) {
             when (t.eventType) {
                 EventType.COMMENT,
+                EventType.IGNORABLE_WHITESPACE,
                 EventType.PROCESSING_INSTRUCTION -> {
                 }
                 EventType.TEXT,
