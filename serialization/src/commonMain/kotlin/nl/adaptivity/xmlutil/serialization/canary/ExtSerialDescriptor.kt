@@ -85,6 +85,10 @@ class NullableSerialDescriptor(val original: SerialDescriptor) : SerialDescripto
     override val isNullable: Boolean get() = true
 }
 
+class ExtNullableSerialDescriptor(val original: ExtSerialDescriptor) : ExtSerialDescriptor by original {
+    override val isNullable: Boolean get() = true
+}
+
 
 internal class PolymorphicParentDescriptor(private val base: SerialDescriptor, val baseClass: KClass<*>) :
     SerialDescriptor by base, ExtSerialDescriptor {

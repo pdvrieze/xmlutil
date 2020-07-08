@@ -56,12 +56,11 @@ private open class LoaderCanaryBase: Decoder, CompositeDecoder {
     override val updateMode: UpdateMode get() = UpdateMode.BANNED
     lateinit var actualDeserializer: DeserializationStrategy<*>
 
-    override fun <T : Any> decodeNullableSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T?>
-                                                            ): T? {
-        return decodeSerializableElement(descriptor, index, deserializer)
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        actualDeserializer = deserializer
+        // We're doing nasty stuff here anyway
+        @Suppress("UNCHECKED_CAST")
+        return null as T
     }
 
     override fun <T> decodeSerializableElement(
@@ -69,10 +68,16 @@ private open class LoaderCanaryBase: Decoder, CompositeDecoder {
         index: Int,
         deserializer: DeserializationStrategy<T>
                                               ): T {
-        actualDeserializer = deserializer
-        // We're doing nasty stuff here anyway
-        @Suppress("UNCHECKED_CAST")
-        return null as T
+        // We're not actually decoding so share the code.
+        return decodeSerializableValue(deserializer)
+    }
+
+    override fun <T : Any> decodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T?>
+                                                            ): T? {
+        return decodeSerializableElement(descriptor, index, deserializer)
     }
 
     override fun <T : Any> updateNullableSerializableElement(
@@ -201,6 +206,9 @@ object Canary {
         loaderMap[loader]?.let { return it }
 
         val result = when {
+            loader.descriptor.isNullable
+                -> ExtNullableSerialDescriptor(serialDescriptor(loader.nonNullableDeserializer))
+
             loader is PolymorphicSerializer<*>
             -> PolymorphicParentDescriptor(loader)
 
