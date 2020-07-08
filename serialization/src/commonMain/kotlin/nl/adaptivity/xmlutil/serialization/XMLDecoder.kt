@@ -24,6 +24,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.requestedName
 import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
@@ -222,8 +223,14 @@ internal open class XmlDecoderBase internal constructor(
                             isMixed
                                         )
                     } else {
+                        val sn = parentDesc.requestedName(
+                            parentNamespace,
+                            elementIndex,
+                            childDesc?.getElementDescriptor(0)
+                                                   )
+
                         AnonymousListDecoder(
-                            serialName,
+                            sn,
                             parentNamespace,
                             parentDesc,
                             elementIndex,
@@ -500,7 +507,7 @@ internal open class XmlDecoderBase internal constructor(
                                 else               -> desc.requestedName(
                                     serialName.toNamespace(),
                                     idx,
-                                    actualElementDesc
+                                    effectiveElementDesc
                                                                         )
                             }
                             nameMap[tagName.normalize()] = idx

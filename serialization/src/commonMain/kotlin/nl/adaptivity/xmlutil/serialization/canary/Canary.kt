@@ -204,6 +204,8 @@ object Canary {
     @OptIn(InternalSerializationApi::class)
     fun <T> serialDescriptor(loader: DeserializationStrategy<T>): ExtSerialDescriptor {
         loaderMap[loader]?.let { return it }
+        // temporarilly set this to a delayed descriptor
+        loaderMap[loader] = RecursiveDescriptor(loader)
 
         val result = when {
             loader.descriptor.isNullable
@@ -274,6 +276,32 @@ object Canary {
             return nextIdx++
         }
 
+    }
+
+    private class RecursiveDescriptor(private val loader: DeserializationStrategy<*>): ExtSerialDescriptor {
+        val actualDescriptor: ExtSerialDescriptor by lazy {
+            val d = loaderMap[loader]!!
+            if (d is RecursiveDescriptor) throw IllegalStateException("Resolving descriptor that was unresolved")
+            d
+        }
+
+        override fun getSafeElementDescriptor(index: Int) = actualDescriptor.getSafeElementDescriptor(index)
+
+        override val elementsCount: Int get() = actualDescriptor.elementsCount
+
+        override val kind: SerialKind get() = actualDescriptor.kind
+
+        override val serialName: String get() = actualDescriptor.serialName
+
+        override fun getElementAnnotations(index: Int) = actualDescriptor.getElementAnnotations(index)
+
+        override fun getElementDescriptor(index: Int): SerialDescriptor = actualDescriptor.getElementDescriptor(index)
+
+        override fun getElementIndex(name: String): Int = actualDescriptor.getElementIndex(name)
+
+        override fun getElementName(index: Int): String = actualDescriptor.getElementName(index)
+
+        override fun isElementOptional(index: Int): Boolean = actualDescriptor.isElementOptional(index)
     }
 
 }
