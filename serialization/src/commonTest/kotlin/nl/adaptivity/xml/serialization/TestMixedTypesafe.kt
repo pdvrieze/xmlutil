@@ -26,11 +26,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TestMixedTypesafe {
 
+    @Ignore
     @Test
     fun `serialize a typesafe mixed collection to xml`() {
         val expected = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
