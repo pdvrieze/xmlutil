@@ -144,6 +144,12 @@ data class ValueContainer(@XmlValue(true) val content:String)
 data class RecursiveContainer(val values: List<RecursiveContainer> = emptyList())
 
 @Serializable
+@SerialName("l")
+data class SimpleList(val values: List<String>) {
+    constructor(vararg values: String) : this(values.toList())
+}
+
+@Serializable
 data class InvalidValueContainer(@XmlValue(true) val content:String, val element: Address)
 
 @Serializable

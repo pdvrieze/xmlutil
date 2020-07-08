@@ -178,6 +178,14 @@ class TestCommon {
 
     }
 
+    class ListTest: TestBase<SimpleList>(
+        SimpleList("1", "2", "3"),
+        SimpleList.serializer()
+                                        ) {
+        override val expectedXML: String= "<l><values>1</values><values>2</values><values>3</values></l>"
+        override val expectedJson: String = "{\"values\":[\"1\",\"2\",\"3\"]}"
+    }
+
     class ValueContainerTestWithSpaces : TestBase<ValueContainer>(
         ValueContainer("    \nfoobar\n  "),
         ValueContainer.serializer()
