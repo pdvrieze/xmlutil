@@ -593,7 +593,7 @@ class TestCommon {
     }
 
     @Test
-    fun `deserialize mixed content from xml`() {
+    fun deserialize_mixed_content_from_xml() {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
@@ -606,7 +606,7 @@ class TestCommon {
     }
 
     @Test
-    fun `serialize mixed content to xml`() {
+    fun serialize_mixed_content_to_xml() {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 

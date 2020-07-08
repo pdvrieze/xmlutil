@@ -34,7 +34,7 @@ class TestMixedTypesafe {
 
     @Ignore
     @Test
-    fun `serialize a typesafe mixed collection to xml`() {
+    fun serialize_a_typesafe_mixed_collection_to_xml() {
         val expected = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
         val data = TypedMixed {
             text("a")
@@ -52,7 +52,7 @@ class TestMixedTypesafe {
     }
 
     @Test
-    fun `serialize a typesafe mixed collection to json`() {
+    fun serialize_a_typesafe_mixed_collection_to_json() {
         val expected = """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
         val data = TypedMixed {
             text("a")
