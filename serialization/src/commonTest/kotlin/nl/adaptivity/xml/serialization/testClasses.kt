@@ -50,6 +50,12 @@ data class Location(
                    )
 
 @Serializable
+data class SimpleUserType(val data: String)
+
+@Serializable
+data class ContainerOfUserNullable(val data: SimpleUserType?)
+
+@Serializable
 data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
 
 @Serializable

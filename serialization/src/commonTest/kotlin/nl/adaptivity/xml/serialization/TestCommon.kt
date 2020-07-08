@@ -25,7 +25,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
-import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlDeclMode
@@ -34,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
-private fun String.normalize() = replace(" />", "/>").replace("\r\n","\n")
+private fun String.normalize() = replace(" />", "/>").replace("\r\n", "\n")
 
 @OptIn(UnstableDefault::class)
 val testConfiguration = JsonConfiguration(
@@ -289,20 +288,36 @@ class TestCommon {
 
     }
 
-    class SimpleClassWithNullablValueNONNULL : TestBase<NullableContainer>(
+    class SimpleClassWithNullableValueNONNULL : TestBase<NullableContainer>(
         NullableContainer("myBar"),
         NullableContainer.serializer()
-                                                                          ) {
+                                                                           ) {
         override val expectedXML: String = "<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>"
         override val expectedJson: String = "{\"bar\":\"myBar\"}"
     }
 
-    class SimpleClassWithNullablValueNULL : TestBase<NullableContainer>(
+    class SimpleClassWithNullableValueNULL : TestBase<NullableContainer>(
         NullableContainer(),
         NullableContainer.serializer()
-                                                                       ) {
+                                                                        ) {
         override val expectedXML: String = "<p:NullableContainer xmlns:p=\"urn:myurn\"/>"
         override val expectedJson: String = "{\"bar\":null}"
+    }
+
+    class ClassWithNullableUDValueNONNULL : TestBase<ContainerOfUserNullable>(
+        ContainerOfUserNullable(SimpleUserType("foobar")),
+        ContainerOfUserNullable.serializer()
+                                                                             ) {
+        override val expectedXML: String = "<ContainerOfUserNullable><SimpleUserType data=\"foobar\"/></ContainerOfUserNullable>"
+        override val expectedJson: String = "{\"data\":{\"data\":\"foobar\"}}"
+    }
+
+    class ClassWithNullableUDValueNULL : TestBase<ContainerOfUserNullable>(
+        ContainerOfUserNullable(null),
+        ContainerOfUserNullable.serializer()
+                                                                          ) {
+        override val expectedXML: String = "<ContainerOfUserNullable/>"
+        override val expectedJson: String = "{\"data\":null}"
     }
 
     class ASimpleBusiness : TestBase<Business>(
@@ -510,10 +525,12 @@ class TestCommon {
     }
 
     class NullableListTestWithElements : TestBase<NullList>(
-        NullList("A String", listOf(
+        NullList(
+            "A String", listOf(
                 NullListElement("Another String1"),
                 NullListElement("Another String2")
-                              )),
+                              )
+                ),
         NullList.serializer()
                                                            ) {
         override val expectedXML: String
@@ -525,7 +542,7 @@ class TestCommon {
     class NullableListTestNull : TestBase<NullList>(
         NullList("A String"),
         NullList.serializer()
-                                               ) {
+                                                   ) {
         override val expectedXML: String
             get() = "<Baz><Str>A String</Str></Baz>"
         override val expectedJson: String
