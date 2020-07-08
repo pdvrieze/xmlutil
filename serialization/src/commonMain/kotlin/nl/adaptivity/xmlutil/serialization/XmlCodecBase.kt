@@ -97,13 +97,19 @@ internal open class XmlCodecBase internal constructor(
                 }
             }
 
-
             // The children of these are always elements
             when (kind) {
                 StructureKind.LIST,
                 StructureKind.MAP,
                 is PolymorphicKind -> return OutputKind.Element.checkValueChild()
             }
+
+            // For lists, the parent is used for the name (but should not be used for type)
+            when (getElementDescriptor(index).kind) {
+                StructureKind.LIST,
+                StructureKind.MAP -> return OutputKind.Element.checkValueChild()
+            }
+
             if (index == valueChildIndex) {
                 return when (childDesc?.kind) {
                     null,
@@ -123,7 +129,7 @@ internal open class XmlCodecBase internal constructor(
 
             // Lists are always elements
             if (childDesc != null) {
-                if (childDesc.elementsCount > 1) return OutputKind.Element.checkValueChild()
+                if (childDesc.kind is StructureKind) return OutputKind.Element.checkValueChild()
                 childDesc.annotations.firstOrNull<XmlElement>()
                     ?.let { if (it.value) return OutputKind.Element.checkValueChild() else OutputKind.Attribute }
             }
