@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
@@ -29,7 +31,10 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlEvent
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.UnknownXmlFieldException
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlConfig
+import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
@@ -163,6 +168,18 @@ class TestCommon {
             val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
             assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
         }
+
+    }
+
+    /**
+     * Class to test recursion issue #32
+     */
+    class RecursionTest : TestBase<RecursiveContainer>(
+        RecursiveContainer(listOf(RecursiveContainer(listOf(RecursiveContainer(), RecursiveContainer())), RecursiveContainer())),
+        RecursiveContainer.serializer()
+                                                       ) {
+        override val expectedXML: String = "<rec><rec><rec/><rec/></rec><rec/></rec>"
+        override val expectedJson: String = "{\"values\":[{\"values\":[{\"values\":[]},{\"values\":[]}]},{\"values\":[]}]}"
 
     }
 

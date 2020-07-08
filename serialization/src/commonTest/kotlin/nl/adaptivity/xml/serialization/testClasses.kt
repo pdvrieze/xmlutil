@@ -139,6 +139,10 @@ data class ChildA(val valueA: String) : Base()
 @XmlSerialName("valueContainer", namespace="", prefix="")
 data class ValueContainer(@XmlValue(true) val content:String)
 
+@SerialName("rec")
+@Serializable
+data class RecursiveContainer(val values: List<RecursiveContainer> = emptyList())
+
 @Serializable
 data class InvalidValueContainer(@XmlValue(true) val content:String, val element: Address)
 
