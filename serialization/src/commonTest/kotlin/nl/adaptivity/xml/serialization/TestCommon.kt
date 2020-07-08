@@ -170,13 +170,13 @@ class TestCommon {
     class ValueContainerTestWithSpaces : TestBase<ValueContainer>(
         ValueContainer("    \nfoobar\n  "),
         ValueContainer.serializer()
-                                                       ) {
+                                                                 ) {
         override val expectedXML: String = "<valueContainer>    \nfoobar\n  </valueContainer>"
         override val expectedJson: String = "{\"content\":\"    \\nfoobar\\n  \"}"
 
         @Test
         fun testAlternativeXml() {
-            val alternativeXml = "<valueContainer>    \n<![CDATA[foo]]>bar\n  </valueContainer>"
+            val alternativeXml = "<valueContainer><![CDATA[    \nfoo]]>bar\n  </valueContainer>"
             assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
         }
 
@@ -515,7 +515,7 @@ class TestCommon {
                 NullListElement("Another String2")
                               )),
         NullList.serializer()
-                                               ) {
+                                                           ) {
         override val expectedXML: String
             get() = "<Baz><Str>A String</Str><Bar><AnotherStr>Another String1</AnotherStr></Bar><Bar><AnotherStr>Another String2</AnotherStr></Bar></Baz>"
         override val expectedJson: String
