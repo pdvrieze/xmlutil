@@ -200,6 +200,7 @@ kotlin {
         val androidTest by getting {
             dependencies {
                 dependsOn(javaSharedTest)
+                dependsOn(androidMain)
                 implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
