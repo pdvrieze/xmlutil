@@ -167,6 +167,21 @@ class TestCommon {
 
     }
 
+    class ValueContainerTestWithSpaces : TestBase<ValueContainer>(
+        ValueContainer("    \nfoobar\n  "),
+        ValueContainer.serializer()
+                                                       ) {
+        override val expectedXML: String = "<valueContainer>    \nfoobar\n  </valueContainer>"
+        override val expectedJson: String = "{\"content\":\"    \\nfoobar\\n  \"}"
+
+        @Test
+        fun testAlternativeXml() {
+            val alternativeXml = "<valueContainer>    \n<![CDATA[foo]]>bar\n  </valueContainer>"
+            assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
+        }
+
+    }
+
     @UnstableDefault
     class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainer>(
         MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"), "bar")),
