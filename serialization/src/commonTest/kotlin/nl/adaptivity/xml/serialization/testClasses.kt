@@ -88,8 +88,20 @@ data class Inverted(
 data class Namespaced(
     @XmlElement(true)
     val elem1: String,
+    @XmlSerialName("Elem2", "urn:myurn", "p2")
     @XmlElement(true)
-    val elem2: String
+    val elem2: String,
+    @XmlSerialName("Elem3", "http://example.org/2", "p3")
+    @XmlElement(false)
+    val elem3: String,
+    @XmlElement(false)
+    val elem4: String,
+    @XmlSerialName("Elem5", "urn:foobar", "")
+    @XmlElement(false)
+    val elem5: String
+
+
+
                      )
 
 @Serializable

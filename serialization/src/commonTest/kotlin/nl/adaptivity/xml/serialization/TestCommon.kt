@@ -386,14 +386,14 @@ class TestCommon {
     }
 
     class ClassWithImplicitChildNamespace : TestBase<Namespaced>(
-        Namespaced("foo", "bar"),
+        Namespaced("foo", "bar", "bla", "lalala", "tada"),
         Namespaced.serializer()
                                                                 ) {
         override val expectedXML: String =
-            "<xo:namespaced xmlns:xo=\"http://example.org\"><xo:elem1>foo</xo:elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
+            "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" xmlns=\"urn:foobar\" p3:Elem3=\"bla\" elem4=\"lalala\" Elem5=\"tada\"><xo:elem1>foo</xo:elem1><p2:Elem2 xmlns:p2=\"urn:myurn\">bar</p2:Elem2></xo:namespaced>"
         val invalidXml =
             "<xo:namespaced xmlns:xo=\"http://example.org\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
-        override val expectedJson: String = "{\"elem1\":\"foo\",\"elem2\":\"bar\"}"
+        override val expectedJson: String = "{\"elem1\":\"foo\",\"elem2\":\"bar\",\"elem3\":\"bla\",\"elem4\":\"lalala\",\"elem5\":\"tada\"}"
 
         @Test
         fun invalidXmlDoesNotDeserialize() {
