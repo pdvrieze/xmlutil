@@ -258,7 +258,7 @@ internal open class XmlEncoderBase internal constructor(
             val requestedName = descriptor.requestedName(serialName.toNamespace(), index, null)
             when (kind) {
                 OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
-                OutputKind.Attribute -> doWriteAttribute(requestedName, value)
+                OutputKind.Attribute -> smartWriteAttribute(requestedName, value)
                 OutputKind.Mixed,
                 OutputKind.Text      -> defer(index, null) { target.text(value) }
             }
@@ -272,7 +272,8 @@ internal open class XmlEncoderBase internal constructor(
             target.endTag(serialName)
         }
 
-        open fun Any.doWriteAttribute(name: QName, value: String) {
+        open fun doWriteAttribute(name: QName, value: String) {
+
             val actualAttrName: QName = when {
                 name.getNamespaceURI().isEmpty() ||
                         (serialName.getNamespaceURI() == name.getNamespaceURI() &&
@@ -282,10 +283,22 @@ internal open class XmlEncoderBase internal constructor(
                 else -> name
             }
 
-            target.writeAttribute(actualAttrName, value)
+            smartWriteAttribute(actualAttrName, value)
         }
 
 
+    }
+
+    /**
+     * Helper function that ensures writing the namespace attribute if needed.
+     */
+    private fun smartWriteAttribute(name: QName, value: String) {
+        val needsNsAttr = name.namespaceURI.isNotEmpty() &&
+                target.getPrefix(name.namespaceURI) == null
+
+        if (needsNsAttr) target.namespaceAttr(name.prefix, name.namespaceURI)
+
+        target.writeAttribute(name, value)
     }
 
     internal inner class RenamedEncoder(
