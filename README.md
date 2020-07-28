@@ -58,7 +58,7 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ```
 ### Android
 ```
-   implementation("net.devrieze:xmlutil-serialization-android:0.13.0.1")
+   implementation("net.devrieze:xmlutil-serialization-android:0.20.0.1")
 ```
 ### js
 ```
