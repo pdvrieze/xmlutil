@@ -48,7 +48,7 @@ class TestMixedTypesafe {
             })
         }
         val xml = XML(TypedMixed.module) { autoPolymorphic = true }
-        val actual = xml.stringify(TypedMixed.serializer(), data)
+        val actual = xml.stringify(TypedMixed.serializer(), data).replace(" />", "/>")
         assertEquals(expected, actual)
     }
 
