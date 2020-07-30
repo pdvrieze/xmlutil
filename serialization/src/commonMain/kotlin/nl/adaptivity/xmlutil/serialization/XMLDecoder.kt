@@ -491,43 +491,39 @@ internal open class XmlDecoderBase internal constructor(
                                                                            )
                             polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx)
                         }
-                    } else {
-
-
-                        if (config.autoPolymorphic && effectiveElementDesc?.kind is PolymorphicKind) {
-                            val childCollector = when (effectiveElementDesc) {
-                                is PolymorphicParentDescriptor -> ChildCollector(effectiveElementDesc.baseClass)
-                                else -> {
-                                    effectiveElementDesc.polyBaseClassName?.let { ChildCollector(it) } ?: ChildCollector(Any::class)
-                                }
+                    } else if (config.autoPolymorphic && effectiveElementDesc?.kind is PolymorphicKind.OPEN) {
+                        val childCollector = when (effectiveElementDesc) {
+                            is PolymorphicParentDescriptor -> ChildCollector(effectiveElementDesc.baseClass)
+                            else -> {
+                                effectiveElementDesc.polyBaseClassName?.let { ChildCollector(it) } ?: ChildCollector(Any::class)
                             }
-                            context.dumpTo(childCollector)
-
-                            if (childCollector.children.isEmpty()) {
-                                val n =
-                                    desc.requestedName(serialName.toNamespace(), idx, effectiveElementDesc).normalize()
-                                nameMap[n] = idx
-                            } else {
-                                for (actualSerializer in childCollector.children) {
-                                    val name =
-                                        actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
-                                            .normalize()
-                                    polyMap[name] =
-                                        PolyInfo(actualSerializer.descriptor.serialName, name, idx, actualSerializer)
-                                }
-                            }
-                        } else {
-                            val tagName = when (actualElementDesc?.kind) {
-                                is PolymorphicKind -> // TODO For now sealed is treated like polymorphic. We can't enumerate elements yet.
-                                    desc.getElementName(idx).toQname(serialName.toNamespace())
-                                else               -> desc.requestedName(
-                                    serialName.toNamespace(),
-                                    idx,
-                                    effectiveElementDesc
-                                                                        )
-                            }
-                            nameMap[tagName.normalize()] = idx
                         }
+                        context.dumpTo(childCollector)
+
+                        if (childCollector.children.isEmpty()) {
+                            val n =
+                                desc.requestedName(serialName.toNamespace(), idx, effectiveElementDesc).normalize()
+                            nameMap[n] = idx
+                        } else {
+                            for (actualSerializer in childCollector.children) {
+                                val name =
+                                    actualSerializer.descriptor.declRequestedName(serialName.toNamespace())
+                                        .normalize()
+                                polyMap[name] =
+                                    PolyInfo(actualSerializer.descriptor.serialName, name, idx, actualSerializer)
+                            }
+                        }
+                    } else {
+                        val tagName = when (actualElementDesc?.kind) {
+                            is PolymorphicKind -> // TODO For now sealed is treated like polymorphic. We can't enumerate elements yet.
+                                desc.getElementName(idx).toQname(serialName.toNamespace())
+                            else               -> desc.requestedName(
+                                serialName.toNamespace(),
+                                idx,
+                                effectiveElementDesc
+                                                                    )
+                        }
+                        nameMap[tagName.normalize()] = idx
                     }
                 }
             }
@@ -651,6 +647,14 @@ internal open class XmlDecoderBase internal constructor(
                 val attrName = normalName.copy(namespaceURI = containingNamespaceUri)
                 nameMap[attrName]?.let { return it }
                 polyMap[normalName.copy(namespaceURI = containingNamespaceUri)]?.let { return it.index }
+            }
+
+            if (isNameOfAttr && name.prefix.isEmpty()) {
+                val emptyNsPrefix = input.getNamespaceURI("")
+                println("Looking for a match for attribute $name, empty ns prefix is: $emptyNsPrefix")
+                if (emptyNsPrefix!=null) {
+                    polyMap[normalName.copy(namespaceURI = emptyNsPrefix)]?.let { return it.index }
+                }
             }
 
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element

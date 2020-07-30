@@ -26,6 +26,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.canary.peekBaseClass
 import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 
@@ -377,17 +378,13 @@ internal open class XmlEncoderBase internal constructor(
                                                   )
                     }
 
-                    serializer.descriptor.kind is PolymorphicKind -> {
-                        val baseName = serializer.descriptor.polyBaseClassName
-                        if (baseName!=null) {
-                            val childCollector = ChildCollector(baseName)
-                            context.dumpTo(childCollector)
-                            childCollector.getPolyInfo(
-                                parentDesc.requestedName(parentNamespace, elementIndex, null)
-                                                      )
-                        } else {
-                            null
-                        }
+                    serializer.descriptor.kind is PolymorphicKind.OPEN -> {
+                        val childCollector = serializer.descriptor.polyBaseClassName?.let { ChildCollector(it) } ?: ChildCollector(Any::class)
+                        context.dumpTo(childCollector)
+
+                        childCollector.getPolyInfo(
+                            parentDesc.requestedName(parentNamespace, elementIndex, null)
+                                                  )
                     }
 
                     else -> null

@@ -22,158 +22,88 @@ package nl.adaptivity.xmlutil.serialization.canary
 
 import kotlinx.serialization.*
 import kotlinx.serialization.internal.GeneratedSerializer
-import kotlinx.serialization.modules.EmptyModule
 import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.SerialModuleCollector
 import nl.adaptivity.xmlutil.serialization.impl.arrayMap
 import kotlin.collections.set
+import kotlin.reflect.KClass
 
 val <T> DeserializationStrategy<T>.polymorphicDescriptor: SerialDescriptor
     get() {
         return when {
-            this.descriptor.isNullable -> NullableSerialDescriptor(nonNullableDeserializer.polymorphicDescriptor)
-            this is PolymorphicSerializer<*> -> PolymorphicParentDescriptor(this)
-            else                        -> descriptor
+            this.descriptor.isNullable              -> NullableSerialDescriptor(nonNullableDeserializer.polymorphicDescriptor)
+            descriptor.kind is PolymorphicKind.OPEN -> PolymorphicParentDescriptor(descriptor, peekBaseClass())
+            else                                    -> descriptor
         }
     }
 
-private val DeserializationStrategy<*>.nonNullableDeserializer: DeserializationStrategy<*> get() {
-    val canary = LoaderCanaryBase()
-    deserialize(canary)
-    return canary.actualDeserializer
+internal fun DeserializationStrategy<*>.peekBaseClass(): KClass<*> = when (this) {
+    is PolymorphicSerializer ->
+        baseClass
+    else                     -> {
+        val canary = PolyCanary()
+        try {
+            this.deserialize(canary)
+            throw UnsupportedOperationException("This should not be reached")
+        } catch (e: CanaryException) {
+        }
+        canary.baseClass
+    }
 }
+
+internal fun <T> SerializationStrategy<T>.peekBaseClassInvalid(): KClass<*> = when (this) {
+    is PolymorphicSerializer ->
+        baseClass
+    else                     -> {
+        val canary = PolyCanary()
+        try {
+            this.serialize(canary, Any() as T)
+            throw UnsupportedOperationException("This should not be reached")
+        } catch (e: CanaryException) {
+        }
+        canary.baseClass
+    }
+}
+
+internal class PolyCanary : CanaryBase() {
+    override val context: SerialModule = object : SerialModule {
+        override fun <T : Any> getPolymorphic(baseClass: KClass<T>, value: T): Nothing {
+            this@PolyCanary.baseClass == baseClass
+            throw CanaryException()
+        }
+
+        override fun <T : Any> getPolymorphic(baseClass: KClass<T>, serializedClassName: String): Nothing {
+            this@PolyCanary.baseClass == baseClass
+            throw CanaryException()
+        }
+
+        override fun dumpTo(collector: SerialModuleCollector) {
+            throw UnsupportedOperationException("Doesn't work in canary mode")
+        }
+
+        override fun <T : Any> getContextual(kclass: KClass<T>): KSerializer<T>? {
+            throw UnsupportedOperationException("Not supported here")
+        }
+    }
+
+    lateinit var baseClass: KClass<*>
+        private set
+}
+
+private val DeserializationStrategy<*>.nonNullableDeserializer: DeserializationStrategy<*>
+    get() {
+        val canary = CanaryBase()
+        deserialize(canary)
+        return canary.actualDeserializer
+    }
 
 fun DeserializationStrategy<*>.getChildDeserializer(index: Int): DeserializationStrategy<*> {
     val canary = ChildDeserializerCanary(index)
     try {
         deserialize(canary)
-    } catch (e : RuntimeException) {}
+    } catch (e: CanaryException) {
+    }
     return canary.actualDeserializer
-}
-
-private open class LoaderCanaryBase: Decoder, CompositeDecoder {
-
-    override val context: SerialModule get() = EmptyModule
-    override val updateMode: UpdateMode get() = UpdateMode.BANNED
-    lateinit var actualDeserializer: DeserializationStrategy<*>
-
-    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        actualDeserializer = deserializer
-        // We're doing nasty stuff here anyway
-        @Suppress("UNCHECKED_CAST")
-        return null as T
-    }
-
-    override fun <T> decodeSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T>
-                                              ): T {
-        // We're not actually decoding so share the code.
-        return decodeSerializableValue(deserializer)
-    }
-
-    override fun <T : Any> decodeNullableSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T?>
-                                                            ): T? {
-        return decodeSerializableElement(descriptor, index, deserializer)
-    }
-
-    override fun <T : Any> updateNullableSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T?>,
-        old: T?
-                                                            ): T? {
-        return updateSerializableElement(descriptor, index, deserializer, old)
-    }
-
-    override fun <T> updateSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T>,
-        old: T
-                                              ): T {
-        return decodeSerializableElement(descriptor, index, deserializer)
-    }
-
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-        return this
-    }
-
-    override fun endStructure(descriptor: SerialDescriptor) {}
-
-    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        throw UnsupportedOperationException("Not valid here")
-    }
-
-    override fun decodeBoolean(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeByte(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeChar(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeDouble(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeFloat(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeInt(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeLong(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeNotNullMark(): Boolean = true
-    override fun decodeNull(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeShort(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeString(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeUnit(): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
-
-    override fun decodeUnitElement(descriptor: SerialDescriptor, index: Int): Nothing
-            = throw UnsupportedOperationException("Not valid here")
 }
 
 object Canary {
@@ -183,7 +113,10 @@ object Canary {
     private val loaderMap = mutableMapOf<DeserializationStrategy<*>, ExtSerialDescriptor>()
 
     @OptIn(InternalSerializationApi::class)
-    fun <T> serialDescriptor(saver: SerializationStrategy<T>, @Suppress("UNUSED_PARAMETER") obj: T): ExtSerialDescriptor {
+    fun <T> serialDescriptor(
+        saver: SerializationStrategy<T>,
+        @Suppress("UNUSED_PARAMETER") obj: T
+                            ): ExtSerialDescriptor {
         val current = saverMap[saver]?.also { return it }
         if (current != null) return current
         if (saver is GeneratedSerializer) {
@@ -209,18 +142,18 @@ object Canary {
 
         val result = when {
             loader.descriptor.isNullable
-                -> ExtNullableSerialDescriptor(serialDescriptor(loader.nonNullableDeserializer))
+                 -> ExtNullableSerialDescriptor(serialDescriptor(loader.nonNullableDeserializer))
 
             loader is PolymorphicSerializer<*>
-            -> PolymorphicParentDescriptor(loader)
+                 -> PolymorphicParentDescriptor(loader)
 
             loader is GeneratedSerializer
-            -> ExtSerialDescriptorImpl(
+                 -> ExtSerialDescriptorImpl(
                 loader.descriptor,
                 loader.childSerializers().arrayMap { serialDescriptor(it) })
 
-            loader.descriptor.kind== StructureKind.LIST
-            -> {
+            loader.descriptor.kind == StructureKind.LIST
+                 -> {
                 val elementLoader = probeElementLoader(loader)
                 ExtSerialDescriptorImpl(loader.descriptor, arrayOf(serialDescriptor(elementLoader)))
             }
@@ -264,7 +197,7 @@ object Canary {
     }
 
 
-    private class CollectionElementLoaderCanary : LoaderCanaryBase() {
+    private class CollectionElementLoaderCanary : CanaryBase() {
         var nextIdx = 0
 
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
@@ -272,13 +205,13 @@ object Canary {
         }
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            if (nextIdx>=descriptor.elementsCount) return CompositeDecoder.READ_DONE
+            if (nextIdx >= descriptor.elementsCount) return CompositeDecoder.READ_DONE
             return nextIdx++
         }
 
     }
 
-    private class RecursiveDescriptor(private val loader: DeserializationStrategy<*>): ExtSerialDescriptor {
+    private class RecursiveDescriptor(private val loader: DeserializationStrategy<*>) : ExtSerialDescriptor {
         val actualDescriptor: ExtSerialDescriptor by lazy {
             val d = loaderMap[loader]!!
             if (d is RecursiveDescriptor) throw IllegalStateException("Resolving descriptor that was unresolved")
@@ -306,17 +239,19 @@ object Canary {
 
 }
 
-private class ChildDeserializerCanary (val targetIndex: Int): LoaderCanaryBase(){
+private class ChildDeserializerCanary(val targetIndex: Int) : CanaryBase() {
     override fun <T> decodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>
                                               ): T {
         super.decodeSerializableElement(descriptor, index, deserializer)
-        throw RuntimeException("Just a way to stop coding")
+        throw CanaryException("Just a way to stop coding")
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         return targetIndex
     }
 }
+
+internal class CanaryException(msg: String = "") : RuntimeException(msg)
