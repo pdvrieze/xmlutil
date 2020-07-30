@@ -87,7 +87,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
         get() {
 
             return _namespaceAttrs ?: (
-                    currentElement.attributes.filter { it.prefix == "xmlns" || (it.prefix == "" && it.localName == "xmlns") }.also {
+                    currentElement.attributes.filter { it.prefix == "xmlns" || (it.prefix.isNullOrEmpty() && it.localName == "xmlns") }.also {
                         _namespaceAttrs = it
                     })
 

@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.util.CompactFragment
 import org.w3c.dom.Document
+import org.w3c.dom.Node
 import org.w3c.dom.parsing.XMLSerializer
 
 /**
@@ -33,9 +34,10 @@ import org.w3c.dom.parsing.XMLSerializer
  * @throws XmlException parsing failed
  */
 actual fun XmlReader.siblingsToFragment(): CompactFragment {
-    val doc = when (val d = (this as JSDomReader).delegate) {
+    val doc = when (val d = (this as? JSDomReader)?.delegate) {
         is Document -> d
-        else        -> d.ownerDocument!!
+        is Node     -> d.ownerDocument ?: Document()
+        else        -> Document()
     }
     val frag = doc.createDocumentFragment()
     val wrapperElement = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)
