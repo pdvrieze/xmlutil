@@ -24,11 +24,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.requestedName
-import nl.adaptivity.xmlutil.serialization.canary.Canary
-import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
+import nl.adaptivity.xmlutil.serialization.canary.*
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
-import nl.adaptivity.xmlutil.serialization.canary.getChildDeserializer
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
@@ -36,9 +33,10 @@ import kotlin.collections.set
 internal open class XmlDecoderBase internal constructor(
     context: SerialModule,
     config: XmlConfig,
-    val input: XmlReader
+    input: XmlReader
                                                        ) : XmlCodecBase(context, config) {
 
+    val input = XmlBufferedReader(input)
     var skipRead = false
 
     internal open inner class XmlDecoder(
@@ -52,7 +50,7 @@ internal open class XmlDecoderBase internal constructor(
                                         ) :
         XmlCodec(parentNamespace, parentDesc, elementIndex, childDesc), Decoder, XML.XmlInput {
 
-        override val input: XmlReader get() = this@XmlDecoderBase.input
+        override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
         override val context get() = this@XmlDecoderBase.context
 
@@ -227,7 +225,7 @@ internal open class XmlDecoderBase internal constructor(
                             parentNamespace,
                             elementIndex,
                             childDesc?.getElementDescriptor(0)
-                                                   )
+                                                         )
 
                         AnonymousListDecoder(
                             sn,
@@ -446,16 +444,30 @@ internal open class XmlDecoderBase internal constructor(
 
                 if (xmlPolyChildren != null) {
                     for (child in xmlPolyChildren.value) {
-                        var childDesc: SerialDescriptor = Canary.serialDescriptor(deserializer.getChildDeserializer(idx))
+                        var childDesc: SerialDescriptor =
+                            Canary.serialDescriptor(deserializer.getChildDeserializer(idx))
 //                        var childDesc2 = desc.getElementDescriptor(idx)
                         if (childDesc.kind == StructureKind.LIST) {
-                           childDesc = childDesc.getElementDescriptor(0)
+                            childDesc = childDesc.getElementDescriptor(0)
                         }
-                        val baseClass = when (childDesc) {
-                            is PolymorphicParentDescriptor -> childDesc.baseClass
-                            else                       -> Any::class // TODO can we get more?
+                        val polyInfo = when {
+                            childDesc is PolymorphicParentDescriptor -> polyTagName(
+                                serialName,
+                                child,
+                                idx,
+                                childDesc.baseClass
+                                                                                   )
+                            childDesc.kind == PolymorphicKind.OPEN   -> {
+                                when (val baseClassName = childDesc.polyBaseClassName) {
+                                    null -> polyTagName(serialName, child, idx, Any::class)
+                                    else -> polyTagName(serialName, child, idx, baseClassName)
+                                }
+
+                            }
+                            else                                     -> polyTagName(serialName, child, idx, Any::class)
+                            // TODO can we get more?
                         }
-                        val polyInfo = polyTagName(serialName, child, idx, baseClass)
+
                         polyMap[polyInfo.tagName.normalize()] = polyInfo
                     }
                 } else {
@@ -482,9 +494,13 @@ internal open class XmlDecoderBase internal constructor(
                     } else {
 
 
-                        if (config.autoPolymorphic && effectiveElementDesc is PolymorphicParentDescriptor) {
-                            val baseClass = effectiveElementDesc.baseClass
-                            val childCollector = ChildCollector(baseClass)
+                        if (config.autoPolymorphic && effectiveElementDesc?.kind is PolymorphicKind) {
+                            val childCollector = when (effectiveElementDesc) {
+                                is PolymorphicParentDescriptor -> ChildCollector(effectiveElementDesc.baseClass)
+                                else -> {
+                                    effectiveElementDesc.polyBaseClassName?.let { ChildCollector(it) } ?: ChildCollector(Any::class)
+                                }
+                            }
                             context.dumpTo(childCollector)
 
                             if (childCollector.children.isEmpty()) {
@@ -520,7 +536,7 @@ internal open class XmlDecoderBase internal constructor(
 
         }
 
-        override val input: XmlReader get() = this@XmlDecoderBase.input
+        override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -528,7 +544,7 @@ internal open class XmlDecoderBase internal constructor(
             desc: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
-                                            ): XmlDecoder? {
+                                                  ): XmlDecoder? {
             return when {
                 nulledItemsIdx >= 0 -> null
                 deserializer.descriptor.kind is PrimitiveKind
@@ -999,11 +1015,17 @@ internal open class XmlDecoderBase internal constructor(
                             input.eventType == EventType.CDSECT)
                                      -> "kotlin.String"
 
-                    polyInfo == null -> input.getAttributeValue(null, "type")?.expandTypeNameIfNeeded(parentDesc.serialName)
+                    polyInfo == null -> input.getAttributeValue(null, "type")
+                        ?.expandTypeNameIfNeeded(parentDesc.serialName)
                         ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
                     else             -> polyInfo.describedName
                 }
-                else -> super.decodeStringElement(descriptor, index)
+                else -> when { // In a mixed context, pure text content doesn't need a wrapper
+                    isMixed -> input.consecutiveTextContent()
+                    else    -> {
+                        super.decodeStringElement(descriptor, index)
+                    }
+                }
             }
         }
 
@@ -1026,19 +1048,20 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>
                                              ): XmlDecoder? {
             val serialNameToUseForChild = when {
-                !transparent -> "value".toQname()
-                polyInfo!=null -> polyInfo.tagName
-                else         -> serialName
+                !transparent     -> "value".toQname()
+                polyInfo != null -> polyInfo.tagName
+                else             -> serialName
             }
 
-            return RenamedDecoder(serialNameToUseForChild,
-                                  parentNamespace,
-                                  desc,
-                                  index,
-                                  deserializer,
-                                  Canary.serialDescriptor(deserializer),
-                                  currentPolyInfo,
-                                  lastAttrIndex
+            return RenamedDecoder(
+                serialNameToUseForChild,
+                parentNamespace,
+                desc,
+                index,
+                deserializer,
+                Canary.serialDescriptor(deserializer),
+                currentPolyInfo,
+                lastAttrIndex
                                  )
         }
 
@@ -1086,7 +1109,7 @@ internal open class XmlDecoderBase internal constructor(
                 input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             } else if (!isMixed || !config.autoPolymorphic) { // Don't check in mixed mode as we could have just had raw text
                 val t = polyInfo?.tagName
-                if (t!=null) {
+                if (t != null) {
                     input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
                 } else {
                     super.endStructure(descriptor)

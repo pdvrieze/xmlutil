@@ -29,7 +29,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
 
     protected abstract val hasPeekItems: Boolean
 
-    protected var current: XmlEvent? = null
+    protected var current: XmlEvent? = XmlEvent.from(delegate)
         private set
 
     private val currentElement: StartElementEvent
@@ -103,7 +103,10 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
 
     override val namespaceContext: NamespaceContext
         get() {
-            return currentElement.namespaceContext
+            return when (val c = current) {
+                is StartElementEvent -> c.namespaceContext
+                else -> SimpleNamespaceContext() // just an empty context in events like start doc
+            }
         }
 
     override val encoding: String?
@@ -145,11 +148,13 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         return event
     }
 
-    private fun peek(): XmlEvent? {
-        if (hasPeekItems) {
-            return peekFirst()
+    /**
+     * Try to peek the next event. Unlike [peekFirst] this function will progress the underlying stream if needed.
+     */
+    fun peek(): XmlEvent? {
+        if (! hasPeekItems) {
+            addAll(doPeek())
         }
-        addAll(doPeek())
         return peekFirst()
     }
 

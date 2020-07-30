@@ -20,12 +20,10 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.PolymorphicKind
-import kotlinx.serialization.PrimitiveKind
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.StructureKind
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.impl.getPolymorphic
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
@@ -205,6 +203,30 @@ internal open class XmlCodecBase internal constructor(
             itemIdx: Int,
             baseClass: KClass<*>
                        ): PolyInfo {
+            return polyTagNameCommon(parentTag, polyChild, itemIdx) {childName ->
+                getPolymorphic(baseClass, childName)
+            }
+        }
+
+        /**
+         * Determine the polymorphic tag name for a particular element.
+         */
+        fun polyTagName(
+            parentTag: QName,
+            polyChild: String,
+            itemIdx: Int,
+            baseClassName: String
+                       ): PolyInfo {
+            return polyTagNameCommon(parentTag, polyChild, itemIdx) {childName ->
+                getPolymorphic(baseClassName, childName)
+            }
+        }
+
+        private fun polyTagNameCommon(            parentTag: QName,
+                                                  polyChild: String,
+                                                  itemIdx: Int,
+                                                  getPolymorphic: SerialModule.(String) -> KSerializer<*>?
+                                     ): PolyInfo {
             val currentTypeName = parentDesc.serialName
             val currentPkg = currentTypeName.substringBeforeLast('.', "")
             val eqPos = polyChild.indexOf('=')
@@ -245,7 +267,7 @@ internal open class XmlCodecBase internal constructor(
             }
 
             val name: QName = if (eqPos < 0) {
-                context.getPolymorphic(baseClass, typename)
+                context.getPolymorphic(typename)
                     ?.descriptor
                     ?.annotations
                     ?.firstOrNull<XmlSerialName>()

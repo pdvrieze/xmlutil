@@ -326,6 +326,11 @@ class XML(
         val serialName = deserializer.descriptor.getSerialName()
         val serialDescriptor = deserializer.descriptor
 
+        // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
+        // in the correct state of having just read the startTag (that would normally be read by the code that determines
+        // what to parse (before calling readSerializableValue on the value)
+        reader.skipPreamble()
+
         val decoder = XmlDecoderBase(context, config, reader).XmlDecoder(
             parentNamespace = XmlEvent.NamespaceImpl("", ""),
             parentDesc = DummyParentDescriptor(serialName, serialDescriptor),
@@ -333,11 +338,6 @@ class XML(
             deserializer = deserializer,
             childDesc = serialDescriptor
                                                                         )
-
-        // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
-        // in the correct state of having just read the startTag (that would normally be read by the code that determines
-        // what to parse (before calling readSerializableValue on the value)
-        reader.skipPreamble()
         return decoder.decodeSerializableValue(deserializer)
     }
 

@@ -24,6 +24,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.serialutil.impl.name
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Ignore
@@ -32,7 +33,7 @@ import kotlin.test.assertEquals
 
 class TestMixedTypesafe {
 
-    @Ignore
+//    @Ignore
     @Test
     fun serialize_a_typesafe_mixed_collection_to_xml() {
         val expected = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
@@ -51,6 +52,26 @@ class TestMixedTypesafe {
         assertEquals(expected, actual)
     }
 
+//    @Ignore
+    @Test
+    fun deserialize_a_typesafe_mixed_collection_from_xml() {
+        val data = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
+        val expected = TypedMixed {
+            text("a")
+            elem(TypedMixed.B())
+            text("c")
+            elem(TypedMixed.D())
+            elem(TypedMixed.E {
+                text("f")
+                elem(TypedMixed.G())
+            })
+        }
+        val xml = XML(TypedMixed.module) { autoPolymorphic = true }
+        val actual = xml.parse(TypedMixed.serializer(), data)
+        assertEquals(expected, actual)
+    }
+
+//    @Ignore
     @Test
     fun serialize_a_typesafe_mixed_collection_to_json() {
         val expected = """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
@@ -70,6 +91,27 @@ class TestMixedTypesafe {
         val actual = json.stringify(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
+
+//    @Ignore
+    @Test
+    fun deserialize_a_typesafe_mixed_collection_from_json() {
+        val data = """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
+        val expected = TypedMixed {
+            text("a")
+            elem(TypedMixed.B())
+            text("c")
+            elem(TypedMixed.D())
+            elem(TypedMixed.E {
+                text("f")
+                elem(TypedMixed.G())
+            })
+        }
+        val json = Json {
+            serialModule = TypedMixed.module
+        }
+        val actual = json.parse(TypedMixed.serializer(), data)
+        assertEquals(expected, actual)
+    }
 }
 
 internal interface TypedMixedContent
@@ -78,7 +120,7 @@ internal interface EContent
 @Serializable
 @SerialName("mixed")
 internal class TypedMixed(
-//    @XmlValue(true)
+    @XmlValue(true)
     override val data: List<MixedContent<TypedMixedContent>>
                          ) : TypeMixedBase<TypedMixedContent>() {
     constructor(config: TypeMixedBase.Builder<TypedMixedContent>.() -> Unit)
@@ -99,6 +141,23 @@ internal class TypedMixed(
         constructor(config: TypeMixedBase.Builder<EContent>.() -> Unit)
                 : this(TypeMixedBase.Builder<EContent>().apply(config).toList())
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is E) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
+        override fun toString(): String {
+            return "E($data)"
+        }
+
     }
 
     @Serializable
@@ -114,6 +173,23 @@ internal class TypedMixed(
                 G::class with G.serializer()
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TypedMixed) return false
+
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return data.hashCode()
+    }
+
+    override fun toString(): String {
+        return "TypedMixed($data)"
     }
 }
 
@@ -144,6 +220,8 @@ sealed class MixedContent<out T> {
     @Serializable(with = Text.Companion::class)
     class Text(val data: String) : MixedContent<Nothing>() {
 
+
+
         companion object : KSerializer<Text> {
             override val descriptor: SerialDescriptor = PrimitiveDescriptor("text", PrimitiveKind.STRING)
             override fun deserialize(decoder: Decoder): Text {
@@ -154,10 +232,29 @@ sealed class MixedContent<out T> {
                 encoder.encodeString(value.data)
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Text) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Text('$data')"
+        }
     }
 
     @Serializable(Object.Companion::class)
     class Object<T>(@Polymorphic val data: T) : MixedContent<T>() {
+
+
         companion object : KSerializer<Object<Any>> {
             private val delegate = PolymorphicSerializer(Any::class)
 
@@ -177,12 +274,29 @@ sealed class MixedContent<out T> {
             }
 
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Object<*>) return false
+
+            if (data != other.data) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return data?.hashCode() ?: 0
+        }
+
+        override fun toString(): String {
+            return "Object($data)"
+        }
     }
 
     companion object : KSerializer<MixedContent<Any>> {
         override val descriptor: SerialDescriptor = SerialDescriptor("Object<T>", PolymorphicKind.OPEN) {
             element("type", String.serializer().descriptor)
-            element("value", SerialDescriptor("Object<T>::T", UnionKind.CONTEXTUAL))
+            element("value", SerialDescriptor("Object<${Any::class.name}>", UnionKind.CONTEXTUAL))
         }
 
         fun decodeSequentially(compositeDecoder: CompositeDecoder): MixedContent<Any> {

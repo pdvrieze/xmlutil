@@ -65,7 +65,7 @@ interface XmlReader : Closeable, Iterator<EventType> {
     @Throws(XmlException::class)
     fun require(type: EventType, namespace: String?, name: String?) {
         when {
-            eventType != type ->
+            eventType != type                 ->
                 throw XmlException("Type $eventType does not match expected type \"$type\"")
 
             namespace != null &&
@@ -212,9 +212,10 @@ fun XmlReader.isElement(elementname: QName): Boolean {
 }
 
 /**
- * Get the next text sequence in the reader. This will skip over comments and ignorable whitespace, but not tags.
- * Any tags encountered with cause an exception to be thrown. It can either be invoked when in a start tag to return
- * all text content, or on a content element to include it (if text or cdata) and all subsequent siblings.
+ * Get the next text sequence in the reader. This will skip over comments and ignorable whitespace (starting the
+ * content), but not tags. Any tags encountered with cause an exception to be thrown. It can either be invoked when in a
+ * start tag to return all text content, or on a content element to include it (if text or cdata) and all subsequent
+ * siblings.
  *
  * The function will move to the containing end tag.
  *
@@ -233,6 +234,7 @@ fun XmlReader.allText(): String {
 
         while ((t.next().apply { type = this@apply }) !== EventType.END_ELEMENT) {
             when (type) {
+                EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT
                      -> Unit // ignore
 
@@ -244,7 +246,63 @@ fun XmlReader.allText(): String {
                 EventType.CDSECT
                      -> append(t.text)
 
-                else -> throw XmlException("Found unexpected child tag")
+                else -> throw XmlException("Found unexpected child tag with type: $type")
+            }//ignore
+
+        }
+
+    }
+}
+
+/**
+ * Consume all text and non-content (comment/processing instruction) to get an uninterrupted text sequence. This will
+ * skip over comments and ignorable whitespace that starts the string, but not tags. Any tags encountered will lead
+ * to a return of this function.
+ * Any tags encountered with cause an exception to be thrown. It can either be invoked when in a start tag to return
+ * all text content, or on a content element to include it (if text or cdata) and all subsequent siblings.
+ *
+ * The function will move to the containing end tag.
+ *
+ * @return   The text found
+ *
+ * @throws XmlException If reading breaks, or an unexpected element was found.
+ */
+fun XmlBufferedReader.consecutiveTextContent(): String {
+    val whiteSpace = StringBuilder()
+    val t = this
+    return buildString {
+        if (eventType == EventType.TEXT || eventType == EventType.CDSECT) {
+            append(text)
+        }
+
+        var event: XmlEvent?
+
+        loop@while ((t.peek().apply { event = this@apply }) !== EventType.END_ELEMENT) {
+            when (event?.eventType) {
+                EventType.PROCESSING_INSTRUCTION,
+                EventType.COMMENT
+                     -> { t.next();Unit } // ignore
+
+                // ignore whitespace starting the element.
+                EventType.IGNORABLE_WHITESPACE
+                     -> { t.next(); whiteSpace.append(t.text) }
+
+                EventType.TEXT,
+                EventType.CDSECT
+                     -> {
+                    t.next()
+                    if (isNotEmpty()) {
+                        append(whiteSpace)
+                        whiteSpace.clear()
+                    }
+                    append(t.text)
+                }
+                EventType.START_ELEMENT
+                     -> { // don't progress the event either
+                    break@loop
+                }
+
+                else -> throw XmlException("Found unexpected child tag: $event")
             }//ignore
 
         }

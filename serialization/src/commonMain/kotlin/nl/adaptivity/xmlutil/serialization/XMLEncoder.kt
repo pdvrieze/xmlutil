@@ -26,6 +26,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 
 internal open class XmlEncoderBase internal constructor(
@@ -376,6 +377,19 @@ internal open class XmlEncoderBase internal constructor(
                                                   )
                     }
 
+                    serializer.descriptor.kind is PolymorphicKind -> {
+                        val baseName = serializer.descriptor.polyBaseClassName
+                        if (baseName!=null) {
+                            val childCollector = ChildCollector(baseName)
+                            context.dumpTo(childCollector)
+                            childCollector.getPolyInfo(
+                                parentDesc.requestedName(parentNamespace, elementIndex, null)
+                                                      )
+                        } else {
+                            null
+                        }
+                    }
+
                     else -> null
                 }
         }
@@ -403,6 +417,8 @@ internal open class XmlEncoderBase internal constructor(
                         true -> regName.name
                         else -> QName(value.substringAfterLast('.'))
                     }
+                } else if (isMixed) {
+                    target.text(value)
                 } else {
                     target.smartStartTag(serialName) { text(value) }
                 }

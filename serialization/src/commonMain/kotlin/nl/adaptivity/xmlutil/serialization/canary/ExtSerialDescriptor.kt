@@ -107,3 +107,16 @@ fun SerialDescriptor.getSafeElementDescriptor(index: Int): SerialDescriptor? = w
         null
     }
 }
+
+internal val SerialDescriptor.polyBaseClassName: String?
+    get() {
+        val valueName = getElementDescriptor(1).serialName
+        val startIdx = valueName.indexOf('<')
+        if (startIdx>=0 &&
+            valueName.endsWith(">")) {
+            return valueName.substring(startIdx + 1, valueName.length - 1)
+        } else {
+            return null
+        }
+
+    }
