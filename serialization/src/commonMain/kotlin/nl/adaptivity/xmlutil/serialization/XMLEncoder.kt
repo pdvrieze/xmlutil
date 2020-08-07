@@ -35,6 +35,9 @@ internal open class XmlEncoderBase internal constructor(
     val target: XmlWriter
                                                        ) : XmlCodecBase(context, config) {
 
+    override val namespaceContext: NamespaceContext
+        get() = target.namespaceContext
+
     /**
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
@@ -335,14 +338,20 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     internal inner class RenamedTagEncoder(
-        override val serialName: QName,
+        /*override val*/ serialName: QName,
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         serializer: SerializationStrategy<*>,
         xmlDescriptor: XmlDescriptor
                                          ) :
-        TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, xmlDescriptor, true)
+        TagEncoder(parentNamespace, parentDesc, elementIndex, serializer, xmlDescriptor, true) {
+        init {
+            assert(serialName==xmlDescriptor.name) {
+                "actual name $serialName != descriptor name ${xmlDescriptor.name}"
+            }
+        }
+    }
 
     internal inner class PolymorphicEncoder(
         parentNamespace: Namespace,

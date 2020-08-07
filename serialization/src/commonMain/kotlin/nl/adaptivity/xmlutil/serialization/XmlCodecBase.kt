@@ -27,10 +27,156 @@ import nl.adaptivity.xmlutil.serialization.impl.getPolymorphic
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
-internal open class XmlCodecBase internal constructor(
+internal abstract class XmlCodecBase internal constructor(
     val context: SerialModule,
     val config: XmlConfig
                                                      ) {
+
+    protected abstract val namespaceContext: NamespaceContext
+
+    /**
+     * Determine the polymorphic tag name for a particular element.
+     */
+    fun polyTagName(
+        parentDesc: SerialDescriptor,
+        parentTag: QName,
+        polyChild: String,
+        itemIdx: Int,
+        baseClass: KClass<*>
+                   ): PolyInfo {
+        return polyTagNameCommon(parentDesc, parentTag, polyChild, itemIdx) { childName ->
+            getPolymorphic(baseClass, childName)
+        }
+    }
+
+    /**
+     * Determine the polymorphic tag name for a particular element.
+     */
+    fun polyTagName(
+        parent: XmlSerializationPolicy.NameInfo,
+        polyChild: String,
+        itemIdx: Int,
+        baseClass: KClass<*>
+                   ): PolyInfo {
+        return polyTagNameCommon(parent, polyChild, itemIdx) { childName ->
+            getPolymorphic(baseClass, childName)
+        }
+    }
+
+    /**
+     * Determine the polymorphic tag name for a particular element.
+     */
+    fun polyTagName(
+        parentDesc: SerialDescriptor,
+        parentTag: QName,
+        polyChild: String,
+        itemIdx: Int,
+        baseClassName: String
+                   ): PolyInfo {
+        return polyTagNameCommon(parentDesc, parentTag, polyChild, itemIdx) { childName ->
+            getPolymorphic(baseClassName, childName)
+        }
+    }
+
+    private fun polyTagNameCommon(
+        parentDesc: SerialDescriptor,
+        parentTag: QName,
+        polyChild: String,
+        itemIdx: Int,
+        getPolymorphic: SerialModule.(String) -> KSerializer<*>?
+                                 ): PolyInfo {
+        return polyTagNameCommon(XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag), polyChild, itemIdx, getPolymorphic)
+    }
+    private fun polyTagNameCommon(
+        parent: XmlSerializationPolicy.NameInfo,
+        polyChild: String,
+        itemIdx: Int,
+        getPolymorphic: SerialModule.(String) -> KSerializer<*>?
+                                 ): PolyInfo {
+        val currentPkg = parent.serialName.substringBeforeLast('.', "")
+        val parentTag = parent.annotatedName!!
+        val eqPos = polyChild.indexOf('=')
+        val pkgPos: Int
+        val prefPos: Int
+        val typeNameBase: String
+        val prefix: String
+        val localPart: String
+
+        if (eqPos < 0) {
+            typeNameBase = polyChild
+            pkgPos = polyChild.lastIndexOf('.')
+            prefPos = -1
+            prefix = parentTag.prefix
+            localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
+        } else {
+            typeNameBase = polyChild.substring(0, eqPos).trim()
+            pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
+            prefPos = polyChild.indexOf(':', eqPos + 1)
+
+            if (prefPos < 0) {
+                prefix = parentTag.prefix
+                localPart = polyChild.substring(eqPos + 1).trim()
+            } else {
+                prefix = polyChild.substring(eqPos + 1, prefPos).trim()
+                localPart = polyChild.substring(prefPos + 1).trim()
+            }
+        }
+
+        val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
+            ?: parentTag.namespaceURI else parentTag.namespaceURI
+
+        val typename = when {
+            pkgPos != 0 || currentPkg.isEmpty()
+                 -> typeNameBase
+
+            else -> "$currentPkg.${typeNameBase.substring(1)}"
+        }
+
+        val name: QName = if (eqPos < 0) {
+            context.getPolymorphic(typename)
+                ?.descriptor
+                ?.annotations
+                ?.firstOrNull<XmlSerialName>()
+                ?.toQName()
+                ?: QName(ns, localPart, prefix)
+        } else {
+            QName(ns, localPart, prefix)
+        }
+
+        return PolyInfo(typename, name, itemIdx)
+    }
+
+
+    /**
+     * Given a parent tag, record all polymorphic children.
+     */
+    fun polyInfo(
+        parentDesc: SerialDescriptor,
+        parentTag: QName,
+        polyChildren: Array<String>,
+        baseClass: KClass<*>
+                ): XmlNameMap {
+        return polyInfo(XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag), polyChildren, baseClass)
+    }
+    /**
+     * Given a parent tag, record all polymorphic children.
+     */
+    fun polyInfo(
+        parent: XmlSerializationPolicy.NameInfo,
+        polyChildren: Array<String>,
+        baseClass: KClass<*>
+                ): XmlNameMap {
+        val result = XmlNameMap()
+
+        for (polyChild in polyChildren) {
+            val polyInfo = polyTagName(parent, polyChild, -1, baseClass)
+
+            result.registerClass(polyInfo.tagName, polyInfo.describedName, polyChild.indexOf('=') >= 0)
+        }
+
+        return result
+    }
+
 
     companion object {
 
@@ -178,6 +324,7 @@ internal open class XmlCodecBase internal constructor(
         val desc: SerialDescriptor,
         val parentNamespace: Namespace
                                              ) {
+        internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context
 
         open val serialName: QName get() = parentDesc.requestedName(parentNamespace, elementIndex, desc)
@@ -195,92 +342,6 @@ internal open class XmlCodecBase internal constructor(
         }
 
         /**
-         * Determine the polymorphic tag name for a particular element.
-         */
-        fun polyTagName(
-            parentTag: QName,
-            polyChild: String,
-            itemIdx: Int,
-            baseClass: KClass<*>
-                       ): PolyInfo {
-            return polyTagNameCommon(parentTag, polyChild, itemIdx) {childName ->
-                getPolymorphic(baseClass, childName)
-            }
-        }
-
-        /**
-         * Determine the polymorphic tag name for a particular element.
-         */
-        fun polyTagName(
-            parentTag: QName,
-            polyChild: String,
-            itemIdx: Int,
-            baseClassName: String
-                       ): PolyInfo {
-            return polyTagNameCommon(parentTag, polyChild, itemIdx) {childName ->
-                getPolymorphic(baseClassName, childName)
-            }
-        }
-
-        private fun polyTagNameCommon(            parentTag: QName,
-                                                  polyChild: String,
-                                                  itemIdx: Int,
-                                                  getPolymorphic: SerialModule.(String) -> KSerializer<*>?
-                                     ): PolyInfo {
-            val currentTypeName = parentDesc.serialName
-            val currentPkg = currentTypeName.substringBeforeLast('.', "")
-            val eqPos = polyChild.indexOf('=')
-            val pkgPos: Int
-            val prefPos: Int
-            val typeNameBase: String
-            val prefix: String
-            val localPart: String
-
-            if (eqPos < 0) {
-                typeNameBase = polyChild
-                pkgPos = polyChild.lastIndexOf('.')
-                prefPos = -1
-                prefix = parentTag.prefix
-                localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
-            } else {
-                typeNameBase = polyChild.substring(0, eqPos).trim()
-                pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
-                prefPos = polyChild.indexOf(':', eqPos + 1)
-
-                if (prefPos < 0) {
-                    prefix = parentTag.prefix
-                    localPart = polyChild.substring(eqPos + 1).trim()
-                } else {
-                    prefix = polyChild.substring(eqPos + 1, prefPos).trim()
-                    localPart = polyChild.substring(prefPos + 1).trim()
-                }
-            }
-
-            val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
-                ?: parentTag.namespaceURI else parentTag.namespaceURI
-
-            val typename = when {
-                pkgPos != 0 || currentPkg.isEmpty()
-                     -> typeNameBase
-
-                else -> "$currentPkg.${typeNameBase.substring(1)}"
-            }
-
-            val name: QName = if (eqPos < 0) {
-                context.getPolymorphic(typename)
-                    ?.descriptor
-                    ?.annotations
-                    ?.firstOrNull<XmlSerialName>()
-                    ?.toQName()
-                    ?: QName(ns, localPart, prefix)
-            } else {
-                QName(ns, localPart, prefix)
-            }
-
-            return PolyInfo(typename, name, itemIdx)
-        }
-
-        /**
          * Given a parent tag, record all polymorphic children.
          */
         fun polyInfo(
@@ -288,15 +349,7 @@ internal open class XmlCodecBase internal constructor(
             polyChildren: Array<String>,
             baseClass: KClass<*>
                     ): XmlNameMap {
-            val result = XmlNameMap()
-
-            for (polyChild in polyChildren) {
-                val polyInfo = polyTagName(parentTag, polyChild, -1, baseClass)
-
-                result.registerClass(polyInfo.tagName, polyInfo.describedName, polyChild.indexOf('=') >= 0)
-            }
-
-            return result
+            return polyInfo(parentDesc, parentTag, polyChildren, baseClass)
         }
 
     }

@@ -244,15 +244,20 @@ class XML(
                                           )
                                                   )
 
+        val xmlEncoderBase = XmlEncoderBase(context, config, target)
+        val root = XmlRootDescriptor(serialQName, serializer.descriptor)
+        val parentDesc = DummyParentDescriptor(serialQName, serializer.descriptor)
+
+        val name = XmlSerializationPolicy.NameInfo(serialName, serialQName)
         val xmlDescriptor = XmlDescriptor
-            .from(serializer, this, XmlSerializationPolicy.NameInfo(serialName, serialQName), serialQName.toNamespace(), useAnnotations = emptyList())
+            .from(serializer, xmlEncoderBase, name, root, useAnnotations = emptyList())
             .asElement()
 
-        val encoder = XmlEncoderBase(context, config, target)
+        val encoder = xmlEncoderBase
             .RenamedEncoder(
                 serialQName,
                 serialQName.toNamespace(),
-                DummyParentDescriptor(serialQName, serializer.descriptor),
+                parentDesc,
                 0,
                 serializer,
                 xmlDescriptor

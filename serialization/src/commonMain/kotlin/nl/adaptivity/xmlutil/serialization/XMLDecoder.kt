@@ -39,6 +39,8 @@ internal open class XmlDecoderBase internal constructor(
     val input = XmlBufferedReader(input)
     var skipRead = false
 
+    override val namespaceContext: NamespaceContext get() = input.namespaceContext
+
     internal open inner class XmlDecoder(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
@@ -451,7 +453,7 @@ internal open class XmlDecoderBase internal constructor(
                             childDesc = childDesc.getElementDescriptor(0)
                         }
                         val polyInfo = when {
-                            childDesc is PolymorphicParentDescriptor -> polyTagName(
+                            childDesc is PolymorphicParentDescriptor -> polyTagName(desc,
                                 serialName,
                                 child,
                                 idx,
@@ -459,12 +461,12 @@ internal open class XmlDecoderBase internal constructor(
                                                                                    )
                             childDesc.kind == PolymorphicKind.OPEN   -> {
                                 when (val baseClassName = childDesc.polyBaseClassName) {
-                                    null -> polyTagName(serialName, child, idx, Any::class)
-                                    else -> polyTagName(serialName, child, idx, baseClassName)
+                                    null -> polyTagName(desc, serialName, child, idx, Any::class)
+                                    else -> polyTagName(desc, serialName, child, idx, baseClassName)
                                 }
 
                             }
-                            else                                     -> polyTagName(serialName, child, idx, Any::class)
+                            else                                     -> polyTagName(desc, serialName, child, idx, Any::class)
                             // TODO can we get more?
                         }
 
