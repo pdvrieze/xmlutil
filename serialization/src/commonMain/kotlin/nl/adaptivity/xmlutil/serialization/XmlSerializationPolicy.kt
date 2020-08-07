@@ -38,10 +38,11 @@ interface XmlSerializationPolicy {
 */
 
     val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
+    val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
     fun defaultOutputKind(serialKind: SerialKind): OutputKind = when (serialKind) {
         UnionKind.ENUM_KIND,
-        StructureKind.OBJECT,
+        StructureKind.OBJECT -> defaultObjectOutputKind
         is PrimitiveKind -> defaultPrimitiveOutputKind
         else -> OutputKind.Element
     }
@@ -101,9 +102,12 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
                               ): QName {
         return when {
             useName.annotatedName != null      -> useName.annotatedName
+            outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
+            serialKind is PrimitiveKind ||
             serialKind == StructureKind.MAP ||
             serialKind == StructureKind.LIST ||
-            outputKind == OutputKind.Attribute -> serialNameToQName(useName.serialName, parentNamespace)
+            declName.serialName=="kotlin.Unit" // Unit needs a special case
+            -> serialNameToQName(useName.serialName, parentNamespace)
             declName.annotatedName != null -> declName.annotatedName
             else -> serialNameToQName(declName.serialName, parentNamespace)
         }
