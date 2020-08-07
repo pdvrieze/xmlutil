@@ -57,6 +57,7 @@ internal fun <T> SerializationStrategy<T>.peekBaseClassInvalid(): KClass<*> = wh
     else                     -> {
         val canary = PolyCanary()
         try {
+            @Suppress("UNCHECKED_CAST")
             this.serialize(canary, Any() as T)
             throw UnsupportedOperationException("This should not be reached")
         } catch (e: CanaryException) {

@@ -26,47 +26,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
-
-internal data class NameHolder(val name: QName, val specified: Boolean, val serializer: KSerializer<*>?)
-
-internal class XmlNameMap {
-    private val classMap = mutableMapOf<QName, String>()
-    private val nameMap = mutableMapOf<String, NameHolder>()
-
-    fun lookupClass(name: QName) = classMap[name.copy(prefix = "")]
-    fun lookupName(kClass: String) = nameMap[kClass]
-
-    @ImplicitReflectionSerializer
-    fun registerClass(kClass: KClass<*>) {
-        val serializer = kClass.serializer()
-        val serialInfo = serializer.descriptor
-        val serialName = serialInfo.annotations.getXmlSerialName()
-
-        val name: QName
-        val specified: Boolean
-        if (serialName == null) {
-            specified = false
-            name = QName(kClass.name.substringAfterLast('.'))
-        } else {
-            specified = true
-            name = serialName
-        }
-        registerClass(name, kClass.name, serializer, specified)
-    }
-
-    fun registerClass(name: QName, kClass: String, specified: Boolean) {
-        classMap[name.copy(prefix = "")] = kClass
-        nameMap[kClass] = NameHolder(name, specified, null)
-    }
-
-    fun registerClass(name: QName, kClass: String, serializer: KSerializer<*>, specified: Boolean) {
-        classMap[name.copy(prefix = "")] = kClass
-        nameMap[kClass] = NameHolder(name, specified, serializer)
-    }
-}
 
 expect fun getPlatformDefaultModule(): SerialModule
 
@@ -272,15 +233,29 @@ class XML(
                  ) {
         target.indentString = config.indentString
 
-        val serialName = serializer.descriptor.getSerialName(prefix)
+        val serialName = serializer.descriptor.serialName
+        val serialQName =
+            serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()?.let { if (prefix!=null) it.copy(prefix = prefix) else it }
+                ?: config.policy.serialNameToQName(
+                    serialName,
+                    XmlEvent.NamespaceImpl(
+                        XMLConstants.DEFAULT_NS_PREFIX,
+                        XMLConstants.NULL_NS_URI
+                                          )
+                                                  )
+
+        val xmlDescriptor = XmlDescriptor
+            .from(serializer, this, XmlSerializationPolicy.NameInfo(serialName, serialQName), serialQName.toNamespace())
+            .asElement()
 
         val encoder = XmlEncoderBase(context, config, target)
             .RenamedEncoder(
-                serialName,
-                serialName.toNamespace(),
-                DummyParentDescriptor(serialName, serializer.descriptor),
+                serialQName,
+                serialQName.toNamespace(),
+                DummyParentDescriptor(serialQName, serializer.descriptor),
                 0,
-                serializer
+                serializer,
+                xmlDescriptor
                            )
 
         serializer.serialize(encoder, obj)
@@ -573,7 +548,7 @@ class XML(
 
 }
 
-private fun Collection<Annotation>.getXmlSerialName(): QName? {
+internal fun Collection<Annotation>.getXmlSerialName(): QName? {
     val serialName = firstOrNull<XmlSerialName>()
     return when {
         serialName == null -> null
@@ -604,12 +579,13 @@ internal fun Collection<Annotation>.getChildName(): QName? {
     }
 }
 
+@Deprecated("No longer use it")
 internal fun SerialDescriptor.getSerialName(prefix: String? = null): QName {
     return annotations.getXmlSerialName()?.let { if (prefix == null) it else it.copy(prefix) }
         ?: QName(serialName.substringAfterLast('.'))
 }
 
-internal enum class OutputKind { Element, Attribute, Text, Mixed; }
+enum class OutputKind { Element, Attribute, Text, Mixed; }
 
 internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
 

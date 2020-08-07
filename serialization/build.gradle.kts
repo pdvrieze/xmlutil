@@ -74,6 +74,13 @@ kotlin {
                         jvmTarget = "1.8"
                     }
                 }
+                tasks.withType<KotlinCompile> {
+                    if (name.startsWith("compileTest")) {
+                        kotlinOptions {
+                            freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.serialization.UnstableDefault"
+                        }
+                    }
+                }
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)

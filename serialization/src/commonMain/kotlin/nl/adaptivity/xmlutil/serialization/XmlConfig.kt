@@ -45,7 +45,8 @@ class XmlConfig(
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val indentString: String = "",
     val autoPolymorphic: Boolean = false,
-    val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+    val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+    val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy
                ) {
 
     @Deprecated("Use version taking XmlDeclMode")

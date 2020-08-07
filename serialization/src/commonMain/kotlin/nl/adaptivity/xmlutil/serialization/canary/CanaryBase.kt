@@ -94,7 +94,7 @@ internal open class CanaryBase : Decoder,
         actualSerializer = serializer
     }
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CanaryBase {
+    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CanaryBase {
         return this
     }
 
