@@ -59,7 +59,7 @@ internal open class XmlEncoderBase internal constructor(
                             sn.namespaceURI == xmlDescriptor.name.namespaceURI) {
                     "actual name $sn != descriptor name ${xmlDescriptor.name}"
                 }
-                return sn
+                return xmlDescriptor.name
             }
 //        override val serialName: QName get() = xmlDescriptor.name
 
@@ -86,7 +86,11 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeString(value: String) {
             val defaultValue = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
             if (value == defaultValue) return
-            when (parentDesc.outputKind(elementIndex, childDesc)) {
+            val outputKind = parentDesc.outputKind(elementIndex, childDesc)
+            assert(outputKind == xmlDescriptor.outputKind) {
+                "Actual output kind: $outputKind is not the kind in the descriptor: ${xmlDescriptor.outputKind}"
+            }
+            when (outputKind) {
                 OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }

@@ -44,6 +44,7 @@ interface XmlSerializationPolicy {
         UnionKind.ENUM_KIND,
         StructureKind.OBJECT -> defaultObjectOutputKind
         is PrimitiveKind -> defaultPrimitiveOutputKind
+        PolymorphicKind.OPEN -> OutputKind.Mixed
         else -> OutputKind.Element
     }
 
@@ -77,7 +78,7 @@ private fun SerialDescriptor.getTypeRequestedKind(index: Int): OutputKind? {
 internal fun <T : Annotation> Iterable<T>.getRequestedOutputKind(): OutputKind? {
     for (annotation in this) {
         when (annotation) {
-            is XmlValue        -> return OutputKind.Text
+            is XmlValue        -> return OutputKind.Mixed
             is XmlElement      -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
             is XmlPolyChildren,
             is XmlChildrenName -> return OutputKind.Element
