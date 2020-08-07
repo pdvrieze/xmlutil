@@ -175,6 +175,8 @@ internal open class XmlEncoderBase internal constructor(
                                         ) :
         XmlTagCodec(parentDesc, elementIndex, serializer.descriptor, parentNamespace), CompositeEncoder, XML.XmlOutput {
 
+        override val serialName: QName get() = xmlDescriptor.name
+
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
 
@@ -517,14 +519,15 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
+            val childDescriptor = xmlDescriptor.getChildDescriptor(0, serializer)
             if (childrenName != null) {
                 serializer.serialize(
-                    RenamedEncoder(childrenName, serialName.toNamespace(), descriptor, 0, serializer, xmlDescriptor.getChildDescriptor(0, serializer)),
+                    RenamedEncoder(childrenName, serialName.toNamespace(), descriptor, 0, serializer, childDescriptor),
                     value
                                     )
             } else { // Use the outer decriptor and element index
                 serializer.serialize(
-                    XmlEncoder(serialName.toNamespace(), parentDesc, elementIndex, serializer, xmlDescriptor.getChildDescriptor(0, serializer)), value
+                    XmlEncoder(serialName.toNamespace(), parentDesc, elementIndex, serializer, childDescriptor), value
                                     )
             }
         }
@@ -547,6 +550,7 @@ internal open class XmlEncoderBase internal constructor(
                     target.text(value)
                 } else { // The first element is the element count
                     // This must be as a tag with text content as we have a list, attributes cannot represent that
+                    assert(serialName == xmlDescriptor.name)
                     target.smartStartTag(serialName) { text(value) }
                 }
             }

@@ -101,6 +101,8 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
                               ): QName {
         return when {
             useName.annotatedName != null      -> useName.annotatedName
+            serialKind == StructureKind.MAP ||
+            serialKind == StructureKind.LIST ||
             outputKind == OutputKind.Attribute -> serialNameToQName(useName.serialName, parentNamespace)
             declName.annotatedName != null -> declName.annotatedName
             else -> serialNameToQName(declName.serialName, parentNamespace)

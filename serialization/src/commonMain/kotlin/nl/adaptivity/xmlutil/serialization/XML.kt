@@ -245,7 +245,7 @@ class XML(
                                                   )
 
         val xmlDescriptor = XmlDescriptor
-            .from(serializer, this, XmlSerializationPolicy.NameInfo(serialName, serialQName), serialQName.toNamespace())
+            .from(serializer, this, XmlSerializationPolicy.NameInfo(serialName, serialQName), serialQName.toNamespace(), useAnnotations = emptyList())
             .asElement()
 
         val encoder = XmlEncoderBase(context, config, target)
