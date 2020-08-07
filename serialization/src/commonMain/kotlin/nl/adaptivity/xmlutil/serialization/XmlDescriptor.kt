@@ -303,11 +303,12 @@ class XmlListDescriptor internal constructor(
     override fun <T> getChildDescriptor(index: Int, serializer: SerializationStrategy<T>): XmlDescriptor {
         return childDescriptor ?: run {
             val useQName = when {
-                childrenName == null && anonymous -> null
+                childrenName == null && anonymous -> useAnnotations.firstOrNull<XmlSerialName>()?.toQName()
+
                 else                              -> childrenName
             }
             val useSerialName = when {
-                anonymous -> serialDescriptor.serialName
+                anonymous -> name.localPart
                 else      -> serialDescriptor.getElementName(0)
             }
             val useName = XmlSerializationPolicy.NameInfo(useSerialName, useQName)
