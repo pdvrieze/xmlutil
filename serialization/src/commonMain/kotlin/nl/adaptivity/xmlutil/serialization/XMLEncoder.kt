@@ -86,11 +86,13 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeString(value: String) {
             val defaultValue = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlDefault>()?.value
             if (value == defaultValue) return
+/*
             val outputKind = parentDesc.outputKind(elementIndex, childDesc)
             assert(outputKind == xmlDescriptor.outputKind) {
                 "Actual output kind: $outputKind is not the kind in the descriptor: ${xmlDescriptor.outputKind}"
             }
-            when (outputKind) {
+*/
+            when (xmlDescriptor.outputKind) {
                 OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }
@@ -111,6 +113,11 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeUnit() {
+            val outputKind = parentDesc.outputKind(elementIndex, childDesc)
+            assert(outputKind == xmlDescriptor.outputKind) {
+                "Actual output kind: $outputKind is not the kind in the descriptor: ${xmlDescriptor.outputKind}"
+            }
+
             when (parentDesc.outputKind(elementIndex, childDesc)) {
                 OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
                 OutputKind.Mixed,
@@ -133,6 +140,9 @@ internal open class XmlEncoderBase internal constructor(
             vararg typeSerializers: KSerializer<*>
                                    ): CompositeEncoder {
             val isMixed = parentDesc.outputKind(elementIndex, childDesc) == OutputKind.Mixed
+            assert((xmlDescriptor.outputKind==OutputKind.Mixed) == isMixed) {
+                "Mixed output kinds should mix everywhere (${xmlDescriptor.name}): ${parentDesc.outputKind(elementIndex, childDesc)} - ${xmlDescriptor.outputKind}"
+            }
 
             return beginEncodeCompositeImpl(
                 parentNamespace,

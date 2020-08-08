@@ -44,7 +44,7 @@ interface XmlSerializationPolicy {
         UnionKind.ENUM_KIND,
         StructureKind.OBJECT -> defaultObjectOutputKind
         is PrimitiveKind -> defaultPrimitiveOutputKind
-        PolymorphicKind.OPEN -> OutputKind.Mixed
+        PolymorphicKind.OPEN -> OutputKind.Element
         else -> OutputKind.Element
     }
 
