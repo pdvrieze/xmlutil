@@ -254,8 +254,7 @@ class XML(
             .asElement()
 
         val encoder = xmlEncoderBase
-            .RenamedEncoder(
-                serialQName,
+            .XmlEncoder(
                 serialQName.toNamespace(),
                 parentDesc,
                 0,
