@@ -107,6 +107,7 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
             serialKind is PrimitiveKind ||
             serialKind == StructureKind.MAP ||
             serialKind == StructureKind.LIST ||
+            serialKind == PolymorphicKind.OPEN ||
             declName.serialName=="kotlin.Unit" // Unit needs a special case
             -> serialNameToQName(useName.serialName, parentNamespace)
             declName.annotatedName != null -> declName.annotatedName
