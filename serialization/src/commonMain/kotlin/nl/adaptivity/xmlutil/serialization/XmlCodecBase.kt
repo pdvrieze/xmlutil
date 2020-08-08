@@ -309,19 +309,12 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     abstract inner class XmlCodec<out D: XmlDescriptor>(
-        protected open val xmlDescriptor: D?,
+        protected open val xmlDescriptor: D,
         protected val parentNamespace: Namespace,
         protected val parentDesc: SerialDescriptor,
         protected val elementIndex: Int,
         protected val childDesc: SerialDescriptor?
                                  ) {
-
-        constructor(
-            parentNamespace: Namespace,
-            parentDesc: SerialDescriptor,
-            elementIndex: Int,
-            childDesc: SerialDescriptor?
-                   ): this(null, parentNamespace, parentDesc, elementIndex, childDesc)
 
         open val serialName: QName
             get() = parentDesc.requestedName(parentNamespace, elementIndex, childDesc)
@@ -332,7 +325,7 @@ internal abstract class XmlCodecBase internal constructor(
         val elementIndex: Int,
         val desc: SerialDescriptor,
         val parentNamespace: Namespace,
-        open val xmlDescriptor: D? = null
+        open val xmlDescriptor: D
                                                                    ) {
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context

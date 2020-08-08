@@ -309,13 +309,19 @@ class XML(
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
 
-        val decoder = XmlDecoderBase(context, config, reader).XmlDecoder(
-            parentNamespace = XmlEvent.NamespaceImpl("", ""),
-            parentDesc = DummyParentDescriptor(serialName, serialDescriptor),
-            elementIndex = 0,
-            deserializer = deserializer,
-            childDesc = serialDescriptor
-                                                                        )
+        val xmlDecoderBase = XmlDecoderBase(context, config, reader)
+        val parentDesc = DummyParentDescriptor(serialName, serialDescriptor)
+        val rootDescriptor = XmlRootDescriptor(serialName, parentDesc)
+        val xmlDescriptor = XmlDescriptor.from(deserializer, xmlDecoderBase, XmlSerializationPolicy.NameInfo(serialDescriptor.serialName, serialName), rootDescriptor)
+
+        val decoder = xmlDecoderBase.XmlDecoder(
+            XmlEvent.NamespaceImpl("", ""),
+            parentDesc,
+            0,
+            deserializer,
+            xmlDescriptor,
+            serialDescriptor
+                                               )
         return decoder.decodeSerializableValue(deserializer)
     }
 
