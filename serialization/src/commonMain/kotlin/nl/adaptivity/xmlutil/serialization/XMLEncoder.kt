@@ -47,12 +47,10 @@ internal open class XmlEncoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         val serializier: SerializationStrategy<*>,
-        override val xmlDescriptor: XmlDescriptor,
+        xmlDescriptor: XmlDescriptor,
         childDesc: SerialDescriptor? = serializier.descriptor
                                         ) :
         XmlCodec<XmlDescriptor>(xmlDescriptor, parentNamespace, parentDesc, elementIndex, childDesc), Encoder, XML.XmlOutput {
-
-        override val serialName: QName get() = xmlDescriptor.name
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
@@ -165,13 +163,13 @@ internal open class XmlEncoderBase internal constructor(
                                               ).apply { writeBegin() }
 
             StructureKind.OBJECT,
-            UnionKind.ENUM_KIND -> TagEncoder<XmlDescriptor>(
+            UnionKind.ENUM_KIND -> TagEncoder(
                 parentNamespace,
                 parentDesc,
                 elementIndex,
                 serializer,
                 xmlDescriptor
-                                                            ).apply { writeBegin() }
+                                             ).apply { writeBegin() }
             is PolymorphicKind  ->
                 PolymorphicEncoder(
                     parentNamespace,
@@ -188,12 +186,10 @@ internal open class XmlEncoderBase internal constructor(
         parentDesc: SerialDescriptor,
         elementIndex: Int,
         val serializer: SerializationStrategy<*>,
-        override val xmlDescriptor: D,
+        xmlDescriptor: D,
         private var deferring: Boolean = true
                                                           ) :
         XmlTagCodec<D>(parentDesc, elementIndex, serializer.descriptor, parentNamespace, xmlDescriptor), CompositeEncoder, XML.XmlOutput {
-
-        override val serialName: QName get() = xmlDescriptor.name
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
@@ -397,16 +393,6 @@ internal open class XmlEncoderBase internal constructor(
                 }
         }
 
-        override var serialName: QName = when (polyChildren) {
-            null -> parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlSerialName>()?.toQName()
-                ?: parentDesc.getElementName(elementIndex).toQname(parentNamespace)
-            else -> parentDesc.requestedName(
-                parentNamespace,
-                elementIndex,
-                parentDesc.getElementDescriptor(elementIndex)
-                                            )
-        }
-
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
@@ -418,16 +404,12 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             if (polyChildren != null) {
-                if (index == 0) {
-                    val regName = polyChildren.lookupName(value)
-                    serialName = when (regName?.specified) {
-                        true -> regName.name
-                        else -> QName(value.substringAfterLast('.'))
+                if (index != 0) {
+                    if (isMixed) {
+                        target.text(value)
+                    } else {
+                        target.smartStartTag(serialName) { text(value) }
                     }
-                } else if (isMixed) {
-                    target.text(value)
-                } else {
-                    target.smartStartTag(serialName) { text(value) }
                 }
             } else {
                 if (index == 0) { // The attribute name is renamed to type and forced to attribute
@@ -561,7 +543,6 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
             if (childrenName != null) {
                 XmlEncoder(
-//                    childrenName,
                     serialName.toNamespace(),
                     descriptor,
                     index,
@@ -575,23 +556,25 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             if (index > 0) {
-                if (childrenName != null) {
-                    XmlEncoder(
-//                        childrenName,
-                        serialName.toNamespace(),
-                        descriptor,
-                        index,
-                        String.serializer(),
-                        xmlDescriptor.getChildDescriptor(index, String.serializer())
-                              ).encodeString(
-                        value
-                                            )
-                } else if (isMixed) { // Mixed will be a list of strings and other stuff
-                    target.text(value)
-                } else { // The first element is the element count
-                    // This must be as a tag with text content as we have a list, attributes cannot represent that
-                    assert(serialName == xmlDescriptor.name)
-                    target.smartStartTag(serialName) { text(value) }
+                when {
+                    childrenName != null -> {
+                        XmlEncoder(
+                            serialName.toNamespace(),
+                            descriptor,
+                            index,
+                            String.serializer(),
+                            xmlDescriptor.getChildDescriptor(index, String.serializer())
+                                  ).encodeString(
+                            value
+                                                )
+                    }
+                    isMixed              -> { // Mixed will be a list of strings and other stuff
+                        target.text(value)
+                    }
+                    else                 -> { // The first element is the element count
+                        // This must be as a tag with text content as we have a list, attributes cannot represent that
+                        target.smartStartTag(serialName) { text(value) }
+                    }
                 }
             }
         }
