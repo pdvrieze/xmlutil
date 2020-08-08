@@ -50,7 +50,7 @@ internal open class XmlDecoderBase internal constructor(
         protected val polyInfo: PolyInfo? = null,
         private val attrIndex: Int = -1
                                         ) :
-        XmlCodec(parentNamespace, parentDesc, elementIndex, childDesc), Decoder, XML.XmlInput {
+        XmlCodec<XmlDescriptor>(parentNamespace, parentDesc, elementIndex, childDesc), Decoder, XML.XmlInput {
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
@@ -418,7 +418,7 @@ internal open class XmlDecoderBase internal constructor(
         elementIndex: Int,
         deserializer: DeserializationStrategy<*>
                                         ) :
-        XmlTagCodec(parentDesc, elementIndex, Canary.serialDescriptor(deserializer), parentNamespace), CompositeDecoder,
+        XmlTagCodec<XmlDescriptor>(parentDesc, elementIndex, Canary.serialDescriptor(deserializer), parentNamespace), CompositeDecoder,
         XML.XmlInput {
 
         override val updateMode: UpdateMode get() = UpdateMode.BANNED

@@ -308,22 +308,32 @@ internal abstract class XmlCodecBase internal constructor(
         }
     }
 
-    abstract inner class XmlCodec(
-        val parentNamespace: Namespace,
-        val parentDesc: SerialDescriptor,
-        val elementIndex: Int,
+    abstract inner class XmlCodec<out D: XmlDescriptor>(
+        protected open val xmlDescriptor: D?,
+        protected val parentNamespace: Namespace,
+        protected val parentDesc: SerialDescriptor,
+        protected val elementIndex: Int,
         protected val childDesc: SerialDescriptor?
                                  ) {
+
+        constructor(
+            parentNamespace: Namespace,
+            parentDesc: SerialDescriptor,
+            elementIndex: Int,
+            childDesc: SerialDescriptor?
+                   ): this(null, parentNamespace, parentDesc, elementIndex, childDesc)
+
         open val serialName: QName
             get() = parentDesc.requestedName(parentNamespace, elementIndex, childDesc)
     }
 
-    internal abstract inner class XmlTagCodec(
+    internal abstract inner class XmlTagCodec<out D: XmlDescriptor>(
         val parentDesc: SerialDescriptor,
         val elementIndex: Int,
         val desc: SerialDescriptor,
-        val parentNamespace: Namespace
-                                             ) {
+        val parentNamespace: Namespace,
+        open val xmlDescriptor: D? = null
+                                                                   ) {
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context
 
@@ -339,17 +349,6 @@ internal abstract class XmlCodecBase internal constructor(
                                               )
                 else                   -> copy(prefix = "")
             }
-        }
-
-        /**
-         * Given a parent tag, record all polymorphic children.
-         */
-        fun polyInfo(
-            parentTag: QName,
-            polyChildren: Array<String>,
-            baseClass: KClass<*>
-                    ): XmlNameMap {
-            return polyInfo(parentDesc, parentTag, polyChildren, baseClass)
         }
 
     }
