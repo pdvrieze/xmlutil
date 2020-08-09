@@ -331,7 +331,7 @@ class XmlPolymorphicDescriptor internal constructor(
         useAnnotations = serialDescriptor.getElementAnnotations(0)
                                      )
 
-    private val polyInfo: XmlNameMap? = when {
+    internal val polyInfo: XmlNameMap? = when {
         xmlPolyChildren != null
                                                         -> {
             val baseClass = baseClass ?: Any::class

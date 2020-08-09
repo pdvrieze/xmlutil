@@ -26,8 +26,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
-import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
@@ -286,7 +284,7 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             val kind = descriptor.outputKind(index, null)
-            val requestedName = descriptor.requestedName(serialName.toNamespace(), index, null)
+            val requestedName = xmlDescriptor.getChildDescriptor(index, String.serializer()).name
             when (kind) {
                 OutputKind.Element   -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> smartWriteAttribute(requestedName, value)
@@ -342,68 +340,17 @@ internal open class XmlEncoderBase internal constructor(
         TagEncoder<XmlPolymorphicDescriptor>(parentNamespace, parentDesc, elementIndex, serializer, xmlDescriptor, false), XML.XmlOutput {
         val isMixed get() = xmlDescriptor.outputKind == OutputKind.Mixed
 
-        val polyChildren: XmlNameMap?
-
-        init {
-            val xmlPolyChildren = parentDesc.getElementAnnotations(elementIndex).firstOrNull<XmlPolyChildren>()
-            polyChildren =
-                when {
-                    xmlPolyChildren != null
-                                                                         -> {
-                        val baseClass = (serializer as? PolymorphicSerializer)?.baseClass ?: Any::class
-                        polyInfo(parentDesc,
-                            parentDesc.requestedName(parentNamespace, elementIndex, null),
-                            xmlPolyChildren.value,
-                            baseClass
-                                )
-                    }
-                    !config.autoPolymorphic                              -> null // Don't help for the non-auto case
-                    serializer.descriptor.kind == PolymorphicKind.SEALED -> {
-                        // A sealed descriptor has 2 elements: 0 name: String, 1: value: elementDescriptor
-                        val d = serializer.descriptor.getElementDescriptor(1)
-                        XmlNameMap().apply {
-                            for (i in 0 until d.elementsCount) {
-                                val childName = d.requestedName(parentNamespace, i, d.getElementDescriptor(i))
-                                registerClass(childName, d.getElementDescriptor(i).serialName, true)
-                            }
-                        }
-                    }
-
-                    serializer is PolymorphicSerializer<*>
-                                                                         -> {
-                        val baseClass = serializer.baseClass
-                        val childCollector = ChildCollector(baseClass)
-                        context.dumpTo(childCollector)
-                        childCollector.getPolyInfo(
-                            parentDesc.requestedName(parentNamespace, elementIndex, null)
-                                                  )
-                    }
-
-                    serializer.descriptor.kind is PolymorphicKind.OPEN   -> {
-                        val childCollector = serializer.descriptor.polyBaseClassName?.let { ChildCollector(it) }
-                            ?: ChildCollector(Any::class)
-                        context.dumpTo(childCollector)
-
-                        childCollector.getPolyInfo(
-                            parentDesc.requestedName(parentNamespace, elementIndex, null)
-                                                  )
-                    }
-
-                    else                                                 -> null
-                }
-        }
-
         override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
 
         override fun writeBegin() {
             // Don't write a tag if we are transparent
-            if (polyChildren == null) super.writeBegin()
+            if (xmlDescriptor.polyInfo == null) super.writeBegin()
         }
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
-            if (polyChildren != null) {
+            if (xmlDescriptor.polyInfo != null) {
                 if (index != 0) {
                     if (isMixed) {
                         target.text(value)
@@ -430,7 +377,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            if (polyChildren != null) {
+            if (xmlDescriptor.polyInfo != null) {
                 assert(index > 0) // the first element is the type
                 if (isMixed && serializer.descriptor.kind is PrimitiveKind) {
                     serializer.serialize(
@@ -468,7 +415,7 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Don't write anything if we're transparent
-            if (polyChildren == null) {
+            if (xmlDescriptor.polyInfo == null) {
                 super.endStructure(descriptor)
             }
         }
