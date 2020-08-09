@@ -91,7 +91,7 @@ internal class ChildCollector private constructor(val matcher: Matcher) : Serial
             actualClass: KClass<Sub>,
             actualSerializer: KSerializer<Sub>
                                                    ): Boolean {
-            return baseClass.name==baseClassName
+            return baseClass.simpleName==baseClassName
         }
     }
 

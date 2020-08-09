@@ -367,42 +367,14 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            if (xmlDescriptor.polyInfo != null) {
-                assert(index > 0) // the first element is the type
-                if (isMixed && serializer.descriptor.kind is PrimitiveKind) {
-                    serializer.serialize(
-                        XmlEncoder(
-                            parentDesc,
-                            elementIndex,
-                            serializer,
-                            xmlDescriptor.getChildDescriptor(index, serializer)
-                                  ), value
-                                        )
-                } else {
-                    // The name has been set when the type was "written"
-                    val encoder = XmlEncoder(
-                        descriptor,
-                        index,
-                        serializer,
-                        xmlDescriptor.getChildDescriptor(index, serializer)
-                                            )
-                    serializer.serialize(encoder, value)
-                }
-            } else {
-                val encoder = XmlEncoder(
-//                    QName("value"),
-                    descriptor,
-                    index,
-                    serializer,
-                    xmlDescriptor.getChildDescriptor(index, serializer)
-                                        )
-                super.defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
-            }
+            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, serializer)
+            val encoder = XmlEncoder(descriptor, index, serializer, childXmlDescriptor)
+            serializer.serialize(encoder, value)
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Don't write anything if we're transparent
-            if (xmlDescriptor.polyInfo == null) {
+            if (! xmlDescriptor.transparent) {
                 super.endStructure(descriptor)
             }
         }
@@ -462,10 +434,10 @@ internal open class XmlEncoderBase internal constructor(
             value: T
                                                   ) {
             val childDescriptor = xmlDescriptor.getChildDescriptor(0, serializer)
-            if (!xmlDescriptor.anonymous) {
-                serializer.serialize(XmlEncoder(descriptor, 0, serializer, childDescriptor), value)
-            } else { // Use the outer decriptor and element index
+            if (xmlDescriptor.anonymous) { // Use the outer decriptor and element index
                 serializer.serialize(XmlEncoder(parentDesc, elementIndex, serializer, childDescriptor), value)
+            } else {
+                serializer.serialize(XmlEncoder(descriptor, 0, serializer, childDescriptor), value)
             }
         }
 

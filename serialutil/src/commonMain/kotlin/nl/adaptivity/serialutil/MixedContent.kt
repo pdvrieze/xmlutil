@@ -106,24 +106,11 @@ sealed class MixedContent<out T> {
 
         private val delegate = PolymorphicSerializer(Any::class)
 
-        /* Note that this descriptor delegates. This works around the issue that is not possible to */
-        val descriptor2: SerialDescriptor /*get()*/ = delegate.descriptor
+        /* Note that this descriptor delegates. This works around the issue that is not possible to create
+         * a custom descriptor that carries base class information.
+         */
 
-
-        override val descriptor: SerialDescriptor =
-            SerialDescriptor(
-                "Object<T>",
-                PolymorphicKind.OPEN
-                                                                     ) {
-                element("type", String.serializer().descriptor)
-                element(
-                    "value",
-                    SerialDescriptor(
-                        "Object<${Any::class.name}>",
-                        UnionKind.CONTEXTUAL
-                                                                             )
-                       )
-            }
+        override val descriptor: SerialDescriptor get() = delegate.descriptor
 
         fun decodeSequentially(compositeDecoder: CompositeDecoder): MixedContent<Any> {
             val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
