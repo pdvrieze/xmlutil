@@ -21,6 +21,8 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.EmptyModule
@@ -623,6 +625,20 @@ class TestCommon {
         val deserialized = xml.parse(Tag.serializer(), contentText)
 
         assertEquals(expectedObj, deserialized)
+    }
+
+
+    @Test
+    fun serializeIntList() {
+        val data = IntList(listOf(1,2,3,4))
+        val expectedXml = "<IntList><values>1</values><values>2</values><values>3</values><values>4</values></IntList>"
+        val xml = XML
+        val serializer = IntList.serializer()
+        val serialized = xml.stringify(serializer, data)
+        assertEquals(expectedXml, serialized)
+
+        val deserialized = xml.parse(serializer, serialized)
+        assertEquals(data, deserialized)
     }
 
     @Test

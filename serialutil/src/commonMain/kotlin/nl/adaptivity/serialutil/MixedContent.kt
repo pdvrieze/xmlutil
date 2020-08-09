@@ -67,43 +67,18 @@ sealed class MixedContent<out T> {
     @Serializable(Object.Companion::class)
     class Object<T>(@Polymorphic val data: T) : MixedContent<T>() {
 
-
         companion object : KSerializer<Object<Any>> {
             private val delegate = PolymorphicSerializer(Any::class)
 
-            override val descriptor: SerialDescriptor =
-                SerialDescriptor(
-                    "Object",
-                    PolymorphicKind.OPEN
-                                                                         ) {
-                    element("type", String.serializer().descriptor)
-                    element(
-                        "value",
-                        SerialDescriptor(
-                            "Object_T",
-                            UnionKind.CONTEXTUAL
-                                                                                 )
-                           )
-                }
+            /* Note that this descriptor delegates. This works around the issue that is not possible to */
+            override val descriptor: SerialDescriptor get() = delegate.descriptor
 
             override fun deserialize(decoder: Decoder): Object<Any> {
-                return Object(
-                    delegate.deserialize(
-                        decoder
-                                                                                                                  )
-                                                                                      )
+                return Object(delegate.deserialize(decoder))
             }
 
-            override fun serialize(encoder: Encoder, value: Object<Any>): Unit = encoder.encodeStructure(
-                descriptor
-                                                                                                                                                                 ) {
-                val serializer: KSerializer<Any> =
-                    findPolymorphicSerializer(
-                        encoder,
-                        value.data
-                                                                                                                )
-                encodeStringElement(MixedContent.descriptor, 0, serializer.descriptor.serialName)
-                encodeSerializableElement(MixedContent.descriptor, 1, serializer, value.data)
+            override fun serialize(encoder: Encoder, value: Object<Any>): Unit {
+                delegate.serialize(encoder, value.data)
             }
 
         }
@@ -128,6 +103,13 @@ sealed class MixedContent<out T> {
 
     companion object :
         KSerializer<MixedContent<Any>> {
+
+        private val delegate = PolymorphicSerializer(Any::class)
+
+        /* Note that this descriptor delegates. This works around the issue that is not possible to */
+        val descriptor2: SerialDescriptor /*get()*/ = delegate.descriptor
+
+
         override val descriptor: SerialDescriptor =
             SerialDescriptor(
                 "Object<T>",
@@ -160,54 +142,67 @@ sealed class MixedContent<out T> {
             return Object(value)
         }
 
-        override fun deserialize(decoder: Decoder): MixedContent<Any> = decoder.decodeStructure(
-            descriptor
-                                                                                                                                           ) {
-            if (decodeSequentially()) return@decodeStructure decodeSequentially(
-                this
-                                                                                                                                                  )
+        override fun deserialize(decoder: Decoder): MixedContent<Any> {
+            return when (val value = delegate.deserialize(decoder)) {
+                is String -> Text(value)
+                else -> Object(value)
+            }
+            return decoder.decodeStructure(
+                descriptor
+                                          ) {
+                if (decodeSequentially()) return@decodeStructure decodeSequentially(
+                    this
+                                                                                   )
 
-            var klassName: String? = null
-            var value: MixedContent<Any>? = null
-            mainLoop@ while (true) {
-                when (val index = decodeElementIndex(descriptor)) {
-                    CompositeDecoder.READ_DONE -> break@mainLoop
-                    0                          -> klassName = decodeStringElement(descriptor, index)
-                    1                                                                             -> {
-                        klassName = requireNotNull(klassName) { "Can not read polymorphic value before its type" }
-                        when (klassName) {
-                            "kotlin.String" -> value =
-                                Text(
-                                    decodeStringElement(
-                                        descriptor,
-                                        index
-                                                       )
-                                                                                             )
-                            else            -> {
-                                val serializer =
-                                    findPolymorphicSerializer(
-                                        this,
-                                        klassName
-                                                                                                                                )
-                                value = Object(
-                                    decodeSerializableElement(
-                                        descriptor,
-                                        index,
-                                        serializer
-                                                             )
-                                                                                                       )
+                var klassName: String? = null
+                var value: MixedContent<Any>? = null
+                mainLoop@ while (true) {
+                    when (val index = decodeElementIndex(descriptor)) {
+                        CompositeDecoder.READ_DONE -> break@mainLoop
+                        0                          -> klassName = decodeStringElement(descriptor, index)
+                        1                                                                             -> {
+                            klassName = requireNotNull(klassName) { "Can not read polymorphic value before its type" }
+                            when (klassName) {
+                                "kotlin.String" -> value =
+                                    Text(
+                                        decodeStringElement(
+                                            descriptor,
+                                            index
+                                                           )
+                                        )
+                                else            -> {
+                                    val serializer =
+                                        findPolymorphicSerializer(
+                                            this,
+                                            klassName
+                                                                 )
+                                    value = Object(
+                                        decodeSerializableElement(
+                                            descriptor,
+                                            index,
+                                            serializer
+                                                                 )
+                                                  )
+                                }
                             }
                         }
+                        else                                                                          -> throw SerializationException(
+                            "Unexpected index in deserialization"
+                                                                                                                                     )
                     }
-                    else                                                                          -> throw SerializationException(
-                        "Unexpected index in deserialization"
-                                                                                                                                                                          )
                 }
+                requireNotNull(value) { "No value was provided" }
             }
-            requireNotNull(value) { "No value was provided" }
         }
 
         override fun serialize(encoder: Encoder, value: MixedContent<Any>) {
+            val delegateValue = when (value) {
+                is Text -> value.data
+                is Object -> value.data
+            }
+            delegate.serialize(encoder, delegateValue)
+            return
+
             // TODO maybe special case XML
 
             when (value) {

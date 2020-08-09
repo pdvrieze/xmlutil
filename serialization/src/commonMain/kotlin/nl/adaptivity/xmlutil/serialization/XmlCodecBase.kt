@@ -182,7 +182,7 @@ internal abstract class XmlCodecBase internal constructor(
 
         @JvmStatic
         protected fun SerialDescriptor.requestedChildName(index: Int): QName? {
-            return getElementAnnotations(index).getChildName()
+            return getElementAnnotations(index).firstOrNull<XmlChildrenName>()?.toQName()
 
         }
 
@@ -310,7 +310,6 @@ internal abstract class XmlCodecBase internal constructor(
 
     abstract inner class XmlCodec<out D: XmlDescriptor>(
         protected val xmlDescriptor: D,
-        protected val parentNamespace: Namespace,
         protected val parentDesc: SerialDescriptor,
         protected val elementIndex: Int,
         protected val childDesc: SerialDescriptor?
@@ -323,7 +322,6 @@ internal abstract class XmlCodecBase internal constructor(
         val parentDesc: SerialDescriptor,
         val elementIndex: Int,
         val desc: SerialDescriptor,
-        val parentNamespace: Namespace,
         val xmlDescriptor: D
                                                                    ) {
         internal val config get() = this@XmlCodecBase.config

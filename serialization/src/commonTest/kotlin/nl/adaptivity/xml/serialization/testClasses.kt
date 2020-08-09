@@ -144,6 +144,9 @@ val baseModule = SerializersModule {
 }
 
 @Serializable
+data class IntList(val values: List<Int>)
+
+@Serializable
 @XmlSerialName("childA", namespace = "", prefix = "")
 data class ChildA(val valueA: String) : Base()
 

@@ -38,7 +38,7 @@ internal class XmlNameMap {
     fun registerClass(kClass: KClass<*>) {
         val serializer = kClass.serializer()
         val serialInfo = serializer.descriptor
-        val serialName = serialInfo.annotations.getXmlSerialName()
+        val serialName = serialInfo.annotations.firstOrNull<XmlSerialName>()?.toQName()
 
         val name: QName
         val specified: Boolean

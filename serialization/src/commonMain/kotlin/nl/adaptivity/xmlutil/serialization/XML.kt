@@ -235,7 +235,8 @@ class XML(
 
         val serialName = serializer.descriptor.serialName
         val serialQName =
-            serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()?.let { if (prefix!=null) it.copy(prefix = prefix) else it }
+            serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+                ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
                 ?: config.policy.serialNameToQName(
                     serialName,
                     XmlEvent.NamespaceImpl(
@@ -255,12 +256,11 @@ class XML(
 
         val encoder = xmlEncoderBase
             .XmlEncoder(
-                serialQName.toNamespace(),
                 parentDesc,
                 0,
                 serializer,
                 xmlDescriptor
-                           )
+                       )
 
         serializer.serialize(encoder, obj)
     }
@@ -301,8 +301,12 @@ class XML(
         reader: XmlReader
                  ): T {
 
-        val serialName = deserializer.descriptor.getSerialName()
         val serialDescriptor = deserializer.descriptor
+        val serialName = serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+            ?: config.policy.serialNameToQName(
+                serialDescriptor.serialName,
+                XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
+                                              )
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
@@ -310,9 +314,14 @@ class XML(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(context, config, reader)
-        val parentDesc = DummyParentDescriptor(serialName, serialDescriptor)
+        val parentDesc = DummyParentDescriptor(null, serialDescriptor)
         val rootDescriptor = XmlRootDescriptor(serialName, parentDesc)
-        val xmlDescriptor = XmlDescriptor.from(deserializer, xmlDecoderBase, XmlSerializationPolicy.NameInfo(serialDescriptor.serialName, serialName), rootDescriptor)
+        val xmlDescriptor = XmlDescriptor.from(
+            deserializer,
+            xmlDecoderBase,
+            XmlSerializationPolicy.NameInfo(serialDescriptor.serialName, serialName),
+            rootDescriptor
+                                              )
 
         val decoder = xmlDecoderBase.XmlDecoder(
             XmlEvent.NamespaceImpl("", ""),
@@ -558,48 +567,19 @@ class XML(
 
 }
 
-internal fun Collection<Annotation>.getXmlSerialName(): QName? {
-    val serialName = firstOrNull<XmlSerialName>()
-    return when {
-        serialName == null -> null
-        serialName.namespace == UNSET_ANNOTATION_VALUE
-                           -> QName(serialName.value)
-
-        serialName.prefix == UNSET_ANNOTATION_VALUE
-                           -> QName(serialName.namespace, serialName.value)
-
-        else               -> QName(serialName.namespace, serialName.value, serialName.prefix)
-    }
-}
-
-internal fun Collection<Annotation>.getChildName(): QName? {
-    val childrenName = firstOrNull<XmlChildrenName>()
-    return when {
-        childrenName == null -> null
-        childrenName.namespace == UNSET_ANNOTATION_VALUE
-                             -> QName(childrenName.value)
-
-        childrenName.prefix == UNSET_ANNOTATION_VALUE
-                             -> QName(childrenName.namespace, childrenName.value)
-
-        else                 -> QName(
-            childrenName.namespace, childrenName.value,
-            childrenName.prefix
-                                     )
-    }
-}
-
-@Deprecated("No longer use it")
-internal fun SerialDescriptor.getSerialName(prefix: String? = null): QName {
-    return annotations.getXmlSerialName()?.let { if (prefix == null) it else it.copy(prefix) }
-        ?: QName(serialName.substringAfterLast('.'))
-}
-
 enum class OutputKind { Element, Attribute, Text, Mixed; }
 
-internal fun XmlSerialName.toQName() = QName(namespace, value, prefix)
+fun XmlSerialName.toQName() = when {
+    namespace == UNSET_ANNOTATION_VALUE -> QName(value)
+    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
+    else               -> QName(namespace, value, prefix)
+}
 
-internal fun XmlChildrenName.toQName() = QName(namespace, value, prefix)
+fun XmlChildrenName.toQName() = when {
+    namespace == UNSET_ANNOTATION_VALUE -> QName(value)
+    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
+    else               -> QName(namespace, value, prefix)
+}
 
 internal data class PolyInfo(
     val describedName: String,
