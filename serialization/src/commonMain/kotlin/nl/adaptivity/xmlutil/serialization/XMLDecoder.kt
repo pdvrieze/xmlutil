@@ -864,7 +864,8 @@ internal open class XmlDecoderBase internal constructor(
 
             // This is an anonymous list decoder. The descriptor passed here is for a list, not the xml parent element.
 
-            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
+            // Note that the child descriptor a list is always at index 0
+            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(0, deserializer)
 
             val decoder =
                 SerialValueDecoder(
@@ -932,7 +933,8 @@ internal open class XmlDecoderBase internal constructor(
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
-            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
+            // The index of the descriptor of list children is always at index 0
+            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(0, deserializer)
             val decoder =
                 SerialValueDecoder(
                     serialName.toNamespace(), descriptor, 0,

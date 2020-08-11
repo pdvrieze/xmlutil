@@ -21,13 +21,14 @@
 package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicKind
+import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerialModuleCollector
-import nl.adaptivity.serialutil.impl.name
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlNameMap
+import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.toNamespace
 import kotlin.reflect.KClass
 
@@ -102,9 +103,46 @@ internal class ChildCollector private constructor(val matcher: Matcher) : Serial
 
 }
 
+internal class KClassCollector constructor(val kClassName: String) : SerialModuleCollector {
+    internal var kClass: KClass<*>? = null
+        private set
+
+    override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
+        if (this.kClass ==null && kClass.simpleName==kClassName) {
+            this.kClass = kClass
+        }
+        // ignore
+    }
+
+    override fun <Base : Any, Sub : Base> polymorphic(
+        baseClass: KClass<Base>,
+        actualClass: KClass<Sub>,
+        actualSerializer: KSerializer<Sub>
+                                                     ) {
+        when {
+            kClass != null -> return
+            baseClass.simpleName == kClassName -> kClass = baseClass
+            actualClass.simpleName == kClassName -> kClass = baseClass
+        }
+    }
+
+}
+
 public fun SerialModule.getPolymorphic(baseClassName: String, serializedClassName: String): KSerializer<*>? {
     val collector = ChildCollector(baseClassName)
     dumpTo(collector)
 
     return collector.children.firstOrNull { it.descriptor.serialName == serializedClassName }
+}
+
+
+// TODO on kotlinx.serialization-1.0 use the actual information provided
+internal fun SerialDescriptor.capturedKClass(context: SerialModule): KClass<*>? {
+    val baseClassName = when(kind) {
+        PolymorphicKind.SEALED,
+        PolymorphicKind.OPEN -> this.polyBaseClassName ?: Any::class.simpleName!!
+        else -> return null
+    }
+
+    return KClassCollector(baseClassName).also { context.dumpTo(it) }.kClass
 }
