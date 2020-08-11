@@ -23,6 +23,7 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.serialutil.MixedContent
@@ -167,6 +168,7 @@ internal class TypedMixed(
     companion object {
         val module = SerializersModule {
             polymorphic(Any::class) {
+                String::class with String.serializer()
                 B::class with B.serializer()
                 D::class with D.serializer()
                 E::class with E.serializer()

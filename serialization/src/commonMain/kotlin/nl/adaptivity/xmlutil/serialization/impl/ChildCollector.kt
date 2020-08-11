@@ -52,17 +52,14 @@ internal class ChildCollector private constructor(val matcher: Matcher) : Serial
     /**
      * Get the polymorphic information for the found children.
      */
-    fun getPolyInfo(parentTagName: QName): XmlNameMap? = when (children.size) {
-        0    -> null
-        else -> XmlNameMap().apply {
-            for (actualSerializer in children) {
-                val declName = actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace())
+    fun getPolyInfo(parentTagName: QName): XmlNameMap = XmlNameMap().apply {
+        for (actualSerializer in children) {
+            val declName = actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace())
 
-                // The class is always treated as specified in automatic polymorphic mode. It should never use the field
-                // name as that cannot be correct.
-                val nameInSerializer = actualSerializer.descriptor.serialName
-                registerClass(declName, nameInSerializer, actualSerializer, true)
-            }
+            // The class is always treated as specified in automatic polymorphic mode. It should never use the field
+            // name as that cannot be correct.
+            val nameInSerializer = actualSerializer.descriptor.serialName
+            registerClass(declName, nameInSerializer, actualSerializer, true)
         }
     }
 

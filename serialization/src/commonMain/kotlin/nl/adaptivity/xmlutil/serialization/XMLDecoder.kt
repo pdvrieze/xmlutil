@@ -459,7 +459,7 @@ internal open class XmlDecoderBase internal constructor(
                                 i,
                                 elementDescriptor.getElementDescriptor(i)
                                                                            )
-                            polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx)
+                            polyMap[childName.normalize()] = PolyInfo(klassName, childName, idx, elementDescriptor)
                         }
                     } else if (config.autoPolymorphic && effectiveElementDesc?.kind is PolymorphicKind.OPEN) {
                         val childCollector = when (effectiveElementDesc) {

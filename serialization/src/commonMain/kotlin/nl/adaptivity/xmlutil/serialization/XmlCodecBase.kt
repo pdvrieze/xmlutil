@@ -132,9 +132,10 @@ internal abstract class XmlCodecBase internal constructor(
             else -> "$currentPkg.${typeNameBase.substring(1)}"
         }
 
+        val descriptor = context.getPolymorphic(typename)
+            ?.descriptor ?: throw XmlException("Missing descriptor for $typename in the serial context")
         val name: QName = if (eqPos < 0) {
-            context.getPolymorphic(typename)
-                ?.descriptor
+            descriptor
                 ?.annotations
                 ?.firstOrNull<XmlSerialName>()
                 ?.toQName()
@@ -143,7 +144,7 @@ internal abstract class XmlCodecBase internal constructor(
             QName(ns, localPart, prefix)
         }
 
-        return PolyInfo(typename, name, itemIdx)
+        return PolyInfo(typename, name, itemIdx, descriptor)
     }
 
 

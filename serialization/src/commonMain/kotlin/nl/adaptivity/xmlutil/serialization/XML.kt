@@ -585,9 +585,34 @@ internal data class PolyInfo(
     val describedName: String,
     val tagName: QName,
     val index: Int,
+    val descriptor: SerialDescriptor,
     val serializer: SerializationStrategy<*>? = null,
     val deserializer: DeserializationStrategy<*>? = serializer as? DeserializationStrategy<*>
-                            )
+                            ) {
+
+    constructor(
+        describedName: String,
+        tagName: QName,
+        index: Int,
+        serializer: SerializationStrategy<*>,
+        deserializer: DeserializationStrategy<*>? = serializer as? DeserializationStrategy<*>
+               ): this (describedName, tagName, index, serializer.descriptor, serializer, deserializer)
+
+    constructor(
+        describedName: String,
+        tagName: QName,
+        index: Int,
+        deserializer: DeserializationStrategy<*>
+               ): this (describedName, tagName, index, deserializer.descriptor, deserializer as? SerializationStrategy<*>, deserializer)
+
+    constructor(
+        describedName: String,
+        tagName: QName,
+        index: Int,
+        serializer: KSerializer<*>
+               ): this(describedName, tagName, index, serializer.descriptor, serializer, serializer)
+
+}
 
 internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     for (e in this) {

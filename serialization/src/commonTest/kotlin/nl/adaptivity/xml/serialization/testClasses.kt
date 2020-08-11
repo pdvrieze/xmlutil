@@ -358,6 +358,7 @@ internal data class Tag(
     companion object {
         val module = SerializersModule {
             polymorphic(Any::class) {
+                String::class with String.serializer()
                 B::class with B.serializer()
                 I::class with I.serializer()
             }
