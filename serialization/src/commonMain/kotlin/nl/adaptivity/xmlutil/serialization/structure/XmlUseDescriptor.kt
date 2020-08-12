@@ -39,12 +39,12 @@ interface XmlUseDescriptor {
 
 
 internal class XmlPolymorphicUseDescriptorImpl(
-    private val parent: XmlDescriptor,
+    private val parent: ParentInfo,
     override val serialName: String,
     override val qName: QName?,
     private val codec: XmlCodecBase,
     private val descriptor: SerialDescriptor,
-    private val declParent: XmlDescriptor,
+    private val declParent: ParentInfo,
     private val outputKind: OutputKind
                                               ): XmlUseDescriptor {
 
@@ -52,29 +52,41 @@ internal class XmlPolymorphicUseDescriptorImpl(
         get() = qName ?: typeDescriptor.tagName
     override val typeDescriptor: XmlDescriptor by lazy {
 
-        XmlDescriptor.fromCommon(descriptor, codec, XmlSerializationPolicy.NameInfo(serialName, qName), declParent, outputKind, emptyList(), null)
+        XmlDescriptor.fromCommon(
+            parent,
+            descriptor,
+            codec,
+            XmlSerializationPolicy.NameInfo(serialName, qName),
+            declParent,
+            outputKind,
+            emptyList(),
+            null
+                                )
     }
 
 }
 
 class XmlUseDescriptorImpl internal constructor(
-    val parent: XmlDescriptor,
+    val parent: ParentInfo,
     val index: Int,
     private val codec: XmlCodecBase,
     private val overrideOutputKind: OutputKind? = null,
-    val declParent: XmlDescriptor,
+    val declParent: ParentInfo,
     val useAnnotations: Collection<Annotation>
                                                ): XmlUseDescriptor {
-    private val serialDescriptor get() = parent.serialDescriptor.getElementDescriptor(index)
+    private val serialDescriptor get() = parent.getElementSerialDescriptor(index)
 
-    override val serialName = when {
-        parent is XmlListDescriptor && parent.anonymous -> parent.tagName.localPart // TODO use declUseParent
-        else -> parent.serialDescriptor.getElementName(index)
+    override val serialName = run {
+        val parent = parent.descriptor
+        when {
+            parent is XmlListDescriptor && parent.anonymous -> parent.tagName.localPart // TODO use declUseParent
+            else                                            -> parent.serialDescriptor.getElementName(index)
+        }
     }
 
     val serialKind get() = serialDescriptor.kind
-    override val qName: QName? = when (parent.serialKind) {
-        StructureKind.LIST -> with(parent as XmlListDescriptor){
+    override val qName: QName? = when (parent.descriptor.serialKind) {
+        StructureKind.LIST -> with(parent.descriptor as XmlListDescriptor){
             when {
                 childrenName == null && anonymous -> useAnnotations.firstOrNull<XmlSerialName>()?.toQName()
 
@@ -82,7 +94,7 @@ class XmlUseDescriptorImpl internal constructor(
             }
         }
         is PolymorphicKind ->  null
-        else               -> parent.serialDescriptor.getElementAnnotations(index).firstOrNull<XmlSerialName>()?.toQName()
+        else               -> parent.getElementAnnotations().firstOrNull<XmlSerialName>()?.toQName()
     }
     val elementsCount get()= serialDescriptor.elementsCount
 
@@ -94,17 +106,21 @@ class XmlUseDescriptorImpl internal constructor(
     override val typeDescriptor: XmlDescriptor by lazy {
         val baseClass = serialDescriptor.capturedKClass(codec.context)
 
-        val declParent = when(parent) {
-            is XmlListDescriptor -> parent.declParent
-            is XmlPolymorphicDescriptor -> parent.declParent
-            else -> parent
+        val declParent: ParentInfo = run {
+            val parent2 = parent.descriptor
+            when (parent2) {
+                is XmlListDescriptor        -> parent2.declParent
+                is XmlPolymorphicDescriptor -> parent2.declParent
+                else                        -> parent
+            }
         }
 
-        val useAnnotations2 = declParent.serialDescriptor.getElementAnnotations(index)
+        val useAnnotations2 = declParent.getElementAnnotations()
 
         val useName = XmlSerializationPolicy.NameInfo(serialName, qName)
 
         XmlDescriptor.fromCommon(
+            parent,
             serialDescriptor,
             codec,
             useName,

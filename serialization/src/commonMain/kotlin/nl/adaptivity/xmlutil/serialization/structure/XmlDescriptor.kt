@@ -23,14 +23,11 @@ package nl.adaptivity.xmlutil.serialization.structure
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import nl.adaptivity.serialutil.impl.assert
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.NameInfo
 import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
-import nl.adaptivity.xmlutil.toNamespace
-import nl.adaptivity.xmlutil.toQname
 import kotlin.reflect.KClass
 
 private fun SerialDescriptor.declDefault(): String? =
@@ -55,13 +52,12 @@ sealed class XmlDescriptor(
                           ) {
     val typeDescriptor: XmlTypeDescriptor = XmlTypeDescriptor(serialDescriptor, xmlCodecBase)
 
-    abstract val parentTagDescriptor: XmlDescriptor
+    abstract val parentTagDescriptor: ParentInfo
 
-    open val tagName: QName by lazy { xmlCodecBase.config.policy.effectiveName(serialDescriptor.kind, outputKind, parentTagDescriptor.tagName.toNamespace(), useNameInfo, typeDescriptor.typeNameInfo) }
+    open val tagName: QName by lazy { xmlCodecBase.config.policy.effectiveName(serialDescriptor.kind, outputKind, parentTagDescriptor.parentNamespace(), useNameInfo, typeDescriptor.typeNameInfo) }
 
     val serialDescriptor get() = typeDescriptor.serialDescriptor
 
-    abstract fun asElement(tagName: QName = this.tagName): XmlDescriptor
     abstract val outputKind: OutputKind
 
     open val elementCount: Int get() = typeDescriptor.serialDescriptor.elementsCount
@@ -99,17 +95,19 @@ sealed class XmlDescriptor(
          */
         internal fun from(
             serializer: KSerializer<*>,
+            parent: ParentInfo,
             xmlCodecBase: XmlCodecBase,
             useName: NameInfo,
-            declParent: XmlDescriptor,
+            declParent: ParentInfo,
             overrideOutputKind: OutputKind? = null,
             useAnnotations: Collection<Annotation> = emptyList()
                          ): XmlDescriptor {
             return from(
                 deserializer = serializer,
+                parent = parent,
                 xmlCodecBase = xmlCodecBase,
                 useName = useName,
-                declParent = declParent,
+                parentTagDescriptor = declParent,
                 overrideOutputKind = overrideOutputKind,
                 useAnnotations = useAnnotations
                        )
@@ -119,7 +117,7 @@ sealed class XmlDescriptor(
          * @param serializer The serializer for which a descriptor should be created
          * @param xmlCodecBase The codec base. This allows for some context dependend lookups such as prefixes
          * @param useName Name requirements based on name and annotations at the use site
-         * @param declParent Parent descriptor from the logical perspective (ignoring anomymous lists and polymorphic
+         * @param parentTagDescriptor Parent descriptor from the logical perspective (ignoring anomymous lists and polymorphic
          *                   subtags). In other words, the parent tag that is the kotlin object that "owns" the value (
          *                   and isn't builtin).
          * @param overrideOutputKind This can be passed to determine the effective outputkind. This is needed for things
@@ -128,19 +126,21 @@ sealed class XmlDescriptor(
          */
         internal fun from(
             serializer: SerializationStrategy<*>,
+            parent: ParentInfo,
             xmlCodecBase: XmlCodecBase,
             useName: NameInfo,
-            declParent: XmlDescriptor,
+            parentTagDescriptor: ParentInfo,
             overrideOutputKind: OutputKind? = null,
             useAnnotations: Collection<Annotation> = emptyList()
                          ): XmlDescriptor {
             val baseClass = (serializer as? PolymorphicSerializer)?.baseClass
 
             return fromCommon(
+                parent,
                 serializer.descriptor,
                 xmlCodecBase,
                 useName,
-                declParent,
+                parentTagDescriptor,
                 overrideOutputKind,
                 useAnnotations,
                 baseClass
@@ -151,7 +151,7 @@ sealed class XmlDescriptor(
          * @param deserializer The deserializer for which a descriptor should be created
          * @param xmlCodecBase The codec base. This allows for some context dependend lookups such as prefixes
          * @param useName Name requirements based on name and annotations at the use site
-         * @param declParent Parent descriptor from the logical perspective (ignoring anomymous lists and polymorphic
+         * @param parentTagDescriptor Parent descriptor from the logical perspective (ignoring anomymous lists and polymorphic
          *                   subtags). In other words, the parent tag that is the kotlin object that "owns" the value (
          *                   and isn't builtin).
          * @param overrideOutputKind This can be passed to determine the effective outputkind. This is needed for things
@@ -160,19 +160,21 @@ sealed class XmlDescriptor(
          */
         internal fun from(
             deserializer: DeserializationStrategy<*>,
+            parent: ParentInfo,
             xmlCodecBase: XmlCodecBase,
             useName: NameInfo,
-            declParent: XmlDescriptor,
+            parentTagDescriptor: ParentInfo,
             overrideOutputKind: OutputKind? = null,
             useAnnotations: Collection<Annotation> = emptyList()
                          ): XmlDescriptor {
             val baseClass = (deserializer as? PolymorphicSerializer)?.baseClass
 
             return fromCommon(
+                parent,
                 deserializer.descriptor,
                 xmlCodecBase,
                 useName,
-                declParent,
+                parentTagDescriptor,
                 overrideOutputKind,
                 useAnnotations,
                 baseClass
@@ -180,16 +182,17 @@ sealed class XmlDescriptor(
         }
 
         internal fun fromCommon(
+            parent: ParentInfo,
             serialDescriptor: SerialDescriptor,
             xmlCodecBase: XmlCodecBase,
             useNameInfo: NameInfo,
-            parentTagDescriptor: XmlDescriptor,
+            parentTagDescriptor: ParentInfo,
             overrideOutputKind: OutputKind?,
             useAnnotations: Collection<Annotation>,
             baseClass: KClass<*>?
                                ): XmlDescriptor {
             val policy = xmlCodecBase.config.policy
-            val parentNamespace = parentTagDescriptor.tagName.toNamespace()
+            val parentNamespace = parentTagDescriptor.parentNamespace()
 
             val useDefault: String? = useAnnotations.firstOrNull<XmlDefault>()?.value
 
@@ -213,6 +216,7 @@ sealed class XmlDescriptor(
             when (serialDescriptor.kind) {
                 UnionKind.ENUM_KIND,
                 is PrimitiveKind   -> return XmlPrimitiveDescriptor(
+                    parent,
                     serialDescriptor,
                     xmlCodecBase,
                     useNameInfo,
@@ -249,7 +253,6 @@ sealed class XmlDescriptor(
                         serialDescriptor,
                         xmlCodecBase,
                         useNameInfo,
-                        name,
                         polyChildren,
                         parentTagDescriptor,
                         baseClass,
@@ -283,9 +286,6 @@ internal constructor(
 
     override val outputKind: OutputKind get() = OutputKind.Mixed
 
-    override fun asElement(tagName: QName): XmlDescriptor =
-        throw UnsupportedOperationException("A dummy parent is not an element")
-
 
 }
 
@@ -293,17 +293,18 @@ sealed class XmlValueDescriptor(
     serialDescriptor: SerialDescriptor,
     xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
-    override val parentTagDescriptor: XmlDescriptor,
+    override val parentTagDescriptor: ParentInfo,
     override val outputKind: OutputKind,
     val default: String?
                                ) :
     XmlDescriptor(serialDescriptor, xmlCodecBase, useNameInfo)
 
 class XmlPrimitiveDescriptor internal constructor(
+    parent: ParentInfo,
     serialDescriptor: SerialDescriptor,
     private val xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
-    parentTagDescriptor: XmlDescriptor,
+    parentTagDescriptor: ParentInfo,
     outputKind: OutputKind,
     default: String? = null
                                                  ) :
@@ -312,28 +313,25 @@ class XmlPrimitiveDescriptor internal constructor(
     init {
         assert(outputKind != OutputKind.Mixed) { "It is not valid to have a value of mixed output type" }
     }
-
-    override fun asElement(tagName: QName): XmlDescriptor =
-        XmlPrimitiveDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor,
-                               OutputKind.Element, default)
 }
 
 class XmlCompositeDescriptor internal constructor(
     serialDescriptor: SerialDescriptor,
     private val xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
-    parentTagDescriptor: XmlDescriptor,
+    parentTagDescriptor: ParentInfo,
     default: String? = null
                                                  ) :
     XmlValueDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor, OutputKind.Element, default) {
 
     private val children = List<XmlUseDescriptor>(elementCount) { index ->
+        val parentInfo = ParentInfo(this, index)
         XmlUseDescriptorImpl(
-            this,
+            parentInfo,
             index,
             xmlCodecBase,
             serialDescriptor.getElementAnnotations(index).getRequestedOutputKind(),
-            declParent = this,
+            declParent = parentInfo,
             useAnnotations = serialDescriptor.getElementAnnotations(index)
                             )
     }
@@ -341,8 +339,6 @@ class XmlCompositeDescriptor internal constructor(
     override fun getElementDescriptor(index: Int): XmlUseDescriptor {
         return children[index]
     }
-
-    override fun asElement(tagName: QName): XmlDescriptor = this
 
     override fun toString(): String {
         return children.joinToString(",\n", "${tagName}: (\n", ")") { it.toString().prependIndent("    ") }
@@ -353,27 +349,27 @@ class XmlPolymorphicDescriptor internal constructor(
     serialDescriptor: SerialDescriptor,
     private val xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
-    override val tagName: QName,
     xmlPolyChildren: XmlPolyChildren?,
-    parentTagDescriptor: XmlDescriptor,
+    parentTagDescriptor: ParentInfo,
     val baseClass: KClass<*>?,
     outputKind: OutputKind
                                                    ) :
     XmlValueDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor, outputKind, null) {
 
-    internal val declParent: XmlDescriptor get() = parentTagDescriptor
+    internal val declParent: ParentInfo get() = parentTagDescriptor
 
     // xmlPolyChildren and sealed also leads to a transparent polymorphic
     val transparent = xmlCodecBase.config.autoPolymorphic || xmlPolyChildren != null
 
-    val parentSerialName = parentTagDescriptor.serialDescriptor.serialName
+    val parentSerialName = parentTagDescriptor.descriptor.serialDescriptor.serialName
 
     private val typeChildDescriptor = from(
         String.serializer(),
-        xmlCodecBase,
-        serialDescriptor.getElementNameInfo(0),
-        parentTagDescriptor,
-        outputKind,
+        parent = ParentInfo(this, 0),
+        xmlCodecBase = xmlCodecBase,
+        useName = serialDescriptor.getElementNameInfo(0),
+        declParent = parentTagDescriptor,
+        overrideOutputKind = outputKind,
         useAnnotations = serialDescriptor.getElementAnnotations(0)
                                           )
 
@@ -384,17 +380,17 @@ class XmlPolymorphicDescriptor internal constructor(
             else        -> QName("value")
         }
 
+        val parentInfo = ParentInfo(this, 1)
         when {
             xmlPolyChildren != null                         -> {
-                val baseName =
-                    NameInfo(parentTagDescriptor.serialDescriptor.serialName, parentTagDescriptor.tagName)
+                val baseName = NameInfo(parentTagDescriptor.descriptor.serialDescriptor.serialName, parentTagDescriptor.descriptor.tagName)
                 val baseClass = baseClass ?: Any::class
                 for (polyChild in xmlPolyChildren.value) {
                     val tagName = xmlCodecBase.polyTagName(baseName, polyChild, -1, baseClass)
                     val typeName = tagName.describedName
 
                     map[typeName] = XmlPolymorphicUseDescriptorImpl(
-                        this, tagName.describedName, tagName.tagName,
+                        parentInfo, tagName.describedName, tagName.tagName,
                         xmlCodecBase, tagName.descriptor,
                         parentTagDescriptor, outputKind
                                                                    )
@@ -408,7 +404,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     val typeName = childDesc.serialName
 
                     map[typeName] = XmlPolymorphicUseDescriptorImpl(
-                        this,
+                        parentInfo,
                         typeName,
                         qName,
                         xmlCodecBase,
@@ -432,7 +428,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     val typeName = childDesc.serialName
 
                     map[typeName] = XmlPolymorphicUseDescriptorImpl(
-                        this,
+                        parentInfo,
                         typeName,
                         qName,
                         xmlCodecBase,
@@ -453,7 +449,7 @@ class XmlPolymorphicDescriptor internal constructor(
                                                         -> {
             val baseClass = baseClass ?: Any::class
             xmlCodecBase.polyInfo(
-                NameInfo(parentTagDescriptor.serialDescriptor.serialName, parentTagDescriptor.tagName),
+                NameInfo(parentTagDescriptor.descriptor.serialDescriptor.serialName, parentTagDescriptor.descriptor.tagName),
                 xmlPolyChildren.value,
                 baseClass
                                  )
@@ -469,7 +465,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     val effectiveChildName = childNameInfo.annotatedName
                         ?: xmlCodecBase.config.policy.serialNameToQName(
                             childDesc.serialName,
-                            parentTagDescriptor.tagName.toNamespace()
+                            parentTagDescriptor.parentNamespace()
                                                                        )
                     registerClass(effectiveChildName, d.getElementDescriptor(i).serialName, true)
                 }
@@ -490,11 +486,6 @@ class XmlPolymorphicDescriptor internal constructor(
     }
 
 
-    override fun asElement(tagName: QName): XmlDescriptor {
-        return this
-    }
-
-
     private val children = run {
         val overrideOutputKind: OutputKind? = when {
             transparent -> outputKind
@@ -502,7 +493,7 @@ class XmlPolymorphicDescriptor internal constructor(
         }
         List<XmlUseDescriptorImpl>(elementCount) { index ->
             XmlUseDescriptorImpl(
-                this, index, xmlCodecBase, overrideOutputKind,
+                ParentInfo(this, index), index, xmlCodecBase, overrideOutputKind,
                 parentTagDescriptor, serialDescriptor.getElementAnnotations(index)
                                 )
         }
@@ -519,36 +510,6 @@ class XmlPolymorphicDescriptor internal constructor(
 
     override fun <T> getChildDescriptor(index: Int, actualSerializer: SerializationStrategy<T>): XmlDescriptor {
         return getPolymorphicDescriptor(index, actualSerializer.descriptor).typeDescriptor
-
-//        val child = polyInfo?.lookupName(serializer.descriptor.serialName)
-//
-//        return getElementDescriptor(index).typeDescriptor
-        val childName = polyInfo.lookupName(actualSerializer.descriptor.serialName)?.name
-
-        if (transparent) {
-
-            // TODO probably use this to also record all possible polymorphic children
-
-            return from(
-                actualSerializer,
-                xmlCodecBase,
-                NameInfo(serialDescriptor.getElementName(1), childName),
-                declParent,
-                outputKind,
-                useAnnotations = serialDescriptor.getElementAnnotations(1)
-                       )
-        } else {
-            val valueName = NameInfo(serialDescriptor.getElementName(1), "value".toQname())
-            return from(
-                actualSerializer,
-                xmlCodecBase,
-                valueName,
-                this,
-                OutputKind.Element, // When not transparent it is always as an element for now
-                useAnnotations = serialDescriptor.getElementAnnotations(1)
-                       )
-
-        }
     }
 
     override fun <T> getChildDescriptor(index: Int, actualDeserializer: DeserializationStrategy<T>): XmlDescriptor {
@@ -556,12 +517,14 @@ class XmlPolymorphicDescriptor internal constructor(
 
         val childName = polyInfo.lookupName(actualDeserializer.descriptor.serialName)?.name
 
+        val parent = ParentInfo(this, index)
         if (transparent) {
 
             // TODO probably use this to also record all possible polymorphic children
 
             return from(
                 actualDeserializer,
+                parent,
                 xmlCodecBase,
                 NameInfo(serialDescriptor.getElementName(1), childName),
                 declParent,
@@ -572,10 +535,11 @@ class XmlPolymorphicDescriptor internal constructor(
             val valueName = NameInfo(serialDescriptor.getElementName(1), "value".toQname())
             return from(
                 actualDeserializer,
+                parent,
                 xmlCodecBase,
                 valueName,
-                this,
-                OutputKind.Element, // When not transparent it is always as an element for now
+                parent, // When not transparent it is always as an element for now
+                OutputKind.Element,
                 useAnnotations = serialDescriptor.getElementAnnotations(1)
                        )
 
@@ -610,33 +574,19 @@ class XmlListDescriptor internal constructor(
     val useAnnotations: Collection<Annotation>,
     val childrenName: QName?,
     val anonymous: Boolean,
-    override val parentTagDescriptor: XmlDescriptor
+    override val parentTagDescriptor: ParentInfo
                                             ) : XmlDescriptor(serialDescriptor, xmlCodecBase, useNameInfo) {
     override val tagName = tagName
     private var childDescriptor: XmlDescriptor? = null
 
     val declParent get() = parentTagDescriptor
 
-    override fun asElement(tagName: QName): XmlDescriptor {
-        if (tagName.localPart.isEmpty()) throw XmlSerialException("Cannot serialize list without a name")
-        return XmlListDescriptor(
-            serialDescriptor,
-            xmlCodecBase,
-            useNameInfo,
-            tagName,
-            useAnnotations,
-            childrenName,
-            false,
-            declParent
-                                )
-    }
-
     override val outputKind: OutputKind =
         if (useAnnotations.firstOrNull<XmlValue>() != null && xmlCodecBase.config.autoPolymorphic) OutputKind.Mixed else OutputKind.Element
 
 
     private val children = List<XmlUseDescriptorImpl>(elementCount) { index ->
-        XmlUseDescriptorImpl(this, index, xmlCodecBase, outputKind, parentTagDescriptor, useAnnotations = useAnnotations)
+        XmlUseDescriptorImpl(ParentInfo(this, index), index, xmlCodecBase, outputKind, parentTagDescriptor, useAnnotations = useAnnotations)
     }
 
     override fun getElementDescriptor(index: Int): XmlUseDescriptorImpl {
@@ -699,4 +649,18 @@ class XmlListDescriptor internal constructor(
         }
     }
 */
+}
+
+class ParentInfo(val descriptor: XmlDescriptor, val index: Int) {
+    fun parentNamespace(): Namespace {
+        return descriptor.tagName.toNamespace()
+    }
+
+    fun getElementAnnotations(): Collection<Annotation> {
+        return descriptor.serialDescriptor.getElementAnnotations(index)
+    }
+
+    fun getElementSerialDescriptor(index: Int): SerialDescriptor {
+        return descriptor.serialDescriptor.getElementDescriptor(index)
+    }
 }
