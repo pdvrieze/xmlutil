@@ -217,7 +217,6 @@ sealed class XmlDescriptor(
                     xmlCodecBase,
                     useNameInfo,
                     parentTagDescriptor,
-                    name,
                     if (effectiveOutputKind == OutputKind.Mixed) OutputKind.Text else effectiveOutputKind,
                     effectiveDefault
                                                                    )
@@ -262,7 +261,6 @@ sealed class XmlDescriptor(
                     xmlCodecBase,
                     useNameInfo,
                     parentTagDescriptor,
-                    name,
                     effectiveDefault
                                                                    )
             }
@@ -306,7 +304,6 @@ class XmlPrimitiveDescriptor internal constructor(
     private val xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
     parentTagDescriptor: XmlDescriptor,
-    override val tagName: QName,
     outputKind: OutputKind,
     default: String? = null
                                                  ) :
@@ -317,7 +314,8 @@ class XmlPrimitiveDescriptor internal constructor(
     }
 
     override fun asElement(tagName: QName): XmlDescriptor =
-        XmlPrimitiveDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor, tagName, OutputKind.Element, default)
+        XmlPrimitiveDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor,
+                               OutputKind.Element, default)
 }
 
 class XmlCompositeDescriptor internal constructor(
@@ -325,7 +323,6 @@ class XmlCompositeDescriptor internal constructor(
     private val xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
     parentTagDescriptor: XmlDescriptor,
-    override val tagName: QName,
     default: String? = null
                                                  ) :
     XmlValueDescriptor(serialDescriptor, xmlCodecBase, useNameInfo, parentTagDescriptor, OutputKind.Element, default) {
@@ -596,7 +593,7 @@ internal fun SerialDescriptor.getElementNameInfo(index: Int): NameInfo {
     return NameInfo(serialName, qName)
 }
 
-private fun SerialDescriptor.getNameInfo(): NameInfo {
+internal fun SerialDescriptor.getNameInfo(): NameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
         else                                   -> serialName

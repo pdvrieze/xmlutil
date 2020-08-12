@@ -31,10 +31,7 @@ internal constructor(
     xmlCodecBase: XmlCodecBase
                     ) {
 
-    val typeNameInfo = XmlSerializationPolicy.NameInfo(
-        serialDescriptor.serialName,
-        serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
-                                                      )
+    val typeNameInfo = serialDescriptor.getNameInfo()
     val serialName get() = typeNameInfo
     val typeQname = typeNameInfo.annotatedName
 
