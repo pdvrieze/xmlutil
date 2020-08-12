@@ -24,6 +24,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.getPolymorphic
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
@@ -314,9 +315,9 @@ internal abstract class XmlCodecBase internal constructor(
         protected val parentDesc: SerialDescriptor,
         protected val elementIndex: Int,
         protected val childDesc: SerialDescriptor?
-                                 ) {
+                                                       ) {
 
-        val serialName: QName get() = xmlDescriptor.name
+        val serialName: QName get() = xmlDescriptor.tagName
     }
 
     internal abstract inner class XmlTagCodec<out D: XmlDescriptor>(
@@ -328,7 +329,7 @@ internal abstract class XmlCodecBase internal constructor(
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context
 
-        val serialName: QName get() = xmlDescriptor.name
+        val serialName: QName get() = xmlDescriptor.tagName
 
         abstract val namespaceContext: NamespaceContext
 

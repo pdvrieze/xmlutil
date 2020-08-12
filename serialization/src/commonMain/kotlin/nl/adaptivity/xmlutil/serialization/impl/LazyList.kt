@@ -20,8 +20,6 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
-import nl.adaptivity.xmlutil.serialization.XmlDescriptor
-
 internal class LazyList<T> (source: List<() -> T>) : List<T> {
 
     private val source: List<Lazy<T>> = source.map { lazy(it) }

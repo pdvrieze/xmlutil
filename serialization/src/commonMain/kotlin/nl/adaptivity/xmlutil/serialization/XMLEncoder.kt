@@ -26,6 +26,10 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
@@ -276,7 +280,7 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             val kind = descriptor.outputKind(index, null)
-            val requestedName = xmlDescriptor.getChildDescriptor(index, String.serializer()).name
+            val requestedName = xmlDescriptor.getChildDescriptor(index, String.serializer()).tagName
             when (kind) {
                 OutputKind.Element -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> smartWriteAttribute(requestedName, value)

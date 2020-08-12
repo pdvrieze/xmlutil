@@ -27,6 +27,9 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.canary.*
 import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
@@ -397,7 +400,7 @@ internal open class XmlDecoderBase internal constructor(
         var currentPolyInfo: PolyInfo? = null
 
         init {
-            val serialName = xmlDescriptor.name
+            val serialName = xmlDescriptor.tagName
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
             val nameMap: MutableMap<QName, Int> = mutableMapOf()
             val desc = this.desc as ExtSerialDescriptor

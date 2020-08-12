@@ -26,6 +26,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -246,7 +248,7 @@ class XML(
                                                   )
 
         val xmlEncoderBase = XmlEncoderBase(context, config, target)
-        val root = XmlRootDescriptor(serialQName, serializer.descriptor)
+        val root = XmlRootDescriptor(serialQName, serializer.descriptor, xmlEncoderBase)
         val parentDesc = DummyParentDescriptor(serialQName, serializer.descriptor)
 
         val name = XmlSerializationPolicy.NameInfo(serialName, serialQName)
@@ -315,7 +317,7 @@ class XML(
 
         val xmlDecoderBase = XmlDecoderBase(context, config, reader)
         val parentDesc = DummyParentDescriptor(null, serialDescriptor)
-        val rootDescriptor = XmlRootDescriptor(serialName, parentDesc)
+        val rootDescriptor = XmlRootDescriptor(serialName, parentDesc, xmlDecoderBase)
         val xmlDescriptor = XmlDescriptor.from(
             deserializer,
             xmlDecoderBase,
