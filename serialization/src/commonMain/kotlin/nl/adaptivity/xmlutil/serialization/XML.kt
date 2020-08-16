@@ -252,9 +252,7 @@ class XML(
         val root = XmlRootDescriptor(serialQName, serializer.descriptor, xmlEncoderBase)
         val parentDesc = DummyParentDescriptor(serialQName, serializer.descriptor)
 
-        val name = XmlSerializationPolicy.NameInfo(serialName, serialQName)
-        val xmlDescriptor = XmlDescriptor
-            .from(serializer, ParentInfo(root, 0), xmlEncoderBase, name, ParentInfo(root, 0), useAnnotations = emptyList())
+        val xmlDescriptor = root.getElementDescriptor(0)
 
         val encoder = xmlEncoderBase
             .XmlEncoder(
@@ -316,22 +314,14 @@ class XML(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(context, config, reader)
-        val parentDesc = DummyParentDescriptor(null, serialDescriptor)
-        val rootDescriptor = XmlRootDescriptor(serialName, parentDesc, xmlDecoderBase)
-        val xmlDescriptor = XmlDescriptor.from(
-            deserializer,
-            ParentInfo(rootDescriptor, 0),
-            xmlDecoderBase,
-            XmlSerializationPolicy.NameInfo(serialDescriptor.serialName, serialName),
-            ParentInfo(rootDescriptor, 0)
-                                              )
+        val rootDescriptor = XmlRootDescriptor(serialName, serialDescriptor, xmlDecoderBase)
 
         val decoder = xmlDecoderBase.XmlDecoder(
             XmlEvent.NamespaceImpl("", ""),
-            parentDesc,
+            rootDescriptor.serialDescriptor,
             0,
             deserializer,
-            xmlDescriptor,
+            rootDescriptor.getElementDescriptor(0),
             serialDescriptor
                                                )
         return decoder.decodeSerializableValue(deserializer)
