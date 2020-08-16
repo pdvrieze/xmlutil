@@ -371,7 +371,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, serializer)
+            val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(serializer.descriptor.serialName)
             val encoder = XmlEncoder(descriptor, index, serializer, childXmlDescriptor)
             serializer.serialize(encoder, value)
         }

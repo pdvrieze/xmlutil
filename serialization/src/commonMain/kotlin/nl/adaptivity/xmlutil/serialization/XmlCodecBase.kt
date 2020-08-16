@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 internal abstract class XmlCodecBase internal constructor(
     val context: SerialModule,
     val config: XmlConfig
-                                                     ) {
+                                                         ) {
 
     protected abstract val namespaceContext: NamespaceContext
 
@@ -86,8 +86,14 @@ internal abstract class XmlCodecBase internal constructor(
         itemIdx: Int,
         getPolymorphic: SerialModule.(String) -> KSerializer<*>?
                                  ): PolyInfo {
-        return polyTagNameCommon(XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag), polyChild, itemIdx, getPolymorphic)
+        return polyTagNameCommon(
+            XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag),
+            polyChild,
+            itemIdx,
+            getPolymorphic
+                                )
     }
+
     private fun polyTagNameCommon(
         parent: XmlSerializationPolicy.NameInfo,
         polyChild: String,
@@ -133,8 +139,8 @@ internal abstract class XmlCodecBase internal constructor(
             else -> "$currentPkg.${typeNameBase.substring(1)}"
         }
 
-        val descriptor = context.getPolymorphic(typename)
-            ?.descriptor ?: throw XmlException("Missing descriptor for $typename in the serial context")
+        val descriptor = context.getPolymorphic(typename)?.descriptor
+            ?: throw XmlException("Missing descriptor for $typename in the serial context")
         val name: QName = if (eqPos < 0) {
             descriptor
                 ?.annotations
@@ -160,6 +166,7 @@ internal abstract class XmlCodecBase internal constructor(
                 ): XmlNameMap {
         return polyInfo(XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag), polyChildren, baseClass)
     }
+
     /**
      * Given a parent tag, record all polymorphic children.
      */
@@ -310,22 +317,22 @@ internal abstract class XmlCodecBase internal constructor(
         }
     }
 
-    abstract inner class XmlCodec<out D: XmlDescriptor>(
+    abstract inner class XmlCodec<out D : XmlDescriptor>(
         protected val xmlDescriptor: D,
         protected val parentDesc: SerialDescriptor,
         protected val elementIndex: Int,
         protected val childDesc: SerialDescriptor?
-                                                       ) {
+                                                        ) {
 
         val serialName: QName get() = xmlDescriptor.tagName
     }
 
-    internal abstract inner class XmlTagCodec<out D: XmlDescriptor>(
+    internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(
         val parentDesc: SerialDescriptor,
         val elementIndex: Int,
         val desc: SerialDescriptor,
         val xmlDescriptor: D
-                                                                   ) {
+                                                                    ) {
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context
 

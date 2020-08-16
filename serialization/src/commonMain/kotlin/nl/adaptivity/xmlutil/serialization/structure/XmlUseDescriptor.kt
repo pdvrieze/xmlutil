@@ -59,8 +59,7 @@ internal class XmlPolymorphicUseDescriptorImpl(
             XmlSerializationPolicy.NameInfo(serialName, qName),
             declParent,
             outputKind,
-            emptyList(),
-            null
+            emptyList()
                                 )
     }
 
@@ -98,8 +97,6 @@ class XmlUseDescriptorImpl internal constructor(
     }
     val elementsCount get()= serialDescriptor.elementsCount
 
-    fun getElementDescriptor(index:Int) = typeDescriptor.getElementDescriptor(index)
-
     override val tagName: QName
         get() = typeDescriptor.tagName
 
@@ -126,8 +123,7 @@ class XmlUseDescriptorImpl internal constructor(
             useName,
             declParent,
             overrideOutputKind,
-            useAnnotations,
-            baseClass
+            useAnnotations
                                 )
     }
 }
