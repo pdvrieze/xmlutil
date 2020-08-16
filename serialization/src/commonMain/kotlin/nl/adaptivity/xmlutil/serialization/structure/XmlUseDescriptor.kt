@@ -74,7 +74,7 @@ class XmlUseDescriptorImpl internal constructor(
     val declParent: ParentInfo,
     val useAnnotations: Collection<Annotation>
                                                ): XmlUseDescriptor {
-    private val serialDescriptor get() = parent.getElementSerialDescriptor(index)
+    private val serialDescriptor get() = parent.getElementSerialDescriptor()
 
     override val serialName = run {
         val parent = parent.descriptor
