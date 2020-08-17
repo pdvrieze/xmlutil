@@ -275,9 +275,9 @@ fun XmlBufferedReader.consecutiveTextContent(): String {
             append(text)
         }
 
-        var event: XmlEvent?
+        var event: XmlEvent? = null
 
-        loop@while ((t.peek().apply { event = this@apply }) !== EventType.END_ELEMENT) {
+        loop@while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
             when (event?.eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT
