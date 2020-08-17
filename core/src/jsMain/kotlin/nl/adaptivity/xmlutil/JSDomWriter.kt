@@ -27,7 +27,7 @@ import nl.adaptivity.js.util.removeElementChildren
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
-import kotlin.browser.document
+import kotlinx.browser.document
 
 actual typealias PlatformXmlWriter = JSDomWriter
 
