@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
 import nl.adaptivity.xmlutil.serialization.impl.getPolymorphic
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.jvm.JvmStatic
@@ -236,6 +237,29 @@ internal abstract class XmlCodecBase internal constructor(
             return serialName.substringAfterLast('.').toQname(parentNamespace)
         }
 
+        @Deprecated("Don't use it, get from XmlDescriptor")
+        @JvmStatic
+        internal fun XmlDescriptor.outputKind(index: Int): OutputKind {
+/*
+            if (index < 0) {
+                return OutputKind.Element
+            }
+*/
+
+            val valueChildIndex = this.getValueChild()
+
+            fun OutputKind.checkValueChild(): OutputKind = also {
+                if (valueChildIndex >= 0 && index != valueChildIndex && it == OutputKind.Element) {
+                    throw XmlSerialException("Types with an @XmlValue member may not contain other child elements")
+                }
+            }
+
+            // TODO the check should be in XmlDescriptor
+            return getElementDescriptor(index).outputKind.checkValueChild()
+
+        }
+
+        @Deprecated("Don't use it, get from XmlDescriptor")
         @JvmStatic
         internal fun SerialDescriptor.outputKind(index: Int, childDesc: SerialDescriptor?): OutputKind {
             if (index < 0) {

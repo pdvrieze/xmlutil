@@ -26,6 +26,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -78,14 +79,14 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             when (xmlDescriptor.outputKind) {
-                OutputKind.Element -> { // This may occur with list values.
+                OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }
                 OutputKind.Attribute -> {
                     target.attribute(serialName.namespaceURI, serialName.localPart, serialName.prefix, value)
                 }
                 OutputKind.Mixed,
-                OutputKind.Text -> target.text(value)
+                OutputKind.Text      -> target.text(value)
             }
         }
 
@@ -102,8 +103,8 @@ internal open class XmlEncoderBase internal constructor(
             when (xmlDescriptor.outputKind) {
                 OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
                 OutputKind.Mixed,
-                OutputKind.Element -> target.smartStartTag(serialName) { /*No content*/ }
-                OutputKind.Text -> target.text("Unit")
+                OutputKind.Element   -> target.smartStartTag(serialName) { /*No content*/ }
+                OutputKind.Text      -> target.text("Unit")
             }
 
         }
@@ -122,8 +123,6 @@ internal open class XmlEncoderBase internal constructor(
                                    ): CompositeEncoder {
 
             return beginEncodeCompositeImpl(
-                parentDesc,
-                elementIndex,
                 serializier,
                 xmlDescriptor
                                            )
@@ -131,60 +130,31 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     fun beginEncodeCompositeImpl(
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         serializer: SerializationStrategy<*>,
         xmlDescriptor: XmlDescriptor
                                 ): CompositeEncoder {
-        val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
+
         return when (xmlDescriptor.serialKind) {
-            is PrimitiveKind -> throw AssertionError("A primitive is not a composite")
+            is PrimitiveKind    -> throw AssertionError("A primitive is not a composite")
 
             UnionKind.CONTEXTUAL, // TODO handle contextual in a more elegant way
             StructureKind.MAP,
-            StructureKind.CLASS -> {
-                TagEncoder(
-                    parentDesc,
-                    elementIndex,
-                    serializer,
-                    xmlDescriptor
-                          ).apply { writeBegin() }
-            }
-
-            StructureKind.LIST -> ListEncoder(
-                parentDesc,
-                elementIndex,
-                serializer,
-                xmlDescriptor as XmlListDescriptor,
-                isMixed
-                                             ).apply { writeBegin() }
-
+            StructureKind.CLASS,
             StructureKind.OBJECT,
-            UnionKind.ENUM_KIND -> TagEncoder(
-                parentDesc,
-                elementIndex,
-                serializer,
-                xmlDescriptor
-                                             ).apply { writeBegin() }
-            is PolymorphicKind ->
-                PolymorphicEncoder(
-                    parentDesc,
-                    elementIndex,
-                    serializer,
-                    xmlDescriptor as XmlPolymorphicDescriptor
-                                  ).apply { writeBegin() }
-        }
+            UnionKind.ENUM_KIND -> TagEncoder(serializer, xmlDescriptor)
+
+            StructureKind.LIST  -> ListEncoder(serializer, xmlDescriptor as XmlListDescriptor)
+
+            is PolymorphicKind  -> PolymorphicEncoder(serializer, xmlDescriptor as XmlPolymorphicDescriptor)
+        }.apply { writeBegin() }
     }
 
     internal open inner class TagEncoder<D : XmlDescriptor>(
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         val serializer: SerializationStrategy<*>,
         xmlDescriptor: D,
         private var deferring: Boolean = true
                                                            ) :
-        XmlTagCodec<D>(parentDesc, elementIndex, serializer.descriptor, xmlDescriptor), CompositeEncoder,
-        XML.XmlOutput {
+        XmlTagCodec<D>(Canary.serialDescriptor(serializer), xmlDescriptor), CompositeEncoder, XML.XmlOutput {
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
@@ -195,11 +165,11 @@ internal open class XmlEncoderBase internal constructor(
             target.smartStartTag(serialName)
         }
 
-        open fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
+        open fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             if (!deferring) {
                 deferred()
             } else {
-                val outputKind = desc.outputKind(index, childDesc)
+                val outputKind = xmlDescriptor.getElementDescriptor(index).outputKind
                 if (outputKind == OutputKind.Attribute) {
                     deferred()
                 } else {
@@ -215,12 +185,12 @@ internal open class XmlEncoderBase internal constructor(
             value: T
                                                   ) {
             val encoder = XmlEncoder(
-                xmlDescriptor.serialDescriptor/*this@TagEncoder.desc*/,
+                xmlDescriptor.serialDescriptor,
                 index,
                 serializer,
-                xmlDescriptor.getChildDescriptor(index, serializer)
+                xmlDescriptor.getElementDescriptor(index)
                                     )
-            defer(index, serializer.descriptor) { serializer.serialize(encoder, value) }
+            defer(index) { serializer.serialize(encoder, value) }
         }
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
@@ -282,10 +252,10 @@ internal open class XmlEncoderBase internal constructor(
             val kind = descriptor.outputKind(index, null)
             val requestedName = xmlDescriptor.getChildDescriptor(index, String.serializer()).tagName
             when (kind) {
-                OutputKind.Element -> defer(index, null) { target.smartStartTag(requestedName) { text(value) } }
-                OutputKind.Attribute -> smartWriteAttribute(requestedName, value)
+                OutputKind.Element   -> defer(index) { target.smartStartTag(requestedName) { text(value) } }
+                OutputKind.Attribute -> doWriteAttribute(requestedName, value)
                 OutputKind.Mixed,
-                OutputKind.Text -> defer(index, null) { target.text(value) }
+                OutputKind.Text      -> defer(index) { target.text(value) }
             }
         }
 
@@ -327,16 +297,15 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     internal inner class PolymorphicEncoder(
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         serializer: SerializationStrategy<*>,
         xmlDescriptor: XmlPolymorphicDescriptor
                                            ) :
-        TagEncoder<XmlPolymorphicDescriptor>(parentDesc, elementIndex, serializer, xmlDescriptor, false),
+        TagEncoder<XmlPolymorphicDescriptor>(serializer, xmlDescriptor, deferring = false),
         XML.XmlOutput {
+
         val isMixed get() = xmlDescriptor.outputKind == OutputKind.Mixed
 
-        override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
+        override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
 
@@ -349,10 +318,19 @@ internal open class XmlEncoderBase internal constructor(
             when {
                 index == 0                -> {
                     if (!xmlDescriptor.transparent) {
+                        val childDesc = xmlDescriptor.getElementDescriptor(0)
                         assert(xmlDescriptor.parentSerialName == parentDesc.serialName) {
                             "parentSerialName ('${xmlDescriptor.parentSerialName}') should match the one in the encoder: '${parentDesc.serialName}'"
                         }
-                        doWriteAttribute(QName("type"), value.tryShortenTypeName(xmlDescriptor.parentSerialName))
+                        when (childDesc.outputKind) {
+                            OutputKind.Attribute -> doWriteAttribute(
+                                childDesc.tagName,
+                                value.tryShortenTypeName(xmlDescriptor.parentSerialName)
+                                                                    )
+                            OutputKind.Mixed,
+                            OutputKind.Element   -> defer(index) { target.smartStartTag(childDesc.tagName) { text(value) } }
+                            OutputKind.Text      -> throw XmlSerialException("the type for a polymorphic child cannot be a text")
+                        }
                     } // else if (index == 0) { } // do nothing
                 }
                 xmlDescriptor.transparent -> {
@@ -378,7 +356,7 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Don't write anything if we're transparent
-            if (! xmlDescriptor.transparent) {
+            if (!xmlDescriptor.transparent) {
                 super.endStructure(descriptor)
             }
         }
@@ -391,30 +369,24 @@ internal open class XmlEncoderBase internal constructor(
      * as if the list was not present and there was a single value.
      */
     internal inner class ListEncoder(
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         serializer: SerializationStrategy<*>,
-        xmlDescriptor: XmlListDescriptor,
-        isMixed: Boolean
+        xmlDescriptor: XmlListDescriptor
                                     ) :
         TagEncoder<XmlListDescriptor>(
-            parentDesc,
-            elementIndex,
             serializer,
-            deferring = false,
-            xmlDescriptor = xmlDescriptor
+            xmlDescriptor,
+            deferring = false
                                      ), XML.XmlOutput {
 
         val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
-        val childrenName = parentDesc.requestedChildName(elementIndex)
-
-        override fun defer(index: Int, childDesc: SerialDescriptor?, deferred: CompositeEncoder.() -> Unit) {
+        override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
 
         override fun writeBegin() {
-            if (childrenName != null) { // Do the default thing if the children name has been specified
+            if (!xmlDescriptor.isAnonymous) { // Do the default thing if the children name has been specified
+                val childrenName = xmlDescriptor.getElementDescriptor(0).tagName
                 super.writeBegin()
                 val childName = childrenName
                 val tagName = serialName
@@ -437,8 +409,8 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val childDescriptor = xmlDescriptor.getChildDescriptor(0, serializer)
-            if (xmlDescriptor.anonymous) { // Use the outer decriptor and element index
+            val childDescriptor = xmlDescriptor.getElementDescriptor(0)
+            if (xmlDescriptor.isAnonymous) { // Use the outer decriptor and element index
                 serializer.serialize(XmlEncoder(parentDesc, elementIndex, serializer, childDescriptor), value)
             } else {
                 serializer.serialize(XmlEncoder(descriptor, 0, serializer, childDescriptor), value)
@@ -456,11 +428,9 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             if (index > 0) {
-                when {
-                    isMixed -> { // Mixed will be a list of strings and other stuff
-                        target.text(value)
-                    }
-                    else    -> {
+                when (xmlDescriptor.outputKind) {
+                    OutputKind.Mixed -> target.text(value) // Mixed will be a list of strings and other stuff
+                    else             -> {
                         XmlEncoder(
                             descriptor,
                             index,
@@ -475,7 +445,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (childrenName != null) {
+            if (!xmlDescriptor.isAnonymous) {
                 super.endStructure(descriptor)
             }
         }

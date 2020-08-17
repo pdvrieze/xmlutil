@@ -633,6 +633,24 @@ internal fun SerialDescriptor.getValueChildOrThrow(): Int {
     }
 }
 
+internal fun XmlDescriptor.getValueChild(): Int {
+    for (i in 0 until elementsCount) {
+        if (serialDescriptor.getElementAnnotations(i).any { it is XmlValue }) return i
+    }
+    return -1
+}
+
+@Deprecated("Use index version that returns -1 for missing child")
+internal fun XmlDescriptor.getValueChildOrThrow(): Int {
+    if (elementsCount == 1) {
+        return 0
+    } else {
+        return getValueChild().also {
+            if (it < 0) throw XmlSerialException("No value child found for type with descriptor: $this")
+        }
+    }
+}
+
 /** Straightforward copy function */
 fun QName.copy(
     namespaceURI: String = this.namespaceURI,
