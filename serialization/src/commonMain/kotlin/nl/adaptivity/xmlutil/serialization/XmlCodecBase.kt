@@ -352,11 +352,13 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(
-        val parentDesc: SerialDescriptor,
-        val elementIndex: Int,
-        val desc: SerialDescriptor,
+        val desc: ExtSerialDescriptor,
         val xmlDescriptor: D
                                                                     ) {
+
+        val parentDesc get() = xmlDescriptor.tagParent.descriptor.serialDescriptor
+        val elementIndex get() = xmlDescriptor.tagParent.index
+
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context
 

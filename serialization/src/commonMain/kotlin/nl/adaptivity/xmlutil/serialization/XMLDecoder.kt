@@ -124,15 +124,17 @@ internal open class XmlDecoderBase internal constructor(
             val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
             val outputKind = parentDesc.outputKind(elementIndex, childDesc)
             val descOutputKind = xmlDescriptor.outputKind
+/*
             assert(outputKind==descOutputKind) {
                 "Output kinds don't match: $outputKind != $descOutputKind"
             }
+*/
 
 
             val stringValue = if (attrIndex >= 0) {
                 input.getAttributeValue(attrIndex)
             } else {
-                when (descOutputKind) {
+                when (outputKind) {
                     OutputKind.Element   -> { // This may occur with list values.
                         input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElement()

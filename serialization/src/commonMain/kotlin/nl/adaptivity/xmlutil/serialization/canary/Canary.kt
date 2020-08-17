@@ -135,8 +135,33 @@ object Canary {
         }
     }
 
+    fun serialDescriptor(serializer: KSerializer<*>): ExtSerialDescriptor {
+        return serialDescriptor(loader = serializer)
+    }
+
     @OptIn(InternalSerializationApi::class)
-    fun <T> serialDescriptor(loader: DeserializationStrategy<T>): ExtSerialDescriptor {
+    fun serialDescriptor(
+        saver: SerializationStrategy<*>
+                        ): ExtSerialDescriptor {
+        val current = saverMap[saver]?.also { return it }
+        if (current != null) return current
+        if (saver is GeneratedSerializer) {
+            return ExtSerialDescriptorImpl(saver.descriptor,
+                                           saver.childSerializers().arrayMap { it.polymorphicDescriptor }).also {
+                saverMap[saver] = it
+            }
+        }
+        val parentDesc = saver.descriptor
+        try {
+            val childDescs = Array(parentDesc.elementsCount) { parentDesc.getElementDescriptor(it) }
+            return ExtSerialDescriptorImpl(parentDesc, childDescs).also { saverMap[saver] = it }
+        } catch (e: SerializationException) {
+            return ExtSerialDescriptorImpl(parentDesc, emptyArray()).also { saverMap[saver] = it }
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    fun serialDescriptor(loader: DeserializationStrategy<*>): ExtSerialDescriptor {
         loaderMap[loader]?.let { return it }
         // temporarilly set this to a delayed descriptor
         loaderMap[loader] = RecursiveDescriptor(loader)

@@ -132,13 +132,22 @@ sealed class XmlDescriptor(
 
             val effectiveDefault = useDefault ?: serialDescriptor.declDefault()
             val isValue = useAnnotations.firstOrNull<XmlValue>()?.value == true
-            val effectiveOutputKind = overrideOutputKind
-                ?: useAnnotations.getRequestedOutputKind()
-                ?: when {
+            val effectiveOutputKind = when (overrideOutputKind) {
+                null             -> when {
                     isValue -> OutputKind.Text
-                    else    -> serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind)
+                    else    -> tagParent.useOutputKind() ?: serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind)
                 }
+                OutputKind.Mixed -> if (serializerParent.descriptor is XmlListDescriptor) {
+                    OutputKind.Mixed
+                } else when (tagParent.useOutputKind() ?: serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind)) {
+                    OutputKind.Attribute,
+                    OutputKind.Mixed,
+                    OutputKind.Text -> OutputKind.Text
+                    else            -> OutputKind.Element
+                }
+                else             -> overrideOutputKind
 
+            }
             when (serialDescriptor.kind) {
                 UnionKind.ENUM_KIND,
                 is PrimitiveKind   -> return XmlPrimitiveDescriptor(
@@ -146,7 +155,7 @@ sealed class XmlDescriptor(
                     xmlCodecBase,
                     tagParent,
                     useNameInfo,
-                    if (effectiveOutputKind == OutputKind.Mixed) OutputKind.Text else effectiveOutputKind,
+                    effectiveOutputKind,
                     effectiveDefault
                                                                    )
                 StructureKind.LIST -> {
@@ -316,6 +325,8 @@ class XmlPolymorphicDescriptor internal constructor(
             transparent -> null
             else        -> QName("value")
         }
+        val parentDesc = serializerParent.descriptor
+        val inMixedParent = parentDesc.kind == StructureKind.LIST && parentDesc.outputKind == OutputKind.Mixed
 
         when {
             xmlPolyChildren != null                         -> {
@@ -401,9 +412,10 @@ class XmlPolymorphicDescriptor internal constructor(
             else        -> OutputKind.Element
         }
         lazy {
-            List<XmlDescriptor>(elementCount) { index ->
-                from(ParentInfo(this, index), xmlCodecBase, tagParent,
-                     overrideOutputKind = overrideOutputKind
+            List<XmlDescriptor>(elementsCount) { index ->
+                from(
+                    ParentInfo(this, index), xmlCodecBase, tagParent,
+                    overrideOutputKind = if (index == 0) OutputKind.Attribute else OutputKind.Element // make this an element
                     )
             }
         }
@@ -502,6 +514,13 @@ class ParentInfo(val descriptor: XmlDescriptor, val index: Int) {
         return when (index) {
             -1   -> descriptor.serialDescriptor
             else -> descriptor.serialDescriptor.getElementDescriptor(index)
+        }
+    }
+
+    fun useOutputKind(): OutputKind? {
+        return when (index) {
+            -1 -> null
+            else -> descriptor.serialDescriptor.getElementAnnotations(index).getRequestedOutputKind()
         }
     }
 }
