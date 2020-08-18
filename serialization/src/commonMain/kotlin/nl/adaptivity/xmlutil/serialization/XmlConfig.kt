@@ -163,14 +163,14 @@ class XmlConfig(
     companion object {
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
-            { input, isAttribute, name, candidates ->
+            { input, inputKind, name, candidates ->
                 throw UnknownXmlFieldException(
                     input.locationInfo,
-                    name.toString(),
+                    name?.toString()?:"<CDATA>",
                     candidates
                                                                                                      )
             }
     }
 }
 
-typealias UnknownChildHandler = (input: XmlReader, isAttribute: Boolean, name: QName, candidates: Collection<Any>) -> Unit
+typealias UnknownChildHandler = (input: XmlReader, inputKind: InputKind, name: QName?, candidates: Collection<Any>) -> Unit

@@ -279,6 +279,10 @@ internal open class XmlDecoderBase internal constructor(
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
 
+        /**
+         * Array that records for each child element whether it has been encountered. After processing the entire tag
+         * this array will allow for the remaining tags to be handled as null (or defaulted/optional)
+         */
         private val seenItems = BooleanArray(xmlDescriptor.elementsCount)
 
         private var nulledItemsIdx = -1
@@ -390,13 +394,14 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         open fun indexOf(name: QName, inputType: InputKind): Int {
+            // Two functions that allow matching only if the input kind matches the outputkind of the candidate
+
             fun Int.checkInputType(): Int? {
                 return if(inputType.mapsTo(xmlDescriptor.getElementDescriptor(this))) this else null
             }
 
             fun PolyInfo.checkInputType(): PolyInfo? {
                 return if(inputType.mapsTo(this.descriptor)) this else null
-//                return inputType.mapsTo(xmlDescriptor.getElementDescriptor(this))
             }
 
             val isNameOfAttr = inputType == InputKind.Attribute
@@ -446,7 +451,7 @@ internal open class XmlDecoderBase internal constructor(
             // Hook that will normally throw an exception on an unknown name.
             config.unknownChildHandler(
                 input,
-                isNameOfAttr,
+                inputType,
                 name,
                 (nameMap.keys + polyMap.keys)
                                       )
@@ -460,13 +465,18 @@ internal open class XmlDecoderBase internal constructor(
              * Fully finished when the nulled items returns a DONE value
              */
             if (nulledItemsIdx >= 0) {
-                input.require(EventType.END_ELEMENT, null, null)
+                // This processes all "missing" elements.
+
+                input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
 
                 if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.READ_DONE
-                val i = nulledItemsIdx
-                nextNulledItemsIdx()
-                return i
+
+                return nulledItemsIdx.also {// return the current index, and then move to the next value
+                    nextNulledItemsIdx()
+                }
             }
+
+            // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
             lastAttrIndex++
 
             if (lastAttrIndex >= 0 && lastAttrIndex < input.attributeCount) {
@@ -477,9 +487,11 @@ internal open class XmlDecoderBase internal constructor(
                     name.prefix == XMLConstants.XMLNS_ATTRIBUTE ||
                     (name.prefix.isEmpty() && name.localPart == XMLConstants.XMLNS_ATTRIBUTE)
                 ) {
-                    // Ignore namespace decls
+                    // Ignore namespace decls, just recursively call the function itself
                     decodeElementIndex(descriptor)
                 } else {
+                    // The ifNegative function will recursively call this function if we didn't find it (and the handler
+                    // didn't throw an exception). This allows for ignoring unknown elements.
                     return indexOf(name, InputKind.Attribute).ifNegative { decodeElementIndex(descriptor) }
                 }
             }
@@ -487,19 +499,30 @@ internal open class XmlDecoderBase internal constructor(
 
             for (eventType in input) {
                 if (!eventType.isIgnorable) {
-                    // The android reader doesn't check whitespaceness
 
                     when (eventType) {
                         EventType.END_ELEMENT -> return readElementEnd(descriptor)
+
                         EventType.CDSECT,
                         EventType.TEXT -> {
-                            @Suppress("DEPRECATION")
-                            if (!input.isWhitespace()) return descriptor.getValueChildOrThrow()
+                            // The android reader doesn't check whitespaceness. This code should throw
+                            if (!input.isWhitespace()) {
+
+                                when (val valueChild = descriptor.getValueChild()) {
+                                    -1 -> {
+                                        config.unknownChildHandler(input, InputKind.Text, QName("<CDATA>"), emptyList())
+                                        return decodeElementIndex(descriptor) // if this doesn't throw, recursively continue
+                                    }
+                                    else         -> return valueChild
+                                }
+                            }
                         }
+
                         EventType.ATTRIBUTE -> return indexOf(
                             input.name,
                             InputKind.Attribute
                                                              ).ifNegative { decodeElementIndex(descriptor) }
+
                         EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
                             // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
                             // as a shortcut.
@@ -574,7 +597,7 @@ internal open class XmlDecoderBase internal constructor(
                     ?: throw MissingFieldException("${descriptor.getElementName(index)}:$index")
             }
 
-            return when (descriptor.outputKind(index, null)) {
+            return when (xmlDescriptor.getElementDescriptor(index).outputKind) {
                 OutputKind.Element -> input.readSimpleElement()
                 OutputKind.Mixed,
                 OutputKind.Text -> {

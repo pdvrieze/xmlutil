@@ -78,6 +78,11 @@ interface XmlReader : Closeable, Iterator<EventType> {
         }
     }
 
+    @Throws(XmlException::class)
+    fun require(type: EventType, name: QName?) {
+        return require(type, name?.namespaceURI, name?.localPart)
+    }
+
 
     val depth: Int
 
