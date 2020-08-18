@@ -28,7 +28,7 @@ import kotlinx.serialization.modules.SerialModuleCollector
 import nl.adaptivity.xmlutil.serialization.impl.polyBaseClassName
 import kotlin.reflect.KClass
 
-internal class ChildCollector private constructor(val matcher: Matcher) : SerialModuleCollector {
+internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>) : SerialModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 
     override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
@@ -40,48 +40,18 @@ internal class ChildCollector private constructor(val matcher: Matcher) : Serial
         actualClass: KClass<Sub>,
         actualSerializer: KSerializer<Sub>
                                                      ) {
-        if (matcher(baseClass, actualClass, actualSerializer)) {
+        if (wantedBaseClass == baseClass) {
             children.add(actualSerializer)
         }
     }
 
-    internal interface Matcher {
-        operator fun <Base : Any, Sub : Any> invoke(
-            baseClass: KClass<Base>,
-            actualClass: KClass<Sub>,
-            actualSerializer: KSerializer<Sub>
-                                          ): Boolean
-    }
-
-    private class KlassMatcher(private val baseClass: KClass<*>): Matcher {
-        override operator fun <Base : Any, Sub : Any> invoke(
-            baseClass: KClass<Base>,
-            actualClass: KClass<Sub>,
-            actualSerializer: KSerializer<Sub>
-                                                   ): Boolean {
-            return baseClass==this.baseClass
-        }
-    }
-
-    private class KlassNameMatcher(private val baseClassName: String): Matcher {
-        override operator fun <Base : Any, Sub : Any> invoke(
-            baseClass: KClass<Base>,
-            actualClass: KClass<Sub>,
-            actualSerializer: KSerializer<Sub>
-                                                   ): Boolean {
-            return baseClass.simpleName==baseClassName
-        }
-    }
-
-    companion object {
-        operator fun invoke(baseClass: KClass<*>) = ChildCollector(KlassMatcher(baseClass))
-        operator fun invoke(baseClassName: String) = ChildCollector(KlassNameMatcher(baseClassName))
-    }
-
 }
 
-internal class KClassCollector constructor(val kClassName: String) : SerialModuleCollector {
-    internal var kClass: KClass<*>? = null
+/**
+ * Used by capturedKClass to capture the kClass while we don't have proper capturedClass support.
+ */
+private class KClassCollector constructor(val kClassName: String) : SerialModuleCollector {
+    var kClass: KClass<*>? = null
         private set
 
     override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {
@@ -121,8 +91,7 @@ private val SerialDescriptor.polyBaseClassName: String?
     get() {
         val valueName = getElementDescriptor(1).serialName
         val startIdx = valueName.indexOf('<')
-        if (startIdx>=0 &&
-            valueName.endsWith(">")) {
+        if (startIdx>=0 && valueName.endsWith(">")) {
             return valueName.substring(startIdx + 1, valueName.length - 1)
         } else {
             return null

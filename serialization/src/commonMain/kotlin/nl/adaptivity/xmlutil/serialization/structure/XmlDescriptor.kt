@@ -223,7 +223,7 @@ internal constructor(
 
 sealed class XmlValueDescriptor(
     serializerParent: ParentInfo,
-    internal val xmlCodecBase: XmlCodecBase,
+    private val xmlCodecBase: XmlCodecBase,
     override val tagParent: ParentInfo,
     useNameInfo: NameInfo,
     override val outputKind: OutputKind,
@@ -373,7 +373,6 @@ class XmlPolymorphicDescriptor internal constructor(
                         NameInfo(typeName, qName),
                         outputKind
                                         )
-
 
                 }
             }
