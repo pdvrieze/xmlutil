@@ -137,7 +137,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
-    internal open inner class SerialValueDecoder(
+    private open inner class SerialValueDecoder(
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/
@@ -176,7 +176,7 @@ internal open class XmlDecoderBase internal constructor(
      * Special class that handles null values that are not mere primitives. Nice side-effect is that XmlDefault values
      * are actually parsed as XML and can be complex
      */
-    internal inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
+    private inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
         XmlDecoder(xmlDescriptor), CompositeDecoder {
 
         override fun <T> decodeSerializableElement(
@@ -287,7 +287,7 @@ internal open class XmlDecoderBase internal constructor(
         protected var lastAttrIndex: Int = -1
             private set
 
-        var currentPolyInfo: PolyInfo? = null
+        protected var currentPolyInfo: PolyInfo? = null
 
         init {
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
@@ -318,7 +318,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
-        internal open fun <T> serialElementDecoder(
+        protected open fun <T> serialElementDecoder(
             desc: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
@@ -389,7 +389,7 @@ internal open class XmlDecoderBase internal constructor(
             return result
         }
 
-        open fun indexOf(name: QName, isNameOfAttr: Boolean, inputType: InputKind): Int {
+        open fun indexOf(name: QName, inputType: InputKind): Int {
             fun Int.checkInputType(): Int? {
                 return if(inputType.mapsTo(xmlDescriptor.getElementDescriptor(this))) this else null
             }
@@ -480,7 +480,7 @@ internal open class XmlDecoderBase internal constructor(
                     // Ignore namespace decls
                     decodeElementIndex(descriptor)
                 } else {
-                    return indexOf(name, true, InputKind.Attribute).ifNegative { decodeElementIndex(descriptor) }
+                    return indexOf(name, InputKind.Attribute).ifNegative { decodeElementIndex(descriptor) }
                 }
             }
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
@@ -498,10 +498,9 @@ internal open class XmlDecoderBase internal constructor(
                         }
                         EventType.ATTRIBUTE -> return indexOf(
                             input.name,
-                            true,
                             InputKind.Attribute
                                                              ).ifNegative { decodeElementIndex(descriptor) }
-                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, false, InputKind.Element)) {
+                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
                             // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
                             // as a shortcut.
                             CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
@@ -635,7 +634,17 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
-    internal inner class AnonymousListDecoder(
+    internal data class PolyInfo(
+        val tagName: QName,
+        val index: Int,
+        val descriptor: XmlDescriptor
+                               ) {
+
+        val describedName get() = descriptor.serialDescriptor.serialName
+
+    }
+
+    private inner class AnonymousListDecoder(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlListDescriptor,
         private val polyInfo: PolyInfo?
@@ -743,7 +752,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
-    internal inner class PolymorphicDecoder(
+    private inner class PolymorphicDecoder(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlPolymorphicDescriptor,
         private val polyInfo: PolyInfo?
@@ -794,7 +803,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
 
-        override fun indexOf(name: QName, isNameOfAttr: Boolean, inputType: InputKind): Int {
+        override fun indexOf(name: QName, inputType: InputKind): Int {
             return if (name.namespaceURI == "" && name.localPart == "type") 0 else 1
         }
 

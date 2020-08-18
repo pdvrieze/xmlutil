@@ -592,16 +592,6 @@ fun XmlChildrenName.toQName() = when {
     else                                -> QName(namespace, value, prefix)
 }
 
-internal data class PolyInfo(
-    val tagName: QName,
-    val index: Int,
-    val descriptor: XmlDescriptor
-                            ) {
-
-    val describedName get() = descriptor.serialDescriptor.serialName
-
-}
-
 internal data class PolyBaseInfo(
     val tagName: QName,
     val indexUnused: Int,
