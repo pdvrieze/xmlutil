@@ -134,16 +134,16 @@ sealed class XmlDescriptor(
             val isValue = useAnnotations.firstOrNull<XmlValue>()?.value == true
             val effectiveOutputKind = when (overrideOutputKind) {
                 null             -> when {
-                    isValue -> OutputKind.Text
+                    isValue -> OutputKind.Mixed
                     else    -> tagParent.useOutputKind() ?: serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind)
                 }
-                OutputKind.Mixed -> if (serializerParent.descriptor is XmlListDescriptor) {
-                    OutputKind.Mixed
-                } else when (tagParent.useOutputKind() ?: serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind)) {
-                    OutputKind.Attribute,
-                    OutputKind.Mixed,
-                    OutputKind.Text -> OutputKind.Text
-                    else            -> OutputKind.Element
+                OutputKind.Mixed -> {
+                    if (serializerParent.descriptor is XmlListDescriptor) {
+                        OutputKind.Mixed
+                    } else when (val outputKind = (tagParent.useOutputKind() ?: serialDescriptor.declOutputKind() ?: policy.defaultOutputKind(serialDescriptor.kind))) {
+                        OutputKind.Attribute -> OutputKind.Text
+                        else -> outputKind
+                    }
                 }
                 else             -> overrideOutputKind
 
@@ -255,9 +255,6 @@ class XmlPrimitiveDescriptor internal constructor(
                                                  ) :
     XmlValueDescriptor(serializerParent, xmlCodecBase, tagParent, useNameInfo, outputKind, default) {
 
-    init {
-        assert(outputKind != OutputKind.Mixed) { "It is not valid to have a value of mixed output type" }
-    }
 }
 
 class XmlCompositeDescriptor internal constructor(
