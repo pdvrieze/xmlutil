@@ -48,17 +48,13 @@ internal open class XmlDecoderBase internal constructor(
     internal open inner class XmlDecoder(
         val parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
-        elementIndex: Int,
         val deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlDescriptor,
-        childDesc: SerialDescriptor? = deserializer.descriptor,
         protected val polyInfo: PolyInfo? = null,
         private val attrIndex: Int = -1
                                         ) :
-        XmlCodec<XmlDescriptor>(xmlDescriptor, parentDesc, elementIndex, childDesc), Decoder,
+        XmlCodec<XmlDescriptor>(xmlDescriptor, parentDesc), Decoder,
         XML.XmlInput {
-
-//        override val serialName: QName = parentDesc.requestedName(parentNamespace, elementIndex, childDesc)
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
@@ -150,15 +146,13 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(deserializer)
+            val extDesc = Canary.serialDescriptor(deserializer)
             return deserializer.deserialize(
                 SerialValueDecoder(
                     parentNamespace,
-                    parentDesc,
-                    elementIndex,
+                    xmlDescriptor.tagParent.descriptor.serialDescriptor,
                     deserializer,
                     xmlDescriptor,
-                    extDesc,
                     polyInfo,
                     attrIndex
                                   )
@@ -166,15 +160,12 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> updateSerializableValue(deserializer: DeserializationStrategy<T>, old: T): T {
-            val extDesc = childDesc as? ExtSerialDescriptor ?: Canary.serialDescriptor(deserializer)
             return deserializer.deserialize(
                 SerialValueDecoder(
                     parentNamespace,
-                    parentDesc,
-                    elementIndex,
+                    xmlDescriptor.tagParent.descriptor.serialDescriptor,
                     deserializer,
                     xmlDescriptor,
-                    extDesc,
                     polyInfo,
                     attrIndex
                                   )
@@ -185,31 +176,27 @@ internal open class XmlDecoderBase internal constructor(
     internal open inner class SerialValueDecoder(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
-        elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlDescriptor,
-        private val extDesc: ExtSerialDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/
                                                 ) : XmlDecoder(
         parentNamespace,
         parentDesc,
-        elementIndex,
         deserializer,
         xmlDescriptor,
-        extDesc,
         polyInfo,
         attrIndex
                                                               ) {
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
-            if (extDesc.isNullable) return TagDecoder(
+            if (descriptor.isNullable) return TagDecoder(
                 parentNamespace,
                 deserializer,
                 xmlDescriptor
                                                      )
-            val isMixed = parentDesc.outputKind(elementIndex, descriptor) == OutputKind.Mixed
-            return when (extDesc.kind) {
+            val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
+            return when (descriptor.kind) {
                 is PrimitiveKind
                 -> throw AssertionError("A primitive is not a composite")
 
@@ -232,8 +219,6 @@ internal open class XmlDecoderBase internal constructor(
                     } else {
                         NamedListDecoder(
                             serialName.toNamespace(),
-                            parentDesc,
-                            elementIndex,
                             deserializer,
                             xmlDescriptor
                                         )
@@ -246,8 +231,6 @@ internal open class XmlDecoderBase internal constructor(
                 is PolymorphicKind
                 -> PolymorphicDecoder(
                     serialName.toNamespace(),
-                    parentDesc,
-                    elementIndex,
                     deserializer,
                     xmlDescriptor as XmlPolymorphicDescriptor,
                     polyInfo,
@@ -265,12 +248,10 @@ internal open class XmlDecoderBase internal constructor(
     internal inner class NullDecoder(
         parentNamespace: Namespace,
         parentDesc: SerialDescriptor,
-        elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
-        xmlDescriptor: XmlDescriptor,
-        childDesc: SerialDescriptor? = deserializer.descriptor
+        xmlDescriptor: XmlDescriptor
                                     ) :
-        XmlDecoder(parentNamespace, parentDesc, elementIndex, deserializer, xmlDescriptor, childDesc), CompositeDecoder {
+        XmlDecoder(parentNamespace, parentDesc, deserializer, xmlDescriptor), CompositeDecoder {
 
         override fun decodeNotNullMark() = false
 
@@ -287,11 +268,9 @@ internal open class XmlDecoderBase internal constructor(
                     val decoder = XmlDecoderBase(context, config, CompactFragment(default).getXmlReader())
                         .XmlDecoder(
                             parentNamespace = parentNamespace,
-                            parentDesc = parentDesc,
-                            elementIndex = elementIndex,
+                            parentDesc = xmlDescriptor.tagParent.descriptor.serialDescriptor,
                             deserializer = deserializer,
-                            xmlDescriptor = xmlDescriptor,
-                            childDesc = childDesc
+                            xmlDescriptor = xmlDescriptor
                                    )
                     deserializer.deserialize(decoder)
                 }
@@ -305,7 +284,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun endStructure(descriptor: SerialDescriptor) {}
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            when (childDesc?.kind) {
+            when (descriptor.kind) {
                 // Exception to allow for empty lists. They will read the index even if a 0 size was returned
                 is StructureKind.MAP,
                 is StructureKind.LIST -> return CompositeDecoder.READ_DONE
@@ -520,10 +499,8 @@ internal open class XmlDecoderBase internal constructor(
                                     -> XmlDecoder(
                     parentNamespace,
                     desc,
-                    index,
                     deserializer,
                     childXmlDescriptor,
-                    deserializer.descriptor,
                     currentPolyInfo,
                     lastAttrIndex
                                                  )
@@ -531,10 +508,8 @@ internal open class XmlDecoderBase internal constructor(
                 else                -> SerialValueDecoder(
                     parentNamespace,
                     desc,
-                    index,
                     deserializer,
                     childXmlDescriptor,
-                    Canary.serialDescriptor(deserializer),
                     currentPolyInfo,
                     lastAttrIndex
                                                          )
@@ -550,7 +525,6 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: NullDecoder(
                 parentNamespace,
                 descriptor,
-                index,
                 deserializer,
                 childXmlDescriptor
                                                                                               )
@@ -582,7 +556,6 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: NullDecoder(
                 parentNamespace,
                 descriptor,
-                index,
                 deserializer,
                 childXmlDescriptor
                                                                                               )
@@ -870,13 +843,11 @@ internal open class XmlDecoderBase internal constructor(
                 SerialValueDecoder(
                     parentNamespace,
                     parentDesc,
-                    elementIndex,
                     deserializer,
                     childXmlDescriptor,
-                    Canary.serialDescriptor(deserializer),
                     polyInfo,
                     Int.MIN_VALUE
-                              )
+                                  )
             return deserializer.deserialize(decoder)
         }
 
@@ -889,13 +860,11 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
 
             val decoder = SerialValueDecoder(
-                parentNamespace, descriptor, index,
-                deserializer,
+                parentNamespace, descriptor, deserializer,
                 childXmlDescriptor,
-                Canary.serialDescriptor(deserializer),
                 polyInfo,
                 Int.MIN_VALUE
-                                        )
+                                            )
             return deserializer.patch(decoder, old)
         }
 
@@ -910,8 +879,6 @@ internal open class XmlDecoderBase internal constructor(
 
     internal inner class NamedListDecoder(
         parentNamespace: Namespace,
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlListDescriptor
                                          ) :
@@ -936,13 +903,11 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(0, deserializer)
             val decoder =
                 SerialValueDecoder(
-                    serialName.toNamespace(), descriptor, 0,
-                    deserializer,
+                    serialName.toNamespace(), descriptor, deserializer,
                     childXmlDescriptor,
-                    Canary.serialDescriptor(deserializer),
                     super.currentPolyInfo,
                     super.lastAttrIndex
-                              )
+                                  )
             return deserializer.deserialize(decoder)
         }
 
@@ -955,21 +920,17 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
             val decoder =
                 SerialValueDecoder(
-                    serialName.toNamespace(), descriptor, index,
-                    deserializer,
+                    serialName.toNamespace(), descriptor, deserializer,
                     childXmlDescriptor,
-                    Canary.serialDescriptor(deserializer),
                     super.currentPolyInfo,
                     super.lastAttrIndex
-                              )
+                                  )
             return deserializer.patch(decoder, old)
         }
     }
 
     internal inner class PolymorphicDecoder(
         parentNamespace: Namespace,
-        parentDesc: SerialDescriptor,
-        elementIndex: Int,
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlPolymorphicDescriptor,
         private val polyInfo: PolyInfo?,
@@ -1032,13 +993,11 @@ internal open class XmlDecoderBase internal constructor(
             return SerialValueDecoder(
                 parentNamespace,
                 desc,
-                index,
                 deserializer,
                 childXmlDescriptor,
-                Canary.serialDescriptor(deserializer),
                 currentPolyInfo,
                 lastAttrIndex
-                                 )
+                                     )
         }
 
         override fun <T> decodeSerializableElement(
@@ -1057,10 +1016,8 @@ internal open class XmlDecoderBase internal constructor(
                     XmlDecoder(
                         parentNamespace,
                         parentDesc,
-                        elementIndex,
                         deserializer,
-                        childXmlDescriptor,
-                        descriptor
+                        childXmlDescriptor
                               )
                                                )
             } else {

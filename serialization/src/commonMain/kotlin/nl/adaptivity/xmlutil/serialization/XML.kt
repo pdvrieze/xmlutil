@@ -26,7 +26,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
-import nl.adaptivity.xmlutil.serialization.structure.ParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -319,10 +318,8 @@ class XML(
         val decoder = xmlDecoderBase.XmlDecoder(
             XmlEvent.NamespaceImpl("", ""),
             rootDescriptor.serialDescriptor,
-            0,
             deserializer,
-            rootDescriptor.getElementDescriptor(0),
-            serialDescriptor
+            rootDescriptor.getElementDescriptor(0)
                                                )
         return decoder.decodeSerializableValue(deserializer)
     }

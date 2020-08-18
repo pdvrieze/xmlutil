@@ -343,11 +343,8 @@ internal abstract class XmlCodecBase internal constructor(
 
     abstract inner class XmlCodec<out D : XmlDescriptor>(
         protected val xmlDescriptor: D,
-        protected val parentDesc: SerialDescriptor,
-        protected val elementIndex: Int,
-        protected val childDesc: SerialDescriptor?
+        protected val parentDesc: SerialDescriptor
                                                         ) {
-
         val serialName: QName get() = xmlDescriptor.tagName
     }
 
