@@ -22,14 +22,12 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.UnitSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
-import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
 internal open class XmlDecoderBase internal constructor(
@@ -54,8 +52,6 @@ internal open class XmlDecoderBase internal constructor(
         private val attrIndex: Int = -1
                                         ) :
         XmlCodec<XmlDescriptor>(xmlDescriptor), Decoder, XML.XmlInput {
-
-        val deserializer = String.serializer()
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
@@ -753,15 +749,12 @@ internal open class XmlDecoderBase internal constructor(
 
         private var nextIndex = 0
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            if (xmlDescriptor.isTransparent) {
-                return when (nextIndex) {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int = when {
+            xmlDescriptor.isTransparent -> when (nextIndex) {
                     0, 1 -> nextIndex++
                     else -> CompositeDecoder.READ_DONE
                 }
-            } else {
-                return super.decodeElementIndex(descriptor)
-            }
+            else                        -> super.decodeElementIndex(descriptor)
         }
 
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
@@ -778,26 +771,22 @@ internal open class XmlDecoderBase internal constructor(
 
                     isMixed && (input.eventType == EventType.TEXT ||
                             input.eventType == EventType.CDSECT)
-                                     -> "kotlin.String" // hardcode handling text input polymorphically
+                                                 -> "kotlin.String" // hardcode handling text input polymorphically
 
-                    polyInfo == null -> error("PolyInfo is null for a transparent polymorphic decoder")
+                    polyInfo == null             -> error("PolyInfo is null for a transparent polymorphic decoder")
 
-                    else             -> polyInfo.describedName
+                    else                         -> polyInfo.describedName
                 }
 
                 else -> when { // In a mixed context, pure text content doesn't need a wrapper
                     !xmlDescriptor.isTransparent ->
                         throw XmlSerialException("NonTransparent polymorphic values cannot have text content only")
 
-                    isMixed -> input.consecutiveTextContent()
+                    isMixed                      -> input.consecutiveTextContent()
 
-                    else    -> super.decodeStringElement(descriptor, index)
+                    else                         -> super.decodeStringElement(descriptor, index)
                 }
             }
-        }
-
-        override fun indexOf(name: QName, inputType: InputKind): Int {
-            return super.indexOf(name, inputType)
         }
 
         override fun <T> serialElementDecoder(
@@ -826,11 +815,7 @@ internal open class XmlDecoderBase internal constructor(
 
             if (isMixed && deserializer.descriptor.kind is PrimitiveKind) {
                 val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
-                return deserializer.deserialize(
-                    XmlDecoder(
-                        childXmlDescriptor
-                              )
-                                               )
+                return deserializer.deserialize(XmlDecoder(childXmlDescriptor))
             } else {
                 return super.decodeSerializableElement(descriptor, index, deserializer)
             }
@@ -868,7 +853,5 @@ internal open class XmlDecoderBase internal constructor(
     }
 
 }
-
-inline fun Int.ifNegative(body: () -> Int) = if (this >= 0) this else body()
 
 private inline fun Int.ifUnknown(body: () -> Int) = if (this != CompositeDecoder.UNKNOWN_NAME) this else body()
