@@ -72,7 +72,7 @@ sealed class XmlDescriptor(
         xmlCodecBase.config.policy.effectiveName(
             serialDescriptor.kind,
             outputKind,
-            tagParent.parentNamespace(),
+            tagParent.descriptor,
             useNameInfo,
             typeDescriptor.typeNameInfo
                                                 )
@@ -298,15 +298,15 @@ class XmlPolymorphicDescriptor internal constructor(
                       ) {
 
     // xmlPolyChildren and sealed also leads to a transparent polymorphic
-    val transparent = xmlCodecBase.config.autoPolymorphic || xmlPolyChildren != null
+    val isTransparent = xmlCodecBase.config.autoPolymorphic || xmlPolyChildren != null
 
     val parentSerialName = tagParent.descriptor.serialDescriptor.serialName
 
     val polyInfo: Map<String, XmlDescriptor> = mutableMapOf<String, XmlDescriptor>().also { map ->
 
         val qName = when {
-            transparent -> null
-            else        -> QName("value")
+            isTransparent -> null
+            else          -> QName("value")
         }
         val parentDesc = serializerParent.descriptor
 
@@ -391,8 +391,10 @@ class XmlPolymorphicDescriptor internal constructor(
     private val children by run {
         lazy {
             List<XmlDescriptor>(elementsCount) { index ->
+                val parent = ParentInfo(this, index)
                 from(
-                    ParentInfo(this, index), xmlCodecBase, tagParent,
+                    parent,
+                    xmlCodecBase,
                     overrideOutputKind = if (index == 0) OutputKind.Attribute else OutputKind.Element // make this an element
                     )
             }

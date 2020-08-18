@@ -311,13 +311,13 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun writeBegin() {
             // Don't write a tag if we are transparent
-            if (!xmlDescriptor.transparent) super.writeBegin()
+            if (!xmlDescriptor.isTransparent) super.writeBegin()
         }
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             when {
-                index == 0                -> {
-                    if (!xmlDescriptor.transparent) {
+                index == 0                  -> {
+                    if (!xmlDescriptor.isTransparent) {
                         val childDesc = xmlDescriptor.getElementDescriptor(0)
                         assert(xmlDescriptor.parentSerialName == parentDesc.serialName) {
                             "parentSerialName ('${xmlDescriptor.parentSerialName}') should match the one in the encoder: '${parentDesc.serialName}'"
@@ -333,13 +333,13 @@ internal open class XmlEncoderBase internal constructor(
                         }
                     } // else if (index == 0) { } // do nothing
                 }
-                xmlDescriptor.transparent -> {
+                xmlDescriptor.isTransparent -> {
                     when {
                         isMixed -> target.text(value)
                         else    -> target.smartStartTag(serialName) { text(value) }
                     }
                 }
-                else                      -> super.encodeStringElement(descriptor, index, value)
+                else                        -> super.encodeStringElement(descriptor, index, value)
             }
         }
 
@@ -356,7 +356,7 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Don't write anything if we're transparent
-            if (!xmlDescriptor.transparent) {
+            if (!xmlDescriptor.isTransparent) {
                 super.endStructure(descriptor)
             }
         }

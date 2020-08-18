@@ -21,9 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.toQname
+import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
 interface XmlSerializationPolicy {
 /*
@@ -53,10 +52,11 @@ interface XmlSerializationPolicy {
     fun effectiveName(
         serialKind: SerialKind,
         outputKind: OutputKind,
-        parentNamespace: Namespace,
+        tagParent: XmlDescriptor,
         useName: NameInfo,
-        declName: NameInfo
-                     ): QName
+        declName: NameInfo,
+        parentNamespace: Namespace = tagParent.tagName.toNamespace()
+                               ): QName
 
     fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName
 
@@ -97,20 +97,26 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
     override fun effectiveName(
         serialKind: SerialKind,
         outputKind: OutputKind,
-        parentNamespace: Namespace,
+        tagParent: XmlDescriptor,
         useName: XmlSerializationPolicy.NameInfo,
-        declName: XmlSerializationPolicy.NameInfo
+        declName: XmlSerializationPolicy.NameInfo,
+        parentNamespace: Namespace
                               ): QName {
         return when {
             useName.annotatedName != null      -> useName.annotatedName
+
             outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
+
             serialKind is PrimitiveKind ||
             serialKind == StructureKind.MAP ||
             serialKind == StructureKind.LIST ||
             serialKind == PolymorphicKind.OPEN ||
-            declName.serialName=="kotlin.Unit" // Unit needs a special case
+            declName.serialName=="kotlin.Unit" || // Unit needs a special case
+            tagParent.serialKind is PolymorphicKind // child of explict polymorphic uses predefined names
             -> serialNameToQName(useName.serialName, parentNamespace)
+
             declName.annotatedName != null -> declName.annotatedName
+
             else -> serialNameToQName(declName.serialName, parentNamespace)
         }
     }

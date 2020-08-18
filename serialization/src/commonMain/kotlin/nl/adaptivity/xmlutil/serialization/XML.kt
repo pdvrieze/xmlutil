@@ -614,7 +614,7 @@ internal fun SerialDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
         if (getElementAnnotations(i).any { it is XmlValue }) return i
     }
-    return -1
+    return CompositeDecoder.UNKNOWN_NAME
 }
 
 @Deprecated("Use index version that returns -1 for missing child")
