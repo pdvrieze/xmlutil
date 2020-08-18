@@ -52,7 +52,7 @@ internal open class XmlEncoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         childDesc: SerialDescriptor? = serializier.descriptor
                                         ) :
-        XmlCodec<XmlDescriptor>(xmlDescriptor, parentDesc), Encoder, XML.XmlOutput {
+        XmlCodec<XmlDescriptor>(xmlDescriptor), Encoder, XML.XmlOutput {
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 

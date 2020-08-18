@@ -152,7 +152,7 @@ internal abstract class XmlCodecBase internal constructor(
             QName(ns, localPart, prefix)
         }
 
-        return PolyInfo(typename, name, itemIdx, descriptor)
+        return PolyInfo(name, itemIdx, descriptor)
     }
 
 
@@ -342,8 +342,7 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     abstract inner class XmlCodec<out D : XmlDescriptor>(
-        protected val xmlDescriptor: D,
-        protected val parentDesc: SerialDescriptor
+        protected val xmlDescriptor: D
                                                         ) {
         val serialName: QName get() = xmlDescriptor.tagName
     }

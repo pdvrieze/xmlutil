@@ -316,8 +316,6 @@ class XML(
         val rootDescriptor = XmlRootDescriptor(serialName, serialDescriptor, xmlDecoderBase)
 
         val decoder = xmlDecoderBase.XmlDecoder(
-            XmlEvent.NamespaceImpl("", ""),
-            rootDescriptor.serialDescriptor,
             deserializer,
             rootDescriptor.getElementDescriptor(0)
                                                )
@@ -572,35 +570,21 @@ fun XmlChildrenName.toQName() = when {
 }
 
 internal data class PolyInfo(
-    val describedName: String,
     val tagName: QName,
     val index: Int,
-    val descriptor: SerialDescriptor,
-    val serializer: SerializationStrategy<*>? = null,
-    val deserializer: DeserializationStrategy<*>? = serializer as? DeserializationStrategy<*>
+    val descriptor: SerialDescriptor
                             ) {
 
-    constructor(
-        describedName: String,
-        tagName: QName,
-        index: Int,
-        serializer: SerializationStrategy<*>,
-        deserializer: DeserializationStrategy<*>? = serializer as? DeserializationStrategy<*>
-               ): this (describedName, tagName, index, serializer.descriptor, serializer, deserializer)
+    val describedName get() = descriptor.serialName
 
+/*
     constructor(
         describedName: String,
         tagName: QName,
         index: Int,
-        deserializer: DeserializationStrategy<*>
-               ): this (describedName, tagName, index, deserializer.descriptor, deserializer as? SerializationStrategy<*>, deserializer)
-
-    constructor(
-        describedName: String,
-        tagName: QName,
-        index: Int,
-        serializer: KSerializer<*>
-               ): this(describedName, tagName, index, serializer.descriptor, serializer, serializer)
+        descriptor: SerialDescriptor
+               ): this (tagName, index, descriptor)
+*/
 
 }
 

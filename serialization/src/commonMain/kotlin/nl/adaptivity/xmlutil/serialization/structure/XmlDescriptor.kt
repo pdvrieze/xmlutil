@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.*
-import nl.adaptivity.serialutil.impl.assert
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
@@ -335,7 +334,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     val polyParentDescriptor = XmlPolymorphicParentDescriptor(
                         childInfo.descriptor,
                         xmlCodecBase,
-                        NameInfo(childInfo.describedName, childInfo.tagName)
+                        NameInfo(typeName, childInfo.tagName)
                                                                              )
                     val parentInfo = ParentInfo(polyParentDescriptor, -1)
 
@@ -343,7 +342,7 @@ class XmlPolymorphicDescriptor internal constructor(
                         parentInfo,
                         xmlCodecBase,
                         tagParent,
-                        NameInfo(childInfo.describedName, childInfo.tagName),
+                        NameInfo(typeName, childInfo.tagName),
                         outputKind
                                         )
                 }
