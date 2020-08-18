@@ -26,7 +26,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.canary.Canary
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -154,7 +153,7 @@ internal open class XmlEncoderBase internal constructor(
         xmlDescriptor: D,
         private var deferring: Boolean = true
                                                            ) :
-        XmlTagCodec<D>(Canary.serialDescriptor(serializer), xmlDescriptor), CompositeEncoder, XML.XmlOutput {
+        XmlTagCodec<D>(xmlDescriptor), CompositeEncoder, XML.XmlOutput {
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext

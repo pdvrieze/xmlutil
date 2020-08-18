@@ -21,12 +21,11 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.UnitSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.canary.*
-import nl.adaptivity.xmlutil.serialization.canary.PolymorphicParentDescriptor
-import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -45,14 +44,20 @@ internal open class XmlDecoderBase internal constructor(
 
     override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
+    /**
+     * @param xmlDescriptor The descriptor for the value that this decoder should decode
+     * @property polyInfo If this was instantiated due to a polymorphic match, this property holds that information
+     * @property attrIndex If this was instantiated to deserialize an attribute this parameter determines which
+     *                     attribute it deserialize (index into the attribute list of the containing tag)
+     */
     internal open inner class XmlDecoder(
-        val deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlDescriptor,
         protected val polyInfo: PolyInfo? = null,
         private val attrIndex: Int = -1
                                         ) :
-        XmlCodec<XmlDescriptor>(xmlDescriptor), Decoder,
-        XML.XmlInput {
+        XmlCodec<XmlDescriptor>(xmlDescriptor), Decoder, XML.XmlInput {
+
+        val deserializer = String.serializer()
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
@@ -71,50 +76,32 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeUnit() {
-            val position = input.locationInfo
-            val stringContent = decodeStringImpl(true)
-            if (stringContent != "kotlin.Unit")
-                throw XmlParsingException(position, "Did not find kotlin.Unit where expected $stringContent")
+            UnitSerializer().deserialize(this)
         }
 
-        override fun decodeBoolean(): Boolean = decodeStringImpl(true).toBoolean()
+        override fun decodeBoolean(): Boolean = decodeStringImpl().toBoolean()
 
-        override fun decodeByte(): Byte = decodeStringImpl(true).toByte()
+        override fun decodeByte(): Byte = decodeStringImpl().toByte()
 
-        override fun decodeShort(): Short {
-            return decodeStringImpl(true).toShort()
-        }
+        override fun decodeShort(): Short = decodeStringImpl().toShort()
 
-        override fun decodeInt(): Int {
-            return decodeStringImpl(true).toInt()
-        }
+        override fun decodeInt(): Int = decodeStringImpl().toInt()
 
-        override fun decodeLong(): Long {
-            return decodeStringImpl(true).toLong()
-        }
+        override fun decodeLong(): Long = decodeStringImpl().toLong()
 
-        override fun decodeFloat(): Float {
-            return decodeStringImpl(true).toFloat()
-        }
+        override fun decodeFloat(): Float = decodeStringImpl().toFloat()
 
-        override fun decodeDouble(): Double {
-            return decodeStringImpl(true).toDouble()
-        }
+        override fun decodeDouble(): Double = decodeStringImpl().toDouble()
 
-        override fun decodeChar(): Char {
-            return decodeStringImpl(true).single()
-        }
+        override fun decodeChar(): Char = decodeStringImpl().single()
 
-        override fun decodeString(): String {
-            return decodeStringImpl(false)
-        }
+        override fun decodeString(): String = decodeStringImpl(false)
 
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-            val name = decodeString()
-            return enumDescriptor.getElementIndex(name)
+            return enumDescriptor.getElementIndex(decodeStringImpl())
         }
 
-        private fun decodeStringImpl(defaultOverEmpty: Boolean): String {
+        private fun decodeStringImpl(defaultOverEmpty: Boolean = true): String {
             val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
             val descOutputKind = xmlDescriptor.outputKind
 
@@ -144,36 +131,19 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val extDesc = Canary.serialDescriptor(deserializer)
-            return deserializer.deserialize(
-                SerialValueDecoder(
-                    deserializer,
-                    xmlDescriptor,
-                    polyInfo,
-                    attrIndex
-                                  )
-                                           )
+            return deserializer.deserialize(SerialValueDecoder(xmlDescriptor, polyInfo, attrIndex))
         }
 
         override fun <T> updateSerializableValue(deserializer: DeserializationStrategy<T>, old: T): T {
-            return deserializer.deserialize(
-                SerialValueDecoder(
-                    deserializer,
-                    xmlDescriptor,
-                    polyInfo,
-                    attrIndex
-                                  )
-                                           )
+            return deserializer.deserialize(SerialValueDecoder(xmlDescriptor, polyInfo, attrIndex))
         }
     }
 
     internal open inner class SerialValueDecoder(
-        deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/
                                                 ) : XmlDecoder(
-        deserializer,
         xmlDescriptor,
         polyInfo,
         attrIndex
@@ -183,37 +153,28 @@ internal open class XmlDecoderBase internal constructor(
             if (descriptor.isNullable) return TagDecoder(deserializer, xmlDescriptor)
 
             val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
-            return when (xmlDescriptor.kind) {
-                is PrimitiveKind
+            return when {
+                xmlDescriptor.kind is PrimitiveKind
                 -> throw AssertionError("A primitive is not a composite")
 
-                // TODO see if contextual can do polymorphism
-                UnionKind.CONTEXTUAL, // Treat contextual like a dumb type.
-                StructureKind.MAP,
-                StructureKind.CLASS
-                -> TagDecoder(deserializer, xmlDescriptor)
+                xmlDescriptor is XmlPolymorphicDescriptor
+                -> PolymorphicDecoder(
+                    deserializer,
+                    xmlDescriptor,
+                    polyInfo,
+                    isMixed
+                                     )
 
-                StructureKind.LIST
+                xmlDescriptor is XmlListDescriptor
                 -> {
-                    val xmlDescriptor = xmlDescriptor as XmlListDescriptor
                     if (xmlDescriptor.isAnonymous) {
                         AnonymousListDecoder(deserializer, polyInfo, xmlDescriptor)
                     } else {
                         NamedListDecoder(deserializer, xmlDescriptor)
                     }
                 }
-                StructureKind.OBJECT,
-                UnionKind.ENUM_KIND
-                -> TagDecoder(deserializer, xmlDescriptor)
 
-                is PolymorphicKind
-                -> PolymorphicDecoder(
-                    serialName.toNamespace(),
-                    deserializer,
-                    xmlDescriptor as XmlPolymorphicDescriptor,
-                    polyInfo,
-                    isMixed
-                                     )
+                else -> TagDecoder(deserializer, xmlDescriptor)
             }
         }
 
@@ -227,7 +188,7 @@ internal open class XmlDecoderBase internal constructor(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlDescriptor
                                     ) :
-        XmlDecoder(deserializer, xmlDescriptor), CompositeDecoder {
+        XmlDecoder(xmlDescriptor), CompositeDecoder {
 
         override fun decodeNotNullMark() = false
 
@@ -243,7 +204,6 @@ internal open class XmlDecoderBase internal constructor(
                 else -> {
                     val decoder = XmlDecoderBase(context, config, CompactFragment(default).getXmlReader())
                         .XmlDecoder(
-                            deserializer = deserializer,
                             xmlDescriptor = xmlDescriptor
                                    )
                     deserializer.deserialize(decoder)
@@ -330,7 +290,7 @@ internal open class XmlDecoderBase internal constructor(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: D
                                                           ) :
-        XmlTagCodec<D>(Canary.serialDescriptor(deserializer), xmlDescriptor),
+        XmlTagCodec<D>(xmlDescriptor),
         CompositeDecoder,
         XML.XmlInput {
 
@@ -353,7 +313,6 @@ internal open class XmlDecoderBase internal constructor(
             val serialName = xmlDescriptor.tagName
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
             val nameMap: MutableMap<QName, Int> = mutableMapOf()
-            val desc = this.desc as ExtSerialDescriptor
 
             for (idx in 0 until xmlDescriptor.elementsCount) {
                 var child = xmlDescriptor.getElementDescriptor(idx)
@@ -388,14 +347,12 @@ internal open class XmlDecoderBase internal constructor(
                 nulledItemsIdx >= 0 -> null
                 deserializer.descriptor.kind is PrimitiveKind
                                     -> XmlDecoder(
-                    deserializer,
                     childXmlDescriptor,
                     currentPolyInfo,
                     lastAttrIndex
                                                  )
 
                 else                -> SerialValueDecoder(
-                    deserializer,
                     childXmlDescriptor,
                     currentPolyInfo,
                     lastAttrIndex
@@ -731,7 +688,6 @@ internal open class XmlDecoderBase internal constructor(
 
             val decoder =
                 SerialValueDecoder(
-                    deserializer,
                     childXmlDescriptor,
                     polyInfo,
                     Int.MIN_VALUE
@@ -748,8 +704,7 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
 
             val decoder = SerialValueDecoder(
-                deserializer, childXmlDescriptor, polyInfo,
-                Int.MIN_VALUE
+                childXmlDescriptor, polyInfo, Int.MIN_VALUE
                                             )
             return deserializer.patch(decoder, old)
         }
@@ -788,8 +743,7 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(0, deserializer)
             val decoder =
                 SerialValueDecoder(
-                    deserializer, childXmlDescriptor, super.currentPolyInfo,
-                    super.lastAttrIndex
+                    childXmlDescriptor, super.currentPolyInfo, super.lastAttrIndex
                                   )
             return deserializer.deserialize(decoder)
         }
@@ -803,15 +757,13 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
             val decoder =
                 SerialValueDecoder(
-                    deserializer, childXmlDescriptor, super.currentPolyInfo,
-                    super.lastAttrIndex
+                    childXmlDescriptor, super.currentPolyInfo, super.lastAttrIndex
                                   )
             return deserializer.patch(decoder, old)
         }
     }
 
     internal inner class PolymorphicDecoder(
-        parentNamespace: Namespace,
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlPolymorphicDescriptor,
         private val polyInfo: PolyInfo?,
@@ -872,7 +824,6 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getChildDescriptor(index, deserializer)
 
             return SerialValueDecoder(
-                deserializer,
                 childXmlDescriptor,
                 currentPolyInfo,
                 lastAttrIndex
@@ -893,7 +844,6 @@ internal open class XmlDecoderBase internal constructor(
                 val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
                 return deserializer.deserialize(
                     XmlDecoder(
-                        deserializer,
                         childXmlDescriptor
                               )
                                                )

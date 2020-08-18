@@ -316,7 +316,6 @@ class XML(
         val rootDescriptor = XmlRootDescriptor(serialName, serialDescriptor, xmlDecoderBase)
 
         val decoder = xmlDecoderBase.XmlDecoder(
-            deserializer,
             rootDescriptor.getElementDescriptor(0)
                                                )
         return decoder.decodeSerializableValue(deserializer)
