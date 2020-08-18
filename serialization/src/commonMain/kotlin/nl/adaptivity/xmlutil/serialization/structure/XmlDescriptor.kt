@@ -315,7 +315,7 @@ class XmlPolymorphicDescriptor internal constructor(
 
     val parentSerialName = tagParent.descriptor.serialDescriptor.serialName
 
-    private val polyInfo: Map<String, XmlDescriptor> = mutableMapOf<String, XmlDescriptor>().also { map ->
+    val polyInfo: Map<String, XmlDescriptor> = mutableMapOf<String, XmlDescriptor>().also { map ->
 
         val qName = when {
             transparent -> null

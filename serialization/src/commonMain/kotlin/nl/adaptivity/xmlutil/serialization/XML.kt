@@ -577,14 +577,11 @@ internal data class PolyInfo(
 
     val describedName get() = descriptor.serialName
 
-/*
     constructor(
-        describedName: String,
         tagName: QName,
         index: Int,
-        descriptor: SerialDescriptor
-               ): this (tagName, index, descriptor)
-*/
+        descriptor: XmlDescriptor
+               ): this (tagName, index, descriptor.serialDescriptor)
 
 }
 
