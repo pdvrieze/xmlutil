@@ -23,8 +23,6 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.canary.ExtSerialDescriptor
-import nl.adaptivity.xmlutil.serialization.impl.getPolymorphic
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
@@ -40,67 +38,10 @@ internal abstract class XmlCodecBase internal constructor(
      * Determine the polymorphic tag name for a particular element.
      */
     fun polyTagName(
-        parentDesc: SerialDescriptor,
-        parentTag: QName,
-        polyChild: String,
-        itemIdx: Int,
-        baseClass: KClass<*>
-                   ): PolyInfo {
-        return polyTagNameCommon(parentDesc, parentTag, polyChild, itemIdx) { childName ->
-            getPolymorphic(baseClass, childName)
-        }
-    }
-
-    /**
-     * Determine the polymorphic tag name for a particular element.
-     */
-    fun polyTagName(
         parent: XmlSerializationPolicy.NameInfo,
         polyChild: String,
-        itemIdx: Int,
         baseClass: KClass<*>
-                   ): PolyInfo {
-        return polyTagNameCommon(parent, polyChild, itemIdx) { childName ->
-            getPolymorphic(baseClass, childName)
-        }
-    }
-
-    /**
-     * Determine the polymorphic tag name for a particular element.
-     */
-    fun polyTagName(
-        parentDesc: SerialDescriptor,
-        parentTag: QName,
-        polyChild: String,
-        itemIdx: Int,
-        baseClassName: String
-                   ): PolyInfo {
-        return polyTagNameCommon(parentDesc, parentTag, polyChild, itemIdx) { childName ->
-            getPolymorphic(baseClassName, childName)
-        }
-    }
-
-    private fun polyTagNameCommon(
-        parentDesc: SerialDescriptor,
-        parentTag: QName,
-        polyChild: String,
-        itemIdx: Int,
-        getPolymorphic: SerialModule.(String) -> KSerializer<*>?
-                                 ): PolyInfo {
-        return polyTagNameCommon(
-            XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag),
-            polyChild,
-            itemIdx,
-            getPolymorphic
-                                )
-    }
-
-    private fun polyTagNameCommon(
-        parent: XmlSerializationPolicy.NameInfo,
-        polyChild: String,
-        itemIdx: Int,
-        getPolymorphic: SerialModule.(String) -> KSerializer<*>?
-                                 ): PolyInfo {
+                   ): PolyBaseInfo {
         val currentPkg = parent.serialName.substringBeforeLast('.', "")
         val parentTag = parent.annotatedName!!
         val eqPos = polyChild.indexOf('=')
@@ -109,7 +50,6 @@ internal abstract class XmlCodecBase internal constructor(
         val typeNameBase: String
         val prefix: String
         val localPart: String
-
         if (eqPos < 0) {
             typeNameBase = polyChild
             pkgPos = polyChild.lastIndexOf('.')
@@ -129,18 +69,15 @@ internal abstract class XmlCodecBase internal constructor(
                 localPart = polyChild.substring(prefPos + 1).trim()
             }
         }
-
         val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
             ?: parentTag.namespaceURI else parentTag.namespaceURI
-
         val typename = when {
             pkgPos != 0 || currentPkg.isEmpty()
                  -> typeNameBase
 
             else -> "$currentPkg.${typeNameBase.substring(1)}"
         }
-
-        val descriptor = context.getPolymorphic(typename)?.descriptor
+        val descriptor = context.getPolymorphic(baseClass, typename)?.descriptor
             ?: throw XmlException("Missing descriptor for $typename in the serial context")
         val name: QName = if (eqPos < 0) {
             descriptor
@@ -151,40 +88,7 @@ internal abstract class XmlCodecBase internal constructor(
         } else {
             QName(ns, localPart, prefix)
         }
-
-        return PolyInfo(name, itemIdx, descriptor)
-    }
-
-
-    /**
-     * Given a parent tag, record all polymorphic children.
-     */
-    fun polyInfo(
-        parentDesc: SerialDescriptor,
-        parentTag: QName,
-        polyChildren: Array<String>,
-        baseClass: KClass<*>
-                ): XmlNameMap {
-        return polyInfo(XmlSerializationPolicy.NameInfo(parentDesc.serialName, parentTag), polyChildren, baseClass)
-    }
-
-    /**
-     * Given a parent tag, record all polymorphic children.
-     */
-    fun polyInfo(
-        parent: XmlSerializationPolicy.NameInfo,
-        polyChildren: Array<String>,
-        baseClass: KClass<*>
-                ): XmlNameMap {
-        val result = XmlNameMap()
-
-        for (polyChild in polyChildren) {
-            val polyInfo = polyTagName(parent, polyChild, -1, baseClass)
-
-            result.registerClass(polyInfo.tagName, polyInfo.describedName, polyChild.indexOf('=') >= 0)
-        }
-
-        return result
+        return PolyBaseInfo(name, -1, descriptor)
     }
 
 
@@ -359,6 +263,7 @@ internal abstract class XmlCodecBase internal constructor(
 
         abstract val namespaceContext: NamespaceContext
 
+        // TODO it is not clear that the handling of empty namespace is correct
         internal fun QName.normalize(): QName {
             return when {
                 namespaceURI.isEmpty() -> copy(

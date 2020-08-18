@@ -554,33 +554,61 @@ class XML(
 
 }
 
-enum class OutputKind { Element, Attribute, Text, Mixed; }
+enum class OutputKind {
+    Element, Attribute, Text, Mixed;
+}
+
+enum class InputKind {
+    Element {
+        override fun mapsTo(outputKind: OutputKind): Boolean {
+            return outputKind == OutputKind.Element// || outputKind == OutputKind.Mixed
+        }
+    },
+    Attribute {
+        override fun mapsTo(outputKind: OutputKind): Boolean = outputKind == OutputKind.Attribute
+    },
+    Text {
+        override fun mapsTo(outputKind: OutputKind): Boolean {
+            return outputKind == OutputKind.Text// || outputKind == OutputKind.Mixed
+        }
+    };
+
+    fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean {
+        return mapsTo(xmlDescriptor.outputKind)
+    }
+
+    abstract fun mapsTo(outputKind: OutputKind): Boolean
+}
 
 fun XmlSerialName.toQName() = when {
     namespace == UNSET_ANNOTATION_VALUE -> QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
-    else               -> QName(namespace, value, prefix)
+    prefix == UNSET_ANNOTATION_VALUE    -> QName(namespace, value)
+    else                                -> QName(namespace, value, prefix)
 }
 
 fun XmlChildrenName.toQName() = when {
     namespace == UNSET_ANNOTATION_VALUE -> QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
-    else               -> QName(namespace, value, prefix)
+    prefix == UNSET_ANNOTATION_VALUE    -> QName(namespace, value)
+    else                                -> QName(namespace, value, prefix)
 }
 
 internal data class PolyInfo(
     val tagName: QName,
     val index: Int,
+    val descriptor: XmlDescriptor
+                            ) {
+
+    val describedName get() = descriptor.serialDescriptor.serialName
+
+}
+
+internal data class PolyBaseInfo(
+    val tagName: QName,
+    val indexUnused: Int,
     val descriptor: SerialDescriptor
                             ) {
 
     val describedName get() = descriptor.serialName
-
-    constructor(
-        tagName: QName,
-        index: Int,
-        descriptor: XmlDescriptor
-               ): this (tagName, index, descriptor.serialDescriptor)
 
 }
 

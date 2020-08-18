@@ -89,18 +89,6 @@ sealed class XmlDescriptor(
         throw IndexOutOfBoundsException("There are no children")
     }
 
-    open fun getChildDescriptor(index: Int, serializer: SerializationStrategy<*>): XmlDescriptor {
-        return getElementDescriptor(index)
-    }
-
-    open fun getChildDescriptor(index: Int, serializer: KSerializer<*>): XmlDescriptor {
-        return getElementDescriptor(index)
-    }
-
-    open fun getChildDescriptor(index: Int, deserializer: DeserializationStrategy<*>): XmlDescriptor {
-        return getElementDescriptor(index)
-    }
-
     companion object {
 
         /**
@@ -121,7 +109,6 @@ sealed class XmlDescriptor(
             overrideOutputKind: OutputKind? = null
                          ): XmlDescriptor {
             val policy = xmlCodecBase.config.policy
-            val parentNamespace = tagParent.parentNamespace()
 
             val useAnnotations = tagParent.getElementAnnotations()
 
@@ -322,14 +309,13 @@ class XmlPolymorphicDescriptor internal constructor(
             else        -> QName("value")
         }
         val parentDesc = serializerParent.descriptor
-        val inMixedParent = parentDesc.kind == StructureKind.LIST && parentDesc.outputKind == OutputKind.Mixed
 
         when {
             xmlPolyChildren != null                         -> {
                 val baseName = NameInfo(tagParent.descriptor.serialDescriptor.serialName, tagParent.descriptor.tagName)
                 val baseClass = baseClass ?: Any::class
                 for (polyChild in xmlPolyChildren.value) {
-                    val childInfo = xmlCodecBase.polyTagName(baseName, polyChild, -1, baseClass)
+                    val childInfo = xmlCodecBase.polyTagName(baseName, polyChild, baseClass)
                     val typeName = childInfo.describedName
                     val polyParentDescriptor = XmlPolymorphicParentDescriptor(
                         childInfo.descriptor,
@@ -403,10 +389,6 @@ class XmlPolymorphicDescriptor internal constructor(
     }
 
     private val children by run {
-        val overrideOutputKind: OutputKind? = when {
-            transparent -> outputKind
-            else        -> OutputKind.Element
-        }
         lazy {
             List<XmlDescriptor>(elementsCount) { index ->
                 from(
@@ -425,6 +407,7 @@ class XmlPolymorphicDescriptor internal constructor(
         return polyInfo[typeName]
             ?: throw XmlSerialException("Missing polymorphic information for $typeName")
     }
+/*
 
     override fun getChildDescriptor(index: Int, serializer: SerializationStrategy<*>): XmlDescriptor {
         return getPolymorphicDescriptor(serializer.descriptor.serialName)
@@ -433,6 +416,7 @@ class XmlPolymorphicDescriptor internal constructor(
     override fun getChildDescriptor(index: Int, deserializer: DeserializationStrategy<*>): XmlDescriptor {
         return getPolymorphicDescriptor(deserializer.descriptor.serialName)
     }
+*/
 }
 
 private fun SerialDescriptor.getElementDefault(index: Int): String? {

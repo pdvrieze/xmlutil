@@ -249,7 +249,8 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             val kind = descriptor.outputKind(index, null)
-            val requestedName = xmlDescriptor.getChildDescriptor(index, String.serializer()).tagName
+            String.serializer()
+            val requestedName = xmlDescriptor.getElementDescriptor(index).tagName
             when (kind) {
                 OutputKind.Element   -> defer(index) { target.smartStartTag(requestedName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(requestedName, value)
@@ -417,11 +418,12 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
+            UnitSerializer()
             XmlEncoder(
                 descriptor,
                 index,
                 UnitSerializer(),
-                xmlDescriptor.getChildDescriptor(index, UnitSerializer())
+                xmlDescriptor.getElementDescriptor(index)
                       ).encodeUnit()
         }
 
@@ -430,11 +432,12 @@ internal open class XmlEncoderBase internal constructor(
                 when (xmlDescriptor.outputKind) {
                     OutputKind.Mixed -> target.text(value) // Mixed will be a list of strings and other stuff
                     else             -> {
+                        String.serializer()
                         XmlEncoder(
                             descriptor,
                             index,
                             String.serializer(),
-                            xmlDescriptor.getChildDescriptor(index, String.serializer())
+                            xmlDescriptor.getElementDescriptor(index)
                                   ).encodeString(
                             value
                                                 )
