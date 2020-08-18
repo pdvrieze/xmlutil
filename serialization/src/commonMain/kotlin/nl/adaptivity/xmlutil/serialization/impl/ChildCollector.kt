@@ -25,11 +25,7 @@ import kotlinx.serialization.PolymorphicKind
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerialModuleCollector
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
-import nl.adaptivity.xmlutil.serialization.XmlNameMap
-import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
-import nl.adaptivity.xmlutil.toNamespace
+import nl.adaptivity.xmlutil.serialization.impl.polyBaseClassName
 import kotlin.reflect.KClass
 
 internal class ChildCollector private constructor(val matcher: Matcher) : SerialModuleCollector {
@@ -48,22 +44,6 @@ internal class ChildCollector private constructor(val matcher: Matcher) : Serial
             children.add(actualSerializer)
         }
     }
-
-    /**
-     * Get the polymorphic information for the found children.
-     */
-    fun getPolyInfo(parentTagName: QName): XmlNameMap = XmlNameMap().apply {
-        for (actualSerializer in children) {
-            val declName = actualSerializer.descriptor.declRequestedName(parentTagName.toNamespace())
-
-            // The class is always treated as specified in automatic polymorphic mode. It should never use the field
-            // name as that cannot be correct.
-            val nameInSerializer = actualSerializer.descriptor.serialName
-            registerClass(declName, nameInSerializer, actualSerializer, true)
-        }
-    }
-
-    internal data class ActualChildInfo<T : Any>(val actualClass: KClass<T>, val actualSerializer: KSerializer<T>)
 
     internal interface Matcher {
         operator fun <Base : Any, Sub : Any> invoke(
@@ -125,13 +105,6 @@ internal class KClassCollector constructor(val kClassName: String) : SerialModul
 
 }
 
-public fun SerialModule.getPolymorphic(baseClassName: String, serializedClassName: String): KSerializer<*>? {
-    val collector = ChildCollector(baseClassName)
-    dumpTo(collector)
-
-    return collector.children.firstOrNull { it.descriptor.serialName == serializedClassName }
-}
-
 
 // TODO on kotlinx.serialization-1.0 use the actual information provided
 internal fun SerialDescriptor.capturedKClass(context: SerialModule): KClass<*>? {
@@ -143,3 +116,16 @@ internal fun SerialDescriptor.capturedKClass(context: SerialModule): KClass<*>? 
 
     return KClassCollector(baseClassName).also { context.dumpTo(it) }.kClass
 }
+
+private val SerialDescriptor.polyBaseClassName: String?
+    get() {
+        val valueName = getElementDescriptor(1).serialName
+        val startIdx = valueName.indexOf('<')
+        if (startIdx>=0 &&
+            valueName.endsWith(">")) {
+            return valueName.substring(startIdx + 1, valueName.length - 1)
+        } else {
+            return null
+        }
+
+    }

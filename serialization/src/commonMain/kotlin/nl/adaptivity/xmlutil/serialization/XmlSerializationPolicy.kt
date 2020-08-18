@@ -25,16 +25,6 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
 interface XmlSerializationPolicy {
-/*
-    fun effectiveOutputKind(
-        parentDescriptor: SerialDescriptor,
-        isValueChild: Boolean,
-        index: Int,
-        serialDescriptor: SerialDescriptor = parentDescriptor.getElementDescriptor(index),
-        useRequestedKind: OutputKind? = parentDescriptor.getUseRequestedKind(index),
-        typeRequestedKind: OutputKind? = parentDescriptor.getTypeRequestedKind(index)
-                           ): OutputKind
-*/
 
     val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
@@ -102,6 +92,7 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
         declName: XmlSerializationPolicy.NameInfo,
         parentNamespace: Namespace
                               ): QName {
+
         return when {
             useName.annotatedName != null      -> useName.annotatedName
 
@@ -120,81 +111,6 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
             else -> serialNameToQName(declName.serialName, parentNamespace)
         }
     }
-
-    /*
-    override fun effectiveOutputKind(
-        parentDescriptor: SerialDescriptor,
-        isValueChild: Boolean,
-        index: Int,
-        serialDescriptor: SerialDescriptor,
-        useRequestedKind: OutputKind?,
-        typeRequestedKind: OutputKind?
-                            ): OutputKind {
-        val parentKind: SerialKind = parentDescriptor.kind
-        val serialKind: SerialKind = serialDescriptor.kind
-        // The children of these are always elements
-
-        when (parentKind) {
-            StructureKind.LIST,
-            StructureKind.MAP,
-            is PolymorphicKind -> return OutputKind.Element
-        }
-
-
-        if (isValueChild) {
-            return when (serialKind) {
-                is PrimitiveKind      -> OutputKind.Text
-                is PolymorphicKind,
-                is StructureKind.LIST -> OutputKind.Mixed
-                else                  -> OutputKind.Element//throw XmlSerialException("@XmlValue annotations can only be put on primitive and list types, not ${childDesc?.kind}")
-            }
-        }
-
-        when (useRequestedKind) {
-            OutputKind.Element -> return OutputKind.Element
-            OutputKind.Attribute -> {
-                when (serialKind) {
-                    is StructureKind,
-                    is PolymorphicKind,
-                    UnionKind.CONTEXTUAL -> {
-                        ignoredSerialInfo("The use site for ${serialDescriptor} requests $useRequestedKind, but the type $serialKind does not support this")
-                    }
-                }
-            }
-        }
-        if (useRequestedKind == OutputKind.Element)
-
-        if (index < elementsCount) {// This can be false for lists, they are always elements anyway
-            for (annotation in getElementAnnotations(index)) {
-                when (annotation) {
-                    is XmlChildrenName -> return OutputKind.Element.checkValueChild()
-                    is XmlElement      -> return if (annotation.value) OutputKind.Element.checkValueChild() else OutputKind.Attribute
-                }
-            }
-        }
-
-        // For lists, the parent is used for the name (but should not be used for type)
-        when (getElementDescriptor(index).kind) {
-            StructureKind.LIST,
-            StructureKind.MAP -> return OutputKind.Element.checkValueChild()
-        }
-
-        // Lists are always elements
-        if (childDesc != null) {
-            if (childDesc.kind is StructureKind) return OutputKind.Element.checkValueChild()
-            childDesc.annotations.firstOrNull<XmlElement>()
-                ?.let { if (it.value) return OutputKind.Element.checkValueChild() else OutputKind.Attribute }
-        }
-
-        return when (childDesc?.kind) {
-            null,
-            is PrimitiveKind -> OutputKind.Attribute
-            else             -> OutputKind.Element.checkValueChild()
-        }
-
-        TODO()
-    }
-*/
 
     override fun ignoredSerialInfo(message: String) {
         if (pedantic) throw XmlSerialException(message)

@@ -25,7 +25,6 @@ import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.NameInfo
-import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.capturedKClass
 import nl.adaptivity.xmlutil.toNamespace
@@ -236,10 +235,11 @@ sealed class XmlValueDescriptor(
 
     fun <T> defaultValue(deserializer: DeserializationStrategy<T>): T {
         defaultValue.let { d ->
+            @Suppress("UNCHECKED_CAST")
             if (d != UNSET) return d as T
         }
-        val d = when {
-            default == null -> null
+        val d = when (default) {
+            null -> null
             else -> {
                 val defaultDecoder = XmlDecoderBase(xmlCodecBase.context, xmlCodecBase.config, CompactFragment(default).getXmlReader())
                     .XmlDecoder(this)
@@ -247,6 +247,7 @@ sealed class XmlValueDescriptor(
             }
         }
         defaultValue = d
+        @Suppress("UNCHECKED_CAST")
         return d as T
     }
 
@@ -378,13 +379,14 @@ class XmlPolymorphicDescriptor internal constructor(
             }
 
             else                                            -> {
-                val childCollector = when {
-
-                    baseClass == null -> serialDescriptor.polyBaseClassName?.let { ChildCollector(it) }
-                        ?: ChildCollector(Any::class)
-                    else              -> ChildCollector(baseClass)
+                val baseClass = when {
+                    baseClass != null -> baseClass
+                    else -> serialDescriptor.capturedKClass(xmlCodecBase.context)?: Any::class
                 }
+
+                val childCollector = ChildCollector(baseClass)
                 xmlCodecBase.context.dumpTo(childCollector)
+
                 for (child in childCollector.children) {
                     val childDesc = child.descriptor
                     val typeName = childDesc.serialName
@@ -402,7 +404,6 @@ class XmlPolymorphicDescriptor internal constructor(
 
 
                 }
-                childCollector.getPolyInfo(tagName)
             }
 
 
@@ -440,10 +441,6 @@ class XmlPolymorphicDescriptor internal constructor(
         return getPolymorphicDescriptor(deserializer.descriptor.serialName)
     }
 */
-}
-
-private fun SerialDescriptor.getElementDefault(index: Int): String? {
-    return getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
 }
 
 internal fun SerialDescriptor.getElementNameInfo(index: Int): NameInfo {

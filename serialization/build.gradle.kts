@@ -23,7 +23,6 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*

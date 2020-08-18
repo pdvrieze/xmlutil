@@ -137,11 +137,8 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/
-                                               ) : XmlDecoder(
-        xmlDescriptor,
-        polyInfo,
-        attrIndex
-                                                             ) {
+                                               ) :
+        XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
             if (descriptor.isNullable) return TagDecoder(xmlDescriptor)

@@ -249,17 +249,10 @@ class XML(
 
         val xmlEncoderBase = XmlEncoderBase(context, config, target)
         val root = XmlRootDescriptor(serialQName, serializer.descriptor, xmlEncoderBase)
-        val parentDesc = DummyParentDescriptor(serialQName, serializer.descriptor)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
-        val encoder = xmlEncoderBase
-            .XmlEncoder(
-                parentDesc,
-                0,
-                serializer,
-                xmlDescriptor
-                       )
+        val encoder = xmlEncoderBase.XmlEncoder(xmlDescriptor)
 
         serializer.serialize(encoder, obj)
     }
@@ -526,12 +519,10 @@ class XML(
          */
         val serialName: QName
 
-        @Deprecated("It is not used or tested. Candidate for removal")
-        @Suppress("unused")
-                /**
-                 * The currently active serialization context
-                 */
-        val context: SerialModule?
+        /**
+         * The currently active serialization context
+         */
+        val context: SerialModule
 
         /**
          * The XmlWriter used. Can be used directly by serializers
