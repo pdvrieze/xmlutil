@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.serialization.canary.polyBaseClassName
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.capturedKClass
 import nl.adaptivity.xmlutil.toNamespace
+import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
 private fun SerialDescriptor.declDefault(): String? =
@@ -223,13 +224,34 @@ internal constructor(
 
 sealed class XmlValueDescriptor(
     serializerParent: ParentInfo,
-    xmlCodecBase: XmlCodecBase,
+    internal val xmlCodecBase: XmlCodecBase,
     override val tagParent: ParentInfo,
     useNameInfo: NameInfo,
     override val outputKind: OutputKind,
     val default: String? = null
                                ) :
-    XmlDescriptor(serializerParent, xmlCodecBase, useNameInfo)
+    XmlDescriptor(serializerParent, xmlCodecBase, useNameInfo) {
+
+    private var defaultValue: Any? = UNSET
+
+    fun <T> defaultValue(deserializer: DeserializationStrategy<T>): T {
+        defaultValue.let { d ->
+            if (d != UNSET) return d as T
+        }
+        val d = when {
+            default == null -> null
+            else -> {
+                val defaultDecoder = XmlDecoderBase(xmlCodecBase.context, xmlCodecBase.config, CompactFragment(default).getXmlReader())
+                    .XmlDecoder(this)
+                deserializer.deserialize(defaultDecoder)
+            }
+        }
+        defaultValue = d
+        return d as T
+    }
+
+    private object UNSET
+}
 
 class XmlPrimitiveDescriptor internal constructor(
     serializerParent: ParentInfo,
@@ -245,7 +267,7 @@ class XmlPrimitiveDescriptor internal constructor(
 
 class XmlCompositeDescriptor internal constructor(
     serializerParent: ParentInfo,
-    private val xmlCodecBase: XmlCodecBase,
+    xmlCodecBase: XmlCodecBase,
     tagParent: ParentInfo,
     useNameInfo: NameInfo,
     default: String? = null
@@ -282,7 +304,7 @@ class XmlCompositeDescriptor internal constructor(
 
 class XmlPolymorphicDescriptor internal constructor(
     serializerParent: ParentInfo,
-    private val xmlCodecBase: XmlCodecBase,
+    xmlCodecBase: XmlCodecBase,
     useNameInfo: NameInfo,
     xmlPolyChildren: XmlPolyChildren?,
     tagParent: ParentInfo,
@@ -308,7 +330,6 @@ class XmlPolymorphicDescriptor internal constructor(
             isTransparent -> null
             else          -> QName("value")
         }
-        val parentDesc = serializerParent.descriptor
 
         when {
             xmlPolyChildren != null                         -> {

@@ -25,7 +25,6 @@ import kotlinx.serialization.builtins.UnitSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -185,16 +184,8 @@ internal open class XmlDecoderBase internal constructor(
             index: Int,
             deserializer: DeserializationStrategy<T>
                                                   ): T {
-            val default = (xmlDescriptor as? XmlValueDescriptor)?.default
             @Suppress("UNCHECKED_CAST")
-            return when (default) {
-                null -> null as T
-                else -> {
-                    val decoder = XmlDecoderBase(context, config, CompactFragment(default).getXmlReader())
-                        .XmlDecoder(xmlDescriptor)
-                    deserializer.deserialize(decoder)
-                }
-            }
+            return (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(deserializer) as T
         }
 
         override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
