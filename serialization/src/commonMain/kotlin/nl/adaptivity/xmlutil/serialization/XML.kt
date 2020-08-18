@@ -573,11 +573,11 @@ enum class InputKind {
         }
     };
 
-    fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean {
+    internal fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean {
         return mapsTo(xmlDescriptor.outputKind)
     }
 
-    abstract fun mapsTo(outputKind: OutputKind): Boolean
+    internal abstract fun mapsTo(outputKind: OutputKind): Boolean
 }
 
 fun XmlSerialName.toQName() = when {
