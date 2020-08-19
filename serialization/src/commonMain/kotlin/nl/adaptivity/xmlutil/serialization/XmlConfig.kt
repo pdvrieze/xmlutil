@@ -44,9 +44,9 @@ class XmlConfig(
     val repairNamespaces: Boolean = true,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val indentString: String = "",
-    val autoPolymorphic: Boolean = false,
-    val unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
-    val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy
+    autoPolymorphic: Boolean = false,
+    unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+    val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic)
                ) {
 
     @Deprecated("Use version taking XmlDeclMode")
@@ -79,8 +79,16 @@ class XmlConfig(
         builder.xmlDeclMode,
         builder.indentString,
         builder.autoPolymorphic,
-        builder.unknownChildHandler
+        builder.unknownChildHandler,
+        builder.policy?: DefaultXmlSerializationPolicy(false, builder.autoPolymorphic)
                                         )
+
+    val unknownChildHandler: UnknownChildHandler = when (unknownChildHandler) {
+        DEFAULT_UNKNOWN_CHILD_HANDLER -> { input, inputKind, name, candidates ->
+            policy.handleUnknownContent(input, inputKind, name, candidates)
+        }
+        else -> unknownChildHandler
+    }
 
     @Deprecated("Use indentString for better accuracy")
     val indent: Int
@@ -110,7 +118,8 @@ class XmlConfig(
         var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         var indentString: String = "",
         var autoPolymorphic: Boolean = false,
-        var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+        var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        var policy: XmlSerializationPolicy? = null
                  ) {
 
         @Deprecated("Use version taking XmlDeclMode")

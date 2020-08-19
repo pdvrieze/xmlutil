@@ -23,9 +23,9 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.declOutputKind
 
 interface XmlSerializationPolicy {
@@ -38,8 +38,10 @@ interface XmlSerializationPolicy {
         StructureKind.OBJECT -> defaultObjectOutputKind
         is PrimitiveKind -> defaultPrimitiveOutputKind
         PolymorphicKind.OPEN -> OutputKind.Element
-        else -> OutputKind.Element
+        else                 -> OutputKind.Element
     }
+
+    fun invalidOutputKind(message: String) = ignoredSerialInfo(message)
 
     fun ignoredSerialInfo(message: String)
 
@@ -47,59 +49,53 @@ interface XmlSerializationPolicy {
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
-        useName: DeclaredNameInfo = tagParent.elementUseNameInfo,
-        typeDescriptor: XmlTypeDescriptor,
-        serialKind: SerialKind = tagParent.elementSerialDescriptor.kind,
-        typeNameInfo: DeclaredNameInfo = typeDescriptor.typeNameInfo,
-        parentNamespace: Namespace = tagParent.namespace
+        useName: DeclaredNameInfo = tagParent.elementUseNameInfo
                      ): QName
+
+    fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
+    fun isTransparentPolymorphic(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
+
 
     fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName
 
     data class DeclaredNameInfo(val serialName: String, val annotatedName: QName?)
     data class ActualNameInfo(val serialName: String, val annotatedName: QName)
+
+    fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind
+
+    fun handleUnknownContent(input: XmlReader, inputKind: InputKind, name: QName?, candidates: Collection<Any>)
 }
 
-private fun SerialDescriptor.getUseRequestedKind(index: Int): OutputKind? {
-    // handle incomplete descriptors, including list and map descriptors
-    if (index >= elementsCount) return null
-    return getElementAnnotations(index).getRequestedOutputKind()
-}
+open class DefaultXmlSerializationPolicy(
+    val pedantic: Boolean,
+    val autoPolymorphic: Boolean = false,
+    private val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+                                        ) : XmlSerializationPolicy {
 
-private fun SerialDescriptor.getTypeRequestedKind(index: Int): OutputKind? {
-    // handle incomplete descriptors, including list and map descriptors
-    if (index >= elementsCount) return null
-    return getElementDescriptor(index).annotations.getRequestedOutputKind()
-}
+    override fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+        val useAnnotations = tagParent.elementUseAnnotations
+        val isMixed = useAnnotations.firstOrNull<XmlValue>()?.value == true
+        if (isMixed) return true
 
-internal fun <T : Annotation> Iterable<T>.getRequestedOutputKind(): OutputKind? {
-    for (annotation in this) {
-        when (annotation) {
-            is XmlValue        -> return OutputKind.Mixed
-            is XmlElement      -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
-            is XmlPolyChildren,
-            is XmlChildrenName -> return OutputKind.Element
-        }
+        val reqChildrenName = useAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
+        return reqChildrenName == null // TODO use the policy
     }
-    return null
-}
 
-object DefaultXmlSerializationPolicy : BaseXmlSerializationPolicy(pedantic = false)
+    override fun isTransparentPolymorphic(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+        val xmlPolyChildren = tagParent.elementUseAnnotations.firstOrNull<XmlPolyChildren>()
+        return autoPolymorphic || xmlPolyChildren != null
+    }
 
-open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationPolicy {
-
-
-    fun XmlSerializationPolicy.determineOutputKind(
-        serializerParent: SafeParentInfo,
-        tagParent: SafeParentInfo
-                                                  ): OutputKind {
+    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind {
         val serialDescriptor = serializerParent.elementSerialDescriptor
 
         return when (val overrideOutputKind = serializerParent.elementUseOutputKind) {
-            null             -> {
+            null -> {
                 val useAnnotations = tagParent.elementUseAnnotations
                 val isValue = useAnnotations.firstOrNull<XmlValue>()?.value == true
+                val elementKind = tagParent.elementSerialDescriptor.kind
                 when {
+                    elementKind == StructureKind.CLASS -> OutputKind.Element
                     isValue -> OutputKind.Mixed
                     else    -> tagParent.elementUseOutputKind ?: serialDescriptor.declOutputKind()
                     ?: defaultOutputKind(serialDescriptor.kind)
@@ -107,14 +103,20 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
             }
             OutputKind.Mixed -> {
                 if (serializerParent.descriptor is XmlListDescriptor) {
-                    OutputKind.Mixed
-                } else when (val outputKind =
-                    (tagParent.elementUseOutputKind ?: serialDescriptor.declOutputKind()
-                    ?: defaultOutputKind(
-                        serialDescriptor.kind
-                                        ))) {
-                    OutputKind.Attribute -> OutputKind.Text
-                    else                 -> outputKind
+                    if (tagParent.elementSerialDescriptor.kind == StructureKind.CLASS) {
+                        OutputKind.Element
+                    } else {
+                        OutputKind.Mixed
+                    }
+                } else {
+                    val outputKind = tagParent.elementUseOutputKind
+                        ?: serialDescriptor.declOutputKind()
+                        ?: defaultOutputKind(serialDescriptor.kind)
+
+                    when (outputKind) {
+                        OutputKind.Attribute -> OutputKind.Text
+                        else                 -> outputKind
+                    }
                 }
             }
             else             -> overrideOutputKind
@@ -131,12 +133,13 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
-        useName: XmlSerializationPolicy.DeclaredNameInfo,
-        typeDescriptor: XmlTypeDescriptor,
-        serialKind: SerialKind,
-        typeNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
-        parentNamespace: Namespace
+        useName: DeclaredNameInfo
                               ): QName {
+        val typeDescriptor = serializerParent.elemenTypeDescriptor
+        val serialKind = typeDescriptor.serialDescriptor.kind
+        val typeNameInfo = typeDescriptor.typeNameInfo
+        val parentNamespace: Namespace = tagParent.namespace
+
         assert(typeNameInfo == typeDescriptor.typeNameInfo) {
             "Type name info should match"
         }
@@ -149,17 +152,26 @@ open class BaseXmlSerializationPolicy(val pedantic: Boolean) : XmlSerializationP
             outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
 
             serialKind is PrimitiveKind ||
-            serialKind == StructureKind.MAP ||
-            serialKind == StructureKind.LIST ||
-            serialKind == PolymorphicKind.OPEN ||
-            typeNameInfo.serialName=="kotlin.Unit" || // Unit needs a special case
-            parentSerialKind is PolymorphicKind // child of explict polymorphic uses predefined names
+                    serialKind == StructureKind.MAP ||
+                    serialKind == StructureKind.LIST ||
+                    serialKind == PolymorphicKind.OPEN ||
+                    typeNameInfo.serialName == "kotlin.Unit" || // Unit needs a special case
+                    parentSerialKind is PolymorphicKind // child of explict polymorphic uses predefined names
                                                -> serialNameToQName(useName.serialName, parentNamespace)
 
             typeNameInfo.annotatedName != null -> typeNameInfo.annotatedName
 
             else                               -> serialNameToQName(typeNameInfo.serialName, parentNamespace)
         }
+    }
+
+    override fun handleUnknownContent(
+        input: XmlReader,
+        inputKind: InputKind,
+        name: QName?,
+        candidates: Collection<Any>
+                                     ) {
+        unknownChildHandler(input, inputKind, name, candidates)
     }
 
     override fun ignoredSerialInfo(message: String) {

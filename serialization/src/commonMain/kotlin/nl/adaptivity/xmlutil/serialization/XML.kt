@@ -248,7 +248,7 @@ class XML(
                                                   )
 
         val xmlEncoderBase = XmlEncoderBase(context, config, target)
-        val root = XmlRootDescriptor(serialQName, serializer.descriptor, xmlEncoderBase)
+        val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, serialQName)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -306,7 +306,7 @@ class XML(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(context, config, reader)
-        val rootDescriptor = XmlRootDescriptor(serialName, serialDescriptor, xmlDecoderBase)
+        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, serialDescriptor, serialName)
 
         val decoder = xmlDecoderBase.XmlDecoder(
             rootDescriptor.getElementDescriptor(0)

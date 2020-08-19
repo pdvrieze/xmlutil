@@ -24,7 +24,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.UnitSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 internal open class XmlEncoderBase internal constructor(
@@ -45,7 +44,7 @@ internal open class XmlEncoderBase internal constructor(
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
-        override val context get() = this@XmlEncoderBase.context
+        override val context get() = this@XmlEncoderBase.serializersModule
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
@@ -64,8 +63,9 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeChar(value: Char) = encodeString(value.toString())
 
         override fun encodeString(value: String) {
-            val defaultValue =
-                (xmlDescriptor as XmlValueDescriptor).default // string doesn't need parsing so take a shortcut
+            // string doesn't need parsing so take a shortcut
+            val defaultValue = (xmlDescriptor as XmlValueDescriptor).default
+
             if (value == defaultValue) return
 
             when (xmlDescriptor.outputKind) {
@@ -167,14 +167,15 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val encoder = XmlEncoder(
-                xmlDescriptor.getElementDescriptor(index)
-                                    )
+            val encoder = XmlEncoder(xmlDescriptor.getElementDescriptor(index))
+
             defer(index) { serializer.serialize(encoder, value) }
         }
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
-            return descriptor.getElementAnnotations(index).none { it is XmlDefault }
+            val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
+
+            return (elementDescriptor as? XmlValueDescriptor)?.default == null
         }
 
         override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
@@ -226,10 +227,12 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
-            val defaultValue = descriptor.getElementAnnotations(index).firstOrNull<XmlDefault>()?.value
+            val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
+
+            val defaultValue = (elementDescriptor as? XmlValueDescriptor)?.default
+
             if (value == defaultValue) return
 
-            val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
             when (elementDescriptor.outputKind) {
                 OutputKind.Element -> defer(index) { target.smartStartTag(elementDescriptor.tagName) { text(value) } }
@@ -351,7 +354,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun writeBegin() {
-            if (!xmlDescriptor.isAnonymous) { // Do the default thing if the children name has been specified
+            if (!xmlDescriptor.isListEluded) { // Do the default thing if the children name has been specified
                 val childName = xmlDescriptor.getElementDescriptor(0).tagName
                 super.writeBegin()
                 val tagName = serialName
@@ -375,7 +378,7 @@ internal open class XmlEncoderBase internal constructor(
                                                   ) {
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            if (xmlDescriptor.isAnonymous) { // Use the outer decriptor and element index
+            if (xmlDescriptor.isListEluded) { // Use the outer decriptor and element index
                 serializer.serialize(XmlEncoder(childDescriptor), value)
             } else {
                 serializer.serialize(XmlEncoder(childDescriptor), value)
@@ -393,7 +396,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (!xmlDescriptor.isAnonymous) {
+            if (!xmlDescriptor.isListEluded) {
                 super.endStructure(descriptor)
             }
         }

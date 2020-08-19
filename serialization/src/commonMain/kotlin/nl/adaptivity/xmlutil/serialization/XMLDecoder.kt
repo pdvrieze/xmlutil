@@ -55,7 +55,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
-        override val context get() = this@XmlDecoderBase.context
+        override val context get() = this@XmlDecoderBase.serializersModule
 
         override val updateMode: UpdateMode get() = UpdateMode.BANNED
 
@@ -152,7 +152,7 @@ internal open class XmlDecoderBase internal constructor(
 
                 xmlDescriptor is XmlListDescriptor
                      -> {
-                    if (xmlDescriptor.isAnonymous) {
+                    if (xmlDescriptor.isListEluded) {
                         AnonymousListDecoder(xmlDescriptor, polyInfo)
                     } else {
                         NamedListDecoder(xmlDescriptor)
@@ -284,7 +284,7 @@ internal open class XmlDecoderBase internal constructor(
 
             for (idx in 0 until xmlDescriptor.elementsCount) {
                 var child = xmlDescriptor.getElementDescriptor(idx)
-                while (child is XmlListDescriptor && child.isAnonymous) {
+                while (child is XmlListDescriptor && child.isListEluded) {
                     child = child.getElementDescriptor(0)
                 }
 
@@ -837,7 +837,9 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
-                if (!isMixed || !config.autoPolymorphic) { // Don't check in mixed mode as we could have just had raw text
+                val autopoly = xmlDescriptor.isTransparent
+
+                if (!isMixed || !xmlDescriptor.isTransparent) { // Don't check in mixed mode as we could have just had raw text
                     val t = polyInfo?.tagName
                     if (t != null) {
                         input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)

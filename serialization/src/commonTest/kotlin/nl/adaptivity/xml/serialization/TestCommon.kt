@@ -49,7 +49,7 @@ class TestCommon {
         val value: T,
         val serializer: KSerializer<T>,
         val serialModule: SerialModule = EmptyModule,
-        protected val baseXmlFormat: XML = XML(serialModule),
+        protected val baseXmlFormat: XML = XML(serialModule) { policy = DefaultXmlSerializationPolicy(true)  },
         private val baseJsonFormat: Json = Json(testConfiguration, serialModule)
                               ) {
         abstract val expectedXML: String

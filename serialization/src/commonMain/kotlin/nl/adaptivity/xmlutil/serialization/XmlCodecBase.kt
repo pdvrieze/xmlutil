@@ -24,15 +24,13 @@ import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import kotlin.reflect.KClass
 
 internal abstract class XmlCodecBase internal constructor(
-    val context: SerialModule,
+    val serializersModule: SerialModule,
     val config: XmlConfig
                                                          ) {
 
     internal abstract val namespaceContext: NamespaceContext
-
 
     companion object {
 
@@ -84,7 +82,7 @@ internal abstract class XmlCodecBase internal constructor(
     internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(val xmlDescriptor: D) {
 
         internal val config get() = this@XmlCodecBase.config
-        val context: SerialModule get() = this@XmlCodecBase.context
+        val context: SerialModule get() = this@XmlCodecBase.serializersModule
 
         val serialName: QName get() = xmlDescriptor.tagName
 
