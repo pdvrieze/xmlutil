@@ -79,25 +79,43 @@ The options available are:
 
 | option                | description |
 | --- | --- | 
-| `repairNamespaces`    | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter` |
-| `xmlDeclMode`         | The mode to use for emitting XML declarations (<?xml ...?>). Replaces omitXmlDecl for more finegrained control |
-| -`omitXmlDecl`-       | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter` |
-| `indentString`        | The indentation to use. Must be a combination of XML whitespace or comments (this is checked). This is passed to the `XmlWriter` |
-| `indent`              | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces. |
-| autoPolymorphic       | Should polymorphic information be retrieved using `SerializersModule` configuration. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
-| `unknownChildHandler` | A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well. |
+| `repairNamespaces`      | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter` |
+| `xmlDeclMode`           | The mode to use for emitting XML declarations (<?xml ...?>). Replaces omitXmlDecl for more finegrained control |
+| -`omitXmlDecl`-         | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter` |
+| `indentString`          | The indentation to use. Must be a combination of XML whitespace or comments (this is checked). This is passed to the `XmlWriter` |
+| `indent`                | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces. |
+| -`autoPolymorphic`-     | *Deprecated into policy* Should polymorphic information be retrieved using `SerializersModule` configuration. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
+| -`unknownChildHandler`- | *Deprecated into policy* A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well. |
+| `policy`                | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. |
+
+The properties that have been moved into the policy can still be set in the builder but are no longer able to be read
+through the config object.
 
 ## Algorithms
 XML and Kotlin data types are not perfectly alligned. As such there are some algorithms that aim to automatically do the
-best thing.
+best thing. Most of this has been moved to the default `XmlSerializationPolicy` implementation, but you can customize
+this to change the eventual structure. This includes determining the names used.
 ### Storage type
-The way a field is stored is determined as follows:
-
-- If the field has an annotation such as `@XmlElement` or `XmlValue`  this will take precedence
+In the default policy, the way a field is stored is determined as follows to be one of: Element, Attribute, Text or
+Mixed. Mixed is a special type that allows for mixing of text and element content and needs some special treatment.:
+- If the field has an annotation such as `@XmlElement` or `XmlValue`  this will take precedence. The XmlValue tag will
+  allow the field to hold element text content (direct only).
 - If the serializer is a primitive this will normally be serialized as attribute
 - If the serializer is a list, if there is an `@XmlChildrenName` annotation, this will trigger named list mode where a wrapper
-  tag is used. Otherwise the list elements will be written directly as tags (even primitives) using a "transparent/anonymous" list.
+  tag is used (element). Otherwise the list elements will be written directly as tags (even primitives) using a "transparent/anonymous" list.
+- If a list has the @XmlValue tag (to actually support text content it needs to be a list of Any) this will allow the
+  list to hold mixed content. This should also be polymorphic (but the annotation is required).   
 - If a primitive is written as tag this will use the name as tag name, and value as element content.
+- A primitive written as TEXT will be text content only.
+- Polymorphic properties are treated specially in that the system does not use/require wrappers. Instead it will use the
+  tag name to determine the type. Either specified by `@XmlPolyChildren` or through the serialDescriptor of the type.
+  This also works inside lists, even transparent (invisible) lists. If multiple polymorphic properties have the same
+  subtags this is undefined/an error (you can use @XmlPolyChildren to have different names).
+  
+  A custom policy is able to determine on individual bases whether this transparent polymorphism should be used, but the
+  default policy provides an overall toggle (which also respects the autopolymorphic property of the configuration
+  builder). The default will always trigger transparent mode if `XmlPolyChildren` is present.
+  
 - If the serializer is polymorphic this enforces tag mode. If `@XmlPolyChildren` is specified or `autoPolymorphic` is set
   it triggers transparent polymorphism mode where the child name is used to look up the property it belongs to. (note that this
   is incorrect with multiple properties that could contain the same polymorphic value - unless @XmlPolyChildren overrides it).
@@ -108,13 +126,21 @@ Based upon the storage type, the effective name for an attribute is determined a
 - `@XmlSerialName` at property declaration site
 - `@XmlSerialName` at type declaration site
 - `@SerialName` at property declaration site
-- property name at property declaration site
+- property name at property declaration site (note that the `@SerialName` annotation is invisible to the encoder)
 
-The effective name for a tag is determined as follows for normal serializers:
+The effective name for a regular tag is determined as follows for normal serializers:
 - `@XmlSerialName` at property declaration site
 - `@XmlSerialName` at type declaration site
 - `@SerialName` at type declaration site
-- type name at type declaration site
+- type name at type declaration site.
+The default type declaration type name is the Kotlin/Java type name (and long). The system will try to shorten this by
+eliding the package name. This is configurable in the policy. 
+
+The effective name for a polymorphic child is determined as follows:
+- If the child is transparent, the annotations/serial name of the effective type is used (unless overridden by `@XmlPolyChildren`)
+- If the child is not transparent, the container is treated as a regular tag. It will have a `type` attribute to contain
+  the serial name of the type (shortened to share the package name with the container). The value will use the default
+  name `value`.
 
 ## Annotations
 
@@ -139,6 +165,10 @@ The `CompactFragment` class is a special class (with supporting serializer) that
 content of an element. Instead of using regular serialization its custom serializer will (in the case of xml serialization)
 directly read all the child content of the tag and store it as string content. It will also make a best effort attempt
 at retaining all namespace declarations necessary to understand this tag soup.
+
+Alternatively the serialutil subproject contains the `nl.adaptivity.serialutil.MixedContent` type that allows for
+typesafe serialization/deserialization of mixed content with the proviso that the serialModule must use Any as the
+baseclass for the content. 
 
 ## Modules
 
