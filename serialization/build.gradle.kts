@@ -143,7 +143,7 @@ kotlin {
                 api(project(":core"))
                 implementation(project(":serialutil"))
                 project.dependencies.add(apiConfigurationName,
-                "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion") {
+                "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
                 implementation(kotlin("stdlib"))
@@ -160,7 +160,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(kotlin("stdlib-jdk7"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
         val javaSharedTest by creating {
@@ -234,7 +234,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
                 project.dependencies.add(
                     apiConfigurationName,
-                    "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion") {
+                    "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion") {
                     exclude(group = "org.jetbrains.kotlin")
                 }
             }

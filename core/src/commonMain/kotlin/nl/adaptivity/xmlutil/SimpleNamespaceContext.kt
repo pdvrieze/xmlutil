@@ -20,8 +20,14 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.Transient
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.serialutil.withName
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
@@ -30,6 +36,7 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
+import kotlin.collections.set
 import kotlin.jvm.JvmName
 
 
@@ -214,7 +221,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     @Serializer(forClass = SimpleNamespaceContext::class)
     companion object : KSerializer<SimpleNamespaceContext> {
 
-        private val actualSerializer = Namespace.list
+        private val actualSerializer = ListSerializer(Namespace)
 
         override val descriptor: SerialDescriptor =
             actualSerializer.descriptor.withName(SimpleNamespaceContext::class.name)

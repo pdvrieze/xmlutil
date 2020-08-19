@@ -20,12 +20,10 @@
 
 package nl.adaptivity.xmlutil.util
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 import kotlin.reflect.KClass
 
-@ImplicitReflectionSerializer
 interface SerializationProvider {
     interface XmlSerializerFun<in T : Any> {
         operator fun invoke(output: XmlWriter, value: T)

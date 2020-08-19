@@ -20,12 +20,11 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
-actual fun getPlatformDefaultModule(): SerialModule = SerializersModule {
+actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
     contextual(Element::class, ElementSerializer)
     contextual(Node::class, NodeSerializer)
 }

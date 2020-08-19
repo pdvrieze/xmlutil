@@ -20,14 +20,15 @@
 
 package nl.adaptivity.xmlutil.serialization.structure
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
-import nl.adaptivity.xmlutil.serialization.impl.capturedKClass
+import nl.adaptivity.xmlutil.toNamespace
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -40,8 +41,8 @@ internal val Collection<Annotation>.declDefault: String?
 internal fun SerialDescriptor.declOutputKind(): OutputKind? {
     for (a in annotations) {
         when (a) {
-            is XmlValue -> return OutputKind.Text
-            is XmlElement -> return if (a.value) OutputKind.Element else OutputKind.Attribute
+            is XmlValue        -> return OutputKind.Text
+            is XmlElement      -> return if (a.value) OutputKind.Element else OutputKind.Attribute
             is XmlPolyChildren,
             is XmlChildrenName -> return OutputKind.Element
         }
@@ -115,7 +116,7 @@ sealed class XmlDescriptor(
 
 
             return when (serializerParent.elementSerialDescriptor.kind) {
-                UnionKind.ENUM_KIND,
+                SerialKind.ENUM,
                 is PrimitiveKind ->
                     XmlPrimitiveDescriptor(xmlCodecBase, serializerParent, tagParent)
 
@@ -260,7 +261,7 @@ class XmlPolymorphicDescriptor internal constructor(
                             tagParent.descriptor?.serialDescriptor?.serialName ?: "",
                             tagParent.descriptor?.tagName ?: QName("", "")
                                       )
-                    val baseClass = serialDescriptor.capturedKClass(xmlCodecBase.serializersModule) ?: Any::class
+                    val baseClass = serialDescriptor.capturedKClass ?: Any::class
 
                     for (polyChild in xmlPolyChildren.value) {
                         val childInfo = polyTagName(xmlCodecBase, baseName, polyChild, baseClass)
@@ -284,7 +285,7 @@ class XmlPolymorphicDescriptor internal constructor(
                 }
 
                 else                                            -> {
-                    val baseClass = serialDescriptor.capturedKClass(xmlCodecBase.serializersModule) ?: Any::class
+                    val baseClass = serialDescriptor.capturedKClass ?: Any::class
 
                     val childCollector = ChildCollector(baseClass)
                     xmlCodecBase.serializersModule.dumpTo(childCollector)

@@ -22,6 +22,11 @@ package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.serialutil.impl.toCharArray
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
@@ -60,15 +65,8 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
 inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
     var index = input.decodeElementIndex(descriptor)
     @Suppress("DEPRECATION")
-    when (index) {
-        CompositeDecoder.READ_DONE -> return
-        CompositeDecoder.READ_ALL  -> {
-            for (elem in 0 until descriptor.elementsCount) {
-                body(elem)
-            }
-            return
-        }
-    }
+    if (index == CompositeDecoder.DECODE_DONE) return
+
     while (index >= 0) {
         body(index)
         index = input.decodeElementIndex(descriptor)

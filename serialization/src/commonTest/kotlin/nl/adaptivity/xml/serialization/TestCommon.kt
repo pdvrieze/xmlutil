@@ -20,13 +20,12 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.json.JsonBuilder
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlDeclMode
@@ -37,27 +36,29 @@ import kotlin.test.*
 
 private fun String.normalize() = replace(" />", "/>").replace("\r\n", "\n")
 
-@OptIn(UnstableDefault::class)
-val testConfiguration = JsonConfiguration(
-    isLenient = true,
-    serializeSpecialFloatingPointValues = true
-                                         )
+fun JsonBuilder.defaultJsonTestConfiguration() {
+    isLenient = true
+    allowSpecialFloatingPointValues = true
+}
 
 class TestCommon {
 
     abstract class TestBase<T>(
         val value: T,
         val serializer: KSerializer<T>,
-        val serialModule: SerialModule = EmptyModule,
-        protected val baseXmlFormat: XML = XML(serialModule) { policy = DefaultXmlSerializationPolicy(true)  },
-        private val baseJsonFormat: Json = Json(testConfiguration, serialModule)
+        val serializersModule: SerializersModule = EmptySerializersModule,
+        protected val baseXmlFormat: XML = XML(serializersModule) { policy = DefaultXmlSerializationPolicy(true)  },
+        private val baseJsonFormat: Json = Json{
+            defaultJsonTestConfiguration()
+            this.serializersModule = serializersModule
+        }
                               ) {
         abstract val expectedXML: String
         abstract val expectedJson: String
 
-        fun serializeXml(): String = baseXmlFormat.stringify(serializer, value).normalize()
+        fun serializeXml(): String = baseXmlFormat.encodeToString(serializer, value).normalize()
 
-        fun serializeJson(): String = baseJsonFormat.stringify(serializer, value)
+        fun serializeJson(): String = baseJsonFormat.encodeToString(serializer, value)
 
         @Test
         open fun testSerializeXml() {
@@ -76,7 +77,7 @@ class TestCommon {
 
         @Test
         open fun testDeserializeJson() {
-            assertEquals(value, baseJsonFormat.parse(serializer, expectedJson))
+            assertEquals(value, baseJsonFormat.decodeFromString(serializer, expectedJson))
         }
 
     }
@@ -84,23 +85,26 @@ class TestCommon {
     abstract class TestPolymorphicBase<T>(
         value: T,
         serializer: KSerializer<T>,
-        serialModule: SerialModule,
-        baseJsonFormat: Json = Json(testConfiguration, serialModule)
+        serializersModule: SerializersModule,
+        baseJsonFormat: Json = Json{
+            defaultJsonTestConfiguration()
+            this.serializersModule = serializersModule
+        }
                                          ) :
-        TestBase<T>(value, serializer, serialModule, XML(serialModule) { autoPolymorphic = true }, baseJsonFormat) {
+        TestBase<T>(value, serializer, serializersModule, XML(serializersModule) { autoPolymorphic = true }, baseJsonFormat) {
 
         abstract val expectedNonAutoPolymorphicXML: String
 
         @Test
         fun nonAutoPolymorphic_serialization_should_work() {
             val serialized =
-                XML(context = serialModule) { autoPolymorphic = false }.stringify(serializer, value).normalize()
+                XML(serializersModule = serializersModule) { autoPolymorphic = false }.stringify(serializer, value).normalize()
             assertEquals(expectedNonAutoPolymorphicXML, serialized)
         }
 
         @Test
         fun nonAutoPolymorphic_deserialization_should_work() {
-            val actualValue = XML(context = serialModule) { autoPolymorphic = false }
+            val actualValue = XML(serializersModule = serializersModule) { autoPolymorphic = false }
                 .parse(serializer, expectedNonAutoPolymorphicXML)
 
             assertEquals(value, actualValue)
@@ -203,12 +207,14 @@ class TestCommon {
 
     }
 
-    @UnstableDefault
     class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainer>(
         MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"), "bar")),
         MixedValueContainer.serializer(),
         MixedValueContainer.module(),
-        baseJsonFormat = Json(JsonConfiguration(useArrayPolymorphism = true), context = MixedValueContainer.module())
+        baseJsonFormat = Json {
+            useArrayPolymorphism = true
+            serializersModule = MixedValueContainer.module()
+        }
                                                                             ) {
         override val expectedXML: String =
             "<MixedValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</MixedValueContainer>"
@@ -430,7 +436,7 @@ class TestCommon {
         @Test
         fun noticeMissingChild() {
             val xml = "<Inverted arg='5'/>"
-            assertFailsWith<MissingFieldException> {
+            assertFailsWith<SerializationException> {
                 XML.parse(serializer, xml)
             }
         }
@@ -524,7 +530,7 @@ class TestCommon {
     class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
         Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
         Sealed.serializer(),
-        EmptyModule//sealedModule
+        EmptySerializersModule//sealedModule
                                                                     ) {
         override val expectedXML: String
             get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB_renamed main=\"b-data\" ext=\"0.5\"/></Sealed>"
@@ -537,7 +543,7 @@ class TestCommon {
     class ComplexSealedTest : TestBase<ComplexSealedHolder>(
         ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
         ComplexSealedHolder.serializer(),
-        EmptyModule,
+        EmptySerializersModule,
         XML(XmlConfig(autoPolymorphic = true))
                                                            ) {
         override val expectedXML: String

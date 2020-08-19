@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.StAXWriter
 import nl.adaptivity.xmlutil.XmlStreaming
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -31,7 +30,6 @@ import java.io.CharArrayWriter
 /**
  * This test only tests JVM specific things, everything else is in the common tests.
  */
-@OptIn(ImplicitReflectionSerializer::class)
 object TestXMLJVM : Spek(
     {
         describe("A simple writer") {

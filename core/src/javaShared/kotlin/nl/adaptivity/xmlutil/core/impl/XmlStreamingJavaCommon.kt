@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import nl.adaptivity.xmlutil.util.SerializationProvider.XmlDeserializerFun
@@ -31,9 +30,8 @@ import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
 
-@OptIn(ImplicitReflectionSerializer::class)
 abstract class XmlStreamingJavaCommon {
-    @ImplicitReflectionSerializer
+
     private val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
         val service = SerializationProvider::class.java
         ServiceLoader.load(service, service.classLoader)

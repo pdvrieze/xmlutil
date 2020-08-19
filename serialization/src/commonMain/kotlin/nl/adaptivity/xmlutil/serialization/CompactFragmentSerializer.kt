@@ -21,8 +21,12 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.*
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
@@ -62,7 +66,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
             decodeElements(input) { elem: Int ->
                 when (elem) {
-                    nsIndex      -> namespaces = input.decodeSerializableElement(desc, elem, Namespace.list)
+                    nsIndex      -> namespaces = input.decodeSerializableElement(desc, elem, ListSerializer(Namespace))
                     contentIndex -> content = input.decodeStringElement(desc, elem)
                 }
             }
@@ -100,7 +104,8 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
             obj.serialize(writer)
         } else {
-            output.encodeSerializableElement(serialClassDesc, startIndex + 0, Namespace.list, obj.namespaces.toList())
+            output.encodeSerializableElement(serialClassDesc, startIndex + 0,
+                                             ListSerializer(Namespace), obj.namespaces.toList())
             output.encodeStringElement(serialClassDesc, startIndex + 1, obj.contentString)
         }
     }
@@ -132,7 +137,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
         override fun getElementDescriptor(index: Int): SerialDescriptor {
             return when (index) {
-                0    -> Namespace.list.descriptor
+                0    -> ListSerializer(Namespace).descriptor
                 1    -> String.serializer().descriptor
                 else -> throw IndexOutOfBoundsException("$index")
             }

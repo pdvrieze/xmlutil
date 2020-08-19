@@ -23,7 +23,11 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
@@ -31,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
-expect fun getPlatformDefaultModule(): SerialModule
+expect fun getPlatformDefaultModule(): SerializersModule
 
 private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(CompactFragment::class, CompactFragmentSerializer)
@@ -60,14 +64,14 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
  * package name of the class that represents the parent. Attributes get their use site name which is either the property
  * name or the name modified through [SerialName]
  *
- * @property context The serialization context used to resolve serializers etc.
+ * @property serializersModule The serialization context used to resolve serializers etc.
  * @property config The configuration of the various options that may apply.
  */
 class XML(
     val config: XmlConfig,
-    context: SerialModule = EmptyModule
+    serializersModule: SerializersModule = EmptySerializersModule
          ) : StringFormat {
-    override val context: SerialModule = context + defaultXmlModule
+    override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
     val repairNamespaces: Boolean
@@ -89,25 +93,24 @@ class XML(
         repairNamespaces: Boolean = true,
         omitXmlDecl: Boolean = true,
         indent: Int = 0,
-        context: SerialModule = EmptyModule
+        serializersModule: SerializersModule = EmptySerializersModule
                )
-            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), context)
+            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), serializersModule)
 
-    constructor(config: XmlConfig.Builder, context: SerialModule = EmptyModule) : this(XmlConfig(config), context)
+    constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule) : this(XmlConfig(config), serializersModule)
 
     constructor(
-        context: SerialModule = EmptyModule,
+        serializersModule: SerializersModule = EmptySerializersModule,
         configure: XmlConfig.Builder.() -> Unit = {}
-               ) : this(XmlConfig.Builder().apply(configure), context)
+               ) : this(XmlConfig.Builder().apply(configure), serializersModule)
 
     /**
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
      * KClass parameter
      */
-    @ImplicitReflectionSerializer
     @Suppress("unused")
     inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String =
-        stringify(context.getContextualOrDefault(T::class), obj, prefix)
+        stringify(serializer<T>(), obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -116,13 +119,13 @@ class XML(
      * @param obj The actual object
      * @param prefix The prefix (if any) to use for the namespace
      */
-    @ImplicitReflectionSerializer
+    @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
     fun <T : Any> stringify(
         kClass: KClass<T>,
         obj: T,
         prefix: String? = null
                            ): String {
-        return stringify(context.getContextualOrDefault(kClass), obj, prefix)
+        throw UnsupportedOperationException("Not supported by serialization library ")
     }
 
     /**
@@ -139,8 +142,13 @@ class XML(
     fun <T : Any> stringify(obj: T, saver: SerializationStrategy<T>, prefix: String? = null): String =
         stringify(saver, obj, prefix)
 
-    override fun <T> stringify(serializer: SerializationStrategy<T>, value: T) =
-        stringify(serializer, value, null)
+    override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+        return stringify(serializer, value, null)
+    }
+
+    @Deprecated("Use encodeToString", ReplaceWith("encodeToString(serializer, value)"))
+    fun <T> stringify(serializer: SerializationStrategy<T>, value: T) =
+        encodeToString(serializer, value)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -169,7 +177,6 @@ class XML(
         return stringWriter.toString()
     }
 
-    @ImplicitReflectionSerializer
     @Deprecated("Replaced by version with consistent parameter order", ReplaceWith("toXml(target, obj, prefix)"))
     inline fun <reified T : Any> toXml(obj: T, target: XmlWriter, prefix: String? = null) =
         toXml(target, obj, prefix)
@@ -181,24 +188,9 @@ class XML(
      * @param target The [XmlWriter] to append the object to
      * @param prefix The prefix (if any) to use for the namespace
      */
-    @ImplicitReflectionSerializer
     inline fun <reified T : Any> toXml(target: XmlWriter, obj: T, prefix: String? = null) {
-        toXml(target, context.getContextualOrDefault(T::class), obj, prefix)
+        toXml(target, serializer<T>(), obj, prefix)
     }
-
-    @ImplicitReflectionSerializer
-    @Deprecated(
-        "Replaced by version with consistent parameter order",
-        ReplaceWith("toXml(target, kClass, obj, serializer, prefix)")
-               )
-    fun <T : Any> toXml(
-        kClass: KClass<T>,
-        obj: T,
-        target: XmlWriter,
-        prefix: String? = null,
-        serializer: SerializationStrategy<T> = context.getContextualOrDefault(kClass)
-                       ) =
-        toXml(target, serializer, obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -209,14 +201,14 @@ class XML(
      * @param saver The serializer/saver to use to write
      * @param prefix The prefix (if any) to use for the namespace
      */
-    @ImplicitReflectionSerializer
+    @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
     fun <T : Any> toXml(
         target: XmlWriter,
         kClass: KClass<T>,
         obj: T,
         prefix: String? = null
                        ) {
-        toXml(target, context.getContextualOrDefault(kClass), obj, prefix)
+        throw UnsupportedOperationException("Reflection no longer works")
     }
 
     /**
@@ -247,7 +239,7 @@ class XML(
                                           )
                                                   )
 
-        val xmlEncoderBase = XmlEncoderBase(context, config, target)
+        val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
         val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, serialQName)
 
         val xmlDescriptor = root.getElementDescriptor(0)
@@ -260,25 +252,16 @@ class XML(
     /**
      * Parse an object of the type [T] out of the reader
      */
-    @ImplicitReflectionSerializer
     @Suppress("unused")
-    inline fun <reified T : Any> parse(reader: XmlReader) = parse(T::class, reader)
+    inline fun <reified T : Any> parse(reader: XmlReader) = parse(serializer<T>(), reader)
 
-    @ImplicitReflectionSerializer
-    @Deprecated("Replaced by version with consistent parameter order", ReplaceWith("parse(reader, kClass, loader)"))
-    fun <T : Any> parse(
-        kClass: KClass<T>,
-        reader: XmlReader,
-        loader: DeserializationStrategy<T> = context.getContextualOrDefault(kClass)
-                       ): T =
-        parse(loader, reader)
-
-    @ImplicitReflectionSerializer
+    @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
     fun <T : Any> parse(
         kClass: KClass<T>,
         reader: XmlReader
-                       ): T =
-        parse(context.getContextualOrDefault(kClass), reader)
+                       ): T {
+        throw UnsupportedOperationException("Reflection for serialization is no longer supported")
+    }
 
 
     /**
@@ -305,7 +288,7 @@ class XML(
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
 
-        val xmlDecoderBase = XmlDecoderBase(context, config, reader)
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
         val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, serialDescriptor, serialName)
 
         val decoder = xmlDecoderBase.XmlDecoder(
@@ -323,19 +306,24 @@ class XML(
      * @param string The string that contains the XML from which to read the object
      * @param loader The loader to use to read the object
      */
-    @ImplicitReflectionSerializer
+    @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
     fun <T : Any> parse(kClass: KClass<T>, string: String): T {
-        return parse(context.getContextualOrDefault(kClass), XmlStreaming.newReader(string))
+        throw UnsupportedOperationException("Reflection for serialization is no longer supported")
     }
 
-    override fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
+    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
         return parse(deserializer, XmlStreaming.newReader(string))
+    }
+
+    @Deprecated("Use new function name", ReplaceWith("decodeFromString(deserializer, string)"),)
+    fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
+        return decodeFromString(deserializer, string)
     }
 
     companion object : StringFormat {
         val defaultInstance = XML(XmlConfig())
-        override val context: SerialModule
-            get() = defaultInstance.context
+        override val serializersModule: SerializersModule
+            get() = defaultInstance.serializersModule
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -343,11 +331,16 @@ class XML(
          * @param value The object to transform
          * @param serializer The serializer to user
          */
-        override fun <T> stringify(
+        override fun <T> encodeToString(
             serializer: SerializationStrategy<T>,
             value: T
                                   ): String =
-            defaultInstance.stringify(serializer, value)
+            defaultInstance.encodeToString(serializer, value)
+
+        @Deprecated("Use encodeToString", ReplaceWith("encodeToString(serializer, value)"))
+        fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
+            return encodeToString(serializer, value)
+        }
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -366,10 +359,11 @@ class XML(
          * @param kClass The class where to get the serializer from
          * @param prefix The namespace prefix to use
          */
-        @ImplicitReflectionSerializer
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String =
-            defaultInstance.stringify(kClass, obj, prefix)
+        @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+        fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String {
+            throw UnsupportedOperationException("Reflection for serialization is no longer supported")
+        }
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -377,9 +371,8 @@ class XML(
          * @param obj The object to transform
          * @param prefix The namespace prefix to use
          */
-        @ImplicitReflectionSerializer
         inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String =
-            stringify(obj, T::class, prefix)
+            stringify(serializer<T>(), obj, prefix?:"")
 
         /**
          * Transform into a string. This function is expected to be called indirectly.
@@ -389,15 +382,16 @@ class XML(
          * @param dest The [XmlWriter] to append the object to
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @ImplicitReflectionSerializer
         @Suppress("UNCHECKED_CAST")
+        @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> toXml(
             dest: XmlWriter,
             obj: T,
             kClass: KClass<T> = obj::class as KClass<T>,
             prefix: String? = null
-                           ) =
-            defaultInstance.toXml(dest, kClass, obj, prefix)
+                           ) {
+            throw UnsupportedOperationException("Reflection is no longer supported for serialization")
+        }
 
         /**
          * Write the object to the given writer
@@ -406,18 +400,18 @@ class XML(
          * @param dest The [XmlWriter] to append the object to
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @ImplicitReflectionSerializer
         @Suppress("unused")
-        inline fun <reified T : Any> toXml(dest: XmlWriter, obj: T, prefix: String?) =
-            toXml(dest, obj, T::class, prefix)
+        inline fun <reified T : Any> toXml(dest: XmlWriter, obj: T, prefix: String? = null) =
+            defaultInstance.toXml(dest, serializer<T>(), obj, prefix)
 
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
          * @param kClass The class to parse. Used for class annotations.
          */
-        @ImplicitReflectionSerializer
-        fun <T : Any> parse(kClass: KClass<T>, str: String): T = XML().parse(kClass, str)
+        @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+        fun <T : Any> parse(kClass: KClass<T>, str: String): T =
+            throw UnsupportedOperationException("Reflection for serialization is no longer supported")
 
         @Suppress("unused", "UNUSED_PARAMETER")
         @Deprecated(
@@ -427,22 +421,11 @@ class XML(
         fun <T : Any> parse(kClass: KClass<T>, str: String, loader: DeserializationStrategy<T>): T =
             parse(loader, str)
 
-        @Deprecated("Use better order", ReplaceWith("parse(kClass, str)"))
-        /**
-         * Parse an object of the type [T] out of the reader
-         * @param str The source of the XML events
-         * @param kClass The class to parse. Used for class annotations.
-         */
-        @ImplicitReflectionSerializer
-        fun <T : Any> parse(str: String, kClass: KClass<T>): T =
-            parse(kClass, str)
-
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
          */
-        @ImplicitReflectionSerializer
-        inline fun <reified T : Any> parse(str: String): T = parse(T::class, str)
+        inline fun <reified T : Any> parse(str: String): T = parse(serializer(), str)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -450,24 +433,34 @@ class XML(
          * @param deserializer The loader to use
          */
         @Suppress("unused")
-        override fun <T> parse(
+        @Deprecated("Use new name", ReplaceWith("decodeFromString(deserializer, string)"))
+        fun <T> parse(
             deserializer: DeserializationStrategy<T>,
             string: String
-                              ): T = XML().parse(deserializer, string)
+                              ): T = decodeFromString(deserializer, string)
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param string The source of the XML events
+         * @param deserializer The loader to use
+         */
+        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+            return defaultInstance.decodeFromString(deserializer, string)
+        }
 
         @Suppress("unused")
-        @ImplicitReflectionSerializer
+        @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader): T =
-            parse(reader, kClass)
+            throw UnsupportedOperationException("Reflection is no longer supported for serialization")
 
         /**
          * Parse an object of the type [T] out of the reader
          * @param reader The source of the XML events
          * @param kClass The class to parse. Used for class annotations.
          */
-        @ImplicitReflectionSerializer
+        @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> parse(reader: XmlReader, kClass: KClass<T>): T =
-            defaultInstance.parse(kClass, reader)
+            throw UnsupportedOperationException("Reflection is no longer supported for serialization")
 
         @Deprecated(
             "Replaced by version with consistent parameter order",
@@ -495,8 +488,7 @@ class XML(
          * Parse an object of the type [T] out of the reader
          * @param reader The source of the XML events
          */
-        @ImplicitReflectionSerializer
-        inline fun <reified T : Any> parse(reader: XmlReader): T = defaultInstance.parse(T::class, reader)
+        inline fun <reified T : Any> parse(reader: XmlReader): T = defaultInstance.parse(reader)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -522,7 +514,7 @@ class XML(
         /**
          * The currently active serialization context
          */
-        val context: SerialModule
+        val serializersModule: SerializersModule
 
         /**
          * The XmlWriter used. Can be used directly by serializers
@@ -620,7 +612,7 @@ internal fun SerialDescriptor.getValueChildOrThrow(): Int {
 
 internal fun XmlDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
-        if (serialDescriptor.getElementAnnotations(i).any { it is XmlValue }) return i
+        if (serialDescriptor.getElementAnnotations(i).any { it: Annotation -> it is XmlValue }) return i
     }
     return -1
 }
@@ -662,17 +654,16 @@ fun <T : Any> T.writeAsXml(out: XmlWriter, serializer: SerializationStrategy<T>)
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter.
  */
-@ImplicitReflectionSerializer
 inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
 
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter. This version takes a [KClass]
  * object rather than having a generic specification.
  */
-@ImplicitReflectionSerializer
 @Suppress("NOTHING_TO_INLINE")
-inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter) =
-    XML.toXml(out, kClass = kClass, obj = this)
+@Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter): Unit =
+    throw UnsupportedOperationException("Reflection is no longer supported for serialization")
 
 @RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
 annotation class WillBePrivate

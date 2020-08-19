@@ -21,6 +21,10 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlCodecBase
+import nl.adaptivity.xmlutil.serialization.firstOrNull
 
 class XmlTypeDescriptor
 internal constructor(val serialDescriptor: SerialDescriptor) {

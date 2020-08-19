@@ -22,8 +22,12 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.serialization.*
 
 
@@ -138,8 +142,8 @@ open class Base
 
 val baseModule = SerializersModule {
     polymorphic(Base::class) {
-        ChildA::class with ChildA.serializer()
-        ChildB::class with ChildB.serializer()
+        subclass(ChildA::class)
+        subclass(ChildB::class)
     }
 }
 
@@ -170,7 +174,7 @@ data class InvalidValueContainer(@XmlValue(true) val content:String, val element
 @Serializable
 data class MixedValueContainer(@XmlValue(true) val data: List<@Polymorphic Any>) {
     companion object {
-        fun module(): SerialModule {
+        fun module(): SerializersModule {
             return SerializersModule {
                 polymorphic(Any::class, String::class, String.serializer())
                 polymorphic(Any::class, Address::class, Address.serializer())
@@ -202,8 +206,8 @@ sealed /*open*/ class SealedParent
 
 val sealedModule = SerializersModule {
     polymorphic(SealedParent::class) {
-        SealedA::class with SealedA.serializer()
-        SealedB::class with SealedB.serializer()
+        subclass(SealedA::class)
+        subclass(SealedB::class)
     }
 }
 
@@ -358,9 +362,9 @@ internal data class Tag(
     companion object {
         val module = SerializersModule {
             polymorphic(Any::class) {
-                String::class with String.serializer()
-                B::class with B.serializer()
-                I::class with I.serializer()
+                subclass(String::class)
+                subclass(B::class)
+                subclass(I::class)
             }
         }
     }

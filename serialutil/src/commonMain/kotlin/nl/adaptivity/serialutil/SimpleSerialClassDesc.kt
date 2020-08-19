@@ -21,6 +21,13 @@
 package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.serialutil.impl.arrayMap
 import nl.adaptivity.serialutil.impl.maybeAnnotations
 import nl.adaptivity.serialutil.impl.name
@@ -150,8 +157,6 @@ abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer
     override val descriptor: SerialDescriptor get() = delegate.descriptor
 
     override fun deserialize(decoder: Decoder): T = delegate.deserialize(decoder)
-
-    override fun patch(decoder: Decoder, old: T): T = delegate.patch(decoder, old)
 
     override fun serialize(encoder: Encoder, value: T) = delegate.serialize(encoder, value)
 }

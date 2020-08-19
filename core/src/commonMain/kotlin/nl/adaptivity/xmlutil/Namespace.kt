@@ -20,12 +20,16 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 import nl.adaptivity.serialutil.decodeElements
-import kotlinx.serialization.decodeStructure
 import nl.adaptivity.serialutil.simpleSerialClassDesc
-import kotlinx.serialization.encodeStructure
 
 //@Serializable
 interface Namespace {

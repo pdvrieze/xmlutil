@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
@@ -34,9 +35,9 @@ interface XmlSerializationPolicy {
     val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
     fun defaultOutputKind(serialKind: SerialKind): OutputKind = when (serialKind) {
-        UnionKind.ENUM_KIND,
+        SerialKind.ENUM,
         StructureKind.OBJECT -> defaultObjectOutputKind
-        is PrimitiveKind -> defaultPrimitiveOutputKind
+        is PrimitiveKind     -> defaultPrimitiveOutputKind
         PolymorphicKind.OPEN -> OutputKind.Element
         else                 -> OutputKind.Element
     }

@@ -22,7 +22,12 @@ package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
-import nl.adaptivity.serialutil.impl.name
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.encodeStructure
 
 @Serializable(with = MixedContent.Companion::class)
 sealed class MixedContent<out T> {
@@ -32,11 +37,8 @@ sealed class MixedContent<out T> {
 
 
         companion object : KSerializer<Text> {
-            override val descriptor: SerialDescriptor =
-                PrimitiveDescriptor(
-                    "text",
-                    PrimitiveKind.STRING
-                                                                            )
+            override val descriptor: SerialDescriptor = String.serializer().descriptor
+
             override fun deserialize(decoder: Decoder): Text {
                 return Text(decoder.decodeString())
             }
@@ -145,7 +147,7 @@ sealed class MixedContent<out T> {
                 var value: MixedContent<Any>? = null
                 mainLoop@ while (true) {
                     when (val index = decodeElementIndex(descriptor)) {
-                        CompositeDecoder.READ_DONE -> break@mainLoop
+                        CompositeDecoder.DECODE_DONE -> break@mainLoop
                         0                          -> klassName = decodeStringElement(descriptor, index)
                         1                                                                             -> {
                             klassName = requireNotNull(klassName) { "Can not read polymorphic value before its type" }
@@ -217,8 +219,8 @@ sealed class MixedContent<out T> {
         private fun findPolymorphicSerializer(
             compositeDecoder: CompositeDecoder,
             klassName: String
-                                             ): KSerializer<out Any> {
-            return compositeDecoder.context.getPolymorphic(Any::class, serializedClassName = klassName)
+                                             ): DeserializationStrategy<out Any> {
+            return compositeDecoder.serializersModule.getPolymorphic(Any::class, serializedClassName = klassName)
                 ?: throw SerializationException("No matching serializer found for type name $klassName extending Any")
         }
 
@@ -227,7 +229,7 @@ sealed class MixedContent<out T> {
             value: Any
                                              ): KSerializer<Any> {
             @Suppress("UNCHECKED_CAST")
-            return (encoder.context.getPolymorphic(Any::class, value)
+            return (encoder.serializersModule.getPolymorphic(Any::class, value)
                 ?: throw SerializationException("No matching serializer found for type name ${value::class} extending Any")) as KSerializer<Any>
         }
     }

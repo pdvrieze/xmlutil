@@ -20,11 +20,16 @@
 
 package nl.adaptivity.serialutil.encoders
 
-import kotlinx.serialization.*
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialFormat
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
 
-private class HashEncoder(override val context: SerialModule) : Encoder {
+private class HashEncoder(override val serializersModule: SerializersModule) : Encoder {
     internal var hash: Int = 1
 
     override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
@@ -77,16 +82,11 @@ private class HashEncoder(override val context: SerialModule) : Encoder {
         hash = value.hashCode()
     }
 
-    override fun encodeUnit() {
-        hash = 1 // to distinguish it from a null value
-    }
-
-
 }
 
 
 private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeEncoder {
-    override val context: SerialModule get() = elementEncoder.context
+    override val serializersModule: SerializersModule get() = elementEncoder.serializersModule
 
     var hash = 1
         private set
@@ -148,7 +148,7 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         serializer: SerializationStrategy<T>,
         value: T
                                               ) {
-        val subEnc = HashEncoder(context)
+        val subEnc = HashEncoder(serializersModule)
         serializer.serialize(subEnc, value)
         addHash { subEnc.hash }
     }
@@ -161,8 +161,6 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         addHash { value.hashCode() }
     }
 
-    override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {}
-
     override fun endStructure(descriptor: SerialDescriptor) {
         elementEncoder.hash = hash
     }
@@ -171,15 +169,15 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
 /**
  * A format that allows for using serialization to create a hash code of a data structure.
  */
-class HashFormat(override val context: SerialModule) : SerialFormat {
+class HashFormat(override val serializersModule: SerializersModule) : SerialFormat {
 
     fun <T> hashCode(serializer: KSerializer<T>, obj: T): Int {
-        return HashEncoder(context).also { enc -> serializer.serialize(enc, obj) }.hash
+        return HashEncoder(serializersModule).also { enc -> serializer.serialize(enc, obj) }.hash
     }
 
     companion object : SerialFormat {
-        private val defaultFormat = HashFormat(EmptyModule)
-        override val context: SerialModule get() = defaultFormat.context
+        private val defaultFormat = HashFormat(EmptySerializersModule)
+        override val serializersModule: SerializersModule get() = defaultFormat.serializersModule
 
         /**
          * This function uses the default (empty) context to create a hashcode for the parameter.
