@@ -31,66 +31,7 @@ internal abstract class XmlCodecBase internal constructor(
     val config: XmlConfig
                                                          ) {
 
-    protected abstract val namespaceContext: NamespaceContext
-
-    /**
-     * Determine the polymorphic tag name for a particular element.
-     */
-    fun polyTagName(
-        parent: XmlSerializationPolicy.NameInfo,
-        polyChild: String,
-        baseClass: KClass<*>
-                   ): PolyBaseInfo {
-
-        val currentPkg = parent.serialName.substringBeforeLast('.', "")
-        val parentTag = parent.annotatedName!!
-        val eqPos = polyChild.indexOf('=')
-        val pkgPos: Int
-        val prefPos: Int
-        val typeNameBase: String
-        val prefix: String
-        val localPart: String
-
-        if (eqPos < 0) {
-            typeNameBase = polyChild
-            pkgPos = polyChild.lastIndexOf('.')
-            prefPos = -1
-            prefix = parentTag.prefix
-            localPart = if (pkgPos < 0) polyChild else polyChild.substring(pkgPos + 1)
-        } else {
-            typeNameBase = polyChild.substring(0, eqPos).trim()
-            pkgPos = polyChild.lastIndexOf('.', eqPos - 1)
-            prefPos = polyChild.indexOf(':', eqPos + 1)
-
-            if (prefPos < 0) {
-                prefix = parentTag.prefix
-                localPart = polyChild.substring(eqPos + 1).trim()
-            } else {
-                prefix = polyChild.substring(eqPos + 1, prefPos).trim()
-                localPart = polyChild.substring(prefPos + 1).trim()
-            }
-        }
-
-        val ns = if (prefPos >= 0) namespaceContext.getNamespaceURI(prefix)
-            ?: parentTag.namespaceURI else parentTag.namespaceURI
-
-        val typename = when {
-            pkgPos != 0 || currentPkg.isEmpty()
-                 -> typeNameBase
-
-            else -> "$currentPkg.${typeNameBase.substring(1)}"
-        }
-
-        val descriptor = context.getPolymorphic(baseClass, typename)?.descriptor
-            ?: throw XmlException("Missing descriptor for $typename in the serial context")
-
-        val name: QName = when {
-            eqPos < 0 -> descriptor.declRequestedName(XmlEvent.NamespaceImpl(prefix, ns))
-            else      -> QName(ns, localPart, prefix)
-        }
-
-        return PolyBaseInfo(name, -1, descriptor)
-    }
+    internal abstract val namespaceContext: NamespaceContext
 
 
     companion object {
@@ -105,8 +46,8 @@ internal abstract class XmlCodecBase internal constructor(
          * This function is used by the decoder to try to expand a shortened type name. It is the
          * opposite of [tryShortenTypeName].
          */
-        internal fun String.expandTypeNameIfNeeded(parentType: String): String {
-            if (!startsWith('.')) return this
+        internal fun String.expandTypeNameIfNeeded(parentType: String?): String {
+            if (parentType==null || !startsWith('.')) return this
             val parentPkg = parentType.lastIndexOf('.').let { idx ->
                 if (idx < 0) return substring(1)
                 parentType.substring(0, idx)
@@ -119,7 +60,9 @@ internal abstract class XmlCodecBase internal constructor(
          * This function is used by the encoder to try shorten a type name. It is the
          * opposite of [tryShortenTypeName].
          */
-        internal fun String.tryShortenTypeName(parentType: String): String {
+        internal fun String.tryShortenTypeName(parentType: String?): String {
+            if (parentType==null) return this
+
             val parentPkg = parentType.lastIndexOf('.').let { idx ->
                 if (idx < 0) return this
                 parentType.substring(0, idx)
@@ -139,9 +82,6 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(val xmlDescriptor: D) {
-
-        val parentDesc get() = xmlDescriptor.tagParent.descriptor.serialDescriptor
-        val elementIndex get() = xmlDescriptor.tagParent.index
 
         internal val config get() = this@XmlCodecBase.config
         val context: SerialModule get() = this@XmlCodecBase.context

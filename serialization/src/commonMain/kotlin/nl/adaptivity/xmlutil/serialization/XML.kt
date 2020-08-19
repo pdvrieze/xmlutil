@@ -585,7 +585,6 @@ fun XmlChildrenName.toQName() = when {
 
 internal data class PolyBaseInfo(
     val tagName: QName,
-    val indexUnused: Int,
     val descriptor: SerialDescriptor
                             ) {
 

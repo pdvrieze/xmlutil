@@ -25,10 +25,7 @@ import kotlinx.serialization.builtins.UnitSerializer
 import kotlinx.serialization.modules.SerialModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 
 internal open class XmlEncoderBase internal constructor(
     context: SerialModule,
@@ -297,9 +294,7 @@ internal open class XmlEncoderBase internal constructor(
                 index == 0                  -> {
                     if (!xmlDescriptor.isTransparent) {
                         val childDesc = xmlDescriptor.getElementDescriptor(0)
-                        assert(xmlDescriptor.parentSerialName == parentDesc.serialName) {
-                            "parentSerialName ('${xmlDescriptor.parentSerialName}') should match the one in the encoder: '${parentDesc.serialName}'"
-                        }
+
                         when (childDesc.outputKind) {
                             OutputKind.Attribute -> doWriteAttribute(
                                 childDesc.tagName,

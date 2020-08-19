@@ -21,25 +21,19 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.SerialDescriptor
-import nl.adaptivity.xmlutil.serialization.*
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase
-import nl.adaptivity.xmlutil.serialization.firstOrNull
 
 class XmlTypeDescriptor
-internal constructor(
-    val serialDescriptor: SerialDescriptor,
-    xmlCodecBase: XmlCodecBase
-                    ) {
+internal constructor(val serialDescriptor: SerialDescriptor) {
 
     val typeNameInfo = serialDescriptor.getNameInfo()
-    val serialName get() = typeNameInfo
+    val serialName get() = serialDescriptor.serialName
     val typeQname = typeNameInfo.annotatedName
 
     val elementsCount: Int get() = serialDescriptor.elementsCount
 
     private val children by lazy {
         Array(serialDescriptor.elementsCount) {
-            XmlTypeDescriptor(serialDescriptor, xmlCodecBase)
+            XmlTypeDescriptor(serialDescriptor)
         }
     }
 }
