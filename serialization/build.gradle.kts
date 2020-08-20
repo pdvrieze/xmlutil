@@ -113,6 +113,7 @@ kotlin {
                 }
             }
         }
+
     }
 
     targets.forEach { target ->
@@ -133,6 +134,7 @@ kotlin {
 
 
     sourceSets {
+
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
@@ -140,6 +142,7 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
+
         val commonTest by getting {
             dependencies {
                 implementation(project(":serialutil"))
@@ -148,28 +151,25 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
             }
         }
+
         val javaShared by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-            }
         }
+
         val javaSharedTest by creating {
             dependsOn(javaShared)
             dependsOn(commonTest)
         }
+
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
-            }
         }
+
         val jvmTest by getting {
+            dependsOn(javaSharedTest)
+            dependsOn(jvmMain)
+
             dependencies {
-                dependsOn(javaSharedTest)
-                dependsOn(jvmMain)
-                implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
@@ -184,51 +184,35 @@ kotlin {
 
             }
         }
+
         val androidMain by getting {
             dependsOn(javaShared)
+
             dependencies {
-                implementation(project(":core"))
                 compileOnly("net.sf.kxml:kxml2:2.3.0")
             }
         }
+
         val androidTest by getting {
+            dependsOn(javaSharedTest)
+            dependsOn(androidMain)
+
             dependencies {
-                dependsOn(javaSharedTest)
-                dependsOn(androidMain)
-                implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
 
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-
-                implementation(kotlin("stdlib-jdk8"))
-
-//                implementation("org.spekframework.spek2:spek-dsl-jvm:$spek2Version")
-//                runtimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek2Version")
-
                 implementation("org.xmlunit:xmlunit-core:2.6.0")
-
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
             }
         }
+
         val jsMain by getting {
-            //            dependsOn(commonMain)
-            dependencies {
-                api(project(":core"))
-                implementation(project(":serialutil"))
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                project.dependencies.add(
-                    apiConfigurationName,
-                    "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion") {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-            }
         }
+
         val jsTest by getting {
-            dependsOn(commonTest)
             dependencies {
                 implementation(kotlin("test-js"))
             }

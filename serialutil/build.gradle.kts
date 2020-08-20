@@ -114,38 +114,23 @@ kotlin {
         }
     }
 
+    @Suppress("UNUSED_VARIABLE")
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
         val javaShared by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-            }
         }
-        @Suppress("UNUSED_VARIABLE")
+
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-            }
         }
-        @Suppress("UNUSED_VARIABLE")
+
         val androidMain by getting {
             dependsOn(javaShared)
-        }
-        @Suppress("UNUSED_VARIABLE")
-        val jsMain by getting {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-            }
         }
 
     }

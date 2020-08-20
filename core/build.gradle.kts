@@ -136,30 +136,25 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
-//                implementation("org.spekframework.spek2:spek-dsl-common:$spek2Version")
             }
         }
+
         val javaShared by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-            }
         }
+
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-            }
         }
+
         val jvmTest by getting {
             dependencies {
                 dependsOn(commonTest)
@@ -170,18 +165,21 @@ kotlin {
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
             }
         }
+
         val androidMain by getting {
             dependsOn(javaShared)
+
             dependencies {
                 compileOnly("net.sf.kxml:kxml2:2.3.0")
             }
         }
+
         val androidTest by getting {
             dependencies {
                 dependsOn(commonTest)
+
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-                implementation(kotlin("stdlib-jdk8"))
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
@@ -190,11 +188,8 @@ kotlin {
 
         val jsMain by getting {
             dependsOn(commonMain)
-            dependencies {
-//                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-            }
         }
+
         val jsTest by getting {
             dependsOn(commonTest)
             dependencies {
