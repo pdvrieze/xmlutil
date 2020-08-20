@@ -22,12 +22,10 @@ package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.encodeStructure
 
 @Serializable(with = MixedContent.Companion::class)
 sealed class MixedContent<out T> {
@@ -79,7 +77,7 @@ sealed class MixedContent<out T> {
                 return Object(delegate.deserialize(decoder))
             }
 
-            override fun serialize(encoder: Encoder, value: Object<Any>): Unit {
+            override fun serialize(encoder: Encoder, value: Object<Any>) {
                 delegate.serialize(encoder, value.data)
             }
 
@@ -103,6 +101,7 @@ sealed class MixedContent<out T> {
         }
     }
 
+    // TODO make this serializer actually parameterized by the content type.
     companion object :
         KSerializer<MixedContent<Any>> {
 
@@ -136,52 +135,6 @@ sealed class MixedContent<out T> {
                 is String -> Text(value)
                 else -> Object(value)
             }
-            return decoder.decodeStructure(
-                descriptor
-                                          ) {
-                if (decodeSequentially()) return@decodeStructure decodeSequentially(
-                    this
-                                                                                   )
-
-                var klassName: String? = null
-                var value: MixedContent<Any>? = null
-                mainLoop@ while (true) {
-                    when (val index = decodeElementIndex(descriptor)) {
-                        CompositeDecoder.DECODE_DONE -> break@mainLoop
-                        0                          -> klassName = decodeStringElement(descriptor, index)
-                        1                                                                             -> {
-                            klassName = requireNotNull(klassName) { "Can not read polymorphic value before its type" }
-                            when (klassName) {
-                                "kotlin.String" -> value =
-                                    Text(
-                                        decodeStringElement(
-                                            descriptor,
-                                            index
-                                                           )
-                                        )
-                                else            -> {
-                                    val serializer =
-                                        findPolymorphicSerializer(
-                                            this,
-                                            klassName
-                                                                 )
-                                    value = Object(
-                                        decodeSerializableElement(
-                                            descriptor,
-                                            index,
-                                            serializer
-                                                                 )
-                                                  )
-                                }
-                            }
-                        }
-                        else                                                                          -> throw SerializationException(
-                            "Unexpected index in deserialization"
-                                                                                                                                     )
-                    }
-                }
-                requireNotNull(value) { "No value was provided" }
-            }
         }
 
         override fun serialize(encoder: Encoder, value: MixedContent<Any>) {
@@ -190,32 +143,9 @@ sealed class MixedContent<out T> {
                 is Object -> value.data
             }
             delegate.serialize(encoder, delegateValue)
-            return
-
-            // TODO maybe special case XML
-
-            when (value) {
-                is Text        -> encoder.encodeStructure(
-                    descriptor
-                                                                                                                  ) {
-                    encodeStringElement(descriptor, 0, "kotlin.String")
-                    encodeStringElement(descriptor, 1, value.data)
-                }
-                is Object<Any> -> encoder.encodeStructure(
-                    descriptor
-                                                                                                                  ) {
-                    val serializer: KSerializer<Any> =
-                        findPolymorphicSerializer(
-                            encoder,
-                            value.data
-                                                                                                                    )
-                    encodeStringElement(descriptor, 0, serializer.descriptor.serialName)
-                    encodeSerializableElement(descriptor, 1, serializer, value.data)
-                }
-            }
-
         }
 
+        @OptIn(ExperimentalSerializationApi::class)
         private fun findPolymorphicSerializer(
             compositeDecoder: CompositeDecoder,
             klassName: String
@@ -224,6 +154,7 @@ sealed class MixedContent<out T> {
                 ?: throw SerializationException("No matching serializer found for type name $klassName extending Any")
         }
 
+        @OptIn(ExperimentalSerializationApi::class)
         private fun findPolymorphicSerializer(
             encoder: Encoder,
             value: Any

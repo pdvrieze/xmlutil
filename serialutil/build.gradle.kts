@@ -22,7 +22,6 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
@@ -62,7 +61,6 @@ kotlin {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
                 tasks.named<Jar>("jvmJar") {
@@ -79,9 +77,8 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
+                kotlinOptions {
                     jvmTarget = "1.6"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }
@@ -89,7 +86,7 @@ kotlin {
             browser()
             nodejs()
             compilations.all {
-                tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
+                kotlinOptions {
                     sourceMap = true
                     sourceMapEmbedSources = "always"
                     suppressWarnings = false
@@ -97,13 +94,15 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }
 
     }
     targets.forEach { target ->
+        target.compilations.all {
+            kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        }
         target.mavenPublication {
             groupId = "net.devrieze"
             artifactId = "serialutil-${target.targetName}"
@@ -125,15 +124,18 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
+        @Suppress("UNUSED_VARIABLE")
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
                 implementation(kotlin("stdlib-jdk7"))
             }
         }
+        @Suppress("UNUSED_VARIABLE")
         val androidMain by getting {
             dependsOn(javaShared)
         }
+        @Suppress("UNUSED_VARIABLE")
         val jsMain by getting {
             dependsOn(commonMain)
             dependencies {

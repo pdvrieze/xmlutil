@@ -21,10 +21,7 @@
 package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -33,6 +30,7 @@ import nl.adaptivity.serialutil.impl.maybeAnnotations
 import nl.adaptivity.serialutil.impl.name
 import kotlin.jvm.JvmName
 
+@ExperimentalSerializationApi
 inline fun <reified T> simpleSerialClassDesc(
     kind: SerialKind,
     vararg elements: Pair<String, SerialDescriptor>
@@ -45,6 +43,7 @@ inline fun <reified T> simpleSerialClassDesc(
                                 )
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> simpleSerialClassDesc(
     kind: SerialKind,
     entityAnnotations: List<Annotation>,
@@ -53,6 +52,7 @@ inline fun <reified T> simpleSerialClassDesc(
     return SimpleSerialClassDesc(kind, T::class.name, entityAnnotations, *elements)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> simpleSerialClassDesc(): SerialDescriptor {
     return SimpleSerialClassDesc(
         StructureKind.CLASS,
@@ -61,10 +61,7 @@ inline fun <reified T> simpleSerialClassDesc(): SerialDescriptor {
                                 )
 }
 
-inline fun <reified T> simpleSerialClassDesc(entityAnnotations: List<Annotation>): SerialDescriptor {
-    return SimpleSerialClassDesc(StructureKind.CLASS, T::class.name, entityAnnotations)
-}
-
+@ExperimentalSerializationApi
 @JvmName("simpleSerialClassDescFromSerializer")
 inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSerializer<*>>): SerialDescriptor {
     return SimpleSerialClassDesc(
@@ -75,6 +72,7 @@ inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSeri
                                 )
 }
 
+@ExperimentalSerializationApi
 @JvmName("simpleSerialClassDescFromSerializer")
 inline fun <reified T> simpleSerialClassDesc(
     entityAnnotations: List<Annotation>,
@@ -88,7 +86,15 @@ inline fun <reified T> simpleSerialClassDesc(
                                 )
 }
 
-
+@Deprecated(
+    "Now supported by the standard library",
+    ReplaceWith(
+        "PrimitiveSerialDescriptor(name, kind)",
+        "kotlinx.serialization.descriptors.PrimitiveSerialDescriptor"
+               ),
+    DeprecationLevel.HIDDEN
+           )
+@ExperimentalSerializationApi
 class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, name: String) : SerialDescriptor {
     override val serialName: String = name
 
@@ -109,6 +115,7 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, name: Str
  * Simple impplementation of SerialClassDesc. It is used by the serialization code
  * as well, so exported, but not designed for use outside the xmlutil project.
  */
+@ExperimentalSerializationApi
 class SimpleSerialClassDesc(
     override val kind: SerialKind = StructureKind.CLASS,
     name: String,
@@ -140,7 +147,7 @@ class SimpleSerialClassDesc(
     override fun getElementName(index: Int) = elements[index].first
 
     override fun getElementAnnotations(index: Int): List<Annotation> {
-        if (index <0 || index >elements.size) throw IndexOutOfBoundsException(index.toString())
+        if (index < 0 || index > elements.size) throw IndexOutOfBoundsException(index.toString())
         return emptyList()
     }
 
@@ -149,8 +156,10 @@ class SimpleSerialClassDesc(
     override val elementsCount: Int get() = elements.size
 }
 
+@ExperimentalSerializationApi
 fun SerialDescriptor.withName(name: String): SerialDescriptor = RenameDesc(this, name)
 
+@ExperimentalSerializationApi
 private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
 
 abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer<T> {

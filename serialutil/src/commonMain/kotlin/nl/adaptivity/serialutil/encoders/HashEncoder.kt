@@ -20,6 +20,7 @@
 
 package nl.adaptivity.serialutil.encoders
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialFormat
 import kotlinx.serialization.SerializationStrategy
@@ -30,9 +31,9 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
 private class HashEncoder(override val serializersModule: SerializersModule) : Encoder {
-    internal var hash: Int = 1
+    var hash: Int = 1
 
-    override fun beginStructure(descriptor: SerialDescriptor, vararg typeSerializers: KSerializer<*>): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         return CompositeHashEncoder(this)
     }
 
@@ -52,6 +53,7 @@ private class HashEncoder(override val serializersModule: SerializersModule) : E
         hash = value.hashCode()
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         hash = enumDescriptor.getElementName(index).hashCode()
     }
@@ -68,8 +70,7 @@ private class HashEncoder(override val serializersModule: SerializersModule) : E
         hash = value.hashCode()
     }
 
-    override fun encodeNotNullMark() {}
-
+    @OptIn(ExperimentalSerializationApi::class)
     override fun encodeNull() {
         hash = 0
     }
@@ -129,6 +130,7 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         addHash { value.hashCode() }
     }
 
+    @ExperimentalSerializationApi
     override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
@@ -169,7 +171,8 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
 /**
  * A format that allows for using serialization to create a hash code of a data structure.
  */
-class HashFormat(override val serializersModule: SerializersModule) : SerialFormat {
+@OptIn(ExperimentalSerializationApi::class)
+class HashFormat constructor(override val serializersModule: SerializersModule) : SerialFormat {
 
     fun <T> hashCode(serializer: KSerializer<T>, obj: T): Int {
         return HashEncoder(serializersModule).also { enc -> serializer.serialize(enc, obj) }.hash
