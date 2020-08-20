@@ -37,12 +37,15 @@ run {
     }
 }
 
+kotlin {
+
+}
+
 val bintrayVersion: String by project
-val kotlin_version: String by project
 
 dependencies {
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion")
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
 }
 
 configurations.all {

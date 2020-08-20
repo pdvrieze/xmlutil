@@ -101,7 +101,11 @@ kotlin {
     }
     targets.forEach { target ->
         target.compilations.all {
-            kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            kotlinOptions {
+                languageVersion = "1.4"
+                apiVersion = "1.4"
+                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            }
         }
         target.mavenPublication {
             groupId = "net.devrieze"

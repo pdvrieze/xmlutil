@@ -73,13 +73,6 @@ kotlin {
                         jvmTarget = "1.8"
                     }
                 }
-                tasks.withType<KotlinCompile> {
-                    if (name.startsWith("compileTest")) {
-                        kotlinOptions {
-                            freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.serialization.UnstableDefault"
-                        }
-                    }
-                }
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)
@@ -121,12 +114,15 @@ kotlin {
                 }
             }
         }
-
     }
 
     targets.forEach { target ->
         target.compilations.all {
-            kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+            kotlinOptions {
+                languageVersion = "1.4"
+                apiVersion = "1.4"
+                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            }
         }
 
         target.mavenPublication {
@@ -153,7 +149,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
-//                implementation("org.spekframework.spek2:spek-dsl-common:$spek2Version")
             }
         }
         val javaShared by creating {
