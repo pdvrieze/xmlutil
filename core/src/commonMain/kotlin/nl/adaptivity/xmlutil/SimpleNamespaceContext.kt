@@ -20,10 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.Transient
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -47,11 +44,9 @@ import kotlin.jvm.JvmName
 @Serializable
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
 
-    @Transient
     val indices: IntRange
         get() = 0..(size - 1)
 
-    @Transient
     @get:JvmName("size")
     val size: Int
         get() = buffer.size / 2
@@ -218,11 +213,11 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return buffer.contentHashCode()
     }
 
-    @Serializer(forClass = SimpleNamespaceContext::class)
     companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = ListSerializer(Namespace)
 
+        @ExperimentalSerializationApi
         override val descriptor: SerialDescriptor =
             actualSerializer.descriptor.withName(SimpleNamespaceContext::class.name)
 

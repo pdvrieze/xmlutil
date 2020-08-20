@@ -20,10 +20,13 @@
 
 package nl.adaptivity.xmlutil
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
@@ -49,10 +52,11 @@ interface Namespace {
 
     operator fun component2() = namespaceURI
 
-    @Serializer(forClass = Namespace::class)
     companion object : KSerializer<Namespace> {
-        override val descriptor: SerialDescriptor =
-            simpleSerialClassDesc<Namespace>("prefix" to String.serializer(), "namespaceURI" to String.serializer())
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Namespace::class.simpleName!!) {
+            element("prefix", serialDescriptor<String>())
+            element("namespaceURI", serialDescriptor<String>())
+        }
 
         override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String

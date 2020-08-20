@@ -35,8 +35,10 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
+@ExperimentalSerializationApi
 expect fun getPlatformDefaultModule(): SerializersModule
 
+@ExperimentalSerializationApi
 private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(CompactFragment::class, CompactFragmentSerializer)
 }
@@ -67,10 +69,11 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
  * @property serializersModule The serialization context used to resolve serializers etc.
  * @property config The configuration of the various options that may apply.
  */
-class XML(
+@OptIn(ExperimentalSerializationApi::class)
+class XML constructor(
     val config: XmlConfig,
     serializersModule: SerializersModule = EmptySerializersModule
-         ) : StringFormat {
+                                                                 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
@@ -120,11 +123,8 @@ class XML(
      * @param prefix The prefix (if any) to use for the namespace
      */
     @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
-    fun <T : Any> stringify(
-        kClass: KClass<T>,
-        obj: T,
-        prefix: String? = null
-                           ): String {
+    @Suppress("UNUSED_PARAMETER")
+    fun <T : Any> stringify(kClass: KClass<T>, obj: T, prefix: String? = null): String {
         throw UnsupportedOperationException("Not supported by serialization library ")
     }
 
@@ -202,12 +202,8 @@ class XML(
      * @param prefix The prefix (if any) to use for the namespace
      */
     @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
-    fun <T : Any> toXml(
-        target: XmlWriter,
-        kClass: KClass<T>,
-        obj: T,
-        prefix: String? = null
-                       ) {
+    @Suppress("UNUSED_PARAMETER")
+    fun <T : Any> toXml(target: XmlWriter, kClass: KClass<T>, obj: T, prefix: String? = null) {
         throw UnsupportedOperationException("Reflection no longer works")
     }
 
@@ -256,10 +252,8 @@ class XML(
     inline fun <reified T : Any> parse(reader: XmlReader) = parse(serializer<T>(), reader)
 
     @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
-    fun <T : Any> parse(
-        kClass: KClass<T>,
-        reader: XmlReader
-                       ): T {
+    @Suppress("UNUSED_PARAMETER")
+    fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader): T {
         throw UnsupportedOperationException("Reflection for serialization is no longer supported")
     }
 
@@ -307,6 +301,7 @@ class XML(
      * @param loader The loader to use to read the object
      */
     @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+    @Suppress("UNUSED_PARAMETER")
     fun <T : Any> parse(kClass: KClass<T>, string: String): T {
         throw UnsupportedOperationException("Reflection for serialization is no longer supported")
     }
@@ -315,7 +310,7 @@ class XML(
         return parse(deserializer, XmlStreaming.newReader(string))
     }
 
-    @Deprecated("Use new function name", ReplaceWith("decodeFromString(deserializer, string)"),)
+    @Deprecated("Use new function name", ReplaceWith("decodeFromString(deserializer, string)"))
     fun <T> parse(deserializer: DeserializationStrategy<T>, string: String): T {
         return decodeFromString(deserializer, string)
     }
@@ -359,7 +354,7 @@ class XML(
          * @param kClass The class where to get the serializer from
          * @param prefix The namespace prefix to use
          */
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String {
             throw UnsupportedOperationException("Reflection for serialization is no longer supported")
@@ -382,7 +377,7 @@ class XML(
          * @param dest The [XmlWriter] to append the object to
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> toXml(
             dest: XmlWriter,
@@ -402,7 +397,23 @@ class XML(
          */
         @Suppress("unused")
         inline fun <reified T : Any> toXml(dest: XmlWriter, obj: T, prefix: String? = null) =
-            defaultInstance.toXml(dest, serializer<T>(), obj, prefix)
+            toXml(dest, serializer<T>(), obj, prefix)
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param serializer The serializer to use
+         * @param value The actual object
+         * @param prefix The prefix (if any) to use for the namespace
+         */
+        fun <T> toXml(
+            target: XmlWriter,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            prefix: String? = null
+                     ) =
+            defaultInstance.toXml(target, serializer, value, prefix)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -410,22 +421,26 @@ class XML(
          * @param kClass The class to parse. Used for class annotations.
          */
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+        @Suppress("UNUSED_PARAMETER")
         fun <T : Any> parse(kClass: KClass<T>, str: String): T =
             throw UnsupportedOperationException("Reflection for serialization is no longer supported")
-
-        @Suppress("unused", "UNUSED_PARAMETER")
-        @Deprecated(
-            "Replaced by version with consistent parameter order",
-            ReplaceWith("parse(str, loader)")
-                   )
-        fun <T : Any> parse(kClass: KClass<T>, str: String, loader: DeserializationStrategy<T>): T =
-            parse(loader, str)
 
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
          */
-        inline fun <reified T : Any> parse(str: String): T = parse(serializer(), str)
+        @Deprecated("Use decodeFromString", ReplaceWith(
+            "decodeFromString(str)",
+            "nl.adaptivity.xmlutil.serialization.XML.Companion.decodeFromString"
+                                                           )
+                   )
+        inline fun <reified T : Any> parse(str: String): T = decodeFromString(str)
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param str The source of the XML events
+         */
+        inline fun <reified T : Any> decodeFromString(str: String): T = decodeFromString(serializer(), str)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -448,7 +463,7 @@ class XML(
             return defaultInstance.decodeFromString(deserializer, string)
         }
 
-        @Suppress("unused")
+        @Suppress("UNUSED_PARAMETER")
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
         fun <T : Any> parse(kClass: KClass<T>, reader: XmlReader): T =
             throw UnsupportedOperationException("Reflection is no longer supported for serialization")
@@ -459,6 +474,7 @@ class XML(
          * @param kClass The class to parse. Used for class annotations.
          */
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
+        @Suppress("UNUSED_PARAMETER")
         fun <T : Any> parse(reader: XmlReader, kClass: KClass<T>): T =
             throw UnsupportedOperationException("Reflection is no longer supported for serialization")
 
@@ -578,8 +594,9 @@ fun XmlChildrenName.toQName() = when {
 internal data class PolyBaseInfo(
     val tagName: QName,
     val descriptor: SerialDescriptor
-                            ) {
+                                ) {
 
+    @OptIn(ExperimentalSerializationApi::class)
     val describedName get() = descriptor.serialName
 
 }
@@ -592,6 +609,7 @@ internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
 }
 
 
+@ExperimentalSerializationApi
 internal fun SerialDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
         if (getElementAnnotations(i).any { it is XmlValue }) return i
@@ -599,6 +617,7 @@ internal fun SerialDescriptor.getValueChild(): Int {
     return CompositeDecoder.UNKNOWN_NAME
 }
 
+@ExperimentalSerializationApi
 @Deprecated("Use index version that returns -1 for missing child")
 internal fun SerialDescriptor.getValueChildOrThrow(): Int {
     if (elementsCount == 1) {
@@ -610,26 +629,16 @@ internal fun SerialDescriptor.getValueChildOrThrow(): Int {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
-        if (serialDescriptor.getElementAnnotations(i).any { it: Annotation -> it is XmlValue }) return i
+        if (serialDescriptor.getElementAnnotations(i).any { it is XmlValue }) return i
     }
     return -1
 }
 
-@Deprecated("Use index version that returns -1 for missing child")
-internal fun XmlDescriptor.getValueChildOrThrow(): Int {
-    if (elementsCount == 1) {
-        return 0
-    } else {
-        return getValueChild().also {
-            if (it < 0) throw XmlSerialException("No value child found for type with descriptor: $this")
-        }
-    }
-}
-
 /** Straightforward copy function */
-fun QName.copy(
+internal fun QName.copy(
     namespaceURI: String = this.namespaceURI,
     localPart: String = this.localPart,
     prefix: String = this.prefix
@@ -648,22 +657,15 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
  * @param out The writer to use for writing the XML
  * @param serializer The serializer to use. Often `T.Companion.serializer()`
  */
+@Deprecated("\"Use the XML object that allows configuration\"")
 fun <T : Any> T.writeAsXml(out: XmlWriter, serializer: SerializationStrategy<T>) =
     XML.defaultInstance.toXml(out, serializer, this)
 
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter.
  */
+@Deprecated("Use the XML object that allows configuration", ReplaceWith("XML.toXml(out, this)"))
 inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
-
-/**
- * Extension function that allows any (serializable) object to be written to an XmlWriter. This version takes a [KClass]
- * object rather than having a generic specification.
- */
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
-inline fun <T : Any> T.writeAsXML(kClass: KClass<T>, out: XmlWriter): Unit =
-    throw UnsupportedOperationException("Reflection is no longer supported for serialization")
 
 @RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
 annotation class WillBePrivate

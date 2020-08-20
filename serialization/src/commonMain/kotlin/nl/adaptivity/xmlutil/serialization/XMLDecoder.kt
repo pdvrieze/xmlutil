@@ -169,6 +169,8 @@ internal open class XmlDecoderBase internal constructor(
     private inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
         XmlDecoder(xmlDescriptor), CompositeDecoder {
 
+        // Needs to be here because both Decoder and CompositeDecoder provide implementations
+        @Suppress("DEPRECATION", "OverridingDeprecatedMember")
         override val updateMode: UpdateMode get() = UpdateMode.BANNED
 
         override fun decodeNotNullMark() = false
@@ -757,8 +759,6 @@ internal open class XmlDecoderBase internal constructor(
                 input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             } else {
                 val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
-
-                val autopoly = xmlDescriptor.isTransparent
 
                 if (!isMixed || !xmlDescriptor.isTransparent) { // Don't check in mixed mode as we could have just had raw text
                     val t = polyInfo?.tagName

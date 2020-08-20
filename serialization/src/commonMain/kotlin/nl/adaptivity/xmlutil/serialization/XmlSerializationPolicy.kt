@@ -34,6 +34,7 @@ interface XmlSerializationPolicy {
     val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
+    @ExperimentalSerializationApi
     fun defaultOutputKind(serialKind: SerialKind): OutputKind = when (serialKind) {
         SerialKind.ENUM,
         StructureKind.OBJECT -> defaultObjectOutputKind
@@ -60,6 +61,7 @@ interface XmlSerializationPolicy {
     fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName
 
     data class DeclaredNameInfo(val serialName: String, val annotatedName: QName?)
+
     data class ActualNameInfo(val serialName: String, val annotatedName: QName)
 
     fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind
@@ -67,6 +69,8 @@ interface XmlSerializationPolicy {
     fun handleUnknownContent(input: XmlReader, inputKind: InputKind, name: QName?, candidates: Collection<Any>)
 }
 
+
+@OptIn(ExperimentalSerializationApi::class)
 open class DefaultXmlSerializationPolicy(
     val pedantic: Boolean,
     val autoPolymorphic: Boolean = false,

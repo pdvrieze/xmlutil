@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
@@ -28,6 +29,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlin.reflect.KClass
 
+@ExperimentalSerializationApi
 internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>) : SerializersModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 
@@ -52,11 +54,4 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
         }
     }
 
-}
-
-
-// TODO on kotlinx.serialization-1.0 use the actual information provided
-@Deprecated("Use proper property", ReplaceWith("capturedKClass", "kotlinx.serialization.descriptors.capturedKClass"))
-internal fun SerialDescriptor.capturedKClass(context: SerializersModule): KClass<*>? {
-    return capturedKClass
 }

@@ -20,16 +20,20 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
 
+@ExperimentalSerializationApi
 internal open class XmlEncoderBase internal constructor(
     context: SerializersModule,
     config: XmlConfig,

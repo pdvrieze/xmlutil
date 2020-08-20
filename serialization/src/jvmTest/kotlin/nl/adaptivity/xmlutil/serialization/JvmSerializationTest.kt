@@ -48,7 +48,7 @@ class JvmSerializationTest {
         val xml = XML {
             autoPolymorphic = true
         }
-        val deserialized = xml.parse(ElementSerializer, contentText)
+        val deserialized = xml.decodeFromString(ElementSerializer, contentText)
 
         try {
             val expected = Input.fromNode(expectedObj)
@@ -84,7 +84,7 @@ class JvmSerializationTest {
             autoPolymorphic = true
         }
 
-        val serialized = xml.stringify(ElementSerializer, element)
+        val serialized = xml.encodeToString(ElementSerializer, element)
         assertEquals(expected, serialized)
     }
 

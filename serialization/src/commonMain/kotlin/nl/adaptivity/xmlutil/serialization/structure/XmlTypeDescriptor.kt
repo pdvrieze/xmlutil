@@ -20,22 +20,29 @@
 
 package nl.adaptivity.xmlutil.serialization.structure
 
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-import nl.adaptivity.xmlutil.serialization.*
-import nl.adaptivity.xmlutil.serialization.XmlCodecBase
-import nl.adaptivity.xmlutil.serialization.firstOrNull
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 
 class XmlTypeDescriptor
 internal constructor(val serialDescriptor: SerialDescriptor) {
 
-    val typeNameInfo = serialDescriptor.getNameInfo()
-    val serialName get() = serialDescriptor.serialName
-    val typeQname = typeNameInfo.annotatedName
+    @OptIn(ExperimentalSerializationApi::class)
+    val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo()
 
-    val elementsCount: Int get() = serialDescriptor.elementsCount
+    @OptIn(ExperimentalSerializationApi::class)
+    val serialName: String
+        get() = serialDescriptor.serialName
+
+    val typeQname: QName? = typeNameInfo.annotatedName
+
+    @OptIn(ExperimentalSerializationApi::class)
+    val elementsCount: Int
+        get() = serialDescriptor.elementsCount
 
     private val children by lazy {
+        @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) {
             XmlTypeDescriptor(serialDescriptor)
         }

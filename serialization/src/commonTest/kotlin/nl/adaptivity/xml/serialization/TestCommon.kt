@@ -18,8 +18,11 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -31,6 +34,8 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML.Companion.decodeFromString
+import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToString
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
@@ -43,7 +48,7 @@ fun JsonBuilder.defaultJsonTestConfiguration() {
 
 class TestCommon {
 
-    abstract class TestBase<T>(
+    abstract class TestBase<T> constructor(
         val value: T,
         val serializer: KSerializer<T>,
         val serializersModule: SerializersModule = EmptySerializersModule,
@@ -52,7 +57,7 @@ class TestCommon {
             defaultJsonTestConfiguration()
             this.serializersModule = serializersModule
         }
-                              ) {
+                                                                                      ) {
         abstract val expectedXML: String
         abstract val expectedJson: String
 
@@ -67,7 +72,7 @@ class TestCommon {
 
         @Test
         open fun testDeserializeXml() {
-            assertEquals(value, baseXmlFormat.parse(serializer, expectedXML))
+            assertEquals(value, baseXmlFormat.decodeFromString(serializer, expectedXML))
         }
 
         @Test
@@ -98,14 +103,15 @@ class TestCommon {
         @Test
         fun nonAutoPolymorphic_serialization_should_work() {
             val serialized =
-                XML(serializersModule = serializersModule) { autoPolymorphic = false }.stringify(serializer, value).normalize()
+                XML(serializersModule = serializersModule) { autoPolymorphic = false }.encodeToString(serializer, value)
+                    .normalize()
             assertEquals(expectedNonAutoPolymorphicXML, serialized)
         }
 
         @Test
         fun nonAutoPolymorphic_deserialization_should_work() {
             val actualValue = XML(serializersModule = serializersModule) { autoPolymorphic = false }
-                .parse(serializer, expectedNonAutoPolymorphicXML)
+                .decodeFromString(serializer, expectedNonAutoPolymorphicXML)
 
             assertEquals(value, actualValue)
         }
@@ -129,7 +135,7 @@ class TestCommon {
         @Test
         fun deserialize_with_unused_attributes() {
             val e = assertFailsWith<UnknownXmlFieldException> {
-                XML.parse(serializer, unknownValues)
+                decodeFromString(serializer, unknownValues)
             }
 
             val expectedMsgStart = "Could not find a field for name {http://www.w3.org/XML/1998/namespace}lang\n" +
@@ -150,7 +156,7 @@ class TestCommon {
                     ignoredKind = inputKind
                 }
             }
-            assertEquals(value, xml.parse(serializer, unknownValues))
+            assertEquals(value, xml.decodeFromString(serializer, unknownValues))
             assertEquals(QName(XMLConstants.XML_NS_URI, "lang", "xml"), ignoredName)
             assertEquals(InputKind.Attribute, ignoredKind)
         }
@@ -167,7 +173,7 @@ class TestCommon {
         @Test
         fun testAlternativeXml() {
             val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
-            assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
+            assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
         }
 
     }
@@ -202,7 +208,7 @@ class TestCommon {
         @Test
         fun testAlternativeXml() {
             val alternativeXml = "<valueContainer><![CDATA[    \nfoo]]>bar\n  </valueContainer>"
-            assertEquals(value, baseXmlFormat.parse(serializer, alternativeXml))
+            assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
         }
 
     }
@@ -239,7 +245,7 @@ class TestCommon {
         @Test
         fun testSerializeInvalid() {
             val e = assertFails {
-                format.stringify(serializer, data)
+                format.encodeToString(serializer, data)
             }
             assertTrue(e is XmlSerialException)
             assertTrue(e.message?.contains("@XmlValue") == true)
@@ -248,7 +254,7 @@ class TestCommon {
         @Test
         fun testDeserializeInvalid1() {
             val e = assertFails {
-                format.parse(serializer, invalidXML1)
+                format.decodeFromString(serializer, invalidXML1)
             }
             assertTrue(e is XmlSerialException)
             assertTrue(e.message?.contains("@XmlValue") == true)
@@ -257,7 +263,7 @@ class TestCommon {
         @Test
         fun testDeserializeInvalid2() {
             val e = assertFails {
-                format.parse(serializer, invalidXML2)
+                format.decodeFromString(serializer, invalidXML2)
             }
             assertTrue(e is XmlSerialException)
             assertTrue(e.message?.contains("@XmlValue") == true)
@@ -266,7 +272,7 @@ class TestCommon {
         @Test
         fun testDeserializeInvalid3() {
             val e = assertFails {
-                format.parse(serializer, invalidXML3)
+                format.decodeFromString(serializer, invalidXML3)
             }
             assertTrue(e is XmlSerialException)
             assertTrue(e.message?.contains("@XmlValue") == true)
@@ -289,7 +295,7 @@ class TestCommon {
 
         fun fails_with_unexpected_child_tags() {
             val e = assertFailsWith<UnknownXmlFieldException> {
-                XML.parse(serializer, noisyXml)
+                decodeFromString(serializer, noisyXml)
             }
             assertEquals(
                 "Could not find a field for name {http://www.w3.org/XML/1998/namespace}lang\n" +
@@ -309,7 +315,7 @@ class TestCommon {
                     ignoredKind = inputKind
                 }
             }
-            assertEquals(value, xml.parse(serializer, noisyXml))
+            assertEquals(value, xml.decodeFromString(serializer, noisyXml))
             assertEquals(QName(XMLConstants.NULL_NS_URI, "unexpected", ""), ignoredName)
             assertEquals(InputKind.Element, ignoredKind)
         }
@@ -406,7 +412,7 @@ class TestCommon {
         @Test
         fun invalidXmlDoesNotDeserialize() {
             assertFailsWith<UnknownXmlFieldException> {
-                XML.parse(serializer, invalidXml)
+                decodeFromString(serializer, invalidXml)
             }
         }
     }
@@ -437,7 +443,7 @@ class TestCommon {
         fun noticeMissingChild() {
             val xml = "<Inverted arg='5'/>"
             assertFailsWith<SerializationException> {
-                XML.parse(serializer, xml)
+                decodeFromString(serializer, xml)
             }
         }
 
@@ -445,7 +451,7 @@ class TestCommon {
         fun noticeIncompleteSpecification() {
             val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
             assertFailsWith<UnknownXmlFieldException>("Could not find a field for name argx") {
-                XML.parse(serializer, xml)
+                decodeFromString(serializer, xml)
             }
 
         }
@@ -594,7 +600,7 @@ class TestCommon {
             indentString = "    "
         }
 
-        val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
+        val serializedModel = format.encodeToString(SampleModel1.serializer(), model).normalize().replace('\'', '"')
 
         assertEquals(expectedXml, serializedModel)
     }
@@ -615,7 +621,7 @@ class TestCommon {
             indentString = "<!--i-->"
         }
 
-        val serializedModel = format.stringify(SampleModel1.serializer(), model).normalize().replace('\'', '"')
+        val serializedModel = format.encodeToString(SampleModel1.serializer(), model).normalize().replace('\'', '"')
 
         assertEquals(expectedXml, serializedModel)
     }
@@ -628,7 +634,7 @@ class TestCommon {
         val xml = XML(Tag.module) {
             autoPolymorphic = true
         }
-        val deserialized = xml.parse(Tag.serializer(), contentText)
+        val deserialized = xml.decodeFromString(Tag.serializer(), contentText)
 
         assertEquals(expectedObj, deserialized)
     }
@@ -640,10 +646,10 @@ class TestCommon {
         val expectedXml = "<IntList><values>1</values><values>2</values><values>3</values><values>4</values></IntList>"
         val xml = XML
         val serializer = IntList.serializer()
-        val serialized = xml.stringify(serializer, data)
+        val serialized = xml.encodeToString(serializer, data)
         assertEquals(expectedXml, serialized)
 
-        val deserialized = xml.parse(serializer, serialized)
+        val deserialized = xml.decodeFromString(serializer, serialized)
         assertEquals(data, deserialized)
     }
 
@@ -657,7 +663,7 @@ class TestCommon {
             autoPolymorphic = true
         }
 
-        val serialized = xml.stringify(Tag.serializer(), expectedObj)
+        val serialized = xml.encodeToString(Tag.serializer(), expectedObj)
         assertEquals(contentText, serialized)
     }
 

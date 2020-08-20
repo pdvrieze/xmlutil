@@ -23,6 +23,7 @@ package nl.adaptivity.serialutil
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -35,7 +36,7 @@ sealed class MixedContent<out T> {
 
 
         companion object : KSerializer<Text> {
-            override val descriptor: SerialDescriptor = String.serializer().descriptor
+            override val descriptor: SerialDescriptor = serialDescriptor<String>()
 
             override fun deserialize(decoder: Decoder): Text {
                 return Text(decoder.decodeString())

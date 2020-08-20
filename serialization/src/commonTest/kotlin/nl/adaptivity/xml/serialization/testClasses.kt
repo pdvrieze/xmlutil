@@ -18,11 +18,15 @@
  * under the License.
  */
 
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
@@ -125,7 +129,7 @@ data class Custom(val property: String)
 @Serializer(forClass = Custom::class)
 class CustomSerializer : KSerializer<Custom> {
 
-    override val descriptor: SerialDescriptor = String.serializer().descriptor
+    override val descriptor: SerialDescriptor = serialDescriptor<String>()
 
 
     override fun deserialize(decoder: Decoder): Custom {
