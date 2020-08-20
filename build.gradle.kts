@@ -47,7 +47,6 @@ allprojects {
 
         maven("https://kotlin.bintray.com/kotlinx")
 
-        maven("https://dl.bintray.com/jetbrains/spek")
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
 /*

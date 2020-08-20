@@ -45,7 +45,6 @@ base {
 }
 
 val serializationVersion: String by project
-val spek2Version: String by project
 val jupiterVersion: String by project
 
 val kotlin_version: String by project
@@ -173,10 +172,6 @@ kotlin {
                 implementation(project(":core"))
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-
-                implementation("org.spekframework.spek2:spek-dsl-jvm:$spek2Version")
-                runtimeOnly("org.spekframework.spek2:spek-runtime-jvm:$spek2Version")
-                runtimeOnly("org.spekframework.spek2:spek-runner-junit5:$spek2Version")
 
                 implementation("net.bytebuddy:byte-buddy:1.10.10")
                 implementation("org.assertj:assertj-core:3.16.1")
