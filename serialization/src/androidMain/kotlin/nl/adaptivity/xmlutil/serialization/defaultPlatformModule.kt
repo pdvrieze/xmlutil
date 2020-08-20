@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.modules.EmptyModule
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
 
-actual fun getPlatformDefaultModule(): SerialModule = EmptyModule
+@ExperimentalSerializationApi
+actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule
