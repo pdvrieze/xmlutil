@@ -20,16 +20,18 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.*
-import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
-import kotlin.reflect.KClass
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun CompactFragment.Companion.serializer() = CompactFragmentSerializer
@@ -61,14 +63,14 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             var namespaces: List<Namespace> = mutableListOf()
             var content = ""
 
-            val nsIndex = 0
-            val contentIndex = 1
+            var index = input.decodeElementIndex(descriptor)
 
-            decodeElements(input) { elem: Int ->
-                when (elem) {
-                    nsIndex      -> namespaces = input.decodeSerializableElement(descriptor, elem, namespacesSerializer)
-                    contentIndex -> content = input.decodeStringElement(descriptor, elem)
+            while (index >= 0) {
+                when (index) {
+                    0 -> namespaces = input.decodeSerializableElement(descriptor, index, namespacesSerializer)
+                    1 -> content = input.decodeStringElement(descriptor, index)
                 }
+                index = input.decodeElementIndex(descriptor)
             }
             CompactFragment(namespaces, content)
         }
@@ -122,5 +124,19 @@ object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
 
     override fun serialize(encoder: Encoder, value: ICompactFragment) {
         CompactFragmentSerializer.serialize(encoder, value)
+    }
+}
+
+/**
+ * Helper function that helps decoding structure elements
+ */
+private inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
+    var index = input.decodeElementIndex(descriptor)
+    @Suppress("DEPRECATION")
+    if (index == CompositeDecoder.DECODE_DONE) return
+
+    while (index >= 0) {
+        body(index)
+        index = input.decodeElementIndex(descriptor)
     }
 }

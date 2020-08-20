@@ -137,16 +137,14 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
-                implementation(project(":serialutil"))
-                project.dependencies.add(apiConfigurationName,
-                "org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion") {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-                implementation(kotlin("stdlib"))
+
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
         val commonTest by getting {
             dependencies {
+                implementation(project(":serialutil"))
+
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
             }

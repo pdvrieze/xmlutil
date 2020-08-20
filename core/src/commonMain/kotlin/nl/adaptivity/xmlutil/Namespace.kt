@@ -27,14 +27,8 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
-import kotlinx.serialization.encoding.encodeStructure
-import nl.adaptivity.serialutil.decodeElements
-import nl.adaptivity.serialutil.simpleSerialClassDesc
+import kotlinx.serialization.encoding.*
 
-//@Serializable
 interface Namespace {
 
     /**
@@ -62,11 +56,15 @@ interface Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
             decoder.decodeStructure(descriptor) {
-                decodeElements(this) {
+                var index = decodeElementIndex(descriptor)
+                while (index!=CompositeDecoder.DECODE_DONE) {
+                    val it = index
                     when (it) {
                         0 -> prefix = decodeStringElement(descriptor, it)
                         1 -> namespaceUri = decodeStringElement(descriptor, it)
                     }
+
+                    index = decodeElementIndex(descriptor)
                 }
             }
             return XmlEvent.NamespaceImpl(prefix, namespaceUri)

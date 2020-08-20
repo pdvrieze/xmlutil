@@ -25,7 +25,6 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.serialutil.withName
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
@@ -213,13 +212,16 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return buffer.contentHashCode()
     }
 
+    @ExperimentalSerializationApi
+    private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
+
+
     companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = ListSerializer(Namespace)
 
         @ExperimentalSerializationApi
-        override val descriptor: SerialDescriptor =
-            actualSerializer.descriptor.withName(SimpleNamespaceContext::class.name)
+        override val descriptor: SerialDescriptor = RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
@@ -229,9 +231,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         }
 
         override fun deserialize(decoder: Decoder): SimpleNamespaceContext {
-            return SimpleNamespaceContext(
-                actualSerializer.deserialize(decoder)
-                                         )
+            return SimpleNamespaceContext(actualSerializer.deserialize(decoder))
         }
 
         override fun serialize(encoder: Encoder, value: SimpleNamespaceContext) {

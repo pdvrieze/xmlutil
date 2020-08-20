@@ -138,7 +138,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-                implementation(project(":serialutil"))
             }
         }
         val commonTest by getting {
