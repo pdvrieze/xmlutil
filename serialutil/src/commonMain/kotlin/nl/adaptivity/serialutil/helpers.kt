@@ -67,7 +67,6 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
  */
 inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
     var index = input.decodeElementIndex(descriptor)
-    @Suppress("DEPRECATION")
     if (index == CompositeDecoder.DECODE_DONE) return
 
     while (index >= 0) {
