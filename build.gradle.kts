@@ -19,11 +19,14 @@
  */
 
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import org.jetbrains.dokka.gradle.DokkaMultimoduleTask
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     idea
     kotlin("android") apply false
     id("com.jfrog.bintray") apply false
+    id("org.jetbrains.dokka") //version "1.4.0-rc"
 }
 
 description = "The overall project for cross-platform xml access"
@@ -49,12 +52,6 @@ allprojects {
 
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
-/*
-
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
-    }
- */
 }
 
 configurations.all {
@@ -70,6 +67,23 @@ buildScan {
 
     publishOnFailureIf("true".equals(System.getenv("TRAVIS")))
 }
+
+tasks.withType<DokkaTask>().configureEach {
+    // custom output directory
+//    outputDirectory = buildDir.resolve("dokka").absolutePath
+//    outputDirectory.set(buildDir.resolve("dokka"))
+    subprojects.addAll(listOf(project(":core"), project(":serialization"), project(":serialutil")))
+}
+
+tasks.named<DokkaMultimoduleTask>("dokkaHtmlMultimodule") {
+    outputDirectory = buildDir.resolve("dokka").absolutePath
+/*
+    dokkaSourceSets.all {  }
+
+    this.subprojects.addAll(listOf(project(":core"), project("serialization"), project("serialutil")))
+*/
+}
+
 
 idea {
     project {

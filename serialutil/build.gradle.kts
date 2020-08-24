@@ -82,7 +82,7 @@ kotlin {
                 }
             }
         }
-        js {
+        js(BOTH) {
             browser()
             nodejs()
             compilations.all {
@@ -133,6 +133,15 @@ kotlin {
             dependsOn(javaShared)
         }
 
+    }
+
+    sourceSets.all {
+        languageSettings.apply {
+            progressiveMode = true
+            apiVersion="1.4"
+            languageVersion="1.4"
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
     }
 
 }

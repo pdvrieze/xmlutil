@@ -23,6 +23,8 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
+import net.devrieze.gradle.ext.sourceRoots
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
@@ -33,6 +35,7 @@ plugins {
     id("maven-publish")
     id("com.jfrog.bintray")
 //    id("com.moowork.node") version "1.3.1"
+    id("org.jetbrains.dokka")
     idea
 }
 
@@ -99,7 +102,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        js {
+        js(BOTH) {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -219,7 +222,64 @@ kotlin {
         }
     }
 
+    sourceSets.all {
+        languageSettings.apply {
+            progressiveMode = true
+            apiVersion="1.4"
+            languageVersion="1.4"
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
+    }
+
 }
+
+tasks.withType<DokkaTask>().configureEach {
+//    outputDirectory = rootProject.buildDir.resolve("dokka").absolutePath
+
+    dokkaSourceSets.apply {
+
+/*
+        register("commonMain") {
+            displayName = "Common"
+            platform = "common"
+            sourceRoots(project, "commonMain")
+        }
+*/
+
+/*
+        register("javaShared") {
+            displayName = "Java"
+            platform = "jvm"
+            sourceRoots(project, "javaShared")
+        }
+*/
+        register("jvmMain") { // Different name, so source roots must be passed explicitly
+            displayName = "JVM"
+            platform = "jvm"
+
+            sourceRoots(project, "commonMain", "javaShared", "jvmMain")
+            skipEmptyPackages = true
+        }
+
+        register("androidMain") { // Different name, so source roots must be passed explicitly
+            displayName = "Android"
+            platform = "jvm"
+
+            sourceRoots(project, "commonMain", "javaShared", "androidMain")
+            skipEmptyPackages = true
+        }
+
+        register("jsMain") { // Different name, so source roots must be passed explicitly
+            displayName = "JS"
+            platform = "jvm"
+
+            sourceRoots(project, "commonMain", "jsMain")
+            skipEmptyPackages = true
+        }
+
+    }
+}
+
 
 repositories {
     jcenter()

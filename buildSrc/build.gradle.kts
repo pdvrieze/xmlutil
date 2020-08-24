@@ -42,10 +42,16 @@ kotlin {
 }
 
 val bintrayVersion: String by project
+val dokka_version: String by project
+val kotlin_version: String by project
 
 dependencies {
     implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version")
+    implementation("org.jetbrains.dokka:dokka-core:$dokka_version")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+
 }
 
 configurations.all {
