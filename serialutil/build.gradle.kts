@@ -82,7 +82,7 @@ kotlin {
                 }
             }
         }
-        js {
+        js(BOTH) {
             browser()
             nodejs()
             compilations.all {
@@ -109,7 +109,6 @@ kotlin {
         }
         target.mavenPublication {
             groupId = "net.devrieze"
-            artifactId = "serialutil-${target.targetName}"
             version = xmlutil_version
         }
     }

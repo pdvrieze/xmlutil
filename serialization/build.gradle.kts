@@ -99,7 +99,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        js {
+        js(BOTH) {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -127,7 +127,8 @@ kotlin {
 
         target.mavenPublication {
             groupId = "net.devrieze"
-            artifactId = "xmlutil-serialization-${target.targetName}"
+            val shortTarget = artifactId.substringAfter("serialization-")
+            artifactId = "xmlutil-serialization-${shortTarget}"
             version = xmlutil_version
         }
     }
