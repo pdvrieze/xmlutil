@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import kotlin.reflect.KClass
 
-@XmlUtilInternal
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
