@@ -28,12 +28,14 @@ import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
 import kotlinx.browser.document
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 
 actual typealias PlatformXmlWriter = JSDomWriter
 
 /**
  * Created by pdvrieze on 04/04/17.
  */
+@OptIn(XmlUtilInternal::class)
 class JSDomWriter constructor(
     current: ParentNode?,
     val isAppend: Boolean = false,

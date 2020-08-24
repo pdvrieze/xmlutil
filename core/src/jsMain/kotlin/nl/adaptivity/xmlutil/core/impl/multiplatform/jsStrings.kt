@@ -20,5 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
+
+@XmlUtilInternal
 @Suppress("NOTHING_TO_INLINE")
 actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()
