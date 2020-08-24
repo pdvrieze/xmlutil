@@ -54,6 +54,13 @@ private fun Project.configureDokkaSourceSet(
         noAndroidSdkLink.set(true)
         noJdkLink.set(false)
     }
+    displayName.set(when(val dn = displayName.get()){
+        "jvm" -> "JVM"
+        "android" -> "Android"
+        "common" -> "Common"
+        "js" -> "JS"
+        else -> dn
+    })
     includeNonPublic.set(false)
     skipEmptyPackages.set(true)
     skipDeprecated.set(true)

@@ -32,7 +32,9 @@ import java.io.Writer
 import java.util.*
 import javax.xml.XMLConstants
 
-
+/**
+ * @suppress
+ */
 class BetterXmlSerializer : XmlSerializer {
 
     private lateinit var writer: Writer
