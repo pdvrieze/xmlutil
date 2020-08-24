@@ -18,12 +18,15 @@
  * under the License.
  */
 
+@file:OptIn(XmlUtilInternal::class)
+
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.countLength
 
 /**

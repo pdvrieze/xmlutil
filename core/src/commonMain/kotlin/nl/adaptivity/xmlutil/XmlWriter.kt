@@ -18,11 +18,13 @@
  * under the License.
  */
 @file:JvmName("XmlWriterUtilCore")
+@file:OptIn(XmlUtilInternal::class)
 
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.countLength
@@ -30,10 +32,13 @@ import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 /**
- * Created by pdvrieze on 15/11/15.
+ * Interface representing the (wrapper) type that allows generating xml documents.
  */
 interface XmlWriter : Closeable {
 
+    /**
+     * The current depth into the tree.
+     */
     val depth: Int
 
     /** The indentation string to use for autoindenting the output */

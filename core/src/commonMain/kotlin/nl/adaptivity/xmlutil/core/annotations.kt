@@ -18,14 +18,8 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package nl.adaptivity.xmlutil.core
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 
-@XmlUtilInternal
-fun String.countLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
-    }
-}
+@RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
+annotation class XmlUtilInternal

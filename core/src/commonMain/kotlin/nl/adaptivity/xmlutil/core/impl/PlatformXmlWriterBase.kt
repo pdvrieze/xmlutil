@@ -34,7 +34,8 @@ internal val Char.isIgnorableWhitespace: Boolean
         else                  -> false
     }
 
-/** Base class for platform xml writers. It contains common code */
+/**
+ * Base class for platform xml writers. It contains common code. */
 abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
     internal var indentSequence: List<XmlEvent.TextEvent> = indentSequence.toList()
 

@@ -20,6 +20,8 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
+import net.devrieze.gradle.ext.sourceRoots
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -30,6 +32,7 @@ plugins {
     id("kotlinx-serialization")
     id("maven-publish")
     id("com.jfrog.bintray")
+    id("org.jetbrains.dokka")
     idea
 }
 
@@ -81,7 +84,6 @@ kotlin {
                         attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
-//                tasks.named<Jar>()
             }
         }
         jvm("android") {
@@ -101,7 +103,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        js {
+        js(BOTH) {
             browser()
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
@@ -198,6 +200,14 @@ kotlin {
         }
 
     }
+    sourceSets.all {
+        languageSettings.apply {
+            progressiveMode = true
+            apiVersion="1.4"
+            languageVersion="1.4"
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
+    }
 
 }
 
@@ -248,6 +258,81 @@ extensions.configure<BintrayExtension>("bintray") {
         }
     })
 
+}
+
+tasks.withType<DokkaTask>().configureEach {
+    disableAutoconfiguration = true
+    failOnWarning = true
+//    outputDirectory = rootProject.buildDir.resolve("dokka").absolutePath
+
+    dokkaSourceSets.apply {
+
+/*
+        val commonMain by registering {
+            displayName = "Common"
+            platform = "common"
+            sourceRoots(project, "commonMain")
+
+        }
+*/
+/*
+
+        val javaShared by registering {
+            displayName = "Java"
+            platform = "common"
+            dependsOn(commonMain)
+            sourceRoots(project, "commonMain", "javaShared")
+        }
+*/
+
+        val jvmMain by registering { // Different name, so source roots must be passed explicitly
+            displayName = "JVM"
+            platform = "jvm"
+            skipEmptyPackages = true
+
+//            dependsOn(commonMain)
+//            dependsOn(javaShared)
+
+            sourceRoots(project, "commonMain", "javaShared", "jvmMain")
+        }
+
+        val androidMain by registering { // Different name, so source roots must be passed explicitly
+            displayName = "Android"
+            platform = "jvm"
+//            dependsOn(commonMain)
+//            dependsOn(javaShared)
+
+            sourceRoots(project, "commonMain", "javaShared", "androidMain")
+
+        }
+
+        register("jsMain") { // Different name, so source roots must be passed explicitly
+            displayName = "JS"
+            platform = "js"
+            sourceRoots.clear()
+//            dependsOn(commonMain)
+            sourceRoots(project, "commonMain", "jsMain")
+        }
+
+        configureEach {
+            logger.lifecycle(sourceRoots.joinToString(prefix="  - dokka sourceSet $name contains sourcepaths:") { it.path })
+
+            skipEmptyPackages = true
+            perPackageOption {
+                prefix = "nl.adaptivity.xmlutil.core.impl"
+                suppress = true
+            }
+            perPackageOption {
+                prefix = "nl.adaptivity.xmlutil.util.impl"
+                suppress = true
+            }
+            perPackageOption {
+                prefix = "nl.adaptivity.xmlutil.core.internal"
+                suppress = true
+            }
+
+        }
+    }
 }
 
 fixBintrayModuleUpload()
