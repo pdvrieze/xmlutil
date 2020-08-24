@@ -20,8 +20,10 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import kotlin.reflect.KClass
 
+@XmlUtilInternal
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
@@ -30,10 +32,13 @@ import kotlin.reflect.KClass
        )
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
+@XmlUtilInternal
 expect val KClass<*>.name: String
 
+@XmlUtilInternal
 expect fun assert(value: Boolean, lazyMessage: () -> String)
 
+@XmlUtilInternal
 expect fun assert(value: Boolean)
 
 expect interface AutoCloseable {
@@ -42,6 +47,7 @@ expect interface AutoCloseable {
 
 expect interface Closeable : AutoCloseable
 
+@XmlUtilInternal
 expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 

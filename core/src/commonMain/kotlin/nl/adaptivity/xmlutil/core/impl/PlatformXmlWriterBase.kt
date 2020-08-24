@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 
 internal val CharSequence.isIgnorableWhitespace: Boolean
     get() = all(Char::isIgnorableWhitespace)
@@ -36,6 +37,7 @@ internal val Char.isIgnorableWhitespace: Boolean
 
 /**
  * Base class for platform xml writers. It contains common code. */
+@XmlUtilInternal
 abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
     internal var indentSequence: List<XmlEvent.TextEvent> = indentSequence.toList()
 
