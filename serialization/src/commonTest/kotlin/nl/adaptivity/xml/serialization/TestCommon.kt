@@ -44,6 +44,7 @@ private fun String.normalize() = replace(" />", "/>").replace("\r\n", "\n")
 fun JsonBuilder.defaultJsonTestConfiguration() {
     isLenient = true
     allowSpecialFloatingPointValues = true
+    encodeDefaults = true
 }
 
 class TestCommon {
@@ -220,6 +221,7 @@ class TestCommon {
         baseJsonFormat = Json {
             useArrayPolymorphism = true
             serializersModule = MixedValueContainer.module()
+            encodeDefaults = true
         }
                                                                             ) {
         override val expectedXML: String =
