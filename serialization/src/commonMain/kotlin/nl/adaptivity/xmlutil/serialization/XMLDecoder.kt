@@ -377,7 +377,6 @@ internal open class XmlDecoderBase internal constructor(
 
                 if (name.prefix.isEmpty()) {
                     val emptyNsPrefix = input.getNamespaceURI("")
-                    println("Looking for a match for attribute $name, empty ns prefix is: $emptyNsPrefix")
                     if (emptyNsPrefix != null) {
                         val attrName = normalizedName.copy(namespaceURI = emptyNsPrefix)
                         nameMap[attrName]?.checkInputType()?.let { return it }
