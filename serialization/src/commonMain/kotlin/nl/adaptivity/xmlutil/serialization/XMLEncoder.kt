@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeEncoder
@@ -170,7 +169,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
-            return (elementDescriptor as? XmlValueDescriptor)?.default == null
+            return config.policy.shouldEncodeElementDefault(elementDescriptor)
         }
 
         final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {

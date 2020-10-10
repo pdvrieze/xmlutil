@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XML.Companion.decodeFromString
-import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToString
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
@@ -53,7 +53,9 @@ class TestCommon {
         val value: T,
         val serializer: KSerializer<T>,
         val serializersModule: SerializersModule = EmptySerializersModule,
-        protected val baseXmlFormat: XML = XML(serializersModule) { policy = DefaultXmlSerializationPolicy(true)  },
+        protected val baseXmlFormat: XML = XML(serializersModule) {
+            policy = DefaultXmlSerializationPolicy(pedantic = true, encodeDefault = XmlEncodeDefault.ANNOTATED)
+        },
         private val baseJsonFormat: Json = Json{
             defaultJsonTestConfiguration()
             this.serializersModule = serializersModule
