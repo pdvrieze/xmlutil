@@ -20,24 +20,19 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.ImplicitReflectionSerializer
 import nl.adaptivity.xmlutil.StAXWriter
 import nl.adaptivity.xmlutil.XmlStreaming
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
 import java.io.CharArrayWriter
+import kotlin.test.Test
 
 /**
  * This test only tests JVM specific things, everything else is in the common tests.
  */
-@OptIn(ImplicitReflectionSerializer::class)
-object TestXMLJVM : Spek(
-    {
-        describe("A simple writer") {
-            val writer = XmlStreaming.newWriter(CharArrayWriter())
-            it("should be a STaXwriter") {
-                assertTrue(writer is StAXWriter)
-            }
-        }
-    })
+class TestXMLJVM {
+    @Test
+    fun a_simple_writer_should_be_a_STaXwriter() {
+        val writer = XmlStreaming.newWriter(CharArrayWriter())
+        assertTrue(writer is StAXWriter)
+    }
+}

@@ -21,32 +21,40 @@
 package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.serialutil.impl.toCharArray
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
-    override val descriptor = simpleSerialClassDesc<CharArray>()
+    override val descriptor = PrimitiveSerialDescriptor("kotlin.CharArray", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: CharArray) =
-        encoder.encodeString(String(value))
+        encoder.encodeString(value.concatToString())
 
     override fun deserialize(decoder: Decoder): CharArray = decoder.decodeString().toCharArray()
-
-    override fun patch(decoder: Decoder, old: CharArray): CharArray = deserialize(decoder)
 }
 
-@Suppress("UNCHECKED_CAST")
+@ExperimentalSerializationApi
 fun Decoder.readNullableString(): String? =
-    decodeNullableSerializableValue(String.serializer() as DeserializationStrategy<String?>)
+    decodeNullableSerializableValue(String.serializer().nullable)
 
-@Suppress("UNCHECKED_CAST")
+@ExperimentalSerializationApi
 fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? =
-    decodeNullableSerializableElement(desc, index, String.serializer() as DeserializationStrategy<String?>)
+    decodeNullableSerializableElement(desc, index, String.serializer().nullable)
 
-@Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"))
+@ExperimentalSerializationApi
+@Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"), DeprecationLevel.ERROR)
 fun CompositeEncoder.writeNullableStringElementValue(desc: SerialDescriptor, index: Int, value: String?) =
     encodeNullableStringElement(desc, index, value)
 
+@ExperimentalSerializationApi
 fun CompositeEncoder.encodeNullableStringElement(desc: SerialDescriptor, index: Int, value: String?) =
     encodeNullableSerializableElement(desc, index, String.serializer(), value)
 
@@ -59,16 +67,8 @@ inline fun DeserializationStrategy<*>.readElements(input: CompositeDecoder, body
  */
 inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
     var index = input.decodeElementIndex(descriptor)
-    @Suppress("DEPRECATION")
-    when (index) {
-        CompositeDecoder.READ_DONE -> return
-        CompositeDecoder.READ_ALL  -> {
-            for (elem in 0 until descriptor.elementsCount) {
-                body(elem)
-            }
-            return
-        }
-    }
+    if (index == CompositeDecoder.DECODE_DONE) return
+
     while (index >= 0) {
         body(index)
         index = input.decodeElementIndex(descriptor)

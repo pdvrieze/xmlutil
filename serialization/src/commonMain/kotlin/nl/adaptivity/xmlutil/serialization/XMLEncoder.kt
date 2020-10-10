@@ -20,14 +20,21 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.UnitSerializer
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
 
+@ExperimentalSerializationApi
 internal open class XmlEncoderBase internal constructor(
-    context: SerialModule,
+    context: SerializersModule,
     config: XmlConfig,
     val target: XmlWriter
                                                        ) : XmlCodecBase(context, config) {
@@ -44,7 +51,7 @@ internal open class XmlEncoderBase internal constructor(
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
-        override val context get() = this@XmlEncoderBase.serializersModule
+        override val serializersModule get() = this@XmlEncoderBase.serializersModule
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
@@ -89,16 +96,6 @@ internal open class XmlEncoderBase internal constructor(
             // Not null is presence, no mark needed
         }
 
-        override fun encodeUnit() {
-            when (xmlDescriptor.outputKind) {
-                OutputKind.Attribute -> target.writeAttribute(serialName, serialName.localPart)
-                OutputKind.Mixed,
-                OutputKind.Element -> target.smartStartTag(serialName) { /*No content*/ }
-                OutputKind.Text -> target.text("Unit")
-            }
-
-        }
-
         override fun encodeNull() {
             // Null is absence, no mark needed
         }
@@ -107,10 +104,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer.serialize(this, value)
         }
 
-        override fun beginStructure(
-            descriptor: SerialDescriptor,
-            vararg typeSerializers: KSerializer<*>
-                                   ): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
 
             return beginEncodeCompositeImpl(xmlDescriptor)
         }
@@ -119,13 +113,13 @@ internal open class XmlEncoderBase internal constructor(
     fun beginEncodeCompositeImpl(xmlDescriptor: XmlDescriptor): CompositeEncoder {
 
         return when (xmlDescriptor.serialKind) {
-            is PrimitiveKind -> throw AssertionError("A primitive is not a composite")
+            is PrimitiveKind   -> throw AssertionError("A primitive is not a composite")
 
-            UnionKind.CONTEXTUAL, // TODO handle contextual in a more elegant way
+            SerialKind.CONTEXTUAL, // TODO handle contextual in a more elegant way
             StructureKind.MAP,
             StructureKind.CLASS,
             StructureKind.OBJECT,
-            UnionKind.ENUM_KIND -> TagEncoder(xmlDescriptor)
+            SerialKind.ENUM    -> TagEncoder(xmlDescriptor)
 
             StructureKind.LIST -> ListEncoder(xmlDescriptor as XmlListDescriptor)
 
@@ -175,11 +169,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
-            return (elementDescriptor as? XmlValueDescriptor)?.default == null
-        }
-
-        override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
-            encodeStringElement(descriptor, index, "kotlin.Unit")
+            return config.policy.shouldEncodeElementDefault(elementDescriptor)
         }
 
         final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
@@ -383,10 +373,6 @@ internal open class XmlEncoderBase internal constructor(
             } else {
                 serializer.serialize(XmlEncoder(childDescriptor), value)
             }
-        }
-
-        override fun encodeUnitElement(descriptor: SerialDescriptor, index: Int) {
-            UnitSerializer().serialize(XmlEncoder(xmlDescriptor.getElementDescriptor(index)), Unit)
         }
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {

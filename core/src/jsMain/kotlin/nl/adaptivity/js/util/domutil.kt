@@ -22,8 +22,8 @@ package nl.adaptivity.js.util
 
 import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
-import kotlin.dom.isElement
-import kotlin.dom.isText
+import kotlinx.dom.isElement
+import kotlinx.dom.isText
 
 fun Node.asElement(): Element? = if (isElement) this as Element else null
 fun Node.asText(): Text? = if (isText) this as Text else null

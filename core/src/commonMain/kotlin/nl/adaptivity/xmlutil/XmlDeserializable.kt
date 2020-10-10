@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.Transient
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.util.ExtXmlDeserializable
 import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
@@ -34,6 +35,7 @@ import kotlin.jvm.JvmName
  * Created by pdvrieze on 04/11/15.
  */
 @Deprecated("Use kotlinx.serialization instead")
+@OptIn(XmlUtilInternal::class)
 interface XmlDeserializable {
 
     /**
@@ -63,6 +65,7 @@ interface XmlDeserializable {
 
 @Suppress("DEPRECATION")
 @Deprecated("Use kotlinx.serialization instead")
+@OptIn(XmlUtilInternal::class)
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()
 

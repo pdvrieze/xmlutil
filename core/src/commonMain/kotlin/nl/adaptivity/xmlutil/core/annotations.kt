@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2020.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,11 +18,8 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.serialization.compat
+package nl.adaptivity.xmlutil.core
 
-@Deprecated("Use new API", ReplaceWith("kotlinx.serialization.Decoder"))
-typealias Decoder = kotlinx.serialization.Decoder
 
-@Deprecated("Use new API", ReplaceWith("kotlinx.serialization.CompositeDecoder"))
-typealias CompositeDecoder = kotlinx.serialization.CompositeDecoder
-
+@RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
+annotation class XmlUtilInternal

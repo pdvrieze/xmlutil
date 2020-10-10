@@ -17,9 +17,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialInfo
 
 /**

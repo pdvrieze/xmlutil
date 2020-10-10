@@ -20,14 +20,15 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
-import nl.adaptivity.serialutil.decodeElements
-import kotlinx.serialization.decodeStructure
-import nl.adaptivity.serialutil.simpleSerialClassDesc
-import kotlinx.serialization.encodeStructure
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
+import kotlinx.serialization.encoding.*
 
-//@Serializable
 interface Namespace {
 
     /**
@@ -45,20 +46,25 @@ interface Namespace {
 
     operator fun component2() = namespaceURI
 
-    @Serializer(forClass = Namespace::class)
     companion object : KSerializer<Namespace> {
-        override val descriptor: SerialDescriptor =
-            simpleSerialClassDesc<Namespace>("prefix" to String.serializer(), "namespaceURI" to String.serializer())
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Namespace::class.simpleName!!) {
+            element("prefix", serialDescriptor<String>())
+            element("namespaceURI", serialDescriptor<String>())
+        }
 
         override fun deserialize(decoder: Decoder): Namespace {
             lateinit var prefix: String
             lateinit var namespaceUri: String
             decoder.decodeStructure(descriptor) {
-                decodeElements(this) {
+                var index = decodeElementIndex(descriptor)
+                while (index!=CompositeDecoder.DECODE_DONE) {
+                    val it = index
                     when (it) {
                         0 -> prefix = decodeStringElement(descriptor, it)
                         1 -> namespaceUri = decodeStringElement(descriptor, it)
                     }
+
+                    index = decodeElementIndex(descriptor)
                 }
             }
             return XmlEvent.NamespaceImpl(prefix, namespaceUri)

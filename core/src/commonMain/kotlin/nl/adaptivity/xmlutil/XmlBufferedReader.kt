@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.SimpleQueue
 import nl.adaptivity.xmlutil.core.impl.multiplatform.addAll
 import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty
@@ -29,6 +30,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty
  * this class does not do any validation of the xml. If injecting/removing elements into/from the buffer you can create
  * invalid XML.
  */
+@OptIn(XmlUtilInternal::class)
 open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 
     override val namespaceContext: NamespaceContext

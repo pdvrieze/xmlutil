@@ -25,8 +25,8 @@ import nl.adaptivity.js.util.filter
 import nl.adaptivity.js.util.myLookupNamespaceURI
 import nl.adaptivity.js.util.myLookupPrefix
 import org.w3c.dom.*
-import kotlin.dom.isElement
-import kotlin.dom.isText
+import kotlinx.dom.isElement
+import kotlinx.dom.isText
 
 actual typealias PlatformXmlReader = JSDomReader
 

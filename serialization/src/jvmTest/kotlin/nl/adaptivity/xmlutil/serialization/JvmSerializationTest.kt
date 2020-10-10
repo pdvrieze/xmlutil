@@ -20,19 +20,14 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import nl.adaptivity.xmlutil.XmlStreaming
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.xmlunit.assertj.XmlAssert
 import org.xmlunit.builder.Input
-import org.xmlunit.diff.Comparison
-import org.xmlunit.diff.ComparisonResult
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import kotlin.test.assertEquals
-import org.xmlunit.assertj.XmlAssert
 
 class JvmSerializationTest {
 
@@ -53,7 +48,7 @@ class JvmSerializationTest {
         val xml = XML {
             autoPolymorphic = true
         }
-        val deserialized = xml.parse(ElementSerializer, contentText)
+        val deserialized = xml.decodeFromString(ElementSerializer, contentText)
 
         try {
             val expected = Input.fromNode(expectedObj)
@@ -89,7 +84,7 @@ class JvmSerializationTest {
             autoPolymorphic = true
         }
 
-        val serialized = xml.stringify(ElementSerializer, element)
+        val serialized = xml.encodeToString(ElementSerializer, element)
         assertEquals(expected, serialized)
     }
 
@@ -107,13 +102,12 @@ class JvmSerializationTest {
             })
         }
 
-        val json = Json(JsonConfiguration.Stable)
+        val json = Json
 
-        val serialized = json.stringify(ElementSerializer, element)
+        val serialized = json.encodeToString(ElementSerializer, element)
         assertEquals(expected, serialized)
     }
 
-    @OptIn(UnstableDefault::class)
     @Test
     fun `deserialize DOM node from json`() {
         val contentText = "{\"localname\":\"tag\",\"attributes\":{},\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"attributes\":{},\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"attributes\":{},\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
@@ -132,7 +126,7 @@ class JvmSerializationTest {
             isLenient = true
         }
 
-        val deserialized = json.parse(ElementSerializer, contentText)
+        val deserialized = json.decodeFromString(ElementSerializer, contentText)
 
         try {
             val expected = Input.fromNode(expectedObj)

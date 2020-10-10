@@ -69,7 +69,6 @@ kotlin {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {
@@ -82,7 +81,6 @@ kotlin {
                         attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
-//                tasks.named<Jar>()
             }
         }
         jvm("android") {
@@ -94,7 +92,6 @@ kotlin {
             compilations.all {
                 tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
                     jvmTarget = "1.6"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
                 tasks.getByName<Test>("${target.name}Test") {
                     useJUnitPlatform ()
@@ -103,7 +100,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        js {
+        js(BOTH) {
             browser()
             compilations.all {
                 tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
@@ -114,16 +111,23 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }
     }
 
     targets.forEach { target ->
+        target.compilations.all {
+            kotlinOptions {
+                languageVersion = "1.4"
+                apiVersion = "1.4"
+                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            }
+        }
+
         target.mavenPublication {
             groupId = "net.devrieze"
-            artifactId = "xmlutil-${target.targetName}"
+            artifactId = artifactId.replace("core-", "xmlutil-")
             version = xmlutil_version
         }
     }
@@ -131,31 +135,25 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
-                implementation(project(":serialutil"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
-//                implementation("org.spekframework.spek2:spek-dsl-common:$spek2Version")
             }
         }
+
         val javaShared by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
-            }
         }
+
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-            }
         }
+
         val jvmTest by getting {
             dependencies {
                 dependsOn(commonTest)
@@ -166,18 +164,21 @@ kotlin {
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
             }
         }
+
         val androidMain by getting {
             dependsOn(javaShared)
+
             dependencies {
                 compileOnly("net.sf.kxml:kxml2:2.3.0")
             }
         }
+
         val androidTest by getting {
             dependencies {
                 dependsOn(commonTest)
+
                 implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-                implementation(kotlin("stdlib-jdk8"))
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
@@ -186,11 +187,8 @@ kotlin {
 
         val jsMain by getting {
             dependsOn(commonMain)
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
-            }
         }
+
         val jsTest by getting {
             dependsOn(commonTest)
             dependencies {
@@ -198,6 +196,14 @@ kotlin {
             }
         }
 
+    }
+    sourceSets.all {
+        languageSettings.apply {
+            progressiveMode = true
+            apiVersion="1.4"
+            languageVersion="1.4"
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
     }
 
 }

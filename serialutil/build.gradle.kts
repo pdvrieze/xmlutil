@@ -22,7 +22,6 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
 import net.devrieze.gradle.ext.fixBintrayModuleUpload
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
@@ -62,7 +61,6 @@ kotlin {
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                     }
                 }
                 tasks.named<Jar>("jvmJar") {
@@ -79,17 +77,16 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
+                kotlinOptions {
                     jvmTarget = "1.6"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }
-        js {
+        js(BOTH) {
             browser()
             nodejs()
             compilations.all {
-                tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
+                kotlinOptions {
                     sourceMap = true
                     sourceMapEmbedSources = "always"
                     suppressWarnings = false
@@ -97,49 +94,42 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
-                    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
                 }
             }
         }
 
     }
     targets.forEach { target ->
+        target.compilations.all {
+            kotlinOptions {
+                languageVersion = "1.4"
+                apiVersion = "1.4"
+                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+            }
+        }
         target.mavenPublication {
             groupId = "net.devrieze"
-            artifactId = "serialutil-${target.targetName}"
             version = xmlutil_version
         }
     }
 
+    @Suppress("UNUSED_VARIABLE")
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
-                api("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
         val javaShared by creating {
             dependsOn(commonMain)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
-            }
         }
+
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk7"))
-            }
         }
+
         val androidMain by getting {
             dependsOn(javaShared)
-        }
-        val jsMain by getting {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
-            }
         }
 
     }

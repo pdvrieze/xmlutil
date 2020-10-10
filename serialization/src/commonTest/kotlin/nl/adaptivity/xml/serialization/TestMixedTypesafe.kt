@@ -26,6 +26,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import nl.adaptivity.serialutil.MixedContent
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -49,7 +51,7 @@ class TestMixedTypesafe {
             })
         }
         val xml = XML(TypedMixed.module) { autoPolymorphic = true }
-        val actual = xml.stringify(TypedMixed.serializer(), data).replace(" />", "/>")
+        val actual = xml.encodeToString(TypedMixed.serializer(), data).replace(" />", "/>")
         assertEquals(expected, actual)
     }
 
@@ -68,7 +70,7 @@ class TestMixedTypesafe {
             })
         }
         val xml = XML(TypedMixed.module) { autoPolymorphic = true }
-        val actual = xml.parse(TypedMixed.serializer(), data)
+        val actual = xml.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
 
@@ -87,9 +89,10 @@ class TestMixedTypesafe {
             })
         }
         val json = Json {
-            serialModule = TypedMixed.module
+            serializersModule = TypedMixed.module
+            useArrayPolymorphism = true
         }
-        val actual = json.stringify(TypedMixed.serializer(), data)
+        val actual = json.encodeToString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
 
@@ -108,9 +111,10 @@ class TestMixedTypesafe {
             })
         }
         val json = Json {
-            serialModule = TypedMixed.module
+            useArrayPolymorphism = true
+            serializersModule = TypedMixed.module
         }
-        val actual = json.parse(TypedMixed.serializer(), data)
+        val actual = json.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
 }
@@ -168,11 +172,11 @@ internal class TypedMixed(
     companion object {
         val module = SerializersModule {
             polymorphic(Any::class) {
-                String::class with String.serializer()
-                B::class with B.serializer()
-                D::class with D.serializer()
-                E::class with E.serializer()
-                G::class with G.serializer()
+                subclass(String::class)
+                subclass(B::class)
+                subclass(D::class)
+                subclass(E::class)
+                subclass(G::class)
             }
         }
     }

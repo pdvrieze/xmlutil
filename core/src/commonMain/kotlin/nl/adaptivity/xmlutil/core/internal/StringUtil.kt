@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.internal
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
+
+@XmlUtilInternal
 fun String.countLength(): Int = fold(0) { acc, ch ->
     acc + when (ch) {
         '\t' -> 8

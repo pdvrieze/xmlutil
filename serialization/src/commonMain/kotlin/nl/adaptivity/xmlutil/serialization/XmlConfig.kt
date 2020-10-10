@@ -18,11 +18,15 @@
  * under the License.
  */
 
+@file:OptIn(XmlUtilInternal::class)
+
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.countLength
 
 /**
@@ -40,14 +44,16 @@ import nl.adaptivity.xmlutil.core.internal.countLength
  * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
  *                     but the function can silently ignore it as well.
  */
-class XmlConfig(
+class XmlConfig
+@OptIn(ExperimentalSerializationApi::class)
+constructor(
     val repairNamespaces: Boolean = true,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val indentString: String = "",
     autoPolymorphic: Boolean = false,
     unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
     val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic)
-               ) {
+                                                                       ) {
 
     @Deprecated("Use version taking XmlDeclMode")
     constructor(
@@ -83,6 +89,7 @@ class XmlConfig(
         builder.policy?: DefaultXmlSerializationPolicy(false, builder.autoPolymorphic)
                                         )
 
+    @OptIn(ExperimentalSerializationApi::class)
     val unknownChildHandler: UnknownChildHandler = when (unknownChildHandler) {
         DEFAULT_UNKNOWN_CHILD_HANDLER -> { input, inputKind, name, candidates ->
             policy.handleUnknownContent(input, inputKind, name, candidates)
@@ -113,14 +120,15 @@ class XmlConfig(
      * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
      *                     but the function can silently ignore it as well.
      */
-    class Builder(
+    class Builder constructor(
         var repairNamespaces: Boolean = true,
         var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         var indentString: String = "",
         var autoPolymorphic: Boolean = false,
         var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        @OptIn(ExperimentalSerializationApi::class)
         var policy: XmlSerializationPolicy? = null
-                 ) {
+                                                                         ) {
 
         @Deprecated("Use version taking XmlDeclMode")
         constructor(

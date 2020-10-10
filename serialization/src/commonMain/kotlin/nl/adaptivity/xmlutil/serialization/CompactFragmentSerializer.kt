@@ -20,36 +20,42 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.builtins.serializer
-import nl.adaptivity.serialutil.decodeElements
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
+import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
-import kotlin.jvm.JvmStatic
-import kotlin.reflect.KClass
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun CompactFragment.Companion.serializer() = CompactFragmentSerializer
 
+@OptIn(WillBePrivate::class, kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializer(forClass = CompactFragment::class)
-@OptIn(WillBePrivate::class)
 object CompactFragmentSerializer : KSerializer<CompactFragment> {
-    override val descriptor get() = MYSERIALCLASSDESC
+    private val namespacesSerializer = ListSerializer(Namespace)
+
+    override val descriptor get() = buildClassSerialDescriptor("compactFragment") {
+        element("namespaces", namespacesSerializer.descriptor)
+        element("content", serialDescriptor<String>())
+    }
 
     override fun deserialize(decoder: Decoder): CompactFragment {
         return decoder.decodeStructure(descriptor) {
-            readCompactFragmentContent(this, descriptor)
+            readCompactFragmentContent(this)
         }
     }
 
-    fun readCompactFragmentContent(input: CompositeDecoder, desc: SerialDescriptor): CompactFragment {
-        val xmlInput = input as? XML.XmlInput
-        return if (xmlInput != null) {
+    private fun readCompactFragmentContent(input: CompositeDecoder): CompactFragment {
+        return if (input is XML.XmlInput) {
 
-            xmlInput.input.run {
+            input.input.run {
                 next()
                 siblingsToFragment()
             }
@@ -57,14 +63,14 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
             var namespaces: List<Namespace> = mutableListOf()
             var content = ""
 
-            val nsIndex = desc.getElementIndex("namespaces")
-            val contentIndex = desc.getElementIndex("content")
+            var index = input.decodeElementIndex(descriptor)
 
-            decodeElements(input) { elem: Int ->
-                when (elem) {
-                    nsIndex      -> namespaces = input.decodeSerializableElement(desc, elem, Namespace.list)
-                    contentIndex -> content = input.decodeStringElement(desc, elem)
+            while (index >= 0) {
+                when (index) {
+                    0 -> namespaces = input.decodeSerializableElement(descriptor, index, namespacesSerializer)
+                    1 -> content = input.decodeStringElement(descriptor, index)
                 }
+                index = input.decodeElementIndex(descriptor)
             }
             CompactFragment(namespaces, content)
         }
@@ -74,81 +80,39 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         serialize(encoder, value as ICompactFragment)
     }
 
-    fun serialize(output: Encoder, obj: ICompactFragment) {
-        val descriptor = descriptor
+    fun serialize(output: Encoder, value: ICompactFragment) {
         output.encodeStructure(descriptor) {
-            writeCompactFragmentContent(this, descriptor, 0, obj)
+            writeCompactFragmentContent(this, descriptor, value)
         }
     }
 
-    @WillBePrivate
-    fun writeCompactFragmentContent(
-        output: CompositeEncoder,
-        serialClassDesc: SerialDescriptor,
-        startIndex: Int,
-        obj: ICompactFragment
-                                   ) {
-        val xmlOutput = output as? XML.XmlOutput
+    private fun writeCompactFragmentContent(
+        encoder: CompositeEncoder,
+        descriptor: SerialDescriptor,
+        value: ICompactFragment
+                                           ) {
+
+        val xmlOutput = encoder as? XML.XmlOutput
 
         if (xmlOutput != null) {
             val writer = xmlOutput.target
-            for (namespace in obj.namespaces) {
+            for (namespace in value.namespaces) {
                 if (writer.getPrefix(namespace.namespaceURI) == null) {
                     writer.namespaceAttr(namespace)
                 }
             }
 
-            obj.serialize(writer)
+            value.serialize(writer)
         } else {
-            output.encodeSerializableElement(serialClassDesc, startIndex + 0, Namespace.list, obj.namespaces.toList())
-            output.encodeStringElement(serialClassDesc, startIndex + 1, obj.contentString)
+            encoder.encodeSerializableElement(descriptor, 0,
+                                              namespacesSerializer, value.namespaces.toList())
+            encoder.encodeStringElement(descriptor, 1, value.contentString)
         }
     }
 
 
-    @JvmStatic
-    val MYSERIALCLASSDESC = object : SerialDescriptor {
-        override val kind: SerialKind get() = StructureKind.CLASS
-
-        override val serialName: String get() = "compactFragment"
-
-        override fun getElementIndex(name: String): Int {
-            return when (name) {
-                "namespaces" -> 0
-                "content"    -> 1
-                else         -> CompositeDecoder.UNKNOWN_NAME
-            }
-        }
-
-        override fun getElementName(index: Int): String {
-            return when (index) {
-                0    -> "namespaces"
-                1    -> "content"
-                else -> throw IndexOutOfBoundsException("$index")
-            }
-        }
-
-        override fun getElementAnnotations(index: Int): List<Annotation> = emptyList()
-
-        override fun getElementDescriptor(index: Int): SerialDescriptor {
-            return when (index) {
-                0    -> Namespace.list.descriptor
-                1    -> String.serializer().descriptor
-                else -> throw IndexOutOfBoundsException("$index")
-            }
-        }
-
-        override fun isElementOptional(index: Int): Boolean = true // Both properties work if they are left out
-
-        override val elementsCount: Int get() = 2
-
-        override fun toString(): String {
-            return "compactFragment[namespaces, content]"
-        }
-    }
 }
 
-@Serializer(forClass = ICompactFragment::class)
 object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
 
     override val descriptor: SerialDescriptor
@@ -163,4 +127,16 @@ object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
     }
 }
 
-internal inline fun <reified T : Any> kClass(): KClass<T> = T::class
+/**
+ * Helper function that helps decoding structure elements
+ */
+private inline fun DeserializationStrategy<*>.decodeElements(input: CompositeDecoder, body: (Int) -> Unit) {
+    var index = input.decodeElementIndex(descriptor)
+    @Suppress("DEPRECATION")
+    if (index == CompositeDecoder.DECODE_DONE) return
+
+    while (index >= 0) {
+        body(index)
+        index = input.decodeElementIndex(descriptor)
+    }
+}

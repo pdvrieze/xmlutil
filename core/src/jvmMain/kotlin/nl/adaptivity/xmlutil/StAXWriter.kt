@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import java.io.OutputStream
 import java.io.Writer
@@ -37,6 +38,7 @@ actual typealias PlatformXmlWriter = StAXWriter
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
  */
+@OptIn(XmlUtilInternal::class)
 class StAXWriter(
     val delegate: XMLStreamWriter,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,

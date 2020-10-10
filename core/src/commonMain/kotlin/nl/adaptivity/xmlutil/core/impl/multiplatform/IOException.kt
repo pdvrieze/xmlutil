@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
+
 
 expect open class IOException : Exception {
     constructor()

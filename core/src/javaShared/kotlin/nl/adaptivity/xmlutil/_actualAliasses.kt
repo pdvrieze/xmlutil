@@ -27,6 +27,6 @@ actual interface NamespaceContextImpl : javax.xml.namespace.NamespaceContext {
     actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
-@Suppress("NOTHING_TO_INLINE", "USELESS_CAST")
+@Suppress("NOTHING_TO_INLINE", "USELESS_CAST", "UNCHECKED_CAST")
 actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
     getPrefixes(namespaceURI) as Iterator<String> // This cast is needed on JDK8

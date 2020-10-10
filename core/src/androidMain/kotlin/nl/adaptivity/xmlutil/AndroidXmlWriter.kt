@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
@@ -37,6 +38,7 @@ actual typealias PlatformXmlWriter = AndroidXmlWriter
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
+@OptIn(XmlUtilInternal::class)
 class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     private val namespaceHolder = NamespaceHolder()

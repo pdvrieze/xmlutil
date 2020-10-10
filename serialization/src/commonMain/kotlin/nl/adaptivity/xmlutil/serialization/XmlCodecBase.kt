@@ -18,15 +18,20 @@
  * under the License.
  */
 
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.descriptors.PolymorphicKind
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
 internal abstract class XmlCodecBase internal constructor(
-    val serializersModule: SerialModule,
+    val serializersModule: SerializersModule,
     val config: XmlConfig
                                                          ) {
 
@@ -82,7 +87,7 @@ internal abstract class XmlCodecBase internal constructor(
     internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(val xmlDescriptor: D) {
 
         internal val config get() = this@XmlCodecBase.config
-        val context: SerialModule get() = this@XmlCodecBase.serializersModule
+        val serializersModule: SerializersModule get() = this@XmlCodecBase.serializersModule
 
         val serialName: QName get() = xmlDescriptor.tagName
 

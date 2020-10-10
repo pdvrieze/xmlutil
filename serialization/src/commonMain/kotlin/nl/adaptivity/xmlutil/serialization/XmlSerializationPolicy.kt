@@ -17,15 +17,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+@file:OptIn(XmlUtilInternal::class)
 
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
+import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.serialization.structure.declOutputKind
 
 interface XmlSerializationPolicy {
@@ -33,8 +36,9 @@ interface XmlSerializationPolicy {
     val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
+    @ExperimentalSerializationApi
     fun defaultOutputKind(serialKind: SerialKind): OutputKind = when (serialKind) {
-        UnionKind.ENUM_KIND,
+        SerialKind.ENUM,
         StructureKind.OBJECT -> defaultObjectOutputKind
         is PrimitiveKind -> defaultPrimitiveOutputKind
         PolymorphicKind.OPEN -> OutputKind.Element
@@ -59,18 +63,35 @@ interface XmlSerializationPolicy {
     fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName
 
     data class DeclaredNameInfo(val serialName: String, val annotatedName: QName?)
+
     data class ActualNameInfo(val serialName: String, val annotatedName: QName)
 
     fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind
 
     fun handleUnknownContent(input: XmlReader, inputKind: InputKind, name: QName?, candidates: Collection<Any>)
+
+    fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean
+
+    enum class XmlEncodeDefault {
+        ALWAYS, ANNOTATED, NEVER
+    }
+
 }
 
+
+@OptIn(ExperimentalSerializationApi::class)
 open class DefaultXmlSerializationPolicy(
     val pedantic: Boolean,
     val autoPolymorphic: Boolean = false,
+    val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
     private val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
                                         ) : XmlSerializationPolicy {
+
+    constructor(
+        pedantic: Boolean,
+        autoPolymorphic: Boolean = false,
+        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+               ) : this(pedantic, autoPolymorphic, XmlEncodeDefault.ANNOTATED, unknownChildHandler)
 
     override fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
         val useAnnotations = tagParent.elementUseAnnotations
@@ -96,9 +117,10 @@ open class DefaultXmlSerializationPolicy(
                 val elementKind = tagParent.elementSerialDescriptor.kind
                 when {
                     elementKind == StructureKind.CLASS -> OutputKind.Element
-                    isValue -> OutputKind.Mixed
-                    else    -> tagParent.elementUseOutputKind ?: serialDescriptor.declOutputKind()
-                    ?: defaultOutputKind(serialDescriptor.kind)
+                    isValue                            -> OutputKind.Mixed
+                    else                               -> tagParent.elementUseOutputKind
+                        ?: serialDescriptor.declOutputKind()
+                        ?: defaultOutputKind(serialDescriptor.kind)
                 }
             }
             OutputKind.Mixed -> {
@@ -129,6 +151,7 @@ open class DefaultXmlSerializationPolicy(
         return serialName.substringAfterLast('.').toQname(parentNamespace)
     }
 
+    @OptIn(XmlUtilInternal::class)
     override fun effectiveName(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
@@ -162,6 +185,14 @@ open class DefaultXmlSerializationPolicy(
             typeNameInfo.annotatedName != null -> typeNameInfo.annotatedName
 
             else                               -> serialNameToQName(typeNameInfo.serialName, parentNamespace)
+        }
+    }
+
+    override fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean {
+        return when (encodeDefault) {
+            XmlEncodeDefault.NEVER -> false
+            XmlEncodeDefault.ALWAYS -> true
+            XmlEncodeDefault.ANNOTATED -> (elementDescriptor as? XmlValueDescriptor)?.default == null
         }
     }
 

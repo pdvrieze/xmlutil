@@ -21,15 +21,19 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.list
-import nl.adaptivity.serialutil.withName
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
+import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
+import kotlin.collections.set
 import kotlin.jvm.JvmName
 
 
@@ -38,13 +42,12 @@ import kotlin.jvm.JvmName
  * Created by pdvrieze on 24/08/15.
  */
 @Serializable
+@OptIn(XmlUtilInternal::class)
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
 
-    @Transient
     val indices: IntRange
         get() = 0..(size - 1)
 
-    @Transient
     @get:JvmName("size")
     val size: Int
         get() = buffer.size / 2
@@ -211,13 +214,16 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return buffer.contentHashCode()
     }
 
-    @Serializer(forClass = SimpleNamespaceContext::class)
+    @ExperimentalSerializationApi
+    private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
+
+
     companion object : KSerializer<SimpleNamespaceContext> {
 
-        private val actualSerializer = Namespace.list
+        private val actualSerializer = ListSerializer(Namespace)
 
-        override val descriptor: SerialDescriptor =
-            actualSerializer.descriptor.withName(SimpleNamespaceContext::class.name)
+        @ExperimentalSerializationApi
+        override val descriptor: SerialDescriptor = RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
@@ -227,9 +233,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         }
 
         override fun deserialize(decoder: Decoder): SimpleNamespaceContext {
-            return SimpleNamespaceContext(
-                actualSerializer.deserialize(decoder)
-                                         )
+            return SimpleNamespaceContext(actualSerializer.deserialize(decoder))
         }
 
         override fun serialize(encoder: Encoder, value: SimpleNamespaceContext) {

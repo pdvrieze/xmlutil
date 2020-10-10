@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import kotlin.reflect.KClass
 
-@ImplicitReflectionSerializer
+@InternalSerializationApi
 class KotlinxSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         return getSerializer(type)?.let { SerializerFun(it) }
@@ -56,6 +56,7 @@ class KotlinxSerializationProvider : SerializationProvider {
 
         private val serializers = mutableMapOf<KClass<*>, KSerializer<*>>()
 
+        @InternalSerializationApi
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> getSerializer(type: KClass<T>): KSerializer<T>? {
 
