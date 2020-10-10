@@ -105,10 +105,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer.serialize(this, value)
         }
 
-        override fun beginStructure(
-            descriptor: SerialDescriptor,
-            vararg typeSerializers: KSerializer<*>
-                                   ): CompositeEncoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
 
             return beginEncodeCompositeImpl(xmlDescriptor)
         }

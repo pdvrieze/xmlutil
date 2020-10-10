@@ -147,6 +147,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(project(":serialutil"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
 
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))

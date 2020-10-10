@@ -120,7 +120,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             throw AssertionError("This should not happen as decodeSerializableValue should be called first")
         }
 
@@ -137,7 +137,7 @@ internal open class XmlDecoderBase internal constructor(
                                                ) :
         XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
 
-        override fun beginStructure(descriptor: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder {
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             if (descriptor.isNullable) return TagDecoder(xmlDescriptor)
 
             return when {
@@ -169,10 +169,6 @@ internal open class XmlDecoderBase internal constructor(
     private inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
         XmlDecoder(xmlDescriptor), CompositeDecoder {
 
-        // Needs to be here because both Decoder and CompositeDecoder provide implementations
-        @Suppress("DEPRECATION", "OverridingDeprecatedMember")
-        override val updateMode: UpdateMode get() = UpdateMode.BANNED
-
         override fun decodeNotNullMark() = false
 
         override fun <T> decodeSerializableElement(
@@ -184,6 +180,16 @@ internal open class XmlDecoderBase internal constructor(
             val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(deserializer) ?: previousValue
             @Suppress("UNCHECKED_CAST")
             return default as T
+        }
+
+        @ExperimentalSerializationApi
+        override fun <T : Any> decodeNullableSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T?>,
+            previousValue: T?
+                                                                ): T? {
+            return null
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {

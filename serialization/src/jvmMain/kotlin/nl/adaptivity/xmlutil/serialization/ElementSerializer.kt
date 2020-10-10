@@ -195,11 +195,6 @@ class WrappedDeserializationStrategy<T>(
     override fun deserialize(decoder: Decoder): T {
         return delegate.deserialize(DocumentDecoder(decoder, document))
     }
-
-    @Suppress("OverridingDeprecatedMember")
-    override fun patch(decoder: Decoder, old: T): T {
-        throw UnsupportedOperationException("Using patch is deprecated")
-    }
 }
 
 private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDeserializationStrategy<T> {
