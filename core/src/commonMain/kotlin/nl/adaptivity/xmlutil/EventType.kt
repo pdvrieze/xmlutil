@@ -73,6 +73,8 @@ enum class EventType {
             writer.comment(reader.text)
     },
     TEXT {
+        override val isTextElement: Boolean get() = true
+
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.TextEvent(locationInfo, TEXT, text)
         }
@@ -83,6 +85,8 @@ enum class EventType {
             writer.text(reader.text)
     },
     CDSECT {
+        override val isTextElement: Boolean get() = true
+
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.TextEvent(locationInfo, CDSECT, text)
         }
@@ -115,6 +119,8 @@ enum class EventType {
             writer.endDocument()
     },
     ENTITY_REF {
+        override val isTextElement: Boolean get() = true
+
         override fun createEvent(reader: XmlReader) = reader.run {
             XmlEvent.TextEvent(locationInfo, ENTITY_REF, text)
         }
@@ -162,6 +168,7 @@ enum class EventType {
     };
 
     open val isIgnorable: Boolean get() = false
+    open val isTextElement: Boolean get() = false
 
     open fun writeEvent(writer: XmlWriter, textEvent: XmlEvent.TextEvent): Unit = throw UnsupportedOperationException(
         "This is not generally supported, only by text types"

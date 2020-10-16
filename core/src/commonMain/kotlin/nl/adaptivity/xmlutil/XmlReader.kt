@@ -198,6 +198,7 @@ fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
 @JvmOverloads
 internal fun XmlReader.unhandledEvent(message: String? = null) {
     val actualMessage = when (eventType) {
+        EventType.ENTITY_REF,
         EventType.CDSECT,
         EventType.TEXT          -> if (!isWhitespace()) message
             ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
@@ -231,7 +232,7 @@ fun XmlReader.isElement(elementname: QName): Boolean {
 fun XmlReader.allText(): String {
     val t = this
     return buildString {
-        if (eventType == EventType.TEXT || eventType == EventType.CDSECT) {
+        if (eventType.isTextElement) {
             append(text)
         }
 
@@ -247,6 +248,7 @@ fun XmlReader.allText(): String {
                 EventType.IGNORABLE_WHITESPACE
                      -> if (length != 0) append(t.text)
 
+                EventType.ENTITY_REF,
                 EventType.TEXT,
                 EventType.CDSECT
                      -> append(t.text)
@@ -276,7 +278,7 @@ fun XmlBufferedReader.consecutiveTextContent(): String {
     val whiteSpace = StringBuilder()
     val t = this
     return buildString {
-        if (eventType == EventType.TEXT || eventType == EventType.CDSECT) {
+        if (eventType.isTextElement) {
             append(text)
         }
 
@@ -293,6 +295,7 @@ fun XmlBufferedReader.consecutiveTextContent(): String {
                      -> { t.next(); whiteSpace.append(t.text) }
 
                 EventType.TEXT,
+                EventType.ENTITY_REF,
                 EventType.CDSECT
                      -> {
                     t.next()

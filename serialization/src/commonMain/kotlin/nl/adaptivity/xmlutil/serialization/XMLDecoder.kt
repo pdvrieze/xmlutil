@@ -452,6 +452,7 @@ internal open class XmlDecoderBase internal constructor(
                     when (eventType) {
                         EventType.END_ELEMENT -> return readElementEnd(descriptor)
 
+                        EventType.ENTITY_REF,
                         EventType.CDSECT,
                         EventType.TEXT -> {
                             // The android reader doesn't check whitespaceness. This code should throw

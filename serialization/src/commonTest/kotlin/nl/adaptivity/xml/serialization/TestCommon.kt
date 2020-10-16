@@ -39,7 +39,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefau
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
-private fun String.normalize() = replace(" />", "/>").replace("\r\n", "\n")
+private fun String.normalize() = replace(" />", "/>")
+    .replace("\r\n", "\n")
+    .replace("&gt;", ">")
 
 fun JsonBuilder.defaultJsonTestConfiguration() {
     isLenient = true
@@ -167,15 +169,15 @@ class TestCommon {
     }
 
     class ValueContainerTest : TestBase<ValueContainer>(
-        ValueContainer("foobar"),
+        ValueContainer("<foo&bar>"),
         ValueContainer.serializer()
                                                        ) {
-        override val expectedXML: String = "<valueContainer>foobar</valueContainer>"
-        override val expectedJson: String = "{\"content\":\"foobar\"}"
+        override val expectedXML: String = "<valueContainer>&lt;foo&amp;bar></valueContainer>"
+        override val expectedJson: String = "{\"content\":\"<foo&bar>\"}"
 
         @Test
         fun testAlternativeXml() {
-            val alternativeXml = "<valueContainer><![CDATA[foo]]>bar</valueContainer>"
+            val alternativeXml = "<valueContainer><![CDATA[<foo&]]>bar&gt;</valueContainer>"
             assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
         }
 
