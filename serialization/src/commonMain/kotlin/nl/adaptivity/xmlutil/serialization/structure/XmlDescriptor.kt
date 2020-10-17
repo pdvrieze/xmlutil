@@ -160,6 +160,10 @@ internal constructor(xmlCodecBase: XmlCodecBase, descriptor: SerialDescriptor, t
 
         return from(xmlCodecBase, tagParent)
     }
+
+    override fun toString(): String {
+        return "<root>(\n${getElementDescriptor(0).toString().prependIndent("    ")}\n)"
+    }
 }
 
 sealed class XmlValueDescriptor(
@@ -204,6 +208,8 @@ class XmlPrimitiveDescriptor internal constructor(
     XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
     override val outputKind: OutputKind = xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent)
+
+    override fun toString(): String = "$tagName:$kind = $outputKind"
 }
 
 class XmlCompositeDescriptor internal constructor(
@@ -237,7 +243,7 @@ class XmlCompositeDescriptor internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor = children[index]
 
     override fun toString(): String {
-        return children.joinToString(",\n", "${tagName}: (\n", ")") { it.toString().prependIndent("    ") }
+        return children.joinToString(",\n", "${tagName} (\n", "\n)") { it.toString().prependIndent("    ") }
     }
 }
 
@@ -337,6 +343,12 @@ class XmlPolymorphicDescriptor internal constructor(
     fun getPolymorphicDescriptor(typeName: String): XmlDescriptor {
         return polyInfo[typeName]
             ?: throw XmlSerialException("Missing polymorphic information for $typeName")
+    }
+
+    override fun toString(): String = when (isTransparent) {
+        true -> polyInfo.values.joinToString("\n","[\n", "\n]") { "- $it".prependIndent("    ")}
+        else -> "$tagName (\n${getElementDescriptor(0).toString().prependIndent("    ")}\n" +
+                polyInfo.values.joinToString("\n", "    ${getElementDescriptor(1).tagName}: <poly> [\n","\n    ]\n)"){ "- $it".prependIndent("        ") }
     }
 }
 
