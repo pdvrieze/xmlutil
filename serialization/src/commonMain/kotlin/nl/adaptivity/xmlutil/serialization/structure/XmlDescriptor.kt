@@ -69,6 +69,7 @@ interface SafeXmlDescriptor {
     val elementsCount: Int
     @ExperimentalSerializationApi
     val serialKind: SerialKind
+
     @OptIn(ExperimentalSerializationApi::class)
     fun isElementOptional(index: Int): Boolean = serialDescriptor.isElementOptional(index)
 
@@ -187,7 +188,11 @@ sealed class XmlValueDescriptor(
             null -> null
             else -> {
                 val defaultDecoder =
-                    XmlDecoderBase(xmlCodecBase.serializersModule, xmlCodecBase.config, CompactFragment(default).getXmlReader())
+                    XmlDecoderBase(
+                        xmlCodecBase.serializersModule,
+                        xmlCodecBase.config,
+                        CompactFragment(default).getXmlReader()
+                                  )
                         .XmlDecoder(this)
                 deserializer.deserialize(defaultDecoder)
             }
@@ -346,9 +351,13 @@ class XmlPolymorphicDescriptor internal constructor(
     }
 
     override fun toString(): String = when (isTransparent) {
-        true -> polyInfo.values.joinToString("\n","[\n", "\n]") { "- $it".prependIndent("    ")}
+        true -> polyInfo.values.joinToString("\n", "[\n", "\n]") { "  - $it".indentNonFirst("    ") }
         else -> "$tagName (\n${getElementDescriptor(0).toString().prependIndent("    ")}\n" +
-                polyInfo.values.joinToString("\n", "    ${getElementDescriptor(1).tagName}: <poly> [\n","\n    ]\n)"){ "- $it".prependIndent("        ") }
+                polyInfo.values.joinToString(
+                    "\n",
+                    "    ${getElementDescriptor(1).tagName}: <poly> [\n",
+                    "\n    ]\n)"
+                                            ) { "- $it".prependIndent("        ") }
     }
 }
 
@@ -383,7 +392,10 @@ class XmlListDescriptor internal constructor(
         !isListEluded -> OutputKind.Element
 
         tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
-                xmlCodecBase.config.policy.isTransparentPolymorphic(DetachedParent(serialDescriptor.getElementDescriptor(0), null), tagParent)
+                xmlCodecBase.config.policy.isTransparentPolymorphic(
+                    DetachedParent(serialDescriptor.getElementDescriptor(0), null),
+                    tagParent
+                                                                   )
                       -> OutputKind.Mixed
 
         else          -> OutputKind.Element
@@ -563,6 +575,7 @@ private fun polyTagName(
 
         else -> "$currentPkg.${typeNameBase.substring(1)}"
     }
+
     @OptIn(ExperimentalSerializationApi::class)
     val descriptor = codecBase.serializersModule.getPolymorphic(baseClass, typename)?.descriptor
         ?: throw XmlException("Missing descriptor for $typename in the serial context")
@@ -573,3 +586,17 @@ private fun polyTagName(
     }
     return PolyBaseInfo(name, descriptor)
 }
+
+internal fun String.indentNonFirst(indent: String) =
+    lineSequence().mapIndexed { index, s ->
+        when {
+            index == 0  -> s
+            s.isBlank() -> {
+                when {
+                    s.length < indent.length -> indent
+                    else                     -> s
+                }
+            }
+            else        -> indent + s
+        }
+    }.joinToString("\n")
