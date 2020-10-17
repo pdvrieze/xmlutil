@@ -66,6 +66,8 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ```
 
 # Serialization help
+## Examples
+You should be able to find examples in the [Examples module](examples/README.md)
 ## Format
 The entrypoint to the library is the `XML` format. There is a default, but often a child is better. A custom format
 is created through:
