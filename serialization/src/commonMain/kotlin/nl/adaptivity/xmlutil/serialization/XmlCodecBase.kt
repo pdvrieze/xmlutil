@@ -93,15 +93,8 @@ internal abstract class XmlCodecBase internal constructor(
 
         protected abstract val namespaceContext: NamespaceContext
 
-        // TODO it is not clear that the handling of empty namespace is correct
         internal fun QName.normalize(): QName {
-            return when {
-                namespaceURI.isEmpty() -> copy(
-                    namespaceURI = namespaceContext.getNamespaceURI(prefix) ?: "",
-                    prefix = ""
-                                              )
-                else                   -> copy(prefix = "")
-            }
+            return copy(prefix="")
         }
 
     }
