@@ -47,6 +47,7 @@ fun main() {
     }
 
     val serializer = serializer<Envelope<GeResult<GeResultData>>>()
+    println("SOAP descriptor:\n${xml.xmlDescriptor(serializer).toString().prependIndent("    ")}")
 
     val encodedString = xml.encodeToString(/*serializer, */data) // both versions are available
     println("SOAP output:\n${encodedString.prependIndent("    ")}\n")
