@@ -33,8 +33,6 @@ sealed class MixedContent<out T> {
     @Serializable(with = Text.Companion::class)
     class Text(val data: String) : MixedContent<Nothing>() {
 
-
-
         companion object : KSerializer<Text> {
             override val descriptor: SerialDescriptor = serialDescriptor<String>()
 
