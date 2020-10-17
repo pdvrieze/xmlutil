@@ -43,6 +43,7 @@ fun main() {
     val xml = XML(module) {
         indentString = "    "
         xmlDeclMode = XmlDeclMode.Minimal
+        autoPolymorphic = true
     }
 
     val serializer = serializer<Envelope<GeResult<GeResultData>>>()
