@@ -270,7 +270,7 @@ class XmlPolymorphicDescriptor internal constructor(
 
             val qName = when {
                 isTransparent -> null
-                else          -> QName("value")
+                else          -> from(xmlCodecBase, ParentInfo(this, 1)).tagName
             }
 
             when {
