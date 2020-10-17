@@ -22,18 +22,35 @@ package net.devrieze.serialization.examples.soap
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
+import kotlin.reflect.KClass
 
+/**
+ * This is a simple example representing issue #42 on the parsing of soap messages. Note that it doesn't address
+ * the idea of making
+ */
 fun main() {
     val data = Envelope(GeResult(0, GeResultData("get", "p")))
-    val xml = XML {
+    val module = SerializersModule {
+        polymorphic(Any::class) {
+            subclass(GeResult::class as KClass<GeResult<GeResultData>>, serializer())
+        }
+    }
+    val xml = XML(module) {
         indentString = "    "
         xmlDeclMode = XmlDeclMode.Minimal
     }
-    val encodedString = xml.encodeToString(data)
+
+    val serializer = serializer<Envelope<GeResult<GeResultData>>>()
+
+    val encodedString = xml.encodeToString(/*serializer, */data) // both versions are available
     println("SOAP output:\n${encodedString.prependIndent("    ")}\n")
 
-    val reparsedData = xml.decodeFromString<Envelope<GeResult<GeResultData>>>(encodedString)
+    // the inline reified version is is also available
+    val reparsedData = xml.decodeFromString(serializer, encodedString)
     println("SOAP input: $reparsedData")
 }

@@ -24,6 +24,10 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
+/**
+ * This class represents the actual data payload of the message. The name needs to be specified, as well as the namespace
+ * (and prefix).
+ */
 @Serializable
 @XmlSerialName("data", "", "")
 data class GeResultData(
@@ -31,6 +35,6 @@ data class GeResultData(
     val project: String,
     @XmlElement(true)
     val unit: String
-                  ) {
+                       ) {
 
 }
