@@ -18,7 +18,7 @@ This example is based upon bug #42
 ```
 
 ## Data types
-Envelope & Body
+Envelope & Body - [Envelope.kt](src/main/kotlin/net/devrieze/serialization/examples/soap/Envelope.kt)
 ```kotlin
 /**
  * The Envelope class is a very simple implementation of the SOAP Envelope (ignoring existence of headers). The
@@ -69,7 +69,7 @@ class Envelope<BODYTYPE> private constructor(
 }
 ```
 
-GeResult:
+GeResult - [GeResult.kt](src/main/kotlin/net/devrieze/serialization/examples/soap/GeResult.kt):
 ```kotlin
 /**
  * This class represents an actual message in the gtxlink webservice. It carries its own namespace and has a predefined
@@ -94,7 +94,7 @@ data class GeResult<out T>(
                       )
 ```
 
-GeResultData:
+GeResultData - [GeResultData.kt](src/main/kotlin/net/devrieze/serialization/examples/soap/GeResultData.kt):
 ```kotlin
 /**
  * This class represents the actual data payload of the message. The name needs to be specified, as well as the namespace
@@ -113,6 +113,7 @@ data class GeResultData(
 ```
 
 ## Example usage
+[main.kt](src/main/kotlin/net/devrieze/serialization/examples/soap/main.kt)
 ```kotlin
 /**
  * This is a simple example representing issue #42 on the parsing of soap messages. Note that it doesn't address
