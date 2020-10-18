@@ -411,6 +411,22 @@ class XML constructor(
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
 
+        fun xmlDescriptor(serializer: SerializationStrategy<*>): XmlDescriptor {
+            return defaultInstance.xmlDescriptor(serializer)
+        }
+
+        fun xmlDescriptor(deserializer: DeserializationStrategy<*>): XmlDescriptor {
+            return defaultInstance.xmlDescriptor(deserializer)
+        }
+
+        fun xmlDescriptor(serializer: KSerializer<*>): XmlDescriptor {
+            return defaultInstance.xmlDescriptor(serializer)
+        }
+
+        private fun xmlDescriptor(serialDescriptor: SerialDescriptor): XmlRootDescriptor {
+            return defaultInstance.xmlDescriptor(serialDescriptor)
+        }
+
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
          * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
