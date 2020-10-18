@@ -40,7 +40,7 @@ class KotlinxSerializationProvider : SerializationProvider {
     private class SerializerFun<T : Any>(val serializer: KSerializer<T>) : SerializationProvider.XmlSerializerFun<T> {
 
         override fun invoke(output: XmlWriter, value: T) {
-            XML().toXml(target = output, serializer = serializer, obj = value)
+            XML().toXml(target = output, serializer = serializer, value = value)
         }
     }
 
