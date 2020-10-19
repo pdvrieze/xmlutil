@@ -52,6 +52,7 @@ internal open class XmlEncoderBase internal constructor(
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
         override val serializersModule get() = this@XmlEncoderBase.serializersModule
+        override val config: XmlConfig get() = this@XmlEncoderBase.config
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 

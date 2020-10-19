@@ -86,7 +86,7 @@ internal abstract class XmlCodecBase internal constructor(
 
     internal abstract inner class XmlTagCodec<out D : XmlDescriptor>(val xmlDescriptor: D) {
 
-        internal val config get() = this@XmlCodecBase.config
+        val config get() = this@XmlCodecBase.config
         val serializersModule: SerializersModule get() = this@XmlCodecBase.serializersModule
 
         val serialName: QName get() = xmlDescriptor.tagName

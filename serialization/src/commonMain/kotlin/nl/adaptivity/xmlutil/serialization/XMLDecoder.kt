@@ -61,6 +61,8 @@ internal open class XmlDecoderBase internal constructor(
 
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
+        override val config: XmlConfig get() = this@XmlDecoderBase.config
+
         override val serializersModule get() = this@XmlDecoderBase.serializersModule
 
         override fun decodeNotNullMark(): Boolean {
