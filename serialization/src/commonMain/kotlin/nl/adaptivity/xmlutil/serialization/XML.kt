@@ -706,21 +706,33 @@ class XML constructor(
             throw UnsupportedOperationException("Reflection is no longer supported for serialization")
     }
 
+    interface XmlCodecConfig {
+        /**
+         * The currently active serialization context
+         */
+        val serializersModule: SerializersModule
+
+        /**
+         * The configuration used for serialization
+         */
+        val config: XmlConfig
+
+        /**
+         * A delegate method to get access to a format with the same configuration
+         */
+        fun delegateFormat(): XML = XML(config, serializersModule)
+    }
+
     /**
      * An interface that allows custom serializers to special case being serialized to XML and retrieve the underlying
      * [XmlWriter]. This is used for example by [CompactFragment] to make the fragment transparent when serializing to
      * XML.
      */
-    interface XmlOutput {
+    interface XmlOutput: XmlCodecConfig {
         /**
          * The name for the current tag
          */
         val serialName: QName
-
-        /**
-         * The currently active serialization context
-         */
-        val serializersModule: SerializersModule
 
         /**
          * The XmlWriter used. Can be used directly by serializers
@@ -737,7 +749,10 @@ class XML constructor(
      * [XmlReader]. This is used for example by [CompactFragment] to read arbitrary XML from the stream and store it inside
      * the buffer (without attempting to use the serializer/decoder for it.
      */
-    interface XmlInput {
+    interface XmlInput: XmlCodecConfig {
+        /**
+         * The reader used. Can be used directly by serializers
+         */
         val input: XmlReader
     }
 
