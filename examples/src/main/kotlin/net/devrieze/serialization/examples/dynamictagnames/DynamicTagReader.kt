@@ -26,6 +26,9 @@ import nl.adaptivity.xmlutil.XmlDelegatingReader
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
+/**
+ * A filter that reads xml with dynamic tags and represents it as a structured xml with id attribute
+ */
 internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : XmlDelegatingReader(reader) {
     private var initDepth = reader.depth
     private val filterDepth: Int
