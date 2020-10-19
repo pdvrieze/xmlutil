@@ -127,7 +127,7 @@ class XML constructor(
 
         var ex: Throwable? = null
         try {
-            toXml(xmlWriter, serializer, value, prefix)
+            encodeToWriter(xmlWriter, serializer, value, prefix)
         } catch (e: Throwable) {
             ex = e
         } finally {
