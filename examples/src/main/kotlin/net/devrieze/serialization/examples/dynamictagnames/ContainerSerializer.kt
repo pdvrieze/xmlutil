@@ -33,51 +33,11 @@ import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
-
+/**
+ * This version of the serializer uses the new delegateFormat method on [XML.XmlInput] and [XML.XmlOutput]
+ * to inherit configuration and serializerModules.
+ */
 object ContainerSerializer: CommonContainerSerializer() {
-
     override fun delegateFormat(decoder: Decoder) = (decoder as XML.XmlInput).delegateFormat()
     override fun delegateFormat(encoder: Encoder) = (encoder as XML.XmlOutput).delegateFormat()
-
-    override fun deserializeDynamic(decoder: Decoder, reader: XmlReader): Container {
-        val xml = delegateFormat(decoder)
-        val elementXmlDescriptor = xml.xmlDescriptor(elementSerializer).getElementDescriptor(0)
-
-        val dataList = mutableListOf<TestElement>()
-        decoder.decodeStructure(descriptor) {
-            while (reader.next() != EventType.END_ELEMENT) {
-                when (reader.eventType) {
-                    EventType.COMMENT,
-                    EventType.IGNORABLE_WHITESPACE -> {
-                    }
-                    EventType.TEXT                 -> if (reader.text.isNotBlank()) {
-                        throw XmlException("Unexpected text content")
-                    }
-                    EventType.START_ELEMENT        -> {
-                        val filter = DynamicTagReader(reader, elementXmlDescriptor)
-                        val data = xml.decodeFromReader(elementSerializer, filter)
-                        dataList.add(data)
-                    }
-                    else                           -> {
-                        throw XmlException("Unexpected tag content")
-                    }
-                }
-            }
-            val input = reader as? XmlBufferedReader ?: XmlBufferedReader(reader)
-        }
-        return Container(dataList)
-    }
-
-    override fun serializeDynamic(encoder: Encoder, target: XmlWriter, data: List<TestElement>) {
-        val xml = (encoder as XML.XmlOutput).delegateFormat()
-        val elementXmlDescriptor = xml.xmlDescriptor(elementSerializer).getElementDescriptor(0)
-
-        encoder.encodeStructure(descriptor) {
-            for (element in data) {
-                val writer = DynamicTagWriter(target, elementXmlDescriptor, element.id.toString())
-                xml.encodeToWriter(writer, elementSerializer, element)
-            }
-        }
-    }
-
 }

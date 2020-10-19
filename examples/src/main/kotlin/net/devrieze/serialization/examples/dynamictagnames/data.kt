@@ -18,15 +18,26 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package net.devrieze.serialization.examples.dynamictagnames
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
+import kotlinx.serialization.serializer
+import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
+/** Version that works with the released version 0.80.0 and 0.80.1 */
+@Serializable(with = ContainerSerializer::class)
+data class Container(val data: List<TestElement>)
+
 @Serializable
-data class TestElement(
-    val id: Int,
-    @XmlElement(true)
-    val data: String
-                 ) {
-}
+data class TestElement(val id: Int, val attr: Int, @XmlElement(true) val data: String)
