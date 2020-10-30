@@ -35,12 +35,14 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-val xmlutil_version: String by project
+val xmlutil_serial_version: String by project
+val xmlutil_core_version: String by project
+val xmlutil_util_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "serialutil"
-    version = xmlutil_version
+    version = xmlutil_util_version
 }
 
 val serializationVersion: String by project
@@ -105,8 +107,10 @@ kotlin {
             kotlinOptions {
                 languageVersion = "1.4"
                 apiVersion = "1.4"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
+        }
+        target.mavenPublication {
+            version = xmlutil_util_version
         }
 /*
         val javadocJar = tasks.create<Jar>(target.targetName+"JavadocJar") {
@@ -136,6 +140,12 @@ kotlin {
 
         val androidMain by getting {
             dependsOn(javaShared)
+        }
+
+        all {
+            languageSettings.apply {
+                useExperimentalAnnotation("kotlin.RequiresOptIn")
+            }
         }
 
     }

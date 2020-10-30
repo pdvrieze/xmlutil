@@ -34,12 +34,12 @@ plugins {
     idea
 }
 
-val xmlutil_version: String by project
+val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "xmlutil"
-    version = xmlutil_version
+    version = xmlutil_core_version
 }
 
 val serializationVersion: String by project
@@ -127,7 +127,7 @@ kotlin {
         }
 
         target.mavenPublication {
-            version = xmlutil_version
+            version = xmlutil_core_version
         }
     }
 

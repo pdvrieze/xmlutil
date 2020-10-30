@@ -38,12 +38,13 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-val xmlutil_version: String by project
+val xmlutil_serial_version: String by project
+val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "xmlutil-serialization"
-    version = xmlutil_version
+    version = xmlutil_serial_version
 }
 
 val serializationVersion: String by project
@@ -144,7 +145,6 @@ kotlin {
             kotlinOptions {
                 languageVersion = "1.4"
                 apiVersion = "1.4"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
     }
@@ -256,6 +256,12 @@ kotlin {
 
             dependencies {
                 implementation(kotlin("test-js"))
+            }
+        }
+
+        all {
+            languageSettings.apply {
+                useExperimentalAnnotation("kotlin.RequiresOptIn")
             }
         }
     }

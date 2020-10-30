@@ -30,12 +30,8 @@ plugins {
     idea
 }
 
-val xmlutil_version: String by project
-val xmlutil_versiondesc: String by project
-
 base {
     archivesBaseName = "examples"
-    version = xmlutil_version
 }
 
 val serializationVersion: String by project
