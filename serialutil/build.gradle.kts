@@ -34,12 +34,14 @@ plugins {
     idea
 }
 
-val xmlutil_version: String by project
+val xmlutil_serial_version: String by project
+val xmlutil_core_version: String by project
+val xmlutil_util_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "serialutil"
-    version = xmlutil_version
+    version = xmlutil_util_version
 }
 
 val serializationVersion: String by project
@@ -104,12 +106,11 @@ kotlin {
             kotlinOptions {
                 languageVersion = "1.4"
                 apiVersion = "1.4"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
         target.mavenPublication {
             groupId = "net.devrieze"
-            version = xmlutil_version
+            version = xmlutil_util_version
         }
     }
 
@@ -132,6 +133,12 @@ kotlin {
             dependsOn(javaShared)
         }
 
+        all {
+            languageSettings.apply {
+                useExperimentalAnnotation("kotlin.RequiresOptIn")
+            }
+        }
+
     }
 
 }
@@ -147,13 +154,13 @@ repositories {
 }
 
 publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
-    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze:serialutil")
-    groupId = "net.devrieze"
+    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze.serialutil:serialutil")
+    groupId = "net.devrieze.serialutil"
     artifactId = "serialutil"
 }
 
 publishing.publications.getByName<MavenPublication>("metadata") {
-    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze:serialutil-common")
+    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze.serialutil:serialutil-common")
     artifactId = "serialutil-common"
 }
 
@@ -174,16 +181,16 @@ extensions.configure<BintrayExtension>("bintray") {
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
-        name = "net.devrieze:serialutil"
+        name = "net.devrieze.serialutil:serialutil"
         userOrg = "pdvrieze"
         setLicenses("Apache-2.0")
         vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
 
         version.apply {
-            name = xmlutil_version
+            name = xmlutil_util_version
             desc = xmlutil_versiondesc
             released = Date().toString()
-            vcsTag = "v$xmlutil_version"
+            vcsTag = "v$xmlutil_serial_version"
         }
     })
 

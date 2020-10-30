@@ -33,12 +33,12 @@ plugins {
     idea
 }
 
-val xmlutil_version: String by project
+val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "xmlutil"
-    version = xmlutil_version
+    version = xmlutil_core_version
 }
 
 val serializationVersion: String by project
@@ -128,7 +128,7 @@ kotlin {
         target.mavenPublication {
             groupId = "net.devrieze"
             artifactId = artifactId.replace("core-", "xmlutil-")
-            version = xmlutil_version
+            version = xmlutil_core_version
         }
     }
 
@@ -215,13 +215,13 @@ repositories {
 }
 
 publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
-    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze:xmlutil")
-    groupId = "net.devrieze"
+    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze.xmlutil:xmlutil")
+    groupId = "net.devrieze.xmlutil"
     artifactId = "xmlutil"
 }
 
 publishing.publications.getByName<MavenPublication>("metadata") {
-    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze:xmlutil-common")
+    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze.xmlutil:xmlutil-common")
     artifactId = "xmlutil-common"
 }
 
@@ -242,16 +242,16 @@ extensions.configure<BintrayExtension>("bintray") {
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
-        name = "net.devrieze:xmlutil"
+        name = "net.devrieze.xmlutil:xmlutil"
         userOrg = "pdvrieze"
         setLicenses("Apache-2.0")
         vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
 
         version.apply {
-            name = xmlutil_version
+            name = xmlutil_core_version
             desc = xmlutil_versiondesc
             released = Date().toString()
-            vcsTag = "v$xmlutil_version"
+            vcsTag = "v$xmlutil_core_version"
         }
     })
 

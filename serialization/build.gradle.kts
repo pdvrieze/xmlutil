@@ -36,12 +36,13 @@ plugins {
     idea
 }
 
-val xmlutil_version: String by project
+val xmlutil_serial_version: String by project
+val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
     archivesBaseName = "xmlutil-serialization"
-    version = xmlutil_version
+    version = xmlutil_serial_version
 }
 
 val serializationVersion: String by project
@@ -121,15 +122,14 @@ kotlin {
             kotlinOptions {
                 languageVersion = "1.4"
                 apiVersion = "1.4"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
 
         target.mavenPublication {
-            groupId = "net.devrieze"
+            groupId = "net.devrieze.xmlserialization"
             val shortTarget = artifactId.substringAfter("serialization-")
             artifactId = "xmlutil-serialization-${shortTarget}"
-            version = xmlutil_version
+            version = xmlutil_serial_version
         }
     }
 
@@ -219,6 +219,12 @@ kotlin {
                 implementation(kotlin("test-js"))
             }
         }
+
+        all {
+            languageSettings.apply {
+                useExperimentalAnnotation("kotlin.RequiresOptIn")
+            }
+        }
     }
 
 }
@@ -229,13 +235,13 @@ repositories {
 }
 
 publishing.publications.named<MavenPublication>("kotlinMultiplatform") {
-    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze:xmlutil-serialization")
-    groupId = "net.devrieze"
+    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze.xmlserialization:xmlutil-serialization")
+    groupId = "net.devrieze.xmlserialization"
     artifactId = "xmlutil-serialization"
 }
 
 publishing.publications.getByName<MavenPublication>("metadata") {
-    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze:xmlutil-serialization-common")
+    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze.xmlserialization:xmlutil-serialization-common")
     artifactId = "xmlutil-serialization-common"
 }
 
@@ -267,16 +273,16 @@ extensions.configure<BintrayExtension>("bintray") {
 
     pkg(closureOf<BintrayExtension.PackageConfig> {
         repo = "maven"
-        name = "net.devrieze:xmlutil-serialization"
+        name = "net.devrieze.xmlserialization:xmlutil-serialization"
         userOrg = "pdvrieze"
         setLicenses("Apache-2.0")
         vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
 
         version.apply {
-            name = xmlutil_version
+            name = xmlutil_serial_version
             desc = xmlutil_versiondesc
             released = Date().toString()
-            vcsTag = "v$xmlutil_version"
+            vcsTag = "v$xmlutil_serial_version"
         }
     })
 
