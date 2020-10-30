@@ -126,7 +126,7 @@ kotlin {
         }
 
         target.mavenPublication {
-            groupId = "net.devrieze"
+            groupId = "net.devrieze.xmlutil"
             artifactId = artifactId.replace("core-", "xmlutil-")
             version = xmlutil_core_version
         }

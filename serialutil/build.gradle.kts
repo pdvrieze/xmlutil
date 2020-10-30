@@ -109,7 +109,7 @@ kotlin {
             }
         }
         target.mavenPublication {
-            groupId = "net.devrieze"
+            groupId = "net.devrieze.serialutil"
             version = xmlutil_util_version
         }
     }
