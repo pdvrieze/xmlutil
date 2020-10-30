@@ -147,6 +147,10 @@ kotlin {
                 apiVersion = "1.4"
             }
         }
+
+        target.mavenPublication {
+            version = xmlutil_serial_version
+        }
     }
 
 
@@ -251,8 +255,6 @@ kotlin {
 
         val jsTest by getting {
             languageSettings.enableLanguageFeature("InlineClasses")
-
-
 
             dependencies {
                 implementation(kotlin("test-js"))
