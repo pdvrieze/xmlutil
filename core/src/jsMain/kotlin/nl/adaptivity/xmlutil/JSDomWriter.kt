@@ -319,7 +319,7 @@ class JSDomWriter constructor(
     }
 
     override fun close() {
-        assert(depth == 0) { "Closing a dom writer but not all elements were closed" }
+        assert(depth == 0) { "Closing a dom writer but not all elements were closed (depth:$depth)" }
         currentNode = null
     }
 
