@@ -348,6 +348,7 @@ fun XmlReader.readSimpleElement(): String {
                 EventType.PROCESSING_INSTRUCTION -> {
                 }
                 EventType.TEXT,
+                EventType.ENTITY_REF,
                 EventType.CDSECT                 -> append(t.text)
                 else                             -> throw XmlException(
                     "Expected text content or end tag, found: ${t.eventType}"

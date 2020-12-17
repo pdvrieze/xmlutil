@@ -132,6 +132,25 @@ class TestCommon {
         assertEquals(contentText, serialized)
     }
 
+
+    @Test
+    fun deserializeXmlWithEntity() {
+        val xml = XML {
+            repairNamespaces = true
+            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+        }
+
+        val expected = StringWithMarkup("Chloroacetic acid, >=99%")
+
+        val actual = xml.decodeFromString<StringWithMarkup>(
+            "<StringWithMarkup xmlns=\"http://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
+                    "    <String>Chloroacetic acid, &gt;=99%</String>\n" +
+                    "</StringWithMarkup>"
+                                                           )
+        assertEquals(expected, actual)
+    }
+
+
     @Serializable
     data class IntList(val values: List<Int>)
 
