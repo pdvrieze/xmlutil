@@ -35,7 +35,6 @@ fun String.normalizeXml() = replace(" />", "/>")
     .replace(" ?>", "?>")
     .replace("\r\n", "\n")
     .replace("&gt;", ">")
-    .replace(" ?>", "?>")
 
 fun JsonBuilder.defaultJsonTestConfiguration() {
     isLenient = true
