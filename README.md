@@ -124,6 +124,9 @@ Mixed. Mixed is a special type that allows for mixing of text and element conten
 - Otherwise it will be written as a tag   
 
 ### Tag/attribute name
+The way the name is determined is configured/implemented through the configured policy. The documentation below
+is for the default policy. This is designed to allow customization by users.
+
 Based upon the storage type, the effective name for an attribute is determined as follows:
 - `@XmlSerialName` at property declaration site
 - `@XmlSerialName` at type declaration site
@@ -143,6 +146,13 @@ The effective name for a polymorphic child is determined as follows:
 - If the child is not transparent, the container is treated as a regular tag. It will have a `type` attribute to contain
   the serial name of the type (shortened to share the package name with the container). The value will use the default
   name `value`.
+
+The implementation if serialization in the Kotlin compiler does not allow distinguishing between the automatic name and
+a `@SerialName` annotation. The default implementation supposes that if there is a '`.`' character in the name, this is
+a java type name and it strips the package out. (This also when it could be an attribute).
+
+If you need to support names with dots in your format, either use the `@XmlSerialName` annotation, or use a
+different policy.
 
 ## Annotations
 
