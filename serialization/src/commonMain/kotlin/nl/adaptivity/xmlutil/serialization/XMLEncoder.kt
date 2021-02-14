@@ -56,13 +56,25 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
-        override fun encodeByte(value: Byte) = encodeString(value.toString())
+        override fun encodeByte(value: Byte) = when (xmlDescriptor.isUnsigned) {
+            true ->encodeString(value.toUByte().toString())
+            else ->encodeString(value.toString())
+        }
 
-        override fun encodeShort(value: Short) = encodeString(value.toString())
+        override fun encodeShort(value: Short) = when (xmlDescriptor.isUnsigned) {
+            true ->encodeString(value.toUShort().toString())
+            else ->encodeString(value.toString())
+        }
 
-        override fun encodeInt(value: Int) = encodeString(value.toString())
+        override fun encodeInt(value: Int) = when (xmlDescriptor.isUnsigned) {
+            true ->encodeString(value.toUInt().toString())
+            else ->encodeString(value.toString())
+        }
 
-        override fun encodeLong(value: Long) = encodeString(value.toString())
+        override fun encodeLong(value: Long) = when (xmlDescriptor.isUnsigned) {
+            true ->encodeString(value.toULong().toString())
+            else ->encodeString(value.toString())
+        }
 
         override fun encodeFloat(value: Float) = encodeString(value.toString())
 
@@ -105,6 +117,11 @@ internal open class XmlEncoderBase internal constructor(
             serializer.serialize(this, value)
         }
 
+        @ExperimentalSerializationApi
+        override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+            return XmlEncoder(xmlDescriptor.getElementDescriptor(0))
+        }
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
 
             return beginEncodeCompositeImpl(xmlDescriptor)
@@ -126,6 +143,23 @@ internal open class XmlEncoderBase internal constructor(
 
             is PolymorphicKind -> PolymorphicEncoder(xmlDescriptor as XmlPolymorphicDescriptor)
         }.apply { writeBegin() }
+    }
+
+    private inner class InlineEncoder<D: XmlDescriptor>(private val parent: TagEncoder<D>, private val childIndex:Int): XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex)) {
+        override fun encodeString(value: String) {
+            val d = xmlDescriptor.getElementDescriptor(0)
+            parent.encodeStringElement(d, childIndex, value)
+        }
+
+        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+            val d = xmlDescriptor.getElementDescriptor(0)
+            parent.encodeSerializableElement(d, childIndex, serializer, value)
+        }
+
+        @ExperimentalSerializationApi
+        override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+            return this
+        }
     }
 
     internal open inner class TagEncoder<D : XmlDescriptor>(
@@ -162,9 +196,29 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            val encoder = XmlEncoder(xmlDescriptor.getElementDescriptor(index))
+            encodeSerializableElement(xmlDescriptor.getElementDescriptor(index), index, serializer, value)
 
-            defer(index) { serializer.serialize(encoder, value) }
+        }
+
+        internal fun <T> encodeSerializableElement(
+            descriptor: XmlDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T
+                                                  ) {
+            if (descriptor.doInline) {
+                val encoder = InlineEncoder(this, index)
+
+                defer(index) { serializer.serialize(encoder, value) }
+            } else {
+                val encoder = XmlEncoder(descriptor)
+                defer(index) { serializer.serialize(encoder, value) }
+            }
+        }
+
+        @ExperimentalSerializationApi
+        override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
+            return InlineEncoder(this, index)
         }
 
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
@@ -178,19 +232,32 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
-            encodeStringElement(descriptor, index, value.toString())
+            when (xmlDescriptor.isUnsigned) {
+                true -> encodeStringElement(descriptor, index, value.toUByte().toString())
+                else -> encodeStringElement(descriptor, index, value.toString())
+            }
         }
 
+
         final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
-            encodeStringElement(descriptor, index, value.toString())
+            when (xmlDescriptor.isUnsigned) {
+                true -> encodeStringElement(descriptor, index, value.toUShort().toString())
+                else -> encodeStringElement(descriptor, index, value.toString())
+            }
         }
 
         final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
-            encodeStringElement(descriptor, index, value.toString())
+            when (xmlDescriptor.isUnsigned) {
+                true -> encodeStringElement(descriptor, index, value.toUInt().toString())
+                else -> encodeStringElement(descriptor, index, value.toString())
+            }
         }
 
         final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
-            encodeStringElement(descriptor, index, value.toString())
+            when (xmlDescriptor.isUnsigned) {
+                true -> encodeStringElement(descriptor, index, value.toULong().toString())
+                else -> encodeStringElement(descriptor, index, value.toString())
+            }
         }
 
         final override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
@@ -220,16 +287,20 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
+            encodeStringElement(elementDescriptor, index, value)
+        }
+
+        internal fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             val defaultValue = (elementDescriptor as? XmlValueDescriptor)?.default
 
             if (value == defaultValue) return
 
 
             when (elementDescriptor.outputKind) {
-                OutputKind.Element -> defer(index) { target.smartStartTag(elementDescriptor.tagName) { text(value) } }
+                OutputKind.Element   -> defer(index) { target.smartStartTag(elementDescriptor.tagName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(elementDescriptor.tagName, value)
                 OutputKind.Mixed,
-                OutputKind.Text -> defer(index) { target.text(value) }
+                OutputKind.Text      -> defer(index) { target.text(value) }
             }
         }
 

@@ -123,6 +123,16 @@ class TestCommon {
 
     }
 
+    class InlineCounterTest: TestBase<Counter>(
+        Counter(239.toUByte(), "tries"),
+        Counter.serializer()
+                                              ) {
+        override val expectedXML: String
+            get() = "<Counter counted=\"239\" description=\"tries\"/>"
+        override val expectedJson: String
+            get() = "{\"counted\":239,\"description\":\"tries\"}"
+    }
+
     class SimpleDataTest : TestBase<Address>(
         Address("10", "Downing Street", "London"),
         Address.serializer()
@@ -171,6 +181,21 @@ class TestCommon {
     class ValueContainerTest : TestBase<ValueContainer>(
         ValueContainer("<foo&bar>"),
         ValueContainer.serializer()
+                                                       ) {
+        override val expectedXML: String = "<valueContainer>&lt;foo&amp;bar></valueContainer>"
+        override val expectedJson: String = "{\"content\":\"<foo&bar>\"}"
+
+        @Test
+        fun testAlternativeXml() {
+            val alternativeXml = "<valueContainer><![CDATA[<foo&]]>bar&gt;</valueContainer>"
+            assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
+        }
+
+    }
+
+    class SimpleInlineContainerTest : TestBase<SimpleInlineContainer>(
+        SimpleInlineContainer(InlineString("<foo&bar>")),
+        SimpleInlineContainer.serializer()
                                                        ) {
         override val expectedXML: String = "<valueContainer>&lt;foo&amp;bar></valueContainer>"
         override val expectedJson: String = "{\"content\":\"<foo&bar>\"}"

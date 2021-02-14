@@ -546,10 +546,11 @@ class XML constructor(
          * @param prefix The prefix (if any) to use for the namespace
          */
         @Suppress("unused")
-        @Deprecated("Renamed to encodeToWriter", ReplaceWith(
-            "encodeToWriter(dest, obj, prefix)",
-            "nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter"
-                                                            )
+        @Deprecated(
+            "Renamed to encodeToWriter", ReplaceWith(
+                "encodeToWriter(dest, obj, prefix)",
+                "nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter"
+                                                    )
                    )
         inline fun <reified T : Any> toXml(dest: XmlWriter, obj: T, prefix: String? = null) =
             encodeToWriter(dest, obj, prefix)
@@ -562,10 +563,11 @@ class XML constructor(
          * @param value The actual object
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @Deprecated("Renamed to encodeToWriter", ReplaceWith(
-            "encodeToWriter(target, serializer, value, prefix)",
-            "nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter"
-                                                            )
+        @Deprecated(
+            "Renamed to encodeToWriter", ReplaceWith(
+                "encodeToWriter(target, serializer, value, prefix)",
+                "nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter"
+                                                    )
                    )
         fun <T> toXml(
             target: XmlWriter,
@@ -728,7 +730,7 @@ class XML constructor(
      * [XmlWriter]. This is used for example by [CompactFragment] to make the fragment transparent when serializing to
      * XML.
      */
-    interface XmlOutput: XmlCodecConfig {
+    interface XmlOutput : XmlCodecConfig {
         /**
          * The name for the current tag
          */
@@ -749,7 +751,7 @@ class XML constructor(
      * [XmlReader]. This is used for example by [CompactFragment] to read arbitrary XML from the stream and store it inside
      * the buffer (without attempting to use the serializer/decoder for it.
      */
-    interface XmlInput: XmlCodecConfig {
+    interface XmlInput : XmlCodecConfig {
         /**
          * The reader used. Can be used directly by serializers
          */
@@ -759,7 +761,7 @@ class XML constructor(
 }
 
 enum class OutputKind {
-    Element, Attribute, Text, Mixed;
+    Element, Attribute, Text, Mixed, Inline;
 }
 
 enum class InputKind {

@@ -30,44 +30,39 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
-private class HashEncoder(override val serializersModule: SerializersModule) : Encoder {
-    var hash: Int = 1
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        return CompositeHashEncoder(this)
-    }
-
+private abstract class AbstractHashEncoder(override val serializersModule: SerializersModule) : Encoder {
+    abstract var hash: Int
     override fun encodeBoolean(value: Boolean) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeByte(value: Byte) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeChar(value: Char) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeDouble(value: Double) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-        hash = enumDescriptor.getElementName(index).hashCode()
+        hash = hash * 31 + enumDescriptor.getElementName(index).hashCode()
     }
 
     override fun encodeFloat(value: Float) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeInt(value: Int) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeLong(value: Long) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -76,17 +71,31 @@ private class HashEncoder(override val serializersModule: SerializersModule) : E
     }
 
     override fun encodeShort(value: Short) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
 
     override fun encodeString(value: String) {
-        hash = value.hashCode()
+        hash = hash * 31 + value.hashCode()
     }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        return CompositeHashEncoder(this)
+    }
+
+    @ExperimentalSerializationApi
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        hash += 1
+        return this
+    }
+}
+
+private class HashEncoder(serializersModule: SerializersModule) : AbstractHashEncoder(serializersModule) {
+    override var hash: Int = 0
 
 }
 
 
-private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeEncoder {
+private class CompositeHashEncoder(val elementEncoder: AbstractHashEncoder) : CompositeEncoder {
     override val serializersModule: SerializersModule get() = elementEncoder.serializersModule
 
     var hash = 1
@@ -158,8 +167,21 @@ private class CompositeHashEncoder(val elementEncoder: HashEncoder) : CompositeE
         addHash { value.hashCode() }
     }
 
+    @ExperimentalSerializationApi
+    override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
+        hash += 1
+        return object : AbstractHashEncoder(serializersModule) {
+            override var hash: Int
+                get() = this@CompositeHashEncoder.hash
+                set(value) {
+                    this@CompositeHashEncoder.hash = value
+                }
+
+        }
+    }
+
     override fun endStructure(descriptor: SerialDescriptor) {
-        elementEncoder.hash = hash
+        elementEncoder.hash = elementEncoder.hash*31 + hash
     }
 }
 

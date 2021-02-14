@@ -77,13 +77,25 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeBoolean(): Boolean = decodeStringImpl().toBoolean()
 
-        override fun decodeByte(): Byte = decodeStringImpl().toByte()
+        override fun decodeByte(): Byte = when {
+            xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
+            else -> decodeStringImpl().toByte()
+        }
 
-        override fun decodeShort(): Short = decodeStringImpl().toShort()
+        override fun decodeShort(): Short = when {
+            xmlDescriptor.isUnsigned -> decodeStringImpl().toUShort().toShort()
+            else -> decodeStringImpl().toShort()
+        }
 
-        override fun decodeInt(): Int = decodeStringImpl().toInt()
+        override fun decodeInt(): Int = when {
+            xmlDescriptor.isUnsigned -> decodeStringImpl().toUInt().toInt()
+            else                     -> decodeStringImpl().toInt()
+        }
 
-        override fun decodeLong(): Long = decodeStringImpl().toLong()
+        override fun decodeLong(): Long = when {
+            xmlDescriptor.isUnsigned -> decodeStringImpl().toULong().toLong()
+            else                     -> decodeStringImpl().toLong()
+        }
 
         override fun decodeFloat(): Float = decodeStringImpl().toFloat()
 
@@ -95,6 +107,11 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             return enumDescriptor.getElementIndex(decodeStringImpl())
+        }
+
+        @ExperimentalSerializationApi
+        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+            return this // TODO, add test for inline class serialization/deserialization
         }
 
         private fun decodeStringImpl(defaultOverEmpty: Boolean = true): String {
@@ -112,6 +129,7 @@ internal open class XmlDecoderBase internal constructor(
                     OutputKind.Attribute -> throw SerializationException(
                         "Attribute parsing without a concrete index is unsupported"
                                                                         )
+                    OutputKind.Inline -> throw SerializationException("Inline classes can not be decoded directly")
                     OutputKind.Mixed -> input.consecutiveTextContent()//.also { input.next() } // Move to the next element
                     OutputKind.Text -> input.allText()
                 }
@@ -237,6 +255,11 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String =
             throw AssertionError("Null objects have no members")
+
+        @ExperimentalSerializationApi
+        override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
+            throw AssertionError("Null objects have no members")
+        }
     }
 
     internal open inner class TagDecoder<D : XmlDescriptor>(xmlDescriptor: D) :
@@ -343,6 +366,17 @@ internal open class XmlDecoderBase internal constructor(
 
             seenItems[index] = true
             return result
+        }
+
+        @ExperimentalSerializationApi
+        override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
+            val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
+            return when {
+                descriptor.kind is PrimitiveKind
+                     -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+
+                else -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+            }
         }
 
         open fun indexOf(name: QName, inputType: InputKind): Int {
@@ -548,6 +582,8 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             return when (childDesc.outputKind) {
+                OutputKind.Inline -> throw XmlSerialException("Inline elements can not be directly decoded")
+
                 OutputKind.Element -> input.readSimpleElement()
 
                 OutputKind.Mixed,

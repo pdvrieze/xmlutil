@@ -28,6 +28,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.structure.SafeXmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
 internal abstract class XmlCodecBase internal constructor(
@@ -78,9 +79,9 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     @Suppress("RedundantInnerClassModifier") // The actual children must be inner
-    abstract inner class XmlCodec<out D : XmlDescriptor>(
+    abstract inner class XmlCodec<out D : SafeXmlDescriptor>(
         protected val xmlDescriptor: D
-                                                        ) {
+                                                            ) {
         val serialName: QName get() = xmlDescriptor.tagName
     }
 

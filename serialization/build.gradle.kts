@@ -75,6 +75,7 @@ kotlin {
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)
+                    kotlinOptions.useIR = true
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
@@ -145,6 +146,8 @@ kotlin {
         }
 
         val commonTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
             dependencies {
                 implementation(project(":serialutil"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
@@ -159,6 +162,8 @@ kotlin {
         }
 
         val javaSharedTest by creating {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
             dependsOn(javaShared)
             dependsOn(commonTest)
         }
@@ -168,6 +173,8 @@ kotlin {
         }
 
         val jvmTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
             dependsOn(javaSharedTest)
             dependsOn(jvmMain)
 
@@ -196,6 +203,8 @@ kotlin {
         }
 
         val androidTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
             dependsOn(javaSharedTest)
             dependsOn(androidMain)
 
@@ -215,6 +224,8 @@ kotlin {
         }
 
         val jsTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
             dependencies {
                 implementation(kotlin("test-js"))
             }

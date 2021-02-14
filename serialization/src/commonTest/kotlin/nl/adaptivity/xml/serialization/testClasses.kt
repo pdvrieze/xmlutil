@@ -51,6 +51,11 @@ data class Address(
                   )
 
 @Serializable
+data class Counter(val counted: UByte, val description:String) {
+//    constructor(counted: UByte, description:String): this(counted)
+}
+
+@Serializable
 data class Location(
     val addres: Address,
     @XmlDefault("NaN")
@@ -161,6 +166,13 @@ data class ChildA(val valueA: String) : Base()
 @Serializable
 @XmlSerialName("valueContainer", namespace="", prefix="")
 data class ValueContainer(@XmlValue(true) val content:String)
+
+@Serializable
+inline class InlineString(val value: String)
+
+@Serializable
+@XmlSerialName("valueContainer", namespace="", prefix="")
+data class SimpleInlineContainer(@XmlValue(true) val content:InlineString)
 
 @SerialName("rec")
 @Serializable

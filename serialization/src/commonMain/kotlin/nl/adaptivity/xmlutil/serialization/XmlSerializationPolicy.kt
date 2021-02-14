@@ -59,7 +59,6 @@ interface XmlSerializationPolicy {
     fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
     fun isTransparentPolymorphic(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
 
-
     fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName
 
     data class DeclaredNameInfo(val serialName: String, val annotatedName: QName?)
@@ -114,8 +113,13 @@ open class DefaultXmlSerializationPolicy(
             null -> {
                 val useAnnotations = tagParent.elementUseAnnotations
                 val isValue = useAnnotations.firstOrNull<XmlValue>()?.value == true
-                val elementKind = tagParent.elementSerialDescriptor.kind
+                var parentChildDesc = tagParent.elementSerialDescriptor
+                while (parentChildDesc.isInline) {
+                    parentChildDesc = parentChildDesc.getElementDescriptor(0)
+                }
+                val elementKind = parentChildDesc.kind
                 when {
+
                     elementKind == StructureKind.CLASS -> OutputKind.Element
                     isValue                            -> OutputKind.Mixed
                     else                               -> tagParent.elementUseOutputKind

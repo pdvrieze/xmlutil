@@ -55,6 +55,9 @@ constructor(
     val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic)
                                                                        ) {
 
+    var isInlineCollapsed: Boolean = true
+        private set
+
     @Deprecated("Use version taking XmlDeclMode")
     constructor(
             repairNamespaces: Boolean = true,
@@ -87,7 +90,9 @@ constructor(
         builder.autoPolymorphic,
         builder.unknownChildHandler,
         builder.policy?: DefaultXmlSerializationPolicy(false, builder.autoPolymorphic)
-                                        )
+                                        ) {
+        isInlineCollapsed = builder.isInlineCollapsed
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     val unknownChildHandler: UnknownChildHandler = when (unknownChildHandler) {
@@ -162,6 +167,8 @@ constructor(
             autoPolymorphic: Boolean = false,
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                    ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
+
+        var isInlineCollapsed: Boolean = true
 
         var indent: Int
             @Deprecated("Use indentString for better accuracy")
