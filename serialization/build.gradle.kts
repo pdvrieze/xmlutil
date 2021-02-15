@@ -96,6 +96,7 @@ kotlin {
                 tasks.getByName<Test>("${target.name}Test") {
                     useJUnitPlatform ()
                     testTask.dependsOn(this)
+                    kotlinOptions.useIR = true
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
@@ -225,6 +226,8 @@ kotlin {
 
         val jsTest by getting {
             languageSettings.enableLanguageFeature("InlineClasses")
+
+
 
             dependencies {
                 implementation(kotlin("test-js"))
