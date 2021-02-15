@@ -257,7 +257,16 @@ class XmlInlineDescriptor internal constructor(
     override val outputKind: OutputKind get() = child.outputKind//OutputKind.Inline
 
     private val child: XmlDescriptor by lazy {
-        from(xmlCodecBase, ParentInfo(this, 0, useNameInfo), tagParent)
+        val effectiveUseNameInfo: DeclaredNameInfo = when {
+            useNameInfo.annotatedName!=null -> useNameInfo
+            typeDescriptor.typeNameInfo.annotatedName!=null -> typeDescriptor.typeNameInfo
+            ParentInfo(this, 0).elementUseNameInfo.annotatedName!=null -> ParentInfo(this, 0).elementUseNameInfo
+            else -> useNameInfo
+        }
+
+        val useParentInfo = ParentInfo(this, 0, effectiveUseNameInfo)
+
+        from(xmlCodecBase, useParentInfo, tagParent)
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor {
@@ -298,7 +307,7 @@ class XmlCompositeDescriptor internal constructor(
         }
     }
 
-    override val doInline: Boolean get() = true
+    override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind get() = OutputKind.Element
 
@@ -328,7 +337,7 @@ class XmlPolymorphicDescriptor internal constructor(
                                                    ) :
     XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
-    override val doInline: Boolean get() = true
+    override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind = xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent)
 
@@ -456,7 +465,7 @@ class XmlListDescriptor internal constructor(
                                             ) :
     XmlDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
-    override val doInline: Boolean get() = true
+    override val doInline: Boolean get() = false
 
     val isListEluded = xmlCodecBase.config.policy.isListEluded(serializerParent, tagParent)
 

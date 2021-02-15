@@ -31,6 +31,7 @@ import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.serialutil.impl.toCharArray
+import kotlin.jvm.JvmOverloads
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
     override val descriptor = PrimitiveSerialDescriptor("kotlin.CharArray", PrimitiveKind.STRING)
@@ -46,8 +47,9 @@ fun Decoder.readNullableString(): String? =
     decodeNullableSerializableValue(String.serializer().nullable)
 
 @ExperimentalSerializationApi
-fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int): String? =
-    decodeNullableSerializableElement(desc, index, String.serializer().nullable)
+@JvmOverloads
+fun CompositeDecoder.readNullableString(desc: SerialDescriptor, index: Int, previousValue: String? = null): String? =
+    decodeNullableSerializableElement(desc, index, String.serializer().nullable, previousValue)
 
 @ExperimentalSerializationApi
 @Deprecated("Use new name", ReplaceWith("encodeNullableStringElement(desc, index, value)"), DeprecationLevel.ERROR)

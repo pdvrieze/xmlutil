@@ -56,6 +56,13 @@ data class Counter(val counted: UByte, val description:String) {
 }
 
 @Serializable
+@XmlSerialName("InlineStruct","", "")
+inline class InlineStruct(val address: Address)
+
+@Serializable
+data class InlineStructParent(val member: InlineStruct)
+
+@Serializable
 data class Location(
     val addres: Address,
     @XmlDefault("NaN")

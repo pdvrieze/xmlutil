@@ -29,10 +29,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.internal.AbstractCollectionSerializer
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlValueDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.collections.set
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -59,6 +56,8 @@ internal open class XmlDecoderBase internal constructor(
                                         ) :
         XmlCodec<XmlDescriptor>(xmlDescriptor), Decoder, XML.XmlInput {
 
+        private var triggerInline = false
+
         override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
         override val config: XmlConfig get() = this@XmlDecoderBase.config
@@ -79,12 +78,12 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeByte(): Byte = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
-            else -> decodeStringImpl().toByte()
+            else                     -> decodeStringImpl().toByte()
         }
 
         override fun decodeShort(): Short = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUShort().toShort()
-            else -> decodeStringImpl().toShort()
+            else                     -> decodeStringImpl().toShort()
         }
 
         override fun decodeInt(): Int = when {
@@ -111,7 +110,25 @@ internal open class XmlDecoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
-            return this // TODO, add test for inline class serialization/deserialization
+            triggerInline = true
+            return this
+/*
+            return when {
+                */
+/*
+                 * In the case processing inline and  of an unsigned type we will not create a child decoder, but
+                 * just use this decoder instead.
+                 *//*
+
+                xmlDescriptor.isUnsigned &&
+                        xmlDescriptor is XmlInlineDescriptor
+                    //
+                    // rather use the unsigned descriptor as already in this element.
+                     -> this
+
+                else -> XmlDecoder(xmlDescriptor.getElementDescriptor(0), polyInfo, attrIndex)
+            }
+*/
         }
 
         private fun decodeStringImpl(defaultOverEmpty: Boolean = true): String {
@@ -122,16 +139,16 @@ internal open class XmlDecoderBase internal constructor(
                 input.getAttributeValue(attrIndex)
             } else {
                 when (descOutputKind) {
-                    OutputKind.Element -> { // This may occur with list values.
+                    OutputKind.Element   -> { // This may occur with list values.
                         input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElement()
                     }
                     OutputKind.Attribute -> throw SerializationException(
                         "Attribute parsing without a concrete index is unsupported"
                                                                         )
-                    OutputKind.Inline -> throw SerializationException("Inline classes can not be decoded directly")
-                    OutputKind.Mixed -> input.consecutiveTextContent()//.also { input.next() } // Move to the next element
-                    OutputKind.Text -> input.allText()
+                    OutputKind.Inline    -> throw SerializationException("Inline classes can not be decoded directly")
+                    OutputKind.Mixed     -> input.consecutiveTextContent()//.also { input.next() } // Move to the next element
+                    OutputKind.Text      -> input.allText()
                 }
             }
             return when {
@@ -145,7 +162,18 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            return deserializer.deserialize(SerialValueDecoder(xmlDescriptor, polyInfo, attrIndex))
+            /*
+             * When the element is actually an inline we need to make sure to use the child descriptor (for the inline).
+             * But only if decodeInline was called previously.
+             */
+            val desc = when {
+                triggerInline && xmlDescriptor is XmlInlineDescriptor
+                     -> xmlDescriptor.getElementDescriptor(0)
+
+                else -> xmlDescriptor
+
+            }
+            return deserializer.deserialize(SerialValueDecoder(desc, polyInfo, attrIndex))
         }
 
     }
@@ -288,7 +316,10 @@ internal open class XmlDecoderBase internal constructor(
 
             for (idx in 0 until xmlDescriptor.elementsCount) {
                 var child = xmlDescriptor.getElementDescriptor(idx)
-                while (child is XmlListDescriptor && child.isListEluded) {
+                while (child is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
+                    (child is XmlListDescriptor && child.isListEluded)
+                ) { // Lists may or may not be eluded
+
                     child = child.getElementDescriptor(0)
                 }
 
@@ -337,7 +368,7 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = serialElementDecoder(descriptor, index, deserializer)
                 ?: NullDecoder(childXmlDescriptor)
 
-            val result: T =  if (deserializer is AbstractCollectionSerializer<*, T, *>) {
+            val result: T = if (deserializer is AbstractCollectionSerializer<*, T, *>) {
                 deserializer.merge(decoder, previousValue)
             } else {
                 deserializer.deserialize(decoder)
@@ -358,7 +389,7 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: return null
 
             // TODO make merging more reliable
-            val result: T =  if (deserializer is AbstractCollectionSerializer<*, T?, *>) {
+            val result: T = if (deserializer is AbstractCollectionSerializer<*, T?, *>) {
                 deserializer.merge(decoder, previousValue)
             } else {
                 deserializer.deserialize(decoder)
@@ -486,11 +517,11 @@ internal open class XmlDecoderBase internal constructor(
                 if (!eventType.isIgnorable) {
 
                     when (eventType) {
-                        EventType.END_ELEMENT -> return readElementEnd(descriptor)
+                        EventType.END_ELEMENT   -> return readElementEnd(descriptor)
 
                         EventType.ENTITY_REF,
                         EventType.CDSECT,
-                        EventType.TEXT -> {
+                        EventType.TEXT          -> {
                             // The android reader doesn't check whitespaceness. This code should throw
                             if (!input.isWhitespace()) {
                                 return descriptor.getValueChild().ifUnknown {
@@ -500,10 +531,10 @@ internal open class XmlDecoderBase internal constructor(
                             }
                         }
 
-                        EventType.ATTRIBUTE -> return indexOf(
+                        EventType.ATTRIBUTE     -> return indexOf(
                             input.name,
                             InputKind.Attribute
-                                                             ).ifUnknown { decodeElementIndex(descriptor) }
+                                                                 ).ifUnknown { decodeElementIndex(descriptor) }
 
                         EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
                             // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
@@ -582,12 +613,12 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             return when (childDesc.outputKind) {
-                OutputKind.Inline -> throw XmlSerialException("Inline elements can not be directly decoded")
+                OutputKind.Inline    -> throw XmlSerialException("Inline elements can not be directly decoded")
 
-                OutputKind.Element -> input.readSimpleElement()
+                OutputKind.Element   -> input.readSimpleElement()
 
                 OutputKind.Mixed,
-                OutputKind.Text -> {
+                OutputKind.Text      -> {
                     input.consecutiveTextContent().also { // add some checks that we only have text content
                         val peek = input.peek()
                         if (peek !is XmlEvent.EndElementEvent) {
@@ -710,7 +741,7 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = SerialValueDecoder(childXmlDescriptor, super.currentPolyInfo, super.lastAttrIndex)
 
             // TODO make merging more reliable
-            val result: T =  if (deserializer is AbstractCollectionSerializer<*, T, *>) {
+            val result: T = if (deserializer is AbstractCollectionSerializer<*, T, *>) {
                 deserializer.merge(decoder, previousValue)
             } else {
                 deserializer.deserialize(decoder)
@@ -727,9 +758,9 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int = when {
             xmlDescriptor.isTransparent -> when (nextIndex) {
-                    0, 1 -> nextIndex++
-                    else -> CompositeDecoder.DECODE_DONE
-                }
+                0, 1 -> nextIndex++
+                else -> CompositeDecoder.DECODE_DONE
+            }
             else                        -> super.decodeElementIndex(descriptor)
         }
 
@@ -737,7 +768,7 @@ internal open class XmlDecoderBase internal constructor(
             val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
             return when (index) {
-                0 -> when {
+                0    -> when {
                     !xmlDescriptor.isTransparent -> {
                         val typeTag = xmlDescriptor.getElementDescriptor(0).tagName
                         input.getAttributeValue(typeTag.namespaceURI, typeTag.localPart)
