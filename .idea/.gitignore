@@ -5,3 +5,5 @@ dataSources.xml
 modules.xml
 compiler.xml
 misc.xml
+jarRepositories.xml
+vcs.xml
