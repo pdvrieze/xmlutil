@@ -389,11 +389,11 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: return null
 
             // TODO make merging more reliable
-            val result: T = if (deserializer is AbstractCollectionSerializer<*, T?, *>) {
+            val result: T? = if (deserializer is AbstractCollectionSerializer<*, T?, *>) {
                 deserializer.merge(decoder, previousValue)
             } else {
                 deserializer.deserialize(decoder)
-            } as T
+            }
 
             seenItems[index] = true
             return result

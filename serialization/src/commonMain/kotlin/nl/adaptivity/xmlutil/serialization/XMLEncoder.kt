@@ -57,23 +57,23 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
         override fun encodeByte(value: Byte) = when (xmlDescriptor.isUnsigned) {
-            true ->encodeString(value.toUByte().toString())
-            else ->encodeString(value.toString())
+            true -> encodeString(value.toUByte().toString())
+            else -> encodeString(value.toString())
         }
 
         override fun encodeShort(value: Short) = when (xmlDescriptor.isUnsigned) {
-            true ->encodeString(value.toUShort().toString())
-            else ->encodeString(value.toString())
+            true -> encodeString(value.toUShort().toString())
+            else -> encodeString(value.toString())
         }
 
         override fun encodeInt(value: Int) = when (xmlDescriptor.isUnsigned) {
-            true ->encodeString(value.toUInt().toString())
-            else ->encodeString(value.toString())
+            true -> encodeString(value.toUInt().toString())
+            else -> encodeString(value.toString())
         }
 
         override fun encodeLong(value: Long) = when (xmlDescriptor.isUnsigned) {
-            true ->encodeString(value.toULong().toString())
-            else ->encodeString(value.toString())
+            true -> encodeString(value.toULong().toString())
+            else -> encodeString(value.toString())
         }
 
         override fun encodeFloat(value: Float) = encodeString(value.toString())
@@ -89,14 +89,14 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             when (xmlDescriptor.outputKind) {
-                OutputKind.Element -> { // This may occur with list values.
+                OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }
                 OutputKind.Attribute -> {
                     target.attribute(serialName.namespaceURI, serialName.localPart, serialName.prefix, value)
                 }
                 OutputKind.Mixed,
-                OutputKind.Text -> target.text(value)
+                OutputKind.Text      -> target.text(value)
             }
         }
 
@@ -145,7 +145,11 @@ internal open class XmlEncoderBase internal constructor(
         }.apply { writeBegin() }
     }
 
-    private inner class InlineEncoder<D: XmlDescriptor>(private val parent: TagEncoder<D>, private val childIndex:Int): XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex)) {
+    private inner class InlineEncoder<D : XmlDescriptor>(
+        private val parent: TagEncoder<D>,
+        private val childIndex: Int
+                                                        ) :
+        XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex)) {
         override fun encodeString(value: String) {
             val d = xmlDescriptor.getElementDescriptor(0)
             parent.encodeStringElement(d, childIndex, value)
@@ -206,14 +210,12 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            if (descriptor.doInline) {
-                val encoder = InlineEncoder(this, index)
-
-                defer(index) { serializer.serialize(encoder, value) }
-            } else {
-                val encoder = XmlEncoder(descriptor)
-                defer(index) { serializer.serialize(encoder, value) }
+            val encoder = when {
+                descriptor.doInline -> InlineEncoder(this, index)
+                else                -> XmlEncoder(descriptor)
             }
+            defer(index) { serializer.serialize(encoder, value) }
+
         }
 
         @ExperimentalSerializationApi
@@ -280,7 +282,20 @@ internal open class XmlEncoderBase internal constructor(
                                                                 ) {
             if (value != null) {
                 encodeSerializableElement(descriptor, index, serializer, value)
+            } else if (serializer.descriptor.isNullable) {
+                val xmlDescriptor = xmlDescriptor.getElementDescriptor(index)
+                val encoder = when {
+                    xmlDescriptor.doInline -> InlineEncoder(this, index)
+                    else                   -> XmlEncoder(xmlDescriptor)
+                }
+
+                // This should be safe as we are handling the case when a serializer explicitly handles nulls
+                // In such case cast it to accept a null parameter and serialize through the serializer, not
+                // indirectly.
+                @Suppress("UNCHECKED_CAST")
+                defer(index) { (serializer as SerializationStrategy<T?>).serialize(encoder, null) }
             }
+
             // Null is the absense of values, no need to do more
         }
 
@@ -366,8 +381,8 @@ internal open class XmlEncoderBase internal constructor(
                                 value.tryShortenTypeName(xmlDescriptor.parentSerialName)
                                                                     )
                             OutputKind.Mixed,
-                            OutputKind.Element -> target.smartStartTag(childDesc.tagName) { text(value) }
-                            OutputKind.Text -> throw XmlSerialException("the type for a polymorphic child cannot be a text")
+                            OutputKind.Element   -> target.smartStartTag(childDesc.tagName) { text(value) }
+                            OutputKind.Text      -> throw XmlSerialException("the type for a polymorphic child cannot be a text")
                         }
                     } // else if (index == 0) { } // do nothing
                 }
