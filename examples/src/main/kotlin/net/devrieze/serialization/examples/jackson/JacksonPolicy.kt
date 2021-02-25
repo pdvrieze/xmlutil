@@ -63,7 +63,7 @@ object JacksonPolicy :
                               ): QName {
         return useName.annotatedName
             ?: serializerParent.elemenTypeDescriptor.typeQname
-            ?: serialNameToQName(useName.serialName, tagParent.namespace)
+            ?: serialUseNameToQName(useName, tagParent.namespace)
     }
 
 }

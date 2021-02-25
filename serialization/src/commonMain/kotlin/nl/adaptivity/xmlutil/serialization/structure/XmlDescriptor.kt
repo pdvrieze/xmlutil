@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.DeserializationStrategy

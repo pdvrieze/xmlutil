@@ -20,8 +20,8 @@
 
 package net.devrieze.serialization.examples.dynamictagnames
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDelegatingReader
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
@@ -51,6 +51,7 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      * Store the name of the id attribute that is synthetically generated. This property is initialised
      * this way to allow for name remapping in the format policy.
      */
+    @OptIn(ExperimentalSerializationApi::class)
     private val idAttrName = (0 until descriptor.elementsCount)
         .first { descriptor.serialDescriptor.getElementName(it) == "id" }
         .let { descriptor.getElementDescriptor(it) }

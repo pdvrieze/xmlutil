@@ -76,21 +76,25 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeBoolean(): Boolean = decodeStringImpl().toBoolean()
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeByte(): Byte = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
             else                     -> decodeStringImpl().toByte()
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeShort(): Short = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUShort().toShort()
             else                     -> decodeStringImpl().toShort()
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeInt(): Int = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUInt().toInt()
             else                     -> decodeStringImpl().toInt()
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeLong(): Long = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toULong().toLong()
             else                     -> decodeStringImpl().toLong()
@@ -402,11 +406,9 @@ internal open class XmlDecoderBase internal constructor(
         @ExperimentalSerializationApi
         override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
-            return when {
-                descriptor.kind is PrimitiveKind
-                     -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
-
-                else -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+            return when (descriptor.kind) {
+                is PrimitiveKind -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+                else             -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
             }
         }
 
@@ -741,13 +743,11 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = SerialValueDecoder(childXmlDescriptor, super.currentPolyInfo, super.lastAttrIndex)
 
             // TODO make merging more reliable
-            val result: T = if (deserializer is AbstractCollectionSerializer<*, T, *>) {
-                deserializer.merge(decoder, previousValue)
-            } else {
-                deserializer.deserialize(decoder)
-            }
 
-            return result
+            return when (deserializer) {
+                is AbstractCollectionSerializer<*, T, *> -> deserializer.merge(decoder, previousValue)
+                else                                     -> deserializer.deserialize(decoder)
+            }
         }
     }
 
@@ -800,7 +800,7 @@ internal open class XmlDecoderBase internal constructor(
             desc: SerialDescriptor,
             index: Int,
             deserializer: DeserializationStrategy<T>
-                                             ): XmlDecoder? {
+                                             ): XmlDecoder {
 
             val childXmlDescriptor = polyInfo?.descriptor
                 ?: xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
@@ -821,11 +821,14 @@ internal open class XmlDecoderBase internal constructor(
 
             val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
-            if (isMixed && deserializer.descriptor.kind is PrimitiveKind) {
-                val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
-                return deserializer.deserialize(XmlDecoder(childXmlDescriptor))
-            } else {
-                return super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
+            return when {
+                isMixed && deserializer.descriptor.kind is PrimitiveKind -> {
+                    val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
+                    deserializer.deserialize(XmlDecoder(childXmlDescriptor))
+                }
+
+                else                                                     ->
+                    super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
             }
         }
 

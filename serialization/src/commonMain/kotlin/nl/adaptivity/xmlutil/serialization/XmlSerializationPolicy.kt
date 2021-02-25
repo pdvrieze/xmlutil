@@ -59,9 +59,11 @@ interface XmlSerializationPolicy {
     fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
     fun isTransparentPolymorphic(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean
 
+    @Suppress("DEPRECATION")
     fun serialTypeNameToQName(typeNameInfo: DeclaredNameInfo, parentNamespace: Namespace): QName =
         serialNameToQName(typeNameInfo.serialName, parentNamespace)
 
+    @Suppress("DEPRECATION")
     fun serialUseNameToQName(useNameInfo: DeclaredNameInfo, parentNamespace: Namespace): QName =
         serialNameToQName(useNameInfo.serialName, parentNamespace)
 

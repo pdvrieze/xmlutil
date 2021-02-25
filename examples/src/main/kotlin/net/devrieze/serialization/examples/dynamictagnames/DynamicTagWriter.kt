@@ -20,6 +20,7 @@
 
 package net.devrieze.serialization.examples.dynamictagnames
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlDelegatingWriter
 import nl.adaptivity.xmlutil.XmlWriter
@@ -42,6 +43,7 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
          */
         get() = writer.depth - initDepth
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val idAttrName = (0 until descriptor.elementsCount)
         .first { descriptor.serialDescriptor.getElementName(it) == "id" }
         .let { descriptor.getElementDescriptor(it) }

@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.serialization.XML.Companion.parse
+import nl.adaptivity.xmlutil.serialization.XML.Companion.decodeFromReader
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import kotlin.reflect.KClass
 
@@ -40,7 +40,7 @@ class KotlinxSerializationProvider : SerializationProvider {
     private class SerializerFun<T : Any>(val serializer: KSerializer<T>) : SerializationProvider.XmlSerializerFun<T> {
 
         override fun invoke(output: XmlWriter, value: T) {
-            XML().toXml(target = output, serializer = serializer, value = value)
+            XML().encodeToWriter(target = output, serializer = serializer, value = value)
         }
     }
 
@@ -48,7 +48,7 @@ class KotlinxSerializationProvider : SerializationProvider {
         override fun <U : Any> invoke(input: XmlReader, type: KClass<U>): U {
             @Suppress("UNCHECKED_CAST")
             val loader: DeserializationStrategy<U> = serializer as KSerializer<U>
-            return parse(input, loader)
+            return decodeFromReader(loader, input)
         }
     }
 
@@ -61,7 +61,7 @@ class KotlinxSerializationProvider : SerializationProvider {
         fun <T : Any> getSerializer(type: KClass<T>): KSerializer<T>? {
 
             return serializers[type] as? KSerializer<T> ?: try {
-                type.serializer().also { serializers.put(type, it) }
+                type.serializer().also { serializers[type] = it }
             } catch (e: SerializationException) {
                 null
             }

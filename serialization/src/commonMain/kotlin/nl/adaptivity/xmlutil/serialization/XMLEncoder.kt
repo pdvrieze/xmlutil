@@ -56,21 +56,25 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeByte(value: Byte) = when (xmlDescriptor.isUnsigned) {
             true -> encodeString(value.toUByte().toString())
             else -> encodeString(value.toString())
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeShort(value: Short) = when (xmlDescriptor.isUnsigned) {
             true -> encodeString(value.toUShort().toString())
             else -> encodeString(value.toString())
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeInt(value: Int) = when (xmlDescriptor.isUnsigned) {
             true -> encodeString(value.toUInt().toString())
             else -> encodeString(value.toString())
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeLong(value: Long) = when (xmlDescriptor.isUnsigned) {
             true -> encodeString(value.toULong().toString())
             else -> encodeString(value.toString())
@@ -89,6 +93,7 @@ internal open class XmlEncoderBase internal constructor(
             if (value == defaultValue) return
 
             when (xmlDescriptor.outputKind) {
+                OutputKind.Inline, // shouldn't occur, but treat as element
                 OutputKind.Element   -> { // This may occur with list values.
                     target.smartStartTag(serialName) { target.text(value) }
                 }
@@ -233,6 +238,7 @@ internal open class XmlEncoderBase internal constructor(
             encodeStringElement(descriptor, index, value.toString())
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toUByte().toString())
@@ -241,6 +247,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toUShort().toString())
@@ -248,6 +255,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toUInt().toString())
@@ -255,6 +263,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toULong().toString())
@@ -312,6 +321,7 @@ internal open class XmlEncoderBase internal constructor(
 
 
             when (elementDescriptor.outputKind) {
+                OutputKind.Inline, // Treat inline as if it was element if it occurs (shouldn't happen)
                 OutputKind.Element   -> defer(index) { target.smartStartTag(elementDescriptor.tagName) { text(value) } }
                 OutputKind.Attribute -> doWriteAttribute(elementDescriptor.tagName, value)
                 OutputKind.Mixed,
@@ -380,9 +390,13 @@ internal open class XmlEncoderBase internal constructor(
                                 childDesc.tagName,
                                 value.tryShortenTypeName(xmlDescriptor.parentSerialName)
                                                                     )
+
                             OutputKind.Mixed,
+                            OutputKind.Inline,
                             OutputKind.Element   -> target.smartStartTag(childDesc.tagName) { text(value) }
-                            OutputKind.Text      -> throw XmlSerialException("the type for a polymorphic child cannot be a text")
+
+                            OutputKind.Text      ->
+                                throw XmlSerialException("the type for a polymorphic child cannot be a text")
                         }
                     } // else if (index == 0) { } // do nothing
                 }
@@ -423,8 +437,6 @@ internal open class XmlEncoderBase internal constructor(
      */
     internal inner class ListEncoder(xmlDescriptor: XmlListDescriptor) :
         TagEncoder<XmlListDescriptor>(xmlDescriptor, deferring = false), XML.XmlOutput {
-
-        val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()

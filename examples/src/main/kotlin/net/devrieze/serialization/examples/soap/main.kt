@@ -20,7 +20,6 @@
 
 package net.devrieze.serialization.examples.soap
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -35,6 +34,8 @@ import kotlin.reflect.KClass
  */
 fun main() {
     val data = Envelope(GeResult(0, GeResultData("get", "p")))
+
+    @Suppress("UNCHECKED_CAST")
     val module = SerializersModule {
         polymorphic(Any::class) {
             subclass(GeResult::class as KClass<GeResult<GeResultData>>, serializer())

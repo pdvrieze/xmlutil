@@ -30,6 +30,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -149,7 +150,7 @@ class XML constructor(
      * @param prefix The prefix (if any) to use for the namespace
      */
     inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String?) {
-        toXml(target, serializer<T>(), value, prefix)
+        encodeToWriter(target, serializer<T>(), value, prefix)
     }
 
     /**
@@ -172,13 +173,13 @@ class XML constructor(
         val serialQName =
             serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
                 ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
-                ?: config.policy.serialNameToQName(
-                    serialName,
+                ?: config.policy.serialTypeNameToQName(
+                    XmlSerializationPolicy.DeclaredNameInfo(serialName, null),
                     XmlEvent.NamespaceImpl(
                         XMLConstants.DEFAULT_NS_PREFIX,
                         XMLConstants.NULL_NS_URI
                                           )
-                                                  )
+                                                      )
 
         val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
         val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, serialQName)
@@ -217,10 +218,10 @@ class XML constructor(
                             ): T {
         val serialDescriptor = deserializer.descriptor
         val serialName = serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
-            ?: config.policy.serialNameToQName(
-                serialDescriptor.serialName,
+            ?: config.policy.serialTypeNameToQName(
+                XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
-                                              )
+                                                  )
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
@@ -250,10 +251,10 @@ class XML constructor(
 
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor): XmlRootDescriptor {
         val serialName = serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
-            ?: config.policy.serialNameToQName(
-                serialDescriptor.serialName,
+            ?: config.policy.serialTypeNameToQName(
+                XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
-                                              )
+                                                  )
 
         val codecBase = XmlEncoderBase(serializersModule, config, XmlStreaming.newWriter(StringWriter(), true))
         return XmlRootDescriptor(codecBase, serialDescriptor, serialName)
@@ -263,10 +264,15 @@ class XML constructor(
      * Transform the object into an XML String. This is a shortcut for the non-reified version that takes a
      * KClass parameter
      */
-    @Deprecated("Use encodeToString")
+    @Deprecated(
+        "Use encodeToString", ReplaceWith(
+            "encodeToString(obj, prefix)",
+            "nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToString"
+                                         )
+               )
     @Suppress("unused")
     inline fun <reified T : Any> stringify(obj: T, prefix: String? = null): String =
-        encodeToString(serializer<T>(), obj, prefix)
+        encodeToString(obj, prefix)
 
     /**
      * Transform into a string. This function is expected to be called indirectly.
@@ -619,12 +625,13 @@ class XML constructor(
 
         @Deprecated(
             "Replaced by version with consistent parameter order",
-            ReplaceWith("parse(reader, kClass, loader)")
+            ReplaceWith("parse(reader, kClass, loader)"),
+            DeprecationLevel.ERROR
                    )
         fun <T : Any> parse(
             @Suppress("UNUSED_PARAMETER") kClass: KClass<T>, reader: XmlReader, loader: DeserializationStrategy<T>
                            ): T =
-            parse(reader, loader)
+            decodeFromReader(loader, reader)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -634,10 +641,11 @@ class XML constructor(
         @Suppress("UNUSED_PARAMETER")
         @Deprecated(
             "Use the version that doesn't take a KClass",
-            ReplaceWith("parse(reader, loader)", "nl.adaptivity.xmlutil.serialization.XML.Companion.parse")
+            ReplaceWith("parse(reader, loader)", "nl.adaptivity.xmlutil.serialization.XML.Companion.parse"),
+            DeprecationLevel.ERROR
                    )
         fun <T : Any> parse(reader: XmlReader, kClass: KClass<T>, loader: DeserializationStrategy<T>): T =
-            parse(reader, loader)
+            decodeFromReader(loader, reader)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -881,15 +889,19 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
  * @param out The writer to use for writing the XML
  * @param serializer The serializer to use. Often `T.Companion.serializer()`
  */
-@Deprecated("\"Use the XML object that allows configuration\"")
+@Deprecated("Use the XML object that allows configuration", level = DeprecationLevel.ERROR)
 fun <T : Any> T.writeAsXml(out: XmlWriter, serializer: SerializationStrategy<T>) =
-    XML.defaultInstance.toXml(out, serializer, this)
+    XML.defaultInstance.encodeToWriter(out, serializer, this)
 
 /**
  * Extension function that allows any (serializable) object to be written to an XmlWriter.
  */
-@Deprecated("Use the XML object that allows configuration", ReplaceWith("XML.toXml(out, this)"))
-inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = XML.toXml(out, this)
+@Deprecated(
+    "Use the XML object that allows configuration",
+    ReplaceWith("XML.toXml(out, this)"),
+    level = DeprecationLevel.ERROR
+           )
+inline fun <reified T : Any> T.writeAsXML(out: XmlWriter) = encodeToWriter(out, this)
 
 @RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
 annotation class WillBePrivate
