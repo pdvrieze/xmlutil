@@ -22,10 +22,7 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonBuilder
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -150,6 +147,13 @@ class TestCommon {
         assertEquals(expected, actual)
     }
 
+
+    @XmlSerialName("StringWithMarkup", "http://pubchem.ncbi.nlm.nih.gov/pug_view", "")
+    @Serializable
+    data class StringWithMarkup(
+        @XmlElement(true) @SerialName("String") val string: String = "",
+        val markup: List<String> = emptyList()
+                               )
 
     @Serializable
     data class IntList(val values: List<Int>)
