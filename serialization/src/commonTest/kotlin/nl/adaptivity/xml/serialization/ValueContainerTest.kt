@@ -39,6 +39,12 @@ class ValueContainerTest : TestBase<ValueContainerTest.ValueContainer>(
         assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
     }
 
+    @Test
+    fun testAlternativeXml2() {
+        val alternativeXml = "<valueContainer>&lt;foo&amp;bar&gt;</valueContainer>"
+        assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
+    }
+
     @Serializable
     @XmlSerialName("valueContainer", namespace="", prefix="")
     data class ValueContainer(@XmlValue(true) val content:String)
