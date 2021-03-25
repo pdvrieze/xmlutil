@@ -35,6 +35,4 @@ data class GeResultData(
     val project: String,
     @XmlElement(true)
     val unit: String
-                       ) {
-
-}
+                       )

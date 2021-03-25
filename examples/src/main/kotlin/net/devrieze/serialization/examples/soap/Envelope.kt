@@ -68,7 +68,6 @@ class Envelope<BODYTYPE> private constructor(
      * @property data The data property contains the actual message content for the soap message.
      */
     @Serializable
-//    @XmlSerialName("Body", "http://schemas.xmlsoap.org/soap/envelope/", "S")
     private data class Body<BODYTYPE>(@Polymorphic val data: BODYTYPE)
 
 }

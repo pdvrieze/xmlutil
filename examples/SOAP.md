@@ -63,7 +63,6 @@ class Envelope<BODYTYPE> private constructor(
      * @property data The data property contains the actual message content for the soap message.
      */
     @Serializable
-//    @XmlSerialName("Body", "http://schemas.xmlsoap.org/soap/envelope/", "S")
     private data class Body<BODYTYPE>(@Polymorphic val data: BODYTYPE)
 
 }
@@ -107,9 +106,7 @@ data class GeResultData(
     val project: String,
     @XmlElement(true)
     val unit: String
-                       ) {
-
-}
+                       ) 
 ```
 
 ## Example usage
@@ -127,15 +124,13 @@ fun main() {
         }
     }
     val xml = XML(module) {
-        indentString = "    " // Set indentation
-        xmlDeclMode = XmlDeclMode.Minimal // Add an xml decl string
-        autoPolymorphic = true // Enable the autopolymorphic mode
+        indentString = "    "
+        xmlDeclMode = XmlDeclMode.Minimal
+        autoPolymorphic = true
     }
 
     val serializer = serializer<Envelope<GeResult<GeResultData>>>()
-
-    val descriptor = xml.xmlDescriptor(serializer)
-    println("SOAP descriptor:\n${descriptor.toString().prependIndent("    ")}\n")
+    println("SOAP descriptor:\n${xml.xmlDescriptor(serializer).toString().prependIndent("    ")}")
 
     val encodedString = xml.encodeToString(/*serializer, */data) // both versions are available
     println("SOAP output:\n${encodedString.prependIndent("    ")}\n")
