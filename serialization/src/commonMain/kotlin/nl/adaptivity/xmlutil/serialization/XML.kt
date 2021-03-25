@@ -77,22 +77,22 @@ class XML constructor(
                      ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
-    @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"))
+    @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.ERROR)
     val repairNamespaces: Boolean
         get() = config.repairNamespaces
 
     @Suppress("DEPRECATION")
-    @Deprecated("Use config directly", ReplaceWith("config.omitXmlDecl"))
+    @Deprecated("Use config directly", ReplaceWith("config.omitXmlDecl"), DeprecationLevel.ERROR)
     val omitXmlDecl: Boolean
         get() = config.omitXmlDecl
 
     @Suppress("DEPRECATION")
-    @Deprecated("Use config directly, consider using indentString", ReplaceWith("config.indent"))
+    @Deprecated("Use config directly, consider using indentString", ReplaceWith("config.indent"), DeprecationLevel.ERROR)
     val indent: Int
         get() = config.indent
 
     @Suppress("DEPRECATION")
-    @Deprecated("Use the new configuration system")
+    @Deprecated("Use the new configuration system", level = DeprecationLevel.ERROR)
     constructor(
         repairNamespaces: Boolean = true,
         omitXmlDecl: Boolean = true,
@@ -626,7 +626,7 @@ class XML constructor(
         @Deprecated(
             "Replaced by version with consistent parameter order",
             ReplaceWith("parse(reader, kClass, loader)"),
-            DeprecationLevel.ERROR
+            DeprecationLevel.HIDDEN
                    )
         fun <T : Any> parse(
             @Suppress("UNUSED_PARAMETER") kClass: KClass<T>, reader: XmlReader, loader: DeserializationStrategy<T>
@@ -642,7 +642,7 @@ class XML constructor(
         @Deprecated(
             "Use the version that doesn't take a KClass",
             ReplaceWith("parse(reader, loader)", "nl.adaptivity.xmlutil.serialization.XML.Companion.parse"),
-            DeprecationLevel.ERROR
+            DeprecationLevel.HIDDEN
                    )
         fun <T : Any> parse(reader: XmlReader, kClass: KClass<T>, loader: DeserializationStrategy<T>): T =
             decodeFromReader(loader, reader)
@@ -765,7 +765,7 @@ class XML constructor(
          */
         val target: XmlWriter
 
-        @Deprecated("Not used will always return null", ReplaceWith("null"))
+        @Deprecated("Not used will always return null", ReplaceWith("null"), DeprecationLevel.HIDDEN)
         val currentTypeName: Nothing?
             get() = null
     }
@@ -810,13 +810,13 @@ enum class InputKind {
     internal abstract fun mapsTo(outputKind: OutputKind): Boolean
 }
 
-fun XmlSerialName.toQName() = when {
+public fun XmlSerialName.toQName(): QName = when {
     namespace == UNSET_ANNOTATION_VALUE -> QName(value)
     prefix == UNSET_ANNOTATION_VALUE    -> QName(namespace, value)
     else                                -> QName(namespace, value, prefix)
 }
 
-fun XmlChildrenName.toQName() = when {
+public fun XmlChildrenName.toQName(): QName = when {
     namespace == UNSET_ANNOTATION_VALUE -> QName(value)
     prefix == UNSET_ANNOTATION_VALUE    -> QName(namespace, value)
     else                                -> QName(namespace, value, prefix)
@@ -847,18 +847,6 @@ internal fun SerialDescriptor.getValueChild(): Int {
         if (getElementAnnotations(i).any { it is XmlValue }) return i
     }
     return CompositeDecoder.UNKNOWN_NAME
-}
-
-@ExperimentalSerializationApi
-@Deprecated("Use index version that returns -1 for missing child")
-internal fun SerialDescriptor.getValueChildOrThrow(): Int {
-    if (elementsCount == 1) {
-        return 0
-    } else {
-        return getValueChild().also {
-            if (it < 0) throw XmlSerialException("No value child found for type with descriptor: $this")
-        }
-    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
