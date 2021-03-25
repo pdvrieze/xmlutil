@@ -76,6 +76,7 @@ rootProject.name = "xmlutil"
 include(":serialutil")
 include(":core")
 include(":serialization")
+include(":ktor")
 include(":examples")
 
 
