@@ -1,5 +1,7 @@
 name: Create and publish a package
 on:
+  release:
+    types: [created]
   push:
     branches:
       - 'master'
