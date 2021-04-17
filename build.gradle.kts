@@ -23,7 +23,7 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 plugins {
     idea
     kotlin("android") apply false
-    id("maven-publish") apply false
+    id("maven-publish")
 }
 
 description = "The overall project for cross-platform xml access"
