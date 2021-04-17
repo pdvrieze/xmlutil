@@ -1,10 +1,9 @@
-# Versions
+# XmlUtil
 * License: [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
-* Core: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Axmlutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Axmlutil/_latestVersion) 
-* Serialization: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Axmlutil-serialization/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Axmlutil-serialization/_latestVersion) 
-* Serialutil: [ ![Download](https://api.bintray.com/packages/pdvrieze/maven/net.devrieze%3Aserialutil/images/download.svg) ](https://bintray.com/pdvrieze/maven/net.devrieze%3Aserialutil/_latestVersion) 
-* Build: [![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
-# Introduction
+
+XmlUtil is a set of packages that supports multiplatform XML in Kotlin (only Javascript/JVM/Android currently).
+
+### Introduction
 * Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
 
 This project is a cross-platform XML serialization (wrapping) library compatible with kotlin serialization. It provides
@@ -21,65 +20,65 @@ It also provides serialization support
   * Javascript serialization support: make serialization work on Javascript once possible
 * Native support: Currently there is no implementation for Kotlin native. 
 
-## Versioning scheme
+### Versioning scheme
 This library is based upon the unstable [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) library. 
 Until that library is stable, this library will use the kotlinx.serialization library version as a prefix and append a
 release number.
 While every effort is made to limit incompatible changes, this cannot be guaranteed even in "minor" versions when
 the changes are due to bugs. These changes should be limited mainly to the serialization part of the library.
 
-# How to use
+## How to use
 The library is designed as a multiplatform kotlin module, but platform-specific versions can also be used were appropriate.
-## Add repository
+### Add repository
 Unfortunately, there is an issue with multiplatform-multisubproject setups for bintray. In the future a reorganization will be needed. For now
 add the repository to the build file:
 ```groovy
 repositories {
 	maven {
-		url  "https://dl.bintray.com/pdvrieze/maven"
+		url  "https://maven.pkg.github.com/pdvrieze/xmlutil"
 	}
 }
 ```
 
-## Core
-### multiplatform
+### Core
+#### multiplatform
 ```
-   implementation("net.devrieze:xmlutil:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:core:0.80.2")
 ```
-### JVM -- uses the stax API not available on Android
+#### JVM -- uses the stax API not available on Android
 ```
-   implementation("net.devrieze:xmlutil-jvm:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.80.2")
 ```
-### Android -- Uses the android streaming library
+#### Android -- Uses the android streaming library
 ```
-   implementation("net.devrieze:xmlutil-android:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.80.2")
 ```
-### JS -- Wraps DOM
+#### JS -- Wraps DOM
 ```
-   implementation("net.devrieze:xmlutil-js:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.80.2")
 ```
-## Serialization
-### multiplatform
+### Serialization
+#### multiplatform
 ```
-   implementation("net.devrieze:xmlutil-serialization:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.80.2")
 ```
-### JVM
+#### JVM
 ```
-   implementation("net.devrieze:xmlutil-serialization-jvm:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.80.2")
 ```
-### Android
+#### Android
 ```
-   implementation("net.devrieze:xmlutil-serialization-android:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.80.2")
 ```
-### js
+#### js
 ```
-   implementation("net.devrieze:xmlutil-serialization-js:0.80.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.80.2")
 ```
 
-# Serialization help
-## Examples
+## Serialization help
+### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
-## Format
+### Format
 The entrypoint to the library is the `XML` format. There is a default, but often a child is better. A custom format
 is created through:
 ```kotlin
@@ -99,16 +98,16 @@ The options available are:
 | `indent`                | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces. |
 | -`autoPolymorphic`-     | *Deprecated into policy* Should polymorphic information be retrieved using `SerializersModule` configuration. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
 | -`unknownChildHandler`- | *Deprecated into policy* A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well. |
-| `policy`                | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. |
+| `policy`                | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. It drives most complex configuration|
 
 The properties that have been moved into the policy can still be set in the builder but are no longer able to be read
 through the config object.
 
-## Algorithms
+### Algorithms
 XML and Kotlin data types are not perfectly alligned. As such there are some algorithms that aim to automatically do the
-best thing. Most of this has been moved to the default `XmlSerializationPolicy` implementation, but you can customize
+best thing. Most of this has been moved to the *default* `XmlSerializationPolicy` implementation, but you can customize
 this to change the eventual structure. This includes determining the names used.
-### Storage type
+#### Storage type
 In the default policy, the way a field is stored is determined as follows to be one of: Element, Attribute, Text or
 Mixed. Mixed is a special type that allows for mixing of text and element content and needs some special treatment.:
 - If the field has an annotation such as `@XmlElement` or `XmlValue`  this will take precedence. The XmlValue tag will
@@ -134,7 +133,7 @@ Mixed. Mixed is a special type that allows for mixing of text and element conten
   is incorrect with multiple properties that could contain the same polymorphic value - unless @XmlPolyChildren overrides it).
 - Otherwise it will be written as a tag   
 
-### Tag/attribute name
+#### Tag/attribute name
 The way the name is determined is configured/implemented through the configured policy. The documentation below
 is for the default policy. This is designed to allow customization by users.
 
@@ -165,7 +164,7 @@ a java type name and it strips the package out. (This also when it could be an a
 If you need to support names with dots in your format, either use the `@XmlSerialName` annotation, or use a
 different policy.
 
-## Annotations
+### Annotations
 
 | Annotation | property | description |
 | --- | --- | --- |
@@ -183,7 +182,7 @@ different policy.
 | | `value: String` | The default value used if no value is specified. The value is parsed as if there was textual substitution of this value into the serialized XML. |
 
 
-## Special type
+### Special type
 The `CompactFragment` class is a special class (with supporting serializer) that will be able to capture the tag soup
 content of an element. Instead of using regular serialization its custom serializer will (in the case of xml serialization)
 directly read all the child content of the tag and store it as string content. It will also make a best effort attempt
@@ -193,44 +192,44 @@ Alternatively the serialutil subproject contains the `nl.adaptivity.serialutil.M
 typesafe serialization/deserialization of mixed content with the proviso that the serialModule must use Any as the
 baseclass for the content. 
 
-## Modules
+### Modules
 
-### core
+#### core
 Container for the core library (versions)
 
-### core.common
+#### core.common
 All code shared between Javascript and Java (either jvm or android)
 
-### core.common-nonshared
+#### core.common-nonshared
 All code that is common, but not shared between Jvm and Android platforms
 
-### core.android
+#### core.android
 Code specific to the Android platform (Pulls in core.java as API dependency). This is a regular jar rather than an AAR
 as the only specific thing to Android is the XML library
 
-### core.java
+#### core.java
 Implementation of the shared code for Java based platforms (both Android and JVM)
 
-### core.js
+#### core.js
 Javascript based implementation
 
-### core.jvm
+#### core.jvm
 Code unique to the JVM platform (Pulls in core.java as API dependency)
 
-### Serialization
+#### Serialization
 The kotlinx.serialization plugin to allow serialization to XML
 
-### Serialization.java
+#### Serialization.java
 The java version of the serialization plugin. Please note that it does not pull in the platform specific library. The
 core library is dependent on the actual platform used (JVM or Android). This library only pulls in the shared Java code.
 
-### Serialization.jvm
+#### Serialization.jvm
 The JVM version merely uses the jvm platform xml library but the serialization is
-### Serialization.android
+#### Serialization.android
 
-### Serialization.js
+#### Serialization.js
 The Javascript version of the serialization plugin. This is not yet implemented due to missing annotation support for
 javascript and the 0.6.0 version of kotlinx.serialization not supporting type annotations.
 
-### Serialization.test-android
+#### Serialization.test-android
 An android test project to test serialization on Android.
