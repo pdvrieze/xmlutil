@@ -23,7 +23,7 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 plugins {
     idea
     kotlin("android") apply false
-    id("com.jfrog.bintray") apply false
+    id("maven-publish") apply false
 }
 
 description = "The overall project for cross-platform xml access"
@@ -38,23 +38,28 @@ tasks {
     }
 }
 
+val xmlutil_version: String by project
+
 allprojects {
+    group = "io.github.pdvrieze.xmlutil"
+    version = xmlutil_version
+
+}
+subprojects {
     repositories {
         mavenLocal()
-        jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlin-dev")
+        mavenCentral()
         google()
-
-        maven("https://kotlin.bintray.com/kotlinx")
-
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven {
+            name="GitHubPackages"
+            url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
     }
-/*
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
-    }
- */
 }
 
 configurations.all {

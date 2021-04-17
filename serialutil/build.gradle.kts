@@ -20,8 +20,6 @@
 
 @file:Suppress("PropertyName")
 
-import com.jfrog.bintray.gradle.BintrayExtension
-import net.devrieze.gradle.ext.fixBintrayModuleUpload
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
@@ -30,7 +28,6 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("maven-publish")
-    id("com.jfrog.bintray")
     idea
 }
 
@@ -107,10 +104,6 @@ kotlin {
                 freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
-        target.mavenPublication {
-            groupId = "net.devrieze"
-            version = xmlutil_version
-        }
     }
 
     @Suppress("UNUSED_VARIABLE")
@@ -142,54 +135,9 @@ components.forEach { component ->
 }
 
 repositories {
-    jcenter()
-    maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
+    mavenLocal()
+    mavenCentral()
 }
-
-publishing.publications.getByName<MavenPublication>("kotlinMultiplatform") {
-    logger.lifecycle("Updating kotlinMultiplatform publication from $groupId:$artifactId to net.devrieze:serialutil")
-    groupId = "net.devrieze"
-    artifactId = "serialutil"
-}
-
-publishing.publications.getByName<MavenPublication>("metadata") {
-    logger.lifecycle("Updating $name publication from $groupId:$artifactId to net.devrieze:serialutil-common")
-    artifactId = "serialutil-common"
-}
-
-extensions.configure<BintrayExtension>("bintray") {
-    if (rootProject.hasProperty("bintrayUser")) {
-        user = rootProject.property("bintrayUser") as String?
-        key = rootProject.property("bintrayApiKey") as String?
-    }
-
-    val pubs = publishing.publications
-//        .filter { it.name != "metadata" }
-        .map { it.name }
-        .apply { forEach { logger.lifecycle("Registering publication \"$it\" to Bintray") } }
-        .toTypedArray()
-
-
-    setPublications(*pubs)
-
-    pkg(closureOf<BintrayExtension.PackageConfig> {
-        repo = "maven"
-        name = "net.devrieze:serialutil"
-        userOrg = "pdvrieze"
-        setLicenses("Apache-2.0")
-        vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
-
-        version.apply {
-            name = xmlutil_version
-            desc = xmlutil_versiondesc
-            released = Date().toString()
-            vcsTag = "v$xmlutil_version"
-        }
-    })
-
-}
-
-fixBintrayModuleUpload()
 
 idea {
     module {

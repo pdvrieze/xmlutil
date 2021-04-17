@@ -20,8 +20,6 @@
 
 package net.devrieze.gradle.ext
 
-import com.jfrog.bintray.gradle.BintrayExtension
-import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import groovy.util.Node
 import groovy.xml.QName
 import org.gradle.api.Project
@@ -78,7 +76,7 @@ fun Node.dependency(groupId: String,
  */
 
 @Suppress("LocalVariableName")
-fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
+fun KotlinBuildScript.doPublish(sourceJar: Jar) {
     val xmlutil_version: String by project
     val xmlutil_versiondesc: String by project
 
@@ -90,18 +88,21 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
         else            -> "xmlutil-${project.name}"
     }
 
-    sourceJar.classifier = "sources"
+    sourceJar.archiveClassifier.apply {
+//        convention("sources")
+        set("sources")
+    }
 
     configure<PublishingExtension> {
         (publications) {
             register<MavenPublication>("MyPublication") {
                 from(components["java"])
 
-                groupId = "net.devrieze"
+                groupId = "io.github.pdvrieze.xmlutil"
                 artifactId = artId
-                artifact(sourceJar).apply {
+                artifact(sourceJar)/*.apply {
                     classifier = "sources"
-                }
+                }*/
 
                 pom {
                     withXml {
@@ -116,53 +117,4 @@ fun KotlinBuildScript.doPublish(sourceJar: Jar, bintrayId: String? = null) {
         }
     }
 
-    extensions.configure<BintrayExtension>("bintray") {
-
-        if (rootProject.hasProperty("bintrayUser")) {
-            user = rootProject.property("bintrayUser") as String?
-            key = rootProject.property("bintrayApiKey") as String?
-        }
-
-        setPublications("MyPublication")
-
-        pkg(closureOf<BintrayExtension.PackageConfig> {
-            repo = "maven"
-            name = bintrayId ?: artId
-            userOrg = "pdvrieze"
-            setLicenses("Apache-2.0")
-            vcsUrl = "https://github.com/pdvrieze/xmlutil.git"
-
-            version.apply {
-                name = xmlutil_version
-                desc = xmlutil_versiondesc
-                released = java.util.Date().toString()
-                vcsTag = "v$version"
-            }
-        })
-    }
-
-    tasks.withType<BintrayUploadTask> {
-        dependsOn(sourceJar)
-    }
-
-}
-
-fun Project.fixBintrayModuleUpload() {
-    tasks.withType<BintrayUploadTask> {
-        doFirst {
-            (project.extensions.findByType<PublishingExtension>())//("publishing") as PublishingExtension?)
-                ?.run {
-                    this.publications
-                    .filterIsInstance<MavenPublication>()
-                    .forEach { publication ->
-                        val moduleFile = buildDir.resolve("publications/${publication.name}/module.json")
-                        if (moduleFile.exists()) {
-                            publication.artifact(object : FileBasedMavenArtifact(moduleFile) {
-                                override fun getDefaultExtension() = "module"
-                            })
-                        }
-                    }
-                }
-        }
-    }
 }

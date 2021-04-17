@@ -21,9 +21,7 @@
 pluginManagement {
     repositories {
         mavenLocal()
-        jcenter()
         gradlePluginPortal()
-        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
 
 
@@ -58,8 +56,6 @@ pluginManagement {
                 case "kotlinx-serialization":
                     def version = (requested.version == null || requested.version.length() == 0) ? kotin_version : requested.version
                     useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
-                case "com.jfrog.bintray":
-                    useVersion(requested.version!=null ? requested.version : bintrayVersion)
             }
         }
     }

@@ -41,10 +41,7 @@ kotlin {
 
 }
 
-val bintrayVersion: String by project
-
 dependencies {
-    implementation("com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion")
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
 }
 
@@ -57,6 +54,5 @@ configurations.all {
 
 repositories {
     mavenLocal()
-    jcenter()
-    maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    mavenCentral()
 }
