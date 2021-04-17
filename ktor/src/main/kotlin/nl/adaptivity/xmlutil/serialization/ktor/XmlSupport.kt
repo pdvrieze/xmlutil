@@ -60,6 +60,6 @@ public val DefaultXml: XML = XML {
 public fun ContentNegotiation.Configuration.xml(
     xml: XML = DefaultXml,
     contentType: ContentType = ContentType.Application.Xml
-                                                ) {
-    serialization(contentType, xml as StringFormat)
+                                               ) {
+    register(contentType, SerializationConverter(xml as StringFormat))
 }
