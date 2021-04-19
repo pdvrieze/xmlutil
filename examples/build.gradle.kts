@@ -65,11 +65,6 @@ dependencies {
     implementation(project(":serialutil"))
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 idea {
     module {
         name = "xmlutil-examples"

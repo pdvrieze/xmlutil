@@ -47,6 +47,10 @@ pluginManagement {
                     def ver = requested.version!=null ? requested.version : dokkaVersion
                     useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
                     break
+                case "org.jetbrains.dokka" :
+                    def ver = requested.version!=null ? requested.version : dokkaVersion
+                    useModule("org.jetbrains.dokka:dokka-gradle-plugin:${ver}")
+                    break
                 case "org.jetbrains.kotlinx.binary-compatibility-validator" :
                     def ver = requested.version!=null ? requested.version : validatorVersion
                     useModule("org.jetbrains.kotlinx:binary-compatibility-validator:$ver")
@@ -77,7 +81,7 @@ gradleEnterprise {
     }
 }
 
-enableFeaturePreview('GRADLE_METADATA')
+//enableFeaturePreview('GRADLE_METADATA')
 
 //include(":serialization:common")
 //include(":serialization:java")

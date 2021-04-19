@@ -26,19 +26,31 @@ import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.internal.artifact.FileBasedMavenArtifact
-import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.withType
+import org.gradle.plugins.signing.SigningExtension
 
 
 inline fun XmlProvider.dependencies(config: Node.() -> Unit): Unit {
     asNode().dependencies(config)
 }
 
-inline val Node.qName: QName get() = name().let { if (it is QName) it else QName(it.toString()) }
+inline val Node.qName: QName
+    get() = name().let {
+        if (it is QName) it else QName(
+            it.toString()
+                                      )
+    }
+
 inline fun Node.nodeChildren(): List<Node> = children() as List<Node>
-fun Node.child(name:String) = nodeChildren().firstOrNull { it.qName.localPart == name }
-fun Node.child(name:QName) = nodeChildren().firstOrNull { it.qName.matches(name) }
+fun Node.child(name: String) =
+    nodeChildren().firstOrNull { it.qName.localPart == name }
+
+fun Node.child(name: QName) =
+    nodeChildren().firstOrNull { it.qName.matches(name) }
 
 private const val POM_NS = "http://maven.apache.org/POM/4.0.0"
 val DEPENDENCIES = QName(POM_NS, "dependencies")
@@ -76,44 +88,82 @@ fun Node.dependency(groupId: String,
  */
 
 @Suppress("LocalVariableName")
-fun KotlinBuildScript.doPublish(sourceJar: Jar) {
+fun Project.doPublish(
+    pubName: String = project.displayName,
+    pubDescription: String = "Component of the XMLUtil library"
+                     ) {
     val xmlutil_version: String by project
-    val xmlutil_versiondesc: String by project
-
 
     if (version == "unspecified") version = xmlutil_version
 
-    val artId = when (project.parent?.name) {
-        "serialization" -> "xmlutil-serialization-${project.name}"
-        else            -> "xmlutil-${project.name}"
-    }
-
-    sourceJar.archiveClassifier.apply {
-//        convention("sources")
-        set("sources")
-    }
-
     configure<PublishingExtension> {
-        (publications) {
-            register<MavenPublication>("MyPublication") {
-                from(components["java"])
+        repositories {
 
-                groupId = "io.github.pdvrieze.xmlutil"
-                artifactId = artId
-                artifact(sourceJar)/*.apply {
-                    classifier = "sources"
-                }*/
-
-                pom {
-                    withXml {
-                        dependencies {
-                            nodeChildren()
-                                    .filter { it.child(GROUPID)?.text()?.startsWith("xmlutil")!=false }
-                                    .forEach{remove(it)}
-                        }
-                    }
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                        ?: project.findProperty("gpr.user") as String?
+                                ?: System.getenv("USERNAME")
+                    password = System.getenv("GITHUB_TOKEN")
+                        ?: project.findProperty("gpr.key") as String?
+                                ?: System.getenv("TOKEN")
                 }
             }
+            maven {
+                if ("SNAPSHOT" in version.toString().toUpperCase()) {
+                    name = "OSS_Snapshot_registry"
+                    url =
+                        uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                } else {
+                    name = "OSS_Release_Staging_registry"
+                    url =
+                        uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                }
+
+
+            }
+        }
+        configure<SigningExtension> {
+            useGpgCmd()
+        }
+        val javadocJarTask = tasks.create<Jar>("javadocJar") {
+            archiveClassifier.set("javadoc")
+            from(tasks.named("dokkaHtml"))
+        }
+        publications.withType<MavenPublication> {
+            artifact(javadocJarTask)
+
+            val pub = this
+            configure<SigningExtension> {
+                sign(pub)
+            }
+            pom {
+                name.set(pubName)
+                description.set(pubDescription)
+                url.set("https://github.com/pdvrieze/xmlutil")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("pdvrieze")
+                        name.set("Paul de Vrieze")
+                        email.set("paul.devrieze@gmail.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:https://github.com/pdvrieze/xmlutil.git")
+                    developerConnection.set("scm:git:https://github.com/pdvrieze/xmlutil.git")
+                    url.set("https://github.com/pdvrieze/xmlutil")
+                }
+            }
+
         }
     }
 

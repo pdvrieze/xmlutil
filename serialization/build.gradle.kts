@@ -21,6 +21,7 @@
 
 @file:Suppress("PropertyName")
 
+import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
@@ -29,7 +30,9 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("maven-publish")
+    id("signing")
     idea
+    id("org.jetbrains.dokka")
 }
 
 val xmlutil_version: String by project
@@ -226,23 +229,7 @@ kotlin {
 
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
-publishing {
-    repositories {
-        maven {
-            name="GitHubPackages"
-            url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-            }
-        }
-    }
-}
+doPublish()
 
 tasks.named("check") {
     dependsOn(tasks.named("test"))

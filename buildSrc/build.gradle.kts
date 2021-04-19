@@ -37,12 +37,13 @@ run {
     }
 }
 
-kotlin {
-
-}
+val kotlin_version:String by project
 
 dependencies {
-    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
+//    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion") {
+//        exclude("org.jetbrains.kotlin", "kotlin-compiler-embeddable")
+    }
 }
 
 configurations.all {

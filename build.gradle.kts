@@ -24,6 +24,8 @@ plugins {
     idea
     kotlin("android") apply false
     id("maven-publish")
+    id("signing")
+    id("org.jetbrains.dokka")
 }
 
 description = "The overall project for cross-platform xml access"
@@ -43,14 +45,13 @@ val xmlutil_version: String by project
 allprojects {
     group = "io.github.pdvrieze.xmlutil"
     version = xmlutil_version
-
-}
-subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url= uri( "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
         google()
     }
+
 }
 
 configurations.all {

@@ -18,6 +18,7 @@
  * under the License.
  */
 
+import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -27,6 +28,8 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("maven-publish")
+    id("signing")
+    id("org.jetbrains.dokka")
     idea
 }
 
@@ -204,23 +207,7 @@ kotlin {
 }
 
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
-publishing {
-    repositories {
-        maven {
-            name="GitHubPackages"
-            url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-            }
-        }
-    }
-}
+doPublish()
 
 idea {
     module {
