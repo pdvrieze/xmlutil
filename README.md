@@ -30,12 +30,23 @@ the changes are due to bugs. These changes should be limited mainly to the seria
 ## How to use
 The library is designed as a multiplatform kotlin module, but platform-specific versions can also be used were appropriate.
 ### Add repository
+The project's maven access is hosted on OSS Sonatype (and available from Maven Central).
+
 Unfortunately, there is an issue with multiplatform-multisubproject setups for bintray. In the future a reorganization will be needed. For now
 add the repository to the build file:
+Releases can be added from:
 ```groovy
 repositories {
 	maven {
-		url  "https://maven.pkg.github.com/pdvrieze/xmlutil"
+		url  "https://s01.oss.sonatype.org/content/repositories/releases/"
+	}
+}
+```
+Snapshots are available from:
+```groovy
+repositories {
+	maven {
+		url  "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 	}
 }
 ```
