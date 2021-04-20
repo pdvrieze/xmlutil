@@ -18,6 +18,7 @@
  * under the License.
  */
 
+import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -206,8 +207,9 @@ kotlin {
 
 }
 
-
 doPublish()
+
+configureDokka(myModuleVersion = xmlutil_version)
 
 idea {
     module {

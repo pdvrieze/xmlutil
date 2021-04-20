@@ -20,6 +20,7 @@
 
 @file:Suppress("PropertyName")
 
+import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -147,6 +148,8 @@ components.forEach { component ->
 }
 
 doPublish()
+
+configureDokka(myModuleVersion = xmlutil_version)
 
 idea {
     module {
