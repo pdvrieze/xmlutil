@@ -26,7 +26,7 @@ class ApplicationTest {
         withTestApplication({ module(testing = true) }) {
             handleRequest(HttpMethod.Get, "/xml/kotlinx-serialization").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("application/xml", response.headers["Content-Type"]?.replaceAfter(";", "")?.dropLast(1))
+                assertEquals("application/xml", response.headers["Content-Type"]?.substringBefore(";"))
                 assertEquals("<ExampleResponse data=\"Hello World!\"/>", response.content)
             }
         }

@@ -61,5 +61,5 @@ public fun ContentNegotiation.Configuration.xml(
     xml: XML = DefaultXml,
     contentType: ContentType = ContentType.Application.Xml
                                                ) {
-    register(contentType, SerializationConverter(xml as StringFormat))
+    register(contentType, XmlStreamConverter(xml))
 }
