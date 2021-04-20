@@ -47,6 +47,7 @@ base {
 
 val serializationVersion: String by project
 
+val jupiterVersion: String by project
 val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
@@ -55,6 +56,13 @@ val moduleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
+        val testTask = tasks.create("test") {
+            group = "verification"
+        }
+        val cleanTestTask = tasks.create("cleanTest") {
+            group = "verification"
+        }
+
         jvm {
             attributes {
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
@@ -66,6 +74,12 @@ kotlin {
                         jvmTarget = "1.8"
                     }
                 }
+                tasks.named<Test>("${target.name}Test") {
+                    useJUnitPlatform()
+                    testTask.dependsOn(this)
+                    kotlinOptions.useIR = true
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
                     manifest {
                         attributes("Automatic-Module-Name" to moduleName)
@@ -83,6 +97,12 @@ kotlin {
                 kotlinOptions {
                     jvmTarget = "1.6"
                 }
+                tasks.getByName<Test>("${target.name}Test") {
+                    useJUnitPlatform ()
+                    testTask.dependsOn(this)
+                    kotlinOptions.useIR = true
+                }
+                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
         js(BOTH) {
@@ -130,6 +150,13 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-annotations-common"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+            }
+        }
         val javaShared by creating {
             dependsOn(commonMain)
         }
@@ -137,7 +164,14 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+            }
+        }
         val androidMain by getting {
             dependsOn(javaShared)
         }
@@ -148,6 +182,19 @@ kotlin {
             }
         }
 
+        val androidTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+            }
+        }
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
     }
 
 }
