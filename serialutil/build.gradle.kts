@@ -24,7 +24,6 @@ import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
 
 plugins {
     kotlin("multiplatform")
