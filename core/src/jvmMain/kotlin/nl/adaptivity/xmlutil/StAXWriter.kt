@@ -113,7 +113,7 @@ class StAXWriter(
         try {
             if (namespace.isNullOrEmpty() &&
                 prefix.isNullOrEmpty() &&
-                delegate.namespaceContext.getNamespaceURI("").isNullOrEmpty()
+                delegate.namespaceContext?.getNamespaceURI("").isNullOrEmpty()
             ) {
                 if (isEmpty) {
                     delegate.writeEmptyElement(localName)
