@@ -159,7 +159,7 @@ components.forEach { component ->
 
 doPublish()
 
-configureDokka(myModuleVersion = xmlutil_version)
+configureDokka(myModuleVersion = xmlutil_util_version)
 
 idea {
     module {

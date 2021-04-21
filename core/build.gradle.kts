@@ -209,7 +209,7 @@ kotlin {
 
 doPublish()
 
-configureDokka(myModuleVersion = xmlutil_version)
+configureDokka(myModuleVersion = xmlutil_core_version)
 
 idea {
     module {

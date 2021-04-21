@@ -270,7 +270,7 @@ kotlin {
 
 doPublish()
 
-configureDokka(myModuleVersion = xmlutil_version)
+configureDokka(myModuleVersion = xmlutil_serial_version)
 
 tasks.register("cleanTest") {
     group = "verification"
