@@ -23,9 +23,11 @@
 
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTestRun
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
 
 plugins {
     kotlin("multiplatform")
@@ -48,7 +50,8 @@ val serializationVersion: String by project
 val jupiterVersion: String by project
 
 val kotlin_version: String by project
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val androidAttribute =
+    Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 val moduleName = "net.devrieze.xmlutil.serialization"
 
@@ -58,47 +61,65 @@ kotlin {
         val testTask = tasks.create("test") {
             group = "verification"
         }
-        val cleanTestTask = tasks.create("cleanTest") {
-            group = "verification"
-        }
         jvm {
             attributes {
                 attribute(androidAttribute, false)
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
             }
             compilations.all {
+                logger.lifecycle("JVM compilation: ${name}")
                 tasks.named<KotlinCompile>(compileKotlinTaskName) {
                     kotlinOptions {
                         jvmTarget = "1.8"
+                    }
+                    if ("test" in name.toLowerCase()) {
+                        logger.lifecycle("Configuring IR when testing for task ${project.name}:$name")
+                        kotlinOptions.useIR = true
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)
-                    kotlinOptions.useIR = true
                 }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
                     manifest {
                         attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
             }
+
+            val woodstoxCompilation = compilations.register("woodstoxTest")
+            val woodstoxTestRun = testRuns.create("woodstoxTest") {
+                setExecutionSourceFrom(
+                    listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
+                    listOf(
+                        woodstoxCompilation.get()
+                          )
+                                      )
+
+                executionTask.configure {
+                    useJUnitPlatform()
+                }
+            }
+
+
         }
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+                attribute(
+                    KotlinPlatformType.attribute,
+                    KotlinPlatformType.androidJvm
+                         )
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
             }
             compilations.all {
                 kotlinOptions.jvmTarget = "1.6"
                 tasks.getByName<Test>("${target.name}Test") {
-                    useJUnitPlatform ()
+                    useJUnitPlatform()
                     testTask.dependsOn(this)
                     kotlinOptions.useIR = true
                 }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
         js(BOTH) {
@@ -183,8 +204,14 @@ kotlin {
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+            }
+        }
+        val jvmWoodstoxTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+            dependsOn(jvmTest)
+            dependencies {
+                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
-
             }
         }
 
@@ -234,8 +261,9 @@ doPublish()
 
 configureDokka(myModuleVersion = xmlutil_version)
 
-tasks.named("check") {
-    dependsOn(tasks.named("test"))
+tasks.register("cleanTest") {
+    group = "verification"
+    dependsOn(tasks.named("cleanAllTests"))
 }
 
 tasks.withType<Test> {

@@ -21,7 +21,6 @@
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
@@ -32,21 +31,21 @@ fun Project.configureDokka(myModuleName: String = name, myModuleVersion: String?
         moduleName.set(myModuleName)
         myModuleVersion.let { moduleVersion.set(it) }
         dokkaSourceSets.configureEach {
-            configureDokkaSourceSet(logger)
+            this@configureDokka.configureDokkaSourceSet(this)
         }
     }
     tasks.withType<DokkaTaskPartial> {
         moduleName.set(myModuleName)
         myModuleVersion.let { moduleVersion.set(it) }
         dokkaSourceSets.configureEach {
-            configureDokkaSourceSet(logger)
+            this@configureDokka.configureDokkaSourceSet(this)
         }
     }
 }
 
-private fun GradleDokkaSourceSetBuilder.configureDokkaSourceSet(
-    logger: Logger
-                                                               ) {
+private fun Project.configureDokkaSourceSet(
+    sourceSet: GradleDokkaSourceSetBuilder
+                                           ) = with(sourceSet){
     logger.lifecycle("Configuring dokka on sourceSet: $name = ${displayName.orNull}")
     if (name.startsWith("android")) {
         noAndroidSdkLink.set(false)
