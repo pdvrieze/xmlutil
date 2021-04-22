@@ -33,7 +33,7 @@ class ClassWithImplicitChildNamespace : TestBase<ClassWithImplicitChildNamespace
     Namespaced.serializer()
                                                                                             ) {
     override val expectedXML: String =
-        "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" p3:Elem3=\"bla\" elem4=\"lalala\" xmlns=\"urn:foobar\" Elem5=\"tada\"><xo:elem1>foo</xo:elem1><p2:Elem2 xmlns:p2=\"urn:myurn\">bar</p2:Elem2></xo:namespaced>"
+        ExpectedSerialization.classWithImplicitChildNamespaceXml
     val invalidXml =
         "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" p3:Elem3=\"bla\" elem4=\"lalala\" xmlns=\"urn:foobar\" Elem5=\"tada\"><elem1>foo</elem1><xo:elem2>bar</xo:elem2></xo:namespaced>"
     override val expectedJson: String =

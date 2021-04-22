@@ -187,9 +187,8 @@ kotlin {
             dependsOn(javaShared)
         }
 
-        val jvmTest by getting {
+        val jvmTestCommon by creating {
             languageSettings.enableLanguageFeature("InlineClasses")
-
             dependsOn(javaSharedTest)
             dependsOn(jvmMain)
 
@@ -206,9 +205,15 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
             }
         }
+
+        val jvmTest by getting {
+            languageSettings.enableLanguageFeature("InlineClasses")
+
+            dependsOn(jvmTestCommon)
+        }
         val jvmWoodstoxTest by getting {
             languageSettings.enableLanguageFeature("InlineClasses")
-            dependsOn(jvmTest)
+            dependsOn(jvmTestCommon)
             dependencies {
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")

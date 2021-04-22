@@ -35,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.*
 
 fun String.normalizeXml() = replace(" />", "/>")
+    .replace(" ?>", "?>")
     .replace("\r\n", "\n")
     .replace("&gt;", ">")
 

@@ -27,15 +27,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ValueContainerTestWithSpaces : TestBase<ValueContainerTestWithSpaces.ValueContainer>(
-    ValueContainer("    \nfoobar\n  "),
+    ExpectedSerialization.valueContainerWithSpacesObj,
     ValueContainer.serializer()
                                                                                           ) {
-    override val expectedXML: String = "<valueContainer>    \nfoobar\n  </valueContainer>"
-    override val expectedJson: String = "{\"content\":\"    \\nfoobar\\n  \"}"
+    override val expectedXML: String = ExpectedSerialization.valueContainerWithSpacesXml
+    override val expectedJson: String = ExpectedSerialization.valueContainerWithSpacesJson
 
     @Test
     fun testAlternativeXml() {
-        val alternativeXml = "<valueContainer><![CDATA[    \nfoo]]>bar\n  </valueContainer>"
+        val alternativeXml = ExpectedSerialization.valueContainerWithSpacesAlternativeXml
         assertEquals(value, baseXmlFormat.decodeFromString(serializer, alternativeXml))
     }
 
