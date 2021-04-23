@@ -24,10 +24,13 @@ import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
-
+/** Allow access to the node as [Element] if it is an element, otherwise it is null. */
 fun Node.asElement(): Element? = if (isElement) this as Element else null
+
+/** Allow access to the node as [Text], if so, otherwise null. */
 fun Node.asText(): Text? = if (isText) this as Text else null
 
+/** Remove all the child nodes that are elements. */
 fun Node.removeElementChildren() {
     val top = this
     var cur = top.firstChild
@@ -40,12 +43,16 @@ fun Node.removeElementChildren() {
     }
 }
 
+/** A simple for each implementation for [NamedNodeMap]s. */
 inline fun NamedNodeMap.forEach(body: (Attr) -> Unit) {
     for (i in 0 until length) {
         body(item(i)!!)
     }
 }
 
+/** A filter function on a [NamedNodeMap] that returns a list of all
+ * (attributes)[Attr] that meet the [predicate].
+ */
 inline fun NamedNodeMap.filter(predicate: (Attr) -> Boolean): List<Attr> {
     val result = mutableListOf<Attr>()
     forEach { attr ->
@@ -54,6 +61,9 @@ inline fun NamedNodeMap.filter(predicate: (Attr) -> Boolean): List<Attr> {
     return result
 }
 
+/**
+ * A (map)[Collection.map] function for transforming attributes.
+ */
 inline fun <R> NamedNodeMap.map(body: (Attr) -> R): List<R> {
     val result = mutableListOf<R>()
     forEach { attr ->
@@ -62,6 +72,9 @@ inline fun <R> NamedNodeMap.map(body: (Attr) -> R): List<R> {
     return result
 }
 
+/**
+ * A function to count all attributes for which the [predicate] holds.
+ */
 inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
     var count = 0
     forEach { attr ->
