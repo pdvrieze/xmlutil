@@ -58,12 +58,6 @@ actual class CompactFragment : ICompactFragment {
         content = orig.content
     }
 
-    @Throws(XmlException::class)
-    actual constructor(content: XmlSerializable) {
-        namespaces = SimpleNamespaceContext(emptyList())
-        this.content = content.toCharArray()
-    }
-
     actual constructor(namespaces: Iterable<Namespace>, content: String) :
             this(namespaces, content.toCharArray())
 

@@ -78,11 +78,6 @@ actual class CompactFragment : ICompactFragment {
         contentString = orig.contentString
     }
 
-    actual constructor(content: XmlSerializable) {
-        namespaces = SimpleNamespaceContext(emptyList())
-        contentString = content.toString()
-    }
-
     override fun serialize(out: XmlWriter) {
         XMLFragmentStreamReader.from(this).let { reader: XmlReader ->
             out.serialize(reader)

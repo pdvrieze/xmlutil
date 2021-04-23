@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,7 +20,11 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.util.DefaultSerializationProvider
+import nl.adaptivity.xmlutil.util.SerializationProvider
+import nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer
 import java.io.StringReader
+import kotlin.reflect.KClass
 
 /**
  * Utility method to deserialize a list of xml containing strings

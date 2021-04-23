@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,26 +18,19 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.XmlDeserializerFactory
-import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlSerializable
+import nl.adaptivity.xmlutil.XmlStreaming
+import java.io.*
 
 /**
- * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.2
+ * Extension functions for writing that need different js/jvm implementations
  */
-expect class CompactFragment : ICompactFragment {
-    constructor(content: String)
-    constructor(orig: ICompactFragment)
-    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
-    constructor(namespaces: Iterable<Namespace>, content: String)
-
-    class Factory() : XmlDeserializerFactory<CompactFragment>
-
-    companion object {
-        fun deserialize(reader: XmlReader): CompactFragment
+fun XmlSerializable.toCharArray(): CharArray {
+    val caw = CharArrayWriter()
+    XmlStreaming.newWriter(caw).use { writer ->
+        serialize(writer)
     }
+    return caw.toCharArray()
 }

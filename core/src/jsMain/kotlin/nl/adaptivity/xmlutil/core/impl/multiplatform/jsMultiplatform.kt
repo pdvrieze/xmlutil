@@ -51,7 +51,7 @@ actual interface Closeable : AutoCloseable
 actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 
 
-actual abstract class Writer {
+actual abstract class Writer: Appendable {
     abstract fun write(text: String)
 }
 
@@ -63,5 +63,21 @@ actual open class StringWriter: Writer() {
 
     override fun toString(): String {
         return buffer.toString()
+    }
+
+    override fun append(value: Char): Appendable = apply {
+        buffer.append(value)
+    }
+
+    override fun append(value: CharSequence?): Appendable = apply {
+        buffer.append(value)
+    }
+
+    override fun append(
+        value: CharSequence?,
+        startIndex: Int,
+        endIndex: Int
+                       ): Appendable = apply {
+        buffer.append(value, startIndex, endIndex)
     }
 }

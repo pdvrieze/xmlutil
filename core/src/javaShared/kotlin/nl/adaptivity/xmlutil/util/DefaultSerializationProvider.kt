@@ -22,26 +22,32 @@ package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
 import kotlin.reflect.KClass
+import java.lang.ClassNotFoundException
+import java.lang.NoSuchMethodException
 
 class DefaultSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
-        @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype
-        if (type is XmlSerializable) return (SerializableSerializer as SerializationProvider.XmlSerializerFun<T>)
-        return null
+        if (XmlSerializable::class.java.isAssignableFrom(type.java) == true) {
+            @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype
+            return (SerializableSerializer as SerializationProvider.XmlSerializerFun<T>)
+        } else {
+            return null
+        }
     }
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
-        val a: XmlDeserializer? = type.java.getAnnotation(XmlDeserializer::class.java)
+        val a = type.java.annotations.firstOrNull { it.javaClass.name=="nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
         return a?.let { DeserializerFun }
     }
 
     private object DeserializerFun : SerializationProvider.XmlDeserializerFun {
         override fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T {
-            @Suppress("UNCHECKED_CAST")
-            val factory = type.java.getAnnotation(XmlDeserializer::class.java)
-                .value.java.getConstructor().newInstance() as XmlDeserializerFactory<T>
+            val a = type.java.annotations.first { it.javaClass.name=="nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
+            val factoryClass = a.javaClass.getMethod("value").invoke(a) as Class<*>
+            val factory = factoryClass.getConstructor().newInstance()
 
-            return factory.deserialize(input)
+            @Suppress("UNCHECKED_CAST")
+            return factoryClass.getMethod("deserialize", XmlReader::class.java).invoke(factory, input) as T
         }
     }
 
@@ -51,5 +57,4 @@ class DefaultSerializationProvider : SerializationProvider {
             value.serialize(output)
         }
     }
-
 }

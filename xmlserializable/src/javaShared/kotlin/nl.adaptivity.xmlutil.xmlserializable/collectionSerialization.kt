@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,13 +18,9 @@
  * under the License.
  */
 
-package nl.adaptivity.xml
+package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.smartStartTag
-import nl.adaptivity.xmlutil.writeChildren
-import javax.xml.namespace.QName
+import nl.adaptivity.xmlutil.*
 
 /**
  * Created by pdvrieze on 27/04/16.

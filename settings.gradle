@@ -77,6 +77,7 @@ include(":serialutil")
 include(":core")
 include(":serialization")
 include(":ktor")
+include(":xmlserializable")
 include(":examples")
 
 

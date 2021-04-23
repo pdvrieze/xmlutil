@@ -50,5 +50,5 @@ expect interface Closeable : AutoCloseable
 expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 
-expect abstract class Writer
+expect abstract class Writer: Appendable
 expect open class StringWriter(): Writer

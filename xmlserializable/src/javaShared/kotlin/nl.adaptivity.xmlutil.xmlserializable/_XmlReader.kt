@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,26 +18,25 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.XmlDeserializerFactory
+import nl.adaptivity.xmlutil.XmlDeserializer
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlSerializable
 
 /**
- * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.2
+ * Extension functions for XmlReader that only work on Java
  */
-expect class CompactFragment : ICompactFragment {
-    constructor(content: String)
-    constructor(orig: ICompactFragment)
-    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
-    constructor(namespaces: Iterable<Namespace>, content: String)
-
-    class Factory() : XmlDeserializerFactory<CompactFragment>
-
-    companion object {
-        fun deserialize(reader: XmlReader): CompactFragment
-    }
+inline fun <reified T : Any> XmlReader.deSerialize(): T {
+    return deSerialize(T::class.java)
 }
+
+
+fun <T> XmlReader.deSerialize(type: Class<T>): T {
+    val deserializer = type.getAnnotation(XmlDeserializer::class.java)
+        ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
+
+    return type.cast(deserializer.value.java.getConstructor().newInstance().deserialize(this))
+}
+
+
+

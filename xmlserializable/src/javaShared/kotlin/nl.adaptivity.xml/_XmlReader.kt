@@ -24,22 +24,29 @@ package nl.adaptivity.xml
 
 import nl.adaptivity.xmlutil.XmlDeserializer
 import nl.adaptivity.xmlutil.XmlReader
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import nl.adaptivity.xmlutil.xmlserializable.deSerialize as newDeSerialize
+
 
 /**
- * Extension functions for XmlReader that only work on Java
+ * Inline function to deserialize a type based upon `@[XmlDeserializer]` annotation.
  */
-
-
+@Deprecated("Moved to nl.adaptivity.xmlutil", ReplaceWith("deserialize()", "nl.adaptivity.xmlutil.deSerialize"))
 inline fun <reified T : Any> XmlReader.deSerialize(): T {
-    return deSerialize(T::class.java)
+    return newDeSerialize()
 }
 
-
+/**
+ * Deserialize a type with `@[XmlDeserializer]` annotation.
+ */
+@Deprecated("Moved to nl.adaptivity.xmlutil", ReplaceWith(
+    "deSerialize(type)",
+    "nl.adaptivity.xmlutil.deSerialize"
+                                                     )
+           )
 fun <T> XmlReader.deSerialize(type: Class<T>): T {
-    val deserializer = type.getAnnotation(XmlDeserializer::class.java)
-        ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
-
-    return type.cast(deserializer.value.java.getConstructor().newInstance().deserialize(this))
+    return newDeSerialize(type)
 }
 
 

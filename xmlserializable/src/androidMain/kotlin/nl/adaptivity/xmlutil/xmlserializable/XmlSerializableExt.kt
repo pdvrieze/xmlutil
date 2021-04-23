@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -22,17 +22,6 @@
 package nl.adaptivity.xmlutil
 
 import java.io.*
-
-/**
- * Create a character array containing a serialized version of the element.
- */
-fun XmlSerializable.toCharArray(): CharArray {
-    val caw = CharArrayWriter()
-    XmlStreaming.newWriter(caw).use { writer ->
-        serialize(writer)
-    }
-    return caw.toCharArray()
-}
 
 
 /**

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,16 +18,23 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
-import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.XmlSerializable
+import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.util.CompactFragment
 
+actual fun CompactFragment(content: XmlSerializable): CompactFragment {
+    return CompactFragment(emptyList(), content.toString())
+}
 
-/**
- * Annotation that specifies the Deserializer for this type.
-
- * Created by pdvrieze on 27/08/15.
- */
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)
+actual fun XmlStreaming.toString(value: XmlSerializable): String {
+    val w = XmlStreaming.newWriter()
+    try {
+        value.serialize(w)
+    } finally {
+        w.close()
+    }
+    return w.target.toString()
+}

@@ -65,17 +65,6 @@ actual object XmlStreaming {
         return deSerialize(input, T::class)
     }*/
 
-
-    actual fun toString(value: XmlSerializable): String {
-        val w = newWriter()
-        try {
-            value.serialize(w)
-        } finally {
-            w.close()
-        }
-        return w.target.toString()
-    }
-
     actual fun newReader(input: CharSequence): XmlReader {
         return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
     }

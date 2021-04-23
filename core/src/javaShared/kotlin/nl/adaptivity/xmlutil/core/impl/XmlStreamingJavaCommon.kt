@@ -152,15 +152,4 @@ abstract class XmlStreamingJavaCommon {
     abstract fun toCharArray(content: Source): CharArray
 
     abstract fun toString(source: Source): String
-
-    fun toString(value: XmlSerializable): String {
-        return StringWriter().apply {
-            val w = newWriter(this@apply)
-            try {
-                value.serialize(w)
-            } finally {
-                w.close()
-            }
-        }.toString()
-    }
 }

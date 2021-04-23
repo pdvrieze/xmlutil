@@ -156,14 +156,6 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
 }
 
 
-fun XmlWriter.writeChild(child: XmlSerializable?) {
-    child?.serialize(this)
-}
-
-fun XmlWriter.writeChildren(children: Iterable<XmlSerializable>?) {
-    children?.forEach { writeChild(it) }
-}
-
 fun XmlWriter.serialize(reader: XmlReader) {
     while (reader.hasNext()) {
         when (reader.next()) {

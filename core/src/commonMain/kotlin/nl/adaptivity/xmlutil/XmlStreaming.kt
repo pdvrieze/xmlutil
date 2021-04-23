@@ -32,8 +32,6 @@ expect object XmlStreaming {
 
     inline fun <reified T : Any> deSerialize(input: String): T
 
-    fun toString(value: XmlSerializable): String
-
     fun newReader(input: CharSequence): XmlReader
 
     @Deprecated("Use the version that takes an xmlDeclMode")
