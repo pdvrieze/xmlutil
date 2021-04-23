@@ -96,6 +96,9 @@ fun Project.doPublish(
 
     if (version == "unspecified") version = xmlutil_version
 
+    val isReleaseVersion = "SNAPSHOT" !in version
+    extra["isReleaseVersion"] = isReleaseVersion
+
     configure<PublishingExtension> {
         repositories {
 
@@ -140,6 +143,9 @@ fun Project.doPublish(
 
             val pub = this
             configure<SigningExtension> {
+                setRequired({(project.extra["isReleaseVersion"] as Boolean) &&
+                        gradle.taskGraph.hasTask("publishAllPublicationsToOSS_Release_Staging_registryRepository") }
+                           )
                 sign(pub)
             }
             pom {
