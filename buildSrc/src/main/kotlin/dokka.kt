@@ -68,4 +68,13 @@ private fun Project.configureDokkaSourceSet(
         matchingRegex.set(".*\\.(impl|internal)(|\\..*)")
         suppress.set(true)
     }
+    if ("Main" in displayName.get())  {
+        val readme = project.file(project.relativePath("src/README.md"))
+        if (readme.exists() && readme.canRead()) {
+            includes.from(listOf(readme))
+            logger.lifecycle("Adding ${readme} to sourceSet ${project.name}:${name}(${displayName.orNull})")
+        } else {
+            logger.warn("Missing ${readme} for project ${project.name}")
+        }
+    }
 }
