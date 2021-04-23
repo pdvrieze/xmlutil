@@ -20,11 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.XmlEvent
-import nl.adaptivity.xmlutil.XmlException
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
+import nl.adaptivity.xmlutil.*
 
 internal val CharSequence.isIgnorableWhitespace: Boolean
     get() = all(Char::isIgnorableWhitespace)
@@ -68,6 +64,7 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
     companion object {
         private const val COMMENT = "<!---->"
 
+        @XmlUtilInternal
         fun String.toIndentSequence(): List<XmlEvent.TextEvent> {
             val result = mutableListOf<XmlEvent.TextEvent>()
             val sb = StringBuilder()

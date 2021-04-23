@@ -30,6 +30,11 @@ import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
 
+/**
+ * Common base for [XmlStreaming] that provides common additional methods available on
+ * jvm platforms that work with Java library types such as [OutputStream],
+ * [Writer], [Reader], [InputStream], etc..
+ */
 abstract class XmlStreamingJavaCommon {
 
     private val serializationLoader: ServiceLoader<SerializationProvider> by lazy {

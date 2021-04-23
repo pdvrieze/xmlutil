@@ -68,7 +68,7 @@ private fun Project.configureDokkaSourceSet(
         matchingRegex.set(".*\\.(impl|internal)(|\\..*)")
         suppress.set(true)
     }
-    if ("Main" in displayName.get())  {
+    if ("Main" in name)  {
         val readme = project.file(project.relativePath("src/README.md"))
         if (readme.exists() && readme.canRead()) {
             includes.from(listOf(readme))

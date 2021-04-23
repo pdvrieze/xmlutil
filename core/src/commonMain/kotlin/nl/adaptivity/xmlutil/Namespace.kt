@@ -29,6 +29,9 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.*
 
+/**
+ * Interface that represents a namespace with prefix and uri.
+ */
 interface Namespace {
 
     /**

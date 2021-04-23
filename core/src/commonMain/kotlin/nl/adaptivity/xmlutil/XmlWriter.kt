@@ -24,7 +24,6 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.countLength

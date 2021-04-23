@@ -24,7 +24,6 @@ package nl.adaptivity.xmlutil.xmlserializable
 
 import kotlinx.serialization.Transient
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName

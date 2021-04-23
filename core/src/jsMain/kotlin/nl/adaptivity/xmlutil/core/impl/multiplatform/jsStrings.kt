@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 @Suppress("NOTHING_TO_INLINE")

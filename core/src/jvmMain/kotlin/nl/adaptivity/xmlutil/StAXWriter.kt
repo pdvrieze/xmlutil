@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import java.io.OutputStream
 import java.io.Writer

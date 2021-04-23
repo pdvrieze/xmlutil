@@ -18,7 +18,7 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core
+package nl.adaptivity.xmlutil
 
 
 @RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)

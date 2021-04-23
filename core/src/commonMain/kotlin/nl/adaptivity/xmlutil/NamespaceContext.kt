@@ -20,16 +20,21 @@
 
 package nl.adaptivity.xmlutil
 
+/** Interface that provides access to namespace queries */
 expect interface NamespaceContext {
     fun getNamespaceURI(prefix: String): String?
     fun getPrefix(namespaceURI: String): String?
 }
 
+/** Helper interface for implementation.
+ * @suppress
+ */
 expect interface NamespaceContextImpl : NamespaceContext {
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
     fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
+/** Namespace context that allows iterating over the namespaces. */
 interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace>
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")

@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.internal
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 fun String.countLength(): Int = fold(0) { acc, ch ->

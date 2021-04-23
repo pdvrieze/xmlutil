@@ -23,8 +23,9 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 
 /**
- * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
- * Created by pdvrieze on 15/11/15.
+ * This class is the entry point for creating [XmlReader] and [XmlWriter]
+ * instances. Some interfaces are common, others are limited to some
+ * architectures.
  */
 expect object XmlStreaming {
 

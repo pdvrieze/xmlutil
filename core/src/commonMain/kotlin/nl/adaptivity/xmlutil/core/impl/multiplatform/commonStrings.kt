@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }

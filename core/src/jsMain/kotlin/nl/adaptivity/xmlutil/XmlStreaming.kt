@@ -30,9 +30,6 @@ import kotlin.reflect.KClass
 actual interface XmlStreamingFactory
 
 
-/**
- * Created by pdvrieze on 13/04/17.
- */
 actual object XmlStreaming {
 
 

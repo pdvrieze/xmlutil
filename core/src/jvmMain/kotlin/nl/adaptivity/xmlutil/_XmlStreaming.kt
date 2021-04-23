@@ -31,10 +31,6 @@ import javax.xml.transform.Result
 import javax.xml.transform.Source
 
 
-/**
- * Utility class with factories and constants for the [XmlReader] and [XmlWriter] interfaces.
- * Created by pdvrieze on 15/11/15.
- */
 actual object XmlStreaming : XmlStreamingJavaCommon() {
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {

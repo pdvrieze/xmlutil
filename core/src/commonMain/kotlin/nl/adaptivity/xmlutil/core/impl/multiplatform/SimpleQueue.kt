@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 expect class SimpleQueue<E>() {
@@ -41,6 +41,7 @@ expect class SimpleQueue<E>() {
 
 @XmlUtilInternal
 fun SimpleQueue<*>.isNotEmpty() = size > 0
+
 @XmlUtilInternal
 fun <E> SimpleQueue<E>.addAll(elements: Iterable<E>): Boolean {
     return elements.fold(false) { acc, e ->

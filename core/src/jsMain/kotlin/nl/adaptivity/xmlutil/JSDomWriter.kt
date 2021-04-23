@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
 import kotlinx.browser.document
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 
 actual typealias PlatformXmlWriter = JSDomWriter
 

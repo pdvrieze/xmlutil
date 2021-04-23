@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.SimpleQueue
 import nl.adaptivity.xmlutil.core.impl.multiplatform.addAll
 import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty

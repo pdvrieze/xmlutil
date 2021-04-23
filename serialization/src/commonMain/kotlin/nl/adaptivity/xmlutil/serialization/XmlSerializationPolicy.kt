@@ -24,7 +24,6 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
