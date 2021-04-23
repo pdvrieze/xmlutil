@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.XmlDeserializer
 import nl.adaptivity.xmlutil.XmlReader
 
 /**

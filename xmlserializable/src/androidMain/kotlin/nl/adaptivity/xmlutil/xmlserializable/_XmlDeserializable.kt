@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,8 +18,10 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
+import nl.adaptivity.xmlutil.XmlDeserializerFactory
+import nl.adaptivity.xmlutil.XmlStreaming
 import java.io.StringReader
 
 /**
@@ -38,5 +40,9 @@ fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
 
     val factory: XmlDeserializerFactory<*> = deserializer.value.java.getConstructor().newInstance() as XmlDeserializerFactory<*>
 
-    return this.map { type.cast(factory.deserialize(XmlStreaming.newReader(StringReader(it)))) }
+    return this.map { type.cast(factory.deserialize(
+        XmlStreaming.newReader(
+            StringReader(it)
+                              )
+                                                   )) }
 }

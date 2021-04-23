@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,15 +20,15 @@
 @file:JvmMultifileClass
 @file:JvmName("XmlUtilDeserializable")
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
 import kotlinx.serialization.Transient
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.util.ExtXmlDeserializable
-import nl.adaptivity.xmlutil.util.SimpleXmlDeserializable
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 
 
 /**
@@ -103,4 +103,20 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
         }
     }
     return this
+}
+
+
+@JvmOverloads
+internal fun XmlReader.unhandledEvent(message: String? = null) {
+    val actualMessage = when (eventType) {
+        EventType.ENTITY_REF,
+        EventType.CDSECT,
+        EventType.TEXT          -> if (!isWhitespace()) message
+            ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
+        EventType.START_ELEMENT -> message ?: "Element found where not expected [$locationInfo]: $name"
+        EventType.END_DOCUMENT  -> message ?: "End of document found where not expected"
+        else                    -> null
+    }// ignore
+
+    actualMessage?.let { throw XmlException(it) }
 }

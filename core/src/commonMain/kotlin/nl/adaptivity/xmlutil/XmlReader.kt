@@ -195,21 +195,6 @@ fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
     return false
 }
 
-@JvmOverloads
-internal fun XmlReader.unhandledEvent(message: String? = null) {
-    val actualMessage = when (eventType) {
-        EventType.ENTITY_REF,
-        EventType.CDSECT,
-        EventType.TEXT          -> if (!isWhitespace()) message
-            ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
-        EventType.START_ELEMENT -> message ?: "Element found where not expected [$locationInfo]: $name"
-        EventType.END_DOCUMENT  -> message ?: "End of document found where not expected"
-        else                    -> null
-    }// ignore
-
-    actualMessage?.let { throw XmlException(it) }
-}
-
 fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(
         EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(),

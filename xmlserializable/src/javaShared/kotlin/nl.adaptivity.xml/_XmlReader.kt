@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -22,7 +22,6 @@
 
 package nl.adaptivity.xml
 
-import nl.adaptivity.xmlutil.XmlDeserializer
 import nl.adaptivity.xmlutil.XmlReader
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName

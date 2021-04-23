@@ -32,6 +32,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
+import org.gradle.kotlin.dsl.extra
 
 
 inline fun XmlProvider.dependencies(config: Node.() -> Unit): Unit {
@@ -96,7 +97,7 @@ fun Project.doPublish(
 
     if (version == "unspecified") version = xmlutil_version
 
-    val isReleaseVersion = "SNAPSHOT" !in version
+    val isReleaseVersion = ("SNAPSHOT" !in xmlutil_version)
     extra["isReleaseVersion"] = isReleaseVersion
 
     configure<PublishingExtension> {
