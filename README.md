@@ -4,7 +4,7 @@
 core:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/core)
 serialization:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialization)
 serialutil:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialutil)
-ktor:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/ktor)
+ktor:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/ktor)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/ktor)
 
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin (only Javascript/JVM/Android currently).
 
