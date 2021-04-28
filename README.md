@@ -1,9 +1,10 @@
 # XmlUtil
-* License: [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
-* Core: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)
-* Serialization: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)
-* Serialutil: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)
-* Build: [![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
+[![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
+[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
+core:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/core)
+serialization:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialization)
+serialutil:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialutil)
+ktor:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/ktor)
 
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin (only Javascript/JVM/Android currently).
 
