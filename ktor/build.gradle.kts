@@ -1,3 +1,7 @@
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.doPublish
+import org.gradle.jvm.tasks.Jar
+
 /*
  * Copyright (c) 2021.
  *
@@ -20,7 +24,11 @@
 
 plugins {
     kotlin("jvm")
+    id("java-library")
     id("kotlinx-serialization")
+    id("maven-publish")
+    id("signing")
+    id("org.jetbrains.dokka")
 }
 
 val ktor_version: String by project
@@ -32,11 +40,13 @@ val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlutil-xml"
+    archivesBaseName = "ktor"
     version = xmlutil_serial_version
 }
 
-group = "net.devrieze.xmlutil"
+java {
+    withSourcesJar()
+}
 
 repositories {
     mavenCentral()
@@ -50,3 +60,15 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("ktor") {
+            from(components["java"])
+        }
+    }
+}
+
+doPublish()
+
+configureDokka(myModuleVersion = xmlutil_core_version)
