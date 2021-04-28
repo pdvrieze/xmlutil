@@ -44,6 +44,13 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
         // ignore
     }
 
+    override fun <T : Any> contextual(
+        kClass: KClass<T>,
+        provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>
+                                     ) {
+        // ignore
+    }
+
     override fun <Base : Any, Sub : Base> polymorphic(
         baseClass: KClass<Base>,
         actualClass: KClass<Sub>,
