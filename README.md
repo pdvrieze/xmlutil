@@ -1,5 +1,9 @@
 # XmlUtil
 * License: [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
+* Core: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)
+* Serialization: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)
+* Serialutil: [ ![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)
+* Build: [![Build Status](https://travis-ci.com/pdvrieze/xmlutil.svg?branch=master)](https://travis-ci.com/pdvrieze/xmlutil)
 
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin (only Javascript/JVM/Android currently).
 
@@ -32,9 +36,7 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ### Add repository
 The project's maven access is hosted on OSS Sonatype (and available from Maven Central).
 
-Unfortunately, there is an issue with multiplatform-multisubproject setups for bintray. In the future a reorganization will be needed. For now
-add the repository to the build file:
-Releases can be added from:
+Releases can be added from maven central or:
 ```groovy
 repositories {
 	maven {
@@ -54,36 +56,36 @@ repositories {
 ### Core
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:core:0.82.0")
 ```
 #### JVM -- uses the stax API not available on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.82.0")
 ```
 #### Android -- Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.82.0")
 ```
 #### JS -- Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.82.0")
 ```
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.82.0")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.82.0")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.82.0")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.81.2")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.82.0")
 ```
 
 ## Serialization help
