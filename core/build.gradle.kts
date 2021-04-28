@@ -151,6 +151,9 @@ kotlin {
 
         val jvmMain by getting {
             dependsOn(javaShared)
+            dependencies {
+                implementation(kotlin("stdlib-jdk8", kotlin_version))
+            }
         }
 
         val jvmTest by getting {
