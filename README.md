@@ -89,6 +89,24 @@ repositories {
    implementation("io.github.pdvrieze.xmlutil:serialization-js:0.82.0")
 ```
 
+### Ktor
+```groovy
+  implementation("io.github.pdvrieze.xmlutil:ktor:0.82.0")
+```
+This module provides simple ktor support for xml (de)serialization. To use
+in your application use:
+```kotlin
+import nl.adaptivity.xmlutil.serialization.ktor.xml
+
+fun Application.module(testing: Boolean = false) {
+
+    install(ContentNegotiation) {
+        xml()
+    }
+  /* ... */
+}
+```
+
 ## Serialization help
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
