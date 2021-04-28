@@ -26,6 +26,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.countLength
 
 /**
