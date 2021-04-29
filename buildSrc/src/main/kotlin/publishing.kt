@@ -32,6 +32,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
+import org.gradle.plugins.signing.Sign
 import org.gradle.kotlin.dsl.extra
 
 
