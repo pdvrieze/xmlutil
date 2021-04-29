@@ -178,4 +178,8 @@ fun Project.doPublish(
         }
     }
 
+    tasks.withType<Sign>().configureEach {
+        onlyIf { project.hasProperty("isReleaseVersion") && (project.extra["isReleaseVersion"] as Boolean) }
+    }
+
 }
