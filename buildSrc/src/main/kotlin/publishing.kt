@@ -148,7 +148,7 @@ fun Project.doPublish(
                         gradle.taskGraph.hasTask("publishAllPublicationsToOSS_Release_Staging_registryRepository") &&
                         System.getenv("CI")!="true" }
                            )
-                sign(pub)
+                if (System.getenv("GITHUB_JOB").isNullOrEmpty()) { sign(pub) }
             }
             pom {
                 name.set(pubName)
