@@ -45,11 +45,11 @@ internal val Collection<Annotation>.declDefault: String?
 @ExperimentalSerializationApi
 internal fun SerialDescriptor.declOutputKind(): OutputKind? {
     for (a in annotations) {
-        when (a) {
-            is XmlValue        -> return OutputKind.Text
-            is XmlElement      -> return if (a.value) OutputKind.Element else OutputKind.Attribute
-            is XmlPolyChildren,
-            is XmlChildrenName -> return OutputKind.Element
+        when {
+            a is XmlValue && a.value     -> return OutputKind.Text
+            a is XmlElement              -> return if (a.value) OutputKind.Element else OutputKind.Attribute
+            a is XmlPolyChildren ||
+                    a is XmlChildrenName -> return OutputKind.Element
         }
     }
     return null
@@ -245,7 +245,7 @@ class XmlInlineDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo
-                                              ) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
+) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
     override val doInline: Boolean get() = true
 
@@ -259,9 +259,13 @@ class XmlInlineDescriptor internal constructor(
 
     private val child: XmlDescriptor by lazy {
         val effectiveUseNameInfo: DeclaredNameInfo = when {
-            useNameInfo.annotatedName!=null -> useNameInfo
-            typeDescriptor.typeNameInfo.annotatedName!=null -> typeDescriptor.typeNameInfo
-            ParentInfo(this, 0).elementUseNameInfo.annotatedName!=null -> ParentInfo(this, 0).elementUseNameInfo
+            useNameInfo.annotatedName != null -> useNameInfo
+
+            typeDescriptor.typeNameInfo.annotatedName != null -> typeDescriptor.typeNameInfo
+
+            ParentInfo(this, 0).elementUseNameInfo.annotatedName != null ->
+                ParentInfo(this, 0).elementUseNameInfo
+
             else -> useNameInfo
         }
 
@@ -288,7 +292,7 @@ class XmlInlineDescriptor internal constructor(
             UShort.serializer().descriptor,
             UInt.serializer().descriptor,
             ULong.serializer().descriptor
-                                                             )
+        )
     }
 
 
@@ -340,7 +344,8 @@ class XmlPolymorphicDescriptor internal constructor(
 
     override val doInline: Boolean get() = false
 
-    override val outputKind: OutputKind = xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent)
+    override val outputKind: OutputKind =
+        xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent)
 
     val isTransparent: Boolean
     val polyInfo: Map<String, XmlDescriptor>
@@ -557,7 +562,8 @@ private class DetachedParent(
     override val elementUseOutputKind: OutputKind? = outputKind
 
     override val namespace: Namespace
-        get() = elementUseNameInfo.annotatedName?.toNamespace() ?: XmlEvent.NamespaceImpl("", "")
+        get() = elementUseNameInfo.annotatedName?.toNamespace()
+            ?: XmlEvent.NamespaceImpl("", "")
 }
 
 class ParentInfo(
