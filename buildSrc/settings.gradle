@@ -51,7 +51,7 @@ pluginManagement {
                     useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${ver}");
                     break
                 case "org.jetbrains.dokka-android" :
-                    def ver = requested.version!=null ? requested.version : dokka_version
+                    def ver = requested.version!=null ? requested.version : dokkaVersion
                     useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
                     break
                 case "kotlinx-serialization":
