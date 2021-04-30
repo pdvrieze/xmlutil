@@ -79,6 +79,25 @@ annotation class XmlValue(val value: Boolean /*= true*/)
 annotation class XmlDefault(val value: String)
 
 /**
+ * Require this property to be serialized before other (sibling) properties.
+ * The names are the serialNames of the properties being serialized (not
+ * XML names). Together [XmlBefore] and [XmlAfter] define a partial order
+ * over the properties.
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlBefore(vararg val value: String)
+
+/**
+ * Require this property to be serialized after other (sibling) properties.
+ * The names are the serialNames of the properties being serialized (not
+ * XML names).
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlAfter(vararg val value: String)
+
+/**
  * Default value for unset annotations
  */
 internal const val UNSET_ANNOTATION_VALUE = "ZXC\u0001VBNBVCXZ"

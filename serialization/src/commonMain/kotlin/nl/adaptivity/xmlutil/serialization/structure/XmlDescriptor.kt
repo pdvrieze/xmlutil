@@ -362,6 +362,8 @@ class XmlCompositeDescriptor internal constructor(
     override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind get() = OutputKind.Element
+    val childReorderInfo: List<XmlOrderNode>? = xmlCodecBase.config.policy.childReorderMap(serialDescriptor)
+
 
     private val children: List<XmlDescriptor> by lazy {
         val valueChildIndex = getValueChild()
@@ -377,6 +379,8 @@ class XmlCompositeDescriptor internal constructor(
 
     override fun getElementDescriptor(index: Int): XmlDescriptor =
         children[index]
+
+    val childReorderMap: IntArray? by lazy { childReorderInfo?.flatten(serialDescriptor, children) }
 
     override fun toString(): String {
         return children.joinToString(
