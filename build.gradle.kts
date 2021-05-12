@@ -41,6 +41,7 @@ tasks {
 }
 
 val xmlutil_version: String by project
+val kotlin_version: String by project
 
 allprojects {
     group = "io.github.pdvrieze.xmlutil"
