@@ -47,7 +47,7 @@ pluginManagement {
                     break
                 case "org.jetbrains.kotlin.android":
                 case "kotlin-android-extensions" :
-                    def ver = requested.version!=null ? requested.version : kotlin_version
+                    def ver = requested.version!=null ? requested.version : embeddedKotlinVersion
                     useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${ver}");
                     break
                 case "org.jetbrains.dokka-android" :
@@ -55,7 +55,7 @@ pluginManagement {
                     useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
                     break
                 case "kotlinx-serialization":
-                    def version = (requested.version == null || requested.version.length() == 0) ? kotin_version : requested.version
+                    def version = (requested.version == null || requested.version.length() == 0) ? embeddedKotlinVersion : requested.version
                     useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
             }
         }
