@@ -113,9 +113,11 @@ interface XmlSerializationPolicy {
     /**
      * Allow modifying the ordering of children.
      */
-    fun childReorderMap(
+    fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                       ): List<XmlOrderNode>? = null
+                              ): Collection<XmlOrderNode>? = null
+
+    fun updateReorderMap(original: List<XmlOrderNode>, children: List<XmlDescriptor>): Collection<XmlOrderNode> = original
 
     enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
@@ -287,9 +289,9 @@ open class DefaultXmlSerializationPolicy(
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
      * not use the parent descriptor at all.
      */
-    override fun childReorderMap(
+    override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                                ): List<XmlOrderNode>? {
+                                       ): Collection<XmlOrderNode>? {
         val nameToIdx =
             (0 until parentDescriptor.elementsCount).associateBy {
                 parentDescriptor.getElementName(it)
@@ -334,7 +336,15 @@ open class DefaultXmlSerializationPolicy(
         }
         if (orderNodes.isEmpty()) return null // no order nodes, no reordering
 
-        return orderNodes.values.filter { it.predecessors.isEmpty() }
+        return orderNodes.values
+    }
+
+    override fun updateReorderMap(
+        original: List<XmlOrderNode>,
+        children: List<XmlDescriptor>
+                                 ): Collection<XmlOrderNode> {
+        TODO("Reorder based upon attribute-ness")
+        return super.updateReorderMap(original, children)
     }
 
     override fun ignoredSerialInfo(message: String) {
