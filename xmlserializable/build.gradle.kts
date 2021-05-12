@@ -120,8 +120,8 @@ kotlin {
     targets.forEach { target ->
         target.compilations.all {
             kotlinOptions {
-                languageVersion = "1.4"
-                apiVersion = "1.4"
+                languageVersion = "1.5"
+                apiVersion = "1.5"
                 freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
@@ -203,8 +203,8 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             progressiveMode = true
-            apiVersion="1.4"
-            languageVersion="1.4"
+            apiVersion="1.5"
+            languageVersion="1.5"
             useExperimentalAnnotation("kotlin.RequiresOptIn")
         }
     }
