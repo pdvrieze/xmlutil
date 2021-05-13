@@ -23,6 +23,7 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -40,7 +41,8 @@ class SimpleInlineContainerTest : TestBase<SimpleInlineContainerTest.SimpleInlin
     }
 
     @Serializable
-    inline class InlineString(val value: String)
+    @JvmInline
+    value class InlineString(val value: String)
 
     @Serializable
     @XmlSerialName("valueContainer", namespace="", prefix="")
