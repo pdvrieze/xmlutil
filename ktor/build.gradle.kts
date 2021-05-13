@@ -52,6 +52,16 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    sourceSets.all {
+        languageSettings.apply {
+            languageVersion = "1.5"
+            apiVersion = "1.5"
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
+    }
+}
+
 dependencies {
     api(project(":serialization"))
     implementation("io.ktor:ktor-server-core:$ktor_version")

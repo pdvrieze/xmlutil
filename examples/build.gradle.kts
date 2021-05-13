@@ -20,9 +20,8 @@
 
 @file:Suppress("PropertyName")
 
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
+import net.devrieze.gradle.ext.envJvm
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 
 plugins {
     kotlin("jvm")
@@ -39,18 +38,20 @@ val serializationVersion: String by project
 val kotlin_version: String by project
 
 val moduleName = "net.devrieze.serialexamples"
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 kotlin {
+    sourceSets.all {
+        languageSettings {
+            useExperimentalAnnotation("kotlin.RequiresOptIn")
+        }
+    }
     target {
         attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
-            attribute(androidAttribute, false)
+            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
         }
         compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
             }
         }
     }

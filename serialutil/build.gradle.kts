@@ -22,6 +22,9 @@
 
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.envAndroid
+import net.devrieze.gradle.ext.envJvm
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -55,33 +58,15 @@ val moduleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
-        val testTask = tasks.create("test") {
-            group = "verification"
-        }
-        val cleanTestTask = tasks.create("cleanTest") {
-            group = "verification"
-        }
-
         jvm {
             attributes {
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
                 attribute(androidAttribute, false)
             }
             compilations.all {
-                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                    }
-                }
-                tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
-                    testTask.dependsOn(this)
-                    kotlinOptions.useIR = true
-                }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to moduleName)
                     }
                 }
             }
@@ -89,19 +74,13 @@ kotlin {
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
                 kotlinOptions {
-                    jvmTarget = "1.6"
+                    jvmTarget = if (name=="test") "1.8" else "1.6"
                 }
-                tasks.getByName<Test>("${target.name}Test") {
-                    useJUnitPlatform ()
-                    testTask.dependsOn(this)
-                    kotlinOptions.useIR = true
-                }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
         js(BOTH) {
@@ -121,25 +100,20 @@ kotlin {
         }
 
     }
-    targets.forEach { target ->
-        target.compilations.all {
-            kotlinOptions {
-                languageVersion = "1.5"
-                apiVersion = "1.5"
+    targets.all {
+        if (this is org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget) {
+            compilations.named("test") {
+                kotlinOptions.useIR = true
+            }
+            testRuns.all {
+                executionTask.configure {
+                    useJUnitPlatform()
+                }
             }
         }
-        target.mavenPublication {
+        mavenPublication {
             version = xmlutil_util_version
         }
-/*
-        val javadocJar = tasks.create<Jar>(target.targetName+"JavadocJar") {
-            archiveClassifier.set("javadoc")
-
-        }
-        val sourcesJar = tasks.create<Jar>(target.targetName+"SourcesJar") {
-            archiveClassifier.set("sources")
-        }
-*/
     }
 
     @Suppress("UNUSED_VARIABLE")
@@ -178,12 +152,6 @@ kotlin {
             dependsOn(javaShared)
         }
 
-        all {
-            languageSettings.apply {
-                useExperimentalAnnotation("kotlin.RequiresOptIn")
-            }
-        }
-
         val androidTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
@@ -197,13 +165,14 @@ kotlin {
                 implementation(kotlin("test-js"))
             }
         }
+
+        all {
+            languageSettings.apply {
+                useExperimentalAnnotation("kotlin.RequiresOptIn")
+            }
+        }
     }
 
-}
-
-components.forEach { component ->
-
-    logger.lifecycle("Found component ${component.name} of type: ${component.javaClass} (isAdhoc:${component is AdhocComponentWithVariants})")
 }
 
 doPublish()
