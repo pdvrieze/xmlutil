@@ -23,8 +23,12 @@
 
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.envAndroid
+import net.devrieze.gradle.ext.envJvm
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTestRun
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -34,8 +38,8 @@ plugins {
     id("kotlinx-serialization")
     id("maven-publish")
     id("signing")
-    idea
     id("org.jetbrains.dokka")
+    idea
 }
 
 val xmlutil_serial_version: String by project
@@ -51,36 +55,24 @@ val serializationVersion: String by project
 val jupiterVersion: String by project
 
 val kotlin_version: String by project
-val androidAttribute =
-    Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 val moduleName = "net.devrieze.xmlutil.serialization"
 
 
 kotlin {
     targets {
-        val testTask = tasks.create("test") {
-            group = "verification"
-        }
         jvm {
             attributes {
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
                 attribute(androidAttribute, false)
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
             }
+
             compilations.all {
-                logger.lifecycle("JVM compilation: ${name}")
-                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
                     }
-                    if ("test" in name.toLowerCase()) {
-                        logger.lifecycle("Configuring IR when testing for task ${project.name}:$name")
-                        kotlinOptions.useIR = true
-                    }
-                }
-                tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
-                    testTask.dependsOn(this)
                 }
                 tasks.named<Jar>("jvmJar") {
                     manifest {
@@ -97,10 +89,6 @@ kotlin {
                         woodstoxCompilation.get()
                           )
                                       )
-
-                executionTask.configure {
-                    useJUnitPlatform()
-                }
             }
 
 
@@ -108,18 +96,16 @@ kotlin {
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
-                attribute(
-                    KotlinPlatformType.attribute,
-                    KotlinPlatformType.androidJvm
-                         )
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
+                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                kotlinOptions.jvmTarget = "1.6"
-                tasks.getByName<Test>("${target.name}Test") {
-                    useJUnitPlatform()
-                    testTask.dependsOn(this)
-                    kotlinOptions.useIR = true
+                val isTest = name=="test"
+                compileKotlinTaskProvider.configure {
+                    kotlinOptions {
+                        jvmTarget = if (isTest) "1.8" else "1.6"
+                        logger.lifecycle("Setting task $name to target ${jvmTarget}")
+                    }
                 }
             }
         }
@@ -137,18 +123,20 @@ kotlin {
                 }
             }
         }
-
     }
 
-    targets.forEach { target ->
-        target.compilations.all {
-            kotlinOptions {
-                languageVersion = "1.5"
-                apiVersion = "1.5"
+    targets.all {
+        if (this is KotlinJvmTarget) {
+            compilations.named("test") {
+                kotlinOptions.useIR = true
+            }
+            testRuns.all {
+                executionTask.configure {
+                    useJUnitPlatform()
+                }
             }
         }
-
-        target.mavenPublication {
+        mavenPublication {
             version = xmlutil_serial_version
         }
     }
@@ -171,7 +159,7 @@ kotlin {
                 implementation(project(":serialutil"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
 
-                implementation(kotlin("test"))
+                implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
@@ -200,7 +188,7 @@ kotlin {
             dependsOn(jvmMain)
 
             dependencies {
-                implementation(kotlin("test-junit5"))
+//                implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
                 implementation("net.bytebuddy:byte-buddy:1.10.10")
@@ -217,11 +205,15 @@ kotlin {
             languageSettings.enableLanguageFeature("InlineClasses")
 
             dependsOn(jvmTestCommon)
+            dependencies {
+                implementation(kotlin("test-junit5"))
+            }
         }
         val jvmWoodstoxTest by getting {
             languageSettings.enableLanguageFeature("InlineClasses")
             dependsOn(jvmTestCommon)
             dependencies {
+                implementation(kotlin("test-junit5"))
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
             }
@@ -266,6 +258,8 @@ kotlin {
 
         all {
             languageSettings.apply {
+                languageVersion = "1.5"
+                apiVersion = "1.5"
                 useExperimentalAnnotation("kotlin.RequiresOptIn")
             }
         }

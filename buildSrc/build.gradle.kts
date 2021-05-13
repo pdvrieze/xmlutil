@@ -42,7 +42,7 @@ val dokkaVersion: String by project
 
 dependencies {
 //    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
 }
 

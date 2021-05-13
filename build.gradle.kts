@@ -22,7 +22,7 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 plugins {
     idea
-    kotlin("android") apply false
+    kotlin("multiplatform") apply false
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
@@ -51,6 +51,15 @@ allprojects {
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
         google()
+    }
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}")
+            force("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
+            force("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-RC")
+        }
     }
 
 }

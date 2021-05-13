@@ -35,25 +35,16 @@ pluginManagement {
                     useModule("com.android.tools.build:gradle:${ver}");
                     break
                 case "org.jetbrains.kotlin.android":
+                case "org.jetbrains.kotlin.jvm":
                 case "kotlin-android-extensions" :
-                    def ver = requested.version!=null ? requested.version : kotlin_version
-                    useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${ver}");
-                    break
                 case "org.jetbrains.kotlin.multiplatform":
                     def ver = requested.version!=null ? requested.version : kotlin_version
-                    useModule("org.jetbrains.kotlin:org.jetbrains.kotlin.multiplatform:${ver}")
+                    useVersion(ver)
                     break
                 case "org.jetbrains.dokka" :
-                    def ver = requested.version!=null ? requested.version : dokkaVersion
-                    useModule("org.jetbrains.dokka:dokka-gradle-plugin:${ver}")
-                    break
                 case "org.jetbrains.dokka-android" :
                     def ver = requested.version!=null ? requested.version : dokkaVersion
-                    useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
-                    break
-                case "org.jetbrains.dokka" :
-                    def ver = requested.version!=null ? requested.version : dokkaVersion
-                    useModule("org.jetbrains.dokka:dokka-gradle-plugin:${ver}")
+                    useVersion(ver)
                     break
                 case "org.jetbrains.kotlinx.binary-compatibility-validator" :
                     def ver = requested.version!=null ? requested.version : validatorVersion
@@ -62,6 +53,7 @@ pluginManagement {
                 case "kotlinx-serialization":
                     def version = (requested.version == null || requested.version.length() == 0) ? kotlin_version : requested.version
                     useModule("org.jetbrains.kotlin:kotlin-serialization:$version")
+                    break
             }
         }
     }
@@ -85,14 +77,4 @@ gradleEnterprise {
     buildScan {
         // plugin configuration
     }
-}
-
-//enableFeaturePreview('GRADLE_METADATA')
-
-//include(":serialization:common")
-//include(":serialization:java")
-//include(":serialization:js")
-
-if (Boolean.parseBoolean(androidEnabledProp)) {
-//    include(":serialization:test-android")
 }

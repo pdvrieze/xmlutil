@@ -20,10 +20,12 @@
 
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.envAndroid
+import net.devrieze.gradle.ext.envJvm
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.*
 
 plugins {
     kotlin("multiplatform")
@@ -49,25 +51,27 @@ val kotlin_version: String by project
 val jupiterVersion: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
+val environmentAttr = TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 
 val moduleName = "net.devrieze.xmlutil.xmlserializable"
 
+val testTask = tasks.create("test") {
+    group = "verification"
+}
+val cleanTestTask = tasks.create("cleanTest") {
+    group = "verification"
+}
+
 kotlin {
     targets {
-        val testTask = tasks.create("test") {
-            group = "verification"
-        }
-        val cleanTestTask = tasks.create("cleanTest") {
-            group = "verification"
-        }
 
         jvm {
             attributes {
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
                 attribute(androidAttribute, false)
             }
             compilations.all {
-                tasks.named<KotlinCompile>(compileKotlinTaskName) {
+                compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
                     }
@@ -87,24 +91,28 @@ kotlin {
         jvm("android") {
             attributes {
                 attribute(androidAttribute, true)
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 6)
+                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                tasks.getByName<KotlinCompile>(compileKotlinTaskName).kotlinOptions {
-                    jvmTarget = "1.6"
+                val isTest = name=="test"
+                compileKotlinTaskProvider.configure {
+                    kotlinOptions {
+                        jvmTarget = if (isTest) "1.8" else "1.6"
+                        logger.lifecycle("Setting task $compileKotlinTaskName to target ${jvmTarget}")
+                    }
                 }
-                tasks.getByName<Test>("${target.name}Test") {
-                    useJUnitPlatform ()
+                tasks.named<Test>("${target.name}Test") {
+                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+                cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
         js(BOTH) {
             browser()
             compilations.all {
-                tasks.getByName<KotlinJsCompile>(compileKotlinTaskName).kotlinOptions {
+                kotlinOptions {
                     sourceMap = true
                     sourceMapEmbedSources = "always"
                     suppressWarnings = false
@@ -117,16 +125,8 @@ kotlin {
         }
     }
 
-    targets.forEach { target ->
-        target.compilations.all {
-            kotlinOptions {
-                languageVersion = "1.5"
-                apiVersion = "1.5"
-                freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-            }
-        }
-
-        target.mavenPublication {
+    targets.all {
+        mavenPublication {
             version = xmlutil_version
         }
     }
