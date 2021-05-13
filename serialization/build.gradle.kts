@@ -28,10 +28,8 @@ import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTestRun
-import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -153,8 +151,6 @@ kotlin {
         }
 
         val commonTest by getting {
-            languageSettings.enableLanguageFeature("InlineClasses")
-
             dependencies {
                 implementation(project(":serialutil"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
@@ -274,6 +270,11 @@ configureDokka(myModuleVersion = xmlutil_serial_version)
 tasks.register("cleanTest") {
     group = "verification"
     dependsOn(tasks.named("cleanAllTests"))
+}
+
+tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
+    filter.excludeTestsMatching("nl.adaptivity.xml.serialization.OrderedFieldsTest")
+//    exclude("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 }
 
 tasks.withType<Test> {
