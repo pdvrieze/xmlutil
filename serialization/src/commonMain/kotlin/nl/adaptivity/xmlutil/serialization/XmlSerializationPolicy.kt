@@ -299,7 +299,7 @@ open class DefaultXmlSerializationPolicy(
 
         fun String.toChildIndex(): Int {
             return nameToIdx[this]
-                ?: throw XmlSerialException("$this is not a valid serialName")
+                ?: throw XmlSerialException("Could not find the attribute with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
         val orderNodes = mutableMapOf<String, XmlOrderNode>()
