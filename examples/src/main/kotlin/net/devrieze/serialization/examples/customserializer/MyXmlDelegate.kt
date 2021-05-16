@@ -49,7 +49,7 @@ data class MyXmlDelegate(val attribute: String) {
     @Serializable
     @XmlSerialName("MyXml", "urn:OECD:MyXmlFile", "")
     private class XmlSerialDelegate : BaseSerialDelegate {
-        @XmlBefore("schemalocation")
+        @XmlBefore("attribute")
         @XmlSerialName("schemalocation", "http://www.w3.org/2001/XMLSchema-instance", "xsi")
         val schemalocation: String
 
