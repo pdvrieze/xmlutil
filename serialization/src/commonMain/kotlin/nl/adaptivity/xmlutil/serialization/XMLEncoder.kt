@@ -105,23 +105,16 @@ internal open class XmlEncoderBase internal constructor(
                     target.smartStartTag(serialName) { target.text(value) }
                 }
                 OutputKind.Attribute -> {
-                    target.attribute(
-                        serialName.namespaceURI,
-                        serialName.localPart,
-                        serialName.prefix,
-                        value
-                                    )
+                    target.attribute(serialName.namespaceURI, serialName.localPart, serialName.prefix, value)
                 }
                 OutputKind.Mixed,
                 OutputKind.Text      -> target.text(value)
             }
         }
 
-        override fun encodeEnum(
-            enumDescriptor: SerialDescriptor,
-            index: Int
-                               ) {
+        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
             // TODO allow policy to determine actually used constant, including @XmlSerialName with or without prefix/ns
+            val stringRepr = config.policy.enumEncoding(enumDescriptor, index)
             encodeString(enumDescriptor.getElementName(index))
         }
 
