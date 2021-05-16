@@ -147,6 +147,10 @@ interface XmlSerializationPolicy {
         children: List<XmlDescriptor>
                         ): Collection<XmlOrderConstraint> = original
 
+    fun enumEncoding(enumDescriptor: SerialDescriptor, index: Int): String {
+        return enumDescriptor.getElementName(index)
+    }
+
     enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }

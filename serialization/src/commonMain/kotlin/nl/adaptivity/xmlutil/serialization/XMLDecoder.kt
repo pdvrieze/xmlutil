@@ -109,7 +109,11 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeString(): String = decodeStringImpl(false)
 
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-            return enumDescriptor.getElementIndex(decodeStringImpl())
+            val stringName = decodeStringImpl()
+            for (i in 0 until enumDescriptor.elementsCount) {
+                if (stringName == config.policy.enumEncoding(enumDescriptor, i)) return i
+            }
+            throw SerializationException("No enum constant found for name ${enumDescriptor}")
         }
 
         @ExperimentalSerializationApi
