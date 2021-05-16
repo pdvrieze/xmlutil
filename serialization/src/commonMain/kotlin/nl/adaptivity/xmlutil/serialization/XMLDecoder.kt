@@ -120,23 +120,6 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
             triggerInline = true
             return this
-/*
-            return when {
-                */
-/*
-                 * In the case processing inline and  of an unsigned type we will not create a child decoder, but
-                 * just use this decoder instead.
-                 *//*
-
-                xmlDescriptor.isUnsigned &&
-                        xmlDescriptor is XmlInlineDescriptor
-                    //
-                    // rather use the unsigned descriptor as already in this element.
-                     -> this
-
-                else -> XmlDecoder(xmlDescriptor.getElementDescriptor(0), polyInfo, attrIndex)
-            }
-*/
         }
 
         private fun decodeStringImpl(defaultOverEmpty: Boolean = true): String {
