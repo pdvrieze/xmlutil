@@ -96,10 +96,27 @@ interface XmlSerializationPolicy {
         val annotatedName: QName
                              )
 
+    @Deprecated("Don't use or implement this, use the 3 parameter version")
     fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
                            ): OutputKind
+
+    fun effectiveOutputKind(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean
+                           ): OutputKind {
+        val base = effectiveOutputKind(serializerParent, tagParent)
+        if (!canBeAttribute && base == OutputKind.Attribute) {
+            return handleAttributeOrderConflict(
+                serializerParent,
+                tagParent,
+                base
+                                               )
+        }
+        return base
+    }
 
     fun handleUnknownContent(
         input: XmlReader,
@@ -108,6 +125,14 @@ interface XmlSerializationPolicy {
         candidates: Collection<Any>
                             )
 
+    fun handleAttributeOrderConflict(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        outputKind: OutputKind
+                                    ): OutputKind {
+        throw SerializationException("Node ${serializerParent.elementUseNameInfo.serialName} wants to be an attribute but cannot due to ordering constraints")
+    }
+
     fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean
 
     /**
@@ -115,9 +140,12 @@ interface XmlSerializationPolicy {
      */
     fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                              ): Collection<XmlOrderNode>? = null
+                              ): Collection<XmlOrderConstraint>? = null
 
-    fun updateReorderMap(original: List<XmlOrderNode>, children: List<XmlDescriptor>): Collection<XmlOrderNode> = original
+    fun updateReorderMap(
+        original: Collection<XmlOrderConstraint>,
+        children: List<XmlDescriptor>
+                        ): Collection<XmlOrderConstraint> = original
 
     enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
@@ -171,6 +199,14 @@ open class DefaultXmlSerializationPolicy(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
                                     ): OutputKind {
+        return effectiveOutputKind(serializerParent, tagParent, true)
+    }
+
+    override fun effectiveOutputKind(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean
+                                    ): OutputKind {
         val serialDescriptor = serializerParent.elementSerialDescriptor
 
         return when (val overrideOutputKind =
@@ -185,10 +221,16 @@ open class DefaultXmlSerializationPolicy(
                         parentChildDesc.getElementDescriptor(0)
                 }
                 val elementKind = parentChildDesc.kind
-
+                // If we can't be an attribue
                 when {
                     elementKind == StructureKind.CLASS -> OutputKind.Element
                     isValue                            -> OutputKind.Mixed
+                    ! canBeAttribute &&
+                            (tagParent.elementUseOutputKind == OutputKind.Attribute) ->
+                        handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
+
+                    ! canBeAttribute -> OutputKind.Element
+
                     else                               -> tagParent.elementUseOutputKind
                         ?: serialDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
@@ -291,7 +333,7 @@ open class DefaultXmlSerializationPolicy(
      */
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                                       ): Collection<XmlOrderNode>? {
+                                       ): Collection<XmlOrderConstraint>? {
         val nameToIdx =
             (0 until parentDescriptor.elementsCount).associateBy {
                 parentDescriptor.getElementName(it)
@@ -302,33 +344,46 @@ open class DefaultXmlSerializationPolicy(
                 ?: throw XmlSerialException("Could not find the attribute with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
+        val orderConstraints = HashSet<XmlOrderConstraint>()
         val orderNodes = mutableMapOf<String, XmlOrderNode>()
-        for (i in 0 until parentDescriptor.elementsCount) {
+        for (elementIdx in 0 until parentDescriptor.elementsCount) {
             var xmlBefore: Array<out String>? = null
             var xmlAfter: Array<out String>? = null
-            for (annotation in parentDescriptor.getElementAnnotations(i)) {
+            for (annotation in parentDescriptor.getElementAnnotations(elementIdx)) {
                 if (annotation is XmlBefore && annotation.value.isNotEmpty()) {
+                    annotation.value.mapTo(orderConstraints) {
+                        val successorIdx = it.toChildIndex()
+                        XmlOrderConstraint(elementIdx, successorIdx)
+                    }
                     xmlBefore = annotation.value
                 } else if (annotation is XmlAfter && annotation.value.isNotEmpty()) {
+                    annotation.value.mapTo(orderConstraints) {
+                        val predecessorIdx = it.toChildIndex()
+                        XmlOrderConstraint(predecessorIdx, elementIdx)
+                    }
                     xmlAfter = annotation.value
                 }
                 if (xmlBefore != null || xmlAfter != null) {
                     val node = orderNodes.getOrPut(
-                        parentDescriptor.getElementName(i)
-                                                  ) { XmlOrderNode(i) }
-                    if (xmlBefore!=null) {
+                        parentDescriptor.getElementName(elementIdx)
+                                                  ) {
+                        XmlOrderNode(
+                            elementIdx
+                                    )
+                    }
+                    if (xmlBefore != null) {
                         val befores = Array(xmlBefore.size) {
                             val name = xmlBefore[it]
                             orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
                         }
-                        node.addBefore(*befores)
+                        node.addSuccessors(*befores)
                     }
-                    if (xmlAfter!=null) {
+                    if (xmlAfter != null) {
                         val afters = Array(xmlAfter.size) {
                             val name = xmlAfter[it]
                             orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
                         }
-                        node.addAfter(*afters)
+                        node.addPredecessors(*afters)
                     }
 
                 }
@@ -336,15 +391,21 @@ open class DefaultXmlSerializationPolicy(
         }
         if (orderNodes.isEmpty()) return null // no order nodes, no reordering
 
-        return orderNodes.values
+        return if (orderConstraints.isEmpty()) null else orderConstraints.toList()
     }
 
     override fun updateReorderMap(
-        original: List<XmlOrderNode>,
+        original: Collection<XmlOrderConstraint>,
         children: List<XmlDescriptor>
-                                 ): Collection<XmlOrderNode> {
-        TODO("Reorder based upon attribute-ness")
-        return super.updateReorderMap(original, children)
+                                 ): Collection<XmlOrderConstraint> {
+
+        fun Int.isAttribute(): Boolean = children[this].outputKind == OutputKind.Attribute
+
+        return original.filter { constraint ->
+            val (isBeforeAttribute, isAfterAttribute) = constraint.map(Int::isAttribute)
+
+            isBeforeAttribute || (!isAfterAttribute)
+        }
     }
 
     override fun ignoredSerialInfo(message: String) {

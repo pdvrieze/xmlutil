@@ -37,8 +37,8 @@ object JacksonPolicy :
      * Rather than replacing the method wholesale, just make attributes into elements unless the [XmlElement] annotation
      * is present with a `false` value on the value attribute.
      */
-    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind {
-        val r = super.effectiveOutputKind(serializerParent, tagParent)
+    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo, canBeAttribute: Boolean): OutputKind {
+        val r = super.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
         return when {
             // Do take into account the XmlElement annotation
             r == OutputKind.Attribute &&

@@ -141,7 +141,8 @@ sealed class XmlDescriptor(
         internal fun from(
             xmlCodecBase: XmlCodecBase,
             serializerParent: SafeParentInfo,
-            tagParent: SafeParentInfo = serializerParent
+            tagParent: SafeParentInfo = serializerParent,
+            canBeAttribute: Boolean
                          ): XmlDescriptor {
 
 
@@ -151,7 +152,8 @@ sealed class XmlDescriptor(
                     XmlPrimitiveDescriptor(
                         xmlCodecBase,
                         serializerParent,
-                        tagParent
+                        tagParent,
+                        canBeAttribute
                                           )
 
                 StructureKind.LIST ->
@@ -175,7 +177,8 @@ sealed class XmlDescriptor(
                          -> XmlInlineDescriptor(
                         xmlCodecBase,
                         serializerParent,
-                        tagParent
+                        tagParent,
+                        canBeAttribute
                                                )
 
                     else ->
@@ -215,7 +218,7 @@ internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor {
         if (index != 0) throw IndexOutOfBoundsException("There is exactly one child to a root tag")
 
-        return from(xmlCodecBase, tagParent)
+        return from(xmlCodecBase, tagParent, canBeAttribute = false)
     }
 
     override fun toString(): String {
@@ -267,7 +270,8 @@ sealed class XmlValueDescriptor(
 class XmlPrimitiveDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo
+    tagParent: SafeParentInfo,
+    canBeAttribute: Boolean
                                                  ) :
     XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
@@ -276,7 +280,8 @@ class XmlPrimitiveDescriptor internal constructor(
     override val outputKind: OutputKind =
         xmlCodecBase.config.policy.effectiveOutputKind(
             serializerParent,
-            tagParent
+            tagParent,
+            canBeAttribute
                                                       )
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -286,7 +291,8 @@ class XmlPrimitiveDescriptor internal constructor(
 class XmlInlineDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo
+    tagParent: SafeParentInfo,
+    canBeAttribute: Boolean
                                               ) :
     XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
@@ -316,7 +322,7 @@ class XmlInlineDescriptor internal constructor(
 
         val useParentInfo = ParentInfo(this, 0, effectiveUseNameInfo)
 
-        from(xmlCodecBase, useParentInfo, tagParent)
+        from(xmlCodecBase, useParentInfo, tagParent, canBeAttribute)
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor {
@@ -362,17 +368,55 @@ class XmlCompositeDescriptor internal constructor(
     override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind get() = OutputKind.Element
-    private val initialChildReorderInfo: List<XmlOrderNode>? = xmlCodecBase.config.policy.initialChildReorderMap(serialDescriptor)?.filter { it.predecessors.isEmpty() }
-
+    private val initialChildReorderInfo: Collection<XmlOrderConstraint>? =
+        xmlCodecBase.config.policy.initialChildReorderMap(serialDescriptor)
 
     private val children: List<XmlDescriptor> by lazy {
-        val valueChildIndex = getValueChild()
 
-        List<XmlDescriptor>(elementsCount) { index ->
-            from(xmlCodecBase, ParentInfo(this, index)).also { desc ->
-                if (valueChildIndex >= 0 && index != valueChildIndex && desc.outputKind == OutputKind.Element) {
-                    throw XmlSerialException("Types with an @XmlValue member may not contain other child elements")
+        if (initialChildReorderInfo != null) {
+            getElementDescriptors(initialChildReorderInfo)
+        } else {
+            val valueChildIndex = getValueChild()
+
+            List(elementsCount) { index -> createElementDescriptor(xmlCodecBase, index, valueChildIndex, true) }
+        }
+    }
+
+    private fun getElementDescriptors(initialChildReorderInfo: Collection<XmlOrderConstraint>): List<XmlDescriptor> {
+        val valueChildIndex = getValueChild()
+        val descriptors = arrayOfNulls<XmlDescriptor>(elementsCount)
+
+        fun XmlOrderNode.ensureDescriptor(): XmlDescriptor {
+            return descriptors[this.elementIdx] ?:
+            let {
+                val canBeAttribute = if (predecessors.isEmpty()) true else predecessors.all { it.ensureDescriptor().outputKind == OutputKind.Attribute }
+
+                createElementDescriptor(xmlCodecBase, elementIdx, valueChildIndex, canBeAttribute).also {
+                    descriptors[elementIdx] = it
                 }
+            }
+        }
+
+        for (orderedSequence in initialChildReorderInfo.sequenceStarts(elementsCount)) {
+            for (element in orderedSequence.flatten()) {
+                element.ensureDescriptor()
+            }
+        }
+
+        return descriptors.requireNoNulls().toList()
+
+    }
+
+
+    private fun createElementDescriptor(
+        xmlCodecBase: XmlCodecBase,
+        index: Int,
+        valueChildIndex: Int,
+        canBeAttribute: Boolean
+                                       ): XmlDescriptor {
+        return from(xmlCodecBase, ParentInfo(this, index), canBeAttribute = canBeAttribute).also { desc ->
+            if (valueChildIndex >= 0 && index != valueChildIndex && desc.outputKind == OutputKind.Element) {
+                throw XmlSerialException("Types with an @XmlValue member may not contain other child elements")
             }
         }
     }
@@ -381,11 +425,10 @@ class XmlCompositeDescriptor internal constructor(
         children[index]
 
     val childReorderMap: IntArray? by lazy {
+        initialChildReorderInfo?.let {
+            val newList = it.sequenceStarts(elementsCount)
 
-        initialChildReorderInfo?.let{
-            xmlCodecBase.config.policy.updateReorderMap(it, children)
-                .filter { it.predecessors.isEmpty() }
-                .flatten(serialDescriptor, children)
+            newList.fullFlatten(serialDescriptor, children)
         }
     }
 
@@ -412,7 +455,8 @@ class XmlPolymorphicDescriptor internal constructor(
     override val outputKind: OutputKind =
         xmlCodecBase.config.policy.effectiveOutputKind(
             serializerParent,
-            tagParent
+            tagParent,
+            canBeAttribute = false
                                                       )
 
     val isTransparent: Boolean
@@ -436,7 +480,8 @@ class XmlPolymorphicDescriptor internal constructor(
                 isTransparent -> null
                 else          -> from(
                     xmlCodecBase,
-                    ParentInfo(this, 1)
+                    ParentInfo(this, 1),
+                    canBeAttribute = false
                                      ).tagName
             }
 
@@ -467,7 +512,8 @@ class XmlPolymorphicDescriptor internal constructor(
                         map[childInfo.describedName] = from(
                             xmlCodecBase,
                             childSerializerParent,
-                            tagParent
+                            tagParent,
+                            canBeAttribute = false
                                                            )
                     }
                 }
@@ -483,7 +529,8 @@ class XmlPolymorphicDescriptor internal constructor(
                         map[childDesc.serialName] = from(
                             xmlCodecBase,
                             childSerializerParent,
-                            tagParent
+                            tagParent,
+                            canBeAttribute = false
                                                         )
 
                     }
@@ -505,7 +552,8 @@ class XmlPolymorphicDescriptor internal constructor(
                         map[childDesc.serialName] = from(
                             xmlCodecBase,
                             childSerializerParent,
-                            tagParent
+                            tagParent,
+                            canBeAttribute = false
                                                         )
 
 
@@ -521,12 +569,13 @@ class XmlPolymorphicDescriptor internal constructor(
 
     private val children by lazy {
         List<XmlDescriptor>(elementsCount) { index ->
+            val canBeAttribute = index == 0
             val overrideOutputKind =
-                if (index == 0) OutputKind.Attribute else OutputKind.Element
+                if (canBeAttribute) OutputKind.Attribute else OutputKind.Element
             val parent =
                 ParentInfo(this, index, useOutputKind = overrideOutputKind)
 
-            from(xmlCodecBase, parent)
+            from(xmlCodecBase, parent, canBeAttribute = canBeAttribute)
         }
     }
 
@@ -622,7 +671,8 @@ class XmlListDescriptor internal constructor(
         from(
             xmlCodecBase,
             ParentInfo(this, 0, useNameInfo, outputKind),
-            tagParent
+            tagParent,
+            false
             )
     }
 
@@ -637,14 +687,23 @@ class XmlListDescriptor internal constructor(
  * be used to determine properties of the child.
  */
 interface SafeParentInfo {
+    /** Is the parent type an inline class. */
     val parentIsInline: Boolean
+    /** The index of this element in the parent. */
     val index: Int
+    /** The descriptor of the parent (if available - not for the root). */
     val descriptor: SafeXmlDescriptor?
+    /** The descriptor of the type of this element (independent of use). */
     val elemenTypeDescriptor: XmlTypeDescriptor
+    /** The information on use site requirements */
     val elementUseNameInfo: DeclaredNameInfo
+    /** Annotations on the property, not type */
     val elementUseAnnotations: Collection<Annotation>
+    /** The raw serial descriptor of the element*/
     val elementSerialDescriptor: SerialDescriptor
+    /** Type requirements derived from the use site */
     val elementUseOutputKind: OutputKind?
+    /** The namespace this element has */
     val namespace: Namespace
 
     fun copy(
