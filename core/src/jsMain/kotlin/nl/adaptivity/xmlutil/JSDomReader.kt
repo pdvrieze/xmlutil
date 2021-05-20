@@ -216,7 +216,10 @@ class JSDomReader(val delegate: Node) : XmlReader {
     }
 
     override fun getNamespacePrefix(index: Int): String {
-        return namespaceAttrs[index].prefix ?: ""
+        return when (val localName = namespaceAttrs[index].localName ?: "") {
+            "xmlns" -> ""
+            else    -> localName
+        }
     }
 
     override fun getNamespaceURI(index: Int): String {
