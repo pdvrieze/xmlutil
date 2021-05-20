@@ -139,20 +139,22 @@ class StAXWriter(
     }
 
     private fun doFlushPending(isEndTag: Boolean = false) {
-        val it = pendingWrites.toList().iterator()
+        val start = pendingWrites.first() as XmlEvent.StartElementEvent
+        val (nsAttrs, regularAttrs) = pendingWrites.asSequence()
+            .drop(1)
+            .map { it as XmlEvent.Attribute }
+            .partition { it.namespaceUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         pendingWrites.clear()
-        val start = it.next() as XmlEvent.StartElementEvent
         doStartTag(start.namespaceUri, start.prefix, start.localName, isEndTag)
-        while (it.hasNext()) {
-            val at = it.next() as XmlEvent.Attribute
+        for (attr in (nsAttrs.asSequence() + regularAttrs.asSequence())) {
             when {
-                at.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-                     -> doAttribute(at.namespaceUri, at.prefix, at.localName, at.value)
+                attr.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+                     -> doAttribute(attr.namespaceUri, attr.prefix, attr.localName, attr.value)
 
-                at.prefix == ""
-                     -> doNamespaceAttr("", at.value)
+                attr.prefix == ""
+                     -> doNamespaceAttr("", attr.value)
 
-                else -> doNamespaceAttr(at.localName, at.value)
+                else -> doNamespaceAttr(attr.localName, attr.value)
             }
         }
     }
