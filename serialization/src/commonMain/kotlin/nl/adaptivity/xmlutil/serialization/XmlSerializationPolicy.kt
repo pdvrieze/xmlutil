@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
+import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.serialization.structure.declOutputKind
 
@@ -116,6 +117,10 @@ interface XmlSerializationPolicy {
                                                )
         }
         return base
+    }
+
+    fun overrideSerializerOrNull(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): KSerializer<*>? {
+        return null
     }
 
     fun handleUnknownContent(
@@ -227,15 +232,18 @@ open class DefaultXmlSerializationPolicy(
                 val elementKind = parentChildDesc.kind
                 // If we can't be an attribue
                 when {
-                    elementKind == StructureKind.CLASS -> OutputKind.Element
-                    isValue                            -> OutputKind.Mixed
-                    ! canBeAttribute &&
-                            (tagParent.elementUseOutputKind == OutputKind.Attribute) ->
+                    elementKind == StructureKind.CLASS
+                                    -> OutputKind.Element
+
+                    isValue         -> OutputKind.Mixed
+
+                    !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute)
+                                    ->
                         handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
 
-                    ! canBeAttribute -> OutputKind.Element
+                    !canBeAttribute -> OutputKind.Element
 
-                    else                               -> tagParent.elementUseOutputKind
+                    else            -> tagParent.elementUseOutputKind
                         ?: serialDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
                 }
@@ -330,6 +338,15 @@ open class DefaultXmlSerializationPolicy(
                                      ) {
         unknownChildHandler(input, inputKind, name, candidates)
     }
+
+    override fun overrideSerializerOrNull(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo
+                                         ): KSerializer<*>? =
+        when (serializerParent.elementSerialDescriptor.serialName) {
+            "javax.xml.namespace.QName" -> XmlQNameSerializer
+            else                        -> null
+        }
 
     /**
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
