@@ -30,6 +30,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+expect fun assertXmlEquals(expected: String, actual:String)
+
 abstract class TestBase<T> constructor(
     val value: T,
     val serializer: KSerializer<T>,
@@ -54,7 +56,7 @@ abstract class TestBase<T> constructor(
 
     @Test
     open fun testSerializeXml() {
-        assertEquals(expectedXML, serializeXml())
+        assertXmlEquals(expectedXML, serializeXml())
     }
 
     @Test
