@@ -170,6 +170,12 @@ kotlin {
 
             dependsOn(javaShared)
             dependsOn(commonTest)
+            dependencies {
+                implementation("net.bytebuddy:byte-buddy:1.10.10")
+                implementation("org.assertj:assertj-core:3.16.1")
+                implementation("org.xmlunit:xmlunit-core:2.6.0")
+                implementation("org.xmlunit:xmlunit-assertj:2.7.0")
+            }
         }
 
         val jvmMain by getting {
@@ -187,11 +193,6 @@ kotlin {
             dependencies {
 //                implementation(kotlin("test-junit5"))
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-
-                implementation("net.bytebuddy:byte-buddy:1.10.10")
-                implementation("org.assertj:assertj-core:3.16.1")
-                implementation("org.xmlunit:xmlunit-core:2.7.0")
-                implementation("org.xmlunit:xmlunit-assertj:2.7.0")
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
@@ -235,7 +236,6 @@ kotlin {
                 runtimeOnly("net.sf.kxml:kxml2:2.3.0")
 
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-                implementation("org.xmlunit:xmlunit-core:2.6.0")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
