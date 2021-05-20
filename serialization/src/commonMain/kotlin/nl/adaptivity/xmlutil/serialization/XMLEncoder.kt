@@ -21,12 +21,14 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 @ExperimentalSerializationApi
@@ -92,6 +94,12 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeChar(value: Char) =
             encodeString(value.toString())
 
+        private fun encodeQName(value: QName) {
+            val effectiveQName: QName = ensureNamespace(value)
+
+            XmlQNameSerializer.serialize(this, effectiveQName)
+        }
+
         override fun encodeString(value: String) {
             // string doesn't need parsing so take a shortcut
             val defaultValue =
@@ -105,7 +113,7 @@ internal open class XmlEncoderBase internal constructor(
                     target.smartStartTag(serialName) { target.text(value) }
                 }
                 OutputKind.Attribute -> {
-                    target.attribute(serialName.namespaceURI, serialName.localPart, serialName.prefix, value)
+                    smartWriteAttribute(serialName, value)
                 }
                 OutputKind.Mixed,
                 OutputKind.Text      -> target.text(value)
@@ -130,7 +138,13 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                 ) {
-            serializer.serialize(this, value)
+            @Suppress("UNCHECKED_CAST")
+            val overriddenSerializer = xmlDescriptor.overriddenSerializer as KSerializer<T>?
+            when (overriddenSerializer) {
+                null               -> serializer.serialize(this, value)
+                XmlQNameSerializer -> encodeQName(value as QName)
+                else               -> overriddenSerializer.serialize(this, value)
+            }
         }
 
         @ExperimentalSerializationApi
@@ -231,15 +245,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
                                                   ) {
-            encodeSerializableElement(
-                xmlDescriptor.getElementDescriptor(
-                    index
-                                                  ),
-                index,
-                serializer,
-                value
-                                     )
-
+            encodeSerializableElement(xmlDescriptor.getElementDescriptor(index), index, serializer, value)
         }
 
         internal fun <T> encodeSerializableElement(
@@ -252,35 +258,28 @@ internal open class XmlEncoderBase internal constructor(
                 descriptor.doInline -> InlineEncoder(this, index)
                 else                -> XmlEncoder(descriptor)
             }
-            defer(index) { serializer.serialize(encoder, value) }
 
+            @Suppress("UNCHECKED_CAST")
+            val overriddenSerializer = descriptor.overriddenSerializer as KSerializer<T>?
+            when (overriddenSerializer) {
+                null               -> defer(index) { serializer.serialize(encoder, value) }
+                XmlQNameSerializer -> encodeQName(descriptor, index, value as QName)
+                else               -> defer(index) { overriddenSerializer.serialize(encoder, value) }
+            }
         }
 
         @ExperimentalSerializationApi
-        override fun encodeInlineElement(
-            descriptor: SerialDescriptor,
-            index: Int
-                                        ): Encoder {
+        override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
             return InlineEncoder(this, index)
         }
 
-        override fun shouldEncodeElementDefault(
-            descriptor: SerialDescriptor,
-            index: Int
-                                               ): Boolean {
-            val elementDescriptor =
-                xmlDescriptor.getElementDescriptor(index)
+        override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
+            val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
-            return config.policy.shouldEncodeElementDefault(
-                elementDescriptor
-                                                           )
+            return config.policy.shouldEncodeElementDefault(elementDescriptor)
         }
 
-        final override fun encodeBooleanElement(
-            descriptor: SerialDescriptor,
-            index: Int,
-            value: Boolean
-                                               ) {
+        final override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
             encodeStringElement(descriptor, index, value.toString())
         }
 
@@ -291,16 +290,8 @@ internal open class XmlEncoderBase internal constructor(
             value: Byte
                                             ) {
             when (xmlDescriptor.isUnsigned) {
-                true -> encodeStringElement(
-                    descriptor,
-                    index,
-                    value.toUByte().toString()
-                                           )
-                else -> encodeStringElement(
-                    descriptor,
-                    index,
-                    value.toString()
-                                           )
+                true -> encodeStringElement(descriptor, index, value.toUByte().toString())
+                else -> encodeStringElement(descriptor, index, value.toString())
             }
         }
 
@@ -369,6 +360,13 @@ internal open class XmlEncoderBase internal constructor(
             // Null is the absense of values, no need to do more
         }
 
+        private fun encodeQName(elementDescriptor: XmlDescriptor, index: Int, value: QName) {
+            val effectiveQName: QName = ensureNamespace(value)
+
+            val encoder = XmlEncoder(elementDescriptor)
+            defer(index) { XmlQNameSerializer.serialize(encoder, effectiveQName) }
+        }
+
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
@@ -426,18 +424,69 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     /**
+     * Determine/reserve a a namespace for this element.
+     * Will reuse a prefix if available.
+     */
+    private fun ensureNamespace(qName: QName): QName {
+        val registeredNamespace = target.getNamespaceUri(qName.getPrefix())
+        val registeredPrefix = target.getPrefix(qName.namespaceURI)
+        return when {
+            // If things match, or no namespace, no need to do anything
+            registeredNamespace == qName.namespaceURI ||
+                    (qName.namespaceURI == "" && qName.prefix == "")
+                                        -> qName
+
+            // for empty namespace uri, force empty prefix
+            qName.namespaceURI == ""    -> qName.copy(prefix = "")
+
+            // There is a prefix to reuse, just reuse that (TODO make configurable)
+            registeredPrefix != null    -> return qName.copy(prefix = registeredPrefix)
+
+            // If there is a namespace for this prefix and it doesn't match, create a new prefix
+            registeredNamespace != null -> { // prefix no longer valid
+                val prefix = qName.prefix
+                var lastDigitIdx = prefix.length
+                while (lastDigitIdx > 0 && prefix[lastDigitIdx - 1].isDigit()) {
+                    lastDigitIdx -= 1
+                }
+                val prefixBase: String
+                val prefixStart: Int
+                when {
+                    lastDigitIdx==0 -> {
+                        prefixBase = "ns"
+                        prefixStart = 0
+                    }
+                    lastDigitIdx < prefix.length -> {
+                        prefixBase = prefix.substring(0, lastDigitIdx)
+                        prefixStart = prefix.substring(lastDigitIdx).toInt()
+                    }
+                    else                         -> {
+                        prefixBase = prefix
+                        prefixStart = 0
+                    }
+                }
+                val newPrefix = (prefixStart..Int.MAX_VALUE)
+                    .map { "${prefixBase}$it" }
+                    .first { target.getNamespaceUri(it) == null }
+
+                target.namespaceAttr(newPrefix, qName.namespaceURI)
+                return qName.copy(prefix = newPrefix)
+            }
+
+            else                        -> { // No existing namespace or prefix
+                target.namespaceAttr(qName.prefix, qName.namespaceURI)
+                return qName
+            }
+        }
+    }
+
+    /**
      * Helper function that ensures writing the namespace attribute if needed.
      */
     private fun smartWriteAttribute(name: QName, value: String) {
-        val needsNsAttr = name.namespaceURI.isNotEmpty() &&
-                target.getPrefix(name.namespaceURI) == null
+        val effectiveQName = ensureNamespace(name)
 
-        if (needsNsAttr) target.namespaceAttr(
-            name.prefix,
-            name.namespaceURI
-                                             )
-
-        target.writeAttribute(name, value)
+        target.writeAttribute(effectiveQName, value)
     }
 
     internal inner class PolymorphicEncoder(xmlDescriptor: XmlPolymorphicDescriptor) :

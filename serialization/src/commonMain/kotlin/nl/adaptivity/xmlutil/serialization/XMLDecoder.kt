@@ -356,13 +356,18 @@ internal open class XmlDecoderBase internal constructor(
             previousValue: T?
                                                   ): T {
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
-            val decoder = serialElementDecoder(descriptor, index, deserializer)
+
+            @Suppress("UNCHECKED_CAST")
+            val effectiveDeserializer = (childXmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?)
+                ?: deserializer
+
+            val decoder = serialElementDecoder(descriptor, index, effectiveDeserializer)
                 ?: NullDecoder(childXmlDescriptor)
 
-            val result: T = if (deserializer is AbstractCollectionSerializer<*, T, *>) {
-                deserializer.merge(decoder, previousValue)
+            val result: T = if (effectiveDeserializer is AbstractCollectionSerializer<*, T, *>) {
+                effectiveDeserializer.merge(decoder, previousValue)
             } else {
-                deserializer.deserialize(decoder)
+                effectiveDeserializer.deserialize(decoder)
             }
 
             seenItems[index] = true
