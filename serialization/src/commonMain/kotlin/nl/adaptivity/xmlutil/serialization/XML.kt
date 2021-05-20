@@ -42,6 +42,7 @@ expect fun getPlatformDefaultModule(): SerializersModule
 @ExperimentalSerializationApi
 private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(CompactFragment::class, CompactFragmentSerializer)
+    contextual(QName::class, QNameSerializer)
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
