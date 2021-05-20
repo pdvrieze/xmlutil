@@ -43,10 +43,32 @@ fun Node.removeElementChildren() {
     }
 }
 
+operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
+    private var idx = 0
+
+
+    override fun hasNext(): Boolean = idx < length
+
+    override fun next(): Node {
+        return get(idx)!!.also { idx++ }
+    }
+
+}
+
+operator fun NamedNodeMap.iterator(): Iterator<Attr> = object : Iterator<Attr> {
+    private var idx = 0
+
+    override fun hasNext(): Boolean = idx < length
+
+    override fun next(): Attr {
+        return get(idx)!!.also { idx++ }
+    }
+}
+
 /** A simple for each implementation for [NamedNodeMap]s. */
 inline fun NamedNodeMap.forEach(body: (Attr) -> Unit) {
-    for (i in 0 until length) {
-        body(item(i)!!)
+    for (i in this) {
+        body(i)
     }
 }
 
