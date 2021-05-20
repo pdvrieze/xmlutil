@@ -253,6 +253,28 @@ sealed class XmlEvent(val locationInfo: String?) {
             true -> "$localName=\"$value\""
             else -> "$prefix.$localName=\"$value\""
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Attribute
+
+            if (value != other.value) return false
+            if (prefix != other.prefix) return false
+            if (localName != other.localName) return false
+            if (namespaceUri != other.namespaceUri) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = value.hashCode()
+            result = 31 * result + prefix.hashCode()
+            result = 31 * result + localName.hashCode()
+            result = 31 * result + namespaceUri.hashCode()
+            return result
+        }
     }
 
     class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
