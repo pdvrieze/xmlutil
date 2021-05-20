@@ -43,9 +43,10 @@ class StAXWriter(
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val autoCloseEmpty: Boolean = true
                 ) : PlatformXmlWriterBase(),
-    XmlWriter {
+                    XmlWriter {
 
     private val pendingWrites = mutableListOf<XmlEvent>()
+    private val pendingNamespaces = mutableListOf<Namespace>()
 
     var lastTagDepth = -1
 
@@ -133,6 +134,7 @@ class StAXWriter(
 
     private inline fun flushPending(isEndTag: Boolean = false, body: () -> Unit) {
         if (pendingWrites.isNotEmpty()) doFlushPending(isEndTag)
+        pendingNamespaces.clear() // No need to write, just record
         return body()
     }
 
@@ -267,26 +269,26 @@ class StAXWriter(
 
     @Throws(XmlException::class)
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
-        when (pendingWrites.isEmpty()) {
-            true -> doNamespaceAttr(namespacePrefix, namespaceUri)
-            else -> when (namespacePrefix) {
-                ""   -> pendingWrites.add(
-                    XmlEvent.Attribute(
-                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                        XMLConstants.XMLNS_ATTRIBUTE,
-                        "",
-                        namespaceUri
-                                      )
-                                         )
-                else -> pendingWrites.add(
-                    XmlEvent.Attribute(
-                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                        namespacePrefix,
-                        XMLConstants.XMLNS_ATTRIBUTE,
-                        namespaceUri
-                                      )
-                                         )
-            }
+        pendingNamespaces.add(XmlEvent.NamespaceImpl(namespacePrefix, namespaceUri))
+        when {
+            pendingWrites.isEmpty() -> doNamespaceAttr(namespacePrefix, namespaceUri)
+
+            namespacePrefix == ""   -> pendingWrites.add(
+                XmlEvent.Attribute(
+                    XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    XMLConstants.XMLNS_ATTRIBUTE,
+                    "",
+                    namespaceUri
+                                  )
+                                                        )
+            else                    -> pendingWrites.add(
+                XmlEvent.Attribute(
+                    XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    namespacePrefix,
+                    XMLConstants.XMLNS_ATTRIBUTE,
+                    namespaceUri
+                                  )
+                                                        )
         }
     }
 
@@ -402,7 +404,7 @@ class StAXWriter(
                     else  -> null
                 }
                 XmlDeclMode.Charset -> encoding ?: "UTF-8"
-                else -> encoding
+                else                -> encoding
             }
 
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
@@ -436,6 +438,10 @@ class StAXWriter(
     @Throws(XmlException::class)
     override fun getPrefix(namespaceUri: String?): String? {
         try {
+            pendingNamespaces
+                .firstOrNull { it.namespaceURI==namespaceUri }
+                ?.let { return it.prefix }
+
             pendingWrites.asSequence()
                 .filterIsInstance<XmlEvent.Attribute>()
                 .firstOrNull() {
@@ -451,6 +457,7 @@ class StAXWriter(
 
     @Throws(XmlException::class)
     override fun setPrefix(prefix: String, namespaceUri: String) {
+        pendingNamespaces.add(XmlEvent.NamespaceImpl(prefix, namespaceUri))
         try {
             delegate.setPrefix(prefix, namespaceUri)
         } catch (e: XMLStreamException) {
@@ -461,6 +468,9 @@ class StAXWriter(
 
     @Throws(XmlException::class)
     override fun getNamespaceUri(prefix: String): String? {
+        pendingNamespaces
+            .firstOrNull { it.prefix==prefix }
+            ?.let { return it.namespaceURI }
         pendingWrites.asSequence()
             .filterIsInstance<XmlEvent.Attribute>()
             .firstOrNull() {
