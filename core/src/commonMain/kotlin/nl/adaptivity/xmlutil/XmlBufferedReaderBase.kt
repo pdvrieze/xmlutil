@@ -105,7 +105,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         get() {
             return when (val c = current) {
                 is StartElementEvent -> c.namespaceContext
-                else -> SimpleNamespaceContext() // just an empty context in events like start doc
+                else -> delegate.namespaceContext // We are not in a place that could introduce more, so use the delegate directly
             }
         }
 
