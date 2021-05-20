@@ -51,6 +51,7 @@ base {
 
 val serializationVersion: String by project
 val jupiterVersion: String by project
+val woodstoxVersion: String by project
 
 val kotlin_version: String by project
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
@@ -211,7 +212,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-                runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.0.3")
+                runtimeOnly("com.fasterxml.woodstox:woodstox-core:${woodstoxVersion}")
             }
         }
 
