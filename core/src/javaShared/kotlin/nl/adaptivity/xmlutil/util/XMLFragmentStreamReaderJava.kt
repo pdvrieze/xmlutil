@@ -20,9 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
 
 interface XMLFragmentStreamReaderJava : XmlReader {
@@ -70,7 +68,7 @@ interface XMLFragmentStreamReaderJava : XmlReader {
         return localNamespaceContext.getNamespaceURI(index)
     }
 
-    override val namespaceContext: NamespaceContext
+    override val namespaceContext: IterableNamespaceContext
         get() = localNamespaceContext
 
     fun extendNamespace() {

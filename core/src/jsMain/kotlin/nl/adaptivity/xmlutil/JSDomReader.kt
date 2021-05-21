@@ -27,6 +27,7 @@ import nl.adaptivity.js.util.myLookupPrefix
 import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
+import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 actual typealias PlatformXmlReader = JSDomReader
 
@@ -116,22 +117,26 @@ class JSDomReader(val delegate: Node) : XmlReader {
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     internal val currentElement get() = current as? Element ?: throw IllegalStateException("Node is not an element")
 
-    override val namespaceContext: NamespaceContext = object : NamespaceContext {
-        override fun getNamespaceURI(prefix: String): String? {
-            return delegate.lookupNamespaceURI(prefix)
-        }
+    override val namespaceContext: FreezableNamespaceContext
+        get() = object : FreezableNamespaceContext {
+            private val currentElement: Element? = (requireCurrent as? Element) ?: requireCurrent.parentElement
 
-        override fun getPrefix(namespaceURI: String): String? {
-            return delegate.lookupPrefix(namespaceURI)
-        }
+            override fun getNamespaceURI(prefix: String): String? {
+                return currentElement?.lookupNamespaceURI(prefix)
+            }
 
-        @Suppress("OverridingDeprecatedMember")
-        override fun getPrefixes(namespaceURI: String): Iterator<String> {
-            // TODO return all possible ones by doing so recursively
-            return listOfNotNull(getPrefix(namespaceURI)).iterator()
-        }
+            override fun getPrefix(namespaceURI: String): String? {
+                return currentElement?.lookupPrefix(namespaceURI)
+            }
 
-    }
+            override fun freeze(): FreezableNamespaceContext = this
+
+            @Suppress("OverridingDeprecatedMember")
+            override fun getPrefixes(namespaceURI: String): Iterator<String> {
+                // TODO return all possible ones by doing so recursively
+                return listOfNotNull(getPrefix(namespaceURI)).iterator()
+            }
+        }
 
     override val encoding: String?
         get() = when (val d = delegate) {

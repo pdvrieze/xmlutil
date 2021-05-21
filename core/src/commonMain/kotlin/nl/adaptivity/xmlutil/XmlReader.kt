@@ -151,7 +151,7 @@ interface XmlReader : Closeable, Iterator<EventType> {
     val locationInfo: String?
 
     /** The current namespace context */
-    val namespaceContext: NamespaceContext
+    val namespaceContext: FreezableNamespaceContext
 
     val encoding: String?
 

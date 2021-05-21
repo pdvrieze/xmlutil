@@ -32,9 +32,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty
 @OptIn(XmlUtilInternal::class)
 open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 
-    override val namespaceContext: NamespaceContext
-        get() = super.namespaceContext
-
     private val peekBuffer = SimpleQueue<XmlEvent>()
 
     override val hasPeekItems get() = peekBuffer.isNotEmpty()

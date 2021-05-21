@@ -36,11 +36,21 @@ actual class XMLFragmentStreamReader constructor(
                                                 ) :
     XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
 
-    private class FragmentNamespaceContext(
-        val parent: FragmentNamespaceContext?,
-        prefixes: Array<String>,
-        namespaces: Array<String>
-                                          ) : SimpleNamespaceContext(prefixes, namespaces) {
+    private class FragmentNamespaceContext : SimpleNamespaceContext {
+
+        val parent: FragmentNamespaceContext?
+
+        constructor(parent: FragmentNamespaceContext?, prefixes: Array<String>, namespaces: Array<String>) :
+                super(prefixes, namespaces) {
+            this.parent = parent
+        }
+
+        constructor(parent: FragmentNamespaceContext?, original: SimpleNamespaceContext) :
+                super(original) {
+            this.parent = parent
+        }
+
+        override fun freeze(): FragmentNamespaceContext = this
 
         override fun getNamespaceURI(prefix: String): String {
             val namespaceURI = super.getNamespaceURI(prefix)
@@ -160,7 +170,7 @@ actual class XMLFragmentStreamReader constructor(
         return localNamespaceContext.getNamespaceURI(index)
     }
 
-    override val namespaceContext: NamespaceContext
+    override val namespaceContext: FreezableNamespaceContext
         get() = localNamespaceContext
 
 

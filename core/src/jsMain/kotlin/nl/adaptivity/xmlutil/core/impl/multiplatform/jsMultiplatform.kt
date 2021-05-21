@@ -81,3 +81,11 @@ actual open class StringWriter: Writer() {
         buffer.append(value, startIndex, endIndex)
     }
 }
+
+inline fun <T: Closeable, R> T.use(block: (T)->R): R {
+    try {
+        return block(this)
+    } finally {
+        close()
+    }
+}

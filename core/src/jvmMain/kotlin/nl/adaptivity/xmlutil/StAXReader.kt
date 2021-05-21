@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import java.io.InputStream
 import java.io.Reader
 import javax.xml.namespace.NamespaceContext
@@ -38,9 +39,10 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         private set
 
     private var mFixWhitespace = false
-    override var depth = 0
-        private set
 
+    override val depth get() = namespaceHolder.depth
+
+    private val namespaceHolder = NamespaceHolder()
 
     @Throws(XMLStreamException::class)
     constructor(reader: Reader) : this(XMLInputFactory.newFactory().createXMLStreamReader(reader))
@@ -191,10 +193,16 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
     private fun updateDepth(eventType: EventType) = when (eventType) {
         EventType.START_ELEMENT -> {
-            ++depth; eventType
+            namespaceHolder.incDepth()
+            for (idx in 0 until delegate.namespaceCount) {
+                namespaceHolder.addPrefixToContext(delegate.getNamespacePrefix(idx), delegate.getNamespaceURI(idx))
+            }
+
+            eventType
         }
         EventType.END_ELEMENT   -> {
-            --depth; eventType
+            namespaceHolder.decDepth()
+            eventType
         }
         else                    -> eventType
     }
@@ -243,8 +251,8 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override fun getNamespacePrefix(index: Int): String =
         delegate.getNamespacePrefix(index) ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
 
-    override val namespaceContext: NamespaceContext
-        get() = delegate.namespaceContext
+    override val namespaceContext: FreezableNamespaceContext
+        get() = namespaceHolder.namespaceContext
 
     override val eventType: EventType
         get() = if (mFixWhitespace) EventType.IGNORABLE_WHITESPACE else delegateToLocal(delegate.eventType)

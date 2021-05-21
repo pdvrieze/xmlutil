@@ -29,7 +29,7 @@ sealed class XmlEvent(val locationInfo: String?) {
 
     companion object {
 
-        fun from(reader: XmlReader) = reader.eventType.createEvent(reader)
+        fun from(reader: XmlReader): XmlEvent = reader.eventType.createEvent(reader)
 
         @Deprecated(
             "Use the extension property",
@@ -66,7 +66,7 @@ sealed class XmlEvent(val locationInfo: String?) {
         locationInfo
                                                                                                           ) {
 
-        override fun writeTo(writer: XmlWriter) = eventType.writeEvent(writer, this)
+        override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
 
         override val isIgnorable: Boolean
             get() =
@@ -81,7 +81,7 @@ sealed class XmlEvent(val locationInfo: String?) {
 
     class EndDocumentEvent(locationInfo: String?) : XmlEvent(locationInfo) {
 
-        override fun writeTo(writer: XmlWriter) = writer.endDocument()
+        override fun writeTo(writer: XmlWriter): Unit = writer.endDocument()
 
         override val eventType: EventType get() = EventType.END_DOCUMENT
 
@@ -95,14 +95,16 @@ sealed class XmlEvent(val locationInfo: String?) {
         locationInfo: String?,
         namespaceUri: String,
         localName: String,
-        prefix: String
+        prefix: String,
+        namespaceContext: FreezableNamespaceContext,
                          ) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix) {
 
-        override fun writeTo(writer: XmlWriter) = writer.endTag(namespaceUri, localName, prefix)
+        override fun writeTo(writer: XmlWriter): Unit = writer.endTag(namespaceUri, localName, prefix)
 
         override val eventType: EventType get() = EventType.END_ELEMENT
 
+        val namespaceContext: FreezableNamespaceContext = namespaceContext.freeze()
     }
 
     class StartDocumentEvent(
@@ -113,7 +115,7 @@ sealed class XmlEvent(val locationInfo: String?) {
                             ) :
         XmlEvent(locationInfo) {
 
-        override fun writeTo(writer: XmlWriter) = writer.startDocument(version, encoding, standalone)
+        override fun writeTo(writer: XmlWriter): Unit = writer.startDocument(version, encoding, standalone)
 
         override val eventType: EventType get() = EventType.START_DOCUMENT
 
@@ -149,18 +151,34 @@ sealed class XmlEvent(val locationInfo: String?) {
         localName: String,
         prefix: String,
         val attributes: Array<out Attribute>,
-        val namespaceDecls: Array<out Namespace>
+        private val parentNamespaceContext: FreezableNamespaceContext,
+        namespaceDecls: Array<out Namespace>
                            ) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContextImpl {
 
-        constructor(namespaceUri: String, localName: String, prefix: String) : this(
-            null,
+        private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
+
+        @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
+        constructor(namespaceUri: String, localName: String, prefix: String) :
+                this(null, namespaceUri, localName, prefix, emptyArray(), SimpleNamespaceContext(), emptyArray())
+
+        @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
+        constructor(
+            locationInfo: String?,
+            namespaceUri: String,
+            localName: String,
+            prefix: String,
+            attributes: Array<out Attribute>,
+            namespaceDecls: Array<out Namespace>
+                   ) : this(
+            locationInfo,
             namespaceUri,
             localName,
             prefix,
-            emptyArray(),
-            emptyArray()
-                                                                                   )
+            attributes,
+            SimpleNamespaceContext(),
+            namespaceDecls
+                           )
 
         override fun writeTo(writer: XmlWriter) {
             writer.startTag(namespaceUri, localName, prefix)
@@ -170,21 +188,33 @@ sealed class XmlEvent(val locationInfo: String?) {
             namespaceDecls.forEach { ns -> writer.namespaceAttr(ns.prefix, ns.namespaceURI) }
         }
 
+        val namespaceDecls: Array<out Namespace>
+            get() = Array(namespaceHolder.size) {
+                NamespaceImpl(namespaceHolder.getPrefix(it), namespaceHolder.getNamespaceURI(it))
+            }
+
         override val eventType: EventType get() = EventType.START_ELEMENT
 
-        override fun getPrefix(namespaceURI: String) = getPrefix(namespaceURI as CharSequence)
-
-        fun getPrefix(namespaceUri: CharSequence): String? {
+        override fun getPrefix(namespaceURI: String): String? {
             return namespaceDecls
                 .asSequence()
-                .filter { ns -> ns.namespaceURI == namespaceUri.toString() }
+                .filter { ns -> ns.namespaceURI == namespaceUri }
                 .lastOrNull()?.prefix
+                ?: parentNamespaceContext.getPrefix(namespaceUri)
         }
 
-        override fun getNamespaceURI(prefix: String) = namespaceDecls
+        @Deprecated(
+            "Just use the version that takes a string",
+            ReplaceWith("getPrefix(namespaceUri.toString())")
+                   )
+        fun getPrefix(namespaceUri: CharSequence): String? = getPrefix(namespaceUri.toString())
+
+        @Deprecated("This is not correct, it doesn't look up the parent elements")
+        override fun getNamespaceURI(prefix: String): String? = namespaceDecls
             .asSequence()
             .filter { ns -> ns.prefix == prefix }
             .lastOrNull()?.namespaceURI
+            ?: parentNamespaceContext.getNamespaceURI(prefix)
 
         @Deprecated(
             "Just use the version that takes a string",
@@ -194,7 +224,8 @@ sealed class XmlEvent(val locationInfo: String?) {
             return getNamespaceURI(prefix.toString())
         }
 
-        val namespaceContext: NamespaceContext get() = this
+        val namespaceContext: FreezableNamespaceContext
+            get() = namespaceHolder + parentNamespaceContext
 
         @Suppress("OverridingDeprecatedMember")
         override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
@@ -229,10 +260,10 @@ sealed class XmlEvent(val locationInfo: String?) {
             value: CharSequence
                    ) : this(null, namespaceUri, localName, prefix, value)
 
-        val value = value.toString()
-        val prefix = prefix.toString()
-        val localName = localName.toString()
-        val namespaceUri = namespaceUri.toString()
+        val value: String = value.toString()
+        val prefix: String = prefix.toString()
+        val localName: String = localName.toString()
+        val namespaceUri: String = namespaceUri.toString()
         override val eventType: EventType get() = EventType.ATTRIBUTE
 
         override fun writeTo(writer: XmlWriter) {
@@ -281,7 +312,7 @@ sealed class XmlEvent(val locationInfo: String?) {
 
         override val prefix: String = namespacePrefix.toString()
 
-        override val namespaceURI = namespaceUri.toString()
+        override val namespaceURI: String = namespaceUri.toString()
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

@@ -23,21 +23,19 @@ package nl.adaptivity.xml.serialization
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
 import nl.adaptivity.js.util.iterator
-import nl.adaptivity.xmlutil.JSDomReader
-import nl.adaptivity.xmlutil.JSDomWriter
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.Node
 import org.w3c.dom.parsing.DOMParser
-import kotlin.math.exp
 import kotlin.test.assertEquals
 
 actual fun assertXmlEquals(expected: String, actual: String) {
-    val expectedDom = DOMParser().parseFromString(expected, "text/xml")
-    val actualDom = DOMParser().parseFromString(actual, "text/xml")
+    if (expected != actual) {
+        val expectedDom = DOMParser().parseFromString(expected, "text/xml")
+        val actualDom = DOMParser().parseFromString(actual, "text/xml")
 
-    assertXmlEquals(expectedDom, actualDom)
+        assertXmlEquals(expectedDom, actualDom)
+    }
 }
 
 fun assertXmlEquals(expected: Node, actual: Node): Unit = when {
@@ -57,7 +55,16 @@ fun assertElementEquals(expected: Element, actual: Element) {
     val expectedAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
     val actualAttrsSorted = actual.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
 
-    assertEquals(expectedAttrsSorted, actualAttrsSorted, "Sorted attributes should match")
+    val expectedString = expected.outerHTML
+    val actualString = actual.outerHTML
+
+    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: ${expectedString} & ${actualString}")
+    for ((idx, expectedAttr) in expectedAttrsSorted.withIndex()) {
+        val actualAttr = actualAttrsSorted[idx]
+        assertEquals(expectedAttr.localName, actualAttr.localName)
+        assertEquals(expectedAttr.namespaceURI, actualAttr.namespaceURI)
+    }
+
     val expectedChildren = expected.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
     val actualChildren = actual.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
 

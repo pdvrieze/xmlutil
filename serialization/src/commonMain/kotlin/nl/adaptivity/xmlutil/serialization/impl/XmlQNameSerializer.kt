@@ -37,6 +37,10 @@ internal object XmlQNameSerializer : KSerializer<QName> {
     override fun deserialize(decoder: Decoder): QName {
         if(decoder !is  XML.XmlInput) throw SerializationException("QNameXmlSerializer only makes sense in an XML context")
 
+        // This needs to be done here as the namespace attribute may have disappeared later. After reading the value
+        // the cursor may be at an end tag (and the context no longer present)
+        val namespaceContext = decoder.input.namespaceContext.freeze()
+
         val prefixedName = decoder.decodeString()
         val cIndex = prefixedName.indexOf(':')
 
@@ -48,12 +52,12 @@ internal object XmlQNameSerializer : KSerializer<QName> {
             cIndex < 0 -> {
                 prefix = ""
                 localPart = prefixedName
-                namespace = decoder.input.namespaceContext.getNamespaceURI("") ?: ""
+                namespace = namespaceContext.getNamespaceURI("") ?: ""
             }
             else       -> {
                 prefix = prefixedName.substring(0, cIndex)
                 localPart = prefixedName.substring(cIndex + 1)
-                namespace = decoder.input.namespaceContext.getNamespaceURI(prefix)
+                namespace = namespaceContext.getNamespaceURI(prefix)
                     ?: throw SerializationException("Missing namespace for prefix $prefix in QName value")
             }
         }

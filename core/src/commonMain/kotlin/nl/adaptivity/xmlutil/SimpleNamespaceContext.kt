@@ -32,6 +32,7 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
+import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 import kotlin.collections.set
 import kotlin.jvm.JvmName
 
@@ -44,12 +45,10 @@ import kotlin.jvm.JvmName
 @OptIn(XmlUtilInternal::class)
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
 
-    val indices: IntRange
-        get() = 0..(size - 1)
+    val indices: IntRange get() = 0 until size
 
     @get:JvmName("size")
-    val size: Int
-        get() = buffer.size / 2
+    val size: Int get() = buffer.size / 2
 
     private inner class SimpleIterator : Iterator<Namespace> {
         private var pos = 0
@@ -99,6 +98,10 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
 
     constructor(namespaces: Iterable<Namespace>) :
             this(namespaces as? Collection<Namespace> ?: namespaces.toList())
+
+    constructor(original: SimpleNamespaceContext): this(original.buffer)
+
+    override fun freeze(): SimpleNamespaceContext = this
 
     /**
      * Create a context that combines both. This will "forget" overlapped prefixes.
@@ -198,6 +201,16 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
 
     override fun iterator(): Iterator<Namespace> {
         return SimpleIterator()
+    }
+
+    override fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext = when {
+        secondary is SimpleNamespaceContext && secondary.size == 0
+             -> this
+
+        secondary is SimpleNamespaceContext && size == 0
+             -> secondary
+
+        else -> CombiningNamespaceContext(this, secondary)
     }
 
     override fun equals(other: Any?): Boolean {

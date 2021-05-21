@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
+
 /** Interface that provides access to namespace queries */
 expect interface NamespaceContext {
     fun getNamespaceURI(prefix: String): String?
@@ -34,8 +36,17 @@ expect interface NamespaceContextImpl : NamespaceContext {
     fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
+interface FreezableNamespaceContext: NamespaceContext {
+    fun freeze(): FreezableNamespaceContext
+
+    operator fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext =
+        CombiningNamespaceContext(this, secondary)
+}
+
 /** Namespace context that allows iterating over the namespaces. */
-interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace>
+interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace>, FreezableNamespaceContext {
+    override fun freeze(): FreezableNamespaceContext = SimpleNamespaceContext(this)
+}
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")
 expect inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String>
