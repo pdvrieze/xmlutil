@@ -170,12 +170,6 @@ kotlin {
 
             dependsOn(javaShared)
             dependsOn(commonTest)
-            dependencies {
-                implementation("net.bytebuddy:byte-buddy:1.10.10")
-                implementation("org.assertj:assertj-core:3.16.1")
-                implementation("org.xmlunit:xmlunit-core:2.6.0")
-                implementation("org.xmlunit:xmlunit-assertj:2.7.0")
-            }
         }
 
         val jvmMain by getting {

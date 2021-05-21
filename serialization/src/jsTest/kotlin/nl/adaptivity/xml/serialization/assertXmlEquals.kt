@@ -55,11 +55,11 @@ fun assertXmlEquals(expected: Node, actual: Node): Unit = when {
 
 fun assertElementEquals(expected: Element, actual: Element) {
     val expectedAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
-    val actualAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
+    val actualAttrsSorted = actual.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
 
     assertEquals(expectedAttrsSorted, actualAttrsSorted, "Sorted attributes should match")
     val expectedChildren = expected.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
-    val actualChildren = expected.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
+    val actualChildren = actual.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
 
     assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
     for ((idx, expectedChild) in expectedChildren.withIndex()) {

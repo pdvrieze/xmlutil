@@ -21,10 +21,9 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.json.Json
+import nl.adaptivity.xml.serialization.assertXmlEquals
 import nl.adaptivity.xmlutil.XmlStreaming
 import org.junit.jupiter.api.Test
-import org.xmlunit.assertj.XmlAssert
-import org.xmlunit.builder.Input
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import kotlin.test.assertEquals
@@ -50,17 +49,14 @@ class JvmSerializationTest {
         }
         val deserialized = xml.decodeFromString(ElementSerializer, contentText)
 
+        val expected:String = XmlStreaming.toString(DOMSource(expectedObj))
+        val actual:String = XmlStreaming.toString(DOMSource(deserialized))
         try {
-            val expected = Input.fromNode(expectedObj)
-            val actual = Input.fromNode(deserialized)
-//            XmlAssert.
-            XmlAssert.assertThat(expected).and(actual).areIdentical()
+            assertXmlEquals(expected, actual)
 
 //            assertEquals(expectedObj, deserialized)
         } catch (e: AssertionError) {
-            val expectedTxt = XmlStreaming.toString(DOMSource(expectedObj))
-            val actualTxt = XmlStreaming.toString(DOMSource(deserialized))
-            assertEquals(expectedTxt, actualTxt)
+            assertEquals(expected, actual)
             throw e // if we reach here, throw anyway
         }
     }
@@ -128,17 +124,12 @@ class JvmSerializationTest {
 
         val deserialized = json.decodeFromString(ElementSerializer, contentText)
 
+        val expected = XmlStreaming.toString(DOMSource(expectedObj))
+        val actual = XmlStreaming.toString(DOMSource(deserialized))
         try {
-            val expected = Input.fromNode(expectedObj)
-            val actual = Input.fromNode(deserialized)
-//            XmlAssert.
-            XmlAssert.assertThat(expected).and(actual).areIdentical()
-
-//            assertEquals(expectedObj, deserialized)
+            assertXmlEquals(expected, actual)
         } catch (e: AssertionError) {
-            val expectedTxt = XmlStreaming.toString(DOMSource(expectedObj))
-            val actualTxt = XmlStreaming.toString(DOMSource(deserialized))
-            assertEquals(expectedTxt, actualTxt)
+            assertEquals(expected, actual)
             throw e // if we reach here, throw anyway
         }
     }
