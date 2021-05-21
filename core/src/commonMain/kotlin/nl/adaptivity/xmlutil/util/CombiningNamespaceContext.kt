@@ -20,10 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.NamespaceContextImpl
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.prefixesFor
+import nl.adaptivity.xmlutil.*
 
 
 /**
@@ -34,9 +31,9 @@ import nl.adaptivity.xmlutil.prefixesFor
  * @property secondary The fallback context if the name cannot be resolved on the primary.
  */
 class CombiningNamespaceContext(
-    val primary: NamespaceContext,
-    val secondary: NamespaceContext
-                               ) : NamespaceContextImpl {
+    val primary: FreezableNamespaceContext,
+    val secondary: FreezableNamespaceContext
+                               ) : FreezableNamespaceContext, NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)
@@ -52,6 +49,27 @@ class CombiningNamespaceContext(
         } else prefix
     }
 
+    override fun freeze(): FreezableNamespaceContext = when {
+        primary is SimpleNamespaceContext && secondary is SimpleNamespaceContext
+             -> this
+
+        secondary is Iterable<*> && !secondary.iterator().hasNext()
+             -> primary.freeze()
+
+        primary is Iterable<*> && !primary.iterator().hasNext()
+             -> secondary.freeze()
+
+        else -> {
+            val frozenPrimary = primary.freeze()
+            val frozenSecondary = secondary.freeze()
+            if (frozenPrimary===primary && frozenSecondary==secondary) {
+                this
+            } else {
+                CombiningNamespaceContext(primary.freeze(), secondary.freeze())
+            }
+        }
+    }
+
     @Suppress("OverridingDeprecatedMember")
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         val prefixes1 = primary.prefixesFor(namespaceURI)
@@ -65,4 +83,7 @@ class CombiningNamespaceContext(
         }
         return prefixes.iterator()
     }
+
+    override fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext =
+        CombiningNamespaceContext(this, secondary)
 }

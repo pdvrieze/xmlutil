@@ -51,6 +51,7 @@ enum class EventType {
                     localName,
                     prefix,
                     attributes,
+                    reader.namespaceContext.freeze(),
                     namespaceDecls
                                           )
             }
@@ -83,7 +84,8 @@ enum class EventType {
                 locationInfo,
                 namespaceURI,
                 localName,
-                prefix
+                prefix,
+                namespaceContext
                                     )
         }
 

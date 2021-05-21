@@ -20,9 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
+import nl.adaptivity.xmlutil.IterableNamespaceContext
 import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.NamespaceContextImpl
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
@@ -121,7 +121,7 @@ internal open class NamespaceHolder : Iterable<Namespace> {
 
 
     // From first namespace
-    val namespaceContext: NamespaceContext = object : NamespaceContextImpl {
+    val namespaceContext: IterableNamespaceContext = object : IterableNamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
             return this@NamespaceHolder.getNamespaceUri(prefix)
         }
@@ -129,6 +129,10 @@ internal open class NamespaceHolder : Iterable<Namespace> {
         override fun getPrefix(namespaceURI: String): String? {
             return this@NamespaceHolder.getPrefix(namespaceURI)
         }
+
+        override fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this@NamespaceHolder)
+
+        override fun iterator(): Iterator<Namespace> = this@NamespaceHolder.iterator()
 
         @Suppress("OverridingDeprecatedMember")
         override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {

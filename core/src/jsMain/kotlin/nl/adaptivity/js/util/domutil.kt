@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
+
 /** Allow access to the node as [Element] if it is an element, otherwise it is null. */
 fun Node.asElement(): Element? = if (isElement) this as Element else null
 
@@ -106,18 +107,25 @@ inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
 }
 
 
-internal fun Node.myLookupPrefix(namespaceUri: String): String? = when (this) {
-    !is Element -> null
-    else    -> attributes.filter {
-        (it.prefix == "xmlns" ||
-                (it.prefix == "" && it.localName == "xmlns")) &&
-                it.value == namespaceUri
-    }.firstOrNull()?.let { if (it.prefix == "xmlns") it.localName else "" } ?: parentNode?.myLookupPrefix(namespaceUri)
+internal fun Node.myLookupPrefix(namespaceUri: String): String? {
+    if (this !is Element) return null
+    for (attr in attributes) {
+        when {
+            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE &&
+                    attr.value == namespaceUri
+            -> return attr.localName
+
+            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE &&
+                    attr.value == namespaceUri
+            -> return ""
+        }
+    }
+    return parentNode?.myLookupPrefix(namespaceUri)
 }
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
     !is Element -> null
-    else    -> attributes.filter {
+    else        -> attributes.filter {
         (prefix == "" && it.localName == "xmlns") ||
                 (it.prefix == "xmlns" && it.localName == prefix)
     }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)

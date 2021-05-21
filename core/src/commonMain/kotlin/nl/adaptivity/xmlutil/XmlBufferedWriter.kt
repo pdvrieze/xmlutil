@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 class XmlBufferedWriter(
     buffer: MutableList<XmlEvent> = mutableListOf(),
-    delegateNamespaceContext: NamespaceContext? = null
+    delegateNamespaceContext: FreezableNamespaceContext? = null
                        ) : XmlWriter {
     private val _buffer = buffer
 
@@ -42,6 +42,7 @@ class XmlBufferedWriter(
     override val namespaceContext: NamespaceContext = if (delegateNamespaceContext == null) {
         namespaceHolder.namespaceContext
     } else {
+        // Don't use the plus operato here as we don't know that the contexts are not mutable.
         CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
     }
 
@@ -58,6 +59,7 @@ class XmlBufferedWriter(
     }
 
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        val parentContext = namespaceHolder.namespaceContext.freeze()
         namespaceHolder.incDepth()
         val effNamespace = effectiveNamespace(namespace, prefix)
         val effPrefix = effectivePrefix(prefix, effNamespace)
@@ -65,7 +67,7 @@ class XmlBufferedWriter(
         _buffer.add(
             XmlEvent.StartElementEvent(
                 null, effNamespace ?: "", localName, effPrefix ?: "",
-                emptyArray(), emptyArray()
+                emptyArray(), parentContext,  emptyArray()
                                       )
                    )
     }
@@ -99,8 +101,8 @@ class XmlBufferedWriter(
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
         val effNamespace = effectiveNamespace(namespace, prefix)
         val effPrefix = effectivePrefix(prefix, effNamespace) ?: ""
-        _buffer.add(XmlEvent.EndElementEvent(null, effNamespace ?: "", localName, effPrefix))
         namespaceHolder.decDepth()
+        _buffer.add(XmlEvent.EndElementEvent(null, effNamespace ?: "", localName, effPrefix, namespaceHolder.namespaceContext))
     }
 
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {

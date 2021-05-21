@@ -157,7 +157,7 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
      * reduced perfomance overhead use [.getNamespacePrefix] and [.getNamespaceUri]
      * for lookups.
      */
-    override val namespaceContext: NamespaceContext
+    override val namespaceContext: IterableNamespaceContext
         get() {
             val nsCount = parser.getNamespaceCount(parser.depth)
             val prefixes = Array(nsCount) { i -> parser.getNamespacePrefix(i) ?: "" }

@@ -101,10 +101,11 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
             return current?.locationInfo ?: delegate.locationInfo
         }
 
-    override val namespaceContext: NamespaceContext
+    override val namespaceContext: FreezableNamespaceContext
         get() {
             return when (val c = current) {
                 is StartElementEvent -> c.namespaceContext
+                is EndElementEvent -> c.namespaceContext
                 else -> delegate.namespaceContext // We are not in a place that could introduce more, so use the delegate directly
             }
         }
