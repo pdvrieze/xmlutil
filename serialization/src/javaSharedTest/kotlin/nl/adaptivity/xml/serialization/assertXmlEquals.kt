@@ -43,7 +43,12 @@ actual fun assertXmlEquals(expected: String, actual: String) {
         val expectedDom = db.parse(expected.byteInputStream())
         val actualDom = db.parse(actual.byteInputStream())
 
-        assertXmlEquals(expectedDom, actualDom)
+        try {
+            assertXmlEquals(expectedDom, actualDom)
+        } catch (f: AssertionError) {
+            e.addSuppressed(f)
+            throw e
+        }
     }
 }
 

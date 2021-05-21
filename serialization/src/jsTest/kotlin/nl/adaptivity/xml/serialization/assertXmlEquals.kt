@@ -34,7 +34,16 @@ actual fun assertXmlEquals(expected: String, actual: String) {
         val expectedDom = DOMParser().parseFromString(expected, "text/xml")
         val actualDom = DOMParser().parseFromString(actual, "text/xml")
 
-        assertXmlEquals(expectedDom, actualDom)
+        try {
+            assertXmlEquals(expectedDom, actualDom)
+        } catch (e: AssertionError) {
+            try {
+                assertEquals(expected, actual)
+            } catch (f: AssertionError) {
+                f.addSuppressed(e)
+                throw f
+            }
+        }
     }
 }
 
