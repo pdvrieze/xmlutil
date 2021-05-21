@@ -31,6 +31,9 @@ import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
+import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
+import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
+import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -187,9 +190,97 @@ class XML constructor(
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
-        val encoder = xmlEncoderBase.XmlEncoder(xmlDescriptor)
+        val encoder = when {
+            config.isCollectingNSAttributes
+                 -> xmlEncoderBase.NSAttrXmlEncoder(
+                xmlDescriptor,
+                collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
+                                                   )
+
+            else -> xmlEncoderBase.XmlEncoder(xmlDescriptor)
+        }
 
         serializer.serialize(encoder, value)
+    }
+
+    private class QNamePresentException : RuntimeException()
+
+    private fun <T> collectNamespaces(
+        xmlDescriptor: XmlDescriptor,
+        xmlEncoderBase: XmlEncoderBase,
+        serializer: SerializationStrategy<T>,
+        value: T
+                                     ): List<Namespace> {
+        val prefixToNamespaceMap = HashMap<String, String>()
+        val namespaceToPrefixMap = HashMap<String, String>()
+
+        val pendingNamespaces = HashSet<String>()
+
+        fun collect(prefix: String, namespaceUri: String) {
+            if (namespaceUri !in namespaceToPrefixMap) {
+                if (prefix in prefixToNamespaceMap) { // prefix with different usage
+                    pendingNamespaces.add(namespaceUri)
+                } else { // Prefix has not been seen before
+                    if (namespaceUri in pendingNamespaces) { // If it matches a pending namespace use that
+                        pendingNamespaces.remove(namespaceUri)
+                    }
+                    prefixToNamespaceMap[prefix] = namespaceUri
+                    namespaceToPrefixMap[namespaceUri] = prefix
+                }
+            }
+        }
+
+        fun collect(descriptor: XmlDescriptor) {
+            val prefix = descriptor.tagName.prefix
+            val namespaceUri = descriptor.tagName.namespaceURI
+            collect(prefix, namespaceUri)
+
+            for (childIdx in 0 until descriptor.elementsCount) {
+                val childDescriptor = descriptor.getElementDescriptor(childIdx)
+                if (childDescriptor.overriddenSerializer == XmlQNameSerializer) {
+                    throw QNamePresentException()
+                }
+                collect(childDescriptor)
+            }
+
+            // TODO collect children
+        }
+
+        try {
+            collect(xmlDescriptor)
+
+            val polyCollector = ChildCollector(null)
+            xmlEncoderBase.serializersModule.dumpTo(polyCollector)
+
+            for (serializer in polyCollector.children) {
+                collect(xmlDescriptor(serializer))
+            }
+        } catch (e: QNamePresentException) {
+            prefixToNamespaceMap.clear()
+            namespaceToPrefixMap.clear()
+            pendingNamespaces.clear()
+            val collector = NamespaceCollectingXmlWriter(prefixToNamespaceMap, namespaceToPrefixMap, pendingNamespaces)
+            val base = XmlEncoderBase(xmlEncoderBase.serializersModule, xmlEncoderBase.config, collector)
+            base.XmlEncoder(xmlDescriptor).encodeSerializableValue(serializer, value)
+
+        }
+
+        var nsIdx = 1
+
+        for (namespaceUri in pendingNamespaces) {
+            while ("ns$nsIdx" in prefixToNamespaceMap) {
+                nsIdx += 1
+            }
+
+            val prefix = "ns$nsIdx"
+            prefixToNamespaceMap[prefix] = namespaceUri
+            namespaceToPrefixMap[namespaceUri] = prefix
+        }
+
+        return prefixToNamespaceMap.asSequence()
+            .map { XmlEvent.NamespaceImpl(it.key, it.value) }
+            .sortedBy { it.prefix }
+            .toList()
     }
 
     /**
