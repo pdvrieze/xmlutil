@@ -158,6 +158,20 @@ internal open class XmlEncoderBase internal constructor(
         }
     }
 
+    internal inner class NSAttrXmlEncoder(xmlDescriptor: XmlDescriptor, namespaces: Iterable<Namespace>): XmlEncoder(xmlDescriptor) {
+        private val namespaces = namespaces.toList()
+
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+            val compositeEncoder = super.beginStructure(descriptor)
+            for (namespace in namespaces) {
+                if (target.getNamespaceUri(namespace.prefix) == null) {
+                    target.namespaceAttr(namespace)
+                }
+            }
+            return compositeEncoder
+        }
+    }
+
     fun beginEncodeCompositeImpl(xmlDescriptor: XmlDescriptor): CompositeEncoder {
 
         return when (xmlDescriptor.serialKind) {

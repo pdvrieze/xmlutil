@@ -28,6 +28,8 @@ import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.countLength
+import nl.adaptivity.xmlutil.XmlWriter
+import kotlinx.serialization.modules.SerializersModule
 
 /**
  * Configuration for the xml parser.
@@ -38,40 +40,56 @@ import nl.adaptivity.xmlutil.core.internal.countLength
  *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
  * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
  *                  characters, everything else as 1
- * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+ * @param autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
  *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
  *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
- * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+ * @param unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
  *                     but the function can silently ignore it as well.
+ * @property policy The policy allows for dynamic configuration of the creation of the XML tree that represents
+ *                  the serialized format.
  */
 class XmlConfig
 @OptIn(ExperimentalSerializationApi::class)
+@Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
 constructor(
     val repairNamespaces: Boolean = true,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val indentString: String = "",
     autoPolymorphic: Boolean = false,
     unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
-    val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic)
-                                                                       ) {
+    val policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic),
+           ) {
 
+    /**
+     * Determines whether inline classes are merged with their content. Note that inline classes
+     * may still determine the tag name used for the data even if the actual contents come from
+     * the child content. The actual name used is ultimately determined by the [policy] in use.
+     *
+     * If the value is `false` inline classes will be handled like non-inline classes
+     */
     var isInlineCollapsed: Boolean = true
         private set
 
+    /**
+     * This property determines whether the serialization will collect all used namespaces and
+     * emits all namespace attributes on the root tag.
+     */
+    var isCollectingNSAttributes: Boolean = false
+
     @Deprecated("Use version taking XmlDeclMode")
     constructor(
-            repairNamespaces: Boolean = true,
-            omitXmlDecl: Boolean,
-            indentString: String = "",
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
-               ): this(
+        repairNamespaces: Boolean = true,
+        omitXmlDecl: Boolean,
+        indentString: String = "",
+        autoPolymorphic: Boolean = false,
+        unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
+               ) : this(
         repairNamespaces,
-        if(omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
+        if (omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
         indentString,
         autoPolymorphic,
         unknownChildHandler
-                      )
+                       )
 
     @Suppress("DEPRECATION")
     @Deprecated("Use version taking XmlDeclMode")
@@ -89,9 +107,10 @@ constructor(
         builder.indentString,
         builder.autoPolymorphic,
         builder.unknownChildHandler,
-        builder.policy?: DefaultXmlSerializationPolicy(false, builder.autoPolymorphic)
+        builder.policy ?: DefaultXmlSerializationPolicy(false, builder.autoPolymorphic)
                                         ) {
         isInlineCollapsed = builder.isInlineCollapsed
+        isCollectingNSAttributes = builder.isCollectingNSAttributes
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -99,7 +118,7 @@ constructor(
         DEFAULT_UNKNOWN_CHILD_HANDLER -> { input, inputKind, name, candidates ->
             policy.handleUnknownContent(input, inputKind, name, candidates)
         }
-        else -> unknownChildHandler
+        else                          -> unknownChildHandler
     }
 
     @Deprecated("Use indentString for better accuracy")
@@ -108,7 +127,7 @@ constructor(
 
     @Deprecated("Use xmlDeclMode with more options")
     val omitXmlDecl: Boolean
-        get() = xmlDeclMode== XmlDeclMode.None
+        get() = xmlDeclMode == XmlDeclMode.None
 
     /**
      * Configuration for the xml parser.
@@ -133,7 +152,7 @@ constructor(
         var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @OptIn(ExperimentalSerializationApi::class)
         var policy: XmlSerializationPolicy? = null
-                                                                         ) {
+                             ) {
 
         @Deprecated("Use version taking XmlDeclMode")
         constructor(
@@ -142,13 +161,13 @@ constructor(
             indentString: String = "",
             autoPolymorphic: Boolean = false,
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
-                   ): this(
+                   ) : this(
             repairNamespaces,
-            if(omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
+            if (omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
             indentString,
             autoPolymorphic,
             unknownChildHandler
-                          )
+                           )
 
         @Suppress("DEPRECATION")
         @Deprecated("Use version taking XmlDeclMode")
@@ -168,20 +187,37 @@ constructor(
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                    ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
+        /**
+         * Determines whether inline classes are merged with their content. Note that inline classes
+         * may still determine the tag name used for the data even if the actual contents come from
+         * the child content. The actual name used is ultimately determined by the [policy] in use.
+         *
+         * If the value is `false` inline classes will be handled like non-inline classes
+         */
         var isInlineCollapsed: Boolean = true
+
+        /**
+         * This property determines whether the serialization will collect all used namespaces and
+         * emits all namespace attributes on the root tag.
+         */
+        var isCollectingNSAttributes: Boolean = false
 
         var indent: Int
             @Deprecated("Use indentString for better accuracy")
             get() = indentString.countLength()
-            set(value) { indentString = " ".repeat(value) }
+            set(value) {
+                indentString = " ".repeat(value)
+            }
 
         @Deprecated("Use xmlDeclMode for this now multi-valued property")
         var omitXmlDecl
             get() = xmlDeclMode == XmlDeclMode.None
-            set(value) { xmlDeclMode = when(value) {
-                true -> XmlDeclMode.None
-                else -> XmlDeclMode.Auto
-            }}
+            set(value) {
+                xmlDeclMode = when (value) {
+                    true -> XmlDeclMode.None
+                    else -> XmlDeclMode.Auto
+                }
+            }
     }
 
     companion object {
@@ -190,9 +226,9 @@ constructor(
             { input, inputKind, name, candidates ->
                 throw UnknownXmlFieldException(
                     input.locationInfo,
-                    name?.toString()?:"<CDATA>",
+                    name?.toString() ?: "<CDATA>",
                     candidates
-                                                                                                     )
+                                              )
             }
     }
 }
