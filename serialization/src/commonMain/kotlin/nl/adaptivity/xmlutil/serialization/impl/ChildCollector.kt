@@ -30,7 +30,7 @@ import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlin.reflect.KClass
 
 @ExperimentalSerializationApi
-internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>) : SerializersModuleCollector {
+internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>? = null) : SerializersModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 
     override fun <Base : Any> polymorphicDefault(
@@ -56,7 +56,7 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
         actualClass: KClass<Sub>,
         actualSerializer: KSerializer<Sub>
                                                      ) {
-        if (wantedBaseClass == baseClass) {
+        if (wantedBaseClass== null || wantedBaseClass == baseClass) {
             children.add(actualSerializer)
         }
     }
