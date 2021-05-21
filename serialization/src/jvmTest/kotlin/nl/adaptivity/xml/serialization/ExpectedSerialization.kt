@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xml.serialization
 
+import org.xmlunit.assertj.CompareAssert
+import org.xmlunit.assertj.XmlAssert
+
 actual object ExpectedSerialization : DefaultExpectedSerialization() {
     override val valueContainerWithSpacesXml: String
         get() = "<valueContainer>    \nfoobar</valueContainer>"
