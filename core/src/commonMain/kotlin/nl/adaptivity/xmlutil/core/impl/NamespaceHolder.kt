@@ -29,13 +29,14 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
+import nl.adaptivity.xmlutil.XmlEvent
 
 
 /**
  * A utility class that helps with maintaining a namespace context in a parser.
  * Created by pdvrieze on 16/11/15.
  */
-internal open class NamespaceHolder {
+internal open class NamespaceHolder : Iterable<Namespace> {
 
     private var nameSpaces = arrayOfNulls<String>(10)
     private var namespaceCounts = IntArray(20)
@@ -159,6 +160,17 @@ internal open class NamespaceHolder {
                 ?.let { getPrefix(it) }
                 ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null
 
+        }
+    }
+
+    override fun iterator(): Iterator<Namespace> = object : Iterator<Namespace> {
+        private var idx = 0
+        override fun hasNext(): Boolean = idx < namespaceCounts[depth]
+
+        override fun next(): Namespace {
+            return XmlEvent.NamespaceImpl(getPrefix(idx), getNamespace(idx)).also {
+                idx += 1
+            }
         }
     }
 }
