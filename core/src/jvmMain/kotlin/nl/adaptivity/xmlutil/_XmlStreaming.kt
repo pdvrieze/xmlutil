@@ -72,6 +72,7 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newReader(reader)
     }
 
+    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
     override fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
     }

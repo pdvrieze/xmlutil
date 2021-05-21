@@ -20,13 +20,14 @@
 
 package nl.adaptivity.xmlutil
 
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
+import java.io.*
 import javax.xml.stream.XMLStreamException
 import javax.xml.transform.Result
 import javax.xml.transform.Source
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
 
 class StAXStreamingFactory : XmlStreamingFactory {
 
@@ -83,7 +84,16 @@ class StAXStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(source: Source): XmlReader {
         try {
-            return StAXReader(source)
+            return when {
+                source !is StreamSource -> {
+                    val tf = TransformerFactory.newInstance()
+                    val trans = tf.newTransformer()
+                    val sw = StringWriter()
+                    trans.transform(source, StreamResult(sw))
+                    newReader(sw.toString())
+                }
+                else -> StAXReader(source)
+            }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
