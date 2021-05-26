@@ -32,7 +32,6 @@ import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
-import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -475,13 +474,10 @@ class XmlPolymorphicDescriptor internal constructor(
                 }
 
                 else                                            -> {
-                    val baseClass = serialDescriptor.capturedKClass ?: Any::class
 
-                    val childCollector = ChildCollector(baseClass)
-                    xmlCodecBase.serializersModule.dumpTo(childCollector)
+                    val childDescriptors = xmlCodecBase.serializersModule.getPolymorphicDescriptors(serialDescriptor)
 
-                    for (child in childCollector.children) {
-                        val childDesc = child.descriptor
+                    for (childDesc in childDescriptors) {
 
                         val childSerializerParent = DetachedParent(childDesc, qName, false, outputKind)
 
