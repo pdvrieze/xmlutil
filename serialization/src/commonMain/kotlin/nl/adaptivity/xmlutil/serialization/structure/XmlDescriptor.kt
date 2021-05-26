@@ -558,14 +558,10 @@ class XmlPolymorphicDescriptor internal constructor(
                 }
 
                 else                                            -> {
-                    val baseClass =
-                        serialDescriptor.capturedKClass ?: Any::class
 
-                    val childCollector = ChildCollector(baseClass)
-                    xmlCodecBase.serializersModule.dumpTo(childCollector)
+                    val childDescriptors = xmlCodecBase.serializersModule.getPolymorphicDescriptors(serialDescriptor)
 
-                    for (child in childCollector.children) {
-                        val childDesc = child.descriptor
+                    for (childDesc in childDescriptors) {
 
                         val childSerializerParent =
                             DetachedParent(childDesc, qName, outputKind)
