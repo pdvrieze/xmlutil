@@ -37,24 +37,20 @@ import java.nio.charset.Charset
 class XmlStreamConverter constructor(
     var format: XML = XML.defaultInstance,
     private val defaultCharset: Charset = Charsets.UTF_8
-                                           ) : ContentConverter {
+                                    ) : ContentConverter {
     override suspend fun convertForSend(
         context: PipelineContext<Any, ApplicationCall>,
         contentType: ContentType,
         value: Any
-                                       ): WriterContent? {
-        val result = try {
+                                       ): WriterContent {
+        try {
             serializerFromResponseType(context, format.serializersModule)?.let {
-                serializeContent(it, format, value, contentType)
+                return serializeContent(it, format, value, contentType)
             }
         } catch (cause: SerializationException) {
             // can fail due to
             // 1. https://github.com/Kotlin/kotlinx.serialization/issues/1163)
             // 2. mismatching between compile-time and runtime types of the response.
-            null
-        }
-        if (result != null) {
-            return result
         }
 
         val guessedSearchSerializer = guessSerializer(value, format.serializersModule)
