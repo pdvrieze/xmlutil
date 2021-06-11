@@ -158,9 +158,12 @@ sealed class XmlEvent(val locationInfo: String?) {
 
         private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
 
+        constructor(namespaceUri: String, localName: String, prefix: String, parentNamespaceContext: FreezableNamespaceContext) :
+                this(null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyArray())
+
         @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
         constructor(namespaceUri: String, localName: String, prefix: String) :
-                this(null, namespaceUri, localName, prefix, emptyArray(), SimpleNamespaceContext(), emptyArray())
+                this(namespaceUri, localName, prefix, SimpleNamespaceContext())
 
         @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
         constructor(
