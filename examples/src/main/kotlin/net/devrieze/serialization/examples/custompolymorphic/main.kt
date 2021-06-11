@@ -20,9 +20,8 @@
 
 package net.devrieze.serialization.examples.custompolymorphic
 
-import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 
@@ -32,7 +31,6 @@ val fruits: List<Fruit> = listOf(
                         )
 
 
-@OptIn(InternalSerializationApi::class)
 fun main() {
     val xml: XML = XML {
         this.policy = DefaultXmlSerializationPolicy(true, false)
@@ -45,12 +43,24 @@ fun main() {
 
     println("\nExample fruits as data class objects: (using serializer of sealed superclass)")
     fruits.forEach {
-        println(xml.decodeFromString(Fruit.serializer(), xml.encodeToString(it)))
+        val encoded = xml.encodeToString(it)
+        println("$encoded\n  -> ${xml.decodeFromString(Fruit.serializer(), encoded)}")
     }
 
 
     println("\nExample fruits as data class objects: (using serializer of subclass)")
-    fruits.forEach {
-        println(xml.decodeFromString(it::class.serializer(), xml.encodeToString(it)))
+    fruits.forEach { fruit ->
+        val s: KSerializer<out Fruit>
+        val encoded = when (fruit) {
+            is Apple -> {
+                s = Apple.serializer()
+                xml.encodeToString(fruit as Apple)
+            }
+            is Tomato -> {
+                s = Tomato.serializer()
+                xml.encodeToString(fruit as Tomato)
+            }
+        }
+        println("$encoded\n  -> ${xml.decodeFromString(s, encoded)}")
     }
 }
