@@ -98,28 +98,28 @@ class BetterXmlSerializer : XmlSerializer {
                 '>'              -> writer.write("&gt;")
                 '<'              -> writer.write("&lt;")
                 '"', '\''        -> {
-                    if (c.toInt() == quot) {
+                    if (c.code == quot) {
                         writer.write(if (c == '"') "&quot;" else "&apos;")
                         break@loop
                     }
                     if (escapeAggressive && quot != -1) {
-                        writer.write("&#${c.toInt()};")
+                        writer.write("&#${c.code};")
                     } else {
-                        writer.write(c.toInt())
+                        writer.write(c.code)
                     }
                 }
                 '\n', '\r', '\t' -> if (escapeAggressive && quot != -1) {
-                    writer.write("&#${c.toInt()};")
+                    writer.write("&#${c.code};")
                 } else {
-                    writer.write(c.toInt())
+                    writer.write(c.code)
                 }
                 else             ->
                     //if(c < ' ')
                     //	throw new IllegalArgumentException("Illegal control code:"+((int) c));
-                    if (escapeAggressive && (c < ' ' || c == '@' || c.toInt() > 127 && !unicode)) {
-                        writer.write("&#${c.toInt()};")
+                    if (escapeAggressive && (c < ' ' || c == '@' || c.code > 127 && !unicode)) {
+                        writer.write("&#${c.code};")
                     } else {
-                        writer.write(c.toInt())
+                        writer.write(c.code)
                     }
             }
         }
@@ -340,7 +340,7 @@ class BetterXmlSerializer : XmlSerializer {
         setOutput(streamWriter)
 
         this.encoding = encoding
-        if (encoding?.toLowerCase(Locale.ENGLISH)?.startsWith("utf") == true) {
+        if (encoding?.lowercase(Locale.ENGLISH)?.startsWith("utf") == true) {
             unicode = true
         }
     }
@@ -356,7 +356,7 @@ class BetterXmlSerializer : XmlSerializer {
 
             if (encoding != null) {
                 this.encoding = encoding
-                if (encoding.toLowerCase(Locale.ENGLISH).startsWith("utf")) {
+                if (encoding.lowercase(Locale.ENGLISH).startsWith("utf")) {
                     unicode = true
                 }
             } else if (xmlDeclMode == XmlDeclMode.Charset) {
@@ -473,9 +473,9 @@ class BetterXmlSerializer : XmlSerializer {
         writer.write(name)
         writer.write('=')
         val q = if (value.indexOf('"') == -1) '"' else '\''
-        writer.write(q.toInt())
-        writeEscaped(value, q.toInt())
-        writer.write(q.toInt())
+        writer.write(q.code)
+        writeEscaped(value, q.code)
+        writer.write(q.code)
 
         return this
     }
@@ -513,9 +513,9 @@ class BetterXmlSerializer : XmlSerializer {
         writer.write(name)
         writer.write('=')
         val q = if (value.indexOf('"') == -1) '"' else '\''
-        writer.write(q.toInt())
-        writeEscaped(value, q.toInt())
-        writer.write(q.toInt())
+        writer.write(q.code)
+        writeEscaped(value, q.code)
+        writer.write(q.code)
 
         return this
     }
@@ -566,9 +566,9 @@ class BetterXmlSerializer : XmlSerializer {
         }
         writer.write('=')
         val q = if (nsNotNull.indexOf('"') == -1) '"' else '\''
-        writer.write(q.toInt())
-        writeEscaped(nsNotNull, q.toInt())
-        writer.write(q.toInt())
+        writer.write(q.code)
+        writeEscaped(nsNotNull, q.code)
+        writer.write(q.code)
 
         return this
     }
@@ -607,7 +607,7 @@ class BetterXmlSerializer : XmlSerializer {
             }
 
             writer.write("</")
-            val prefix = elementStack[depth * 3 + 1]
+            val prefix = elementStack[depth * 3 + 1]!!
             if ("" != prefix) {
                 writer.write(prefix)
                 writer.write(':')
@@ -690,7 +690,7 @@ class BetterXmlSerializer : XmlSerializer {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Writer.write(c: Char) = write(c.toInt())
+private inline fun Writer.write(c: Char) = write(c.code)
 
 private enum class WriteState {
     BeforeDocument,

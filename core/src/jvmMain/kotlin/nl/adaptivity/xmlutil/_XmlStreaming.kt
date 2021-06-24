@@ -89,10 +89,14 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         _factory = factory ?: StAXStreamingFactory()
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
     override fun toCharArray(content: Source): CharArray {
         return newReader(content).toCharArrayWriter().toCharArray()
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
     override fun toString(source: Source): String {
         return newReader(source).toCharArrayWriter().toString()
     }

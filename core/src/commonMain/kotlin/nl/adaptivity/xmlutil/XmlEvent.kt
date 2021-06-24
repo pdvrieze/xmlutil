@@ -212,7 +212,6 @@ sealed class XmlEvent(val locationInfo: String?) {
                    )
         fun getPrefix(namespaceUri: CharSequence): String? = getPrefix(namespaceUri.toString())
 
-        @Deprecated("This is not correct, it doesn't look up the parent elements")
         override fun getNamespaceURI(prefix: String): String? = namespaceDecls
             .asSequence()
             .filter { ns -> ns.prefix == prefix }

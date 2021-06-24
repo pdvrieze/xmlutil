@@ -65,6 +65,7 @@ internal fun serializerFromResponseType(
     return module.serializer(responseType)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun guessSerializer(
     value: Any,
     module: SerializersModule
@@ -76,7 +77,7 @@ internal fun guessSerializer(
         is Map<*, *>       -> MapSerializer(
             value.keys.elementSerializer(module),
             value.values.elementSerializer(module)
-                                     )
+                                           )
         is Map.Entry<*, *> -> MapEntrySerializer(
             guessSerializer(value.key ?: error("Map.Entry(null, ...) is not supported"), module),
             guessSerializer(value.value ?: error("Map.Entry(..., null) is not supported)"), module)
@@ -88,11 +89,12 @@ internal fun guessSerializer(
 
             @Suppress("UNCHECKED_CAST")
             (ArraySerializer(
-        componentClass as KClass<Any>,
-        serializerByTypeInfo(componentType) as KSerializer<Any>
+                componentClass as KClass<Any>,
+                serializerByTypeInfo(componentType) as KSerializer<Any>
                             ))
         }
-        else               -> module.getContextual(value::class) ?: @OptIn(InternalSerializationApi::class) value::class.serializer()
+        else               -> module.getContextual(value::class)
+            ?: @OptIn(InternalSerializationApi::class) value::class.serializer()
     }
 }
 

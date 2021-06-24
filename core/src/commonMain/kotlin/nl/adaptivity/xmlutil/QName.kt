@@ -38,14 +38,15 @@ expect class QName {
     fun getNamespaceURI(): String
 }
 
-inline val QName.prefix get() = getPrefix()
-inline val QName.localPart get() = getLocalPart()
-inline val QName.namespaceURI get() = getNamespaceURI()
+inline val QName.prefix: String get() = getPrefix()
+inline val QName.localPart: String get() = getLocalPart()
+inline val QName.namespaceURI: String get() = getNamespaceURI()
 
 fun QName.toNamespace(): Namespace {
     return XmlEvent.NamespaceImpl(prefix, namespaceURI)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = QName::class)
 object QNameSerializer : KSerializer<QName> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
@@ -60,12 +61,12 @@ object QNameSerializer : KSerializer<QName> {
         var namespace = ""
         lateinit var localPart: String
 
-        loop@while (true) {
-            when (val idx=this.decodeElementIndex(descriptor)) {
+        loop@ while (true) {
+            when (this.decodeElementIndex(descriptor)) {
                 CompositeDecoder.DECODE_DONE -> break@loop
-                0 -> namespace = decodeStringElement(descriptor, 0)
-                1 -> localPart = decodeStringElement(descriptor, 1)
-                2 -> prefix = decodeStringElement(descriptor, 2)
+                0                            -> namespace = decodeStringElement(descriptor, 0)
+                1                            -> localPart = decodeStringElement(descriptor, 1)
+                2                            -> prefix = decodeStringElement(descriptor, 2)
             }
         }
         return QName(namespace, localPart, prefix)

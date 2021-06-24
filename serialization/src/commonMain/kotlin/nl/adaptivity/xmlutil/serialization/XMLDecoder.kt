@@ -113,7 +113,7 @@ internal open class XmlDecoderBase internal constructor(
             for (i in 0 until enumDescriptor.elementsCount) {
                 if (stringName == config.policy.enumEncoding(enumDescriptor, i)) return i
             }
-            throw SerializationException("No enum constant found for name ${enumDescriptor}")
+            throw SerializationException("No enum constant found for name $enumDescriptor")
         }
 
         @ExperimentalSerializationApi
@@ -348,6 +348,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
+        // TODO: Rewrite this to no longer rely on collection merging, rather keep list elements internal
         @OptIn(InternalSerializationApi::class)
         override fun <T> decodeSerializableElement(
             descriptor: SerialDescriptor,

@@ -23,12 +23,11 @@ package nl.adaptivity.xmlutil.serialization.structure
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.serialization.OutputKind
 
-internal class XmlOrderNode(elementIdx: Int) {
-    val elementIdx: Int = elementIdx
+internal class XmlOrderNode(val elementIdx: Int) {
     val predecessors: MutableList<XmlOrderNode> =
-        mutableListOf<XmlOrderNode>()
+        mutableListOf()
     val successors: MutableList<XmlOrderNode> =
-        mutableListOf<XmlOrderNode>()
+        mutableListOf()
 
     fun addSuccessors(vararg nodes: XmlOrderNode) {
         for (node in nodes) {
@@ -86,12 +85,12 @@ internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
         var lastIndex = elementIdx
         for (successor in successors) {
             val c = successor.lastIndex()
-            if (c > lastIndex) { lastIndex = c }
+            if (c > lastIndex) lastIndex = c
         }
         return lastIndex
     }
 
-    val seen = BooleanArray(lastIndex()+1)
+    val seen = BooleanArray(lastIndex() + 1)
 
     fun XmlOrderNode.flattenSuccessorsTo(receiver: MutableList<XmlOrderNode>) {
         val unseenSuccessors = successors.filter { !seen[it.elementIdx] }
@@ -113,10 +112,11 @@ internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
 /**
  *
  */
+@Suppress("EXPERIMENTAL_API_USAGE")
 internal fun Collection<XmlOrderNode>.fullFlatten(
     serialDescriptor: SerialDescriptor,
     children: List<XmlDescriptor>
-                                        ): IntArray {
+                                                 ): IntArray {
     val originalOrderNodes = arrayOfNulls<XmlOrderNode>(serialDescriptor.elementsCount)
 
     fun addTransitive(node: XmlOrderNode) {
@@ -157,12 +157,12 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
         val queue = base.toMutableList()
         //                .apply { sortBy { it.child } }
         while (queue.isNotEmpty()) {
-            val nextIdx = queue.indexOfMinBy {
+            val nextIdx = queue.indexOfMinBy { node ->
                 // In the case that the predecessors are not sorted yet
-                if (it.predecessors.any { declToOrderMap[it.elementIdx] < 0 }) {
+                if (node.predecessors.any { pred -> declToOrderMap[pred.elementIdx] < 0 }) {
                     serialDescriptor.elementsCount // Put at end of queue
                 } else {
-                    it.elementIdx
+                    node.elementIdx
                 }
             }
             val next = queue.removeAt(nextIdx)

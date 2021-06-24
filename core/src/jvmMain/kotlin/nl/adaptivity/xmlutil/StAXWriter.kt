@@ -413,7 +413,7 @@ class StAXWriter(
         assert(pendingWrites.isEmpty())
         if (xmlDeclMode != XmlDeclMode.None) {
             val effectiveEncoding = when (xmlDeclMode) {
-                XmlDeclMode.Minimal -> when (encoding?.toLowerCase(Locale.ENGLISH)?.startsWith("utf-")) {
+                XmlDeclMode.Minimal -> when (encoding?.lowercase(Locale.ENGLISH)?.startsWith("utf-")) {
                     false -> encoding
                     else  -> null
                 }

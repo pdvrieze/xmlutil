@@ -76,6 +76,7 @@ constructor(
      */
     var isCollectingNSAttributes: Boolean = false
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use version taking XmlDeclMode")
     constructor(
         repairNamespaces: Boolean = true,
@@ -101,6 +102,7 @@ constructor(
         unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
                ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
+    @Suppress("DEPRECATION")
     constructor(builder: Builder) : this(
         builder.repairNamespaces,
         builder.xmlDeclMode,
@@ -121,10 +123,12 @@ constructor(
         else                          -> unknownChildHandler
     }
 
+    @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated("Use indentString for better accuracy")
     val indent: Int
         get() = indentString.countLength()
 
+    @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated("Use xmlDeclMode with more options")
     val omitXmlDecl: Boolean
         get() = xmlDeclMode == XmlDeclMode.None

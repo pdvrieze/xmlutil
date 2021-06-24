@@ -30,6 +30,6 @@ fun XmlWriter.writeChild(node: Node) {
 }
 
 fun XmlWriter.serialize(node: Node) {
-    val xmlReader = XmlStreaming.newReader(DOMSource(node))
-    serialize(xmlReader)
+    @Suppress("DEPRECATION")
+    serialize(XmlStreaming.newReader(DOMSource(node)))
 }

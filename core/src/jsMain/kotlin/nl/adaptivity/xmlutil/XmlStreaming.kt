@@ -128,7 +128,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
             if (xmlDeclMode!=XmlDeclMode.None) {
                 val encoding = when (xmlDeclMode) {
                     XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
-                    else -> when (delegate.requestedEncoding?.toLowerCase()?.startsWith("utf-")) {
+                    else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
                         false -> delegate.requestedEncoding
                         else -> null
                     }
