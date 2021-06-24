@@ -20,11 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
 import org.xmlpull.v1.XmlPullParserException
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
+import java.io.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
@@ -35,7 +33,7 @@ class AndroidStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
     override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
-        return AndroidXmlWriter(writer, repairNamespaces, xmlDeclMode)
+        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
     @Throws(XmlException::class)
@@ -45,7 +43,8 @@ class AndroidStreamingFactory : XmlStreamingFactory {
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
                           ): XmlWriter {
-        return AndroidXmlWriter(outputStream, encoding, repairNamespaces, xmlDeclMode)
+        val writer = OutputStreamWriter(outputStream, encoding)
+        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
     @Throws(XmlException::class)
