@@ -121,9 +121,8 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-            // TODO allow policy to determine actually used constant, including @XmlSerialName with or without prefix/ns
             val stringRepr = config.policy.enumEncoding(enumDescriptor, index)
-            encodeString(enumDescriptor.getElementName(index))
+            encodeString(stringRepr)
         }
 
         override fun encodeNotNullMark() {

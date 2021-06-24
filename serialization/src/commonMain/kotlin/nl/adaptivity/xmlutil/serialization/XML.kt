@@ -252,8 +252,8 @@ class XML constructor(
             val polyCollector = ChildCollector(null)
             xmlEncoderBase.serializersModule.dumpTo(polyCollector)
 
-            for (serializer in polyCollector.children) {
-                collect(xmlDescriptor(serializer))
+            for (childSerializer in polyCollector.children) {
+                collect(xmlDescriptor(childSerializer))
             }
         } catch (e: QNamePresentException) {
             prefixToNamespaceMap.clear()
@@ -505,7 +505,7 @@ class XML constructor(
     }
 
     companion object : StringFormat {
-        val defaultInstance = XML(XmlConfig())
+        val defaultInstance: XML = XML {}
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
 

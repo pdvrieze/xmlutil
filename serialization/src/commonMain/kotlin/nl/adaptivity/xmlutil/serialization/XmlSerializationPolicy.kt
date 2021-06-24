@@ -46,7 +46,7 @@ interface XmlSerializationPolicy {
             else                 -> OutputKind.Element
         }
 
-    fun invalidOutputKind(message: String) = ignoredSerialInfo(message)
+    fun invalidOutputKind(message: String): Unit = ignoredSerialInfo(message)
 
     fun ignoredSerialInfo(message: String)
 
@@ -108,7 +108,9 @@ interface XmlSerializationPolicy {
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean
                            ): OutputKind {
+        @Suppress("DEPRECATION")
         val base = effectiveOutputKind(serializerParent, tagParent)
+
         if (!canBeAttribute && base == OutputKind.Attribute) {
             return handleAttributeOrderConflict(
                 serializerParent,
@@ -152,6 +154,7 @@ interface XmlSerializationPolicy {
         children: List<XmlDescriptor>
                         ): Collection<XmlOrderConstraint> = original
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
     fun enumEncoding(enumDescriptor: SerialDescriptor, index: Int): String {
         return enumDescriptor.getElementName(index)
     }
@@ -192,7 +195,7 @@ open class DefaultXmlSerializationPolicy(
 
         val reqChildrenName =
             useAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
-        return reqChildrenName == null // TODO use the policy
+        return reqChildrenName == null
     }
 
     override fun isTransparentPolymorphic(
@@ -204,6 +207,7 @@ open class DefaultXmlSerializationPolicy(
         return autoPolymorphic || xmlPolyChildren != null
     }
 
+    @Suppress("OverridingDeprecatedMember")
     override fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
@@ -272,6 +276,7 @@ open class DefaultXmlSerializationPolicy(
     }
 
 
+    @Suppress("OverridingDeprecatedMember")
     override fun serialNameToQName(
         serialName: String,
         parentNamespace: Namespace

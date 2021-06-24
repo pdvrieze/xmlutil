@@ -220,6 +220,7 @@ class JSDomReader(val delegate: Node) : XmlReader {
         return currentElement.getAttributeNS(nsUri, localName)
     }
 
+    @Suppress("USELESS_ELVIS")
     override fun getNamespacePrefix(index: Int): String {
         return when (val localName = namespaceAttrs[index].localName ?: "") {
             "xmlns" -> ""

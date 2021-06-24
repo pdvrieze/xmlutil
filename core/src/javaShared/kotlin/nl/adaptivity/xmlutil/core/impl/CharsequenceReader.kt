@@ -49,7 +49,7 @@ internal class CharsequenceReader(
         when {
             pos < 0                -> throw IllegalStateException("Reader closed")
             pos >= sequence.length -> -1
-            else                   -> sequence[pos].toInt().apply { pos++ }
+            else                   -> sequence[pos].code.apply { pos++ }
         }
     }
 

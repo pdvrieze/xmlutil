@@ -61,6 +61,7 @@ data class MyXmlDelegate(val attribute: String) {
         constructor(origin: MyXmlDelegate): this(origin.attribute, "urn:OECD:MyXmlFile.xsd")
     }
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
     @Serializer(MyXmlDelegate::class)
     companion object : KSerializer<MyXmlDelegate> {
         override val descriptor: SerialDescriptor =
@@ -84,11 +85,8 @@ data class MyXmlDelegate(val attribute: String) {
                 (encoder as? XML.XmlOutput)?.target?.run {
                     namespaceAttr(NS_XSI)
                     writeAttribute(
-                        QName(
-                            NS_XSI.namespaceURI,
-                            "schemalocation",
-                            "xsi"
-                             ), "urn:OECD:MyXmlFile.xsd"
+                        QName( NS_XSI.namespaceURI, "schemalocation", "xsi" ),
+                        "urn:OECD:MyXmlFile.xsd"
                                   )
                 }
                 encodeStringElement(descriptor, 0, value.attribute)

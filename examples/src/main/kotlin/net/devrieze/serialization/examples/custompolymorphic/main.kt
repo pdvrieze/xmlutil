@@ -28,12 +28,12 @@ import nl.adaptivity.xmlutil.serialization.XML
 val fruits: List<Fruit> = listOf(
     Apple("MyApple", 5),
     Tomato("MyTomato", "red")
-                        )
+                                )
 
 
 fun main() {
-    val xml: XML = XML {
-        this.policy = DefaultXmlSerializationPolicy(true, false)
+    val xml = XML {
+        this.policy = DefaultXmlSerializationPolicy(pedantic = true, autoPolymorphic = false)
     }
 
     println("Example fruits as XML:")
@@ -52,13 +52,15 @@ fun main() {
     fruits.forEach { fruit ->
         val s: KSerializer<out Fruit>
         val encoded = when (fruit) {
-            is Apple -> {
+            is Apple  -> {
                 s = Apple.serializer()
-                xml.encodeToString(fruit as Apple)
+                val a: Apple = fruit
+                xml.encodeToString(a)
             }
             is Tomato -> {
                 s = Tomato.serializer()
-                xml.encodeToString(fruit as Tomato)
+                val t: Tomato = fruit
+                xml.encodeToString(t)
             }
         }
         println("$encoded\n  -> ${xml.decodeFromString(s, encoded)}")
