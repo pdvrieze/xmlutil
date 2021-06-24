@@ -19,9 +19,11 @@
  */
 @file:JvmName("XmlSerializableExtJvm")
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
-import java.io.*
+import nl.adaptivity.xmlutil.*
+import java.io.StringWriter
+import java.io.Writer
 
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {

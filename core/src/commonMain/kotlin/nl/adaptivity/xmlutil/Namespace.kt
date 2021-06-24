@@ -20,10 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
@@ -61,10 +58,9 @@ interface Namespace {
             decoder.decodeStructure(descriptor) {
                 var index = decodeElementIndex(descriptor)
                 while (index!=CompositeDecoder.DECODE_DONE) {
-                    val it = index
-                    when (it) {
-                        0 -> prefix = decodeStringElement(descriptor, it)
-                        1 -> namespaceUri = decodeStringElement(descriptor, it)
+                    when (index) {
+                        0 -> prefix = decodeStringElement(descriptor, index)
+                        1 -> namespaceUri = decodeStringElement(descriptor, index)
                     }
 
                     index = decodeElementIndex(descriptor)
@@ -85,8 +81,8 @@ interface Namespace {
 
 @Suppress("NOTHING_TO_INLINE")
 @Deprecated("Use the property version", ReplaceWith("this.prefix"))
-inline fun Namespace.getPrefix() = prefix
+inline fun Namespace.getPrefix(): String = prefix
 
 @Suppress("NOTHING_TO_INLINE")
 @Deprecated("Use the property version", ReplaceWith("this.namespaceURI"))
-inline fun Namespace.getNamespaceURI() = namespaceURI
+inline fun Namespace.getNamespaceURI(): String = namespaceURI

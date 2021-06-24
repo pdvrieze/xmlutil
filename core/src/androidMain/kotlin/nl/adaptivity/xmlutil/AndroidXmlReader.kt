@@ -35,7 +35,7 @@ actual typealias PlatformXmlReader = AndroidXmlReader
  * And XMLReader implementation that works on Android
  */
 class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
-    override var isStarted = false
+    override var isStarted: Boolean = false
 
     private constructor() : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
 
@@ -54,7 +54,7 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
         return parser.getAttributeValue(nsUri, localName)
     }
 
-    override fun isWhitespace() = parser.isWhitespace
+    override fun isWhitespace(): Boolean = parser.isWhitespace
 
     @Throws(XmlException::class)
     override fun hasNext(): Boolean {
@@ -138,12 +138,14 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
         return null
     }
 
-    override val locationInfo: String?
-        get() = StringBuilder(Integer.toString(parser.lineNumber)).append(':').append(
-            Integer.toString(parser.columnNumber)
-                                                                                     ).toString()
+    override val locationInfo: String
+        get() = buildString { 
+            append(parser.lineNumber)
+            append(':')
+            append(parser.columnNumber)
+        }
 
-    override val standalone: Boolean?
+    override val standalone: Boolean
         get() = parser.getProperty("xmldecl-standalone") as Boolean
 
     override val encoding: String?

@@ -41,7 +41,7 @@ data class MyXmlDelegate(val attribute: String) {
     @Serializable
     @XmlSerialName("MyXml", "urn:OECD:MyXmlFile", "")
     private open class BaseSerialDelegate(val attribute: String) {
-        constructor(origin: MyXmlDelegate): this(origin.attribute)
+        constructor(origin: MyXmlDelegate) : this(origin.attribute)
 
         fun toMyXml(): MyXmlDelegate = MyXmlDelegate(attribute)
     }
@@ -58,7 +58,7 @@ data class MyXmlDelegate(val attribute: String) {
             this.schemalocation = schemalocation
         }
 
-        constructor(origin: MyXmlDelegate): this(origin.attribute, "urn:OECD:MyXmlFile.xsd")
+        constructor(origin: MyXmlDelegate) : this(origin.attribute, "urn:OECD:MyXmlFile.xsd")
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -95,9 +95,9 @@ data class MyXmlDelegate(val attribute: String) {
         }
 
         override fun deserialize(decoder: Decoder): MyXmlDelegate {
-            return when {
-                decoder is XML.XmlInput -> XmlSerialDelegate.serializer().deserialize(decoder).toMyXml()
-                else -> BaseSerialDelegate.serializer().deserialize(decoder).toMyXml()
+            return when (decoder) {
+                is XML.XmlInput -> XmlSerialDelegate.serializer().deserialize(decoder).toMyXml()
+                else            -> BaseSerialDelegate.serializer().deserialize(decoder).toMyXml()
             }
 
 /*
