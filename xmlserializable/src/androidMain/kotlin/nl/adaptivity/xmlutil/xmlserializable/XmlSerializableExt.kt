@@ -19,8 +19,9 @@
  */
 @file:JvmName("XmlSerializableExt")
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
+import nl.adaptivity.xmlutil.*
 import java.io.*
 
 

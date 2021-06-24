@@ -18,13 +18,11 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.util.DefaultSerializationProvider
-import nl.adaptivity.xmlutil.util.SerializationProvider
-import nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer
+import nl.adaptivity.xmlutil.XmlDeserializerFactory
+import nl.adaptivity.xmlutil.XmlStreaming
 import java.io.StringReader
-import kotlin.reflect.KClass
 
 /**
  * Utility method to deserialize a list of xml containing strings

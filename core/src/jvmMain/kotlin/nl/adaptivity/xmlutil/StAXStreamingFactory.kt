@@ -84,15 +84,15 @@ class StAXStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(source: Source): XmlReader {
         try {
-            return when {
-                source !is StreamSource -> {
+            return when (source) {
+                is StreamSource -> StAXReader(source)
+                else            -> {
                     val tf = TransformerFactory.newInstance()
                     val trans = tf.newTransformer()
                     val sw = StringWriter()
                     trans.transform(source, StreamResult(sw))
                     newReader(sw.toString())
                 }
-                else -> StAXReader(source)
             }
         } catch (e: XMLStreamException) {
             throw XmlException(e)

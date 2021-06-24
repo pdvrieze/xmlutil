@@ -70,11 +70,11 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
             namespace != null &&
                     namespaceURI != namespace ->
-                throw XmlException("Namespace ${namespaceURI} does not match expected \"$namespace\"")
+                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\"")
 
             name != null &&
                     localName != name         ->
-                throw XmlException("local name ${localName} does not match expected \"$name\"")
+                throw XmlException("local name $localName does not match expected \"$name\"")
         }
     }
 
@@ -269,15 +269,19 @@ fun XmlBufferedReader.consecutiveTextContent(): String {
 
         var event: XmlEvent? = null
 
-        loop@while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
+        loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
             when (event?.eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT
-                     -> { t.next();Unit } // ignore
+                     -> {
+                    t.next();Unit
+                } // ignore
 
                 // ignore whitespace starting the element.
                 EventType.IGNORABLE_WHITESPACE
-                     -> { t.next(); whiteSpace.append(t.text) }
+                     -> {
+                    t.next(); whiteSpace.append(t.text)
+                }
 
                 EventType.TEXT,
                 EventType.ENTITY_REF,
@@ -420,7 +424,7 @@ fun XmlReader.isElement(
     if (r.eventType !== type) {
         return false
     }
-    val expNs: CharSequence? = elementNamespace?.let { if (it.isEmpty()) null else it }
+    val expNs: CharSequence? = elementNamespace?.ifEmpty { null }
 
     if (r.localName != elementName) {
         return false
@@ -436,4 +440,4 @@ fun XmlReader.isElement(
 /**
  * Write the current event to the writer. This will **not** move the reader.
  */
-fun XmlReader.writeCurrent(writer: XmlWriter) = eventType.writeEvent(writer, this)
+fun XmlReader.writeCurrent(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
