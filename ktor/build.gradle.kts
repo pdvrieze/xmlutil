@@ -29,6 +29,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 val ktor_version: String by project
@@ -53,6 +54,7 @@ repositories {
 }
 
 kotlin {
+    explicitApi()
     sourceSets.all {
         languageSettings.apply {
             languageVersion = "1.5"

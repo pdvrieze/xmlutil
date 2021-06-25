@@ -34,10 +34,18 @@ import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
 import java.nio.charset.Charset
 
-class XmlStreamConverter constructor(
-    var format: XML = XML.defaultInstance,
+/**
+ * A stream converter that is specific for XML. It is based upon the converter for serialization
+ * in general, but this version uses the stream support provided by the xml format.
+ *
+ * @property format The format property allows for configuring/changing the options used for
+ *                  (de)serialization.
+ * @property defaultCharset THe character set that is used as default.
+ */
+public class XmlStreamConverter constructor(
+    public var format: XML = DefaultXml,
     private val defaultCharset: Charset = Charsets.UTF_8
-                                    ) : ContentConverter {
+                                           ) : ContentConverter {
     override suspend fun convertForSend(
         context: PipelineContext<Any, ApplicationCall>,
         contentType: ContentType,
