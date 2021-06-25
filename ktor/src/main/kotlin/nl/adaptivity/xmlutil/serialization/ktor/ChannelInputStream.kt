@@ -24,7 +24,7 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import java.io.InputStream
 
-class ChannelInputStream(private val channel: ByteReadChannel) :
+internal class ChannelInputStream(private val channel: ByteReadChannel) :
     InputStream() {
 
     override fun read(): Int = runBlocking {

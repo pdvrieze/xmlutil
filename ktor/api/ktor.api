@@ -1,0 +1,16 @@
+public final class nl/adaptivity/xmlutil/serialization/ktor/XmlStreamConverter : io/ktor/features/ContentConverter {
+	public fun <init> ()V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XML;Ljava/nio/charset/Charset;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XML;Ljava/nio/charset/Charset;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun convertForReceive (Lio/ktor/util/pipeline/PipelineContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun convertForSend (Lio/ktor/util/pipeline/PipelineContext;Lio/ktor/http/ContentType;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getFormat ()Lnl/adaptivity/xmlutil/serialization/XML;
+	public final fun setFormat (Lnl/adaptivity/xmlutil/serialization/XML;)V
+}
+
+public final class nl/adaptivity/xmlutil/serialization/ktor/XmlSupportKt {
+	public static final fun getDefaultXml ()Lnl/adaptivity/xmlutil/serialization/XML;
+	public static final fun xml (Lio/ktor/features/ContentNegotiation$Configuration;Lnl/adaptivity/xmlutil/serialization/XML;Lio/ktor/http/ContentType;)V
+	public static synthetic fun xml$default (Lio/ktor/features/ContentNegotiation$Configuration;Lnl/adaptivity/xmlutil/serialization/XML;Lio/ktor/http/ContentType;ILjava/lang/Object;)V
+}
+
