@@ -34,6 +34,9 @@ plugins {
     id("signing")
     id("org.jetbrains.dokka")
     idea
+    // TODO make this work with multiple jvm targets
+    // https://github.com/Kotlin/binary-compatibility-validator/issues/47
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") apply false
 }
 
 val xmlutil_core_version: String by project
@@ -94,7 +97,7 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                val isTest = name=="test"
+                val isTest = name == "test"
                 compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = if (isTest) "1.8" else "1.6"
@@ -201,8 +204,8 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             progressiveMode = true
-            apiVersion="1.5"
-            languageVersion="1.5"
+            apiVersion = "1.5"
+            languageVersion = "1.5"
             useExperimentalAnnotation("kotlin.RequiresOptIn")
         }
     }
