@@ -479,6 +479,7 @@ internal open class XmlEncoderBase internal constructor(
                     }
                 }
                 val newPrefix = (prefixStart..Int.MAX_VALUE)
+                    .asSequence()
                     .map { "${prefixBase}$it" }
                     .first { target.getNamespaceUri(it) == null }
 
