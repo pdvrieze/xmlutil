@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.XmlEvent
  * Created by pdvrieze on 16/11/15.
  */
 internal open class NamespaceHolder : Iterable<Namespace> {
-
+    private var nextAutoPrefixNo = 1
     private var nameSpaces = arrayOfNulls<String>(10)
     private var namespaceCounts = IntArray(20)
     var depth = 0
@@ -176,5 +176,13 @@ internal open class NamespaceHolder : Iterable<Namespace> {
                 idx += 1
             }
         }
+    }
+
+    fun nextAutoPrefix(): String {
+        var prefix: String
+        do {
+            prefix = "n$nextAutoPrefixNo"
+        } while (getNamespaceUri(prefix) != null)
+        return prefix
     }
 }
