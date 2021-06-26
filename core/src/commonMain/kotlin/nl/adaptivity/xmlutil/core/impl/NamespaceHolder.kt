@@ -51,11 +51,16 @@ internal open class NamespaceHolder : Iterable<Namespace> {
         namespaceCounts[depth] = namespaceCounts[depth - 1]
     }
 
+    private fun namespaceIndicesAt(depth: Int): IntRange {
+        val startIdx = if (depth == 0) 0 else arrayUseAtDepth(depth - 1) / 2
+        val endIdx = arrayUseAtDepth(depth) / 2
+        return startIdx until endIdx
+    }
+
     fun decDepth() {
-        val startIdx = if (depth == 0) 0 else arrayUseAtDepth(depth - 1)
-        val endIdx = arrayUseAtDepth(depth)
-        for (i in (startIdx) until endIdx) {
-            nameSpaces[i] = null
+        for (i in namespaceIndicesAt(depth)) {
+            nameSpaces[prefixArrayPos(i)] = null
+            nameSpaces[nsArrayPos(i)] = null
         }
         namespaceCounts[depth] = 0
         --depth
@@ -184,5 +189,17 @@ internal open class NamespaceHolder : Iterable<Namespace> {
             prefix = "n$nextAutoPrefixNo"
         } while (getNamespaceUri(prefix) != null)
         return prefix
+    }
+
+    /**
+     * Look up a namespace uri declared at the current depth only
+     */
+    fun namespaceAtCurrentDepth(prefix: String): String? {
+        for (i in namespaceIndicesAt(depth) step 2) {
+            if (nameSpaces[prefixArrayPos(i)] == prefix) {
+                return nameSpaces[nsArrayPos(i)]
+            }
+        }
+        return null
     }
 }
