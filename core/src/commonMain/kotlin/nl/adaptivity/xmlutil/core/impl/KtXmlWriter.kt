@@ -39,19 +39,23 @@ class KtXmlWriter(
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
                  ) : PlatformXmlWriterBase(), XmlWriter {
 
+    var addTrailingSpaceBeforeEnd = true
+
     private var isPartiallyOpenTag: Boolean = false
 
     private var elementStack = arrayOfNulls<String>(12)
 
-    private var _namespaceCounts = IntArray(4)
-    private var _nspStack = arrayOfNulls<String>(10)
-    private var _nspWritten = BooleanArray(5)
-
-    private var _unicode: Boolean = false
-    private val _escapeAggressive = false
-
-    var _addTrailingSpaceBeforeEnd = true
     private var state: WriteState = WriteState.BeforeDocument
+
+    private val namespaceHolder = NamespaceHolder()
+
+    private var lastTagDepth = TAG_DEPTH_NOT_TAG
+
+    override val namespaceContext: NamespaceContext
+        get() = namespaceHolder.namespaceContext
+
+    override val depth: Int
+        get() = namespaceHolder.depth
 
     private fun namespaceAt(depth: Int): String {
         return elementStack[depth * 3]!!
@@ -85,19 +89,10 @@ class KtXmlWriter(
 
         isPartiallyOpenTag = false
 
-        if (_namespaceCounts.size <= depth + 3) {
-            val hlp = IntArray(depth + 8)
-            _namespaceCounts.copyInto(hlp, endIndex = depth + 2)
-            _namespaceCounts = hlp
-        }
-
-        _namespaceCounts[depth + 2] = _namespaceCounts[depth + 1]
-        // Only set the second level here as the first level may already have pending namespaces
-
         val endOfTag = when {
-            !close                     -> ">"
-            _addTrailingSpaceBeforeEnd -> " />"
-            else                       -> "/>"
+            !close                    -> ">"
+            addTrailingSpaceBeforeEnd -> " />"
+            else                      -> "/>"
         }
         writer.append(endOfTag)
     }
@@ -118,137 +113,20 @@ class KtXmlWriter(
                         writer.append(if (c == '"') "&quot;" else "&apos;")
                         break@loop
                     }
-                    if (_escapeAggressive && quot != -1) {
-                        writer.append("&#${c.code};")
-                    } else {
-                        writer.append(c)
-                    }
+                    writer.append(c)
                 }
 
                 '\n',
                 '\r',
                 '\t' -> {
-                    if (_escapeAggressive && quot != -1) {
-                        writer.append("&#${c.code};")
-                    } else {
-                        writer.append(c)
-                    }
+                    writer.append(c)
                 }
 
                 else -> {
-                    if (_escapeAggressive && (c < ' ' || c == '@' || c.code > 127 && !_unicode)) {
-                        writer.append("&#${c.code};")
-                    } else {
-                        writer.append(c)
-                    }
+                    writer.append(c)
                 }
             }
         }
-    }
-
-    fun _setPrefix(prefix: String?, namespace: String?) {
-
-        val namespaceOffset: Int = depth + 1
-
-        var i = _namespaceCounts[namespaceOffset] * 2 - 2
-        while (i >= 0) {
-            if (_nspStack[i + 1] == (namespace ?: "") && _nspStack[i] == (prefix ?: "")) {
-                // bail out if already defined
-                return
-            }
-            i -= 2
-        }
-
-
-        val c = _namespaceCounts[namespaceOffset]
-        _namespaceCounts[namespaceOffset] = c + 1
-        _namespaceCounts[namespaceOffset + 1] = c + 1
-        var pos = c shl 1
-
-        _addSpaceToNspStack()
-
-        _nspStack[pos++] = prefix ?: ""
-        _nspStack[pos] = namespace ?: ""
-        _nspWritten[_namespaceCounts[namespaceOffset] - 1] = false
-    }
-
-    private fun _addSpaceToNspStack() {
-        val nspCount = _namespaceCounts[if (isPartiallyOpenTag) depth + 1 else depth]
-        val pos = nspCount shl 1
-        if (_nspStack.size < pos + 2) {
-            val hlp = arrayOfNulls<String>(_nspStack.size + 16)
-            _nspStack.copyInto(hlp, endIndex = pos)
-            _nspStack = hlp
-
-            val help = BooleanArray(_nspWritten.size + 8)
-            _nspWritten.copyInto(help, endIndex = nspCount)
-            _nspWritten = help
-        }
-    }
-
-    fun _namespace(prefix: String, namespace: String?) {
-
-        if (!isPartiallyOpenTag) {
-            throw IllegalStateException("illegal position for attribute")
-        }
-
-        var wasSet = false
-        for (i in _namespaceCounts[depth] until _namespaceCounts[depth + 1]) {
-            if (prefix == _nspStack[i * 2]) {
-                if (_nspStack[i * 2 + 1] != namespace) { // If we find the prefix redefined within the element, bail out
-                    throw IllegalArgumentException(
-                        "Attempting to bind prefix to conflicting values in one element"
-                                                  )
-                }
-                if (_nspWritten[i]) {
-                    // otherwise just ignore the request.
-                    return
-                }
-                _nspWritten[i] = true
-                wasSet = true
-                break
-            }
-        }
-
-        if (!wasSet) { // Don't use setPrefix as we know it isn't there
-            _addSpaceToNspStack()
-            val c = _namespaceCounts[depth + 1]
-            _namespaceCounts[depth + 1] = c + 1
-            _namespaceCounts[depth + 2] = c + 1
-            val pos = c shl 1
-            _nspStack[pos] = prefix
-            _nspStack[pos + 1] = namespace
-            _nspWritten[pos shr 1] = true
-        }
-
-        val nsNotNull = namespace ?: ""
-
-        writer.append(' ')
-        writer.append(XMLNS_ATTRIBUTE)
-        if (prefix.isNotEmpty()) {
-            writer.append(':')
-            writer.append(prefix)
-        }
-        writer.append('=')
-        val q = if (nsNotNull.indexOf('"') == -1) '"' else '\''
-        writer.append(q)
-        writeEscapedText(nsNotNull, q.code)
-        writer.append(q)
-    }
-
-    private val namespaceHolder = NamespaceHolder()
-
-
-    private var lastTagDepth = TAG_DEPTH_NOT_TAG
-
-    override val namespaceContext: NamespaceContext
-        get() = namespaceHolder.namespaceContext
-
-    override val depth: Int
-        get() = namespaceHolder.depth
-
-    init {
-        _setPrefix(XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI)
     }
 
     private fun triggerStartDocument() {
@@ -270,7 +148,9 @@ class KtXmlWriter(
             ignorableWhitespace("\n")
             try {
                 indentSequence = emptyList()
-                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
+//                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
+                val merged = indentSeq.joinRepeated(depth)
+                merged.forEach { it.writeTo(this) }
             } finally {
                 indentSequence = indentSeq
             }
@@ -306,7 +186,6 @@ class KtXmlWriter(
         writer.append("<?xml version='1.0'")
 
         val effectiveEncoding = encoding ?: "UTF-8"
-        _unicode = effectiveEncoding.lowercase().startsWith("utf")
 
         if (xmlDeclMode != XmlDeclMode.Minimal || encoding != null) {
             writer.append(" encoding='")
@@ -366,13 +245,6 @@ class KtXmlWriter(
             }
         }
 
-        if (namespace.isNullOrEmpty()) {
-            for (i in _namespaceCounts[depth] until _namespaceCounts[depth + 1]) {
-                if (_nspStack[i * 2] == "" && _nspStack[i * 2 + 1] != "") {
-                    throw IllegalStateException("Cannot set default namespace for elements in no namespace")
-                }
-            }
-        }
         setElementStack(depth, namespace ?: "", appliedPrefix, localName)
 
         writer.append('<')
@@ -407,10 +279,6 @@ class KtXmlWriter(
             writer.append(localName)
             writer.append('>')
         }
-        val c = _namespaceCounts[depth]
-        _namespaceCounts[depth + 1] = c
-
-        if (!isPartiallyOpenTag) _namespaceCounts[depth + 2] = c
     }
 
     override fun comment(text: String) {
@@ -493,48 +361,28 @@ class KtXmlWriter(
     }
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
-        namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
+        val existingNamespaceForPrefix = namespaceHolder.namespaceAtCurrentDepth(namespacePrefix)
+        if (existingNamespaceForPrefix != null) {
+            when {
+                isRepairNamespaces -> return            // when repairing, just ignore duplicates
 
-        val prefix = namespacePrefix
-        val namespace = namespaceUri
+                existingNamespaceForPrefix != namespaceUri
+                                   ->
+                    throw IllegalStateException("Attempting to set prefix to different values in the same tag")
+
+                else               -> throw IllegalStateException("Namespace attribute duplicated")
+            }
+        }
+        namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
 
         if (!isPartiallyOpenTag) {
             throw IllegalStateException("illegal position for attribute")
         }
 
-        var wasSet = false
-        for (i in _namespaceCounts[depth] until _namespaceCounts[depth + 1]) {
-            if (prefix == _nspStack[i * 2]) {
-                if (_nspStack[i * 2 + 1] != namespace) { // If we find the prefix redefined within the element, bail out
-                    throw IllegalArgumentException(
-                        "Attempting to bind prefix to conflicting values in one element"
-                                                  )
-                }
-                if (_nspWritten[i]) {
-                    // otherwise just ignore the request.
-                    return
-                }
-                _nspWritten[i] = true
-                wasSet = true
-                break
-            }
-        }
-
-        if (!wasSet) { // Don't use setPrefix as we know it isn't there
-            _addSpaceToNspStack()
-            val c = _namespaceCounts[depth + 1]
-            _namespaceCounts[depth + 1] = c + 1
-            _namespaceCounts[depth + 2] = c + 1
-            val pos = c shl 1
-            _nspStack[pos] = prefix
-            _nspStack[pos + 1] = namespace
-            _nspWritten[pos shr 1] = true
-        }
-
-        if (prefix.isNotEmpty()) {
-            rawWriteAttribute(XMLNS_ATTRIBUTE, prefix, namespace)
+        if (namespacePrefix.isNotEmpty()) {
+            rawWriteAttribute(XMLNS_ATTRIBUTE, namespacePrefix, namespaceUri)
         } else {
-            rawWriteAttribute("", XMLNS_ATTRIBUTE, namespace)
+            rawWriteAttribute("", XMLNS_ATTRIBUTE, namespaceUri)
         }
     }
 
@@ -568,7 +416,6 @@ class KtXmlWriter(
     override fun setPrefix(prefix: String, namespaceUri: String) {
         if (namespaceUri != getNamespaceUri(prefix)) {
             namespaceHolder.addPrefixToContext(prefix, namespaceUri)
-            _setPrefix(prefix, namespaceUri)
         }
     }
 
@@ -586,8 +433,8 @@ class KtXmlWriter(
 
     companion object {
         /** Not a tag: -1 */
-        const val TAG_DEPTH_NOT_TAG = -1
-        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+        private const val TAG_DEPTH_NOT_TAG = -1
+        private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
     }
 
 
@@ -599,5 +446,27 @@ class KtXmlWriter(
         Finished
     }
 
+}
+
+private fun Iterable<XmlEvent.TextEvent>.joinRepeated(repeats: Int): List<XmlEvent.TextEvent> {
+    val it = iterator()
+    if (! it.hasNext()) return emptyList()
+
+    val result = mutableListOf<XmlEvent.TextEvent>()
+    var pending: XmlEvent.TextEvent? = null
+    for (i in 0 until repeats) {
+        for (ev in this@joinRepeated) {
+            if (pending==null) {
+                pending = ev
+            } else if (pending.eventType == EventType.COMMENT || pending.eventType != ev.eventType) {
+                result.add(pending)
+                pending = ev
+            } else if (ev.eventType == pending.eventType){
+                pending = XmlEvent.TextEvent(null, pending.eventType, pending.text + ev.text)
+            }
+        }
+    }
+    if (pending!=null) result.add(pending)
+    return result
 }
 
