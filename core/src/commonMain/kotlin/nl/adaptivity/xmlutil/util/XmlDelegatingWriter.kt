@@ -32,4 +32,4 @@ import nl.adaptivity.xmlutil.XmlWriter
  *
  */
 @Deprecated("Use main package version", ReplaceWith("nl.adaptivity.xmlutil.XmlDelegatingWriter"))
-abstract class XmlDelegatingWriter(delegate: XmlWriter) : nl.adaptivity.xmlutil.XmlDelegatingWriter(delegate)
+public abstract class XmlDelegatingWriter(delegate: XmlWriter) : nl.adaptivity.xmlutil.XmlDelegatingWriter(delegate)

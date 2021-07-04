@@ -22,4 +22,4 @@
 
 package nl.adaptivity.xmlutil
 
-actual typealias QName = javax.xml.namespace.QName
+public actual typealias QName = javax.xml.namespace.QName

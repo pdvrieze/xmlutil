@@ -35,7 +35,7 @@ import javax.xml.XMLConstants
 /**
  * @suppress
  */
-class BetterXmlSerializer : XmlSerializer {
+public class BetterXmlSerializer : XmlSerializer {
 
     private lateinit var writer: Writer
 
@@ -53,8 +53,8 @@ class BetterXmlSerializer : XmlSerializer {
     private var unicode: Boolean = false
     private var encoding: String? = null
     private val escapeAggressive = false
-    var xmlDeclMode = XmlDeclMode.None
-    var addTrailingSpaceBeforeEnd = true
+    public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    public var addTrailingSpaceBeforeEnd: Boolean = true
     private var state: WriteState = WriteState.BeforeDocument
 
     private fun checkPending(close: Boolean) {
@@ -82,9 +82,9 @@ class BetterXmlSerializer : XmlSerializer {
         // Only set the second level here as the first level may already have pending namespaces
 
         val endOfTag = when {
-            !close                    -> ">"
+            !close -> ">"
             addTrailingSpaceBeforeEnd -> " />"
-            else                      -> "/>"
+            else -> "/>"
         }
         writer.write(endOfTag)
     }
@@ -94,10 +94,10 @@ class BetterXmlSerializer : XmlSerializer {
 
         loop@ for (i in 0 until s.length) {
             when (val c = s[i]) {
-                '&'              -> writer.write("&amp;")
-                '>'              -> writer.write("&gt;")
-                '<'              -> writer.write("&lt;")
-                '"', '\''        -> {
+                '&' -> writer.write("&amp;")
+                '>' -> writer.write("&gt;")
+                '<' -> writer.write("&lt;")
+                '"', '\'' -> {
                     if (c.code == quot) {
                         writer.write(if (c == '"') "&quot;" else "&apos;")
                         break@loop
@@ -113,7 +113,7 @@ class BetterXmlSerializer : XmlSerializer {
                 } else {
                     writer.write(c.code)
                 }
-                else             ->
+                else ->
                     //if(c < ' ')
                     //	throw new IllegalArgumentException("Illegal control code:"+((int) c));
                     if (escapeAggressive && (c < ' ' || c == '@' || c.code > 127 && !unicode)) {
@@ -134,7 +134,8 @@ class BetterXmlSerializer : XmlSerializer {
                 }
                 state = WriteState.AfterXmlDecl
             }
-            WriteState.AfterXmlDecl -> {}
+            WriteState.AfterXmlDecl -> {
+            }
             else ->
                 throw XmlException("Writing a DTD is only allowed once, in the prolog")
         }
@@ -145,7 +146,7 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun endDocument() {
-        if (state!=WriteState.InTagContent) {
+        if (state != WriteState.InTagContent) {
             throw XmlException("Attempting to end document when in invalid state: $state")
         }
         while (depth > 0) {
@@ -270,8 +271,7 @@ class BetterXmlSerializer : XmlSerializer {
     @Throws(IOException::class)
     override fun setPrefix(prefix: String?, namespace: String?) {
 
-        val depth: Int
-        depth = this.depth + (if (pending) 2 else 1)
+        val depth: Int = this.depth + (if (pending) 2 else 1)
 
         var i = nspCounts[depth] * 2 - 2
         while (i >= 0) {
@@ -346,12 +346,12 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun startDocument(encoding: String?, standalone: Boolean?) {
-        if (state!=WriteState.BeforeDocument) {
+        if (state != WriteState.BeforeDocument) {
             throw XmlException("Attempting to write start document after document already started")
         }
         state = WriteState.AfterXmlDecl
 
-        if (xmlDeclMode!=XmlDeclMode.None) {
+        if (xmlDeclMode != XmlDeclMode.None) {
             writer.write("<?xml version='1.0'")
 
             if (encoding != null) {
@@ -363,7 +363,7 @@ class BetterXmlSerializer : XmlSerializer {
                 this.encoding = "UTF-8"
             }
 
-            if (xmlDeclMode!=XmlDeclMode.Minimal || !unicode) {
+            if (xmlDeclMode != XmlDeclMode.Minimal || !unicode) {
 
                 this.encoding?.let { enc ->
                     writer.write(" encoding='")
@@ -378,7 +378,7 @@ class BetterXmlSerializer : XmlSerializer {
                 }
             }
             writer.write("?>")
-            indent[depth]=true
+            indent[depth] = true
         }
     }
 
@@ -461,7 +461,7 @@ class BetterXmlSerializer : XmlSerializer {
         //		pending = false;
 
         val prefix = when (ns) {
-            ""   -> ""
+            "" -> ""
             else -> getPrefix(ns, includeDefault = false, create = true)
         }
 
@@ -481,7 +481,7 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     @Throws(IOException::class)
-    fun attribute(namespace: String?, prefix: String, name: String, value: String): BetterXmlSerializer {
+    public fun attribute(namespace: String?, prefix: String, name: String, value: String): BetterXmlSerializer {
         if (!pending) {
             throw IllegalStateException("illegal position for attribute")
         }
@@ -521,7 +521,7 @@ class BetterXmlSerializer : XmlSerializer {
     }
 
     @Throws(IOException::class)
-    fun namespace(prefix: String, namespace: String?): BetterXmlSerializer {
+    public fun namespace(prefix: String, namespace: String?): BetterXmlSerializer {
 
         if (!pending) {
             throw IllegalStateException("illegal position for attribute")
@@ -531,9 +531,7 @@ class BetterXmlSerializer : XmlSerializer {
         for (i in nspCounts[depth] until nspCounts[depth + 1]) {
             if (prefix == nspStack[i * 2]) {
                 if (nspStack[i * 2 + 1] != namespace) { // If we find the prefix redefined within the element, bail out
-                    throw IllegalArgumentException(
-                        "Attempting to bind prefix to conflicting values in one element"
-                                                  )
+                    throw IllegalArgumentException("Attempting to bind prefix to conflicting values in one element")
                 }
                 if (nspWritten[i]) {
                     // otherwise just ignore the request.

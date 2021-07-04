@@ -20,5 +20,5 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-typealias Locale = java.util.Locale
+public typealias Locale = java.util.Locale
 

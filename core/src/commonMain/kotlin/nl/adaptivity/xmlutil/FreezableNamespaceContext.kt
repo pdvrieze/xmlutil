@@ -20,12 +20,4 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
-
-interface FreezableNamespaceContext : NamespaceContext {
-    fun freeze(): FreezableNamespaceContext
-
-    @Suppress("DEPRECATION")
-    operator fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext =
-        CombiningNamespaceContext(this, secondary)
-}
+public typealias FreezableNamespaceContext = IterableNamespaceContext

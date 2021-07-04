@@ -29,15 +29,15 @@ import nl.adaptivity.xmlutil.XmlSerializable
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-expect class CompactFragment : ICompactFragment {
-    constructor(content: String)
-    constructor(orig: ICompactFragment)
-    constructor(namespaces: Iterable<Namespace>, content: CharArray?)
-    constructor(namespaces: Iterable<Namespace>, content: String)
+public expect class CompactFragment : ICompactFragment {
+    public constructor(content: String)
+    public constructor(orig: ICompactFragment)
+    public constructor(namespaces: Iterable<Namespace>, content: CharArray?)
+    public constructor(namespaces: Iterable<Namespace>, content: String)
 
-    class Factory() : XmlDeserializerFactory<CompactFragment>
+    public class Factory() : XmlDeserializerFactory<CompactFragment>
 
-    companion object {
-        fun deserialize(reader: XmlReader): CompactFragment
+    public companion object {
+        public fun deserialize(reader: XmlReader): CompactFragment
     }
 }

@@ -20,15 +20,11 @@
 
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XmlDelegatingReader
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERNAMESPACE
 import nl.adaptivity.xmlutil.util.XMLFragmentStreamReaderJava.Companion.WRAPPERPPREFIX
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
-import nl.adaptivity.xmlutil.xmlEncode
 import java.io.CharArrayReader
 import java.io.Reader
 import java.io.StringReader
@@ -39,14 +35,14 @@ import javax.xml.XMLConstants
 
  * Created by pdvrieze on 04/11/15.
  */
-actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
+public actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
     XmlDelegatingReader(getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
 
     override var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(
         null, emptyArray(), emptyArray()
-                                                                                           )
+    )
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
@@ -64,16 +60,16 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
         return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
     }
 
-    override fun next() = super<XMLFragmentStreamReaderJava>.next()
+    override fun next(): EventType = super<XMLFragmentStreamReaderJava>.next()
 
-    override val namespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
+    override val namespaceContext: IterableNamespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
 
-    actual companion object {
+    public actual companion object {
 
         private fun getDelegate(
             reader: Reader,
             wrapperNamespaceContext: Iterable<Namespace>
-                               ): XmlReader {
+        ): XmlReader {
 
             val wrapper = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
@@ -95,17 +91,17 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
         }
 
         @JvmStatic
-        fun from(reader: Reader, namespaceContext: Iterable<Namespace>): XMLFragmentStreamReader {
+        public fun from(reader: Reader, namespaceContext: Iterable<Namespace>): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, namespaceContext)
         }
 
         @JvmStatic
-        fun from(reader: Reader): XMLFragmentStreamReader {
+        public fun from(reader: Reader): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, emptyList())
         }
 
         @JvmStatic
-        actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
+        public actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(CharArrayReader(fragment.content), fragment.namespaces)
         }
     }

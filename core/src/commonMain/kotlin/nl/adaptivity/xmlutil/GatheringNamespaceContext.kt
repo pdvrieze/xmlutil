@@ -25,4 +25,4 @@ package nl.adaptivity.xmlutil
  * Created by pdvrieze on 20/10/15.
  */
 @Deprecated("Use actual class", ReplaceWith("nl.adaptivity.xmlutil.util.GatheringNamespaceContext"))
-typealias GatheringNamespaceContext = nl.adaptivity.xmlutil.util.GatheringNamespaceContext
+public typealias GatheringNamespaceContext = nl.adaptivity.xmlutil.util.GatheringNamespaceContext

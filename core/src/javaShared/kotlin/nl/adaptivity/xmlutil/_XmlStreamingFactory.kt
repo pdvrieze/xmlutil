@@ -30,16 +30,16 @@ import java.io.StringReader
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
-actual interface XmlStreamingFactory {
+public actual interface XmlStreamingFactory {
 
     @Deprecated("Use version with xmlDeclMode")
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
         newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
 
     @Deprecated("Use version with xmlDeclMode")
-    fun newWriter(
+    public fun newWriter(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = false,
@@ -47,7 +47,7 @@ actual interface XmlStreamingFactory {
                  ): XmlWriter =
         newWriter(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    fun newWriter(
+    public fun newWriter(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = false,
@@ -55,25 +55,28 @@ actual interface XmlStreamingFactory {
                  ): XmlWriter
 
     @Deprecated("Use version with xmlDeclMode")
-    fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+    public fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
         newWriter(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    fun newWriter(result: Result, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public fun newWriter(result: Result, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
 
     @Deprecated("Use version with xmlDeclMode")
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean) =
+    public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
         newWriter(AppendableWriter(output), repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) =
-        newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode)
+    public fun newWriter(
+        output: Appendable,
+        repairNamespaces: Boolean = false,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    ): XmlWriter = newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode)
 
-    fun newReader(source: Source): XmlReader
+    public fun newReader(source: Source): XmlReader
 
-    fun newReader(reader: Reader): XmlReader
+    public fun newReader(reader: Reader): XmlReader
 
-    fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
+    public fun newReader(inputStream: InputStream, encoding: String = Charsets.UTF_8.name()): XmlReader
 
-    fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
+    public fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
 
-    fun newReader(input: String): XmlReader = newReader(StringReader(input))
+    public fun newReader(input: String): XmlReader = newReader(StringReader(input))
 }

@@ -34,7 +34,6 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
-import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 import kotlin.collections.set
 import kotlin.jvm.JvmName
 
@@ -45,12 +44,13 @@ import kotlin.jvm.JvmName
  */
 @Serializable(SimpleNamespaceContext.Companion::class)
 @XmlUtilInternal
-open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
+public open class SimpleNamespaceContext internal constructor(public val buffer: Array<out String>) :
+    IterableNamespaceContext {
 
-    val indices: IntRange get() = 0 until size
+    public val indices: IntRange get() = 0 until size
 
     @get:JvmName("size")
-    val size: Int
+    public val size: Int
         get() = buffer.size / 2
 
     private inner class SimpleIterator : Iterator<Namespace> {
@@ -85,24 +85,24 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         }
     }
 
-    constructor() : this(emptyArray())
+    public constructor() : this(emptyArray())
 
-    constructor(prefixMap: Map<out CharSequence, CharSequence>) :
+    public constructor(prefixMap: Map<out CharSequence, CharSequence>) :
             this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
 
-    constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>) :
+    public constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>) :
             this(Array(prefixes.size * 2) { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() })
 
-    constructor(prefix: CharSequence, namespace: CharSequence) :
+    public constructor(prefix: CharSequence, namespace: CharSequence) :
             this(arrayOf(prefix.toString(), namespace.toString()))
 
-    constructor(namespaces: Collection<Namespace>) :
+    public constructor(namespaces: Collection<Namespace>) :
             this(flatten(namespaces, { prefix }, { namespaceURI }))
 
-    constructor(namespaces: Iterable<Namespace>) :
+    public constructor(namespaces: Iterable<Namespace>) :
             this(namespaces as? Collection<Namespace> ?: namespaces.toList())
 
-    constructor(original: SimpleNamespaceContext) : this(original.buffer)
+    public constructor(original: SimpleNamespaceContext) : this(original.buffer)
 
     override fun freeze(): SimpleNamespaceContext = this
 
@@ -110,11 +110,11 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
      * Create a context that combines both. This will "forget" overlapped prefixes.
      */
     @Deprecated("Use operator", ReplaceWith("this + other"))
-    fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
+    public fun combine(other: SimpleNamespaceContext): SimpleNamespaceContext {
         return this + other
     }
 
-    operator fun plus(other: SimpleNamespaceContext): SimpleNamespaceContext {
+    public operator fun plus(other: SimpleNamespaceContext): SimpleNamespaceContext {
         val result = mutableMapOf<String, String>()
         for (i in indices.reversed()) {
             result[getPrefix(i)] = getNamespaceURI(i)
@@ -131,11 +131,11 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
      *
      * @return the new context
      */
-    fun combine(other: Iterable<Namespace>): SimpleNamespaceContext {
+    public fun combine(other: Iterable<Namespace>): SimpleNamespaceContext {
         return plus(other)
     }
 
-    operator fun plus(other: Iterable<Namespace>): SimpleNamespaceContext {
+    public operator fun plus(other: Iterable<Namespace>): SimpleNamespaceContext {
         if (size == 0) {
             return from(other)
         }
@@ -156,26 +156,26 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
 
     override fun getNamespaceURI(prefix: String): String? {
         return when (prefix) {
-            XML_NS_PREFIX   -> XML_NS_URI
+            XML_NS_PREFIX -> XML_NS_URI
             XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
-            else            -> indices.reversed()
+            else -> indices.reversed()
                 .filter { getPrefix(it) == prefix }
                 .firstOrNull()
                 ?.let { getNamespaceURI(it) }
         }
     }
 
-    override fun getPrefix(namespaceURI: String) = getPrefixSequence(namespaceURI).firstOrNull()
+    override fun getPrefix(namespaceURI: String): String? = getPrefixSequence(namespaceURI).firstOrNull()
 
     /**
      * Get all prefixes for this particular namespace in the namespace context.
      */
-    fun getPrefixSequence(namespaceURI: String): Sequence<String> {
+    public fun getPrefixSequence(namespaceURI: String): Sequence<String> {
         return when (namespaceURI) {
-            XML_NS_URI             -> sequenceOf(XML_NS_PREFIX)
-            NULL_NS_URI            -> sequenceOf(DEFAULT_NS_PREFIX)
+            XML_NS_URI -> sequenceOf(XML_NS_PREFIX)
+            NULL_NS_URI -> sequenceOf(DEFAULT_NS_PREFIX)
             XMLNS_ATTRIBUTE_NS_URI -> sequenceOf(XMLNS_ATTRIBUTE)
-            else                   -> {
+            else -> {
                 indices.reversed().asSequence()
                     .filter { getNamespaceURI(it) == namespaceURI }
                     .map { getPrefix(it) }
@@ -186,7 +186,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     @Suppress("OverridingDeprecatedMember")
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> = getPrefixSequence(namespaceURI).iterator()
 
-    fun getPrefix(index: Int): String {
+    public fun getPrefix(index: Int): String {
         try {
             return buffer[index * 2]
         } catch (e: IndexOutOfBoundsException) {
@@ -194,7 +194,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         }
     }
 
-    fun getNamespaceURI(index: Int): String {
+    public fun getNamespaceURI(index: Int): String {
         try {
             return buffer[index * 2 + 1]
         } catch (e: IndexOutOfBoundsException) {
@@ -206,22 +206,12 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return SimpleIterator()
     }
 
-    override fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext = when {
-        secondary is SimpleNamespaceContext && secondary.size == 0
-             -> this
-
-        secondary is SimpleNamespaceContext && size == 0
-             -> secondary
-
-        else -> @Suppress("DEPRECATION") CombiningNamespaceContext(this, secondary)
-    }
-
     override fun plus(secondary: IterableNamespaceContext): IterableNamespaceContext = when {
-        secondary is SimpleNamespaceContext && secondary.size == 0
-             -> this
+        secondary is SimpleNamespaceContext &&
+                secondary.size == 0 -> this
 
-        secondary is SimpleNamespaceContext && size == 0
-             -> secondary
+        secondary is SimpleNamespaceContext &&
+                size == 0 -> secondary
 
         else -> super.plus(secondary)
     }
@@ -244,7 +234,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         SerialDescriptor by delegate
 
     @XmlUtilInternal
-    companion object : KSerializer<SimpleNamespaceContext> {
+    public companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = ListSerializer(Namespace)
 
@@ -252,11 +242,11 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         override val descriptor: SerialDescriptor =
             RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 
-        fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
+        public fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
-            else                      -> SimpleNamespaceContext(
+            else -> SimpleNamespaceContext(
                 originalNSContext
-                                                               )
+            )
         }
 
         override fun deserialize(decoder: Decoder): SimpleNamespaceContext {
@@ -271,7 +261,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
             namespaces: Collection<T>,
             crossinline prefix: T.() -> String,
             crossinline namespace: T.() -> String
-                                      ): Array<String> {
+        ): Array<String> {
             val filler: Iterator<String> = namespaces.asSequence().flatMap {
                 sequenceOf(it.prefix(), it.namespace())
             }.iterator()

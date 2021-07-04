@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
+import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import org.xmlpull.v1.XmlPullParserException
@@ -31,13 +32,14 @@ import java.io.Writer
 import javax.xml.XMLConstants.*
 import javax.xml.namespace.NamespaceContext
 
-actual typealias PlatformXmlWriter = AndroidXmlWriter
+public actual typealias PlatformXmlWriter = KtXmlWriter
 
 /**
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
+@Deprecated("Use PlatformXmlWriter instead", ReplaceWith("PlatformXmlWriter"))
+public class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     private val namespaceHolder = NamespaceHolder()
     private val isRepairNamespaces: Boolean
@@ -53,12 +55,12 @@ class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     @Throws(XmlPullParserException::class, IOException::class)
     @Deprecated("Use xmlDeclMode")
-    constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean) :
+    public constructor(writer: Writer, repairNamespaces: Boolean = true, omitXmlDecl: Boolean) :
             this (writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XmlPullParserException::class, IOException::class)
     @JvmOverloads
-    constructor(writer: Writer, repairNamespaces: Boolean = true, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) :
+    public constructor(writer: Writer, repairNamespaces: Boolean = true, xmlDeclMode: XmlDeclMode = XmlDeclMode.None) :
             this(repairNamespaces, xmlDeclMode) {
         this.writer.setOutput(writer)
         initWriter(this.writer)
@@ -73,7 +75,7 @@ class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     @Deprecated("Use xmlDeclMode")
     @Throws(XmlPullParserException::class, IOException::class)
-    constructor(
+    public constructor(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = true,
@@ -83,7 +85,7 @@ class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     @Throws(XmlPullParserException::class, IOException::class)
     @JvmOverloads
-    constructor(
+    public constructor(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = true,
@@ -105,7 +107,7 @@ class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
     }
 
     @JvmOverloads
-    constructor(serializer: XmlSerializer, repairNamespaces: Boolean = true) {
+    public constructor(serializer: XmlSerializer, repairNamespaces: Boolean = true) {
         writer = serializer
         isRepairNamespaces = repairNamespaces
         initWriter(writer)

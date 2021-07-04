@@ -20,10 +20,13 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.IterableNamespaceContext
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.NamespaceContextImpl
 
 internal class FreezableDelegatingNamespaceContext(private val delegator: () -> NamespaceContext) : NamespaceContextImpl,
-                                                                                                    FreezableNamespaceContext {
+                                                                                                    IterableNamespaceContext {
     private val gatheredHolder = NamespaceHolder()
 
     private val declaredHolder = NamespaceHolder()
@@ -48,6 +51,11 @@ internal class FreezableDelegatingNamespaceContext(private val delegator: () -> 
             ?: gatheredHolder.getPrefix(namespaceURI)
             ?: delegator().getPrefix(namespaceURI)?.also { gatheredHolder.addPrefixToContext(it, namespaceURI) }
     }
+
+    override fun iterator(): Iterator<Namespace> {
+        return ((declaredHolder.asSequence() + gatheredHolder.asSequence())).iterator()
+    }
+
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         val prefixes = mutableListOf<String>()
 

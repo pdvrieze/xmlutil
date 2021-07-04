@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.core.internal
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
-fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
+public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
     acc + when (ch) {
         '\t' -> 8
         else -> 1

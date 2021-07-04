@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
 
 @XmlUtilInternal
-abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
+public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
     @get:XmlUtilInternal
@@ -116,7 +116,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     override val version: String?
         get() = (current as StartDocumentEvent).version
 
-    fun nextEvent(): XmlEvent {
+    public fun nextEvent(): XmlEvent {
         if (hasPeekItems) {
             return removeFirstToCurrent()
         }
@@ -149,7 +149,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
     /**
      * Try to peek the next event. Unlike [peekFirst] this function will progress the underlying stream if needed.
      */
-    fun peek(): XmlEvent? {
+    public fun peek(): XmlEvent? {
         if (! hasPeekItems) {
             addAll(doPeek())
         }
@@ -210,7 +210,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         return nextTagEvent().eventType
     }
 
-    fun nextTagEvent(): XmlEvent {
+    public fun nextTagEvent(): XmlEvent {
         val current = nextEvent()
         return when (current.eventType) {
             EventType.TEXT                                 -> {

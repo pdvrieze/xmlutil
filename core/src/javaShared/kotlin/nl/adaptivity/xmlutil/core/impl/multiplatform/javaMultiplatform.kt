@@ -22,11 +22,11 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlin.reflect.KClass
 
-actual val KClass<*>.name get() = java.name
+public actual val KClass<*>.name: String get() = java.name
 
-actual typealias Throws = kotlin.jvm.Throws
+public actual typealias Throws = kotlin.jvm.Throws
 
-typealias URI = java.net.URI
+public typealias URI = java.net.URI
 
 
-actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
+public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()

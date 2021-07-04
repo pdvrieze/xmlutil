@@ -31,10 +31,10 @@ import nl.adaptivity.xmlutil.prefixesFor
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
  * Created by pdvrieze on 20/10/15.
  */
-class GatheringNamespaceContext(
+public class GatheringNamespaceContext(
     private val parentContext: NamespaceContext?,
     private val resultMap: MutableMap<String, String>
-                               ) : NamespaceContextImpl {
+) : NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         return parentContext?.getNamespaceURI(prefix)?.apply {
@@ -56,7 +56,7 @@ class GatheringNamespaceContext(
         "UNCHECKED_CAST",
         "DEPRECATION",
         "OverridingDeprecatedMember"
-             )// Somehow this type has no proper generic parameter
+    )// Somehow this type has no proper generic parameter
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         if (parentContext == null) {
             return emptyList<String>().iterator()

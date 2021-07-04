@@ -22,40 +22,40 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlin.reflect.KClass
 
-actual val KClass<*>.name get() = js.name
+public actual val KClass<*>.name: String get() = js.name
 
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR
-       )
+)
 @Retention(AnnotationRetention.SOURCE)
-actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
+public actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
 
 
-actual fun assert(value: Boolean, lazyMessage: () -> String) {
+public actual fun assert(value: Boolean, lazyMessage: () -> String) {
     if (!value) console.error("Assertion failed: ${lazyMessage()}")
 }
 
-actual fun assert(value: Boolean) {
+public actual fun assert(value: Boolean) {
     if (!value) console.error("Assertion failed")
 }
 
-actual interface AutoCloseable {
-    actual fun close()
+public actual interface AutoCloseable {
+    public actual fun close()
 }
 
-actual interface Closeable : AutoCloseable
+public actual interface Closeable : AutoCloseable
 
-actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
+public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 
 
-actual abstract class Writer: Appendable {
-    abstract fun write(text: String)
+public actual abstract class Writer : Appendable {
+    public abstract fun write(text: String)
 }
 
-actual open class StringWriter: Writer() {
+public actual open class StringWriter : Writer() {
     private val buffer = StringBuilder()
     override fun write(text: String) {
         buffer.append(text)
@@ -77,12 +77,12 @@ actual open class StringWriter: Writer() {
         value: CharSequence?,
         startIndex: Int,
         endIndex: Int
-                       ): Appendable = apply {
+    ): Appendable = apply {
         buffer.append(value, startIndex, endIndex)
     }
 }
 
-inline fun <T: Closeable, R> T.use(block: (T)->R): R {
+public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
     try {
         return block(this)
     } finally {

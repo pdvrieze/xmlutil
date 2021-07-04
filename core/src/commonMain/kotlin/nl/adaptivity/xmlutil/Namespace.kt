@@ -29,24 +29,24 @@ import kotlinx.serialization.encoding.*
 /**
  * Interface that represents a namespace with prefix and uri.
  */
-interface Namespace {
+public interface Namespace {
 
     /**
      * Gets the prefix, returns "" if this is a default
      * namespace declaration.
      */
-    val prefix: String
+    public val prefix: String
 
-    operator fun component1(): String = prefix
+    public operator fun component1(): String = prefix
 
     /**
      * Gets the uri bound to the prefix of this namespace
      */
-    val namespaceURI: String
+    public val namespaceURI: String
 
-    operator fun component2(): String = namespaceURI
+    public operator fun component2(): String = namespaceURI
 
-    companion object : KSerializer<Namespace> {
+    public companion object : KSerializer<Namespace> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Namespace::class.simpleName!!) {
             element("prefix", serialDescriptor<String>())
             element("namespaceURI", serialDescriptor<String>())
@@ -81,8 +81,8 @@ interface Namespace {
 
 @Suppress("NOTHING_TO_INLINE")
 @Deprecated("Use the property version", ReplaceWith("this.prefix"))
-inline fun Namespace.getPrefix(): String = prefix
+public inline fun Namespace.getPrefix(): String = prefix
 
 @Suppress("NOTHING_TO_INLINE")
 @Deprecated("Use the property version", ReplaceWith("this.namespaceURI"))
-inline fun Namespace.getNamespaceURI(): String = namespaceURI
+public inline fun Namespace.getNamespaceURI(): String = namespaceURI

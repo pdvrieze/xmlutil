@@ -27,11 +27,11 @@ import java.io.Reader
  * Reader that combines multiple "component" readers into one.
  * Created by pdvrieze on 01/11/15.
  */
-class CombiningReader(private vararg val sources: Reader) : Reader() {
+public class CombiningReader(private vararg val sources: Reader) : Reader() {
 
     private var currentSource: Int = 0
 
-    override fun read(cbuf: CharArray, off: Int, len: Int): Int {
+    public override fun read(cbuf: CharArray, off: Int, len: Int): Int {
         if (currentSource >= sources.size) return -1
 
         val source = sources[currentSource]
@@ -44,22 +44,22 @@ class CombiningReader(private vararg val sources: Reader) : Reader() {
         return i
     }
 
-    override fun close() {
+    public override fun close() {
         sources.forEach { it.close() }
     }
 
-    override fun ready(): Boolean {
+    public override fun ready(): Boolean {
         if (currentSource >= sources.size) {
             return false
         }
         return sources[currentSource].ready()
     }
 
-    override fun mark(readAheadLimit: Int): Nothing {
+    public override fun mark(readAheadLimit: Int): Nothing {
         throw IOException("Mark not supported")
     }
 
-    override fun reset() {
+    public override fun reset() {
         for (i in currentSource downTo 0) {
             sources[i].reset()
             currentSource = i

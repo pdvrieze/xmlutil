@@ -29,7 +29,7 @@ import javax.xml.transform.Source
 /**
  * Android version of the streaming factory.
  */
-class AndroidStreamingFactory : XmlStreamingFactory {
+public class AndroidStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
     override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {

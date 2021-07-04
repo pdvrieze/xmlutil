@@ -34,7 +34,7 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.transform.Result
 
-actual typealias PlatformXmlWriter = StAXWriter
+public actual typealias PlatformXmlWriter = StAXWriter
 
 /**
  * An implementation of [XmlWriter] that uses an underlying stax writer.
@@ -45,10 +45,10 @@ actual typealias PlatformXmlWriter = StAXWriter
  *                       explicit calls to [startDocument] ignore this.
  * @property autoCloseEmpty Determines whether empty tags are coalesced into self-closing tags.
  */
-class StAXWriter(
-    val delegate: XMLStreamWriter,
-    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-    val autoCloseEmpty: Boolean = true
+public class StAXWriter(
+    public val delegate: XMLStreamWriter,
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    public val autoCloseEmpty: Boolean = true
 ) : PlatformXmlWriterBase(), XmlWriter {
 
     private val pendingWrites = mutableListOf<XmlEvent>()
@@ -62,25 +62,25 @@ class StAXWriter(
         private set
 
     @Deprecated("Use version taking XmlDeclMode")
-    constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean, autoCloseEmpty: Boolean) :
+    public constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean, autoCloseEmpty: Boolean) :
             this(delegate, XmlDeclMode.from(omitXmlDecl), autoCloseEmpty)
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean)
+    public constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean)
             : this(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
-    constructor(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
+    public constructor(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
             : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), xmlDeclMode)
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
+    public constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
             : this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
-    constructor(
+    public constructor(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
@@ -91,29 +91,31 @@ class StAXWriter(
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean)
+    public constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean)
             : this(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
-    constructor(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
+    public constructor(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
             : this(newFactory(repairNamespaces).createXMLStreamWriter(result), xmlDeclMode)
 
     @Throws(XmlException::class)
-    override fun startTag(namespace: String?, localName: String, prefix: String?) = flushPending {
-        if (state == State.Empty) startDocument(null, null, null)
-        depth++
-        _namespaceContext.incDepth() // already increase now
-        if (autoCloseEmpty) {
-            pendingWrites.add(
-                XmlEvent.StartElementEvent(
-                    namespace ?: "",
-                    localName,
-                    prefix ?: "",
-                    _namespaceContext.freeze()
+    override fun startTag(namespace: String?, localName: String, prefix: String?) {
+        flushPending {
+            if (state == State.Empty) startDocument(null, null, null)
+            depth++
+            _namespaceContext.incDepth() // already increase now
+            if (autoCloseEmpty) {
+                pendingWrites.add(
+                    XmlEvent.StartElementEvent(
+                        namespace ?: "",
+                        localName,
+                        prefix ?: "",
+                        _namespaceContext.freeze()
+                    )
                 )
-            )
-        } else {
-            doStartTag(namespace, prefix, localName, false)
+            } else {
+                doStartTag(namespace, prefix, localName, false)
+            }
         }
     }
 
@@ -218,7 +220,7 @@ class StAXWriter(
 
     @Deprecated("", ReplaceWith("endDocument()"))
     @Throws(XmlException::class)
-    fun writeEndDocument() {
+    public fun writeEndDocument() {
         endDocument()
     }
 
@@ -274,19 +276,19 @@ class StAXWriter(
 
     @Deprecated("", ReplaceWith("attribute(null, localName, null, value)"))
     @Throws(XmlException::class)
-    fun writeAttribute(localName: String, value: String) {
+    public fun writeAttribute(localName: String, value: String) {
         attribute(null, localName, null, value)
     }
 
     @Deprecated("", ReplaceWith("attribute(namespaceURI, localName, prefix, value)"))
     @Throws(XmlException::class)
-    fun writeAttribute(prefix: String, namespaceURI: String, localName: String, value: String) {
+    public fun writeAttribute(prefix: String, namespaceURI: String, localName: String, value: String) {
         attribute(namespaceURI, localName, prefix, value)
     }
 
     @Deprecated("", ReplaceWith("attribute(namespaceURI, localName, null, value)"))
     @Throws(XmlException::class)
-    fun writeAttribute(namespaceURI: String, localName: String, value: String) {
+    public fun writeAttribute(namespaceURI: String, localName: String, value: String) {
         attribute(namespaceURI, localName, null, value)
     }
 
@@ -325,18 +327,20 @@ class StAXWriter(
     }
 
     @Throws(XmlException::class)
-    override fun comment(text: String) = flushPending {
-        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
-        try {
-            delegate.writeComment(text)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
+    override fun comment(text: String) {
+        flushPending {
+            writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+            try {
+                delegate.writeComment(text)
+            } catch (e: XMLStreamException) {
+                throw XmlException(e)
+            }
         }
     }
 
     @Deprecated("", ReplaceWith("comment(data)"))
     @Throws(XmlException::class)
-    fun writeComment(data: String) {
+    public fun writeComment(data: String) {
         comment(data)
     }
 
@@ -358,29 +362,31 @@ class StAXWriter(
 
     @Deprecated("", ReplaceWith("processingInstruction(target)"))
     @Throws(XmlException::class)
-    fun writeProcessingInstruction(target: String) {
+    public fun writeProcessingInstruction(target: String) {
         processingInstruction(target)
     }
 
     @Deprecated("", ReplaceWith("processingInstruction(target + \" \" + data)"))
     @Throws(XmlException::class)
-    fun writeProcessingInstruction(target: String, data: String) {
+    public fun writeProcessingInstruction(target: String, data: String) {
         processingInstruction("$target $data")
     }
 
     @Throws(XmlException::class)
-    override fun cdsect(text: String) = flushPending {
-        try {
-            delegate.writeCData(text)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
+    override fun cdsect(text: String) {
+        flushPending {
+            try {
+                delegate.writeCData(text)
+            } catch (e: XMLStreamException) {
+                throw XmlException(e)
+            }
+            lastTagDepth = TAG_DEPTH_NOT_TAG
         }
-        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Deprecated("", ReplaceWith("cdsect(data)"))
     @Throws(XmlException::class)
-    fun writeCData(data: String) {
+    public fun writeCData(data: String) {
         cdsect(data)
     }
 
@@ -397,23 +403,25 @@ class StAXWriter(
 
     @Deprecated("", ReplaceWith("docdecl(dtd)"))
     @Throws(XmlException::class)
-    fun writeDTD(dtd: String) {
+    public fun writeDTD(dtd: String) {
         docdecl(dtd)
     }
 
     @Throws(XmlException::class)
-    override fun entityRef(text: String) = flushPending {
-        try {
-            delegate.writeEntityRef(text)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
+    override fun entityRef(text: String) {
+        flushPending {
+            try {
+                delegate.writeEntityRef(text)
+            } catch (e: XMLStreamException) {
+                throw XmlException(e)
+            }
+            lastTagDepth = TAG_DEPTH_NOT_TAG
         }
-        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Deprecated("", ReplaceWith("entityRef(name)"))
     @Throws(XmlException::class)
-    fun writeEntityRef(name: String) {
+    public fun writeEntityRef(name: String) {
         entityRef(name)
     }
 
@@ -445,18 +453,22 @@ class StAXWriter(
     }
 
     @Throws(XmlException::class)
-    override fun ignorableWhitespace(text: String) = flushPending {
-        text(text)
+    override fun ignorableWhitespace(text: String) {
+        flushPending {
+            text(text)
+        }
     }
 
     @Throws(XmlException::class)
-    override fun text(text: String) = flushPending {
-        try {
-            delegate.writeCharacters(text)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
+    override fun text(text: String) {
+        flushPending {
+            try {
+                delegate.writeCharacters(text)
+            } catch (e: XMLStreamException) {
+                throw XmlException(e)
+            }
+            lastTagDepth = TAG_DEPTH_NOT_TAG
         }
-        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     @Throws(XmlException::class)

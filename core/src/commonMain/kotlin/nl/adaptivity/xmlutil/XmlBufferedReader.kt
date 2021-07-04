@@ -25,12 +25,13 @@ package nl.adaptivity.xmlutil
  * this class does not do any validation of the xml. If injecting/removing elements into/from the buffer you can create
  * invalid XML.
  */
-open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
+public open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 
     private val peekBuffer = ArrayDeque<XmlEvent>()
 
     @get:XmlUtilInternal
-    override val hasPeekItems get() = peekBuffer.isNotEmpty()
+    override val hasPeekItems: Boolean
+        get() = peekBuffer.isNotEmpty()
 
     /**
      * Peek the first element in the buffer, if it exists, otherwise `null`. Note that a null value does not
@@ -53,13 +54,13 @@ open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReade
      * Remove the top element in the peek buffer (the one returned by [peekFirst])
      */
     @XmlUtilInternal
-    override fun bufferRemoveLast() = peekBuffer.removeLast()
+    override fun bufferRemoveLast(): XmlEvent = peekBuffer.removeLast()
 
     /**
      * Remove the bottom element in the peek buffer (the one returned by [peekLast])
      */
     @XmlUtilInternal
-    override fun bufferRemoveFirst() = peekBuffer.removeFirst()
+    override fun bufferRemoveFirst(): XmlEvent = peekBuffer.removeFirst()
 
     /**
      * Add an element to the peek buffer.

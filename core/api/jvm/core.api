@@ -1,0 +1,809 @@
+public abstract class nl/adaptivity/xmlutil/EventType : java/lang/Enum {
+	public static final field ATTRIBUTE Lnl/adaptivity/xmlutil/EventType;
+	public static final field CDSECT Lnl/adaptivity/xmlutil/EventType;
+	public static final field COMMENT Lnl/adaptivity/xmlutil/EventType;
+	public static final field DOCDECL Lnl/adaptivity/xmlutil/EventType;
+	public static final field END_DOCUMENT Lnl/adaptivity/xmlutil/EventType;
+	public static final field END_ELEMENT Lnl/adaptivity/xmlutil/EventType;
+	public static final field ENTITY_REF Lnl/adaptivity/xmlutil/EventType;
+	public static final field IGNORABLE_WHITESPACE Lnl/adaptivity/xmlutil/EventType;
+	public static final field PROCESSING_INSTRUCTION Lnl/adaptivity/xmlutil/EventType;
+	public static final field START_DOCUMENT Lnl/adaptivity/xmlutil/EventType;
+	public static final field START_ELEMENT Lnl/adaptivity/xmlutil/EventType;
+	public static final field TEXT Lnl/adaptivity/xmlutil/EventType;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun createEvent (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlEvent;
+	public fun isIgnorable ()Z
+	public fun isTextElement ()Z
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/EventType;
+	public static fun values ()[Lnl/adaptivity/xmlutil/EventType;
+	public fun writeEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlEvent$TextEvent;)V
+	public abstract fun writeEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/IterableNamespaceContext : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker, nl/adaptivity/xmlutil/NamespaceContextImpl {
+	public abstract fun freeze ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun plus (Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+}
+
+public final class nl/adaptivity/xmlutil/IterableNamespaceContext$DefaultImpls {
+	public static fun freeze (Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public static fun getPrefixes (Lnl/adaptivity/xmlutil/IterableNamespaceContext;Ljava/lang/String;)Ljava/util/Iterator;
+	public static fun plus (Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/Namespace {
+	public static final field Companion Lnl/adaptivity/xmlutil/Namespace$Companion;
+	public abstract fun component1 ()Ljava/lang/String;
+	public abstract fun component2 ()Ljava/lang/String;
+	public abstract fun getNamespaceURI ()Ljava/lang/String;
+	public abstract fun getPrefix ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/Namespace$Companion : kotlinx/serialization/KSerializer {
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/Namespace;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/Namespace;)V
+}
+
+public final class nl/adaptivity/xmlutil/Namespace$DefaultImpls {
+	public static fun component1 (Lnl/adaptivity/xmlutil/Namespace;)Ljava/lang/String;
+	public static fun component2 (Lnl/adaptivity/xmlutil/Namespace;)Ljava/lang/String;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/NamespaceContextImpl : javax/xml/namespace/NamespaceContext {
+	public abstract fun getPrefixes (Ljava/lang/String;)Ljava/util/Iterator;
+	public abstract fun getPrefixesCompat (Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/NamespaceContextImpl$DefaultImpls {
+	public static fun getPrefixes (Lnl/adaptivity/xmlutil/NamespaceContextImpl;Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/NamespaceKt {
+	public static final fun getNamespaceURI (Lnl/adaptivity/xmlutil/Namespace;)Ljava/lang/String;
+	public static final fun getPrefix (Lnl/adaptivity/xmlutil/Namespace;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/QNameKt {
+	public static final fun getLocalPart (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public static final fun getPrefix (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public static final fun toNamespace (Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/Namespace;
+}
+
+public final class nl/adaptivity/xmlutil/QNameSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/QNameSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljavax/xml/namespace/QName;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljavax/xml/namespace/QName;)V
+}
+
+public final class nl/adaptivity/xmlutil/StAXReader : nl/adaptivity/xmlutil/XmlReader {
+	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
+	public fun <init> (Ljava/io/Reader;)V
+	public fun <init> (Ljavax/xml/stream/XMLStreamReader;)V
+	public fun <init> (Ljavax/xml/transform/Source;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun getCharacterEncodingScheme ()Ljava/lang/String;
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun getLocalName ()Ljava/lang/String;
+	public final fun getLocation ()Ljavax/xml/stream/Location;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getName ()Ljavax/xml/namespace/QName;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getNamespaceUri ()Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public final fun getTextCharacters ()[C
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public final fun hasText ()Z
+	public fun isCharacters ()Z
+	public fun isEndElement ()Z
+	public final fun isStandalone ()Z
+	public fun isStartElement ()Z
+	public fun isStarted ()Z
+	public final fun isWhiteSpace ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/StAXStreamingFactory : nl/adaptivity/xmlutil/XmlStreamingFactory {
+	public fun <init> ()V
+	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/io/Writer;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/lang/Appendable;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljavax/xml/transform/Result;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+}
+
+public final class nl/adaptivity/xmlutil/StAXWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZZ)V
+	public synthetic fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/Writer;ZZ)V
+	public fun <init> (Ljavax/xml/stream/XMLStreamWriter;Lnl/adaptivity/xmlutil/XmlDeclMode;Z)V
+	public synthetic fun <init> (Ljavax/xml/stream/XMLStreamWriter;Lnl/adaptivity/xmlutil/XmlDeclMode;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljavax/xml/stream/XMLStreamWriter;ZZ)V
+	public fun <init> (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljavax/xml/transform/Result;ZZ)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	public final fun getAutoCloseEmpty ()Z
+	public final fun getDelegate ()Ljavax/xml/stream/XMLStreamWriter;
+	public fun getDepth ()I
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public fun setNamespaceContext (Ljavax/xml/namespace/NamespaceContext;)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
+	public final fun writeAttribute (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun writeAttribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun writeAttribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun writeCData (Ljava/lang/String;)V
+	public final fun writeComment (Ljava/lang/String;)V
+	public final fun writeDTD (Ljava/lang/String;)V
+	public final fun writeEndDocument ()V
+	public final fun writeEntityRef (Ljava/lang/String;)V
+	public final fun writeProcessingInstruction (Ljava/lang/String;)V
+	public final fun writeProcessingInstruction (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/XMLConstants {
+	public static final field DEFAULT_NS_PREFIX Ljava/lang/String;
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/XMLConstants;
+	public static final field NULL_NS_URI Ljava/lang/String;
+	public static final field XMLNS_ATTRIBUTE Ljava/lang/String;
+	public static final field XMLNS_ATTRIBUTE_NS_URI Ljava/lang/String;
+	public static final field XML_NS_PREFIX Ljava/lang/String;
+	public static final field XML_NS_URI Ljava/lang/String;
+}
+
+public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/XmlBufferedReaderBase {
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
+	public fun close ()V
+	protected fun peekFirst ()Lnl/adaptivity/xmlutil/XmlEvent;
+}
+
+public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Lnl/adaptivity/xmlutil/IterableNamespaceContext;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	public final fun getBuffer ()Ljava/util/List;
+	public fun getDepth ()I
+	public fun getIndent ()I
+	public fun getIndentString ()Ljava/lang/String;
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public fun namespaceAttr (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public fun setIndent (I)V
+	public fun setIndentString (Ljava/lang/String;)V
+	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlDeclMode : java/lang/Enum {
+	public static final field Auto Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static final field Charset Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static final field Minimal Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static final field None Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static fun values ()[Lnl/adaptivity/xmlutil/XmlDeclMode;
+}
+
+public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/XmlReader {
+	protected fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	protected fun getDelegate ()Lnl/adaptivity/xmlutil/XmlReader;
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun getLocalName ()Ljava/lang/String;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getName ()Ljavax/xml/namespace/QName;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public fun isCharacters ()Z
+	public fun isEndElement ()Z
+	public fun isStartElement ()Z
+	public fun isStarted ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
+public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlWriter;)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	protected final fun getDelegate ()Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun getDepth ()I
+	public fun getIndent ()I
+	public fun getIndentString ()Ljava/lang/String;
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public fun namespaceAttr (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public fun setIndent (I)V
+	public fun setIndentString (Ljava/lang/String;)V
+	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlDeserializerFactory {
+	public abstract fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+}
+
+public abstract class nl/adaptivity/xmlutil/XmlEvent {
+	public static final field Companion Lnl/adaptivity/xmlutil/XmlEvent$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getLocationInfo ()Ljava/lang/String;
+	public fun isIgnorable ()Z
+	public abstract fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$Attribute : nl/adaptivity/xmlutil/XmlEvent {
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getLocalName ()Ljava/lang/String;
+	public final fun getNamespaceUri ()Ljava/lang/String;
+	public final fun getPrefix ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/String;
+	public final fun hasNamespaceUri ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$Companion {
+	public final fun from (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlEvent;
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$EndDocumentEvent : nl/adaptivity/xmlutil/XmlEvent {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivity/xmlutil/XmlEvent$NamedEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public abstract class nl/adaptivity/xmlutil/XmlEvent$NamedEvent : nl/adaptivity/xmlutil/XmlEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getLocalName ()Ljava/lang/String;
+	public final fun getNamespaceUri ()Ljava/lang/String;
+	public final fun getPrefix ()Ljava/lang/String;
+	public final fun isEqualNames (Lnl/adaptivity/xmlutil/XmlEvent$NamedEvent;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$NamespaceImpl : nl/adaptivity/xmlutil/Namespace {
+	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun component1 ()Ljava/lang/String;
+	public fun component2 ()Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$StartDocumentEvent : nl/adaptivity/xmlutil/XmlEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public final fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getStandalone ()Ljava/lang/Boolean;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$StartElementEvent : nl/adaptivity/xmlutil/XmlEvent$NamedEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;Ljava/util/List;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Ljava/util/List;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
+	public final fun getAttributes ()[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public final fun getNamespaceDecls ()Ljava/lang/Iterable;
+	public final fun getNamespaceUri (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlEvent$TextEvent : nl/adaptivity/xmlutil/XmlEvent {
+	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;)V
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getText ()Ljava/lang/String;
+	public fun isIgnorable ()Z
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public class nl/adaptivity/xmlutil/XmlException : java/io/IOException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun doThrow ()Ljava/lang/Void;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closeable, java/util/Iterator, kotlin/jvm/internal/markers/KMappedMarker {
+	public abstract fun close ()V
+	public abstract fun getAttributeCount ()I
+	public abstract fun getAttributeLocalName (I)Ljava/lang/String;
+	public abstract fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public abstract fun getAttributeNamespace (I)Ljava/lang/String;
+	public abstract fun getAttributePrefix (I)Ljava/lang/String;
+	public abstract fun getAttributeValue (I)Ljava/lang/String;
+	public abstract fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getDepth ()I
+	public abstract fun getEncoding ()Ljava/lang/String;
+	public abstract fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public abstract fun getLocalName ()Ljava/lang/String;
+	public abstract fun getLocationInfo ()Ljava/lang/String;
+	public abstract fun getName ()Ljavax/xml/namespace/QName;
+	public abstract fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getNamespaceURI ()Ljava/lang/String;
+	public abstract fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getPrefix ()Ljava/lang/String;
+	public abstract fun getStandalone ()Ljava/lang/Boolean;
+	public abstract fun getText ()Ljava/lang/String;
+	public abstract fun getVersion ()Ljava/lang/String;
+	public abstract fun hasNext ()Z
+	public abstract fun isCharacters ()Z
+	public abstract fun isEndElement ()Z
+	public abstract fun isStartElement ()Z
+	public abstract fun isStarted ()Z
+	public abstract fun isWhitespace ()Z
+	public abstract fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public abstract fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public abstract fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
+	public static fun getAttributeName (Lnl/adaptivity/xmlutil/XmlReader;I)Ljavax/xml/namespace/QName;
+	public static fun getName (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;
+	public static fun isCharacters (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static fun isEndElement (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static fun isStartElement (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static fun isWhitespace (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static fun nextTag (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/EventType;
+	public static fun require (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public static fun require (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlReaderUtil {
+	public static final fun allText (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/String;
+	public static final fun asSubstream (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static final fun consecutiveTextContent (Lnl/adaptivity/xmlutil/XmlBufferedReader;)Ljava/lang/String;
+	public static final fun elementContentToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public static final fun getAttributeIndices (Lnl/adaptivity/xmlutil/XmlReader;)Lkotlin/ranges/IntRange;
+	public static final fun getAttributes (Lnl/adaptivity/xmlutil/XmlReader;)[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
+	public static final fun getNamespaceDecls (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/util/List;
+	public static final fun getQname (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;
+	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;Ljava/lang/String;)Z
+	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;)Z
+	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)Z
+	public static synthetic fun isElement$default (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Z
+	public static synthetic fun isElement$default (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Z
+	public static final fun isIgnorable (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static final fun isPrefixDeclaredInElement (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;)Z
+	public static final fun readSimpleElement (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/String;
+	public static final fun siblingsToCharArray (Lnl/adaptivity/xmlutil/XmlReader;)[C
+	public static final fun siblingsToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+	public static final fun skipElement (Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun skipPreamble (Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun toCharArrayWriter (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/io/CharArrayWriter;
+	public static final fun toEvent (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlEvent;
+	public static final fun writeCurrent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
+	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/XmlStreaming;
+	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;Z)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljavax/xml/transform/Result;Z)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
+	public fun toCharArray (Ljavax/xml/transform/Source;)[C
+	public fun toString (Ljavax/xml/transform/Source;)Ljava/lang/String;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlStreamingFactory {
+	public abstract fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun newReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun newReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljava/io/Writer;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljava/lang/Appendable;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public abstract fun newWriter (Ljavax/xml/transform/Result;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+}
+
+public final class nl/adaptivity/xmlutil/XmlStreamingFactory$DefaultImpls {
+	public static fun newReader (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static fun newReader (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static synthetic fun newReader$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/InputStream;Ljava/lang/String;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static fun newWriter (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/OutputStream;Ljava/lang/String;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static fun newWriter (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/Writer;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static fun newWriter (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static fun newWriter (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static fun newWriter (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljavax/xml/transform/Result;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/OutputStream;Ljava/lang/String;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/Writer;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljavax/xml/transform/Result;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+}
+
+public final class nl/adaptivity/xmlutil/XmlStreamingFactoryKt {
+	public static final field DEFAULT_FLAGS I
+	public static final field FLAG_OMIT_XMLDECL I
+	public static final field FLAG_REPAIR_NS I
+}
+
+public final class nl/adaptivity/xmlutil/XmlUtil {
+	public static final fun asQName (Ljavax/xml/namespace/NamespaceContext;Ljava/lang/String;)Ljavax/xml/namespace/QName;
+	public static final fun isXml (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public static final fun isXmlWhitespace (C)Z
+	public static final fun isXmlWhitespace (Ljava/lang/CharSequence;)Z
+	public static final fun isXmlWhitespace ([C)Z
+	public static final fun qname (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljavax/xml/namespace/QName;
+	public static final fun qname (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljavax/xml/namespace/QName;
+	public static synthetic fun qname$default (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/Object;)Ljavax/xml/namespace/QName;
+	public static synthetic fun qname$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljavax/xml/namespace/QName;
+	public static final fun toCName (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public static final fun toQname (Ljava/lang/CharSequence;)Ljavax/xml/namespace/QName;
+	public static final fun toQname (Ljava/lang/CharSequence;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static final fun xmlEncode (Ljava/lang/CharSequence;)Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/XmlUtilInternal : java/lang/annotation/Annotation {
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlWriter : java/io/Closeable {
+	public abstract fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun cdsect (Ljava/lang/String;)V
+	public abstract fun close ()V
+	public abstract fun comment (Ljava/lang/String;)V
+	public abstract fun docdecl (Ljava/lang/String;)V
+	public abstract fun endDocument ()V
+	public abstract fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun entityRef (Ljava/lang/String;)V
+	public abstract fun flush ()V
+	public abstract fun getDepth ()I
+	public abstract fun getIndent ()I
+	public abstract fun getIndentString ()Ljava/lang/String;
+	public abstract fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public abstract fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun ignorableWhitespace (Ljava/lang/String;)V
+	public abstract fun namespaceAttr (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public abstract fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
+	public abstract fun processingInstruction (Ljava/lang/String;)V
+	public abstract fun setIndent (I)V
+	public abstract fun setIndentString (Ljava/lang/String;)V
+	public abstract fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public abstract fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public abstract fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun text (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlWriter$DefaultImpls {
+	public static fun getIndent (Lnl/adaptivity/xmlutil/XmlWriter;)I
+	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/Namespace;)V
+	public static fun setIndent (Lnl/adaptivity/xmlutil/XmlWriter;I)V
+	public static fun setPrefix (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlWriterUtil {
+	public static final fun addUndeclaredNamespaces (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;Ljava/util/Map;)V
+	public static final fun endTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;)V
+	public static final fun filterSubstream (Lnl/adaptivity/xmlutil/XmlWriter;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;)V
+	public static final fun serializeAll (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;)V
+	public static final fun serializeAll (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlin/sequences/Sequence;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;)V
+	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun smartStartTag$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/Object;)V
+	public static synthetic fun smartStartTag$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static synthetic fun smartStartTag$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun smartStartTag$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun startTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun startTag$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;D)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;J)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/Object;)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljavax/xml/namespace/QName;)V
+	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;Ljava/lang/String;)V
+	public static final fun writeChild (Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;)V
+	public static final fun writeCurrentEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun writeElement (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/util/Map;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun writeElementContent (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/util/Map;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun writeListIfNotEmpty (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V
+	public static synthetic fun writeListIfNotEmpty$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public static final fun writeSimpleElement (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun writeSimpleElement (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/_actualAliassesKt {
+	public static final fun prefixesFor (Ljavax/xml/namespace/NamespaceContext;Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {
+	public fun <init> ([Ljava/io/Reader;)V
+	public fun close ()V
+	public fun mark (I)Ljava/lang/Void;
+	public synthetic fun mark (I)V
+	public fun read ([CII)I
+	public fun ready ()Z
+	public fun reset ()V
+}
+
+public final class nl/adaptivity/xmlutil/util/CompactFragment : nl/adaptivity/xmlutil/util/ICompactFragment {
+	public static final field Companion Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;
+	public fun <init> (Ljava/lang/Iterable;Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/Iterable;[C)V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getContent ()[C
+	public fun getContentString ()Ljava/lang/String;
+	public static final fun getFACTORY ()Lnl/adaptivity/xmlutil/XmlDeserializerFactory;
+	public fun getNamespaces ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getXmlReader ()Lnl/adaptivity/xmlutil/XmlReader;
+	public fun hashCode ()I
+	public fun isEmpty ()Z
+	public fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/util/CompactFragment$Companion {
+	public final fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+	public final fun getFACTORY ()Lnl/adaptivity/xmlutil/XmlDeserializerFactory;
+}
+
+public final class nl/adaptivity/xmlutil/util/CompactFragment$Factory : nl/adaptivity/xmlutil/XmlDeserializerFactory {
+	public fun <init> ()V
+	public synthetic fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+}
+
+public final class nl/adaptivity/xmlutil/util/DefaultSerializationProvider : nl/adaptivity/xmlutil/util/SerializationProvider {
+	public fun <init> ()V
+	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
+	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public final class nl/adaptivity/xmlutil/util/GatheringNamespaceContext : nl/adaptivity/xmlutil/NamespaceContextImpl {
+	public fun <init> (Ljavax/xml/namespace/NamespaceContext;Ljava/util/Map;)V
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefixes (Ljava/lang/String;)Ljava/util/Iterator;
+	public fun getPrefixesCompat (Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/util/ICompactFragment : nl/adaptivity/xmlutil/XmlSerializable {
+	public abstract fun getContent ()[C
+	public abstract fun getContentString ()Ljava/lang/String;
+	public abstract fun getNamespaces ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun getXmlReader ()Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun isEmpty ()Z
+}
+
+public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider {
+	public abstract fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
+	public abstract fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun {
+	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun {
+	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;)V
+}
+
+public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReader : nl/adaptivity/xmlutil/XmlDelegatingReader, nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava {
+	public static final field Companion Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader$Companion;
+	public fun <init> (Ljava/io/Reader;Ljava/lang/Iterable;)V
+	public static final fun from (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+	public static final fun from (Ljava/io/Reader;Ljava/lang/Iterable;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+	public static final fun from (Lnl/adaptivity/xmlutil/util/ICompactFragment;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+	public fun getDelegate ()Lnl/adaptivity/xmlutil/XmlReader;
+	public fun getLocalNamespaceContext ()Lnl/adaptivity/xmlutil/util/impl/FragmentNamespaceContext;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun setLocalNamespaceContext (Lnl/adaptivity/xmlutil/util/impl/FragmentNamespaceContext;)V
+}
+
+public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReader$Companion {
+	public final fun from (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+	public final fun from (Ljava/io/Reader;Ljava/lang/Iterable;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+	public final fun from (Lnl/adaptivity/xmlutil/util/ICompactFragment;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava : nl/adaptivity/xmlutil/XmlReader {
+	public static final field Companion Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava$Companion;
+	public static final field WRAPPERNAMESPACE Ljava/lang/String;
+	public static final field WRAPPERPPREFIX Ljava/lang/String;
+	public abstract fun getDelegate ()Lnl/adaptivity/xmlutil/XmlReader;
+	public abstract fun getLocalNamespaceContext ()Lnl/adaptivity/xmlutil/util/impl/FragmentNamespaceContext;
+	public abstract fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public abstract fun setLocalNamespaceContext (Lnl/adaptivity/xmlutil/util/impl/FragmentNamespaceContext;)V
+}
+
+public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava$Companion {
+	public static final field WRAPPERNAMESPACE Ljava/lang/String;
+	public static final field WRAPPERPPREFIX Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava$DefaultImpls {
+	public static fun getAttributeName (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;I)Ljavax/xml/namespace/QName;
+	public static fun getName (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Ljavax/xml/namespace/QName;
+	public static fun getNamespaceContext (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public static fun isCharacters (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Z
+	public static fun isEndElement (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Z
+	public static fun isStartElement (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Z
+	public static fun isWhitespace (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Z
+	public static fun next (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Lnl/adaptivity/xmlutil/EventType;
+	public static fun nextTag (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Lnl/adaptivity/xmlutil/EventType;
+	public static fun require (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public static fun require (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
+public class nl/adaptivity/xmlutil/util/XmlDelegatingReader : nl/adaptivity/xmlutil/XmlDelegatingReader {
+	protected fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
+}
+
+public abstract class nl/adaptivity/xmlutil/util/XmlDelegatingWriter : nl/adaptivity/xmlutil/XmlDelegatingWriter {
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+

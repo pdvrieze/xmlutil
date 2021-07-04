@@ -32,13 +32,13 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
  * @property isRepairNamespaces Should missing namespace attributes be added automatically
  * @property xmlDeclMode Should the xml declaration be emitted automatically?
  */
-class KtXmlWriter(
+public class KtXmlWriter(
     private val writer: Appendable,
-    val isRepairNamespaces: Boolean = true,
-    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    public val isRepairNamespaces: Boolean = true,
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
                  ) : PlatformXmlWriterBase(), XmlWriter {
 
-    var addTrailingSpaceBeforeEnd = true
+    public var addTrailingSpaceBeforeEnd: Boolean = true
 
     private var isPartiallyOpenTag: Boolean = false
 

@@ -34,7 +34,7 @@ import kotlin.jvm.JvmName
  *
  * @throws XmlException
  */
-fun XmlReader.elementContentToFragment(): ICompactFragment {
+public fun XmlReader.elementContentToFragment(): ICompactFragment {
     val r = this
     r.skipPreamble()
     if (r.hasNext()) {
@@ -45,9 +45,9 @@ fun XmlReader.elementContentToFragment(): ICompactFragment {
     return CompactFragment("")
 }
 
-expect fun XmlReader.siblingsToFragment(): CompactFragment
+public expect fun XmlReader.siblingsToFragment(): CompactFragment
 
 @Suppress("DeprecatedCallableAddReplaceWith", "deprecation")
 @Deprecated("This is inefficient in Javascript")
-fun XmlReader.siblingsToCharArray() = siblingsToFragment().content
+public fun XmlReader.siblingsToCharArray(): CharArray = siblingsToFragment().content
 

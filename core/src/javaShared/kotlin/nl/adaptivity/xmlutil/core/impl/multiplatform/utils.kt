@@ -20,15 +20,15 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-actual fun assert(value: Boolean, lazyMessage: () -> String) {
+public actual fun assert(value: Boolean, lazyMessage: () -> String) {
     kotlin.assert(value, lazyMessage)
 }
 
-actual fun assert(value: Boolean) = kotlin.assert(value)
+public actual fun assert(value: Boolean): Unit = kotlin.assert(value)
 
-actual typealias AutoCloseable = java.lang.AutoCloseable
+public actual typealias AutoCloseable = java.lang.AutoCloseable
 
-actual typealias Closeable = java.io.Closeable
+public actual typealias Closeable = java.io.Closeable
 
-actual typealias Writer = java.io.Writer
-actual typealias StringWriter = java.io.StringWriter
+public actual typealias Writer = java.io.Writer
+public actual typealias StringWriter = java.io.StringWriter
