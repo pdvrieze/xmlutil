@@ -66,16 +66,6 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
 
     override fun next() = super<XMLFragmentStreamReaderJava>.next()
 
-    override val namespaceStart: Int
-        get() = super<XMLFragmentStreamReaderJava>.namespaceStart
-
-    override val namespaceEnd: Int
-        get() = super<XMLFragmentStreamReaderJava>.namespaceEnd
-
-    override fun getNamespacePrefix(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespacePrefix(index)
-
-    override fun getNamespaceURI(index: Int): String = super<XMLFragmentStreamReaderJava>.getNamespaceURI(index)
-
     override val namespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
 
     actual companion object {

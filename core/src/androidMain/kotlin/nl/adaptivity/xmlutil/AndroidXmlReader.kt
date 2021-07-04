@@ -96,22 +96,6 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     override fun getAttributeNamespace(index: Int): String = parser.getAttributeNamespace(index)
         ?: XMLConstants.NULL_NS_URI
 
-    override val namespaceStart: Int
-        get() {
-            require(EventType.START_ELEMENT, null, null)
-            return parser.getNamespaceCount(parser.depth - 1)
-        }
-
-    override val namespaceEnd: Int
-        get() {
-            require(EventType.START_ELEMENT, null, null)
-            return parser.getNamespaceCount(parser.depth)
-        }
-
-    override fun getNamespaceURI(index: Int): String = parser.getNamespaceUri(index) ?: ""
-
-    override fun getNamespacePrefix(index: Int): String = parser.getNamespacePrefix(index) ?: ""
-
     override fun getNamespaceURI(prefix: String): String? {
         for (i in parser.getNamespaceCount(parser.depth) downTo 0) {
             if (prefix == parser.getNamespacePrefix(i)) {

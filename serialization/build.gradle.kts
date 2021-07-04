@@ -52,8 +52,10 @@ base {
 val serializationVersion: String by project
 val jupiterVersion: String by project
 val woodstoxVersion: String by project
-
 val kotlin_version: String by project
+
+val argJvmDefault: String by project
+
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 val moduleName = "net.devrieze.xmlutil.serialization"
@@ -71,6 +73,7 @@ kotlin {
                 compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
+                        freeCompilerArgs += argJvmDefault
                     }
                 }
                 tasks.named<Jar>("jvmJar") {

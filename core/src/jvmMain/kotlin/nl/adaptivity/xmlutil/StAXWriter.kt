@@ -49,8 +49,7 @@ class StAXWriter(
     val delegate: XMLStreamWriter,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     val autoCloseEmpty: Boolean = true
-                ) : PlatformXmlWriterBase(),
-                    XmlWriter {
+) : PlatformXmlWriterBase(), XmlWriter {
 
     private val pendingWrites = mutableListOf<XmlEvent>()
     private val pendingNamespaces = mutableListOf<Namespace>()
@@ -63,12 +62,12 @@ class StAXWriter(
         private set
 
     @Deprecated("Use version taking XmlDeclMode")
-    constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean = false, autoCloseEmpty: Boolean = true) :
+    constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean, autoCloseEmpty: Boolean) :
             this(delegate, XmlDeclMode.from(omitXmlDecl), autoCloseEmpty)
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
+    constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean)
             : this(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
@@ -86,14 +85,13 @@ class StAXWriter(
         encoding: String,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-               )
-            : this(
+    ) : this(
         newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), xmlDeclMode
-                  )
+    )
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
+    constructor(result: Result, repairNamespaces: Boolean, omitXmlDecl: Boolean)
             : this(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
@@ -106,7 +104,14 @@ class StAXWriter(
         depth++
         _namespaceContext.incDepth() // already increase now
         if (autoCloseEmpty) {
-            pendingWrites.add(XmlEvent.StartElementEvent(namespace ?: "", localName, prefix ?: "", _namespaceContext.freeze()))
+            pendingWrites.add(
+                XmlEvent.StartElementEvent(
+                    namespace ?: "",
+                    localName,
+                    prefix ?: "",
+                    _namespaceContext.freeze()
+                )
+            )
         } else {
             doStartTag(namespace, prefix, localName, false)
         }
@@ -157,10 +162,10 @@ class StAXWriter(
         for (attr in (nsAttrs.asSequence() + regularAttrs.asSequence())) {
             when {
                 attr.namespaceUri != XMLNS_ATTRIBUTE_NS_URI
-                     -> doAttribute(attr.namespaceUri, attr.prefix, attr.localName, attr.value)
+                -> doAttribute(attr.namespaceUri, attr.prefix, attr.localName, attr.value)
 
                 attr.prefix == ""
-                     -> doNamespaceAttr("", attr.value)
+                -> doNamespaceAttr("", attr.value)
 
                 else -> doNamespaceAttr(attr.localName, attr.value)
             }
@@ -247,10 +252,10 @@ class StAXWriter(
                 namespaceAttr(newPrefix, value)
             }
 
-            pendingWrites.isNotEmpty()          ->
+            pendingWrites.isNotEmpty() ->
                 pendingWrites.add(XmlEvent.Attribute(namespace ?: "", name, prefix ?: "", value))
 
-            else                                ->
+            else ->
                 doAttribute(namespace, prefix, name, value)
         }
     }
@@ -292,22 +297,22 @@ class StAXWriter(
         when {
             pendingWrites.isEmpty() -> doNamespaceAttr(namespacePrefix, namespaceUri)
 
-            namespacePrefix == ""   -> pendingWrites.add(
+            namespacePrefix == "" -> pendingWrites.add(
                 XmlEvent.Attribute(
                     XMLNS_ATTRIBUTE_NS_URI,
                     XMLNS_ATTRIBUTE,
                     "",
                     namespaceUri
-                                  )
-                                                        )
-            else                    -> pendingWrites.add(
+                )
+            )
+            else -> pendingWrites.add(
                 XmlEvent.Attribute(
                     XMLNS_ATTRIBUTE_NS_URI,
                     namespacePrefix,
                     XMLNS_ATTRIBUTE,
                     namespaceUri
-                                  )
-                                                        )
+                )
+            )
         }
     }
 
@@ -420,16 +425,16 @@ class StAXWriter(
             val effectiveEncoding = when (xmlDeclMode) {
                 XmlDeclMode.Minimal -> when (encoding?.lowercase(Locale.ENGLISH)?.startsWith("utf-")) {
                     false -> encoding
-                    else  -> null
+                    else -> null
                 }
                 XmlDeclMode.Charset -> encoding ?: "UTF-8"
-                else                -> encoding
+                else -> encoding
             }
 
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT) // should be null as length is 0
             if (standalone != null && mtdWriteStartDocument != null && clsXmlStreamWriter?.isInstance(
                     delegate
-                                                                                                     ) == true
+                ) == true
             ) {
                 mtdWriteStartDocument.invoke(delegate, version, effectiveEncoding, standalone)
             } else {
@@ -458,7 +463,7 @@ class StAXWriter(
     override fun getPrefix(namespaceUri: String?): String? {
         try {
             pendingNamespaces
-                .firstOrNull { it.namespaceURI==namespaceUri }
+                .firstOrNull { it.namespaceURI == namespaceUri }
                 ?.let { return it.prefix }
 
             pendingWrites.asSequence()
@@ -488,7 +493,7 @@ class StAXWriter(
     @Throws(XmlException::class)
     override fun getNamespaceUri(prefix: String): String? {
         pendingNamespaces
-            .firstOrNull { it.prefix==prefix }
+            .firstOrNull { it.prefix == prefix }
             ?.let { return it.namespaceURI }
         pendingWrites.asSequence()
             .filterIsInstance<XmlEvent.Attribute>()

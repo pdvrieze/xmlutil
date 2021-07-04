@@ -30,7 +30,8 @@ import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 /**
- * Created by pdvrieze on 15/11/15.
+ * Interface that is the entry point to the xml parsing. All implementations implement this
+ * interface, generally by delegating to a platform specific parser.
  */
 interface XmlReader : Closeable, Iterator<EventType> {
 
@@ -108,27 +109,6 @@ interface XmlReader : Closeable, Iterator<EventType> {
 
     fun getAttributeValue(nsUri: String?, localName: String): String?
 
-    /**
-     * Index of the first namespace relevant at this level. This allows the underlying implementation
-     * to implement namespaces as a stack.
-     */
-    val namespaceStart: Int
-
-    /**
-     * Index of the last namespace relevant at this level
-     */
-    val namespaceEnd: Int
-
-    /**
-     * Namespace prefix at the given index
-     */
-    fun getNamespacePrefix(index: Int): String
-
-    /**
-     * Namespace uri at the given index
-     */
-    fun getNamespaceURI(index: Int): String
-
     fun getNamespacePrefix(namespaceUri: String): String?
 
     override fun close()
@@ -172,8 +152,6 @@ val XmlReader.attributes: Array<out XmlEvent.Attribute>
                               )
         }
 
-val XmlReader.namespaceIndices: IntRange get() = namespaceStart until namespaceEnd
-
 val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
 val XmlReader.namespaceDecls: List<Namespace>
@@ -193,15 +171,7 @@ val XmlReader.namespaceDecls: List<Namespace>
 
 val XmlReader.qname: QName get() = text.toQname()
 
-fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
-    val r = this
-    for (i in r.namespaceStart until r.namespaceEnd) {
-        if (r.getNamespacePrefix(i) == prefix) {
-            return true
-        }
-    }
-    return false
-}
+fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean = namespaceDecls.any { it.prefix == prefix }
 
 fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(

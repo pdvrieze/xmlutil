@@ -18,13 +18,16 @@
  * under the License.
  */
 
-@file:JvmName("XmlReaderExt")
+@file:JvmName("XmlReaderUtil")
+@file:JvmMultifileClass
 
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter
 import java.util.*
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * Functions that work on both js/jvm but have different implementations
