@@ -228,11 +228,7 @@ constructor(
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             { input, inputKind, name, candidates ->
-                throw UnknownXmlFieldException(
-                    input.locationInfo,
-                    name?.toString() ?: "<CDATA>",
-                    candidates
-                                              )
+                throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)
             }
     }
 }
