@@ -76,7 +76,7 @@ kotlin {
                 compileKotlinTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
-                        freeCompilerArgs += argJvmDefault
+//                        freeCompilerArgs += argJvmDefault
                     }
                 }
                 tasks.named<Test>("${target.name}Test") {

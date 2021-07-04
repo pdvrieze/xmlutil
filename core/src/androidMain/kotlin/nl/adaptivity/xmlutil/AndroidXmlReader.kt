@@ -36,6 +36,7 @@ actual typealias PlatformXmlReader = AndroidXmlReader
  */
 class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
     override var isStarted: Boolean = false
+        private set
 
     private constructor() : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
 
@@ -157,7 +158,7 @@ class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
         /* Does nothing in this implementation */
     }
 
-    companion object {
+    private companion object {
 
         @Suppress("UNCHECKED_CAST")
         private val DELEGATE_TO_LOCAL = arrayOfNulls<EventType>(11) as Array<EventType>
