@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -41,14 +43,15 @@ import kotlin.jvm.JvmName
  * A simple namespace context that stores namespaces in a single array
  * Created by pdvrieze on 24/08/15.
  */
-@Serializable
-@OptIn(XmlUtilInternal::class)
+@Serializable(SimpleNamespaceContext.Companion::class)
+@XmlUtilInternal
 open class SimpleNamespaceContext internal constructor(val buffer: Array<out String>) : IterableNamespaceContext {
 
     val indices: IntRange get() = 0 until size
 
     @get:JvmName("size")
-    val size: Int get() = buffer.size / 2
+    val size: Int
+        get() = buffer.size / 2
 
     private inner class SimpleIterator : Iterator<Namespace> {
         private var pos = 0
@@ -99,7 +102,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     constructor(namespaces: Iterable<Namespace>) :
             this(namespaces as? Collection<Namespace> ?: namespaces.toList())
 
-    constructor(original: SimpleNamespaceContext): this(original.buffer)
+    constructor(original: SimpleNamespaceContext) : this(original.buffer)
 
     override fun freeze(): SimpleNamespaceContext = this
 
@@ -128,7 +131,7 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
      *
      * @return the new context
      */
-    fun combine(other: Iterable<Namespace>): SimpleNamespaceContext? {
+    fun combine(other: Iterable<Namespace>): SimpleNamespaceContext {
         return plus(other)
     }
 
@@ -210,7 +213,17 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         secondary is SimpleNamespaceContext && size == 0
              -> secondary
 
-        else -> CombiningNamespaceContext(this, secondary)
+        else -> @Suppress("DEPRECATION") CombiningNamespaceContext(this, secondary)
+    }
+
+    override fun plus(secondary: IterableNamespaceContext): IterableNamespaceContext = when {
+        secondary is SimpleNamespaceContext && secondary.size == 0
+             -> this
+
+        secondary is SimpleNamespaceContext && size == 0
+             -> secondary
+
+        else -> super.plus(secondary)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -227,15 +240,17 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
     }
 
     @ExperimentalSerializationApi
-    private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
+    private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) :
+        SerialDescriptor by delegate
 
-
+    @XmlUtilInternal
     companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = ListSerializer(Namespace)
 
         @ExperimentalSerializationApi
-        override val descriptor: SerialDescriptor = RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
+        override val descriptor: SerialDescriptor =
+            RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 
         fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext

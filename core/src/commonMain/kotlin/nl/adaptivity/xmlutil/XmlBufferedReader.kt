@@ -29,11 +29,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.isNotEmpty
  * this class does not do any validation of the xml. If injecting/removing elements into/from the buffer you can create
  * invalid XML.
  */
-@OptIn(XmlUtilInternal::class)
 open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 
     private val peekBuffer = SimpleQueue<XmlEvent>()
 
+    @get:XmlUtilInternal
     override val hasPeekItems get() = peekBuffer.isNotEmpty()
 
     /**
@@ -48,6 +48,7 @@ open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReade
      * Peek the last element in the buffer, if it exists, otherwise `null`. Note that a null value does not
      * reflect an empty stream (or end of file), only an empty buffer.
      */
+    @XmlUtilInternal
     override fun peekLast(): XmlEvent? {
         return peekBuffer.peekLast()
     }
@@ -55,16 +56,19 @@ open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReade
     /**
      * Remove the top element in the peek buffer (the one returned by [peekFirst])
      */
+    @XmlUtilInternal
     override fun bufferRemoveLast() = peekBuffer.removeLast()
 
     /**
      * Remove the bottom element in the peek buffer (the one returned by [peekLast])
      */
+    @XmlUtilInternal
     override fun bufferRemoveFirst() = peekBuffer.removeFirst()
 
     /**
      * Add an element to the peek buffer.
      */
+    @XmlUtilInternal
     override fun add(event: XmlEvent) {
         peekBuffer.addLast(event)
     }
@@ -72,6 +76,7 @@ open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReade
     /**
      * Add events to the peek buffer.
      */
+    @XmlUtilInternal
     override fun addAll(events: Collection<XmlEvent>) {
         peekBuffer.addAll(events)
     }

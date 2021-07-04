@@ -24,11 +24,14 @@ import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
 
+@XmlUtilInternal
 abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
+    @get:XmlUtilInternal
     protected abstract val hasPeekItems: Boolean
 
+    @get:XmlUtilInternal
     protected var current: XmlEvent? = XmlEvent.from(delegate)
         private set
 
@@ -101,7 +104,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
             return current?.locationInfo ?: delegate.locationInfo
         }
 
-    override val namespaceContext: FreezableNamespaceContext
+    override val namespaceContext: IterableNamespaceContext
         get() {
             return when (val c = current) {
                 is StartElementEvent -> c.namespaceContext
@@ -163,6 +166,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
      * Get the next event to add to the queue. Children can override this to customize the events that are added to the
      * peek buffer. Normally this method is only called when the peek buffer is empty.
      */
+    @XmlUtilInternal
     protected open fun doPeek(): List<XmlEvent> {
         if (delegate.hasNext()) {
             delegate.next() // Don't forget to actually read the next element
@@ -182,6 +186,7 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
 
     }
 
+    @XmlUtilInternal
     protected fun stripWhiteSpaceFromPeekBuffer() {
         while (hasPeekItems && peekLast().let { peekLast ->
                 peekLast is TextEvent && isXmlWhitespace(peekLast.text)
@@ -192,10 +197,15 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
 
 
     protected abstract fun peekFirst(): XmlEvent?
+    @XmlUtilInternal
     protected abstract fun peekLast(): XmlEvent?
+    @XmlUtilInternal
     protected abstract fun bufferRemoveLast(): XmlEvent
+    @XmlUtilInternal
     protected abstract fun bufferRemoveFirst(): XmlEvent
+    @XmlUtilInternal
     protected abstract fun add(event: XmlEvent)
+    @XmlUtilInternal
     protected abstract fun addAll(events: Collection<XmlEvent>)
 
     override fun close() {

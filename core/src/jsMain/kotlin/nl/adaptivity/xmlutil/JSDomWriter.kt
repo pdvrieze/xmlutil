@@ -34,7 +34,6 @@ actual typealias PlatformXmlWriter = JSDomWriter
 /**
  * Created by pdvrieze on 04/04/17.
  */
-@OptIn(XmlUtilInternal::class)
 class JSDomWriter constructor(
     current: ParentNode?,
     val isAppend: Boolean = false,

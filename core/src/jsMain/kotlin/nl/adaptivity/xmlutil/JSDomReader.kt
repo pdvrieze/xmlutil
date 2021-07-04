@@ -20,13 +20,10 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.js.util.asElement
-import nl.adaptivity.js.util.filter
-import nl.adaptivity.js.util.myLookupNamespaceURI
-import nl.adaptivity.js.util.myLookupPrefix
 import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
+import nl.adaptivity.js.util.*
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 actual typealias PlatformXmlReader = JSDomReader
@@ -117,8 +114,8 @@ class JSDomReader(val delegate: Node) : XmlReader {
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     internal val currentElement get() = current as? Element ?: throw IllegalStateException("Node is not an element")
 
-    override val namespaceContext: FreezableNamespaceContext
-        get() = object : FreezableNamespaceContext {
+    override val namespaceContext: IterableNamespaceContext
+        get() = object : IterableNamespaceContext {
             private val currentElement: Element? = (requireCurrent as? Element) ?: requireCurrent.parentElement
 
             override fun getNamespaceURI(prefix: String): String? {
@@ -129,10 +126,27 @@ class JSDomReader(val delegate: Node) : XmlReader {
                 return currentElement?.lookupPrefix(namespaceURI)
             }
 
-            override fun freeze(): FreezableNamespaceContext = this
+            override fun freeze(): IterableNamespaceContext = this
+
+            override fun iterator(): Iterator<Namespace> {
+                return sequence<Namespace> {
+                    var c: Element? = currentElement
+                    while (c!=null) {
+                        for (attr in c.attributes) {
+                            when {
+                                attr.prefix == "xmlns"                                   ->
+                                    yield(XmlEvent.NamespaceImpl(attr.localName, attr.value))
+                                attr.prefix.isNullOrEmpty() && attr.localName == "xmlns" ->
+                                    yield(XmlEvent.NamespaceImpl("", attr.value))
+                            }
+                        }
+                        c = c.parentElement
+                    }
+                }.iterator()
+            }
 
             @Suppress("OverridingDeprecatedMember")
-            override fun getPrefixes(namespaceURI: String): Iterator<String> {
+            override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
                 // TODO return all possible ones by doing so recursively
                 return listOfNotNull(getPrefix(namespaceURI)).iterator()
             }

@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 /** Interface that provides access to namespace queries */
@@ -32,66 +31,23 @@ expect interface NamespaceContext {
 /** Helper interface for implementation.
  * @suppress
  */
+@XmlUtilInternal
 expect interface NamespaceContextImpl : NamespaceContext {
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
     fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
-interface FreezableNamespaceContext : NamespaceContext {
-    fun freeze(): FreezableNamespaceContext
-
-    operator fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext =
-        CombiningNamespaceContext(this, secondary)
-}
-
 /** Namespace context that allows iterating over the namespaces. */
 interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace>, FreezableNamespaceContext {
-    override fun freeze(): FreezableNamespaceContext = SimpleNamespaceContext(this)
+    override fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this)
+
+
+    @Suppress("DEPRECATION")
+    operator fun plus(secondary: IterableNamespaceContext): IterableNamespaceContext =
+        SimpleNamespaceContext((asSequence() + secondary.asSequence()).toList())
+
 }
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")
 expect inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String>
 
-class FreezableDelegatingNamespaceContext(private val delegator: () -> NamespaceContext) : NamespaceContextImpl, FreezableNamespaceContext {
-    private val gatheredHolder = NamespaceHolder()
-
-    private val declaredHolder = NamespaceHolder()
-
-    fun incDepth() {
-        declaredHolder.incDepth()
-    }
-
-    fun decDepth() {
-        declaredHolder.decDepth()
-    }
-
-    override fun getNamespaceURI(prefix: String): String? {
-        return declaredHolder.getNamespaceUri(prefix)
-            ?: gatheredHolder.getNamespaceUri(prefix)
-            ?: delegator().getNamespaceURI(prefix)?.also { gatheredHolder.addPrefixToContext(prefix, it) }
-
-    }
-
-    override fun getPrefix(namespaceURI: String): String? {
-        return declaredHolder.getPrefix(namespaceURI)
-            ?: gatheredHolder.getPrefix(namespaceURI)
-            ?: delegator().getPrefix(namespaceURI)?.also { gatheredHolder.addPrefixToContext(it, namespaceURI) }
-    }
-    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
-        val prefixes = mutableListOf<String>()
-
-        (declaredHolder.asSequence() + gatheredHolder.asSequence())
-            .filter { it.namespaceURI == namespaceURI && it.prefix !in prefixes }
-            .forEach {
-                prefixes.add(it.prefix)
-            }
-        return prefixes.iterator()
-    }
-    override fun freeze(): FreezableNamespaceContext {
-        return declaredHolder.namespaceContext + gatheredHolder.namespaceContext
-    }
-
-    fun addPrefix(namespacePrefix: String, namespaceURI: String) {
-        declaredHolder.addPrefixToContext(namespacePrefix, namespaceURI)
-    }
-}

@@ -181,8 +181,8 @@ fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
         EventType.START_ELEMENT          -> {
             startTag(reader.namespaceURI, reader.localName, reader.prefix)
             run {
-                for (i in reader.namespaceIndices) {
-                    namespaceAttr(reader.getNamespacePrefix(i), reader.getNamespaceURI(i))
+                for (a in reader.namespaceDecls) {
+                    namespaceAttr(a.prefix, a.namespaceURI)
                 }
             }
             run {

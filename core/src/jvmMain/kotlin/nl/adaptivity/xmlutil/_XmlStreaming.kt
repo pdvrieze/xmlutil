@@ -104,54 +104,8 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
 }
 
 
-inline fun <reified T : Any> deserialize(input: InputStream) = deSerialize(input, T::class.java)
+inline fun <reified T : Any> deserialize(input: InputStream): T = deSerialize(input, T::class.java)
 
-inline fun <reified T : Any> deserialize(input: Reader) = deSerialize(input, T::class.java)
+inline fun <reified T : Any> deserialize(input: Reader): T = deSerialize(input, T::class.java)
 
-inline fun <reified T : Any> deserialize(input: String) = deSerialize(input, T::class.java)
-
-
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.START_DOCUMENT", "XmlStreaming.EventType"))
-val START_DOCUMENT: EventType = EventType.START_DOCUMENT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.START_ELEMENT", "XmlStreaming.EventType"))
-val START_ELEMENT: EventType = EventType.START_ELEMENT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.END_ELEMENT", "XmlStreaming.EventType"))
-val END_ELEMENT: EventType = EventType.END_ELEMENT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.COMMENT", "XmlStreaming.EventType"))
-val COMMENT: EventType = EventType.COMMENT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.CDSECT", "XmlStreaming.EventType"))
-val CDSECT: EventType = EventType.CDSECT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.DOCDECL", "XmlStreaming.EventType"))
-val DOCDECL: EventType = EventType.DOCDECL
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.ATTRIBUTE", "XmlStreaming.EventType"))
-val ATTRIBUTE: EventType = EventType.ATTRIBUTE
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.END_DOCUMENT", "XmlStreaming.EventType"))
-val END_DOCUMENT: EventType = EventType.END_DOCUMENT
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.ENTITY_REF", "XmlStreaming.EventType"))
-val ENTITY_REF: EventType = EventType.ENTITY_REF
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.IGNORABLE_WHITESPACE", "XmlStreaming.EventType"))
-val IGNORABLE_WHITESPACE: EventType = EventType.IGNORABLE_WHITESPACE
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.PROCESSING_INSTRUCTION", "XmlStreaming.EventType"))
-val PROCESSING_INSTRUCTION: EventType = EventType.PROCESSING_INSTRUCTION
-
-@JvmField
-@Deprecated("Don't use it", ReplaceWith("EventType.CDSECT", "XmlStreaming.EventType"))
-val CDATA = EventType.CDSECT
-
-@Deprecated("Don't use it", ReplaceWith("EventType.TEXT", "XmlStreaming.EventType"))
-@JvmField
-val TEXT = EventType.TEXT
-@Deprecated("Don't use it", ReplaceWith("EventType.TEXT", "XmlStreaming.EventType"))
-@JvmField
-val CHARACTERS = EventType.TEXT
+inline fun <reified T : Any> deserialize(input: String): T = deSerialize(input, T::class.java)

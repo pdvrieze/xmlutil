@@ -96,7 +96,7 @@ sealed class XmlEvent(val locationInfo: String?) {
         namespaceUri: String,
         localName: String,
         prefix: String,
-        namespaceContext: FreezableNamespaceContext,
+        namespaceContext: IterableNamespaceContext,
                          ) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix) {
 
@@ -104,7 +104,7 @@ sealed class XmlEvent(val locationInfo: String?) {
 
         override val eventType: EventType get() = EventType.END_ELEMENT
 
-        val namespaceContext: FreezableNamespaceContext = namespaceContext.freeze()
+        val namespaceContext: IterableNamespaceContext = namespaceContext.freeze()
     }
 
     class StartDocumentEvent(
@@ -145,21 +145,27 @@ sealed class XmlEvent(val locationInfo: String?) {
 
     }
 
+    @OptIn(XmlUtilInternal::class)
     class StartElementEvent(
         locationInfo: String?,
         namespaceUri: String,
         localName: String,
         prefix: String,
         val attributes: Array<out Attribute>,
-        private val parentNamespaceContext: FreezableNamespaceContext,
-        namespaceDecls: Array<out Namespace>
+        private val parentNamespaceContext: IterableNamespaceContext,
+        namespaceDecls: List<Namespace>
                            ) :
         NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContextImpl {
 
         private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
 
-        constructor(namespaceUri: String, localName: String, prefix: String, parentNamespaceContext: FreezableNamespaceContext) :
-                this(null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyArray())
+        constructor(
+            namespaceUri: String,
+            localName: String,
+            prefix: String,
+            parentNamespaceContext: IterableNamespaceContext
+                   ) :
+                this(null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyList())
 
         @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
         constructor(namespaceUri: String, localName: String, prefix: String) :
@@ -172,7 +178,7 @@ sealed class XmlEvent(val locationInfo: String?) {
             localName: String,
             prefix: String,
             attributes: Array<out Attribute>,
-            namespaceDecls: Array<out Namespace>
+            namespaceDecls: List<Namespace>
                    ) : this(
             locationInfo,
             namespaceUri,
@@ -226,7 +232,7 @@ sealed class XmlEvent(val locationInfo: String?) {
             return getNamespaceURI(prefix.toString())
         }
 
-        val namespaceContext: FreezableNamespaceContext
+        val namespaceContext: IterableNamespaceContext
             get() = namespaceHolder + parentNamespaceContext
 
         @Suppress("OverridingDeprecatedMember")
