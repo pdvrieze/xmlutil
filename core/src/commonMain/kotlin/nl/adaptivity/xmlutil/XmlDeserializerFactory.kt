@@ -27,6 +27,7 @@ package nl.adaptivity.xmlutil
 
  * Created by pdvrieze on 27/08/15.
  */
+@Deprecated("This should be replaced by kotlinx.serialization")
 interface XmlDeserializerFactory<T> {
 
     /** Deserialize the object */

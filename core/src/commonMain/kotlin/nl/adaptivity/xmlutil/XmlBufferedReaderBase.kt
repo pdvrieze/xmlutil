@@ -94,11 +94,6 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
             throw XmlException("Attempting to read beyond the end of the stream")
         }
 
-    override val namespaceStart: Int get() = 0
-
-    override val namespaceEnd: Int
-        get() = currentElement.namespaceDecls.size
-
     override val locationInfo: String?
         get() { // allow for location info at the start of the document
             return current?.locationInfo ?: delegate.locationInfo
@@ -251,15 +246,6 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         currentElement.attributes.firstOrNull { attr ->
             (nsUri == null || nsUri == attr.namespaceUri) && localName == attr.localName
         }?.value
-
-
-    override fun getNamespacePrefix(index: Int): String {
-        return currentElement.namespaceDecls[index].prefix
-    }
-
-    override fun getNamespaceURI(index: Int): String {
-        return currentElement.namespaceDecls[index].namespaceURI
-    }
 
     override fun getNamespacePrefix(namespaceUri: String): String? {
         return currentElement.getPrefix(namespaceUri)

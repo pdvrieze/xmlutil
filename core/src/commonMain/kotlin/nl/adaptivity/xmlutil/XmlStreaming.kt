@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import kotlin.jvm.JvmStatic
 
 /**
  * This class is the entry point for creating [XmlReader] and [XmlWriter]
@@ -57,7 +58,7 @@ enum class XmlDeclMode {
     /** Emit an xml declaration that includes the character set. */
     Charset;
 
-    companion object {
+    internal companion object {
         fun from(value: Boolean): XmlDeclMode = when(value) {
             true -> None
             else -> Auto

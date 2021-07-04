@@ -154,31 +154,15 @@ actual class XMLFragmentStreamReader constructor(
         return super.getNamespacePrefix(namespaceUri)
     }
 
-    override val namespaceStart: Int
-        get() = 0
-
-    override val namespaceEnd: Int
-        get() = localNamespaceContext.size
-
-
-    override fun getNamespacePrefix(index: Int): String {
-        return localNamespaceContext.getPrefix(index)
-    }
-
-
-    override fun getNamespaceURI(index: Int): String {
-        return localNamespaceContext.getNamespaceURI(index)
-    }
-
     override val namespaceContext: IterableNamespaceContext
         get() = localNamespaceContext
 
 
     private fun extendNamespace() {
-        val nsStart = delegate.namespaceStart
-        val nscount = delegate.namespaceEnd - nsStart
-        val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
-        val namespaces = Array(nscount) { idx -> delegate.getNamespaceURI(idx + nsStart) }
+        val namespaceDecls = delegate.namespaceDecls
+        val nscount = namespaceDecls.size
+        val prefixes = Array(nscount) { idx -> namespaceDecls[idx].prefix }
+        val namespaces = Array(nscount) { idx -> namespaceDecls[idx].namespaceURI }
 
         localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
     }

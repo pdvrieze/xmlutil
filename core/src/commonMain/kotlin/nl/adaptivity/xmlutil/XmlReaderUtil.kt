@@ -47,3 +47,4 @@ private class SubstreamFilterReader(delegate: XmlReader) : XmlBufferedReader(del
     }
 }
 
+fun XmlReader.toEvent(): XmlEvent = eventType.createEvent(this)

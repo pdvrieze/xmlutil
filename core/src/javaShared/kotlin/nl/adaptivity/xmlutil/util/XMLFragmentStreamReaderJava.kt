@@ -54,35 +54,21 @@ interface XMLFragmentStreamReaderJava : XmlReader {
         }
     }
 
-    override val namespaceStart: Int
-        get() = 0
-
-    override val namespaceEnd: Int
-        get() = TODO("Invalid")//localNamespaceContext.size
-
-    override fun getNamespacePrefix(index: Int): String {
-        return TODO("Invalid")// localNamespaceContext.getPrefix(index)
-    }
-
-    override fun getNamespaceURI(index: Int): String {
-        return TODO("Invalid")// localNamespaceContext.getNamespaceURI(index)
-    }
-
     override val namespaceContext: IterableNamespaceContext
         get() = localNamespaceContext
-
-    fun extendNamespace() {
-        val nsStart = delegate.namespaceStart
-        val nscount = delegate.namespaceEnd - nsStart
-        val prefixes = Array(nscount) { idx -> delegate.getNamespacePrefix(idx + nsStart) }
-        val namespaces = Array(nscount) { idx -> delegate.getNamespaceURI(idx + nsStart) }
-
-        localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
-    }
 
     companion object {
         const val WRAPPERPPREFIX = "SDFKLJDSF"
         const val WRAPPERNAMESPACE = "http://wrapperns"
 
     }
+}
+
+internal fun XMLFragmentStreamReaderJava.extendNamespace() {
+    val namespaceDecls = delegate.namespaceDecls
+    val nscount = namespaceDecls.size
+    val prefixes = Array(nscount) { idx -> namespaceDecls[idx].prefix }
+    val namespaces = Array(nscount) { idx -> namespaceDecls[idx].namespaceURI }
+
+    localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
 }

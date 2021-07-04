@@ -106,11 +106,6 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return delegate.hasText()
     }
 
-    val namespaceCount: Int
-        @Deprecated("Not needed", ReplaceWith("namespaceEnd - namespaceStart"))
-        @Throws(XmlException::class)
-        get() = namespaceEnd - namespaceStart
-
     val textCharacters: CharArray
         @Deprecated("", ReplaceWith("text.toCharArray()"))
         get() = text.toCharArray()
@@ -234,22 +229,6 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override fun getAttributeValue(index: Int): String {
         return delegate.getAttributeValue(index)
     }
-
-    override val namespaceStart: Int
-        get() = 0
-
-    override val namespaceEnd: Int
-        @Throws(XmlException::class)
-        get() = delegate.namespaceCount
-
-    @Deprecated("Wrong name", ReplaceWith("getNamespaceURI(index)"))
-    fun getNamespaceUri(index: Int) = getNamespaceURI(index)
-
-    override fun getNamespaceURI(index: Int): String =
-        delegate.getNamespaceURI(index) ?: javax.xml.XMLConstants.NULL_NS_URI
-
-    override fun getNamespacePrefix(index: Int): String =
-        delegate.getNamespacePrefix(index) ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
 
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext

@@ -18,12 +18,15 @@
  * under the License.
  */
 
-@file:JvmName("XmlReaderNS")
+
+@file:JvmName("XmlReaderUtil")
+@file:JvmMultifileClass
 
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
+import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 /**

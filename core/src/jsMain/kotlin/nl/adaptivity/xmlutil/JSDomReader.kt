@@ -73,13 +73,6 @@ class JSDomReader(val delegate: Node) : XmlReader {
             else -> c.nodeType.toEventType(atEndOfElement)
         }
 
-    override val namespaceStart get() = 0
-
-    override val namespaceEnd: Int
-        get() {
-            return namespaceAttrs.size
-        }
-
     private var _namespaceAttrs: List<Attr>? = null
     internal val namespaceAttrs: List<Attr>
         get() {
@@ -232,19 +225,6 @@ class JSDomReader(val delegate: Node) : XmlReader {
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
         return currentElement.getAttributeNS(nsUri, localName)
-    }
-
-    @Suppress("USELESS_ELVIS")
-    override fun getNamespacePrefix(index: Int): String {
-        return when (val localName = namespaceAttrs[index].localName ?: "") {
-            "xmlns" -> ""
-            else    -> localName
-        }
-    }
-
-    override fun getNamespaceURI(index: Int): String {
-        @Suppress("USELESS_ELVIS")
-        return namespaceAttrs[index].value ?: ""
     }
 
     override fun close() {
