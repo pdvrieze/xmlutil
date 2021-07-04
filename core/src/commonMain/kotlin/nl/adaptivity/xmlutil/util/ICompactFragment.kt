@@ -28,17 +28,17 @@ import nl.adaptivity.xmlutil.XmlSerializable
 /**
  * Base interface for CompactFragment implementations.
  */
-interface ICompactFragment : XmlSerializable {
+public interface ICompactFragment : XmlSerializable {
     @Transient
-    val isEmpty: Boolean
+    public val isEmpty: Boolean
 
-    val namespaces: IterableNamespaceContext
+    public val namespaces: IterableNamespaceContext
 
     @Transient
-    val content: CharArray
+    public val content: CharArray
 
-    val contentString: String
+    public val contentString: String
 
-    fun getXmlReader(): XmlReader
+    public fun getXmlReader(): XmlReader
 }
 

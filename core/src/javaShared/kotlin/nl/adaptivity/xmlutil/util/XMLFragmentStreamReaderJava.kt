@@ -23,9 +23,9 @@ package nl.adaptivity.xmlutil.util
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
 
-interface XMLFragmentStreamReaderJava : XmlReader {
-    var localNamespaceContext: FragmentNamespaceContext
-    val delegate: XmlReader
+public interface XMLFragmentStreamReaderJava : XmlReader {
+    public var localNamespaceContext: FragmentNamespaceContext
+    public val delegate: XmlReader
 
 
     override fun next(): EventType {
@@ -57,9 +57,9 @@ interface XMLFragmentStreamReaderJava : XmlReader {
     override val namespaceContext: IterableNamespaceContext
         get() = localNamespaceContext
 
-    companion object {
-        const val WRAPPERPPREFIX: String = "SDFKLJDSF"
-        const val WRAPPERNAMESPACE: String = "http://wrapperns"
+    public companion object {
+        public const val WRAPPERPPREFIX: String = "SDFKLJDSF"
+        public const val WRAPPERNAMESPACE: String = "http://wrapperns"
 
     }
 }

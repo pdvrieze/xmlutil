@@ -26,15 +26,15 @@ import org.w3c.dom.Node
 import org.w3c.dom.parsing.XMLSerializer
 
 
-typealias JSCompactFragment = CompactFragment
+public typealias JSCompactFragment = CompactFragment
 
 /**
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.
  */
-actual class CompactFragment : ICompactFragment {
+public actual class CompactFragment : ICompactFragment {
 
-    actual class Factory : XmlDeserializerFactory<CompactFragment> {
+    public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
             return CompactFragment.deserialize(reader)
@@ -53,27 +53,27 @@ actual class CompactFragment : ICompactFragment {
 
     override val contentString: String
 
-    actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
+    public actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
         this.contentString = content?.toString() ?: ""
     }
 
     /** Convenience constructor for content without namespaces.  */
-    actual constructor(content: String) : this(emptyList(), content)
+    public actual constructor(content: String) : this(emptyList(), content)
 
-    constructor(documentFragment: DocumentFragment) : this(
+    public constructor(documentFragment: DocumentFragment) : this(
         XMLSerializer().serializeToString(documentFragment)
                                                           )
 
-    constructor(node: Node) : this(XMLSerializer().serializeToString(node))
+    public constructor(node: Node) : this(XMLSerializer().serializeToString(node))
 
     /** Convenience constructor for content without namespaces.  */
-    actual constructor(namespaces: Iterable<Namespace>, content: String) {
+    public actual constructor(namespaces: Iterable<Namespace>, content: String) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
         this.contentString = content
     }
 
-    actual constructor(orig: ICompactFragment) {
+    public actual constructor(orig: ICompactFragment) {
         namespaces = SimpleNamespaceContext.from(orig.namespaces)
         contentString = orig.contentString
     }
@@ -116,11 +116,11 @@ actual class CompactFragment : ICompactFragment {
     }
 
 
-    actual companion object {
+    public actual companion object {
 
-        val FACTORY = Factory()
+        public val FACTORY: Factory = Factory()
 
-        actual fun deserialize(reader: XmlReader): CompactFragment {
+        public actual fun deserialize(reader: XmlReader): CompactFragment {
             return reader.siblingsToFragment()
         }
     }

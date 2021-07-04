@@ -26,13 +26,13 @@ import kotlinx.dom.isElement
 import kotlinx.dom.isText
 
 /** Allow access to the node as [Element] if it is an element, otherwise it is null. */
-fun Node.asElement(): Element? = if (isElement) this as Element else null
+public fun Node.asElement(): Element? = if (isElement) this as Element else null
 
 /** Allow access to the node as [Text], if so, otherwise null. */
-fun Node.asText(): Text? = if (isText) this as Text else null
+public fun Node.asText(): Text? = if (isText) this as Text else null
 
 /** Remove all the child nodes that are elements. */
-fun Node.removeElementChildren() {
+public fun Node.removeElementChildren() {
     val top = this
     var cur = top.firstChild
     while (cur != null) {
@@ -44,7 +44,7 @@ fun Node.removeElementChildren() {
     }
 }
 
-operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
+public operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
     private var idx = 0
 
 
@@ -56,7 +56,7 @@ operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
 
 }
 
-operator fun NamedNodeMap.iterator(): Iterator<Attr> = object : Iterator<Attr> {
+public operator fun NamedNodeMap.iterator(): Iterator<Attr> = object : Iterator<Attr> {
     private var idx = 0
 
     override fun hasNext(): Boolean = idx < length
@@ -67,7 +67,7 @@ operator fun NamedNodeMap.iterator(): Iterator<Attr> = object : Iterator<Attr> {
 }
 
 /** A simple for each implementation for [NamedNodeMap]s. */
-inline fun NamedNodeMap.forEach(body: (Attr) -> Unit) {
+public inline fun NamedNodeMap.forEach(body: (Attr) -> Unit) {
     for (i in this) {
         body(i)
     }
@@ -76,7 +76,7 @@ inline fun NamedNodeMap.forEach(body: (Attr) -> Unit) {
 /** A filter function on a [NamedNodeMap] that returns a list of all
  * (attributes)[Attr] that meet the [predicate].
  */
-inline fun NamedNodeMap.filter(predicate: (Attr) -> Boolean): List<Attr> {
+public inline fun NamedNodeMap.filter(predicate: (Attr) -> Boolean): List<Attr> {
     val result = mutableListOf<Attr>()
     forEach { attr ->
         if (predicate(attr)) result.add(attr)
@@ -87,7 +87,7 @@ inline fun NamedNodeMap.filter(predicate: (Attr) -> Boolean): List<Attr> {
 /**
  * A (map)[Collection.map] function for transforming attributes.
  */
-inline fun <R> NamedNodeMap.map(body: (Attr) -> R): List<R> {
+public inline fun <R> NamedNodeMap.map(body: (Attr) -> R): List<R> {
     val result = mutableListOf<R>()
     forEach { attr ->
         result.add(body(attr))
@@ -98,7 +98,7 @@ inline fun <R> NamedNodeMap.map(body: (Attr) -> R): List<R> {
 /**
  * A function to count all attributes for which the [predicate] holds.
  */
-inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
+public inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
     var count = 0
     forEach { attr ->
         if (predicate(attr)) count++
@@ -125,10 +125,12 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? {
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
     !is Element -> null
-    else        -> attributes.filter {
-        (prefix == "" && it.localName == "xmlns") ||
-                (it.prefix == "xmlns" && it.localName == prefix)
-    }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
+    else -> {
+        attributes.filter {
+            (prefix == "" && it.localName == "xmlns") ||
+                    (it.prefix == "xmlns" && it.localName == prefix)
+        }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
+    }
 }
 
 /** Remove namespaces attributes from a tree that have already been declared by a parent. */

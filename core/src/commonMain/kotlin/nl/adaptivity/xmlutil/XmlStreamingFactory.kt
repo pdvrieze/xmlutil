@@ -20,13 +20,13 @@
 
 package nl.adaptivity.xmlutil
 
-expect interface XmlStreamingFactory
+public expect interface XmlStreamingFactory
 
 /** Flag to indicate that the xml declaration should be omitted, when possible.  */
-const val FLAG_OMIT_XMLDECL = 1
+public const val FLAG_OMIT_XMLDECL: Int = 1
 
 /** Flag to indicate that the namespace usable should be automatically repaired. */
-const val FLAG_REPAIR_NS = 2
+public const val FLAG_REPAIR_NS: Int = 2
 
 /** The default used flags */
-const val DEFAULT_FLAGS = FLAG_OMIT_XMLDECL
+public const val DEFAULT_FLAGS: Int = FLAG_OMIT_XMLDECL

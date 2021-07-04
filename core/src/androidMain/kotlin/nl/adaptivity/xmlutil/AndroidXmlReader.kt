@@ -28,23 +28,23 @@ import java.io.Reader
 /**
  * Type alias that allows cross-platform reference to the platform reader.
  */
-actual typealias PlatformXmlReader = AndroidXmlReader
+public actual typealias PlatformXmlReader = AndroidXmlReader
 
 
 /**
  * And XMLReader implementation that works on Android
  */
-class AndroidXmlReader(val parser: XmlPullParser) : XmlReader {
+public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     override var isStarted: Boolean = false
         private set
 
     private constructor() : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
 
-    constructor(reader: Reader) : this() {
+    public constructor(reader: Reader) : this() {
         parser.setInput(reader)
     }
 
-    constructor(input: InputStream, encoding: String) : this() {
+    public constructor(input: InputStream, encoding: String) : this() {
         parser.setInput(input, encoding)
     }
 

@@ -29,15 +29,15 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import org.w3c.dom.*
 import kotlinx.browser.document
 
-actual typealias PlatformXmlWriter = JSDomWriter
+public actual typealias PlatformXmlWriter = JSDomWriter
 
 /**
  * Created by pdvrieze on 04/04/17.
  */
-class JSDomWriter constructor(
+public class JSDomWriter constructor(
     current: ParentNode?,
-    val isAppend: Boolean = false,
-    val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    public val isAppend: Boolean = false,
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
                              ) : PlatformXmlWriterBase(), XmlWriter {
 
     private var docDelegate: Document? = when (current) {
@@ -48,10 +48,10 @@ class JSDomWriter constructor(
         else                -> throw IllegalArgumentException("Unexpected parent node. Cannot determine document")
     }
 
-    constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
+    public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
 
-    val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
-    var currentNode: ParentNode? = current
+    public val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
+    public var currentNode: ParentNode? = current
         private set
 
     private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
@@ -84,7 +84,7 @@ class JSDomWriter constructor(
         currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
 
     @Suppress("OverridingDeprecatedMember")
-    override val namespaceContext = object : NamespaceContext {
+    override val namespaceContext: NamespaceContext = object : NamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
             return requireCurrent.lookupNamespaceURI(prefix)
         }
@@ -268,13 +268,13 @@ class JSDomWriter constructor(
         }
     }
 
-    var requestedVersion: String? = null
+    public var requestedVersion: String? = null
         private set
 
-    var requestedEncoding: String? = null
+    public var requestedEncoding: String? = null
         private set
 
-    var requestedStandalone: Boolean? = null
+    public var requestedStandalone: Boolean? = null
         private set
 
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
@@ -323,9 +323,9 @@ class JSDomWriter constructor(
 
     override fun flush() {}
 
-    companion object {
-        const val TAG_DEPTH_NOT_TAG = -1
-        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+    private companion object {
+        private const val TAG_DEPTH_NOT_TAG = -1
+        private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
     }
 
 }

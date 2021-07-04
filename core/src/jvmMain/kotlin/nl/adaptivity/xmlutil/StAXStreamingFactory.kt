@@ -25,11 +25,10 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 
-class StAXStreamingFactory : XmlStreamingFactory {
+public class StAXStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
     override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
@@ -46,7 +45,7 @@ class StAXStreamingFactory : XmlStreamingFactory {
         encoding: String,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
-                          ): XmlWriter {
+    ): XmlWriter {
         try {
             return StAXWriter(outputStream, encoding, repairNamespaces, xmlDeclMode)
         } catch (e: XMLStreamException) {
@@ -86,7 +85,7 @@ class StAXStreamingFactory : XmlStreamingFactory {
         try {
             return when (source) {
                 is StreamSource -> StAXReader(source)
-                else            -> {
+                else -> {
                     val tf = TransformerFactory.newInstance()
                     val trans = tf.newTransformer()
                     val sw = StringWriter()

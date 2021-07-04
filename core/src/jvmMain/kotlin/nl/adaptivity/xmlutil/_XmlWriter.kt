@@ -25,11 +25,11 @@ package nl.adaptivity.xmlutil
 import org.w3c.dom.Node
 import javax.xml.transform.dom.DOMSource
 
-fun XmlWriter.writeChild(node: Node) {
+public fun XmlWriter.writeChild(node: Node) {
     serialize(node)
 }
 
-fun XmlWriter.serialize(node: Node) {
+public fun XmlWriter.serialize(node: Node) {
     @Suppress("DEPRECATION")
     serialize(XmlStreaming.newReader(DOMSource(node)))
 }

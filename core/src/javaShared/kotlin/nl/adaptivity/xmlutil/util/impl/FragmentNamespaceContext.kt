@@ -22,17 +22,17 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.*
 
-class FragmentNamespaceContext(
-    val parent: FragmentNamespaceContext?,
+public class FragmentNamespaceContext(
+    public val parent: FragmentNamespaceContext?,
     prefixes: Array<String>,
     namespaces: Array<String>
-                              ) : IterableNamespaceContext/*(prefixes, namespaces)*/ {
+) : IterableNamespaceContext/*(prefixes, namespaces)*/ {
 
     private val delegate = SimpleNamespaceContext(prefixes, namespaces)
 
 
     override fun getNamespaceURI(prefix: String): String? = when (val uri = delegate.getNamespaceURI(prefix)) {
-        ""   -> parent?.getNamespaceURI(prefix) ?: ""
+        "" -> parent?.getNamespaceURI(prefix) ?: ""
         else -> uri
     }
 
@@ -43,9 +43,9 @@ class FragmentNamespaceContext(
     override fun iterator(): Iterator<Namespace> = when {
         parent == null ||
                 !parent.iterator().hasNext()
-                           -> delegate.iterator()
+        -> delegate.iterator()
         delegate.size == 0 -> parent.iterator()
-        else               -> (parent.iterator().asSequence() + delegate.iterator().asSequence()).iterator()
+        else -> (parent.iterator().asSequence() + delegate.iterator().asSequence()).iterator()
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")

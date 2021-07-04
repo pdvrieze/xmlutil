@@ -28,13 +28,13 @@ internal val CharSequence.isIgnorableWhitespace: Boolean
 internal val Char.isIgnorableWhitespace: Boolean
     get() = when (this) {
         ' ', '\t', '\r', '\n' -> true
-        else                  -> false
+        else -> false
     }
 
 /**
  * Base class for platform xml writers. It contains common code. */
 @XmlUtilInternal
-abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
+public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
     internal var indentSequence: List<XmlEvent.TextEvent> = indentSequence.toList()
 
     final override var indentString: String
@@ -43,7 +43,7 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
             return indentSequence.joinToString { ev ->
                 when (ev.eventType) {
                     EventType.COMMENT -> "<!--${ev.text}-->"
-                    else              -> ev.text
+                    else -> ev.text
                 }
             }
         }
@@ -53,10 +53,12 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
 
     @get:Suppress("OverridingDeprecatedMember")
     override var indent: Int
-        get() = indentSequence.sumOf { when (it.eventType) {
-            EventType.COMMENT -> 7 + it.text.length
-            else -> it.text.length
-        } }
+        get() = indentSequence.sumOf {
+            when (it.eventType) {
+                EventType.COMMENT -> 7 + it.text.length
+                else -> it.text.length
+            }
+        }
         set(value) {
             indentSequence = listOf(XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, " ".repeat(value)))
         }
@@ -82,15 +84,15 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
             var commentPos = 0
             for (ch in this) {
                 when (ch) {
-                    '<'                   -> when (commentPos) {
-                        0    -> ++commentPos
+                    '<' -> when (commentPos) {
+                        0 -> ++commentPos
                         else -> sb.append(ch)
                     }
-                    '!'                   -> when (commentPos) {
-                        1    -> ++commentPos
+                    '!' -> when (commentPos) {
+                        1 -> ++commentPos
                         else -> sb.append(ch)
                     }
-                    '-'                   -> when (commentPos) {
+                    '-' -> when (commentPos) {
                         2 -> ++commentPos
                         3 -> { // Now in comment
                             ++commentPos
@@ -107,27 +109,27 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
                             sb.clear()
                         }
                         5 -> {
-                            commentPos=4
+                            commentPos = 4
                             sb.append("->")
                         }
                         else -> sb.append(ch)
                     }
                     else -> when (commentPos) {
-                        1,2,3 -> { // Reset comment position, add string
+                        1, 2, 3 -> { // Reset comment position, add string
                             sb.append(COMMENT, 0, commentPos)
-                            commentPos=0
+                            commentPos = 0
                             sb.append(ch)
                         }
                         0, 4 -> sb.append(ch) // Not in comment transition, just append
                         5 -> { // single - in comment
-                            commentPos=4
+                            commentPos = 4
                             sb.append('-').append(ch)
                         }
                         6 -> throw XmlException("-- is not allowed to occur inside xml comment text")
                     }
                 }
             }
-            if (commentPos>0) throw XmlException("Indent can not contain unclosed comment")
+            if (commentPos > 0) throw XmlException("Indent can not contain unclosed comment")
             sbToTextEvent()
             return result
         }

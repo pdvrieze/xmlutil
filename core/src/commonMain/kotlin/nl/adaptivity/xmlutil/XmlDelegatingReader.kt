@@ -25,7 +25,8 @@ package nl.adaptivity.xmlutil
  * Simple baseclass for a delating XmlReader.
  * It merely functions as a delegate With Kotlin it's not really needed, but nice.
  */
-open class XmlDelegatingReader protected constructor(protected open val delegate: XmlReader) : XmlReader by delegate {
+public open class XmlDelegatingReader protected constructor(protected open val delegate: XmlReader) :
+    XmlReader by delegate {
     override fun nextTag(): EventType {
         /*
          * Needs to be overridden here so that when next is overridden it remains valid.
@@ -42,7 +43,7 @@ open class XmlDelegatingReader protected constructor(protected open val delegate
             eventType = next()
         }
         if (eventType != EventType.START_ELEMENT && eventType != EventType.END_ELEMENT) {
-            throw XmlException("expected start or end tag");
+            throw XmlException("expected start or end tag")
         }
         return eventType;
     }

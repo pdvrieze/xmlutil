@@ -33,7 +33,7 @@ import org.w3c.dom.parsing.XMLSerializer
  *
  * @throws XmlException parsing failed
  */
-actual fun XmlReader.siblingsToFragment(): CompactFragment {
+public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val doc = when (val d = (this as? JSDomReader)?.delegate) {
         is Document -> d
         is Node     -> d.ownerDocument ?: Document()

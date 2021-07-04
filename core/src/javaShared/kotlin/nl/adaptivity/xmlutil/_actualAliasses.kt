@@ -20,13 +20,13 @@
 
 package nl.adaptivity.xmlutil
 
-actual typealias NamespaceContext = javax.xml.namespace.NamespaceContext
+public actual typealias NamespaceContext = javax.xml.namespace.NamespaceContext
 
-actual interface NamespaceContextImpl : javax.xml.namespace.NamespaceContext {
+public actual interface NamespaceContextImpl : javax.xml.namespace.NamespaceContext {
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
-    actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
+    public actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 }
 
 @Suppress("NOTHING_TO_INLINE", "USELESS_CAST", "UNCHECKED_CAST")
-actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
+public actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
     getPrefixes(namespaceURI) as Iterator<String> // This cast is needed on JDK8

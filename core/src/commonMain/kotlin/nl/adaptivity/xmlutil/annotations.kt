@@ -22,4 +22,4 @@ package nl.adaptivity.xmlutil
 
 
 @RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
-annotation class XmlUtilInternal
+public annotation class XmlUtilInternal

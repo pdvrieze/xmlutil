@@ -27,9 +27,9 @@ import nl.adaptivity.xmlutil.*
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
-actual class CompactFragment : ICompactFragment {
+public actual class CompactFragment : ICompactFragment {
 
-    actual class Factory : XmlDeserializerFactory<CompactFragment> {
+    public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
             @Suppress("RedundantCompanionReference")
@@ -45,20 +45,20 @@ actual class CompactFragment : ICompactFragment {
     @Transient
     override val content: CharArray
 
-    actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
+    public actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
         this.content = content ?: CharArray(0)
     }
 
     /** Convenience constructor for content without namespaces.  */
-    actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
+    public actual constructor(content: String) : this(emptyList<Namespace>(), content.toCharArray())
 
-    actual constructor(orig: ICompactFragment) {
+    public actual constructor(orig: ICompactFragment) {
         namespaces = SimpleNamespaceContext.from(orig.namespaces)
         content = orig.content
     }
 
-    actual constructor(namespaces: Iterable<Namespace>, content: String) :
+    public actual constructor(namespaces: Iterable<Namespace>, content: String) :
             this(namespaces, content.toCharArray())
 
 
@@ -98,13 +98,13 @@ actual class CompactFragment : ICompactFragment {
     override val contentString: String
         get() = String(content)
 
-    actual companion object {
+    public actual companion object {
 
         @JvmStatic
-        val FACTORY: XmlDeserializerFactory<CompactFragment> = Factory()
+        public val FACTORY: XmlDeserializerFactory<CompactFragment> = Factory()
 
         @Throws(XmlException::class)
-        actual fun deserialize(reader: XmlReader): CompactFragment {
+        public actual fun deserialize(reader: XmlReader): CompactFragment {
             return reader.siblingsToFragment()
         }
     }

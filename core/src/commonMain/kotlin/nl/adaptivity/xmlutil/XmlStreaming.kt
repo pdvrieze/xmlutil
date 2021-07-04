@@ -21,34 +21,33 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import kotlin.jvm.JvmStatic
 
 /**
  * This class is the entry point for creating [XmlReader] and [XmlWriter]
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-expect object XmlStreaming {
+public expect object XmlStreaming {
 
-    fun setFactory(factory: XmlStreamingFactory?)
+    public fun setFactory(factory: XmlStreamingFactory?)
 
-    inline fun <reified T : Any> deSerialize(input: String): T
+    public inline fun <reified T : Any> deSerialize(input: String): T
 
-    fun newReader(input: CharSequence): XmlReader
-
-    @Deprecated("Use the version that takes an xmlDeclMode")
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
-
-    fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public fun newReader(input: CharSequence): XmlReader
 
     @Deprecated("Use the version that takes an xmlDeclMode")
-    fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
+    public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
 
-    fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    @Deprecated("Use the version that takes an xmlDeclMode")
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
+
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
 }
 
 
-enum class XmlDeclMode {
+public enum class XmlDeclMode {
     /** Don't emit XML Declaration */
     None,
     /** Emit an xml declaration just containing the xml version number. Only charsets that aren't UTF will be emitted. */

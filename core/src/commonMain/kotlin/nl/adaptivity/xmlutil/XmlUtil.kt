@@ -30,35 +30,39 @@ import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import kotlin.jvm.JvmName
 
 /** Determine whether the character is xml whitespace. */
-fun isXmlWhitespace(char: Char) =
+public fun isXmlWhitespace(char: Char): Boolean =
     char == '\u000A' || char == '\u0009' || char == '\u000d' || char == ' '
 
-fun isXmlWhitespace(data: CharArray) = data.all { isXmlWhitespace(it) }
+public fun isXmlWhitespace(data: CharArray): Boolean = data.all { isXmlWhitespace(it) }
 
-fun isXmlWhitespace(data: CharSequence) = data.all { isXmlWhitespace(it) }
+public fun isXmlWhitespace(data: CharSequence): Boolean = data.all { isXmlWhitespace(it) }
 
 @Deprecated(
     "Use the version that takes string parameters",
     ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())")
-           )
-fun qname(namespaceUri: CharSequence?, localname: CharSequence, prefix: CharSequence? = DEFAULT_NS_PREFIX) =
+)
+public fun qname(
+    namespaceUri: CharSequence?,
+    localname: CharSequence,
+    prefix: CharSequence? = DEFAULT_NS_PREFIX
+): QName =
     QName(
         namespaceUri?.toString() ?: NULL_NS_URI,
         localname.toString(),
         prefix?.toString() ?: DEFAULT_NS_PREFIX
-         )
+    )
 
-fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX) =
+public fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX): QName =
     QName(
         namespaceUri ?: NULL_NS_URI,
         localname,
         prefix ?: DEFAULT_NS_PREFIX
-         )
+    )
 
 /**
  * Convert the string as fqn literal to an actual qname
  */
-fun CharSequence.toQname(): QName {
+public fun CharSequence.toQname(): QName {
     val split = indexOf('}')
     val localname: String
     val nsUri: String
@@ -76,7 +80,7 @@ fun CharSequence.toQname(): QName {
 /**
  * Convert the string as fqn literal to actual name, but use the namespace parameter to fill in namespace (but not prefix)
  */
-fun CharSequence.toQname(namespace: Namespace): QName {
+public fun CharSequence.toQname(namespace: Namespace): QName {
     val split = indexOf('}')
     val localname: String
     val nsUri: String
@@ -91,7 +95,7 @@ fun CharSequence.toQname(namespace: Namespace): QName {
     return QName(nsUri, localname)
 }
 
-fun QName.toCName(): String {
+public fun QName.toCName(): String {
     if (NULL_NS_URI == getPrefix()) return getLocalPart()
     return "${getPrefix()}:${getLocalPart()}"
 }
@@ -105,7 +109,7 @@ fun QName.toCName(): String {
  *
  * @return A resolved qname.
  */
-fun NamespaceContext.asQName(name: String): QName {
+public fun NamespaceContext.asQName(name: String): QName {
     val reference: NamespaceContext = this
     val colPos = name.indexOf(':')
     return if (colPos >= 0) {
@@ -113,17 +117,17 @@ fun NamespaceContext.asQName(name: String): QName {
         QName(
             reference.getNamespaceURI(prefix) ?: NULL_NS_URI, name.substring(colPos + 1),
             prefix
-             )
+        )
     } else {
         QName(
             reference.getNamespaceURI(DEFAULT_NS_PREFIX) ?: NULL_NS_URI, name,
             DEFAULT_NS_PREFIX
-             )
+        )
     }
 
 }
 
-fun XmlReader.isXml(): Boolean {
+public fun XmlReader.isXml(): Boolean {
     try {
         while (hasNext()) next()
     } catch (e: XmlException) {
@@ -132,16 +136,13 @@ fun XmlReader.isXml(): Boolean {
     return true
 }
 
-fun CharSequence.xmlEncode(): String {
-
-    return buildString {
-        for (c in this@xmlEncode) {
-            when (c) {
-                '<' -> append("&lt;")
-                '>' -> append("&gt;")
-                '&' -> append("&amp;")
-                else -> append(c)
-            }
+public fun CharSequence.xmlEncode(): String = buildString {
+    for (c in this@xmlEncode) {
+        when (c) {
+            '<' -> append("&lt;")
+            '>' -> append("&gt;")
+            '&' -> append("&amp;")
+            else -> append(c)
         }
     }
 }

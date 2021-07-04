@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil
 
 
-interface XmlSerializable {
+public interface XmlSerializable {
 
     /**
      * Write the object to an xml stream. The object is expected to write itself and its children.
@@ -29,6 +29,6 @@ interface XmlSerializable {
      *
      * @throws XmlException When something breaks.
      */
-    fun serialize(out: XmlWriter)
+    public fun serialize(out: XmlWriter)
 
 }

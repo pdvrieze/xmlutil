@@ -30,7 +30,7 @@ import org.w3c.dom.parsing.DOMParser
 
  * Created by pdvrieze on 04/11/15.
  */
-actual class XMLFragmentStreamReader constructor(
+public actual class XMLFragmentStreamReader constructor(
     text: String,
     wrapperNamespaceContext: Iterable<Namespace>
                                                 ) :
@@ -167,7 +167,7 @@ actual class XMLFragmentStreamReader constructor(
         localNamespaceContext = FragmentNamespaceContext(localNamespaceContext, prefixes, namespaces)
     }
 
-    actual companion object {
+    public actual companion object {
 
         private const val WRAPPERPPREFIX = "SDFKLJDSF"
         private const val WRAPPERNAMESPACE = "http://wrapperns"
@@ -198,7 +198,7 @@ actual class XMLFragmentStreamReader constructor(
         }
 
 
-        actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
+        public actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(fragment.contentString, fragment.namespaces)
         }
     }

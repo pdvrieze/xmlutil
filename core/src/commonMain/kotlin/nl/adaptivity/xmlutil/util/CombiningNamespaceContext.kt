@@ -32,10 +32,10 @@ import nl.adaptivity.xmlutil.*
  */
 @XmlUtilInternal
 @Deprecated("This type is really only for internal use. It will be moved to a better location")
-class CombiningNamespaceContext(
-    val primary: FreezableNamespaceContext,
-    val secondary: FreezableNamespaceContext
-                               ) : FreezableNamespaceContext, NamespaceContextImpl {
+public class CombiningNamespaceContext(
+    public val primary: IterableNamespaceContext,
+    public val secondary: IterableNamespaceContext
+) : IterableNamespaceContext, NamespaceContextImpl {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)
@@ -51,15 +51,13 @@ class CombiningNamespaceContext(
         } else prefix
     }
 
-    override fun freeze(): FreezableNamespaceContext = when {
-        primary is SimpleNamespaceContext && secondary is SimpleNamespaceContext
-             -> this
+    override fun freeze(): IterableNamespaceContext = when {
+        primary is SimpleNamespaceContext &&
+                secondary is SimpleNamespaceContext -> this
 
-        secondary is Iterable<*> && !secondary.iterator().hasNext()
-             -> primary.freeze()
+        !secondary.iterator().hasNext() -> primary.freeze()
 
-        primary is Iterable<*> && !primary.iterator().hasNext()
-             -> secondary.freeze()
+        !primary.iterator().hasNext() -> secondary.freeze()
 
         else -> {
             val frozenPrimary = primary.freeze()
@@ -71,6 +69,10 @@ class CombiningNamespaceContext(
                 CombiningNamespaceContext(primary.freeze(), secondary.freeze())
             }
         }
+    }
+
+    override fun iterator(): Iterator<Namespace> {
+        return (primary.asSequence() + secondary.asSequence()).iterator()
     }
 
     @Suppress("OverridingDeprecatedMember")

@@ -20,11 +20,11 @@
 
 package nl.adaptivity.xmlutil
 
-object XMLConstants {
-    const val DEFAULT_NS_PREFIX: String = ""
-    const val NULL_NS_URI: String = ""
-    const val XMLNS_ATTRIBUTE_NS_URI: String = "http://www.w3.org/2000/xmlns/"
-    const val XMLNS_ATTRIBUTE: String = "xmlns"
-    const val XML_NS_PREFIX: String = "xml"
-    const val XML_NS_URI: String = "http://www.w3.org/XML/1998/namespace"
+public object XMLConstants {
+    public const val DEFAULT_NS_PREFIX: String = ""
+    public const val NULL_NS_URI: String = ""
+    public const val XMLNS_ATTRIBUTE_NS_URI: String = "http://www.w3.org/2000/xmlns/"
+    public const val XMLNS_ATTRIBUTE: String = "xmlns"
+    public const val XML_NS_PREFIX: String = "xml"
+    public const val XML_NS_URI: String = "http://www.w3.org/XML/1998/namespace"
 }

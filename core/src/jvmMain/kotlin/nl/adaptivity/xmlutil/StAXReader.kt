@@ -23,32 +23,31 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import java.io.InputStream
 import java.io.Reader
-import javax.xml.namespace.NamespaceContext
 import javax.xml.stream.*
 import javax.xml.transform.Source
 
-actual typealias PlatformXmlReader = StAXReader
+public actual typealias PlatformXmlReader = StAXReader
 
 /**
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
  * @author Created by pdvrieze on 16/11/15.
  */
-class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
+public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
-    override var isStarted = false
+    override var isStarted: Boolean = false
         private set
 
     private var mFixWhitespace = false
 
-    override val depth get() = namespaceHolder.depth
+    override val depth: Int get() = namespaceHolder.depth
 
     private val namespaceHolder = NamespaceHolder()
 
     @Throws(XMLStreamException::class)
-    constructor(reader: Reader) : this(XMLInputFactory.newFactory().createXMLStreamReader(reader))
+    public constructor(reader: Reader) : this(XMLInputFactory.newFactory().createXMLStreamReader(reader))
 
     @Throws(XMLStreamException::class)
-    constructor(inputStream: InputStream, encoding: String?) : this(
+    public constructor(inputStream: InputStream, encoding: String?) : this(
         XMLInputFactory.newFactory().createXMLStreamReader(
             inputStream,
             encoding
@@ -56,7 +55,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     )
 
     @Throws(XMLStreamException::class)
-    constructor(source: Source) : this(XMLInputFactory.newFactory().createXMLStreamReader(source))
+    public constructor(source: Source) : this(XMLInputFactory.newFactory().createXMLStreamReader(source))
 
     @Throws(XmlException::class)
     override fun close() {
@@ -72,7 +71,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return delegate.isEndElement
     }
 
-    val isStandalone: Boolean
+    public val isStandalone: Boolean
         @Deprecated("")
         get() = standalone ?: false
 
@@ -89,28 +88,28 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return delegate.isWhiteSpace
     }
 
-    val isWhiteSpace: Boolean
+    public val isWhiteSpace: Boolean
         @Deprecated("Use alternative name", ReplaceWith("isWhitespace"))
         @Throws(XmlException::class)
         get() = isWhitespace()
 
     @Deprecated("", ReplaceWith("namespaceURI"))
-    val namespaceUri: String
+    public val namespaceUri: String
         get() = namespaceURI
 
     override val namespaceURI: String
         get() = delegate.namespaceURI ?: XMLConstants.NULL_NS_URI
 
     @Deprecated("")
-    fun hasText(): Boolean {
+    public fun hasText(): Boolean {
         return delegate.hasText()
     }
 
-    val textCharacters: CharArray
+    public val textCharacters: CharArray
         @Deprecated("", ReplaceWith("text.toCharArray()"))
         get() = text.toCharArray()
 
-    val characterEncodingScheme: String
+    public val characterEncodingScheme: String
         @Deprecated("")
         get() = delegate.characterEncodingScheme
 
@@ -133,7 +132,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
             return location?.toString()
         }
 
-    val location: Location
+    public val location: Location
         @Deprecated("")
         get() = delegate.location
 

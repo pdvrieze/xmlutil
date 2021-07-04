@@ -59,6 +59,8 @@ val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaO
 val moduleName = "net.devrieze.xmlutil.core"
 
 kotlin {
+    explicitApi()
+
     targets {
         val testTask = tasks.create("test") {
             group = "verification"
@@ -207,6 +209,7 @@ kotlin {
             progressiveMode = true
             apiVersion = "1.5"
             languageVersion = "1.5"
+
             useExperimentalAnnotation("kotlin.RequiresOptIn")
             useExperimentalAnnotation("nl.adaptivity.xmlutil.XmlUtilInternal")
         }

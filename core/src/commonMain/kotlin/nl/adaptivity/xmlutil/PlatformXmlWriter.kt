@@ -24,4 +24,4 @@ package nl.adaptivity.xmlutil
  * This class provides access to the [XmlWriter] implementation for the
  * platform. using an independent name.
  */
-expect class PlatformXmlWriter : XmlWriter
+public expect class PlatformXmlWriter : XmlWriter

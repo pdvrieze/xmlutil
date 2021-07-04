@@ -27,10 +27,10 @@ import nl.adaptivity.xmlutil.XmlDelegatingReader
  * elements, and then ignoring those on reading.
  * Created by pdvrieze on 04/11/15.
  */
-expect class XMLFragmentStreamReader : XmlDelegatingReader {
+public expect class XMLFragmentStreamReader : XmlDelegatingReader {
 
-    companion object {
-        fun from(fragment: ICompactFragment): XMLFragmentStreamReader
+    public companion object {
+        public fun from(fragment: ICompactFragment): XMLFragmentStreamReader
     }
 
 }

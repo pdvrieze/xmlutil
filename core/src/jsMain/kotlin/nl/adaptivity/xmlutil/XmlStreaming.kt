@@ -27,66 +27,66 @@ import org.w3c.dom.parsing.DOMParser
 import org.w3c.dom.parsing.XMLSerializer
 import kotlin.reflect.KClass
 
-actual interface XmlStreamingFactory
+public actual interface XmlStreamingFactory
 
 
-actual object XmlStreaming {
+public actual object XmlStreaming {
 
 
-    fun newWriter(): JSDomWriter {
+    public fun newWriter(): JSDomWriter {
         return JSDomWriter()
     }
 
-    fun newWriter(dest: ParentNode): JSDomWriter {
+    public fun newWriter(dest: ParentNode): JSDomWriter {
         return JSDomWriter(dest)
     }
 
 
-    fun newReader(delegate: Node): JSDomReader {
+    public fun newReader(delegate: Node): JSDomReader {
         return JSDomReader(delegate)
     }
 
-    actual fun setFactory(factory: XmlStreamingFactory?) {
+    public actual fun setFactory(factory: XmlStreamingFactory?) {
         if (factory != null)
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun <T : Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
+    public fun <T : Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
     /*: T {
         return newReader(input).deSerialize(type)
     }*/
 
-    actual inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
+    public actual inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
     /*: T {
         return deSerialize(input, T::class)
     }*/
 
-    actual fun newReader(input: CharSequence): XmlReader {
+    public actual fun newReader(input: CharSequence): XmlReader {
         return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
     }
 
-    actual fun newWriter(
+    public actual fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
-                        ): XmlWriter {
+    ): XmlWriter {
         return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    actual fun newWriter(
+    public actual fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
-                        ): XmlWriter {
+    ): XmlWriter {
         return AppendingWriter(output, JSDomWriter(xmlDeclMode))
     }
 
-    actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    actual fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         return WriterXmlWriter(writer, JSDomWriter(xmlDeclMode))
     }
 }
@@ -125,7 +125,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
             val domText = xmls.serializeToString(delegate.target)
 
             val xmlDeclMode = delegate.xmlDeclMode
-            if (xmlDeclMode!=XmlDeclMode.None) {
+            if (xmlDeclMode != XmlDeclMode.None) {
                 val encoding = when (xmlDeclMode) {
                     XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
                     else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
@@ -139,13 +139,13 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
                 target.write("<?xml version=\"")
                 target.write(xmlVersion)
                 target.write("\"")
-                if (encoding!=null) {
+                if (encoding != null) {
                     target.write(" encoding=\"")
                     target.write(encoding)
                     target.write("\"")
                 }
                 target.write("?>")
-                if(delegate.indentSequence.isNotEmpty()) {
+                if (delegate.indentSequence.isNotEmpty()) {
                     target.write("\n")
                 }
             }

@@ -35,7 +35,7 @@ import javax.xml.XMLConstants
 
  * Created by pdvrieze on 04/11/15.
  */
-actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
+public actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
     XmlDelegatingReader(getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
@@ -59,11 +59,11 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
         return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
     }
 
-    override fun next() = super<XMLFragmentStreamReaderJava>.next()
+    override fun next(): EventType = super<XMLFragmentStreamReaderJava>.next()
 
-    override val namespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
+    override val namespaceContext: IterableNamespaceContext get() = super<XMLFragmentStreamReaderJava>.namespaceContext
 
-    actual companion object {
+    public actual companion object {
 
         private fun getDelegate(
             reader: Reader,
@@ -89,17 +89,17 @@ actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Ite
         }
 
         @JvmStatic
-        fun from(reader: Reader, namespaceContext: Iterable<Namespace>): XMLFragmentStreamReader {
+        public fun from(reader: Reader, namespaceContext: Iterable<Namespace>): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, namespaceContext)
         }
 
         @JvmStatic
-        fun from(reader: Reader): XMLFragmentStreamReader {
+        public fun from(reader: Reader): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(reader, emptyList())
         }
 
         @JvmStatic
-        actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
+        public actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
             return XMLFragmentStreamReader(CharArrayReader(fragment.content), fragment.namespaces)
         }
     }

@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
 import java.lang.ClassNotFoundException
 import java.lang.NoSuchMethodException
 
-class DefaultSerializationProvider : SerializationProvider {
+public class DefaultSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         if (XmlSerializable::class.java.isAssignableFrom(type.java) == true) {
             @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype

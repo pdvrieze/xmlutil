@@ -27,9 +27,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Throws
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-fun XmlReader.asSubstream(): XmlReader = SubstreamFilterReader(
-    this
-                                                              )
+public fun XmlReader.asSubstream(): XmlReader =
+    SubstreamFilterReader(this)
 
 /**
  * A class that filters an xml stream such that it will only contain expected elements.
@@ -41,10 +40,10 @@ private class SubstreamFilterReader(delegate: XmlReader) : XmlBufferedReader(del
         return super.doPeek().filter {
             when (it.eventType) {
                 EventType.START_DOCUMENT, EventType.PROCESSING_INSTRUCTION, EventType.DOCDECL, EventType.END_DOCUMENT -> false
-                else                                                                                                  -> true
+                else -> true
             }
         }
     }
 }
 
-fun XmlReader.toEvent(): XmlEvent = eventType.createEvent(this)
+public fun XmlReader.toEvent(): XmlEvent = eventType.createEvent(this)

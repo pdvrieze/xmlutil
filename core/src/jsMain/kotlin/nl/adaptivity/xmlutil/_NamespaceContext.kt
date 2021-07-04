@@ -20,19 +20,21 @@
 
 package nl.adaptivity.xmlutil
 
-actual interface NamespaceContext {
-    actual fun getNamespaceURI(prefix: String): String?
-    actual fun getPrefix(namespaceURI: String): String?
+public actual interface NamespaceContext {
+    public actual fun getNamespaceURI(prefix: String): String?
+    public actual fun getPrefix(namespaceURI: String): String?
+
     @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
-    fun getPrefixes(namespaceURI: String): Iterator<String?>
+    public fun getPrefixes(namespaceURI: String): Iterator<String?>
 }
 
-actual interface NamespaceContextImpl : NamespaceContext {
-    actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
+public actual interface NamespaceContextImpl : NamespaceContext {
+    public actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
+
     @Suppress("OverridingDeprecatedMember")
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
 }
 
 @Suppress("NOTHING_TO_INLINE", "DEPRECATION", "UNCHECKED_CAST")
-actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
+public actual inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
     getPrefixes(namespaceURI) as Iterator<String>

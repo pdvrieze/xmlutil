@@ -42,7 +42,7 @@ import kotlin.jvm.JvmName
  *
  * @throws XmlException parsing failed
  */
-actual fun XmlReader.siblingsToFragment(): CompactFragment {
+public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val caw = CharArrayWriter()
     if (!isStarted) {
         if (hasNext()) {
@@ -93,7 +93,7 @@ actual fun XmlReader.siblingsToFragment(): CompactFragment {
 }
 
 
-fun XmlReader.toCharArrayWriter(): CharArrayWriter {
+public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().apply {
         XmlStreaming.newWriter(this).use { out ->
             while(hasNext()) {

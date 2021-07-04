@@ -28,5 +28,5 @@ import nl.adaptivity.xmlutil.XmlReader
  * It merely functions as a delegate With Kotlin it's not really needed, but nice.
  */
 @Deprecated("This has moved to the main package", ReplaceWith("XmlDelegatingReader", "nl.adaptivity.xmlutil"))
-open class XmlDelegatingReader protected constructor(delegate: XmlReader) :
+public open class XmlDelegatingReader protected constructor(delegate: XmlReader) :
     nl.adaptivity.xmlutil.XmlDelegatingReader(delegate)

@@ -29,26 +29,26 @@ import kotlin.reflect.KClass
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR
        )
-expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
+public expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
 @XmlUtilInternal
-expect val KClass<*>.name: String
+public expect val KClass<*>.name: String
 
 @XmlUtilInternal
-expect fun assert(value: Boolean, lazyMessage: () -> String)
+public expect fun assert(value: Boolean, lazyMessage: () -> String)
 
 @XmlUtilInternal
-expect fun assert(value: Boolean)
+public expect fun assert(value: Boolean)
 
-expect interface AutoCloseable {
-    fun close()
+public expect interface AutoCloseable {
+    public fun close()
 }
 
-expect interface Closeable : AutoCloseable
+public expect interface Closeable : AutoCloseable
 
 @XmlUtilInternal
-expect val KClass<*>.maybeAnnotations: List<Annotation>
+public expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 
-expect abstract class Writer: Appendable
-expect open class StringWriter(): Writer
+public expect abstract class Writer: Appendable
+public expect open class StringWriter(): Writer

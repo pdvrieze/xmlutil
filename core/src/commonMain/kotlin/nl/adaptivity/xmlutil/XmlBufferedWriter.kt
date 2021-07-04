@@ -23,16 +23,16 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
-class XmlBufferedWriter @XmlUtilInternal constructor(
+public class XmlBufferedWriter @XmlUtilInternal constructor(
     buffer: MutableList<XmlEvent> = mutableListOf(),
     delegateNamespaceContext: FreezableNamespaceContext?
-                                                    ) : XmlWriter {
+) : XmlWriter {
 
-    constructor(buffer: MutableList<XmlEvent> = mutableListOf()) : this(buffer, null)
+    public constructor(buffer: MutableList<XmlEvent> = mutableListOf()) : this(buffer, null)
 
     private val _buffer = buffer
 
-    val buffer: List<XmlEvent> get() = _buffer
+    public val buffer: List<XmlEvent> get() = _buffer
 
     private val namespaceHolder = NamespaceHolder()
 
@@ -72,8 +72,8 @@ class XmlBufferedWriter @XmlUtilInternal constructor(
             XmlEvent.StartElementEvent(
                 null, effNamespace ?: "", localName, effPrefix ?: "",
                 emptyArray(), parentContext, emptyList()
-                                      )
-                   )
+            )
+        )
     }
 
     private fun effectivePrefix(prefix: String?, namespace: String?) =
@@ -98,8 +98,8 @@ class XmlBufferedWriter @XmlUtilInternal constructor(
             XmlEvent.Attribute(
                 null, XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
                 localName, prefix, namespaceUri
-                              )
-                   )
+            )
+        )
     }
 
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
@@ -113,8 +113,8 @@ class XmlBufferedWriter @XmlUtilInternal constructor(
                 localName,
                 effPrefix,
                 namespaceHolder.namespaceContext
-                                    )
-                   )
+            )
+        )
     }
 
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
@@ -126,8 +126,8 @@ class XmlBufferedWriter @XmlUtilInternal constructor(
             XmlEvent.TextEvent(
                 null, EventType.PROCESSING_INSTRUCTION,
                 text
-                              )
-                   )
+            )
+        )
     }
 
     override fun docdecl(text: String) {
@@ -165,7 +165,7 @@ class XmlBufferedWriter @XmlUtilInternal constructor(
     override fun ignorableWhitespace(text: String) {
         _buffer.add(
             XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, text)
-                   )
+        )
     }
 
     override fun endDocument() {

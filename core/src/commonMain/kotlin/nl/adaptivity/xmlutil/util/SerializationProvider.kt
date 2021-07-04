@@ -24,15 +24,15 @@ import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 import kotlin.reflect.KClass
 
-interface SerializationProvider {
-    interface XmlSerializerFun<in T : Any> {
-        operator fun invoke(output: XmlWriter, value: T)
+public interface SerializationProvider {
+    public interface XmlSerializerFun<in T : Any> {
+        public operator fun invoke(output: XmlWriter, value: T)
     }
 
-    interface XmlDeserializerFun {
-        operator fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T
+    public interface XmlDeserializerFun {
+        public operator fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T
     }
 
-    fun <T : Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
-    fun <T : Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
+    public fun <T : Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
+    public fun <T : Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
 }

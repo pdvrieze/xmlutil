@@ -20,18 +20,17 @@
 
 package nl.adaptivity.xmlutil
 
-import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
 import nl.adaptivity.js.util.*
-import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
+import org.w3c.dom.*
 
-actual typealias PlatformXmlReader = JSDomReader
+public actual typealias PlatformXmlReader = JSDomReader
 
 /**
  * Created by pdvrieze on 22/03/17.
  */
-class JSDomReader(val delegate: Node) : XmlReader {
+public class JSDomReader(public val delegate: Node) : XmlReader {
     private var current: Node? = null
 
     override val namespaceURI: String
@@ -65,9 +64,9 @@ class JSDomReader(val delegate: Node) : XmlReader {
             else                    -> throw XmlException("Node is not a text node")
         }
 
-    override val attributeCount get() = current?.asElement()?.attributes?.length ?: 0
+    override val attributeCount: Int get() = current?.asElement()?.attributes?.length ?: 0
 
-    override val eventType
+    override val eventType: EventType
         get() = when (val c = current) {
             null -> EventType.END_DOCUMENT
             else -> c.nodeType.toEventType(atEndOfElement)

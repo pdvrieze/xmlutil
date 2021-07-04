@@ -32,7 +32,7 @@ import javax.xml.transform.Result
 import javax.xml.transform.Source
 
 
-actual object XmlStreaming : XmlStreamingJavaCommon() {
+public actual object XmlStreaming : XmlStreamingJavaCommon() {
 
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
@@ -56,11 +56,11 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    actual override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    public actual override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         return factory.newWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
-    actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    public actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         return factory.newWriter(output, repairNamespaces, xmlDeclMode)
     }
 
@@ -76,7 +76,7 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newReader(source)
     }
 
-    actual override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence): XmlReader {
         return factory.newReader(input)
     }
 
@@ -84,7 +84,7 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newReader(inputStr)
     }
 
-    actual override fun setFactory(factory: XmlStreamingFactory?) {
+    public actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory ?: AndroidStreamingFactory()
     }
 
@@ -99,8 +99,8 @@ actual object XmlStreaming : XmlStreamingJavaCommon() {
 }
 
 
-inline fun <reified T : Any> deserialize(input: InputStream) = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: InputStream): T = deSerialize(input, T::class.java)
 
-inline fun <reified T : Any> deserialize(input: Reader) = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: Reader): T = deSerialize(input, T::class.java)
 
-inline fun <reified T : Any> deserialize(input: String) = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: String): T = deSerialize(input, T::class.java)

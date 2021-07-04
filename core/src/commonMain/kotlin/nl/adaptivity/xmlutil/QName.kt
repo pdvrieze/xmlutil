@@ -28,27 +28,27 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.*
 
-expect class QName {
-    constructor(namespaceURI: String, localPart: String, prefix: String)
-    constructor(namespaceURI: String, localPart: String)
-    constructor(localPart: String)
+public expect class QName {
+    public constructor(namespaceURI: String, localPart: String, prefix: String)
+    public constructor(namespaceURI: String, localPart: String)
+    public constructor(localPart: String)
 
-    fun getPrefix(): String
-    fun getLocalPart(): String
-    fun getNamespaceURI(): String
+    public fun getPrefix(): String
+    public fun getLocalPart(): String
+    public fun getNamespaceURI(): String
 }
 
-inline val QName.prefix: String get() = getPrefix()
-inline val QName.localPart: String get() = getLocalPart()
-inline val QName.namespaceURI: String get() = getNamespaceURI()
+public inline val QName.prefix: String get() = getPrefix()
+public inline val QName.localPart: String get() = getLocalPart()
+public inline val QName.namespaceURI: String get() = getNamespaceURI()
 
-fun QName.toNamespace(): Namespace {
+public fun QName.toNamespace(): Namespace {
     return XmlEvent.NamespaceImpl(prefix, namespaceURI)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = QName::class)
-object QNameSerializer : KSerializer<QName> {
+public object QNameSerializer : KSerializer<QName> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
         val stringSerializer = String.serializer()
         element("namespace", stringSerializer.descriptor, isOptional = true)
@@ -64,9 +64,9 @@ object QNameSerializer : KSerializer<QName> {
         loop@ while (true) {
             when (this.decodeElementIndex(descriptor)) {
                 CompositeDecoder.DECODE_DONE -> break@loop
-                0                            -> namespace = decodeStringElement(descriptor, 0)
-                1                            -> localPart = decodeStringElement(descriptor, 1)
-                2                            -> prefix = decodeStringElement(descriptor, 2)
+                0 -> namespace = decodeStringElement(descriptor, 0)
+                1 -> localPart = decodeStringElement(descriptor, 1)
+                2 -> prefix = decodeStringElement(descriptor, 2)
             }
         }
         return QName(namespace, localPart, prefix)

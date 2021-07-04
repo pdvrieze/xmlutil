@@ -24,4 +24,4 @@ package nl.adaptivity.xmlutil
  * This class provides access to the [XmlReader] implementation for the
  * platform. using an independent name.
  */
-expect class PlatformXmlReader : XmlReader
+public expect class PlatformXmlReader : XmlReader

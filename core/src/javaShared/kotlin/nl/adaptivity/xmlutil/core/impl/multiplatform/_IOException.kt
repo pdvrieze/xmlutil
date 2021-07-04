@@ -20,5 +20,5 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-actual typealias IOException = java.io.IOException
+public actual typealias IOException = java.io.IOException
 
