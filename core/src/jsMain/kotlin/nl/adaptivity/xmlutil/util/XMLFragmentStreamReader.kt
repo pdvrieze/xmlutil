@@ -170,7 +170,7 @@ actual class XMLFragmentStreamReader constructor(
         return localNamespaceContext.getNamespaceURI(index)
     }
 
-    override val namespaceContext: FreezableNamespaceContext
+    override val namespaceContext: IterableNamespaceContext
         get() = localNamespaceContext
 
 

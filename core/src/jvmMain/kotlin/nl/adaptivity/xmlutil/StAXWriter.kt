@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+import nl.adaptivity.xmlutil.core.impl.FreezableDelegatingNamespaceContext
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import java.io.OutputStream
 import java.io.Writer
@@ -38,8 +39,12 @@ actual typealias PlatformXmlWriter = StAXWriter
 /**
  * An implementation of [XmlWriter] that uses an underlying stax writer.
  * Created by pdvrieze on 16/11/15.
+ *
+ * @property delegate The [XMLStreamWriter] that is wrapped
+ * @property xmlDeclMode This determines how automatic xml declarations are written. Note that
+ *                       explicit calls to [startDocument] ignore this.
+ * @property autoCloseEmpty Determines whether empty tags are coalesced into self-closing tags.
  */
-@OptIn(XmlUtilInternal::class)
 class StAXWriter(
     val delegate: XMLStreamWriter,
     val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
@@ -50,7 +55,7 @@ class StAXWriter(
     private val pendingWrites = mutableListOf<XmlEvent>()
     private val pendingNamespaces = mutableListOf<Namespace>()
 
-    var lastTagDepth = -1
+    private var lastTagDepth = -1
 
     private var state = State.Empty
 
@@ -101,7 +106,7 @@ class StAXWriter(
         depth++
         _namespaceContext.incDepth() // already increase now
         if (autoCloseEmpty) {
-            pendingWrites.add(XmlEvent.StartElementEvent(namespace ?: "", localName, prefix ?: "", _namespaceContext))
+            pendingWrites.add(XmlEvent.StartElementEvent(namespace ?: "", localName, prefix ?: "", _namespaceContext.freeze()))
         } else {
             doStartTag(namespace, prefix, localName, false)
         }
@@ -513,10 +518,10 @@ class StAXWriter(
             throw XmlException("Modifying the namespace context halfway in a document")
         }
 
-    companion object {
+    internal companion object {
 
-        const val TAG_DEPTH_NOT_TAG = -1
-        const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+        private const val TAG_DEPTH_NOT_TAG = -1
+        private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
 
         private val clsXmlStreamWriter: Class<out XMLStreamWriter>?
         private val mtdWriteStartDocument: MethodHandle?

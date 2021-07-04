@@ -151,7 +151,7 @@ interface XmlReader : Closeable, Iterator<EventType> {
     val locationInfo: String?
 
     /** The current namespace context */
-    val namespaceContext: FreezableNamespaceContext
+    val namespaceContext: IterableNamespaceContext
 
     val encoding: String?
 
@@ -176,12 +176,20 @@ val XmlReader.namespaceIndices: IntRange get() = namespaceStart until namespaceE
 
 val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
-val XmlReader.namespaceDecls: Array<out Namespace>
-    get() =
-        Array<Namespace>(namespaceEnd - namespaceStart) { i ->
-            val nsIndex = namespaceStart + i
-            XmlEvent.NamespaceImpl(getNamespacePrefix(nsIndex), getNamespaceURI(nsIndex))
+val XmlReader.namespaceDecls: List<Namespace>
+    get() {
+        return attributeIndices.mapNotNull { i ->
+            val p = getAttributePrefix(i)
+            when {
+                p == "xmlns" -> XmlEvent.NamespaceImpl(getAttributeLocalName(i), getAttributeValue(i))
+
+                p == "" && getAttributeLocalName(i) == "xmlns"
+                             -> XmlEvent.NamespaceImpl("", getAttributeValue(i))
+
+                else         -> null
+            }
         }
+    }
 
 val XmlReader.qname: QName get() = text.toQname()
 

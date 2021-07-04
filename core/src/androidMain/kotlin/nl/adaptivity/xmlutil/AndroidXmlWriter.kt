@@ -37,7 +37,6 @@ actual typealias PlatformXmlWriter = AndroidXmlWriter
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-@OptIn(XmlUtilInternal::class)
 class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     private val namespaceHolder = NamespaceHolder()

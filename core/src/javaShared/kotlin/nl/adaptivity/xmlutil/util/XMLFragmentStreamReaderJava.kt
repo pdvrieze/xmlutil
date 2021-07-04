@@ -58,14 +58,14 @@ interface XMLFragmentStreamReaderJava : XmlReader {
         get() = 0
 
     override val namespaceEnd: Int
-        get() = localNamespaceContext.size
+        get() = TODO("Invalid")//localNamespaceContext.size
 
     override fun getNamespacePrefix(index: Int): String {
-        return localNamespaceContext.getPrefix(index)
+        return TODO("Invalid")// localNamespaceContext.getPrefix(index)
     }
 
     override fun getNamespaceURI(index: Int): String {
-        return localNamespaceContext.getNamespaceURI(index)
+        return TODO("Invalid")// localNamespaceContext.getNamespaceURI(index)
     }
 
     override val namespaceContext: IterableNamespaceContext

@@ -23,10 +23,13 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
-class XmlBufferedWriter(
+class XmlBufferedWriter @XmlUtilInternal constructor(
     buffer: MutableList<XmlEvent> = mutableListOf(),
-    delegateNamespaceContext: FreezableNamespaceContext? = null
-                       ) : XmlWriter {
+    delegateNamespaceContext: FreezableNamespaceContext?
+                                                    ) : XmlWriter {
+
+    constructor(buffer: MutableList<XmlEvent> = mutableListOf()) : this(buffer, null)
+
     private val _buffer = buffer
 
     val buffer: List<XmlEvent> get() = _buffer
@@ -43,6 +46,7 @@ class XmlBufferedWriter(
         namespaceHolder.namespaceContext
     } else {
         // Don't use the plus operato here as we don't know that the contexts are not mutable.
+        @Suppress("DEPRECATION")
         CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
     }
 
@@ -67,7 +71,7 @@ class XmlBufferedWriter(
         _buffer.add(
             XmlEvent.StartElementEvent(
                 null, effNamespace ?: "", localName, effPrefix ?: "",
-                emptyArray(), parentContext,  emptyArray()
+                emptyArray(), parentContext, emptyList()
                                       )
                    )
     }
@@ -102,7 +106,15 @@ class XmlBufferedWriter(
         val effNamespace = effectiveNamespace(namespace, prefix)
         val effPrefix = effectivePrefix(prefix, effNamespace) ?: ""
         namespaceHolder.decDepth()
-        _buffer.add(XmlEvent.EndElementEvent(null, effNamespace ?: "", localName, effPrefix, namespaceHolder.namespaceContext))
+        _buffer.add(
+            XmlEvent.EndElementEvent(
+                null,
+                effNamespace ?: "",
+                localName,
+                effPrefix,
+                namespaceHolder.namespaceContext
+                                    )
+                   )
     }
 
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
@@ -164,20 +176,4 @@ class XmlBufferedWriter(
 
     override fun flush() {}
 
-    /**
-     * Write the events to the target, removing them from the writer
-     */
-    fun flushTo(target: XmlWriter) {
-        writeTo(target)
-        _buffer.clear()
-    }
-
-    /**
-     * Write the events to the target
-     */
-    fun writeTo(target: XmlWriter) {
-        for (event in _buffer) {
-            event.writeTo(target)
-        }
-    }
 }

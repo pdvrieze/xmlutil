@@ -20,16 +20,13 @@
 
 package nl.adaptivity.xmlutil.core.impl
 
-import nl.adaptivity.xmlutil.IterableNamespaceContext
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
-import nl.adaptivity.xmlutil.XmlEvent
 
 
 /**

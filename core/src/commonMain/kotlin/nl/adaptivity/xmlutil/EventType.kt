@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:OptIn(XmlUtilInternal::class)
+
 package nl.adaptivity.xmlutil
 
 /** Enum representing the type of an xml node/event. */
@@ -62,6 +64,7 @@ enum class EventType {
                 reader.localName,
                 reader.prefix
                            )
+            for (namespace in reader.namespaceContext.freeze())
             for (i in reader.namespaceStart until reader.namespaceEnd) {
                 writer.namespaceAttr(
                     reader.getNamespacePrefix(i),

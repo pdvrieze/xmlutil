@@ -30,6 +30,8 @@ import nl.adaptivity.xmlutil.*
  * @property primary The context to first use for looking up
  * @property secondary The fallback context if the name cannot be resolved on the primary.
  */
+@XmlUtilInternal
+@Deprecated("This type is really only for internal use. It will be moved to a better location")
 class CombiningNamespaceContext(
     val primary: FreezableNamespaceContext,
     val secondary: FreezableNamespaceContext
@@ -62,9 +64,10 @@ class CombiningNamespaceContext(
         else -> {
             val frozenPrimary = primary.freeze()
             val frozenSecondary = secondary.freeze()
-            if (frozenPrimary===primary && frozenSecondary==secondary) {
+            if (frozenPrimary === primary && frozenSecondary == secondary) {
                 this
             } else {
+                @Suppress("DEPRECATION")
                 CombiningNamespaceContext(primary.freeze(), secondary.freeze())
             }
         }
@@ -85,5 +88,6 @@ class CombiningNamespaceContext(
     }
 
     override fun plus(secondary: FreezableNamespaceContext): FreezableNamespaceContext =
+        @Suppress("DEPRECATION")
         CombiningNamespaceContext(this, secondary)
 }

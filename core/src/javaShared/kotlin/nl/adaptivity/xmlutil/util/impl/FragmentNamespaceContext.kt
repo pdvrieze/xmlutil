@@ -20,32 +20,42 @@
 
 package nl.adaptivity.xmlutil.util.impl
 
-import nl.adaptivity.xmlutil.SimpleNamespaceContext
-import nl.adaptivity.xmlutil.prefixesFor
-import java.util.HashSet
+import nl.adaptivity.xmlutil.*
 
 class FragmentNamespaceContext(
     val parent: FragmentNamespaceContext?,
     prefixes: Array<String>,
     namespaces: Array<String>
-                              ) : SimpleNamespaceContext(prefixes, namespaces) {
+                              ) : IterableNamespaceContext/*(prefixes, namespaces)*/ {
 
-    override fun getNamespaceURI(prefix: String): String {
-        return parent?.getNamespaceURI(prefix) ?: super.getNamespaceURI(prefix)
+    private val delegate = SimpleNamespaceContext(prefixes, namespaces)
+
+
+    override fun getNamespaceURI(prefix: String): String = when (val uri = delegate.getNamespaceURI(prefix)) {
+        ""   -> parent?.getNamespaceURI(prefix) ?: ""
+        else -> uri
     }
 
-    override fun getPrefix(namespaceURI: String): String? {
-        return super.getPrefix(namespaceURI) ?: parent?.getPrefix(namespaceURI)
+    override fun getPrefix(namespaceURI: String): String {
+        return delegate.getPrefix(namespaceURI) ?: parent?.getPrefix(namespaceURI) ?: ""
+    }
+
+    override fun iterator(): Iterator<Namespace> = when {
+        parent == null ||
+                !parent.iterator().hasNext()
+                           -> delegate.iterator()
+        delegate.size == 0 -> parent.iterator()
+        else               -> (parent.iterator().asSequence() + delegate.iterator().asSequence()).iterator()
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         if (parent == null) {
-            return super.getPrefixesCompat(namespaceURI)
+            return delegate.getPrefixesCompat(namespaceURI)
         }
         val prefixes = HashSet<String>()
 
-        super.getPrefixesCompat(namespaceURI).forEach { prefixes.add(it) }
+        delegate.getPrefixesCompat(namespaceURI).forEach { prefixes.add(it) }
 
         parent.prefixesFor(namespaceURI).asSequence()
             .filter { prefix -> getLocalNamespaceUri(prefix) == null }
@@ -55,6 +65,6 @@ class FragmentNamespaceContext(
     }
 
     private fun getLocalNamespaceUri(prefix: String): String? {
-        return indices.lastOrNull { prefix == getPrefix(it) }?.let { getNamespaceURI(it) }
+        return delegate.indices.lastOrNull { prefix == delegate.getPrefix(it) }?.let { delegate.getNamespaceURI(it) }
     }
 }

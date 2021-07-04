@@ -32,7 +32,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
  * @property isRepairNamespaces Should missing namespace attributes be added automatically
  * @property xmlDeclMode Should the xml declaration be emitted automatically?
  */
-@OptIn(XmlUtilInternal::class)
 class KtXmlWriter(
     private val writer: Appendable,
     val isRepairNamespaces: Boolean = true,

@@ -37,14 +37,14 @@ interface Namespace {
      */
     val prefix: String
 
-    operator fun component1() = prefix
+    operator fun component1(): String = prefix
 
     /**
      * Gets the uri bound to the prefix of this namespace
      */
     val namespaceURI: String
 
-    operator fun component2() = namespaceURI
+    operator fun component2(): String = namespaceURI
 
     companion object : KSerializer<Namespace> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Namespace::class.simpleName!!) {

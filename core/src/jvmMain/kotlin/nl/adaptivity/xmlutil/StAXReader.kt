@@ -251,7 +251,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override fun getNamespacePrefix(index: Int): String =
         delegate.getNamespacePrefix(index) ?: javax.xml.XMLConstants.DEFAULT_NS_PREFIX
 
-    override val namespaceContext: FreezableNamespaceContext
+    override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
     override val eventType: EventType
@@ -276,7 +276,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return toEvent().toString()
     }
 
-    companion object {
+    private companion object {
 
         private val DELEGATE_TO_LOCAL = Array(16) { i ->
             when (i) {
