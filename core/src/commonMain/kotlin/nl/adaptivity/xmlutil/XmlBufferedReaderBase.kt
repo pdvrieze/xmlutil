@@ -36,9 +36,8 @@ abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReade
         private set
 
     private val currentElement: StartElementEvent
-        get() = current as? StartElementEvent ?: throw XmlException(
-            "Expected a start element, but did not find it."
-                                                                   )
+        get() = current as? StartElementEvent
+            ?: throw XmlException("Expected a start element, but did not find it.")
 
     override val namespaceURI: String
         get() = when (current?.eventType) {

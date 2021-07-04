@@ -31,7 +31,7 @@ class FragmentNamespaceContext(
     private val delegate = SimpleNamespaceContext(prefixes, namespaces)
 
 
-    override fun getNamespaceURI(prefix: String): String = when (val uri = delegate.getNamespaceURI(prefix)) {
+    override fun getNamespaceURI(prefix: String): String? = when (val uri = delegate.getNamespaceURI(prefix)) {
         ""   -> parent?.getNamespaceURI(prefix) ?: ""
         else -> uri
     }

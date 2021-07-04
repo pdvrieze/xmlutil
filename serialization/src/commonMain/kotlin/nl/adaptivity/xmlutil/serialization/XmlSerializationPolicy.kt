@@ -17,8 +17,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@file:OptIn(XmlUtilInternal::class)
-
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
@@ -284,7 +282,6 @@ open class DefaultXmlSerializationPolicy(
         return serialName.substringAfterLast('.').toQname(parentNamespace)
     }
 
-    @OptIn(XmlUtilInternal::class)
     override fun effectiveName(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,

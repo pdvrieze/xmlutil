@@ -208,6 +208,7 @@ kotlin {
             apiVersion="1.5"
             languageVersion="1.5"
             useExperimentalAnnotation("kotlin.RequiresOptIn")
+            useExperimentalAnnotation("nl.adaptivity.xmlutil.XmlUtilInternal")
         }
     }
 

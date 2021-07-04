@@ -18,16 +18,13 @@
  * under the License.
  */
 
-@file:OptIn(XmlUtilInternal::class)
-
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.core.internal.countLength
+import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import nl.adaptivity.xmlutil.XmlWriter
 import kotlinx.serialization.modules.SerializersModule
 
@@ -126,7 +123,7 @@ constructor(
     @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated("Use indentString for better accuracy")
     val indent: Int
-        get() = indentString.countLength()
+        get() = indentString.countIndentedLength()
 
     @Suppress("DeprecatedCallableAddReplaceWith")
     @Deprecated("Use xmlDeclMode with more options")
@@ -208,7 +205,7 @@ constructor(
 
         var indent: Int
             @Deprecated("Use indentString for better accuracy")
-            get() = indentString.countLength()
+            get() = indentString.countIndentedLength()
             set(value) {
                 indentString = " ".repeat(value)
             }

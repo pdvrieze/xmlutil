@@ -154,14 +154,14 @@ open class SimpleNamespaceContext internal constructor(val buffer: Array<out Str
         return SimpleNamespaceContext(result)
     }
 
-    override fun getNamespaceURI(prefix: String): String {
+    override fun getNamespaceURI(prefix: String): String? {
         return when (prefix) {
             XML_NS_PREFIX   -> XML_NS_URI
             XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
             else            -> indices.reversed()
                 .filter { getPrefix(it) == prefix }
-                .map { getNamespaceURI(it) }
-                .firstOrNull() ?: NULL_NS_URI
+                .firstOrNull()
+                ?.let { getNamespaceURI(it) }
         }
     }
 
