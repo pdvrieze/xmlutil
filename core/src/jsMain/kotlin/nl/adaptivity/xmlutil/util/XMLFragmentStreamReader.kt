@@ -52,7 +52,7 @@ actual class XMLFragmentStreamReader constructor(
 
         override fun freeze(): FragmentNamespaceContext = this
 
-        override fun getNamespaceURI(prefix: String): String {
+        override fun getNamespaceURI(prefix: String): String? {
             val namespaceURI = super.getNamespaceURI(prefix)
             parent?.let { return it.getNamespaceURI(prefix) }
 

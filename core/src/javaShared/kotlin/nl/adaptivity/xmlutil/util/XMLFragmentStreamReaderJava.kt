@@ -58,8 +58,8 @@ interface XMLFragmentStreamReaderJava : XmlReader {
         get() = localNamespaceContext
 
     companion object {
-        const val WRAPPERPPREFIX = "SDFKLJDSF"
-        const val WRAPPERNAMESPACE = "http://wrapperns"
+        const val WRAPPERPPREFIX: String = "SDFKLJDSF"
+        const val WRAPPERNAMESPACE: String = "http://wrapperns"
 
     }
 }

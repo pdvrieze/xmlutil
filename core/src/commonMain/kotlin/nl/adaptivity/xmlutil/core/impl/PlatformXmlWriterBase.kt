@@ -61,11 +61,10 @@ abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent
             indentSequence = listOf(XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, " ".repeat(value)))
         }
 
-    companion object {
+    internal companion object {
         private const val COMMENT = "<!---->"
 
-        @XmlUtilInternal
-        fun String.toIndentSequence(): List<XmlEvent.TextEvent> {
+        internal fun String.toIndentSequence(): List<XmlEvent.TextEvent> {
             val result = mutableListOf<XmlEvent.TextEvent>()
             val sb = StringBuilder()
 

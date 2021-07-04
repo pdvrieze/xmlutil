@@ -430,7 +430,7 @@ class KtXmlWriter(
         namespaceHolder.clear()
     }
 
-    companion object {
+    private companion object {
         /** Not a tag: -1 */
         private const val TAG_DEPTH_NOT_TAG = -1
         private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE

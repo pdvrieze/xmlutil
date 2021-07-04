@@ -113,7 +113,6 @@ sealed class XmlEvent(val locationInfo: String?) {
 
     }
 
-    @OptIn(XmlUtilInternal::class)
     class StartElementEvent(
         locationInfo: String?,
         namespaceUri: String,
@@ -122,7 +121,7 @@ sealed class XmlEvent(val locationInfo: String?) {
         val attributes: Array<out Attribute>,
         private val parentNamespaceContext: IterableNamespaceContext,
         namespaceDecls: List<Namespace>
-    ) : NamedEvent(locationInfo, namespaceUri, localName, prefix), NamespaceContextImpl {
+    ) : NamedEvent(locationInfo, namespaceUri, localName, prefix) {
 
         private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
 
@@ -160,35 +159,26 @@ sealed class XmlEvent(val locationInfo: String?) {
 
             attributes.forEach { attr -> writer.attribute(attr.namespaceUri, attr.localName, attr.prefix, attr.value) }
 
-            namespaceDecls.forEach { ns -> writer.namespaceAttr(ns.prefix, ns.namespaceURI) }
+            namespaceHolder.forEach { ns -> writer.namespaceAttr(ns.prefix, ns.namespaceURI) }
         }
 
-        val namespaceDecls: Array<out Namespace>
-            get() = Array(namespaceHolder.size) {
-                NamespaceImpl(namespaceHolder.getPrefix(it), namespaceHolder.getNamespaceURI(it))
-            }
+        val namespaceDecls: Iterable<Namespace>
+            get() = namespaceHolder
 
         override val eventType: EventType get() = EventType.START_ELEMENT
 
-        override fun getPrefix(namespaceURI: String): String? {
-            return namespaceDecls
-                .asSequence()
-                .filter { ns -> ns.namespaceURI == namespaceUri }
-                .lastOrNull()?.prefix
+        internal fun getPrefix(namespaceURI: String): String? {
+            return namespaceHolder.getPrefix(namespaceURI)
                 ?: parentNamespaceContext.getPrefix(namespaceUri)
         }
 
-        @Deprecated(
-            "Just use the version that takes a string",
-            ReplaceWith("getPrefix(namespaceUri.toString())")
-        )
-        fun getPrefix(namespaceUri: CharSequence): String? = getPrefix(namespaceUri.toString())
-
-        override fun getNamespaceURI(prefix: String): String? = namespaceDecls
-            .asSequence()
-            .filter { ns -> ns.prefix == prefix }
-            .lastOrNull()?.namespaceURI
-            ?: parentNamespaceContext.getNamespaceURI(prefix)
+        internal fun getNamespaceURI(prefix: String): String? {
+            val decl = namespaceHolder.getNamespaceURI(prefix)
+            return when (decl) {
+                null -> parentNamespaceContext.getNamespaceURI(prefix)
+                else -> decl
+            }
+        }
 
         @Deprecated(
             "Just use the version that takes a string",
@@ -202,11 +192,10 @@ sealed class XmlEvent(val locationInfo: String?) {
             get() = namespaceHolder + parentNamespaceContext
 
         @Suppress("OverridingDeprecatedMember")
-        override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
-            return namespaceDecls
-                .asSequence()
-                .filter { ns -> ns.namespaceURI == namespaceUri }
-                .map { it.prefix }.iterator()
+        internal fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
+            return (namespaceHolder.getPrefixesCompat(namespaceURI).asSequence() +
+                    parentNamespaceContext.getPrefixesCompat(namespaceURI).asSequence()
+                    ).iterator()
         }
 
         override fun toString(): String {

@@ -22,5 +22,3 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 typealias Locale = java.util.Locale
 
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "NOTHING_TO_INLINE")
-actual inline fun String.toCharArray(): CharArray = (this as java.lang.String).toCharArray()

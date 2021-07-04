@@ -18,7 +18,7 @@
  * under the License.
  */
 @file:JvmMultifileClass
-@file:JvmName("XmlWriterUtilJVM")
+@file:JvmName("XmlWriterUtil")
 
 package nl.adaptivity.xmlutil
 

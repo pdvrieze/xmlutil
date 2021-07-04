@@ -34,7 +34,6 @@ import kotlin.jvm.JvmOverloads
  * Created by pdvrieze on 04/11/15.
  */
 @Deprecated("Use kotlinx.serialization instead")
-@OptIn(XmlUtilInternal::class)
 interface XmlDeserializable {
 
     /**
@@ -64,7 +63,6 @@ interface XmlDeserializable {
 
 @Suppress("DEPRECATION")
 @Deprecated("Use kotlinx.serialization instead")
-@OptIn(XmlUtilInternal::class)
 fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()
 

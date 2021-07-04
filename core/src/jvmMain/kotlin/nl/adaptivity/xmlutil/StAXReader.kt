@@ -52,8 +52,8 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         XMLInputFactory.newFactory().createXMLStreamReader(
             inputStream,
             encoding
-                                                          )
-                                                                   )
+        )
+    )
 
     @Throws(XMLStreamException::class)
     constructor(source: Source) : this(XMLInputFactory.newFactory().createXMLStreamReader(source))
@@ -162,7 +162,7 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
     private fun delegateToLocal(eventType: Int) = DELEGATE_TO_LOCAL[eventType] ?: throw XmlException(
         "Unsupported event type"
-                                                                                                    )
+    )
 
     @Throws(XmlException::class)
     override fun nextTag(): EventType {
@@ -195,11 +195,11 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
             eventType
         }
-        EventType.END_ELEMENT   -> {
+        EventType.END_ELEMENT -> {
             namespaceHolder.decDepth()
             eventType
         }
-        else                    -> eventType
+        else -> eventType
     }
 
     @Throws(XmlException::class)
@@ -215,7 +215,8 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         get() = delegate.attributeCount
 
     override fun getAttributeNamespace(index: Int): String {
-        return delegate.getAttributeNamespace(index) ?: javax.xml.XMLConstants.NULL_NS_URI
+        return delegate.getAttributeNamespace(index)
+            ?: javax.xml.XMLConstants.NULL_NS_URI
     }
 
     override fun getAttributeLocalName(index: Int): String {
@@ -259,38 +260,38 @@ class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
         private val DELEGATE_TO_LOCAL = Array(16) { i ->
             when (i) {
-                XMLStreamConstants.CDATA                  -> EventType.CDSECT
-                XMLStreamConstants.COMMENT                -> EventType.COMMENT
-                XMLStreamConstants.DTD                    -> EventType.DOCDECL
-                XMLStreamConstants.END_DOCUMENT           -> EventType.END_DOCUMENT
-                XMLStreamConstants.END_ELEMENT            -> EventType.END_ELEMENT
-                XMLStreamConstants.ENTITY_REFERENCE       -> EventType.ENTITY_REF
-                XMLStreamConstants.SPACE                  -> EventType.IGNORABLE_WHITESPACE
+                XMLStreamConstants.CDATA -> EventType.CDSECT
+                XMLStreamConstants.COMMENT -> EventType.COMMENT
+                XMLStreamConstants.DTD -> EventType.DOCDECL
+                XMLStreamConstants.END_DOCUMENT -> EventType.END_DOCUMENT
+                XMLStreamConstants.END_ELEMENT -> EventType.END_ELEMENT
+                XMLStreamConstants.ENTITY_REFERENCE -> EventType.ENTITY_REF
+                XMLStreamConstants.SPACE -> EventType.IGNORABLE_WHITESPACE
                 XMLStreamConstants.PROCESSING_INSTRUCTION -> EventType.PROCESSING_INSTRUCTION
-                XMLStreamConstants.START_DOCUMENT         -> EventType.START_DOCUMENT
-                XMLStreamConstants.START_ELEMENT          -> EventType.START_ELEMENT
-                XMLStreamConstants.CHARACTERS             -> EventType.TEXT
-                XMLStreamConstants.ATTRIBUTE              -> EventType.ATTRIBUTE
-                else                                      -> null
+                XMLStreamConstants.START_DOCUMENT -> EventType.START_DOCUMENT
+                XMLStreamConstants.START_ELEMENT -> EventType.START_ELEMENT
+                XMLStreamConstants.CHARACTERS -> EventType.TEXT
+                XMLStreamConstants.ATTRIBUTE -> EventType.ATTRIBUTE
+                else -> null
             }
 
         }
 
         private val LOCAL_TO_DELEGATE = IntArray(12) { i ->
             when (i) {
-                EventType.CDSECT.ordinal                 -> XMLStreamConstants.CDATA
-                EventType.COMMENT.ordinal                -> XMLStreamConstants.COMMENT
-                EventType.DOCDECL.ordinal                -> XMLStreamConstants.DTD
-                EventType.END_DOCUMENT.ordinal           -> XMLStreamConstants.END_DOCUMENT
-                EventType.END_ELEMENT.ordinal            -> XMLStreamConstants.END_ELEMENT
-                EventType.ENTITY_REF.ordinal             -> XMLStreamConstants.ENTITY_REFERENCE
-                EventType.IGNORABLE_WHITESPACE.ordinal   -> XMLStreamConstants.SPACE
+                EventType.CDSECT.ordinal -> XMLStreamConstants.CDATA
+                EventType.COMMENT.ordinal -> XMLStreamConstants.COMMENT
+                EventType.DOCDECL.ordinal -> XMLStreamConstants.DTD
+                EventType.END_DOCUMENT.ordinal -> XMLStreamConstants.END_DOCUMENT
+                EventType.END_ELEMENT.ordinal -> XMLStreamConstants.END_ELEMENT
+                EventType.ENTITY_REF.ordinal -> XMLStreamConstants.ENTITY_REFERENCE
+                EventType.IGNORABLE_WHITESPACE.ordinal -> XMLStreamConstants.SPACE
                 EventType.PROCESSING_INSTRUCTION.ordinal -> XMLStreamConstants.PROCESSING_INSTRUCTION
-                EventType.START_DOCUMENT.ordinal         -> XMLStreamConstants.START_DOCUMENT
-                EventType.START_ELEMENT.ordinal          -> XMLStreamConstants.START_ELEMENT
-                EventType.TEXT.ordinal                   -> XMLStreamConstants.CHARACTERS
-                EventType.ATTRIBUTE.ordinal              -> XMLStreamConstants.ATTRIBUTE
-                else                                     -> -1
+                EventType.START_DOCUMENT.ordinal -> XMLStreamConstants.START_DOCUMENT
+                EventType.START_ELEMENT.ordinal -> XMLStreamConstants.START_ELEMENT
+                EventType.TEXT.ordinal -> XMLStreamConstants.CHARACTERS
+                EventType.ATTRIBUTE.ordinal -> XMLStreamConstants.ATTRIBUTE
+                else -> -1
             }
         }
     }

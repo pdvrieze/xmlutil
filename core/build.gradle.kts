@@ -216,6 +216,11 @@ kotlin {
 
 apiValidation {
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
+    ignoredPackages.apply {
+        add("nl.adaptivity.xmlutil.core.internal")
+        add("nl.adaptivity.xmlutil.core.impl")
+        add("nl.adaptivity.xmlutil.util.impl")
+    }
 }
 
 doPublish()

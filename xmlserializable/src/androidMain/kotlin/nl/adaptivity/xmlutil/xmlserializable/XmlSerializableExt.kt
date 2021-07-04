@@ -51,8 +51,8 @@ fun XmlSerializable.toString(flags: Int): String {
         XmlStreaming.newWriter(
             this,
             flags.and(FLAG_REPAIR_NS) == FLAG_REPAIR_NS,
-            XmlDeclMode.from(flags.and(FLAG_OMIT_XMLDECL) == FLAG_OMIT_XMLDECL)
-                              ).use { writer ->
+            if (flags.and(FLAG_OMIT_XMLDECL) == FLAG_OMIT_XMLDECL) XmlDeclMode.None else XmlDeclMode.Auto
+        ).use { writer ->
             serialize(writer)
         }
     }.toString()
@@ -60,7 +60,7 @@ fun XmlSerializable.toString(flags: Int): String {
 
 fun toString(serializable: XmlSerializable) = serializable.toString(
     DEFAULT_FLAGS
-                                                                   )
+)
 
 /**
  * Do bulk toString conversion of a list. Note that this is serialization, not dropping tags.

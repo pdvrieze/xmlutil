@@ -109,5 +109,3 @@ actual class CompactFragment : ICompactFragment {
         }
     }
 }
-
-val COMPACTFRAGMENTFACTORY: XmlDeserializerFactory<CompactFragment> = CompactFragment.Factory()
