@@ -34,6 +34,7 @@ plugins {
     id("signing")
     id("org.jetbrains.dokka")
     idea
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 val xmlutil_version: String by project

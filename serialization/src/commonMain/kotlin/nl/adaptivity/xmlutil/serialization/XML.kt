@@ -862,6 +862,7 @@ public class XML constructor(
          */
         public val target: XmlWriter
 
+        @WillBePrivate
         @Deprecated("Not used will always return null", ReplaceWith("null"), DeprecationLevel.HIDDEN)
         public val currentTypeName: Nothing?
             get() = null

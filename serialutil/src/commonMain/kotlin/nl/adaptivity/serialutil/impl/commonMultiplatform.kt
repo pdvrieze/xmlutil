@@ -30,11 +30,12 @@ import kotlin.reflect.KClass
        )
 expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
-expect val KClass<*>.name: String
+@PublishedApi
+internal expect val KClass<*>.name: String
 
-expect fun assert(value: Boolean, lazyMessage: () -> String)
+internal expect fun assert(value: Boolean, lazyMessage: () -> String)
 
-expect fun assert(value: Boolean)
+internal expect fun assert(value: Boolean)
 
 expect interface AutoCloseable {
     fun close()
@@ -42,4 +43,5 @@ expect interface AutoCloseable {
 
 expect interface Closeable : AutoCloseable
 
-expect val KClass<*>.maybeAnnotations: List<Annotation>
+@PublishedApi
+internal expect val KClass<*>.maybeAnnotations: List<Annotation>

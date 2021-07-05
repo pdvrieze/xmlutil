@@ -18,8 +18,14 @@
  * under the License.
  */
 
+@file:JvmName("Strings")
+@file:JvmMultifileClass
+
 package nl.adaptivity.serialutil.impl
 
-fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
-expect fun String.toCharArray(): CharArray
+internal fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }
+
+internal expect fun String.toCharArray(): CharArray

@@ -1,0 +1,552 @@
+public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/CompactFragmentSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/CompactFragment;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+}
+
+public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializerKt {
+	public static final fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
+	public static final fun getPlatformDefaultModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy : nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy {
+	public fun <init> (ZZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun defaultOutputKind (Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun effectiveName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;)Ljavax/xml/namespace/QName;
+	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun enumEncoding (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public final fun getAutoPolymorphic ()Z
+	public fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getPedantic ()Z
+	public fun handleAttributeOrderConflict (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun handleUnknownContent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
+	public fun ignoredSerialInfo (Ljava/lang/String;)V
+	public fun initialChildReorderMap (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
+	public fun invalidOutputKind (Ljava/lang/String;)V
+	public fun isListEluded (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public fun isTransparentPolymorphic (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public fun overrideSerializerOrNull (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lkotlinx/serialization/KSerializer;
+	public fun serialNameToQName (Ljava/lang/String;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
+	public fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+}
+
+public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/Enum {
+	public static final field Attribute Lnl/adaptivity/xmlutil/serialization/InputKind;
+	public static final field Element Lnl/adaptivity/xmlutil/serialization/InputKind;
+	public static final field Text Lnl/adaptivity/xmlutil/serialization/InputKind;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/InputKind;
+	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/InputKind;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvider : nl/adaptivity/xmlutil/util/SerializationProvider {
+	public fun <init> ()V
+	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
+	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
+	public static final field Attribute Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static final field Element Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static final field Inline Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static final field Mixed Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static final field Text Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/UnknownXmlFieldException : nl/adaptivity/xmlutil/serialization/XmlSerialException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/WillBePrivate : java/lang/annotation/Annotation {
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XML : kotlinx/serialization/StringFormat {
+	public static final field Companion Lnl/adaptivity/xmlutil/serialization/XML$Companion;
+	public fun <init> (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;Lkotlinx/serialization/modules/SerializersModule;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;Lkotlinx/serialization/modules/SerializersModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/modules/SerializersModule;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/modules/SerializersModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZILkotlinx/serialization/modules/SerializersModule;)V
+	public synthetic fun <init> (ZZILkotlinx/serialization/modules/SerializersModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun decodeFromReader (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+	public final fun encodeToWriter (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)V
+	public static synthetic fun encodeToWriter$default (Lnl/adaptivity/xmlutil/serialization/XML;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun getConfig ()Lnl/adaptivity/xmlutil/serialization/XmlConfig;
+	public final fun getIndent ()I
+	public final fun getOmitXmlDecl ()Z
+	public final fun getRepairNamespaces ()Z
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun parse (Lkotlin/reflect/KClass;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun parse (Lkotlin/reflect/KClass;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public final fun parse (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun parse (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public final fun stringify (Ljava/lang/Object;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/String;)Ljava/lang/String;
+	public final fun stringify (Lkotlin/reflect/KClass;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+	public final fun stringify (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun stringify (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun stringify$default (Lnl/adaptivity/xmlutil/serialization/XML;Ljava/lang/Object;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun stringify$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlin/reflect/KClass;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun toXml (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlin/reflect/KClass;Ljava/lang/Object;Ljava/lang/String;)V
+	public final fun toXml (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)V
+	public static synthetic fun toXml$default (Lnl/adaptivity/xmlutil/serialization/XML;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlin/reflect/KClass;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun toXml$default (Lnl/adaptivity/xmlutil/serialization/XML;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun xmlDescriptor (Lkotlinx/serialization/DeserializationStrategy;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun xmlDescriptor (Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun xmlDescriptor (Lkotlinx/serialization/SerializationStrategy;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XML$Companion : kotlinx/serialization/StringFormat {
+	public final fun decodeFromReader (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+	public final fun encodeToWriter (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)V
+	public static synthetic fun encodeToWriter$default (Lnl/adaptivity/xmlutil/serialization/XML$Companion;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun getDefaultInstance ()Lnl/adaptivity/xmlutil/serialization/XML;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun parse (Lkotlin/reflect/KClass;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun parse (Lkotlin/reflect/KClass;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
+	public final synthetic fun parse (Lkotlin/reflect/KClass;Lnl/adaptivity/xmlutil/XmlReader;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun parse (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun parse (Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public final synthetic fun parse (Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/reflect/KClass;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun parse (Lnl/adaptivity/xmlutil/XmlReader;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun stringify (Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/lang/String;)Ljava/lang/String;
+	public final fun stringify (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public final fun stringify (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun stringify$default (Lnl/adaptivity/xmlutil/serialization/XML$Companion;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun toXml (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/lang/String;)V
+	public final fun toXml (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)V
+	public static synthetic fun toXml$default (Lnl/adaptivity/xmlutil/serialization/XML$Companion;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Lkotlin/reflect/KClass;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun toXml$default (Lnl/adaptivity/xmlutil/serialization/XML$Companion;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun xmlDescriptor (Lkotlinx/serialization/DeserializationStrategy;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun xmlDescriptor (Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun xmlDescriptor (Lkotlinx/serialization/SerializationStrategy;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig {
+	public abstract fun delegateFormat ()Lnl/adaptivity/xmlutil/serialization/XML;
+	public abstract fun getConfig ()Lnl/adaptivity/xmlutil/serialization/XmlConfig;
+	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig$DefaultImpls {
+	public static fun delegateFormat (Lnl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig;)Lnl/adaptivity/xmlutil/serialization/XML;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlInput : nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig {
+	public abstract fun getInput ()Lnl/adaptivity/xmlutil/XmlReader;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XML$XmlInput$DefaultImpls {
+	public static fun delegateFormat (Lnl/adaptivity/xmlutil/serialization/XML$XmlInput;)Lnl/adaptivity/xmlutil/serialization/XML;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlOutput : nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig {
+	public abstract synthetic fun getCurrentTypeName ()Ljava/lang/Void;
+	public abstract fun getSerialName ()Ljavax/xml/namespace/QName;
+	public abstract fun getTarget ()Lnl/adaptivity/xmlutil/XmlWriter;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XML$XmlOutput$DefaultImpls {
+	public static fun delegateFormat (Lnl/adaptivity/xmlutil/serialization/XML$XmlOutput;)Lnl/adaptivity/xmlutil/serialization/XML;
+	public static synthetic fun getCurrentTypeName (Lnl/adaptivity/xmlutil/serialization/XML$XmlOutput;)Ljava/lang/Void;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XMLKt {
+	public static final fun toQName (Lnl/adaptivity/xmlutil/serialization/XmlChildrenName;)Ljavax/xml/namespace/QName;
+	public static final fun toQName (Lnl/adaptivity/xmlutil/serialization/XmlSerialName;)Ljavax/xml/namespace/QName;
+	public static final fun writeAsXml (Ljava/lang/Object;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;)V
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlAfter : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlAfter$Impl : nl/adaptivity/xmlutil/serialization/XmlAfter {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun value ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlBefore : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlBefore$Impl : nl/adaptivity/xmlutil/serialization/XmlBefore {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun value ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlChildrenName : java/lang/annotation/Annotation {
+	public abstract fun namespace ()Ljava/lang/String;
+	public abstract fun prefix ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlChildrenName$Impl : nl/adaptivity/xmlutil/serialization/XmlChildrenName {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final synthetic fun namespace ()Ljava/lang/String;
+	public final synthetic fun prefix ()Ljava/lang/String;
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
+	public static final field Companion Lnl/adaptivity/xmlutil/serialization/XmlConfig$Companion;
+	public fun <init> ()V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;)V
+	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
+	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZIZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getIndent ()I
+	public final fun getIndentString ()Ljava/lang/String;
+	public final fun getOmitXmlDecl ()Z
+	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
+	public final fun getRepairNamespaces ()Z
+	public final fun getUnknownChildHandler ()Lkotlin/jvm/functions/Function4;
+	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public final fun isCollectingNSAttributes ()Z
+	public final fun isInlineCollapsed ()Z
+	public final fun setCollectingNSAttributes (Z)V
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
+	public fun <init> ()V
+	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
+	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZIZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
+	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAutoPolymorphic ()Z
+	public final fun getIndent ()I
+	public final fun getIndentString ()Ljava/lang/String;
+	public final fun getOmitXmlDecl ()Z
+	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
+	public final fun getRepairNamespaces ()Z
+	public final fun getUnknownChildHandler ()Lkotlin/jvm/functions/Function4;
+	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public final fun isCollectingNSAttributes ()Z
+	public final fun isInlineCollapsed ()Z
+	public final fun setAutoPolymorphic (Z)V
+	public final fun setCollectingNSAttributes (Z)V
+	public final fun setIndent (I)V
+	public final fun setIndentString (Ljava/lang/String;)V
+	public final fun setInlineCollapsed (Z)V
+	public final fun setOmitXmlDecl (Z)V
+	public final fun setPolicy (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
+	public final fun setRepairNamespaces (Z)V
+	public final fun setUnknownChildHandler (Lkotlin/jvm/functions/Function4;)V
+	public final fun setXmlDeclMode (Lnl/adaptivity/xmlutil/XmlDeclMode;)V
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Companion {
+	public final fun getDEFAULT_UNKNOWN_CHILD_HANDLER ()Lkotlin/jvm/functions/Function4;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlDefault : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlDefault$Impl : nl/adaptivity/xmlutil/serialization/XmlDefault {
+	public fun <init> (Ljava/lang/String;)V
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlElement : java/lang/annotation/Annotation {
+	public abstract fun value ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/adaptivity/xmlutil/serialization/XmlElement {
+	public fun <init> (Z)V
+	public final synthetic fun value ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlParsingException : nl/adaptivity/xmlutil/serialization/XmlSerialException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlPolyChildren : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlPolyChildren$Impl : nl/adaptivity/xmlutil/serialization/XmlPolyChildren {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun value ()[Ljava/lang/String;
+}
+
+public class nl/adaptivity/xmlutil/serialization/XmlSerialException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlSerialName : java/lang/annotation/Annotation {
+	public abstract fun namespace ()Ljava/lang/String;
+	public abstract fun prefix ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlSerialName$Impl : nl/adaptivity/xmlutil/serialization/XmlSerialName {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final synthetic fun namespace ()Ljava/lang/String;
+	public final synthetic fun prefix ()Ljava/lang/String;
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy {
+	public abstract fun defaultOutputKind (Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun effectiveName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;)Ljavax/xml/namespace/QName;
+	public abstract fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun enumEncoding (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public abstract fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun handleAttributeOrderConflict (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun handleUnknownContent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
+	public abstract fun ignoredSerialInfo (Ljava/lang/String;)V
+	public abstract fun initialChildReorderMap (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
+	public abstract fun invalidOutputKind (Ljava/lang/String;)V
+	public abstract fun isListEluded (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public abstract fun isTransparentPolymorphic (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public abstract fun overrideSerializerOrNull (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lkotlinx/serialization/KSerializer;
+	public abstract fun serialNameToQName (Ljava/lang/String;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public abstract fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public abstract fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public abstract fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
+	public abstract fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$ActualNameInfo {
+	public fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljavax/xml/namespace/QName;
+	public final fun copy (Ljava/lang/String;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$ActualNameInfo;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$ActualNameInfo;Ljava/lang/String;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$ActualNameInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnnotatedName ()Ljavax/xml/namespace/QName;
+	public final fun getSerialName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo {
+	public fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljavax/xml/namespace/QName;
+	public final fun copy (Ljava/lang/String;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Ljava/lang/String;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnnotatedName ()Ljavax/xml/namespace/QName;
+	public final fun getSerialName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DefaultImpls {
+	public static fun defaultOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static synthetic fun effectiveName$default (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;ILjava/lang/Object;)Ljavax/xml/namespace/QName;
+	public static fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun enumEncoding (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public static fun getDefaultObjectOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun getDefaultPrimitiveOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun handleAttributeOrderConflict (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun initialChildReorderMap (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
+	public static fun invalidOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Ljava/lang/String;)V
+	public static fun overrideSerializerOrNull (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lkotlinx/serialization/KSerializer;
+	public static fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static fun updateReorderMap (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault : java/lang/Enum {
+	public static final field ALWAYS Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public static final field ANNOTATED Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public static final field NEVER Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlValue : java/lang/annotation/Annotation {
+	public abstract fun value ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlValue$Impl : nl/adaptivity/xmlutil/serialization/XmlValue {
+	public fun <init> (Z)V
+	public final synthetic fun value ()Z
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo {
+	public abstract fun copy (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public abstract fun getDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;
+	public abstract fun getElemenTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
+	public abstract fun getElementSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getElementUseAnnotations ()Ljava/util/Collection;
+	public abstract fun getElementUseNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	public abstract fun getElementUseOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun getIndex ()I
+	public abstract fun getNamespace ()Lnl/adaptivity/xmlutil/Namespace;
+	public abstract fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
+	public abstract fun getParentIsInline ()Z
+	public abstract fun maybeOverrideSerializer (Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo$DefaultImpls {
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public static fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {
+	public abstract fun getDoInline ()Z
+	public abstract fun getElementsCount ()I
+	public abstract fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public abstract fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
+	public abstract fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getSerialKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public abstract fun getTagName ()Ljavax/xml/namespace/QName;
+	public abstract fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public abstract fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
+	public abstract fun isElementOptional (I)Z
+	public abstract fun isNullable ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor$DefaultImpls {
+	public static fun getKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Lkotlinx/serialization/descriptors/SerialKind;
+	public static fun isElementOptional (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;I)Z
+	public static fun isNullable (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public final fun getChildReorderMap ()[I
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor : nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public final fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
+	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
+	public fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getSerialKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getTagName ()Ljavax/xml/namespace/QName;
+	public final fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
+	protected final fun getUseNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	protected final fun getXmlCodecBase ()Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;
+	public fun isElementOptional (I)Z
+	public fun isNullable ()Z
+	public fun isUnsigned ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlInlineDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun isUnsigned ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlListDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public final fun isListEluded ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlOrderConstraint {
+	public fun <init> (II)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun copy (II)Lnl/adaptivity/xmlutil/serialization/structure/XmlOrderConstraint;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/XmlOrderConstraint;IIILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/XmlOrderConstraint;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAfter ()I
+	public final fun getBefore ()I
+	public fun hashCode ()I
+	public final fun map (Lkotlin/jvm/functions/Function1;)Lkotlin/Pair;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public final fun getParentSerialName ()Ljava/lang/String;
+	public final fun getPolyInfo ()Ljava/util/Map;
+	public final fun getPolymorphicDescriptor (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun isTransparent ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public fun getDoInline ()Z
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlRootDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getTagName ()Ljavax/xml/namespace/QName;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor {
+	public final fun getElementsCount ()I
+	public final fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun getSerialName ()Ljava/lang/String;
+	public final fun getTypeNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	public final fun getTypeQname ()Ljavax/xml/namespace/QName;
+}
+
+public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun defaultValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public final fun getDefault ()Ljava/lang/String;
+}
+

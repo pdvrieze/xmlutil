@@ -22,7 +22,8 @@ package nl.adaptivity.serialutil.impl
 
 import kotlin.reflect.KClass
 
-actual val KClass<*>.name get() = js.name
+@PublishedApi
+internal actual val KClass<*>.name get() = js.name
 
 @Target(
     AnnotationTarget.FUNCTION,
@@ -48,4 +49,5 @@ actual interface AutoCloseable {
 
 actual interface Closeable : AutoCloseable
 
-actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
+@PublishedApi
+internal actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()

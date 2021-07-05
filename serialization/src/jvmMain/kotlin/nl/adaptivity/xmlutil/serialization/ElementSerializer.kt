@@ -185,6 +185,7 @@ private class DocumentCompositeDecoder(private val delegate: CompositeDecoder, v
     }
 }
 
+@WillBePrivate
 public class WrappedDeserializationStrategy<T>(
     public val delegate: DeserializationStrategy<T>,
     public val document: Document

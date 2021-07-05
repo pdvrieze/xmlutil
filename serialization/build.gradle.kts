@@ -38,6 +38,7 @@ plugins {
     id("signing")
     id("org.jetbrains.dokka")
     idea
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 val xmlutil_serial_version: String by project
@@ -259,6 +260,17 @@ kotlin {
                 useExperimentalAnnotation("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
+    }
+
+}
+
+apiValidation {
+    nonPublicMarkers.apply {
+        add("nl.adaptivity.xmlutil.serialization.WillBePrivate")
+        add("nl.adaptivity.xmlutil.XmlUtilInternal")
+    }
+    ignoredPackages.apply {
+        add("nl.adaptivity.xmlutil.serialization.impl")
     }
 
 }

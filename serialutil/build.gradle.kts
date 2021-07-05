@@ -35,6 +35,7 @@ plugins {
     id("signing")
     idea
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 val xmlutil_serial_version: String by project
@@ -172,6 +173,12 @@ kotlin {
                 useExperimentalAnnotation("kotlin.RequiresOptIn")
             }
         }
+    }
+
+}
+apiValidation {
+    ignoredPackages.apply {
+        add("nl.adaptivity.serialutil.impl")
     }
 
 }

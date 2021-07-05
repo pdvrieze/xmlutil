@@ -123,7 +123,7 @@ public sealed class XmlDescriptor(
         throw IndexOutOfBoundsException("There are no children")
     }
 
-    public companion object {
+    internal companion object {
 
         /**
          * @param xmlCodecBase The codec base. This allows for some context dependend lookups such as prefixes
@@ -313,9 +313,9 @@ public class XmlInlineDescriptor internal constructor(
     override val isUnsigned: Boolean =
         serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS
 
-    public companion object {
+    private companion object {
         @OptIn(ExperimentalSerializationApi::class)
-        public val UNSIGNED_SERIALIZER_DESCRIPTORS: Array<SerialDescriptor> = arrayOf(
+        val UNSIGNED_SERIALIZER_DESCRIPTORS: Array<SerialDescriptor> = arrayOf(
             UByte.serializer().descriptor,
             UShort.serializer().descriptor,
             UInt.serializer().descriptor,
@@ -684,6 +684,7 @@ private class DetachedParent(
             ?: XmlEvent.NamespaceImpl("", "")
 }
 
+@WillBePrivate // 2021-07-05 Should not have been public.
 public class ParentInfo(
     override val descriptor: XmlDescriptor,
     override val index: Int,

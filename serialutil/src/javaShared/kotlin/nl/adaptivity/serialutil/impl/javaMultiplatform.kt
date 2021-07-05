@@ -22,11 +22,13 @@ package nl.adaptivity.serialutil.impl
 
 import kotlin.reflect.KClass
 
-actual val KClass<*>.name get() = java.name
+@PublishedApi
+internal actual val KClass<*>.name get() = java.name
 
 actual typealias Throws = kotlin.jvm.Throws
 
-typealias URI = java.net.URI
+internal typealias URI = java.net.URI
 
 
-actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
+@PublishedApi
+internal actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()

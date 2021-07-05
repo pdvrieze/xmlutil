@@ -1,0 +1,146 @@
+public final class nl/adaptivity/serialutil/CharArrayAsStringSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/serialutil/CharArrayAsStringSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)[C
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;[C)V
+}
+
+public abstract class nl/adaptivity/serialutil/DelegateSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDelegate ()Lkotlinx/serialization/KSerializer;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
+public abstract class nl/adaptivity/serialutil/DelegatingSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public abstract fun fromDelegate (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getDelegateSerializer ()Lkotlinx/serialization/KSerializer;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public abstract fun toDelegate (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class nl/adaptivity/serialutil/HelpersKt {
+	public static final fun decodeElements (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun decodeStructure (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public static final fun encodeNullableStringElement (Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	public static final fun readBegin (Lkotlinx/serialization/encoding/Decoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public static final fun readElements (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlin/jvm/functions/Function1;)V
+	public static final fun readNullableString (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
+	public static final fun readNullableString (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)Ljava/lang/String;
+	public static final fun readNullableString (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
+	public static synthetic fun readNullableString$default (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun writeCollection (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlin/jvm/functions/Function2;)V
+	public static final fun writeNullableStringElementValue (Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILjava/lang/String;)V
+	public static final fun writeStructure (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/jvm/functions/Function2;)V
+}
+
+public abstract class nl/adaptivity/serialutil/MixedContent {
+	public static final field Companion Lnl/adaptivity/serialutil/MixedContent$Companion;
+}
+
+public final class nl/adaptivity/serialutil/MixedContent$Companion : kotlinx/serialization/KSerializer {
+	public final fun decodeSequentially (Lkotlinx/serialization/encoding/CompositeDecoder;)Lnl/adaptivity/serialutil/MixedContent;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/serialutil/MixedContent;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/serialutil/MixedContent;)V
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class nl/adaptivity/serialutil/MixedContent$Object : nl/adaptivity/serialutil/MixedContent {
+	public static final field Companion Lnl/adaptivity/serialutil/MixedContent$Object$Companion;
+	public fun <init> (Ljava/lang/Object;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/serialutil/MixedContent$Object$Companion : kotlinx/serialization/KSerializer {
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/serialutil/MixedContent$Object;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/serialutil/MixedContent$Object;)V
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class nl/adaptivity/serialutil/MixedContent$Text : nl/adaptivity/serialutil/MixedContent {
+	public static final field Companion Lnl/adaptivity/serialutil/MixedContent$Text$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/serialutil/MixedContent$Text$Companion : kotlinx/serialization/KSerializer {
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/serialutil/MixedContent$Text;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/serialutil/MixedContent$Text;)V
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class nl/adaptivity/serialutil/SimpleSerialClassDesc : kotlinx/serialization/descriptors/SerialDescriptor {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;Ljava/util/List;[Lkotlin/Pair;)V
+	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;Ljava/util/List;[Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlinx/serialization/descriptors/SerialKind;Ljava/lang/String;Ljava/util/List;[Lkotlin/Pair;)V
+	public synthetic fun <init> (Lkotlinx/serialization/descriptors/SerialKind;Ljava/lang/String;Ljava/util/List;[Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getElementAnnotations (I)Ljava/util/List;
+	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getElementIndex (Ljava/lang/String;)I
+	public fun getElementName (I)Ljava/lang/String;
+	public final fun getElements ()[Lkotlin/Pair;
+	public fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerialName ()Ljava/lang/String;
+	public fun isElementOptional (I)Z
+	public fun isInline ()Z
+	public fun isNullable ()Z
+}
+
+public final class nl/adaptivity/serialutil/SimpleSerialClassDescKt {
+	public static final fun withName (Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/lang/String;)Lkotlinx/serialization/descriptors/SerialDescriptor;
+}
+
+public final class nl/adaptivity/serialutil/SimpleSerialClassDescPrimitive : kotlinx/serialization/descriptors/SerialDescriptor {
+	public fun <init> (Lkotlinx/serialization/descriptors/PrimitiveKind;Ljava/lang/String;)V
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getElementAnnotations (I)Ljava/lang/Void;
+	public synthetic fun getElementAnnotations (I)Ljava/util/List;
+	public fun getElementDescriptor (I)Ljava/lang/Void;
+	public synthetic fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public fun getElementIndex (Ljava/lang/String;)I
+	public synthetic fun getElementName (I)Ljava/lang/String;
+	public fun getElementName (I)Ljava/lang/Void;
+	public fun getElementsCount ()I
+	public fun getKind ()Lkotlinx/serialization/descriptors/PrimitiveKind;
+	public synthetic fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerialName ()Ljava/lang/String;
+	public fun isElementOptional (I)Z
+	public fun isInline ()Z
+	public fun isNullable ()Z
+}
+
+public final class nl/adaptivity/serialutil/encoders/HashFormat : kotlinx/serialization/SerialFormat {
+	public static final field Companion Lnl/adaptivity/serialutil/encoders/HashFormat$Companion;
+	public fun <init> (Lkotlinx/serialization/modules/SerializersModule;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun hashCode (Lkotlinx/serialization/KSerializer;Ljava/lang/Object;)I
+}
+
+public final class nl/adaptivity/serialutil/encoders/HashFormat$Companion : kotlinx/serialization/SerialFormat {
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun hashCode (Lkotlinx/serialization/KSerializer;Ljava/lang/Object;)I
+}
+

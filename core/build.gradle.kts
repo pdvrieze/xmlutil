@@ -34,9 +34,7 @@ plugins {
     id("signing")
     id("org.jetbrains.dokka")
     idea
-    // TODO make this work with multiple jvm targets
-    // https://github.com/Kotlin/binary-compatibility-validator/issues/47
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") //apply false
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 val xmlutil_core_version: String by project

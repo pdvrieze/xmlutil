@@ -21,4 +21,4 @@
 package nl.adaptivity.serialutil.impl
 
 @Suppress("NOTHING_TO_INLINE")
-actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()
+internal actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()
