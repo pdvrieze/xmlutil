@@ -25,20 +25,19 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 
-class XmlTypeDescriptor
-internal constructor(val serialDescriptor: SerialDescriptor) {
+public class XmlTypeDescriptor internal constructor(public val serialDescriptor: SerialDescriptor) {
 
     @OptIn(ExperimentalSerializationApi::class)
-    val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo()
+    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo()
 
     @OptIn(ExperimentalSerializationApi::class)
-    val serialName: String
+    public val serialName: String
         get() = serialDescriptor.serialName
 
-    val typeQname: QName? = typeNameInfo.annotatedName
+    public val typeQname: QName? = typeNameInfo.annotatedName
 
     @OptIn(ExperimentalSerializationApi::class)
-    val elementsCount: Int
+    public val elementsCount: Int
         get() = serialDescriptor.elementsCount
 
     private val children by lazy {

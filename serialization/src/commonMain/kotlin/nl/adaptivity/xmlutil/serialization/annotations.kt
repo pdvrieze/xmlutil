@@ -32,18 +32,18 @@ import kotlinx.serialization.SerialInfo
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-annotation class XmlSerialName(
+public annotation class XmlSerialName(
     val value: String,
     val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
     val prefix: String/* = UNSET_ANNOTATION_VALUE*/
-                              )
+)
 
 /**
  * Indicate the valid poly children for this element
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class XmlPolyChildren(val value: Array<String>)
+public annotation class XmlPolyChildren(val value: Array<String>)
 
 /**
  * Specify additional information about child values. This is only used for primitives, not for classes that have their
@@ -51,32 +51,32 @@ annotation class XmlPolyChildren(val value: Array<String>)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-annotation class XmlChildrenName(
+public annotation class XmlChildrenName(
     val value: String,
     val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
     val prefix: String/* = UNSET_ANNOTATION_VALUE*/
-                                )
+)
 
 /**
  * Force a property that could be an attribute to be an element
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-annotation class XmlElement(val value: Boolean/* = true*/)
+public annotation class XmlElement(val value: Boolean/* = true*/)
 
 /**
  * Force a property to be text element content
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class XmlValue(val value: Boolean /*= true*/)
+public annotation class XmlValue(val value: Boolean /*= true*/)
 
 /**
  * Allow a property to be omitted with a default serialized string
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class XmlDefault(val value: String)
+public annotation class XmlDefault(val value: String)
 
 /**
  * Require this property to be serialized before other (sibling) properties.
@@ -86,7 +86,7 @@ annotation class XmlDefault(val value: String)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class XmlBefore(vararg val value: String)
+public annotation class XmlBefore(vararg val value: String)
 
 /**
  * Require this property to be serialized after other (sibling) properties.
@@ -95,7 +95,7 @@ annotation class XmlBefore(vararg val value: String)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class XmlAfter(vararg val value: String)
+public annotation class XmlAfter(vararg val value: String)
 
 /**
  * Default value for unset annotations

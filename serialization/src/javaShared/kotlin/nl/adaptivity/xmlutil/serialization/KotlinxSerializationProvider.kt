@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.util.SerializationProvider
 import kotlin.reflect.KClass
 
 @InternalSerializationApi
-class KotlinxSerializationProvider : SerializationProvider {
+public class KotlinxSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         return getSerializer(type)?.let { SerializerFun(it) }
     }

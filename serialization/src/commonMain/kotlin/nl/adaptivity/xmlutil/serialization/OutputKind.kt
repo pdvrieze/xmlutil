@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2021.
  *
  * This file is part of xmlutil.
  *
@@ -20,11 +20,6 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.modules.SerializersModule
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-
-public actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
-    contextual(Element::class, ElementSerializer)
-    contextual(Node::class, NodeSerializer)
+public enum class OutputKind {
+    Element, Attribute, Text, Mixed, Inline;
 }

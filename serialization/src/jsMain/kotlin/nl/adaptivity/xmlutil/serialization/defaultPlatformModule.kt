@@ -25,4 +25,4 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
 @ExperimentalSerializationApi
-actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule
+public actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule

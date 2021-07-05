@@ -29,83 +29,83 @@ import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.serialization.structure.declOutputKind
 
-interface XmlSerializationPolicy {
+public interface XmlSerializationPolicy {
 
-    val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
-    val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
+    public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
+    public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
     @ExperimentalSerializationApi
-    fun defaultOutputKind(serialKind: SerialKind): OutputKind =
+    public fun defaultOutputKind(serialKind: SerialKind): OutputKind =
         when (serialKind) {
             SerialKind.ENUM,
             StructureKind.OBJECT -> defaultObjectOutputKind
-            is PrimitiveKind     -> defaultPrimitiveOutputKind
+            is PrimitiveKind -> defaultPrimitiveOutputKind
             PolymorphicKind.OPEN -> OutputKind.Element
-            else                 -> OutputKind.Element
+            else -> OutputKind.Element
         }
 
-    fun invalidOutputKind(message: String): Unit = ignoredSerialInfo(message)
+    public fun invalidOutputKind(message: String): Unit = ignoredSerialInfo(message)
 
-    fun ignoredSerialInfo(message: String)
+    public fun ignoredSerialInfo(message: String)
 
-    fun effectiveName(
+    public fun effectiveName(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
         useName: DeclaredNameInfo = tagParent.elementUseNameInfo
-                     ): QName
+    ): QName
 
-    fun isListEluded(
+    public fun isListEluded(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                    ): Boolean
+    ): Boolean
 
-    fun isTransparentPolymorphic(
+    public fun isTransparentPolymorphic(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                                ): Boolean
+    ): Boolean
 
     @Suppress("DEPRECATION")
-    fun serialTypeNameToQName(
+    public fun serialTypeNameToQName(
         typeNameInfo: DeclaredNameInfo,
         parentNamespace: Namespace
-                             ): QName =
+    ): QName =
         serialNameToQName(typeNameInfo.serialName, parentNamespace)
 
     @Suppress("DEPRECATION")
-    fun serialUseNameToQName(
+    public fun serialUseNameToQName(
         useNameInfo: DeclaredNameInfo,
         parentNamespace: Namespace
-                            ): QName =
+    ): QName =
         serialNameToQName(useNameInfo.serialName, parentNamespace)
 
     @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
-    fun serialNameToQName(
+    public fun serialNameToQName(
         serialName: String,
         parentNamespace: Namespace
-                         ): QName
+    ): QName
 
-    data class DeclaredNameInfo(
+    public data class DeclaredNameInfo(
         val serialName: String,
         val annotatedName: QName?
-                               )
+    )
 
-    data class ActualNameInfo(
+    public data class ActualNameInfo(
         val serialName: String,
         val annotatedName: QName
-                             )
+    )
 
     @Deprecated("Don't use or implement this, use the 3 parameter version")
-    fun effectiveOutputKind(
+    public fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                           ): OutputKind
+    ): OutputKind
 
-    fun effectiveOutputKind(
+    public fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean
-                           ): OutputKind {
+    ): OutputKind {
         @Suppress("DEPRECATION")
         val base = effectiveOutputKind(serializerParent, tagParent)
 
@@ -114,50 +114,50 @@ interface XmlSerializationPolicy {
                 serializerParent,
                 tagParent,
                 base
-                                               )
+            )
         }
         return base
     }
 
-    fun overrideSerializerOrNull(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): KSerializer<*>? {
+    public fun overrideSerializerOrNull(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): KSerializer<*>? {
         return null
     }
 
-    fun handleUnknownContent(
+    public fun handleUnknownContent(
         input: XmlReader,
         inputKind: InputKind,
         name: QName?,
         candidates: Collection<Any>
-                            )
+    )
 
-    fun handleAttributeOrderConflict(
+    public fun handleAttributeOrderConflict(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         outputKind: OutputKind
-                                    ): OutputKind {
+    ): OutputKind {
         throw SerializationException("Node ${serializerParent.elementUseNameInfo.serialName} wants to be an attribute but cannot due to ordering constraints")
     }
 
-    fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean
+    public fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean
 
     /**
      * Allow modifying the ordering of children.
      */
-    fun initialChildReorderMap(
+    public fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                              ): Collection<XmlOrderConstraint>? = null
+    ): Collection<XmlOrderConstraint>? = null
 
-    fun updateReorderMap(
+    public fun updateReorderMap(
         original: Collection<XmlOrderConstraint>,
         children: List<XmlDescriptor>
-                        ): Collection<XmlOrderConstraint> = original
+    ): Collection<XmlOrderConstraint> = original
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    fun enumEncoding(enumDescriptor: SerialDescriptor, index: Int): String {
+    public fun enumEncoding(enumDescriptor: SerialDescriptor, index: Int): String {
         return enumDescriptor.getElementName(index)
     }
 
-    enum class XmlEncodeDefault {
+    public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }
 
@@ -165,28 +165,28 @@ interface XmlSerializationPolicy {
 
 
 @OptIn(ExperimentalSerializationApi::class)
-open class DefaultXmlSerializationPolicy(
-    val pedantic: Boolean,
-    val autoPolymorphic: Boolean = false,
-    val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+public open class DefaultXmlSerializationPolicy(
+    public val pedantic: Boolean,
+    public val autoPolymorphic: Boolean = false,
+    public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
     private val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
-                                        ) : XmlSerializationPolicy {
+) : XmlSerializationPolicy {
 
-    constructor(
+    public constructor(
         pedantic: Boolean,
         autoPolymorphic: Boolean = false,
         unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
-               ) : this(
+    ) : this(
         pedantic,
         autoPolymorphic,
         XmlEncodeDefault.ANNOTATED,
         unknownChildHandler
-                       )
+    )
 
     override fun isListEluded(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                             ): Boolean {
+    ): Boolean {
         val useAnnotations = tagParent.elementUseAnnotations
         val isMixed = useAnnotations.firstOrNull<XmlValue>()?.value == true
         if (isMixed) return true
@@ -199,7 +199,7 @@ open class DefaultXmlSerializationPolicy(
     override fun isTransparentPolymorphic(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                                         ): Boolean {
+    ): Boolean {
         val xmlPolyChildren =
             tagParent.elementUseAnnotations.firstOrNull<XmlPolyChildren>()
         return autoPolymorphic || xmlPolyChildren != null
@@ -209,7 +209,7 @@ open class DefaultXmlSerializationPolicy(
     override fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                                    ): OutputKind {
+    ): OutputKind {
         return effectiveOutputKind(serializerParent, tagParent, true)
     }
 
@@ -217,12 +217,12 @@ open class DefaultXmlSerializationPolicy(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean
-                                    ): OutputKind {
+    ): OutputKind {
         val serialDescriptor = serializerParent.elementSerialDescriptor
 
         return when (val overrideOutputKind =
             serializerParent.elementUseOutputKind) {
-            null             -> {
+            null -> {
                 val useAnnotations = tagParent.elementUseAnnotations
                 val isValue =
                     useAnnotations.firstOrNull<XmlValue>()?.value == true
@@ -235,17 +235,17 @@ open class DefaultXmlSerializationPolicy(
                 // If we can't be an attribue
                 when {
                     elementKind == StructureKind.CLASS
-                                    -> OutputKind.Element
+                    -> OutputKind.Element
 
-                    isValue         -> OutputKind.Mixed
+                    isValue -> OutputKind.Mixed
 
                     !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute)
-                                    ->
+                    ->
                         handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
 
                     !canBeAttribute -> OutputKind.Element
 
-                    else            -> tagParent.elementUseOutputKind
+                    else -> tagParent.elementUseOutputKind
                         ?: serialDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
                 }
@@ -264,11 +264,11 @@ open class DefaultXmlSerializationPolicy(
 
                     when (outputKind) {
                         OutputKind.Attribute -> OutputKind.Text
-                        else                 -> outputKind
+                        else -> outputKind
                     }
                 }
             }
-            else             -> overrideOutputKind
+            else -> overrideOutputKind
 
         }
     }
@@ -278,7 +278,7 @@ open class DefaultXmlSerializationPolicy(
     override fun serialNameToQName(
         serialName: String,
         parentNamespace: Namespace
-                                  ): QName {
+    ): QName {
         return serialName.substringAfterLast('.').toQname(parentNamespace)
     }
 
@@ -287,7 +287,7 @@ open class DefaultXmlSerializationPolicy(
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
         useName: DeclaredNameInfo
-                              ): QName {
+    ): QName {
         val typeDescriptor = serializerParent.elemenTypeDescriptor
         val serialKind = typeDescriptor.serialDescriptor.kind
         val typeNameInfo = typeDescriptor.typeNameInfo
@@ -300,7 +300,7 @@ open class DefaultXmlSerializationPolicy(
         val parentSerialKind = tagParent.descriptor?.serialKind
 
         return when {
-            useName.annotatedName != null      -> useName.annotatedName
+            useName.annotatedName != null -> useName.annotatedName
 
             outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
 
@@ -310,24 +310,24 @@ open class DefaultXmlSerializationPolicy(
                     serialKind == PolymorphicKind.OPEN ||
                     typeNameInfo.serialName == "kotlin.Unit" || // Unit needs a special case
                     parentSerialKind is PolymorphicKind // child of explict polymorphic uses predefined names
-                                               -> serialUseNameToQName(
+            -> serialUseNameToQName(
                 useName,
                 parentNamespace
-                                                                      )
+            )
 
             typeNameInfo.annotatedName != null -> typeNameInfo.annotatedName
 
-            else                               -> serialTypeNameToQName(
+            else -> serialTypeNameToQName(
                 typeNameInfo,
                 parentNamespace
-                                                                       )
+            )
         }
     }
 
     override fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean {
         return when (encodeDefault) {
-            XmlEncodeDefault.NEVER     -> false
-            XmlEncodeDefault.ALWAYS    -> true
+            XmlEncodeDefault.NEVER -> false
+            XmlEncodeDefault.ALWAYS -> true
             XmlEncodeDefault.ANNOTATED -> (elementDescriptor as? XmlValueDescriptor)?.default == null
         }
     }
@@ -337,17 +337,17 @@ open class DefaultXmlSerializationPolicy(
         inputKind: InputKind,
         name: QName?,
         candidates: Collection<Any>
-                                     ) {
+    ) {
         unknownChildHandler(input, inputKind, name, candidates)
     }
 
     override fun overrideSerializerOrNull(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-                                         ): KSerializer<*>? =
+    ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
             "javax.xml.namespace.QName" -> XmlQNameSerializer
-            else                        -> null
+            else -> null
         }
 
     /**
@@ -356,7 +356,7 @@ open class DefaultXmlSerializationPolicy(
      */
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
-                                       ): Collection<XmlOrderConstraint>? {
+    ): Collection<XmlOrderConstraint>? {
         val nameToIdx =
             (0 until parentDescriptor.elementsCount).associateBy {
                 parentDescriptor.getElementName(it)
@@ -389,10 +389,10 @@ open class DefaultXmlSerializationPolicy(
                 if (xmlBefore != null || xmlAfter != null) {
                     val node = orderNodes.getOrPut(
                         parentDescriptor.getElementName(elementIdx)
-                                                  ) {
+                    ) {
                         XmlOrderNode(
                             elementIdx
-                                    )
+                        )
                     }
                     if (xmlBefore != null) {
                         val befores = Array(xmlBefore.size) {
@@ -420,7 +420,7 @@ open class DefaultXmlSerializationPolicy(
     override fun updateReorderMap(
         original: Collection<XmlOrderConstraint>,
         children: List<XmlDescriptor>
-                                 ): Collection<XmlOrderConstraint> {
+    ): Collection<XmlOrderConstraint> {
 
         fun Int.isAttribute(): Boolean = children[this].outputKind == OutputKind.Attribute
 

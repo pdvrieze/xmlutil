@@ -22,10 +22,10 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.SerializationException
 
-open class XmlSerialException(message: String, cause: Throwable? = null) : SerializationException(message, cause)
+public open class XmlSerialException(message: String, cause: Throwable? = null) : SerializationException(message, cause)
 
-class XmlParsingException(locationInfo: String?, message: String, cause: Exception? = null) :
+public class XmlParsingException(locationInfo: String?, message: String, cause: Exception? = null) :
     XmlSerialException("Invalid XML value at position: $locationInfo: $message", cause)
 
-class UnknownXmlFieldException(locationInfo: String?, xmlName: String, candidates: Collection<Any> = emptyList()) :
+public class UnknownXmlFieldException(locationInfo: String?, xmlName: String, candidates: Collection<Any> = emptyList()) :
     XmlSerialException("Could not find a field for name $xmlName${if (candidates.isNotEmpty()) candidates.joinToString(prefix = "\n  candidates: ") else ""}${locationInfo?.let { " at position $it" } ?: ""}")

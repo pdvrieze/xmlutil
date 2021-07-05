@@ -42,7 +42,7 @@ import kotlin.collections.iterator
 import kotlin.collections.mapOf
 import kotlin.collections.single
 
-object ElementSerializer : KSerializer<Element> {
+public object ElementSerializer : KSerializer<Element> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("element") {
@@ -55,7 +55,7 @@ object ElementSerializer : KSerializer<Element> {
     override fun deserialize(decoder: Decoder): Element = when (decoder) {
         is XML.XmlInput -> deserializeInput(decoder)
         is DocumentDecoder -> deserialize(decoder)
-        else               -> deserialize(DocumentDecoder(decoder))
+        else -> deserialize(DocumentDecoder(decoder))
     }
 
     private fun deserializeInput(decoder: XML.XmlInput): Element {
@@ -87,7 +87,7 @@ object ElementSerializer : KSerializer<Element> {
                     2 -> attributes = attrSerializer.deserialize(decoder)
                     3 -> content = contentSerializer.deserialize(decoder)
                     CompositeDecoder.UNKNOWN_NAME -> throw SerializationException("Found unexpected child at index: $idx")
-                    else                          -> throw IllegalStateException("Received an unexpected decoder value: $idx")
+                    else -> throw IllegalStateException("Received an unexpected decoder value: $idx")
                 }
                 idx = decodeElementIndex(descriptor)
             }
@@ -99,7 +99,7 @@ object ElementSerializer : KSerializer<Element> {
             (if (nameSpace.isNullOrEmpty()) doc.createElement(localName) else doc.createElementNS(
                 nameSpace,
                 localName
-                                                                                                 )).apply {
+            )).apply {
                 for ((name, value) in attributes) {
                     setAttribute(name, value)
                 }
@@ -115,7 +115,7 @@ object ElementSerializer : KSerializer<Element> {
             is XML.XmlOutput -> {
                 serialize(encoder.target, value)
             }
-            else             -> {
+            else -> {
                 encoder.encodeStructure(descriptor) {
                     val ln = value.localName
                     if (ln == null) {
@@ -155,7 +155,7 @@ private class DocumentDecoder(private val delegate: Decoder, val document: Docum
     constructor(delegate: Decoder) : this(
         delegate,
         DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
-                                         )
+    )
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         return DocumentCompositeDecoder(delegate.beginStructure(descriptor), document)
@@ -170,7 +170,7 @@ private class DocumentCompositeDecoder(private val delegate: CompositeDecoder, v
         index: Int,
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
-                                              ): T {
+    ): T {
         return delegate.decodeSerializableElement(descriptor, index, deserializer.wrap(document), previousValue)
     }
 
@@ -180,15 +180,15 @@ private class DocumentCompositeDecoder(private val delegate: CompositeDecoder, v
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
-                                                            ): T? {
+    ): T? {
         return delegate.decodeNullableSerializableElement(descriptor, index, deserializer.wrap(document), previousValue)
     }
 }
 
-class WrappedDeserializationStrategy<T>(
-    val delegate: DeserializationStrategy<T>,
-    val document: Document
-                                       ) :
+public class WrappedDeserializationStrategy<T>(
+    public val delegate: DeserializationStrategy<T>,
+    public val document: Document
+) :
     DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor get() = delegate.descriptor
 
@@ -228,7 +228,7 @@ private fun serialize(encoder: XmlWriter, value: Node) = when (value) {
     is Text -> serialize(encoder, value)
     is Comment -> serialize(encoder, value)
     is ProcessingInstruction -> serialize(encoder, value)
-    else                     -> throw IllegalArgumentException("Can not serialize node of type: ${value.javaClass}")
+    else -> throw IllegalArgumentException("Can not serialize node of type: ${value.javaClass}")
 }
 
 internal operator fun NodeList.iterator() = object : Iterator<Node> {
@@ -253,11 +253,11 @@ internal operator fun NamedNodeMap.iterator() = object : Iterator<Node> {
 
 }
 
-object NodeSerializer : KSerializer<Node> {
+public object NodeSerializer : KSerializer<Node> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    val ed: SerialDescriptor =
+    public val ed: SerialDescriptor =
         buildSerialDescriptor("org.w3c.dom.Node", SerialKind.CONTEXTUAL) {
             element("text", serialDescriptor<String>())
             // don't use ElementSerializer to break initialization loop
@@ -276,7 +276,7 @@ object NodeSerializer : KSerializer<Node> {
 
     override fun deserialize(decoder: Decoder): Node = when (decoder) {
         is DocumentDecoder -> deserialize(decoder)
-        else               -> deserialize(DocumentDecoder(decoder))
+        else -> deserialize(DocumentDecoder(decoder))
     }
 
 
@@ -290,17 +290,17 @@ object NodeSerializer : KSerializer<Node> {
                     0 -> type = decodeStringElement(descriptor, 0)
                     1 -> {
                         when (type) {
-                            null      -> throw SerializationException("Missing type")
+                            null -> throw SerializationException("Missing type")
                             "element" -> result = decodeSerializableElement(descriptor, 1, ElementSerializer)
-                            "attr"    -> {
+                            "attr" -> {
                                 val map = decodeSerializableElement(descriptor, 1, attrSerializer)
                                 if (map.size != 1) throw SerializationException("Only a single attribute pair expected")
                                 result = decoder.document.createAttribute(map.keys.single())
                                     .apply { value = map.values.single() }
                             }
-                            "text"    -> result = decoder.document.createTextNode(decodeStringElement(descriptor, 1))
+                            "text" -> result = decoder.document.createTextNode(decodeStringElement(descriptor, 1))
                             "comment" -> result = decoder.document.createComment(decodeStringElement(descriptor, 1))
-                            else      -> throw SerializationException("unsupported type: $type")
+                            else -> throw SerializationException("unsupported type: $type")
                         }
                     }
                 }
@@ -332,7 +332,7 @@ object NodeSerializer : KSerializer<Node> {
                     encodeStringElement(descriptor, 1, value.textContent)
                 } // ignore comments
                 is ProcessingInstruction -> throw SerializationException("Processing instructions can not be serialized")
-                else                     -> throw SerializationException("Cannot serialize: ${value.javaClass.name}")
+                else -> throw SerializationException("Cannot serialize: ${value.javaClass.name}")
             }
 
         }

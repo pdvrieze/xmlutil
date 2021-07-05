@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2021.
  *
  * This file is part of xmlutil.
  *
@@ -20,11 +20,17 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.modules.SerializersModule
-import org.w3c.dom.Element
-import org.w3c.dom.Node
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.descriptors.SerialDescriptor
+import nl.adaptivity.xmlutil.QName
 
-public actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
-    contextual(Element::class, ElementSerializer)
-    contextual(Node::class, NodeSerializer)
+internal data class PolyBaseInfo(
+    val tagName: QName,
+    val descriptor: SerialDescriptor
+) {
+
+    @OptIn(ExperimentalSerializationApi::class)
+    val describedName
+        get() = descriptor.serialName
+
 }

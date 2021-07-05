@@ -34,17 +34,18 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun CompactFragment.Companion.serializer() = CompactFragmentSerializer
+public inline fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> = CompactFragmentSerializer
 
 @OptIn(WillBePrivate::class, kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializer(forClass = CompactFragment::class)
-object CompactFragmentSerializer : KSerializer<CompactFragment> {
+public object CompactFragmentSerializer : KSerializer<CompactFragment> {
     private val namespacesSerializer = ListSerializer(Namespace)
 
-    override val descriptor get() = buildClassSerialDescriptor("compactFragment") {
-        element("namespaces", namespacesSerializer.descriptor)
-        element("content", serialDescriptor<String>())
-    }
+    override val descriptor: SerialDescriptor
+        get() = buildClassSerialDescriptor("compactFragment") {
+            element("namespaces", namespacesSerializer.descriptor)
+            element("content", serialDescriptor<String>())
+        }
 
     override fun deserialize(decoder: Decoder): CompactFragment {
         return decoder.decodeStructure(descriptor) {
@@ -80,7 +81,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         serialize(encoder, value as ICompactFragment)
     }
 
-    fun serialize(output: Encoder, value: ICompactFragment) {
+    public fun serialize(output: Encoder, value: ICompactFragment) {
         output.encodeStructure(descriptor) {
             writeCompactFragmentContent(this, descriptor, value)
         }
@@ -90,7 +91,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
         encoder: CompositeEncoder,
         descriptor: SerialDescriptor,
         value: ICompactFragment
-                                           ) {
+    ) {
 
         val xmlOutput = encoder as? XML.XmlOutput
 
@@ -104,8 +105,10 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
             value.serialize(writer)
         } else {
-            encoder.encodeSerializableElement(descriptor, 0,
-                                              namespacesSerializer, value.namespaces.toList())
+            encoder.encodeSerializableElement(
+                descriptor, 0,
+                namespacesSerializer, value.namespaces.toList()
+            )
             encoder.encodeStringElement(descriptor, 1, value.contentString)
         }
     }
@@ -113,7 +116,7 @@ object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
 }
 
-object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
+public object ICompactFragmentSerializer : KSerializer<ICompactFragment> {
 
     override val descriptor: SerialDescriptor
         get() = CompactFragmentSerializer.descriptor

@@ -27,6 +27,6 @@ package nl.adaptivity.xmlutil.serialization.structure
  * @property before The element ordered before
  * @property after The element ordered after
  */
-data class XmlOrderConstraint(val before: Int, val after: Int) {
-    inline fun <R> map(transform: (Int) -> R): Pair<R, R> = Pair(transform(before), transform(after))
+public data class XmlOrderConstraint(val before: Int, val after: Int) {
+    public inline fun <R> map(transform: (Int) -> R): Pair<R, R> = Pair(transform(before), transform(after))
 }

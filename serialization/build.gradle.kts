@@ -62,6 +62,7 @@ val moduleName = "net.devrieze.xmlutil.serialization"
 
 
 kotlin {
+    explicitApi()
     targets {
         jvm {
             attributes {
