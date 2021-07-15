@@ -31,7 +31,6 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 
-@ExperimentalSerializationApi
 internal open class XmlEncoderBase internal constructor(
     context: SerializersModule,
     config: XmlConfig,
@@ -125,10 +124,12 @@ internal open class XmlEncoderBase internal constructor(
             encodeString(stringRepr)
         }
 
+        @ExperimentalSerializationApi
         override fun encodeNotNullMark() {
             // Not null is presence, no mark needed
         }
 
+        @ExperimentalSerializationApi
         override fun encodeNull() {
             // Null is absence, no mark needed
         }
@@ -173,7 +174,8 @@ internal open class XmlEncoderBase internal constructor(
         }
     }
 
-    fun beginEncodeCompositeImpl(xmlDescriptor: XmlDescriptor): CompositeEncoder {
+    @OptIn(ExperimentalSerializationApi::class)
+    internal fun beginEncodeCompositeImpl(xmlDescriptor: XmlDescriptor): CompositeEncoder {
 
         return when (xmlDescriptor.serialKind) {
             is PrimitiveKind -> throw AssertionError("A primitive is not a composite")
@@ -288,6 +290,7 @@ internal open class XmlEncoderBase internal constructor(
             return InlineEncoder(this, index)
         }
 
+        @ExperimentalSerializationApi
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
 
@@ -349,6 +352,7 @@ internal open class XmlEncoderBase internal constructor(
             encodeStringElement(descriptor, index, value.toString())
         }
 
+        @ExperimentalSerializationApi
         override fun <T : Any> encodeNullableSerializableElement(
             descriptor: SerialDescriptor,
             index: Int,
@@ -600,6 +604,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalSerializationApi::class)
         override fun <T> encodeSerializableElement(
             descriptor: SerialDescriptor,
             index: Int,

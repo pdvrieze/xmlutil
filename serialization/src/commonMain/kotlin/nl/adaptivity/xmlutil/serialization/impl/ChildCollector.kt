@@ -23,13 +23,10 @@ package nl.adaptivity.xmlutil.serialization.impl
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.capturedKClass
-import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlin.reflect.KClass
 
-@ExperimentalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>? = null) : SerializersModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 

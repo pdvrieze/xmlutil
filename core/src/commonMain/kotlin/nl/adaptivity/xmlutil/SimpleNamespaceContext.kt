@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -229,7 +228,7 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
         return buffer.contentHashCode()
     }
 
-    @ExperimentalSerializationApi
+    @ExperimentalXmlUtilApi
     private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) :
         SerialDescriptor by delegate
 
@@ -238,7 +237,7 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
 
         private val actualSerializer = ListSerializer(Namespace)
 
-        @ExperimentalSerializationApi
+        @ExperimentalXmlUtilApi
         override val descriptor: SerialDescriptor =
             RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 

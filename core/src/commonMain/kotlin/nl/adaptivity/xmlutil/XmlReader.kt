@@ -109,6 +109,8 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public fun getAttributeValue(nsUri: String?, localName: String): String?
 
+    public fun getAttributeValue(name: QName): String? = getAttributeValue(name.namespaceURI, name.localPart)
+
     public fun getNamespacePrefix(namespaceUri: String): String?
 
     override fun close()

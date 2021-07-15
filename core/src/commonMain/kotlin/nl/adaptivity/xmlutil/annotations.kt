@@ -21,5 +21,10 @@
 package nl.adaptivity.xmlutil
 
 
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER)
 @RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
 public annotation class XmlUtilInternal
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR)
+@RequiresOptIn("This code is not stable and may be subject to binary and source incompatible changes", RequiresOptIn.Level.WARNING)
+public annotation class ExperimentalXmlUtilApi

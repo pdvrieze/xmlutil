@@ -21,6 +21,9 @@ public abstract class nl/adaptivity/xmlutil/EventType : java/lang/Enum {
 	public abstract fun writeEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/ExperimentalXmlUtilApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class nl/adaptivity/xmlutil/IterableNamespaceContext : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker, nl/adaptivity/xmlutil/NamespaceContextImpl {
 	public abstract fun freeze ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 	public abstract fun plus (Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
@@ -96,6 +99,7 @@ public final class nl/adaptivity/xmlutil/StAXReader : nl/adaptivity/xmlutil/XmlR
 	public fun getAttributePrefix (I)Ljava/lang/String;
 	public fun getAttributeValue (I)Ljava/lang/String;
 	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public final fun getCharacterEncodingScheme ()Ljava/lang/String;
 	public fun getDepth ()I
 	public fun getEncoding ()Ljava/lang/String;
@@ -268,6 +272,7 @@ public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/X
 	public fun getAttributePrefix (I)Ljava/lang/String;
 	public fun getAttributeValue (I)Ljava/lang/String;
 	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	protected fun getDelegate ()Lnl/adaptivity/xmlutil/XmlReader;
 	public fun getDepth ()I
 	public fun getEncoding ()Ljava/lang/String;
@@ -446,6 +451,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 	public abstract fun getAttributePrefix (I)Ljava/lang/String;
 	public abstract fun getAttributeValue (I)Ljava/lang/String;
 	public abstract fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public abstract fun getDepth ()I
 	public abstract fun getEncoding ()Ljava/lang/String;
 	public abstract fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
@@ -474,6 +480,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 
 public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
 	public static fun getAttributeName (Lnl/adaptivity/xmlutil/XmlReader;I)Ljavax/xml/namespace/QName;
+	public static fun getAttributeValue (Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static fun getName (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;
 	public static fun isCharacters (Lnl/adaptivity/xmlutil/XmlReader;)Z
 	public static fun isEndElement (Lnl/adaptivity/xmlutil/XmlReader;)Z
@@ -787,6 +794,7 @@ public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava$Compan
 
 public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava$DefaultImpls {
 	public static fun getAttributeName (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;I)Ljavax/xml/namespace/QName;
+	public static fun getAttributeValue (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static fun getName (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Ljavax/xml/namespace/QName;
 	public static fun getNamespaceContext (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 	public static fun isCharacters (Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava;)Z

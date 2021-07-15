@@ -35,14 +35,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
-@ExperimentalSerializationApi
+@ExperimentalXmlUtilApi
 internal val SerialDescriptor.declDefault: String?
     get() = annotations.declDefault
 
 internal val Collection<Annotation>.declDefault: String?
     get() = firstOrNull<XmlDefault>()?.value
 
-@ExperimentalSerializationApi
+@ExperimentalXmlUtilApi
 internal fun SerialDescriptor.declOutputKind(): OutputKind? {
     for (a in annotations) {
         when {
@@ -59,16 +59,17 @@ internal fun SerialDescriptor.declOutputKind(): OutputKind? {
  * Interface describing a type without providing access to child xml descriptors
  */
 public interface SafeXmlDescriptor {
-    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalSerializationApi
     public val isNullable: Boolean
         get() = serialDescriptor.isNullable
 
-    @OptIn(ExperimentalSerializationApi::class)
-    public abstract val doInline: Boolean
+    @ExperimentalSerializationApi
+    public val doInline: Boolean
 
     @ExperimentalSerializationApi
     public val kind: SerialKind
         get() = serialDescriptor.kind
+
     public val typeDescriptor: XmlTypeDescriptor
     public val tagParent: SafeParentInfo
     public val tagName: QName
@@ -80,7 +81,7 @@ public interface SafeXmlDescriptor {
     @ExperimentalSerializationApi
     public val serialKind: SerialKind
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalSerializationApi
     public fun isElementOptional(index: Int): Boolean =
         serialDescriptor.isElementOptional(index)
 
@@ -189,9 +190,10 @@ public sealed class XmlDescriptor(
 public class XmlRootDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     descriptor: SerialDescriptor,
-    tagName: QName
+    tagName: QName,
 ) : XmlDescriptor(xmlCodecBase, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = true // effectively a root descriptor is inline
 
     override val tagName: QName
@@ -258,6 +260,7 @@ public class XmlPrimitiveDescriptor internal constructor(
 ) :
     XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind =
@@ -274,6 +277,7 @@ public class XmlInlineDescriptor internal constructor(
     canBeAttribute: Boolean,
 ) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = true
 
     init {
@@ -307,7 +311,7 @@ public class XmlInlineDescriptor internal constructor(
     }
 
     override fun toString(): String {
-        return "${tagName} (\n${child.toString().prependIndent("    ")}\n)"
+        return "$tagName (\n${child.toString().prependIndent("    ")}\n)"
     }
 
     override val isUnsigned: Boolean =
@@ -339,6 +343,7 @@ public class XmlCompositeDescriptor internal constructor(
         }
     }
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind get() = OutputKind.Element
@@ -407,7 +412,9 @@ public class XmlCompositeDescriptor internal constructor(
     }
 
     override fun toString(): String {
-        return children.joinToString(",\n", "${tagName} (\n", "\n)") { it.toString().prependIndent("    ") }
+        return children.joinToString(",\n", "$tagName (\n", "\n)") {
+            it.toString().prependIndent("    ")
+        }
     }
 }
 
@@ -417,6 +424,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     tagParent: SafeParentInfo,
 ) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
 
     override val outputKind: OutputKind =
@@ -545,6 +553,7 @@ public class XmlListDescriptor internal constructor(
     tagParent: SafeParentInfo = serializerParent,
 ) : XmlDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
+    @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
 
     public val isListEluded: Boolean = when {

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
@@ -53,14 +54,16 @@ class OptionalBooleanTest : TestBase<OptionalBooleanTest.Location>(
     }
 
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun deserialize_with_unused_attributes_and_custom_handler() {
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
         val xml = XML {
-            unknownChildHandler = { _, inputKind, name, _ ->
+            unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
                 ignoredName = name
                 ignoredKind = inputKind
+                emptyList()
             }
         }
         assertEquals(value, xml.decodeFromString(serializer, noisyXml))

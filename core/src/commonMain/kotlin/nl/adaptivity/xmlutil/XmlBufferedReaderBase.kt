@@ -41,33 +41,29 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
 
     override val namespaceURI: String
         get() = when (current?.eventType) {
-            EventType.ATTRIBUTE     -> (current as Attribute).namespaceUri
+            EventType.ATTRIBUTE -> (current as Attribute).namespaceUri
             EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
-            EventType.END_ELEMENT   -> (current as EndElementEvent).namespaceUri
-            else                    -> throw XmlException(
-                "Attribute not defined here: namespaceUri"
-                                                         )
+            EventType.END_ELEMENT -> (current as EndElementEvent).namespaceUri
+            else -> throw XmlException("Attribute not defined here: namespaceUri")
         }
 
 
     override val localName: String
         get() = when (current?.eventType) {
-            EventType.ATTRIBUTE     -> (current as Attribute).localName
+            EventType.ATTRIBUTE -> (current as Attribute).localName
             EventType.START_ELEMENT -> (current as StartElementEvent).localName
-            EventType.END_ELEMENT   -> (current as EndElementEvent).localName
-            else                    -> throw XmlException(
+            EventType.END_ELEMENT -> (current as EndElementEvent).localName
+            else -> throw XmlException(
                 "Attribute not defined here: namespaceUri"
-                                                         )
+            )
         }
 
     override val prefix: String
         get() = when (current?.eventType) {
-            EventType.ATTRIBUTE     -> (current as Attribute).prefix
+            EventType.ATTRIBUTE -> (current as Attribute).prefix
             EventType.START_ELEMENT -> (current as StartElementEvent).prefix
-            EventType.END_ELEMENT   -> (current as EndElementEvent).prefix
-            else                    -> throw XmlException(
-                "Attribute not defined here: namespaceUri"
-                                                         )
+            EventType.END_ELEMENT -> (current as EndElementEvent).prefix
+            else -> throw XmlException("Attribute not defined here: namespaceUri")
         }
 
     override val depth: Int
@@ -139,8 +135,8 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
                     namespaceHolder.addPrefixToContext(ns)
                 }
             }
-            EventType.END_ELEMENT   -> namespaceHolder.decDepth()
-            else                    -> {
+            EventType.END_ELEMENT -> namespaceHolder.decDepth()
+            else -> {
             } /* Do nothing */
         }
         return event
@@ -150,7 +146,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
      * Try to peek the next event. Unlike [peekFirst] this function will progress the underlying stream if needed.
      */
     public fun peek(): XmlEvent? {
-        if (! hasPeekItems) {
+        if (!hasPeekItems) {
             addAll(doPeek())
         }
         return peekFirst()
@@ -191,14 +187,19 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
 
 
     protected abstract fun peekFirst(): XmlEvent?
+
     @XmlUtilInternal
     protected abstract fun peekLast(): XmlEvent?
+
     @XmlUtilInternal
     protected abstract fun bufferRemoveLast(): XmlEvent
+
     @XmlUtilInternal
     protected abstract fun bufferRemoveFirst(): XmlEvent
+
     @XmlUtilInternal
     protected abstract fun add(event: XmlEvent)
+
     @XmlUtilInternal
     protected abstract fun addAll(events: Collection<XmlEvent>)
 
@@ -213,7 +214,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     public fun nextTagEvent(): XmlEvent {
         val current = nextEvent()
         return when (current.eventType) {
-            EventType.TEXT                                 -> {
+            EventType.TEXT -> {
                 if (isXmlWhitespace((current as TextEvent).text)) {
                     nextTagEvent()
                 } else {
@@ -221,11 +222,11 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
                 }
             }
             EventType.COMMENT, EventType.IGNORABLE_WHITESPACE,
-            EventType.PROCESSING_INSTRUCTION               -> nextTagEvent()
+            EventType.PROCESSING_INSTRUCTION -> nextTagEvent()
             EventType.START_ELEMENT, EventType.END_ELEMENT -> current
-            else                                           -> throw XmlException(
+            else -> throw XmlException(
                 "Unexpected element found when looking for tags: $current"
-                                                                                )
+            )
         }
     }
 

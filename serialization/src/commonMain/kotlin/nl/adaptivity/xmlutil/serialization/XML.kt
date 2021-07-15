@@ -39,10 +39,10 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
-@ExperimentalSerializationApi
+@ExperimentalXmlUtilApi
 public expect fun getPlatformDefaultModule(): SerializersModule
 
-@ExperimentalSerializationApi
+@ExperimentalXmlUtilApi
 private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(CompactFragment::class, CompactFragmentSerializer)
     contextual(QName::class, QNameSerializer)
@@ -880,6 +880,10 @@ public class XML constructor(
         public val input: XmlReader
     }
 
+
+    @ExperimentalXmlUtilApi
+    public data class ParsedData<T>(public val elementIndex: Int, public val value: T)
+
 }
 
 public fun XmlSerialName.toQName(): QName = when {
@@ -902,7 +906,7 @@ internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
 }
 
 
-@ExperimentalSerializationApi
+@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
         if (getElementAnnotations(i).any { it is XmlValue }) return i

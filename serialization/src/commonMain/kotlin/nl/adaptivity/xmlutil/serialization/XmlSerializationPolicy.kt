@@ -19,7 +19,9 @@
  */
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -27,14 +29,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
-import nl.adaptivity.xmlutil.serialization.structure.declOutputKind
 
 public interface XmlSerializationPolicy {
 
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
-    @ExperimentalSerializationApi
+    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalXmlUtilApi
     public fun defaultOutputKind(serialKind: SerialKind): OutputKind =
         when (serialKind) {
             SerialKind.ENUM,
@@ -123,6 +125,20 @@ public interface XmlSerializationPolicy {
         return null
     }
 
+    @ExperimentalXmlUtilApi
+    @Suppress("DirectUseOfResultType", "DEPRECATION")
+    public fun handleUnknownContentRecovering(
+        input: XmlReader,
+        inputKind: InputKind,
+        descriptor: XmlDescriptor,
+        name: QName?,
+        candidates: Collection<Any>
+    ): List<XML.ParsedData<*>> {
+        handleUnknownContent(input, inputKind, name, candidates)
+        return emptyList()
+    }
+
+    @Deprecated("Use the recoverable version that allows returning a value")
     public fun handleUnknownContent(
         input: XmlReader,
         inputKind: InputKind,
@@ -163,25 +179,48 @@ public interface XmlSerializationPolicy {
 
 }
 
-
-@OptIn(ExperimentalSerializationApi::class)
-public open class DefaultXmlSerializationPolicy(
+public open class DefaultXmlSerializationPolicy
+@ExperimentalXmlUtilApi constructor(
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean = false,
     public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-    private val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+    private val unknownChildHandler: UnknownChildHandler
 ) : XmlSerializationPolicy {
 
+    /**
+     * Stable constructor that doesn't use experimental api.
+     */
+    @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(
         pedantic: Boolean,
         autoPolymorphic: Boolean = false,
-        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+        encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+    ) : this(pedantic, autoPolymorphic, encodeDefault, XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER)
+
+    @Deprecated("Use the unknownChildHandler version that allows for recovery")
+    @ExperimentalXmlUtilApi
+    public constructor(
+        pedantic: Boolean,
+        autoPolymorphic: Boolean = false,
+        encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+        unknownChildHandler: NonRecoveryUnknownChildHandler
     ) : this(
         pedantic,
         autoPolymorphic,
-        XmlEncodeDefault.ANNOTATED,
-        unknownChildHandler
+        encodeDefault,
+        UnknownChildHandler { input, inputKind, _, name, candidates ->
+            unknownChildHandler(input, inputKind, name, candidates); emptyList()
+        }
     )
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Use the primary constructor that takes the recoverable handler")
+    @ExperimentalXmlUtilApi
+    public constructor(
+        pedantic: Boolean,
+        autoPolymorphic: Boolean = false,
+        unknownChildHandler: NonRecoveryUnknownChildHandler
+    ) : this(pedantic, autoPolymorphic, XmlEncodeDefault.ANNOTATED, unknownChildHandler)
 
     override fun isListEluded(
         serializerParent: SafeParentInfo,
@@ -213,6 +252,7 @@ public open class DefaultXmlSerializationPolicy(
         return effectiveOutputKind(serializerParent, tagParent, true)
     }
 
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     override fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
@@ -282,6 +322,7 @@ public open class DefaultXmlSerializationPolicy(
         return serialName.substringAfterLast('.').toQname(parentNamespace)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun effectiveName(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
@@ -332,15 +373,29 @@ public open class DefaultXmlSerializationPolicy(
         }
     }
 
+    @ExperimentalXmlUtilApi
+    @Suppress("DirectUseOfResultType")
+    override fun handleUnknownContentRecovering(
+        input: XmlReader,
+        inputKind: InputKind,
+        descriptor: XmlDescriptor,
+        name: QName?,
+        candidates: Collection<Any>
+    ): List<XML.ParsedData<*>> {
+        return unknownChildHandler.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
+    }
+
+    @Deprecated("Don't use anymore, use the version that allows for recovery")
     override fun handleUnknownContent(
         input: XmlReader,
         inputKind: InputKind,
         name: QName?,
         candidates: Collection<Any>
     ) {
-        unknownChildHandler(input, inputKind, name, candidates)
+        throw UnsupportedOperationException("this function should not be called")
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun overrideSerializerOrNull(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
@@ -354,6 +409,7 @@ public open class DefaultXmlSerializationPolicy(
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
      * not use the parent descriptor at all.
      */
+    @OptIn(ExperimentalSerializationApi::class)
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
     ): Collection<XmlOrderConstraint>? {
