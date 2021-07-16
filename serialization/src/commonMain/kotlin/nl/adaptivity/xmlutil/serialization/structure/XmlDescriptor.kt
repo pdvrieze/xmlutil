@@ -32,7 +32,6 @@ import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedN
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
-import nl.adaptivity.xmlutil.toNamespace
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -166,7 +165,7 @@ sealed class XmlDescriptor(
 
 class XmlRootDescriptor
 internal constructor(xmlCodecBase: XmlCodecBase, descriptor: SerialDescriptor, tagName: QName) :
-    XmlDescriptor(xmlCodecBase, DetachedParent(descriptor, tagName, outputKind = null)) {
+    XmlDescriptor(xmlCodecBase, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
     override val doInline: Boolean get() = true // effectively a root descriptor is inline
 
@@ -372,7 +371,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     for (polyChild in xmlPolyChildren.value) {
                         val childInfo = polyTagName(xmlCodecBase, baseName, polyChild, baseClass)
 
-                        val childSerializerParent = DetachedParent(childInfo.descriptor, childInfo.tagName)
+                        val childSerializerParent = DetachedParent(childInfo.descriptor, childInfo.tagName, false)
 
                         map[childInfo.describedName] = from(xmlCodecBase, childSerializerParent, tagParent)
                     }
@@ -383,7 +382,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     val d = serialDescriptor.getElementDescriptor(1)
                     for (i in 0 until d.elementsCount) {
                         val childDesc = d.getElementDescriptor(i)
-                        val childSerializerParent = DetachedParent(childDesc, qName)
+                        val childSerializerParent = DetachedParent(childDesc, qName, false)
 
                         map[childDesc.serialName] = from(xmlCodecBase, childSerializerParent, tagParent)
 
@@ -399,7 +398,7 @@ class XmlPolymorphicDescriptor internal constructor(
                     for (child in childCollector.children) {
                         val childDesc = child.descriptor
 
-                        val childSerializerParent = DetachedParent(childDesc, qName, outputKind)
+                        val childSerializerParent = DetachedParent(childDesc, qName, false, outputKind)
 
                         map[childDesc.serialName] = from(xmlCodecBase, childSerializerParent, tagParent)
 
@@ -469,7 +468,10 @@ class XmlListDescriptor internal constructor(
 
     override val doInline: Boolean get() = false
 
-    val isListEluded = xmlCodecBase.config.policy.isListEluded(serializerParent, tagParent)
+    val isListEluded = when {
+        tagParent is DetachedParent && tagParent.isDocumentRoot -> false
+        else ->xmlCodecBase.config.policy.isListEluded(serializerParent, tagParent)
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     override val outputKind: OutputKind = when {
@@ -477,7 +479,7 @@ class XmlListDescriptor internal constructor(
 
         tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
                 xmlCodecBase.config.policy.isTransparentPolymorphic(
-                    DetachedParent(serialDescriptor.getElementDescriptor(0), null),
+                    DetachedParent(serialDescriptor.getElementDescriptor(0), null, false),
                     tagParent
                                                                    )
                       -> OutputKind.Mixed
@@ -490,6 +492,8 @@ class XmlListDescriptor internal constructor(
 
         val useNameInfo = when {
             childrenName != null -> DeclaredNameInfo(childrenName.localPart, childrenName)
+
+            ! isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
             else                 -> tagParent.elementUseNameInfo
         }
 
@@ -526,15 +530,16 @@ interface SafeParentInfo {
 private class DetachedParent(
     private val serialDescriptor: SerialDescriptor,
     override val elementUseNameInfo: DeclaredNameInfo,
+    val isDocumentRoot: Boolean,
     outputKind: OutputKind? = null
                             ) : SafeParentInfo {
 
     @OptIn(ExperimentalSerializationApi::class)
-    constructor(serialDescriptor: SerialDescriptor, useName: QName?, outputKind: OutputKind? = null) :
-            this(serialDescriptor, DeclaredNameInfo(serialDescriptor.serialName, useName), outputKind)
+    constructor(serialDescriptor: SerialDescriptor, useName: QName?,isDocumentRoot: Boolean, outputKind: OutputKind? = null) :
+            this(serialDescriptor, DeclaredNameInfo(serialDescriptor.serialName, useName), isDocumentRoot, outputKind)
 
     override fun copy(useNameInfo: DeclaredNameInfo, useOutputKind: OutputKind?): DetachedParent {
-        return DetachedParent(serialDescriptor, useNameInfo, useOutputKind)
+        return DetachedParent(serialDescriptor, useNameInfo, isDocumentRoot, useOutputKind)
     }
 
     override val index: Int get() = -1

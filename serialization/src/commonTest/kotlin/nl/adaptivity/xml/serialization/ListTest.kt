@@ -22,18 +22,47 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlin.math.exp
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ListTest : TestBase<ListTest.SimpleList>(
     SimpleList("1", "2", "3"),
     SimpleList.serializer()
                                               ) {
-    override val expectedXML: String = "<l><values>1</values><values>2</values><values>3</values></l>"
+    override val expectedXML: String = "<l><value>1</value><value>2</value><value>3</value></l>"
     override val expectedJson: String = "{\"values\":[\"1\",\"2\",\"3\"]}"
 
     @Serializable
     @SerialName("l")
-    data class SimpleList(val values: List<String>) {
+    data class SimpleList(@XmlSerialName("value","","") val values: List<String>) {
         constructor(vararg values: String) : this(values.toList())
+    }
+
+    @Test
+    fun testUnwrappedListSerialization() {
+        val data = listOf(
+            SimpleList("1"),
+            SimpleList("2"),
+            SimpleList("3"),
+        )
+        val expectedXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
+        val serializedXml = XML.encodeToString(data)
+        assertEquals(expectedXml, serializedXml)
+    }
+
+    @Test
+    fun testUnwrappedListDeserialization() {
+        val expectedData = listOf(
+            SimpleList("1"),
+            SimpleList("2"),
+            SimpleList("3"),
+        )
+        val serialXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
+        val decodedData = XML.decodeFromString<List<SimpleList>>(serialXml)
+        assertEquals(expectedData, decodedData)
     }
 
 }

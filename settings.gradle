@@ -41,7 +41,7 @@ pluginManagement {
                     break
                 case "org.jetbrains.kotlin.multiplatform":
                     def ver = requested.version!=null ? requested.version : kotlin_version
-                    useModule("org.jetbrains.kotlin:org.jetbrains.kotlin.multiplatform:${ver}");
+                    useModule("org.jetbrains.kotlin:org.jetbrains.kotlin.multiplatform:${ver}")
                     break
                 case "org.jetbrains.dokka" :
                     def ver = requested.version!=null ? requested.version : dokkaVersion
