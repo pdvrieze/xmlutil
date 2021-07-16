@@ -20,10 +20,10 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
@@ -40,7 +40,7 @@ class RecoveryTest {
         val b: String
     )
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalXmlUtilApi::class)
     @Test
     fun testDeserializeRecovering() {
         val serialized ="<Data a=\"foo\" c=\"bar\" />"
@@ -61,7 +61,7 @@ class RecoveryTest {
         assertEquals(expected, parsed)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalXmlUtilApi::class)
     @Test
     fun testDeserializeRecoveringNotProvidingRequired() {
         val serialized ="<Data a=\"foo\" c=\"bar\" />"
@@ -77,7 +77,7 @@ class RecoveryTest {
         assertContains(e.message!!, ", but it was missing")
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalXmlUtilApi::class)
     @Test
     fun testDeserializeRecoveringDuplicateData() {
         val serialized ="<Data a=\"foo\" c=\"bar\" />"
