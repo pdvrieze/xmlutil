@@ -86,7 +86,7 @@ abstract class CommonContainerSerializer: KSerializer<Container> {
                         // Some parsers can return whitespace as text instead of ignorable whitespace
 
                         // Use the handler from the configuration to throw the exception.
-                        xml.config.unknownChildHandler(reader, InputKind.Text, null, emptyList())
+                        xml.config.policy.handleUnknownContentRecovering(reader, InputKind.Text, elementXmlDescriptor, null, emptyList())
                     }
                     // It's best to still check the name before parsing
                     EventType.START_ELEMENT        -> if(reader.namespaceURI.isEmpty() && reader.localName.startsWith("Test_")) {
@@ -98,7 +98,7 @@ abstract class CommonContainerSerializer: KSerializer<Container> {
                         val testElement = xml.decodeFromReader(elementSerializer, filter)
                         dataList.add(testElement)
                     } else { // handling unexpected tags
-                        xml.config.unknownChildHandler(reader, InputKind.Element, reader.name, listOf("Test_??"))
+                        xml.config.policy.handleUnknownContentRecovering(reader, InputKind.Element, elementXmlDescriptor, reader.name, listOf("Test_??"))
                     }
                     else                           -> { // other content that shouldn't happen
                         throw XmlException("Unexpected tag content")

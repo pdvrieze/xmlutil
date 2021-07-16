@@ -37,7 +37,8 @@ import nl.adaptivity.xmlutil.serialization.XML
 /**
  * The compatible serializer doesn't have access to state to determine a proper delegate format. This
  * implementation uses the default format instance. It is perfectly valid however to create a custom
- * instance (for example providing a SerialModule) here and return that from both delegate methods
+ * instance (for example providing a SerialModule) here and return that from both delegate methods. This
+ * version works with 0.80.0 an 0.80.1 which cannot access the format.
  */
 object CompatContainerSerializer: CommonContainerSerializer() {
     override fun delegateFormat(decoder: Decoder) = XML.defaultInstance
