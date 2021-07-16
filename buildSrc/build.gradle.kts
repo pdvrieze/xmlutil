@@ -54,6 +54,7 @@ configurations.all {
 }
 
 repositories {
+    maven { url = file("mavenBundled").toURI() }
     mavenLocal()
     mavenCentral()
 }

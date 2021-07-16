@@ -20,11 +20,14 @@
 
 pluginManagement {
     repositories {
+        maven {
+            name = "Bundled maven"
+            url = file("mavenBundled")
+        }
         mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
     }
     resolutionStrategy {
         eachPlugin {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>org.jetbrains.kotlinx.binary-compatibility-validator</groupId>
+  <artifactId>org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin</artifactId>
+  <version>0.6.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20210704140530</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.6.0-SNAPSHOT</value>
+        <updated>20210704140530</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

@@ -47,6 +47,10 @@ allprojects {
     group = "io.github.pdvrieze.xmlutil"
     version = xmlutil_version
     repositories {
+        maven {
+            name = "Bundled maven"
+            url = file("mavenBundled").toURI()
+        }
         mavenLocal()
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }

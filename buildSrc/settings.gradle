@@ -20,6 +20,10 @@
 
 pluginManagement {
     repositories {
+        maven {
+            name = "Bundled maven"
+            url = file("mavenBundled").toURI()
+        }
         mavenLocal()
         gradlePluginPortal()
         mavenCentral()
