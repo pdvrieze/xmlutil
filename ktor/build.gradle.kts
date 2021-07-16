@@ -52,6 +52,16 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    target {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+}
+
 dependencies {
     api(project(":serialization"))
     implementation("io.ktor:ktor-server-core:$ktor_version")
