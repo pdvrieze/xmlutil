@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -72,7 +73,8 @@ class RecoveryTest {
             }
         }
         val e = assertFailsWith<SerializationException> { xml.decodeFromString<Data>(serialized) }
-        assertEquals("Field 'b' is required for type with serial name 'nl.adaptivity.xml.serialization.RecoveryTest.Data', but it was missing", e.message)
+        assertContains(e.message!!, "Field 'b' is required")
+        assertContains(e.message!!, ", but it was missing")
     }
 
     @OptIn(ExperimentalSerializationApi::class)
