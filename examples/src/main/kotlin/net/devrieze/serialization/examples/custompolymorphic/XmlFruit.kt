@@ -30,7 +30,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.devrieze.serialization.examples.custompolymorphic.XmlFruit.FruitType
-import nl.adaptivity.serialutil.impl.name
+import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 
 /**
  * A
