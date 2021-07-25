@@ -210,6 +210,7 @@ kotlin {
 
             useExperimentalAnnotation("kotlin.RequiresOptIn")
             useExperimentalAnnotation("nl.adaptivity.xmlutil.XmlUtilInternal")
+            useExperimentalAnnotation("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         }
     }
 

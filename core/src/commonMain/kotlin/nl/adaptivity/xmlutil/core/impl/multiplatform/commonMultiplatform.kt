@@ -46,6 +46,8 @@ public expect interface AutoCloseable {
 
 public expect interface Closeable : AutoCloseable
 
+public expect inline fun <T: Closeable?, R> T.use(block: (T) -> R): R
+
 @XmlUtilInternal
 public expect val KClass<*>.maybeAnnotations: List<Annotation>
 

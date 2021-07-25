@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 public actual val KClass<*>.name: String get() = js.name
@@ -47,6 +49,26 @@ public actual interface AutoCloseable {
 }
 
 public actual interface Closeable : AutoCloseable
+
+public actual inline fun <T: Closeable?, R> T.use(block: (T) -> R): R {
+    var exception: Throwable? = null
+    try {
+        return block(this)
+    } catch (e: Throwable) {
+        exception = e
+        throw e
+    } finally {
+        when {
+            this == null -> {}
+            exception == null -> close()
+            else ->
+                try {
+                    close()
+                } catch (closeException: Throwable) {
+                    // cause.addSuppressed(closeException) // ignored here
+                }
+        }
+    }}
 
 public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 

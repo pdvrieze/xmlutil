@@ -30,6 +30,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
@@ -37,6 +38,7 @@ import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 @ExperimentalXmlUtilApi
@@ -132,20 +134,23 @@ public class XML constructor(
      */
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String?): String {
         val stringWriter = StringWriter()
-        val xmlWriter = XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
-
-        var ex: Throwable? = null
-        try {
+        XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
             encodeToWriter(xmlWriter, serializer, value, prefix)
-        } catch (e: Throwable) {
-            ex = e
-        } finally {
-            try {
-                xmlWriter.close()
-            } finally {
-                ex?.let { throw it }
-            }
+        }
+        return stringWriter.toString()
+    }
 
+    /**
+     * Transform into a string. This function is expected to be called indirectly.
+     *
+     * @param value The actual object
+     * @param serializer The serializer/saver to use to write
+     * @param rootName The QName to use for the root tag
+     */
+    public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String {
+        val stringWriter = StringWriter()
+        XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
+            encodeToWriter(xmlWriter, serializer, value, rootName)
         }
         return stringWriter.toString()
     }
@@ -177,29 +182,46 @@ public class XML constructor(
     ) {
         target.indentString = config.indentString
 
-        val serialName = serializer.descriptor.serialName
-        val serialQName =
-            serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
-                ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
-                ?: config.policy.serialTypeNameToQName(
-                    XmlSerializationPolicy.DeclaredNameInfo(serialName, null),
-                    XmlEvent.NamespaceImpl(
-                        XMLConstants.DEFAULT_NS_PREFIX,
-                        XMLConstants.NULL_NS_URI
-                    )
+        val serialQName = serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+            ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
+            ?: config.policy.serialTypeNameToQName(
+                XmlSerializationPolicy.DeclaredNameInfo(serializer.descriptor.serialName, null),
+                XmlEvent.NamespaceImpl(
+                    XMLConstants.DEFAULT_NS_PREFIX,
+                    XMLConstants.NULL_NS_URI
                 )
+            )
+
+        encodeToWriter(target, serializer, value, serialQName)
+    }
+
+    /**
+     * Transform onto an existing xml writer.
+     *
+     * @param target The [XmlWriter] to append the object to
+     * @param serializer The serializer/saver to use to write
+     * @param rootName The QName to use for the root tag
+     * @param value The actual object
+     */
+    public fun <T> encodeToWriter(
+        target: XmlWriter,
+        serializer: SerializationStrategy<T>,
+        value: T,
+        rootName: QName,
+    ) {
+        target.indentString = config.indentString
 
         val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
-        val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, serialQName)
+        val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, rootName)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
         val encoder = when {
-            config.isCollectingNSAttributes
-            -> xmlEncoderBase.NSAttrXmlEncoder(
-                xmlDescriptor,
-                collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
-            )
+            config.isCollectingNSAttributes ->
+                xmlEncoderBase.NSAttrXmlEncoder(
+                    xmlDescriptor,
+                    collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
+                )
 
             else -> xmlEncoderBase.XmlEncoder(xmlDescriptor)
         }
@@ -297,25 +319,47 @@ public class XML constructor(
         return decodeFromReader(deserializer, XmlStreaming.newReader(string))
     }
 
-
-    public inline fun <reified T : Any> decodeFromReader(reader: XmlReader): T =
-        decodeFromReader(serializer<T>(), reader)
+    /**
+     * Decode the given string value using the deserializer. It is equivalent to
+     * `decodeFromReader(deserializer, XmlStreaming.newReader(string))`.
+     * @param deserializer The deserializer to use.
+     * @param rootName The QName to use for the root tag
+     * @param string The string input
+     */
+    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String, rootName: QName?): T {
+        return decodeFromReader(deserializer, XmlStreaming.newReader(string), rootName)
+    }
 
     /**
      * Parse an object of the type [T] out of the reader. This function is intended mostly to be used indirectly where
      * though the reified function.
      *
      * @param reader An [XmlReader] that contains the XML from which to read the object
+     * @param rootName The QName to use for the root tag
+     * @param T The type to use to read the object
+     */
+    public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
+        decodeFromReader(serializer(), reader, rootName)
+
+    /**
+     * Parse an object of the type [T] out of the reader. This function is intended mostly to be used indirectly where
+     * though the reified function.
+     *
+     * @param reader An [XmlReader] that contains the XML from which to read the object
+     * @param rootName The QName to use for the root tag
      * @param deserializer The loader to use to read the object
      */
+    @JvmOverloads
     public fun <T> decodeFromReader(
         deserializer: DeserializationStrategy<T>,
-        reader: XmlReader
+        reader: XmlReader,
+        rootName: QName? = null
     ): T {
-        val serialDescriptor = deserializer.descriptor
-        val serialName = serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+
+        val serialName = rootName
+            ?: deserializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
             ?: config.policy.serialTypeNameToQName(
-                XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
+                XmlSerializationPolicy.DeclaredNameInfo(deserializer.descriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
             )
 
@@ -325,7 +369,7 @@ public class XML constructor(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
-        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, serialDescriptor, serialName)
+        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, serialName)
 
         val decoder = xmlDecoderBase.XmlDecoder(
             rootDescriptor.getElementDescriptor(0)
@@ -333,20 +377,24 @@ public class XML constructor(
         return decoder.decodeSerializableValue(deserializer)
     }
 
-    public fun xmlDescriptor(serializer: SerializationStrategy<*>): XmlDescriptor {
-        return xmlDescriptor(serializer.descriptor)
+    @JvmOverloads
+    public fun xmlDescriptor(serializer: SerializationStrategy<*>, rootName: QName? = null): XmlDescriptor {
+        return xmlDescriptor(serializer.descriptor, rootName)
     }
 
-    public fun xmlDescriptor(deserializer: DeserializationStrategy<*>): XmlDescriptor {
-        return xmlDescriptor(deserializer.descriptor)
+    @JvmOverloads
+    public fun xmlDescriptor(deserializer: DeserializationStrategy<*>, rootName: QName? = null): XmlDescriptor {
+        return xmlDescriptor(deserializer.descriptor, rootName)
     }
 
-    public fun xmlDescriptor(deserializer: KSerializer<*>): XmlDescriptor {
-        return xmlDescriptor(deserializer.descriptor)
+    @JvmOverloads
+    public fun xmlDescriptor(deserializer: KSerializer<*>, rootName: QName? = null): XmlDescriptor {
+        return xmlDescriptor(deserializer.descriptor, rootName)
     }
 
-    private fun xmlDescriptor(serialDescriptor: SerialDescriptor): XmlRootDescriptor {
-        val serialName = serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+    private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
+        val serialName = rootName
+            ?: serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
             ?: config.policy.serialTypeNameToQName(
                 XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
@@ -538,8 +586,7 @@ public class XML constructor(
         override fun <T> encodeToString(
             serializer: SerializationStrategy<T>,
             value: T
-        ): String =
-            defaultInstance.encodeToString(serializer, value)
+        ): String = defaultInstance.encodeToString(serializer, value)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -554,11 +601,30 @@ public class XML constructor(
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
          * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * @param value The object to transform
+         * @param serializer The serializer to user
+         * @param rootName The QName to use for the root tag
+         */
+        public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String =
+            defaultInstance.encodeToString(serializer, value, rootName)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
          * @param obj The object to transform
          * @param prefix The namespace prefix to use
          */
         public inline fun <reified T : Any> encodeToString(obj: T, prefix: String? = null): String =
             encodeToString(serializer<T>(), obj, prefix ?: "")
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * @param obj The object to transform
+         * @param rootName The QName to use for the root tag
+         */
+        public inline fun <reified T : Any> encodeToString(obj: T, rootName: QName): String =
+            encodeToString(serializer<T>(), obj, rootName)
 
         /**
          * Write the object to the given writer
@@ -569,6 +635,17 @@ public class XML constructor(
          */
         public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String? = null) {
             defaultInstance.encodeToWriter(target, serializer<T>(), value, prefix)
+        }
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param value The actual object
+         * @param rootName The QName to use for the root tag
+         */
+        public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, rootName: QName) {
+            defaultInstance.encodeToWriter(target, serializer<T>(), value, rootName)
         }
 
         /**
@@ -589,15 +666,35 @@ public class XML constructor(
         }
 
         /**
-         * Parse an object of the type [T] out of the reader
-         * @param str The source of the XML events
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param serializer The serializer to use
+         * @param value The actual object
+         * @param rootName The QName to use for the root tag
          */
-        public inline fun <reified T : Any> decodeFromString(str: String): T = decodeFromString(serializer(), str)
+        public fun <T> encodeToWriter(
+            target: XmlWriter,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            rootName: QName
+        ) {
+            defaultInstance.encodeToWriter(target, serializer, value, rootName)
+        }
 
         /**
          * Parse an object of the type [T] out of the reader
-         * @param string The source of the XML events
+         * @param str The source of the XML events
+         * @param rootName The QName to use for the root tag
+         */
+        @JvmOverloads
+        public inline fun <reified T : Any> decodeFromString(str: String, rootName: QName? = null): T =
+            decodeFromString(serializer(), str, rootName)
+
+        /**
+         * Parse an object of the type [T] out of the reader
          * @param deserializer The loader to use
+         * @param string The source of the XML events
          */
         override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
             return defaultInstance.decodeFromString(deserializer, string)
@@ -605,20 +702,35 @@ public class XML constructor(
 
         /**
          * Parse an object of the type [T] out of the reader
-         * @param reader The source of the XML events
+         * @param deserializer The loader to use
+         * @param rootName The QName to use for the root tag
+         * @param string The source of the XML events
          */
-        public inline fun <reified T : Any> decodeFromReader(reader: XmlReader): T =
-            defaultInstance.decodeFromReader(reader)
+        public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String, rootName: QName?): T {
+            return defaultInstance.decodeFromString(deserializer, string, rootName)
+        }
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param reader The source of the XML events
+         * @param rootName The QName to use for the root tag
+         */
+        @JvmOverloads
+        public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
+            defaultInstance.decodeFromReader(reader, rootName)
 
         /**
          * Parse an object of the type [T] out of the reader
          * @param deserializer The loader to use (rather than the default)
+         * @param rootName The QName to use for the root tag
          * @param reader The source of the XML events
          */
+        @JvmOverloads
         public fun <T : Any> decodeFromReader(
             deserializer: DeserializationStrategy<T>,
-            reader: XmlReader
-        ): T = defaultInstance.decodeFromReader(deserializer, reader)
+            reader: XmlReader,
+            rootName: QName? = null
+        ): T = defaultInstance.decodeFromReader(deserializer, reader, rootName)
 
         @Deprecated("Use encodeToString", ReplaceWith("encodeToString(serializer, value)"))
         public fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
@@ -780,7 +892,11 @@ public class XML constructor(
          */
         @Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
         @Deprecated("Reflection is no longer supported", level = DeprecationLevel.ERROR)
-        public fun <T : Any> stringify(obj: T, kClass: KClass<T> = obj::class as KClass<T>, prefix: String? = null): String {
+        public fun <T : Any> stringify(
+            obj: T,
+            kClass: KClass<T> = obj::class as KClass<T>,
+            prefix: String? = null
+        ): String {
             throw UnsupportedOperationException("Reflection for serialization is no longer supported")
         }
 

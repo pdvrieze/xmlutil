@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlin.io.use as ktUse
+
 public actual fun assert(value: Boolean, lazyMessage: () -> String) {
     kotlin.assert(value, lazyMessage)
 }
@@ -27,6 +29,10 @@ public actual fun assert(value: Boolean, lazyMessage: () -> String) {
 public actual fun assert(value: Boolean): Unit = kotlin.assert(value)
 
 public actual typealias AutoCloseable = java.lang.AutoCloseable
+
+public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
+    return this.ktUse(block)
+}
 
 public actual typealias Closeable = java.io.Closeable
 
