@@ -117,7 +117,6 @@ public actual class XMLFragmentStreamReader constructor(
     override fun next(): EventType {
         val result = delegate.next()
 
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (result) {
             EventType.END_DOCUMENT  -> return result
 
@@ -136,6 +135,7 @@ public actual class XMLFragmentStreamReader constructor(
                 }
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
             }
+            else -> {} // Ignore others
         }
         return result
     }

@@ -28,10 +28,10 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
-    @get:XmlUtilInternal
+    @XmlUtilInternal
     protected abstract val hasPeekItems: Boolean
 
-    @get:XmlUtilInternal
+    @XmlUtilInternal
     protected var current: XmlEvent? = XmlEvent.from(delegate)
         private set
 

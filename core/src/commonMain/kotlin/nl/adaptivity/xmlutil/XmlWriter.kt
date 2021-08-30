@@ -455,13 +455,13 @@ public fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, S
 
         reader.writeCurrent(this)
 
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (type) {
             EventType.START_ELEMENT -> {
 
                 writeElementContent(missingNamespaces, reader)
             }
             EventType.END_ELEMENT -> return
+            else -> { }
         }
     }
 }

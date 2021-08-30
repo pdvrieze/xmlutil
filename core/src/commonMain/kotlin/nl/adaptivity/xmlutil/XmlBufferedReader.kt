@@ -29,7 +29,7 @@ public open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBuffer
 
     private val peekBuffer = ArrayDeque<XmlEvent>()
 
-    @get:XmlUtilInternal
+    @XmlUtilInternal
     override val hasPeekItems: Boolean
         get() = peekBuffer.isNotEmpty()
 

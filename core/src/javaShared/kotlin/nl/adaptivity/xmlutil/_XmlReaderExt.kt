@@ -62,7 +62,6 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 
         var type: EventType? = eventType
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
-            @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
                 EventType.START_ELEMENT        ->
                     XmlStreaming.newWriter(caw, xmlDeclMode = XmlDeclMode.None).use { out: XmlWriter ->
@@ -80,6 +79,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 EventType.TEXT,
                 EventType.CDSECT               ->
                     caw.append(text.xmlEncode())
+                else -> {} // ignore
             }
             type = if (hasNext()) next() else null
         }

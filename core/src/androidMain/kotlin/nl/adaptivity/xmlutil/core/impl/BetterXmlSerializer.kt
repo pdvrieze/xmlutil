@@ -384,7 +384,6 @@ public class BetterXmlSerializer : XmlSerializer {
 
     @Throws(IOException::class)
     override fun startTag(namespace: String?, name: String): BetterXmlSerializer {
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
@@ -393,6 +392,7 @@ public class BetterXmlSerializer : XmlSerializer {
             }
             WriteState.Finished ->
                 throw XmlException("Attempting to write tag after the document finished")
+            else -> {}
         }
         state = WriteState.InTagContent
 
@@ -675,14 +675,11 @@ public class BetterXmlSerializer : XmlSerializer {
 
     private fun triggerStartDocument() {
         // Non-before states are not modified
-        @Suppress("NON_EXHAUSTIVE_WHEN")
-        when (state) {
-            WriteState.BeforeDocument -> {
-                if (xmlDeclMode != XmlDeclMode.None) {
-                    startDocument(null, null)
-                }
-                state = WriteState.AfterXmlDecl
+        if (state == WriteState.BeforeDocument) {
+            if (xmlDeclMode != XmlDeclMode.None) {
+                startDocument(null, null)
             }
+            state = WriteState.AfterXmlDecl
         }
     }
 }

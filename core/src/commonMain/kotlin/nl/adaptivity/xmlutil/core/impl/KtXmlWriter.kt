@@ -130,7 +130,6 @@ public class KtXmlWriter(
 
     private fun triggerStartDocument() {
         // Non-before states are not modified
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
@@ -138,6 +137,7 @@ public class KtXmlWriter(
                 }
                 state = WriteState.AfterXmlDecl
             }
+            else -> {}
         }
     }
 

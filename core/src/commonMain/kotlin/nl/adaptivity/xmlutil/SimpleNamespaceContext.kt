@@ -237,7 +237,6 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
 
         private val actualSerializer = ListSerializer(Namespace)
 
-        @ExperimentalXmlUtilApi
         override val descriptor: SerialDescriptor =
             RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
 
