@@ -53,8 +53,8 @@ public annotation class XmlPolyChildren(val value: Array<String>)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 public annotation class XmlChildrenName(
     val value: String,
-    val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
-    val prefix: String/* = UNSET_ANNOTATION_VALUE*/
+    val namespace: String = UNSET_ANNOTATION_VALUE,
+    val prefix: String = UNSET_ANNOTATION_VALUE
 )
 
 /**
