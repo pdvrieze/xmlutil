@@ -22,13 +22,15 @@ package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
+import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
+import nl.adaptivity.xmlutil.toNamespace
 
-public class XmlTypeDescriptor internal constructor(public val serialDescriptor: SerialDescriptor) {
+public class XmlTypeDescriptor internal constructor(public val serialDescriptor: SerialDescriptor, parentNamespace: Namespace?) {
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo()
+    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace)
 
     @OptIn(ExperimentalSerializationApi::class)
     public val serialName: String
@@ -43,7 +45,7 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) {
-            XmlTypeDescriptor(serialDescriptor)
+            XmlTypeDescriptor(serialDescriptor, typeQname?.toNamespace() ?: parentNamespace)
         }
     }
 }

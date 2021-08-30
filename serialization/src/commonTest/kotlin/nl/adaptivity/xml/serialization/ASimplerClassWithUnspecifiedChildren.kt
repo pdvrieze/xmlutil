@@ -45,12 +45,12 @@ class ASimplerClassWithUnspecifiedChildren : TestPolymorphicBase<ASimplerClassWi
     open class Base
 
     @Serializable
-    @XmlSerialName("childA", namespace = "", prefix = "")
+    @XmlSerialName("childA")
     data class ChildA(val valueA: String) : Base()
 
     @Serializable
     @SerialName("childBNameFromAnnotation")
-    @XmlSerialName("childB", namespace = "", prefix = "")
+    @XmlSerialName("childB")
     data class ChildB(val a: Int, val b: Int, val c: Int, val valueB: String) : Base()
 
 

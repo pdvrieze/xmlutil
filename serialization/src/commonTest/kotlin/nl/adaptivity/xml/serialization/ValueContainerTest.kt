@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class ValueContainerTest : TestBase<ValueContainerTest.ValueContainer>(
     ValueContainer("<foo&bar>"),
     ValueContainer.serializer()
-                                                                      ) {
+) {
     override val expectedXML: String = "<valueContainer>&lt;foo&amp;bar></valueContainer>"
     override val expectedJson: String = "{\"content\":\"<foo&bar>\"}"
 
@@ -46,7 +46,7 @@ class ValueContainerTest : TestBase<ValueContainerTest.ValueContainer>(
     }
 
     @Serializable
-    @XmlSerialName("valueContainer", namespace="", prefix="")
+    @XmlSerialName("valueContainer")
     data class ValueContainer(@XmlValue(true) val content:String)
 
 }

@@ -79,12 +79,12 @@ class InvalidValueContainerTest {
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", namespace = "", prefix = "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: String,
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+    )
 
 }

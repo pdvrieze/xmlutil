@@ -43,12 +43,12 @@ class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
 
 
     @Serializable
-    @XmlSerialName("chamber", namespace = "", prefix = "")
+    @XmlSerialName("chamber")
     data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", namespace = "", prefix = "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: String,

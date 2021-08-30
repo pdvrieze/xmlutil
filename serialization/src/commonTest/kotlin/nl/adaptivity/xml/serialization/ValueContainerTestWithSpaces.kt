@@ -40,7 +40,7 @@ class ValueContainerTestWithSpaces : TestBase<ValueContainerTestWithSpaces.Value
     }
 
     @Serializable
-    @XmlSerialName("valueContainer", namespace="", prefix="")
+    @XmlSerialName("valueContainer")
     data class ValueContainer(@XmlValue(true) val content:String)
 
 }

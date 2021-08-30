@@ -45,7 +45,7 @@ class SimpleInlineContainerTest : TestBase<SimpleInlineContainerTest.SimpleInlin
     value class InlineString(val value: String)
 
     @Serializable
-    @XmlSerialName("valueContainer", namespace="", prefix="")
+    @XmlSerialName("valueContainer")
     data class SimpleInlineContainer(@XmlValue(true) val content:InlineString)
 
 }

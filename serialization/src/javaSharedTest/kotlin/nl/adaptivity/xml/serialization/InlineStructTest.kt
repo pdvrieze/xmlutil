@@ -36,7 +36,7 @@ class InlineStructTest: TestBase<InlineStructTest.InlineStructParent>(
 
 
     @Serializable
-    @XmlSerialName("InlineStruct", "", "")
+    @XmlSerialName("InlineStruct")
     @JvmInline
     value class InlineStruct(val address: Address)
 
@@ -46,7 +46,7 @@ class InlineStructTest: TestBase<InlineStructTest.InlineStructParent>(
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", namespace = "", prefix = "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: String,

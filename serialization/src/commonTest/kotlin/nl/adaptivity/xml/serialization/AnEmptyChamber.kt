@@ -27,26 +27,27 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class AnEmptyChamber : TestBase<AnEmptyChamber.Chamber>(
     Chamber("lowtech", emptyList()),
     Chamber.serializer()
-                                                       ) {
+) {
     override val expectedXML: String = "<chamber name=\"lowtech\"/>"
     override val expectedJson: String = "{\"name\":\"lowtech\",\"members\":[]}"
 
 
     @Serializable
-    @XmlSerialName("chamber", namespace = "", prefix = "")
-    data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
+    @XmlSerialName("chamber")
+    data class Chamber(val name: String, @XmlSerialName("member") val members: List<Business>)
+
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", namespace = "", prefix = "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: String,
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+    )
 
     @Serializable
-    data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
+    data class Business(val name: String, @XmlSerialName("headOffice") val headOffice: Address?)
 
 }

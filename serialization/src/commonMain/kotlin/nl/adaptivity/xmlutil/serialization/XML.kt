@@ -182,7 +182,8 @@ public class XML constructor(
     ) {
         target.indentString = config.indentString
 
-        val serialQName = serializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+        val serialQName = serializer.descriptor.annotations.firstOrNull<XmlSerialName>()
+            ?.toQName(serializer.descriptor.serialName, null)
             ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
             ?: config.policy.serialTypeNameToQName(
                 XmlSerializationPolicy.DeclaredNameInfo(serializer.descriptor.serialName, null),
@@ -357,7 +358,8 @@ public class XML constructor(
     ): T {
 
         val serialName = rootName
-            ?: deserializer.descriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+            ?: deserializer.descriptor.annotations.firstOrNull<XmlSerialName>()
+                ?.toQName(deserializer.descriptor.serialName, null)
             ?: config.policy.serialTypeNameToQName(
                 XmlSerializationPolicy.DeclaredNameInfo(deserializer.descriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
@@ -394,7 +396,8 @@ public class XML constructor(
 
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
         val serialName = rootName
-            ?: serialDescriptor.annotations.firstOrNull<XmlSerialName>()?.toQName()
+            ?: serialDescriptor.annotations.firstOrNull<XmlSerialName>()
+                ?.toQName(serialDescriptor.serialName, null)
             ?: config.policy.serialTypeNameToQName(
                 XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
@@ -1002,8 +1005,15 @@ public class XML constructor(
 
 }
 
-public fun XmlSerialName.toQName(): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> QName(value)
+public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?): QName = when {
+    namespace == UNSET_ANNOTATION_VALUE -> when (value) {
+        UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) } ?: QName(serialName)
+        else -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
+    }
+    value == UNSET_ANNOTATION_VALUE -> when (prefix) {
+        UNSET_ANNOTATION_VALUE -> QName(serialName, namespace)
+        else -> QName(serialName, namespace, prefix)
+    }
     prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
     else -> QName(namespace, value, prefix)
 }

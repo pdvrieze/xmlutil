@@ -101,7 +101,7 @@ public sealed class XmlDescriptor(
     protected val useNameInfo: DeclaredNameInfo = serializerParent.elementUseNameInfo
 
     override val typeDescriptor: XmlTypeDescriptor =
-        serializerParent.elemenTypeDescriptor
+        serializerParent.elementTypeDescriptor
 
     public open val isUnsigned: Boolean get() = false
 
@@ -289,15 +289,27 @@ public class XmlInlineDescriptor internal constructor(
     override val outputKind: OutputKind get() = child.outputKind//OutputKind.Inline
 
     private val child: XmlDescriptor by lazy {
+
         val effectiveUseNameInfo: DeclaredNameInfo = when {
             useNameInfo.annotatedName != null -> useNameInfo
 
             typeDescriptor.typeNameInfo.annotatedName != null -> typeDescriptor.typeNameInfo
 
-            ParentInfo(this, 0).elementUseNameInfo.annotatedName != null ->
-                ParentInfo(this, 0).elementUseNameInfo
+            else -> {
+                // This is needed as this descriptor is not complete yet and would use this element's
+                // unset name for the namespace.
+                val serialName = typeDescriptor.serialDescriptor.getElementName(0)
+                val qName = typeDescriptor.serialDescriptor.getElementAnnotations(0).firstOrNull<XmlSerialName>()
+                    ?.toQName(serialName, tagParent.namespace)
+                val childUseNameInfo = DeclaredNameInfo(serialName, qName)
 
-            else -> useNameInfo
+                when {
+                    childUseNameInfo.annotatedName != null -> childUseNameInfo
+
+                    else -> useNameInfo
+                }
+
+            }
         }
 
         val useParentInfo = ParentInfo(this, 0, effectiveUseNameInfo)
@@ -450,9 +462,9 @@ public class XmlPolymorphicDescriptor internal constructor(
             when {
                 xmlPolyChildren != null -> {
                     val baseName = ActualNameInfo(
-                            tagParent.descriptor?.serialDescriptor?.serialName ?: "",
-                            tagParent.descriptor?.tagName ?: QName("", "")
-                        )
+                        tagParent.descriptor?.serialDescriptor?.serialName ?: "",
+                        tagParent.descriptor?.tagName ?: QName("", "")
+                    )
                     val baseClass = serialDescriptor.capturedKClass ?: Any::class
 
                     for (polyChild in xmlPolyChildren.value) {
@@ -531,19 +543,19 @@ public class XmlPolymorphicDescriptor internal constructor(
 }
 
 @ExperimentalSerializationApi
-internal fun SerialDescriptor.getElementNameInfo(index: Int): DeclaredNameInfo {
+internal fun SerialDescriptor.getElementNameInfo(index: Int, parentNamespace: Namespace?): DeclaredNameInfo {
     val serialName = getElementName(index)
-    val qName = getElementAnnotations(index).firstOrNull<XmlSerialName>()?.toQName()
+    val qName = getElementAnnotations(index).firstOrNull<XmlSerialName>()?.toQName(serialName, parentNamespace)
     return DeclaredNameInfo(serialName, qName)
 }
 
 @ExperimentalSerializationApi
-internal fun SerialDescriptor.getNameInfo(): DeclaredNameInfo {
+internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
         else -> serialName
     }
-    val qName = annotations.firstOrNull<XmlSerialName>()?.toQName()
+    val qName = annotations.firstOrNull<XmlSerialName>()?.toQName(realSerialName, parentNamespace)
     return DeclaredNameInfo(realSerialName, qName)
 }
 
@@ -558,7 +570,7 @@ public class XmlListDescriptor internal constructor(
 
     public val isListEluded: Boolean = when {
         tagParent is DetachedParent && tagParent.isDocumentRoot -> false
-        else ->xmlCodecBase.config.policy.isListEluded(serializerParent, tagParent)
+        else -> xmlCodecBase.config.policy.isListEluded(serializerParent, tagParent)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -581,7 +593,7 @@ public class XmlListDescriptor internal constructor(
         val useNameInfo = when {
             childrenName != null -> DeclaredNameInfo(childrenName.localPart, childrenName)
 
-            ! isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
+            !isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
 
             else -> tagParent.elementUseNameInfo
         }
@@ -610,7 +622,7 @@ public interface SafeParentInfo {
     public val descriptor: SafeXmlDescriptor?
 
     /** The descriptor of the type of this element (independent of use). */
-    public val elemenTypeDescriptor: XmlTypeDescriptor
+    public val elementTypeDescriptor: XmlTypeDescriptor
 
     /** The information on use site requirements */
     public val elementUseNameInfo: DeclaredNameInfo
@@ -679,8 +691,8 @@ private class DetachedParent(
 
     override val parentIsInline: Boolean get() = serialDescriptor.isInline
 
-    override val elemenTypeDescriptor
-        get() = XmlTypeDescriptor(overriddenSerializer?.descriptor ?: serialDescriptor)
+    override val elementTypeDescriptor
+        get() = XmlTypeDescriptor(overriddenSerializer?.descriptor ?: serialDescriptor, namespace)
 
     override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
 
@@ -715,17 +727,17 @@ public class ParentInfo(
     override val namespace: Namespace
         get() = descriptor.tagName.toNamespace()
 
-    override val elemenTypeDescriptor: XmlTypeDescriptor
+    override val elementTypeDescriptor: XmlTypeDescriptor
         get() = when {
-            overriddenSerializer != null -> XmlTypeDescriptor(overriddenSerializer.descriptor)
+            overriddenSerializer != null -> XmlTypeDescriptor(overriddenSerializer.descriptor, descriptor.tagName.toNamespace())
             index == -1 -> descriptor.typeDescriptor
-            else -> XmlTypeDescriptor(elementSerialDescriptor)
+            else -> XmlTypeDescriptor(elementSerialDescriptor, descriptor.tagParent.namespace)
         }
 
     @OptIn(ExperimentalSerializationApi::class)
     override val elementUseNameInfo: DeclaredNameInfo = useNameInfo ?: when (index) {
         -1 -> DeclaredNameInfo(descriptor.serialDescriptor.serialName, null)
-        else -> descriptor.serialDescriptor.getElementNameInfo(index)
+        else -> descriptor.serialDescriptor.getElementNameInfo(index,  descriptor.tagName.toNamespace())
     }
 
     @OptIn(ExperimentalSerializationApi::class)

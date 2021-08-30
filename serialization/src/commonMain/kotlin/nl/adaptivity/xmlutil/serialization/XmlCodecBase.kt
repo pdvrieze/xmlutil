@@ -41,7 +41,7 @@ internal abstract class XmlCodecBase internal constructor(
     companion object {
 
         internal fun SerialDescriptor.declRequestedName(parentNamespace: Namespace): QName {
-            annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName() }
+            annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName(serialName, parentNamespace) }
             return serialName.substringAfterLast('.').toQname(parentNamespace)
         }
 

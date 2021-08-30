@@ -48,7 +48,7 @@ class AComplexElement : TestBase<AComplexElement.Special>(
         @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
         @XmlElement(true) val paramB: Int = 1,
         @SerialName("flagValues")
-        @XmlSerialName("flags", namespace = "urn:namespace", prefix = "")
+        @XmlSerialName("flags"/*, namespace = "urn:namespace", prefix = ""*/)
         @XmlChildrenName("flag", namespace = "urn:flag", prefix = "f")
         val param: List<Int> = listOf(2, 3, 4, 5, 6)
                       )

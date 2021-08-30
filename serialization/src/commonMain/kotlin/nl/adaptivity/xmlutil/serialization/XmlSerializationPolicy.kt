@@ -329,7 +329,7 @@ public open class DefaultXmlSerializationPolicy
         outputKind: OutputKind,
         useName: DeclaredNameInfo
     ): QName {
-        val typeDescriptor = serializerParent.elemenTypeDescriptor
+        val typeDescriptor = serializerParent.elementTypeDescriptor
         val serialKind = typeDescriptor.serialDescriptor.kind
         val typeNameInfo = typeDescriptor.typeNameInfo
         val parentNamespace: Namespace = tagParent.namespace

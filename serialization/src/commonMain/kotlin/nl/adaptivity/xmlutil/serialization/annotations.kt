@@ -33,9 +33,9 @@ import kotlinx.serialization.SerialInfo
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 public annotation class XmlSerialName(
-    val value: String,
-    val namespace: String/* = UNSET_ANNOTATION_VALUE*/,
-    val prefix: String/* = UNSET_ANNOTATION_VALUE*/
+    val value: String = UNSET_ANNOTATION_VALUE,
+    val namespace: String = UNSET_ANNOTATION_VALUE,
+    val prefix: String = UNSET_ANNOTATION_VALUE
 )
 
 /**

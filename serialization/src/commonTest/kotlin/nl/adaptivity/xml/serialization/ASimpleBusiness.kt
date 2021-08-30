@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class ASimpleBusiness : TestBase<ASimpleBusiness.Business>(
     Business("ABC Corp", Address("1", "ABC road", "ABCVille")),
     Business.serializer()
-                                          ) {
+) {
     override val expectedXML: String =
         "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\" status=\"VALID\"/></Business>"
     override val expectedJson: String =
@@ -36,15 +36,15 @@ class ASimpleBusiness : TestBase<ASimpleBusiness.Business>(
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", namespace = "", prefix = "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: String,
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+    )
 
     @Serializable
-    data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
+    data class Business(val name: String, @XmlSerialName("headOffice") val headOffice: Address?)
 
 }

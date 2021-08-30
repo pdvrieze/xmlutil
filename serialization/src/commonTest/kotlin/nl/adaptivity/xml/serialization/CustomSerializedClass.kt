@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class CustomSerializedClass : TestBase<CustomSerializedClass.CustomContainer>(
     CustomContainer(Custom("foobar")),
     CustomContainer.serializer()
-                                                                             ) {
+) {
 
     override val expectedXML: String = "<CustomContainer elem=\"foobar\"/>"
     override val expectedJson: String = "{\"nonXmlElemName\":\"foobar\"}"
@@ -41,10 +41,10 @@ class CustomSerializedClass : TestBase<CustomSerializedClass.CustomContainer>(
     @Serializable
     data class CustomContainer(
         @SerialName("nonXmlElemName")
-        @XmlSerialName("elem", "", "")
+        @XmlSerialName("elem")
         @Serializable(with = CustomSerializer::class)
         val somethingElse: Custom
-                              )
+    )
 
     data class Custom(val property: String)
 

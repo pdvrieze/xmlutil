@@ -29,7 +29,7 @@ class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
     Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
     Sealed.serializer(),
     EmptySerializersModule//sealedModule
-                                                                ) {
+) {
     override val expectedXML: String
         get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB_renamed main=\"b-data\" ext=\"0.5\"/></Sealed>"
     override val expectedJson: String
@@ -42,6 +42,6 @@ class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
 @Serializable
 data class Sealed(
     val name: String,
-    @XmlSerialName("member", "", "")
+    @XmlSerialName("member")
     val members: List<SealedParent>
-                 )
+)

@@ -37,14 +37,18 @@ object JacksonPolicy :
      * Rather than replacing the method wholesale, just make attributes into elements unless the [XmlElement] annotation
      * is present with a `false` value on the value attribute.
      */
-    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo, canBeAttribute: Boolean): OutputKind {
+    override fun effectiveOutputKind(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean
+    ): OutputKind {
         val r = super.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
         return when {
             // Do take into account the XmlElement annotation
             r == OutputKind.Attribute &&
                     serializerParent.elementUseAnnotations.mapNotNull { it as? XmlElement }
-                        .firstOrNull()?.value != false
-                 -> OutputKind.Element
+                        .firstOrNull()?.value != false ->
+                OutputKind.Element
 
             else -> r
         }
@@ -60,9 +64,9 @@ object JacksonPolicy :
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
         useName: XmlSerializationPolicy.DeclaredNameInfo
-                              ): QName {
+    ): QName {
         return useName.annotatedName
-            ?: serializerParent.elemenTypeDescriptor.typeQname
+            ?: serializerParent.elementTypeDescriptor.typeQname
             ?: serialUseNameToQName(useName, tagParent.namespace)
     }
 
