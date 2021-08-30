@@ -74,7 +74,7 @@ class InvalidValueContainerTest {
     }
 
     @Serializable
-    data class InvalidValueContainer(@XmlValue(true) val content:String, val element: Address)
+    data class InvalidValueContainer(@XmlValue val content:String, val element: Address)
 
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 

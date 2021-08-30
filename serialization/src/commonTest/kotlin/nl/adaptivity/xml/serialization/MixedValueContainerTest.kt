@@ -58,7 +58,7 @@ class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainerTest.Mixe
     )
 
     @Serializable
-    data class MixedValueContainer(@XmlValue(true) val data: List<@Polymorphic Any>) {
+    data class MixedValueContainer(@XmlValue val data: List<@Polymorphic Any>) {
         companion object {
             fun module(): SerializersModule {
                 return SerializersModule {

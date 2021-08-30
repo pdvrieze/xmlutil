@@ -125,9 +125,9 @@ internal interface EContent
 @Serializable
 @SerialName("mixed")
 internal class TypedMixed(
-    @XmlValue(true)
+    @XmlValue
     override val data: List<MixedContent<TypedMixedContent>>
-                         ) : TypeMixedBase<TypedMixedContent>() {
+) : TypeMixedBase<TypedMixedContent>() {
     constructor(config: TypeMixedBase.Builder<TypedMixedContent>.() -> Unit)
             : this(TypeMixedBase.Builder<TypedMixedContent>().apply(config).toList())
 
@@ -141,8 +141,9 @@ internal class TypedMixed(
 
     @Serializable
     @SerialName("e")
-    class E(@XmlValue(true) override val data: List<MixedContent<EContent>>) : TypeMixedBase<EContent>(),
-                                                                                                                           TypedMixedContent {
+    class E(@XmlValue override val data: List<MixedContent<EContent>>) :
+        TypeMixedBase<EContent>(), TypedMixedContent {
+
         constructor(config: TypeMixedBase.Builder<EContent>.() -> Unit)
                 : this(TypeMixedBase.Builder<EContent>().apply(config).toList())
 

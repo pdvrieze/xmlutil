@@ -69,7 +69,7 @@ public annotation class XmlElement(val value: Boolean = true)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class XmlValue(val value: Boolean /*= true*/)
+public annotation class XmlValue(val value: Boolean = true)
 
 /**
  * Allow a property to be omitted with a default serialized string

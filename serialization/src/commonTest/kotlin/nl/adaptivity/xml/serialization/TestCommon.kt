@@ -142,7 +142,7 @@ class TestCommon {
             "<StringWithMarkup xmlns=\"http://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
                     "    <String>Chloroacetic acid, &gt;=99%</String>\n" +
                     "</StringWithMarkup>"
-                                                           )
+        )
         assertEquals(expected, actual)
     }
 
@@ -150,7 +150,7 @@ class TestCommon {
     @XmlSerialName("StringWithMarkup", "http://pubchem.ncbi.nlm.nih.gov/pug_view", "")
     @Serializable
     data class StringWithMarkup(
-        @XmlElement @SerialName("String") val string: String = "",
+        @XmlElement(true) @SerialName("String") val string: String = "",
         val markup: List<String> = emptyList()
     )
 
@@ -162,7 +162,7 @@ class TestCommon {
     data class SampleModel1(
         val version: String,
         val anAttribute: String,
-        @XmlElement
+        @XmlElement(true)
         val anElement: String,
         val aBlankElement: Unit? = Unit
     )
@@ -182,7 +182,7 @@ class TestCommon {
     internal data class Tag(
         @XmlValue(true)
         val data: List<@Polymorphic Any>
-                           ) {
+    ) {
 
         constructor(vararg data: Any): this(data.toList())
 
@@ -203,7 +203,7 @@ class TestCommon {
     internal data class I(
         @XmlValue(true)
         val data: List<@Polymorphic Any>
-                         ) {
+    ) {
         constructor(vararg data: Any): this(data.toList())
 
     }
