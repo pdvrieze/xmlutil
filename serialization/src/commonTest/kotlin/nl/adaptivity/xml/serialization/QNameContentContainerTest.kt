@@ -52,9 +52,9 @@ class QNameContentContainerTest : TestBase<QNameContentContainerTest.Container>(
         @XmlElement(false)
         @XmlSerialName("name", namespace = "urn:example.org", prefix = "ns2")
         val name: QName,
-        @XmlElement(true)
+        @XmlElement
         @XmlSerialName("value", namespace = "urn:example.org", prefix = "ns2")
         val value: QName
-                      )
+    )
 
 }

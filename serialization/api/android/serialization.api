@@ -228,7 +228,7 @@ public final class nl/adaptivity/xmlutil/serialization/XML$XmlOutput$DefaultImpl
 
 public final class nl/adaptivity/xmlutil/serialization/XMLKt {
 	public static final fun toQName (Lnl/adaptivity/xmlutil/serialization/XmlChildrenName;)Ljavax/xml/namespace/QName;
-	public static final fun toQName (Lnl/adaptivity/xmlutil/serialization/XmlSerialName;)Ljavax/xml/namespace/QName;
+	public static final fun toQName (Lnl/adaptivity/xmlutil/serialization/XmlSerialName;Ljava/lang/String;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public static final fun writeAsXml (Ljava/lang/Object;Lnl/adaptivity/xmlutil/XmlWriter;Lkotlinx/serialization/SerializationStrategy;)V
 }
 
@@ -471,8 +471,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlValue$Impl : nl/adapti
 public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo {
 	public abstract fun copy (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public abstract fun getDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;
-	public abstract fun getElemenTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
 	public abstract fun getElementSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getElementTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
 	public abstract fun getElementUseAnnotations ()Ljava/util/Collection;
 	public abstract fun getElementUseNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
 	public abstract fun getElementUseOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;

@@ -49,10 +49,10 @@ class ClassWithImplicitChildNamespace : TestBase<ClassWithImplicitChildNamespace
     @Serializable
     @XmlSerialName("namespaced", "http://example.org", "xo")
     data class Namespaced(
-        @XmlElement(true)
+        @XmlElement
         val elem1: String,
         @XmlSerialName("Elem2", "urn:myurn", "p2")
-        @XmlElement(true)
+        @XmlElement
         val elem2: String,
         @XmlSerialName("Elem3", "http://example.org/2", "p3")
         @XmlElement(false)

@@ -150,9 +150,9 @@ class TestCommon {
     @XmlSerialName("StringWithMarkup", "http://pubchem.ncbi.nlm.nih.gov/pug_view", "")
     @Serializable
     data class StringWithMarkup(
-        @XmlElement(true) @SerialName("String") val string: String = "",
+        @XmlElement @SerialName("String") val string: String = "",
         val markup: List<String> = emptyList()
-                               )
+    )
 
     @Serializable
     data class IntList(val values: List<Int>)
@@ -162,17 +162,17 @@ class TestCommon {
     data class SampleModel1(
         val version: String,
         val anAttribute: String,
-        @XmlElement(true)
+        @XmlElement
         val anElement: String,
         val aBlankElement: Unit? = Unit
-                           )
+    )
 
     @Serializable
     @SerialName("b")
     internal data class B(
         @XmlValue(true)
         val data: List<@Polymorphic Any>
-                         ) {
+    ) {
         constructor(vararg data: Any): this(data.toList())
 
     }

@@ -41,21 +41,21 @@ class NullableListTestWithElements : TestBase<NullableListTestWithElements.NullL
     @Serializable
     @SerialName("Bar")
     data class NullListElement(
-        @XmlElement(true)
+        @XmlElement
         @SerialName("AnotherStr")
         val anotherString: String
-                              )
+    )
 
     @Serializable
     @SerialName("Baz")
     data class NullList(
-        @XmlElement(true)
+        @XmlElement
         @SerialName("Str")
         val aString: String,
 
-        @XmlElement(true)
+        @XmlElement
         @SerialName("Bar")
         val aList: List<NullListElement>? = null
-                       )
+    )
 
 }

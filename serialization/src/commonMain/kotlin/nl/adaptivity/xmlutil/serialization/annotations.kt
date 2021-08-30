@@ -62,7 +62,7 @@ public annotation class XmlChildrenName(
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-public annotation class XmlElement(val value: Boolean/* = true*/)
+public annotation class XmlElement(val value: Boolean = true)
 
 /**
  * Force a property to be text element content

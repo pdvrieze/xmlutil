@@ -46,17 +46,17 @@ class OrderedFieldsTest : TestBase<OrderedFieldsTest.Employee>(
 
     @Serializable
     open class Person constructor(
-        @XmlElement(true)
+        @XmlElement
         val givenName: String,
-        @XmlElement(true)
+        @XmlElement
         @XmlBefore("givenName")
         val familyName: String,
-        @XmlElement(true)
+        @XmlElement
         @XmlAfter("familyName", "givenName")
         val birthDate: String,
-        @XmlElement(true)
+        @XmlElement
         val birthPlace: String
-                                 ) {
+    ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -83,16 +83,18 @@ class OrderedFieldsTest : TestBase<OrderedFieldsTest.Employee>(
 
     @Serializable
     class Employee : Person {
-        @XmlElement(true)
+        @XmlElement
         @XmlBefore("familyName")
         val employeeNumber: Int
-        @XmlElement(true)
+
+        @XmlElement
         @XmlBefore("birthDate")
         @XmlAfter("employeeNumber")
         val jobTitle: String
 
         @XmlElement(false)
         val employeeStatus: String
+
         @XmlBefore("employeeStatus")
         @XmlElement(false)
         val lineManagerId: Int
@@ -106,7 +108,7 @@ class OrderedFieldsTest : TestBase<OrderedFieldsTest.Employee>(
             jobTitle: String,
             lineManagerId: Int,
             status: String = "active"
-                   ) : super(givenName, familyName, birthDate, birthPlace) {
+        ) : super(givenName, familyName, birthDate, birthPlace) {
             this.employeeNumber = employeeNumber
             this.jobTitle = jobTitle
             this.employeeStatus = status

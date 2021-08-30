@@ -34,21 +34,20 @@ class ReturningNullTest : TestBase<TestDto>(
 @Serializable
 @SerialName("ScheduleLine")
 data class TestDto(
-    @XmlElement(true)
+    @XmlElement
     @SerialName("DeliveryDate")
     @Serializable(with = OptionalDateSerializerImpl::class)
     val deliveryDate: LocalDate? = null,
-    @XmlElement(true)
+    @XmlElement
     @SerialName("QuantityAvailable")
     val quantityAvailable: Int
-                  )
+)
 
 open class OptionalDateSerializer(
     format: String,
     private val nullMarker: String,
     private val replacement: LocalDate? = null
-                                 ) :
-    KSerializer<LocalDate?> {
+) : KSerializer<LocalDate?> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocalDate:$format", PrimitiveKind.STRING).nullable
 
     private val formatter = DateTimeFormatter.ofPattern(format)

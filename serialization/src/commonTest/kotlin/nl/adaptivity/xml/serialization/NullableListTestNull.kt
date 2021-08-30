@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 class NullableListTestNull : TestBase<NullableListTestNull.NullList>(
     NullList("A String"),
     NullList.serializer()
-                                                                    ) {
+) {
     override val expectedXML: String
         get() = "<Baz><Str>A String</Str></Baz>"
     override val expectedJson: String
@@ -36,21 +36,21 @@ class NullableListTestNull : TestBase<NullableListTestNull.NullList>(
     @Serializable
     @SerialName("Bar")
     data class NullListElement(
-        @XmlElement(true)
+        @XmlElement
         @SerialName("AnotherStr")
         val anotherString: String
-                              )
+    )
 
     @Serializable
     @SerialName("Baz")
     data class NullList(
-        @XmlElement(true)
+        @XmlElement
         @SerialName("Str")
         val aString: String,
 
-        @XmlElement(true)
+        @XmlElement
         @SerialName("Bar")
         val aList: List<NullListElement>? = null
-                       )
+    )
 
 }
