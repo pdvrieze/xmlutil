@@ -18,7 +18,7 @@
  * under the License.
  */
 
-package nl.adaptivity.serialutil.test
+package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -35,6 +35,7 @@ class CharArrayAsStringSerializerTest {
 
     @Test
     fun testSerializeXML() {
+
         val data = Container("abcdefg".toCharArray())
         val expected = "<Container>abcdefg</Container>"
         val actual = XML.encodeToString(data)
