@@ -34,7 +34,7 @@ import nl.adaptivity.serialutil.impl.toCharArray
 import kotlin.jvm.JvmOverloads
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {
-    override val descriptor = PrimitiveSerialDescriptor("kotlin.CharArray", PrimitiveKind.STRING)
+    override val descriptor = PrimitiveSerialDescriptor("CharArrayAsString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: CharArray) =
         encoder.encodeString(value.concatToString())
