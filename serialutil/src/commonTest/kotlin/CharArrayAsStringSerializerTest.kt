@@ -20,6 +20,7 @@
 
 package nl.adaptivity.serialutil.test
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -48,6 +49,7 @@ class CharArrayAsStringSerializerTest {
         assertEquals(expected, actual)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testSerializeJson() {
         val data = Container("abcdefg".toCharArray())
@@ -56,6 +58,7 @@ class CharArrayAsStringSerializerTest {
         assertEquals(expected, actual)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testDeserializeJson() {
         val expected = Container("abcdefg".toCharArray())
