@@ -15,3 +15,7 @@ ij_formatter_tags_enabled = true
 ij_smart_tabs = false
 ij_visual_guides = 100, 120
 ij_wrap_on_typing = false
+
+[{*.markdown,*.md}]
+max_line_length = 80
+ij_visual_guides = 70, 80
