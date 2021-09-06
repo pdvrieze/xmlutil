@@ -280,8 +280,7 @@ public open class DefaultXmlSerializationPolicy
                     isValue -> OutputKind.Mixed
 
                     !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute)
-                    ->
-                        handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
+                    -> handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
 
                     !canBeAttribute -> OutputKind.Element
 

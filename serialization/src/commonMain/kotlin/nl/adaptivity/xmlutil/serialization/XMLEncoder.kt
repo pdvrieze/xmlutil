@@ -109,13 +109,17 @@ internal open class XmlEncoderBase internal constructor(
             when (xmlDescriptor.outputKind) {
                 OutputKind.Inline, // shouldn't occur, but treat as element
                 OutputKind.Element -> { // This may occur with list values.
-                    target.smartStartTag(serialName) { target.text(value) }
+                    target.smartStartTag(serialName) {
+                        if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
+                    }
                 }
                 OutputKind.Attribute -> {
                     smartWriteAttribute(serialName, value, xmlDescriptor.tagParent.namespace.namespaceURI)
                 }
                 OutputKind.Mixed,
-                OutputKind.Text -> target.text(value)
+                OutputKind.Text -> {
+                    if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
+                }
             }
         }
 
@@ -403,12 +407,14 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Inline, // Treat inline as if it was element if it occurs (shouldn't happen)
                 OutputKind.Element -> defer(index) {
                     target.smartStartTag(elementDescriptor.tagName) {
-                        text(value)
+                        if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
                 OutputKind.Attribute -> doWriteAttribute(index, elementDescriptor.tagName, value)
                 OutputKind.Mixed,
-                OutputKind.Text -> defer(index) { target.text(value) }
+                OutputKind.Text -> defer(index) {
+                    if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
+                }
             }
         }
 
