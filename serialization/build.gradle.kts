@@ -131,9 +131,6 @@ kotlin {
 
     targets.all {
         if (this is KotlinJvmTarget) {
-            compilations.named("test") {
-                kotlinOptions.useIR = true
-            }
             testRuns.all {
                 executionTask.configure {
                     useJUnitPlatform()
@@ -256,8 +253,8 @@ kotlin {
             languageSettings.apply {
                 languageVersion = "1.5"
                 apiVersion = "1.5"
-                useExperimentalAnnotation("kotlin.RequiresOptIn")
-                useExperimentalAnnotation("nl.adaptivity.xmlutil.XmlUtilInternal")
+                optIn("kotlin.RequiresOptIn")
+                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
     }

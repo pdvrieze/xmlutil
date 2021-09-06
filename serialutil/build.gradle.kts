@@ -103,9 +103,6 @@ kotlin {
     }
     targets.all {
         if (this is org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget) {
-            compilations.named("test") {
-                kotlinOptions.useIR = true
-            }
             testRuns.all {
                 executionTask.configure {
                     useJUnitPlatform()
@@ -169,7 +166,7 @@ kotlin {
 
         all {
             languageSettings.apply {
-                useExperimentalAnnotation("kotlin.RequiresOptIn")
+                optIn("kotlin.RequiresOptIn")
             }
         }
     }

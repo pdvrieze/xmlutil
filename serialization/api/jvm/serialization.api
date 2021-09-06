@@ -269,6 +269,15 @@ public final class nl/adaptivity/xmlutil/serialization/XmlBefore$Impl : nl/adapt
 	public final synthetic fun value ()[Ljava/lang/String;
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlCData : java/lang/annotation/Annotation {
+	public abstract fun value ()Z
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlCData$Impl : nl/adaptivity/xmlutil/serialization/XmlCData {
+	public fun <init> (Z)V
+	public final synthetic fun value ()Z
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlChildrenName : java/lang/annotation/Annotation {
 	public abstract fun namespace ()Ljava/lang/String;
 	public abstract fun prefix ()Ljava/lang/String;
@@ -518,12 +527,14 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public abstract fun getTagName ()Ljavax/xml/namespace/QName;
 	public abstract fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public abstract fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
+	public abstract fun isCData ()Z
 	public abstract fun isElementOptional (I)Z
 	public abstract fun isNullable ()Z
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor$DefaultImpls {
 	public static fun getKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Lkotlinx/serialization/descriptors/SerialKind;
+	public static fun isCData (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Z
 	public static fun isElementOptional (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;I)Z
 	public static fun isNullable (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Z
 }
@@ -551,6 +562,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
 	protected final fun getUseNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
 	protected final fun getXmlCodecBase ()Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;
+	public fun isCData ()Z
 	public fun isElementOptional (I)Z
 	public fun isNullable ()Z
 	public fun isUnsigned ()Z
@@ -622,5 +634,6 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlValueDesc
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun defaultValue (Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public final fun getDefault ()Ljava/lang/String;
+	public final fun isCData ()Z
 }
 
