@@ -68,7 +68,7 @@ kotlin {
         languageSettings.apply {
             languageVersion = "1.5"
             apiVersion = "1.5"
-            useExperimentalAnnotation("kotlin.RequiresOptIn")
+            optIn("kotlin.RequiresOptIn")
         }
     }
 }

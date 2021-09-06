@@ -38,20 +38,20 @@ class CDataFields : TestBase<CDataFields.Business>(
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address", "", "")
+    @XmlSerialName("address")
     data class Address(
         val houseNumber: String,
         val street: StreetHolder,
-        @XmlCData(true)
+        @XmlCData
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
     )
 
     @Serializable
     @XmlSerialName("street", "", "")
-    data class StreetHolder(@XmlValue(true) @XmlCData(true) val street: String)
+    data class StreetHolder(@XmlValue @XmlCData val street: String)
 
     @Serializable
-    data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
+    data class Business(val name: String, @XmlSerialName("headOffice") val headOffice: Address?)
 
 }
