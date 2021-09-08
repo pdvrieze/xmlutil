@@ -233,6 +233,9 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
+    override val namespaceDecls: List<Namespace>
+        get() = namespaceHolder.namespacesAtCurrentDepth
+
     override val eventType: EventType
         get() = if (mFixWhitespace) EventType.IGNORABLE_WHITESPACE else delegateToLocal(delegate.eventType)
 

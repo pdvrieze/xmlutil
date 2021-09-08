@@ -144,6 +144,20 @@ public class JSDomReader(public val delegate: Node) : XmlReader {
             }
         }
 
+    override val namespaceDecls: List<Namespace>
+        get() {
+            return sequence<Namespace> {
+                for (attr in attributes) {
+                    when {
+                        attr.prefix == "xmlns" ->
+                            yield(XmlEvent.NamespaceImpl(attr.localName, attr.value))
+
+                        attr.prefix.isEmpty() && attr.localName == "xmlns" ->
+                            yield(XmlEvent.NamespaceImpl("", attr.value))
+                    }
+                }
+            }.toList()
+        }
     override val encoding: String?
         get() = when (val d = delegate) {
             is Document -> d.inputEncoding

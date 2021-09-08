@@ -124,7 +124,7 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     }
 
     override val locationInfo: String
-        get() = buildString { 
+        get() = buildString {
             append(parser.lineNumber)
             append(':')
             append(parser.columnNumber)
@@ -151,6 +151,14 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
             val uris = Array(nsCount) { i -> parser.getNamespaceUri(i) ?: "" }
 
             return SimpleNamespaceContext(prefixes, uris)
+        }
+
+    override val namespaceDecls: List<Namespace>
+        get() = when (depth) {
+            0 -> emptyList()
+            else ->
+                (parser.getNamespaceCount(parser.depth - 1) until parser.getNamespaceCount(parser.depth))
+                    .map { XmlEvent.NamespaceImpl(parser.getNamespacePrefix(it) ?: "", parser.getNamespaceUri(it) ?: "") }
         }
 
     @Throws(XmlException::class)
