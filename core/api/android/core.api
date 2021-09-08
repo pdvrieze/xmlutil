@@ -35,6 +35,7 @@ public final class nl/adaptivity/xmlutil/AndroidXmlReader : nl/adaptivity/xmluti
 	public fun getLocationInfo ()Ljava/lang/String;
 	public fun getName ()Ljavax/xml/namespace/QName;
 	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
@@ -264,6 +265,7 @@ public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/X
 	public fun getLocationInfo ()Ljava/lang/String;
 	public fun getName ()Ljavax/xml/namespace/QName;
 	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
@@ -442,6 +444,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 	public abstract fun getLocationInfo ()Ljava/lang/String;
 	public abstract fun getName ()Ljavax/xml/namespace/QName;
 	public abstract fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun getNamespaceDecls ()Ljava/util/List;
 	public abstract fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public abstract fun getNamespaceURI ()Ljava/lang/String;
 	public abstract fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
@@ -481,7 +484,6 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun elementContentToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
 	public static final fun getAttributeIndices (Lnl/adaptivity/xmlutil/XmlReader;)Lkotlin/ranges/IntRange;
 	public static final fun getAttributes (Lnl/adaptivity/xmlutil/XmlReader;)[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
-	public static final fun getNamespaceDecls (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/util/List;
 	public static final fun getQname (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;
 	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;Ljava/lang/String;)Z
 	public static final fun isElement (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z

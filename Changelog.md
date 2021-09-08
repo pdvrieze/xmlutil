@@ -1,3 +1,12 @@
+# 0.83.1
+*()<br />*
+Features:
+- Add XmlCData annotation to force serialization as CData for a type (#71)
+
+Fixes:
+- Update to kotlinx.serialization-1.3.0-RC
+- Fix/change XmlReader.namespaceDecls (make it a member, not an extension)
+
 # 0.83.0 – Changes, here we come
 
 *(Sep 4, 2021)<br />*

@@ -103,6 +103,12 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             }
         }
 
+    override val namespaceDecls: List<Namespace>
+        get() = when (val c = current) {
+            is StartElementEvent -> c.namespaceDecls.toList()
+            else -> namespaceHolder.namespacesAtCurrentDepth
+        }
+
     override val encoding: String?
         get() = (current as StartDocumentEvent).encoding
 

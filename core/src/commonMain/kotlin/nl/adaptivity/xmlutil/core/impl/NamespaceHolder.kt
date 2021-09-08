@@ -40,6 +40,9 @@ internal open class NamespaceHolder : Iterable<Namespace> {
     var depth = 0
         private set
 
+    val namespacesAtCurrentDepth: List<Namespace>
+        get() = namespaceIndicesAt(depth).map { XmlEvent.NamespaceImpl(getPrefix(it), getNamespace(it)) }
+
     fun incDepth() {
         ++depth
         if (depth >= namespaceCounts.size) {
@@ -148,10 +151,10 @@ internal open class NamespaceHolder : Iterable<Namespace> {
 
     fun getNamespaceUri(prefix: CharSequence): String? {
         return when (val prefixStr = prefix.toString()) {
-            XML_NS_PREFIX   -> return XML_NS_URI
+            XML_NS_PREFIX -> return XML_NS_URI
             XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
 
-            else            -> ((totalNamespaceCount - 1) downTo 0)
+            else -> ((totalNamespaceCount - 1) downTo 0)
                 .firstOrNull { getPrefix(it) == prefixStr }
                 ?.let { getNamespace(it) } ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
         }
@@ -159,9 +162,9 @@ internal open class NamespaceHolder : Iterable<Namespace> {
 
     fun getPrefix(namespaceUri: CharSequence): String? {
         return when (val namespaceUriStr = namespaceUri.toString()) {
-            XML_NS_URI             -> XML_NS_PREFIX
+            XML_NS_URI -> XML_NS_PREFIX
             XMLNS_ATTRIBUTE_NS_URI -> XMLNS_ATTRIBUTE
-            else                   -> ((totalNamespaceCount - 1) downTo 0)
+            else -> ((totalNamespaceCount - 1) downTo 0)
                 .firstOrNull { getNamespace(it) == namespaceUriStr }
                 ?.let { getPrefix(it) }
                 ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null

@@ -129,6 +129,10 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public fun getNamespaceURI(prefix: String): String?
 
+
+    public val namespaceDecls: List<Namespace>
+
+
     /** Get some information on the current location in the file. This is implementation dependent.  */
     public val locationInfo: String?
 
@@ -155,21 +159,6 @@ public val XmlReader.attributes: Array<out XmlEvent.Attribute>
         }
 
 public val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
-
-public val XmlReader.namespaceDecls: List<Namespace>
-    get() {
-        return attributeIndices.mapNotNull { i ->
-            val p = getAttributePrefix(i)
-            when {
-                p == "xmlns" -> XmlEvent.NamespaceImpl(getAttributeLocalName(i), getAttributeValue(i))
-
-                p == "" && getAttributeLocalName(i) == "xmlns"
-                -> XmlEvent.NamespaceImpl("", getAttributeValue(i))
-
-                else -> null
-            }
-        }
-    }
 
 public val XmlReader.qname: QName get() = text.toQname()
 
