@@ -52,10 +52,9 @@ public enum class EventType {
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
             writer.startTag(reader.namespaceURI, reader.localName, reader.prefix)
 
-            for (namespace in reader.namespaceContext.freeze())
-                for (attr in reader.namespaceDecls) {
-                    writer.namespaceAttr(attr.prefix, attr.namespaceURI)
-                }
+            for (attr in reader.namespaceDecls) {
+                writer.namespaceAttr(attr.prefix, attr.namespaceURI)
+            }
             for (i in 0 until reader.attributeCount) {
                 writer.attribute(
                     reader.getAttributeNamespace(i),
