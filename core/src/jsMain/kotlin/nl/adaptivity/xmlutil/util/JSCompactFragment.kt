@@ -34,6 +34,7 @@ public typealias JSCompactFragment = CompactFragment
  */
 public actual class CompactFragment : ICompactFragment {
 
+    @Suppress("DEPRECATION")
     public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {

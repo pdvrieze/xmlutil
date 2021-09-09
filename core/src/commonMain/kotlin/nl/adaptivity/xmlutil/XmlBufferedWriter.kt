@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 public class XmlBufferedWriter @XmlUtilInternal constructor(
     buffer: MutableList<XmlEvent> = mutableListOf(),
@@ -47,7 +46,7 @@ public class XmlBufferedWriter @XmlUtilInternal constructor(
     } else {
         // Don't use the plus operato here as we don't know that the contexts are not mutable.
         @Suppress("DEPRECATION")
-        CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
+        (nl.adaptivity.xmlutil.util.CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext))
     }
 
     override fun setPrefix(prefix: String, namespaceUri: String) {

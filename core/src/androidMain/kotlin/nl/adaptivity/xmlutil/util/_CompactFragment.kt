@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.*
  */
 public actual class CompactFragment : ICompactFragment {
 
+    @Suppress("DEPRECATION")
     public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
@@ -102,6 +103,7 @@ public actual class CompactFragment : ICompactFragment {
 
         @JvmStatic
         @XmlUtilInternal
+        @Suppress("DEPRECATION")
         public val FACTORY: XmlDeserializerFactory<CompactFragment> = Factory()
 
         @Throws(XmlException::class)

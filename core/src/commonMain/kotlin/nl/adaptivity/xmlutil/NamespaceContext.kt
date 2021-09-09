@@ -20,8 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
-
 /** Interface that provides access to namespace queries */
 public expect interface NamespaceContext {
     public fun getNamespaceURI(prefix: String): String?

@@ -189,7 +189,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         public val namespaceContext: IterableNamespaceContext
             get() = namespaceHolder + parentNamespaceContext
 
-        @Suppress("OverridingDeprecatedMember")
+        @Suppress("OverridingDeprecatedMember", "DEPRECATION")
         internal fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
             return (namespaceHolder.getPrefixesCompat(namespaceURI).asSequence() +
                     parentNamespaceContext.getPrefixesCompat(namespaceURI).asSequence()
