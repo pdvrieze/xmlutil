@@ -187,7 +187,6 @@ public final class nl/adaptivity/xmlutil/StAXWriter : nl/adaptivity/xmlutil/core
 	public fun ignorableWhitespace (Ljava/lang/String;)V
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
-	public fun setNamespaceContext (Ljavax/xml/namespace/NamespaceContext;)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
