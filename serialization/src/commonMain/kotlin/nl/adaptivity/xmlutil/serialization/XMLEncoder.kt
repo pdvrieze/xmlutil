@@ -228,8 +228,7 @@ internal open class XmlEncoderBase internal constructor(
     internal open inner class TagEncoder<D : XmlDescriptor>(
         xmlDescriptor: D,
         private var deferring: Boolean = true
-    ) :
-        XmlTagCodec<D>(xmlDescriptor), CompositeEncoder, XML.XmlOutput {
+    ) : XmlTagCodec<D>(xmlDescriptor), CompositeEncoder, XML.XmlOutput {
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
