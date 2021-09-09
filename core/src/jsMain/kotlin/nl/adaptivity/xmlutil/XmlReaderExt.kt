@@ -97,13 +97,13 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
                 if (prefix == "") "xmlns" else "xmlns:$prefix",
                 uri
-                                         )
+            )
             XmlEvent.NamespaceImpl(prefix, uri)
         }
 
         val wrappedString = XMLSerializer().serializeToString(wrapperElement)
         val unwrappedString = wrappedString.substring(
-            wrappedString.indexOf('<', WRAPPERQNAME.length),
+            wrappedString.indexOf('>', WRAPPERQNAME.length)+1,
             wrappedString.length - WRAPPERQNAME.length - 3
                                                      )
         return CompactFragment(ns, unwrappedString)
