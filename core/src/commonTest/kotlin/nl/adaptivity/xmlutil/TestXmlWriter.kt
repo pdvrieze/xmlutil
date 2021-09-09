@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -148,5 +150,27 @@ class TestXmlWriter {
         assertFailsWith<XmlException> {
             w.indentString="<!-- --"
         }
+    }
+
+    @Test
+    fun testWriteCompactFragment() {
+        val inner = """
+            |  <sub1>
+            |        <sub2>tala
+            |  </sub2>  </sub1>
+            |""".trimMargin()
+        val xml = "<root xmlns=\"foobar\">$inner</root>"
+
+        val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("", "foobar")), inner)
+
+        val builder = StringBuilder()
+        XmlStreaming.newWriter(builder).use { output ->
+            output.startTag("foobar", "root", "")
+            output.namespaceAttr("", "foobar")
+
+            fragment.serialize(output)
+            output.endTag("foobar", "root", "")
+        }
+        assertEquals(xml, builder.toString())
     }
 }
