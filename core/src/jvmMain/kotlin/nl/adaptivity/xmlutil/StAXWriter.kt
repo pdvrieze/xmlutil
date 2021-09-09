@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-import nl.adaptivity.xmlutil.core.impl.FreezableDelegatingNamespaceContext
+import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import java.io.OutputStream
 import java.io.Writer
@@ -52,14 +52,15 @@ public class StAXWriter(
 ) : PlatformXmlWriterBase(), XmlWriter {
 
     private val pendingWrites = mutableListOf<XmlEvent>()
-    private val pendingNamespaces = mutableListOf<Namespace>()
 
     private var lastTagDepth = -1
 
     private var state = State.Empty
 
-    override var depth: Int = 0
-        private set
+    override val depth: Int
+        get() = namespaceHolder.depth
+
+    private val namespaceHolder = NamespaceHolder()
 
     @Deprecated("Use version taking XmlDeclMode")
     public constructor(delegate: XMLStreamWriter, omitXmlDecl: Boolean, autoCloseEmpty: Boolean) :
@@ -76,8 +77,12 @@ public class StAXWriter(
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
-    public constructor(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean, omitXmlDecl: Boolean = false)
-            : this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+    public constructor(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean,
+        omitXmlDecl: Boolean = false
+    ) : this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Throws(XMLStreamException::class)
     public constructor(
@@ -102,15 +107,15 @@ public class StAXWriter(
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         flushPending {
             if (state == State.Empty) startDocument(null, null, null)
-            depth++
-            _namespaceContext.incDepth() // already increase now
+            namespaceHolder.incDepth()
+
             if (autoCloseEmpty) {
                 pendingWrites.add(
                     XmlEvent.StartElementEvent(
                         namespace ?: "",
                         localName,
                         prefix ?: "",
-                        _namespaceContext.freeze()
+                        namespaceHolder.namespaceContext.freeze()
                     )
                 )
             } else {
@@ -120,10 +125,9 @@ public class StAXWriter(
     }
 
     private fun doStartTag(namespace: String?, prefix: String?, localName: String, isEmpty: Boolean) {
-        depth-- // the depth was already increased because this can be called
+        // the depth was already increased because this can be called
         // from a pending context. This needs to be undone for indentation
-        writeIndent()
-        depth++
+        writeIndent(newDepth = depth -1 , indentDepth = depth - 1)
 
         try {
             if (namespace.isNullOrEmpty() &&
@@ -149,7 +153,6 @@ public class StAXWriter(
 
     private inline fun flushPending(isEndTag: Boolean = false, body: () -> Unit) {
         if (pendingWrites.isNotEmpty()) doFlushPending(isEndTag)
-        pendingNamespaces.clear() // No need to write, just record
         return body()
     }
 
@@ -178,25 +181,24 @@ public class StAXWriter(
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
         if (pendingWrites.isNotEmpty()) {
             doFlushPending(true) // if we write an empty tag don't write an end element
-            depth--
+            namespaceHolder.decDepth()
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         } else {
-            depth--
+            namespaceHolder.decDepth()
             writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
             delegate.writeEndElement()
         }
-        _namespaceContext.decDepth()
     }
 
 
-    private fun writeIndent(newDepth: Int = depth) {
+    private fun writeIndent(newDepth: Int = depth, indentDepth:Int = depth) {
         val indentSeq = indentSequence
-        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != depth) {
+        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != indentDepth) {
             try {
                 // Unset the indentation so that comments will not make things work correctly.
                 indentSequence = emptyList()
                 ignorableWhitespace("\n")
-                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
+                repeat(indentDepth) { indentSeq.forEach { it.writeTo(this) } }
             } finally {
                 indentSequence = indentSeq
             }
@@ -294,8 +296,7 @@ public class StAXWriter(
 
     @Throws(XmlException::class)
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
-        _namespaceContext.addPrefix(namespacePrefix, namespaceUri)
-        pendingNamespaces.add(XmlEvent.NamespaceImpl(namespacePrefix, namespaceUri))
+        namespaceHolder.addPrefixToContext(namespacePrefix, namespaceUri)
         when {
             pendingWrites.isEmpty() -> doNamespaceAttr(namespacePrefix, namespaceUri)
 
@@ -473,27 +474,12 @@ public class StAXWriter(
 
     @Throws(XmlException::class)
     override fun getPrefix(namespaceUri: String?): String? {
-        try {
-            pendingNamespaces
-                .firstOrNull { it.namespaceURI == namespaceUri }
-                ?.let { return it.prefix }
-
-            pendingWrites.asSequence()
-                .filterIsInstance<XmlEvent.Attribute>()
-                .firstOrNull() {
-                    it.namespaceUri == XMLNS_ATTRIBUTE_NS_URI && it.value == namespaceUri
-                }?.let { return if (it.prefix.isBlank()) "" else it.localName }
-
-            return delegate.getPrefix(namespaceUri)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
-        }
-
+        return namespaceHolder.getPrefix(namespaceUri ?: "")
     }
 
     @Throws(XmlException::class)
     override fun setPrefix(prefix: String, namespaceUri: String) {
-        pendingNamespaces.add(XmlEvent.NamespaceImpl(prefix, namespaceUri))
+        namespaceHolder.addPrefixToContext(prefix, namespaceUri)
         try {
             delegate.setPrefix(prefix, namespaceUri)
         } catch (e: XMLStreamException) {
@@ -504,36 +490,11 @@ public class StAXWriter(
 
     @Throws(XmlException::class)
     override fun getNamespaceUri(prefix: String): String? {
-        pendingNamespaces
-            .firstOrNull { it.prefix == prefix }
-            ?.let { return it.namespaceURI }
-        pendingWrites.asSequence()
-            .filterIsInstance<XmlEvent.Attribute>()
-            .firstOrNull() {
-                it.namespaceUri == XMLNS_ATTRIBUTE_NS_URI && (
-                        (prefix.isEmpty() && it.prefix.isEmpty()) ||
-                                (prefix.isNotEmpty() && prefix == it.localName))
-            }?.let { return if (it.prefix.isBlank()) "" else it.localName }
-
-
-        return delegate.namespaceContext.getNamespaceURI(prefix)
+        return namespaceHolder.getNamespaceUri(prefix)
     }
 
-    private val _namespaceContext = FreezableDelegatingNamespaceContext { delegate.namespaceContext }
-
-    override var namespaceContext: NamespaceContext
-        get() = _namespaceContext
-        @Throws(XmlException::class)
-        set(context) = if (depth == 0) {
-            try {
-                delegate.namespaceContext = context
-            } catch (e: XMLStreamException) {
-                throw XmlException(e)
-            }
-
-        } else {
-            throw XmlException("Modifying the namespace context halfway in a document")
-        }
+    override val namespaceContext: NamespaceContext
+        get() = namespaceHolder.namespaceContext
 
     internal companion object {
 
