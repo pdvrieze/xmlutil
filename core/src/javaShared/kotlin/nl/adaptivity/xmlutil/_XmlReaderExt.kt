@@ -23,6 +23,8 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter
 import java.util.*
@@ -63,11 +65,12 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         var type: EventType? = eventType
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             when (type) {
-                EventType.START_ELEMENT        ->
-                    XmlStreaming.newWriter(caw, xmlDeclMode = XmlDeclMode.None).use { out: XmlWriter ->
+                EventType.START_ELEMENT ->
+                    KtXmlWriter(caw, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
+                        out.indentString = "" // disable indents
                         val namespaceForPrefix = out.getNamespaceUri(prefix)
                         writeCurrent(out) // writes the start tag
-                        if (namespaceForPrefix!=namespaceURI) {
+                        if (namespaceForPrefix != namespaceURI) {
                             out.addUndeclaredNamespaces(this, missingNamespaces)
                         }
                         out.writeElementContent(missingNamespaces, this) // writes the children and end tag
@@ -77,9 +80,10 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                     if (text.isNotEmpty()) caw.append(text.xmlEncode())
 
                 EventType.TEXT,
-                EventType.CDSECT               ->
+                EventType.CDSECT ->
                     caw.append(text.xmlEncode())
-                else -> {} // ignore
+                else -> {
+                } // ignore
             }
             type = if (hasNext()) next() else null
         }
@@ -96,7 +100,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().apply {
         XmlStreaming.newWriter(this).use { out ->
-            while(hasNext()) {
+            while (hasNext()) {
                 next()
                 writeCurrent(out)
             }
