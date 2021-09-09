@@ -21,9 +21,7 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.XmlDeserializerFactory
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlSerializable
 
 /**
  * A class representing an xml fragment compactly.
@@ -35,7 +33,8 @@ public expect class CompactFragment : ICompactFragment {
     public constructor(namespaces: Iterable<Namespace>, content: CharArray?)
     public constructor(namespaces: Iterable<Namespace>, content: String)
 
-    public class Factory() : XmlDeserializerFactory<CompactFragment>
+    @Suppress("DEPRECATION")
+    public class Factory() : nl.adaptivity.xmlutil.XmlDeserializerFactory<CompactFragment>
 
     public companion object {
         public fun deserialize(reader: XmlReader): CompactFragment

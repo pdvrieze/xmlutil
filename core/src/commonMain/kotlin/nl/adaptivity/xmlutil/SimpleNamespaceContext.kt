@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -228,17 +229,14 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
         return buffer.contentHashCode()
     }
 
-    @ExperimentalXmlUtilApi
-    private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) :
-        SerialDescriptor by delegate
-
     @XmlUtilInternal
     public companion object : KSerializer<SimpleNamespaceContext> {
 
         private val actualSerializer = ListSerializer(Namespace)
 
+        @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            RenameDesc(actualSerializer.descriptor, SimpleNamespaceContext::class.name)
+            SerialDescriptor(SimpleNamespaceContext::class.name, actualSerializer.descriptor)
 
         public fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext
