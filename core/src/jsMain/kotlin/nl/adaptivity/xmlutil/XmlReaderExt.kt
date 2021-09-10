@@ -92,20 +92,25 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
             }
             type = if (hasNext()) next() else null
         }
-        val ns = missingNamespaces.entries.map { (prefix, uri) ->
-            wrapperElement.setAttributeNS(
-                XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                if (prefix == "") "xmlns" else "xmlns:$prefix",
-                uri
-            )
-            XmlEvent.NamespaceImpl(prefix, uri)
-        }
+
+        if (missingNamespaces[""] == "") missingNamespaces.remove("")
+
+        val ns = missingNamespaces.entries.asSequence()
+            .filter { (prefix, uri) -> prefix != "" || uri != "" }
+            .map { (prefix, uri) ->
+                wrapperElement.setAttributeNS(
+                    XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    if (prefix == "") "xmlns" else "xmlns:$prefix",
+                    uri
+                )
+                XmlEvent.NamespaceImpl(prefix, uri)
+            }.toList()
 
         val wrappedString = XMLSerializer().serializeToString(wrapperElement)
         val unwrappedString = wrappedString.substring(
             wrappedString.indexOf('>', WRAPPERQNAME.length)+1,
             wrappedString.length - WRAPPERQNAME.length - 3
-                                                     )
+        )
         return CompactFragment(ns, unwrappedString)
     } catch (e: XmlException) {
         throw XmlException("Failure to parse children into string at $startLocation", e)

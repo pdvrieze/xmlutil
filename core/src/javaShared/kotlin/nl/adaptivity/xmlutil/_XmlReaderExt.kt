@@ -24,6 +24,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter
@@ -57,7 +58,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val startLocation = locationInfo
     try {
 
-        val missingNamespaces = TreeMap<String, String>()
+        val missingNamespaces:MutableMap<String, String> = TreeMap<String, String>()
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
         val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
 
@@ -87,6 +88,9 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
             }
             type = if (hasNext()) next() else null
         }
+
+        if (missingNamespaces[""] == "") missingNamespaces.remove("")
+
         return CompactFragment(SimpleNamespaceContext(missingNamespaces), caw.toCharArray())
     } catch (e: XmlException) {
         throw XmlException("Failure to parse children into string at $startLocation", e)
@@ -107,4 +111,3 @@ public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
         }
     }
 }
-

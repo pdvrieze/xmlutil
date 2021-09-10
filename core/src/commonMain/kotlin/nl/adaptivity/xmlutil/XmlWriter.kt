@@ -155,7 +155,7 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
         val uri = reader.namespaceURI
         if (getNamespaceUri(prefix) == uri && reader.isPrefixDeclaredInElement(prefix)) {
             return
-        } else if (uri.isNotEmpty()) {
+        } else {
             missingNamespaces[prefix] = uri
         }
     }
