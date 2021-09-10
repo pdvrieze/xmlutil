@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
+import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.XmlReader
 

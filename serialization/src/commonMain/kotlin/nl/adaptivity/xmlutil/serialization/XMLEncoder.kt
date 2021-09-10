@@ -30,6 +30,7 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.util.ICompactFragment
 
 internal open class XmlEncoderBase internal constructor(
     context: SerializersModule,
@@ -280,10 +281,16 @@ internal open class XmlEncoderBase internal constructor(
             }
 
             @Suppress("UNCHECKED_CAST")
-            val overriddenSerializer = descriptor.overriddenSerializer as KSerializer<T>?
+            val overriddenSerializer: SerializationStrategy<T> = (descriptor.overriddenSerializer ?: serializer) as SerializationStrategy<T>
             when (overriddenSerializer) {
-                null -> defer(index) { serializer.serialize(encoder, value) }
                 XmlQNameSerializer -> encodeQName(descriptor, index, value as QName)
+                CompactFragmentSerializer -> if(xmlDescriptor.getValueChild() == index) {
+                    defer(index) {
+                        CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
+                    }
+                } else {
+                    defer(index) { overriddenSerializer.serialize(encoder, value) }
+                }
                 else -> defer(index) { overriddenSerializer.serialize(encoder, value) }
             }
         }

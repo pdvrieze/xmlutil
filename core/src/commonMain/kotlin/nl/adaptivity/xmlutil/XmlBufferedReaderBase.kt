@@ -69,6 +69,9 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     override val depth: Int
         get() = namespaceHolder.depth
 
+    protected fun incDepth() { namespaceHolder.incDepth() }
+    protected fun decDepth() { namespaceHolder.decDepth() }
+
     override val text: String
         get() {
             return if (current!!.eventType === EventType.ATTRIBUTE) {
@@ -157,6 +160,11 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
         }
         return peekFirst()
     }
+
+    /**
+     * Put the current element in the peek buffer. This is basically a very limited pushback
+     */
+    public abstract fun pushBackCurrent()
 
     /**
      * Get the next event to add to the queue. Children can override this to customize the events that are added to the

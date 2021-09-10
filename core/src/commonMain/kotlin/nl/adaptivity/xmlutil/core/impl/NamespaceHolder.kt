@@ -48,7 +48,7 @@ internal open class NamespaceHolder : Iterable<Namespace> {
         if (depth >= namespaceCounts.size) {
             namespaceCounts = namespaceCounts.copyOf(namespaceCounts.size * 2)
         }
-        namespaceCounts[depth] = namespaceCounts[depth - 1]
+        namespaceCounts[depth] = if (depth == 0) 0 else namespaceCounts[depth - 1]
     }
 
     private fun namespaceIndicesAt(depth: Int): IntRange {
