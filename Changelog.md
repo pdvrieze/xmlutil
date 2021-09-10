@@ -6,6 +6,7 @@ Features:
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
 - Fix/change XmlReader.namespaceDecls (make it a member, not an extension)
+- Fix compact fragments that redeclare the default namespace
 
 # 0.83.0 – Changes, here we come
 

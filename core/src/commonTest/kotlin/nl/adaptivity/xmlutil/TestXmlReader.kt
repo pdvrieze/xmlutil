@@ -72,6 +72,7 @@ class TestXmlReader {
         val inner = """
             |  <sub1>
             |        <sub2>tala
+            |           <sub3 xmlns="baz"/>
             |  </sub2>  </sub1>
             |""".trimMargin()
         val xml = "<f:root xmlns:f=\"foobar\">$inner</f:root>"
@@ -81,7 +82,7 @@ class TestXmlReader {
         input.require(EventType.START_ELEMENT, "foobar", "root")
         input.next()
         val frag = input.siblingsToFragment()
-        assertEquals(inner, frag.contentString)
+        assertEquals(inner, frag.contentString.replace(" />", "/>"))
         assertEquals(emptyList(), frag.namespaces.toList())
     }
 }
