@@ -65,4 +65,23 @@ class TestXmlReader {
         assertEquals(inner, frag.contentString)
         assertEquals(listOf(XmlEvent.NamespaceImpl("", "foobar")), frag.namespaces.toList())
     }
+
+
+    @Test
+    fun testReadCompactFragmentWithNamespaceInOuter() {
+        val inner = """
+            |  <sub1>
+            |        <sub2>tala
+            |  </sub2>  </sub1>
+            |""".trimMargin()
+        val xml = "<f:root xmlns:f=\"foobar\">$inner</f:root>"
+
+        val input = XmlStreaming.newReader(xml)
+        input.nextTag()
+        input.require(EventType.START_ELEMENT, "foobar", "root")
+        input.next()
+        val frag = input.siblingsToFragment()
+        assertEquals(inner, frag.contentString)
+        assertEquals(emptyList(), frag.namespaces.toList())
+    }
 }
