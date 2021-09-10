@@ -31,6 +31,7 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.DummyDecoder
 import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -368,6 +369,15 @@ internal open class XmlDecoderBase internal constructor(
             val effectiveDeserializer = (childXmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?)
                 ?: deserializer
 
+            if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
+                (xmlDescriptor.getValueChild()==index)) {
+                input.require(EventType.START_ELEMENT, null)
+                return input.siblingsToFragment().let {
+                    input.pushBackCurrent() // Make the closing tag again be the next read.
+                    (it as? CompactFragment ?: CompactFragment(it)) as T
+                }
+            }
+
             val decoder = serialElementDecoder(descriptor, index, effectiveDeserializer)
                 ?: NullDecoder(childXmlDescriptor)
 
@@ -469,6 +479,15 @@ internal open class XmlDecoderBase internal constructor(
             // with a null namespace instead
             if (containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
                 nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it }
+            }
+
+            if (inputType != InputKind.Attribute) {
+                xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
+                    val valChildDesc = xmlDescriptor.getElementDescriptor(valueChildIdx)
+                    if (valChildDesc.serialDescriptor == CompactFragmentSerializer.descriptor) {
+                        return valueChildIdx
+                    }
+                }
             }
 
             // Hook that will normally throw an exception on an unknown name.

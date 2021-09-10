@@ -62,6 +62,17 @@ public open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBuffer
     @XmlUtilInternal
     override fun bufferRemoveFirst(): XmlEvent = peekBuffer.removeFirst()
 
+    override fun pushBackCurrent() {
+        val c = current ?: throw XmlException("Push back fails due to missing current element")
+        when (c.eventType) {
+            EventType.START_ELEMENT -> decDepth()
+            EventType.END_ELEMENT -> incDepth()
+            else -> {}
+        }
+
+        peekBuffer.addFirst(c)
+    }
+
     /**
      * Add an element to the peek buffer.
      */

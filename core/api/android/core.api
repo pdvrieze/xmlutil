@@ -201,6 +201,7 @@ public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/Xml
 	public fun close ()V
 	protected fun getHasPeekItems ()Z
 	protected fun peekFirst ()Lnl/adaptivity/xmlutil/XmlEvent;
+	public fun pushBackCurrent ()V
 }
 
 public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlutil/XmlWriter {

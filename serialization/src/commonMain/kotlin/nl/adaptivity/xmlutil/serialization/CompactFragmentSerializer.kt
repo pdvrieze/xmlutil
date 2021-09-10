@@ -83,13 +83,12 @@ public object CompactFragmentSerializer : KSerializer<CompactFragment> {
 
     public fun serialize(output: Encoder, value: ICompactFragment) {
         output.encodeStructure(descriptor) {
-            writeCompactFragmentContent(this, descriptor, value)
+            writeCompactFragmentContent(this, value)
         }
     }
 
-    private fun writeCompactFragmentContent(
+    internal fun writeCompactFragmentContent(
         encoder: CompositeEncoder,
-        descriptor: SerialDescriptor,
         value: ICompactFragment
     ) {
 

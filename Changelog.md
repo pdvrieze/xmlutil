@@ -2,6 +2,8 @@
 *()<br />*
 Features:
 - Add XmlCData annotation to force serialization as CData for a type (#71)
+- Allow compact fragments to be used transparently in conjunction with
+  the @XmlValue annotation (it requires use of the `CompactFragmentSerializer`).
 
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
