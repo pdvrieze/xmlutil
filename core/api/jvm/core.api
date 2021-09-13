@@ -213,6 +213,46 @@ public final class nl/adaptivity/xmlutil/XMLConstants {
 	public static final field XML_NS_URI Ljava/lang/String;
 }
 
+public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil/XmlReader {
+	public fun <init> (Ljava/util/List;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun getLocalName ()Ljava/lang/String;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getName ()Ljavax/xml/namespace/QName;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public fun isCharacters ()Z
+	public fun isEndElement ()Z
+	public fun isStartElement ()Z
+	public fun isStarted ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
 public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/XmlBufferedReaderBase {
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
 	public fun close ()V
@@ -246,6 +286,7 @@ public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlut
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public final fun reader ()Lnl/adaptivity/xmlutil/XmlBufferReader;
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
