@@ -46,7 +46,10 @@ public class XmlBufferedWriter @XmlUtilInternal constructor(
     } else {
         // Don't use the plus operato here as we don't know that the contexts are not mutable.
         @Suppress("DEPRECATION")
-        (nl.adaptivity.xmlutil.util.CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext))
+        (nl.adaptivity.xmlutil.util.CombiningNamespaceContext(
+            namespaceHolder.namespaceContext,
+            delegateNamespaceContext
+        ))
     }
 
     override fun setPrefix(prefix: String, namespaceUri: String) {
@@ -174,5 +177,7 @@ public class XmlBufferedWriter @XmlUtilInternal constructor(
     override fun close() {}
 
     override fun flush() {}
+
+    public fun reader(): XmlBufferReader = XmlBufferReader(buffer.toList())
 
 }

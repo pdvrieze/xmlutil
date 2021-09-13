@@ -1,14 +1,18 @@
 # 0.83.1
 *()<br />*
 Features:
-- Add XmlCData annotation to force serialization as CData for a type (#71)
-- Allow compact fragments to be used transparently in conjunction with
-  the @XmlValue annotation (it requires use of the `CompactFragmentSerializer`).
+- Add `@XmlCData` annotation to force serialization as CData for a type (#71)
+- Allow compact fragments to be used transparently in conjunction with the 
+  `@XmlValue` annotation (it requires use of the `CompactFragmentSerializer`).
+- Add `XmlBufferReader` as a reader of lists of events (the counterpoint to 
+  `@XmlBufferedWriter`)
 
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
 - Fix/change XmlReader.namespaceDecls (make it a member, not an extension)
 - Fix compact fragments that redeclare the default namespace
+- Fix deserialization of empty types where decodeElementIndex is never called
+  (this applies for object)
 
 # 0.83.0 – Changes, here we come
 
