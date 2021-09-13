@@ -64,6 +64,9 @@ class TestCommon {
         val serializedModel = format.encodeToString(SampleModel1.serializer(), model).normalizeXml().replace('\'', '"')
 
         assertEquals(expectedXml, serializedModel)
+
+        val deserializedModel = format.decodeFromString<SampleModel1>(expectedXml)
+        assertEquals(model, deserializedModel)
     }
 
     @Test
@@ -164,6 +167,7 @@ class TestCommon {
         val anAttribute: String,
         @XmlElement(true)
         val anElement: String,
+        @XmlElement(true)
         val aBlankElement: Unit? = Unit
     )
 

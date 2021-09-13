@@ -175,8 +175,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?/* = null*/,
         attrIndex: Int/* = -1*/
-    ) :
-        XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
+    ) : XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             if (descriptor.isNullable) return TagDecoder(xmlDescriptor)
@@ -305,6 +304,8 @@ internal open class XmlDecoderBase internal constructor(
 
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
+        private var decodeElementIndexCalled = false
+
         init {
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
             val nameMap: MutableMap<QName, Int> = mutableMapOf()
@@ -345,8 +346,9 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
             return when {
                 nulledItemsIdx >= 0 -> null
-                deserializer.descriptor.kind is PrimitiveKind
-                -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+
+                deserializer.descriptor.kind is PrimitiveKind ->
+                    XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
 
                 else -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
             }
@@ -370,7 +372,8 @@ internal open class XmlDecoderBase internal constructor(
                 ?: deserializer
 
             if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
-                (xmlDescriptor.getValueChild()==index)) {
+                (xmlDescriptor.getValueChild() == index)
+            ) {
                 input.require(EventType.START_ELEMENT, null)
                 return input.siblingsToFragment().let {
                     input.pushBackCurrent() // Make the closing tag again be the next read.
@@ -503,6 +506,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            decodeElementIndexCalled = true
             /* Decoding works in 4 stages: pending injected elements, attributes,
              * child content, null values.
              * Pending injected elements allow for handling unexpected content, and should be
@@ -621,6 +625,10 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
+            if (!decodeElementIndexCalled) {
+                val index = decodeElementIndex(descriptor)
+                if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
+            }
             input.require(EventType.END_ELEMENT, serialName)
         }
 
@@ -642,7 +650,9 @@ internal open class XmlDecoderBase internal constructor(
         private inline fun <reified T> handleRecovery(index: Int, onSuccess: (T) -> Unit) {
             if (pendingRecovery.isNotEmpty()) {
                 val d = pendingRecovery.removeFirst()
-                if (d.elementIndex != index) { throw IllegalStateException("Recovery state is inconsistent") }
+                if (d.elementIndex != index) {
+                    throw IllegalStateException("Recovery state is inconsistent")
+                }
                 onSuccess(d.value as T)
             }
         }
