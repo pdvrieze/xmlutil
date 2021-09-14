@@ -31,19 +31,20 @@ import java.io.StringReader
 import javax.xml.XMLConstants
 
 /**
- * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
-
+ * This streamreader allows for reading document fragments. It does so by wrapping the reader into a
+ * pair of wrapper elements, and then ignoring those on reading.
+ *
  * Created by pdvrieze on 04/11/15.
  */
-public actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
-    XmlDelegatingReader(getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
+public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader):
+    XmlDelegatingReader(delegate), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
 
     override var localNamespaceContext: FragmentNamespaceContext =
         FragmentNamespaceContext(null, emptyArray(), emptyArray())
 
-    init {
+    public constructor(reader: Reader, namespaces: Iterable<Namespace>) : this(getDelegate(reader, namespaces)) {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
@@ -68,7 +69,7 @@ public actual class XMLFragmentStreamReader constructor(reader: Reader, namespac
         private fun getDelegate(
             reader: Reader,
             wrapperNamespaceContext: Iterable<Namespace>
-                               ): XmlReader {
+        ): XmlReader {
             val wrapper = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
                 for (ns in wrapperNamespaceContext) {
