@@ -76,7 +76,7 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
  * @property serializersModule The serialization context used to resolve serializers etc.
  * @property config The configuration of the various options that may apply.
  */
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
 public class XML constructor(
     public val config: XmlConfig,
     serializersModule: SerializersModule = EmptySerializersModule
