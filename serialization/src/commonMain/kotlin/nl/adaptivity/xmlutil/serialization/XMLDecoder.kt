@@ -288,7 +288,7 @@ internal open class XmlDecoderBase internal constructor(
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
 
-        private val attrCount: Int = input.attributeCount
+        private val attrCount: Int = if (input.eventType == EventType.START_ELEMENT) input.attributeCount else 0
         private val tagDepth: Int = input.depth
 
         /**
@@ -307,7 +307,7 @@ internal open class XmlDecoderBase internal constructor(
 
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
-        private var decodeElementIndexCalled = false
+        protected var decodeElementIndexCalled = false
 
         init {
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
@@ -792,6 +792,7 @@ internal open class XmlDecoderBase internal constructor(
         private var childCount = 0
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            decodeElementIndexCalled = true
             return when (input.nextTag()) {
                 EventType.END_ELEMENT -> CompositeDecoder.DECODE_DONE
                 else -> childCount++ // This is important to ensure appending in the list.

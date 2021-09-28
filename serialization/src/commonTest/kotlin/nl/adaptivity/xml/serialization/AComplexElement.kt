@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class AComplexElement : TestBase<AComplexElement.Special>(
     Special(),
     Special.serializer()
-                                                         ) {
+) {
     override val expectedXML: String =
         """<localname xmlns="urn:namespace" paramA="valA"><paramb xmlns="urn:ns2">1</paramb><flags xmlns:f="urn:flag">""" +
                 "<f:flag>2</f:flag>" +
@@ -47,8 +47,9 @@ class AComplexElement : TestBase<AComplexElement.Special>(
         val paramA: String = "valA",
         @XmlSerialName("paramb", namespace = "urn:ns2", prefix = "")
         @XmlElement val paramB: Int = 1,
+
         @SerialName("flagValues")
-        @XmlSerialName("flags"/*, namespace = "urn:namespace", prefix = ""*/)
+        @XmlSerialName("flags", namespace = "urn:namespace", prefix = "")
         @XmlChildrenName("flag", namespace = "urn:flag", prefix = "f")
         val param: List<Int> = listOf(2, 3, 4, 5, 6)
     )
