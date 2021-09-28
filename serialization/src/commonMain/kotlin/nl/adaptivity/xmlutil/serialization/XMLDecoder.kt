@@ -288,6 +288,9 @@ internal open class XmlDecoderBase internal constructor(
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
 
+        private val attrCount: Int = input.attributeCount
+        private val tagDepth: Int = input.depth
+
         /**
          * Array that records for each child element whether it has been encountered. After processing the entire tag
          * this array will allow for the remaining tags to be handled as null (or defaulted/optional)
@@ -334,7 +337,7 @@ internal open class XmlDecoderBase internal constructor(
 
         }
 
-        override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
+        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -506,6 +509,10 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            if (! decodeElementIndexCalled && input.depth < tagDepth) {
+                return CompositeDecoder.DECODE_DONE
+            }
+
             decodeElementIndexCalled = true
             /* Decoding works in 4 stages: pending injected elements, attributes,
              * child content, null values.
@@ -533,7 +540,7 @@ internal open class XmlDecoderBase internal constructor(
             // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
             lastAttrIndex++
 
-            if (lastAttrIndex >= 0 && lastAttrIndex < input.attributeCount) {
+            if (lastAttrIndex >= 0 && lastAttrIndex < attrCount) {
 
                 val name = input.getAttributeName(lastAttrIndex)
 
@@ -738,8 +745,10 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
-    private inner class AnonymousListDecoder(xmlDescriptor: XmlListDescriptor, private val polyInfo: PolyInfo?) :
-        TagDecoder<XmlListDescriptor>(xmlDescriptor) {
+    private inner class AnonymousListDecoder(
+        xmlDescriptor: XmlListDescriptor,
+        private val polyInfo: PolyInfo?
+    ) : TagDecoder<XmlListDescriptor>(xmlDescriptor) {
 
         private var finished: Boolean = false
 
@@ -809,8 +818,10 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
-    private inner class PolymorphicDecoder(xmlDescriptor: XmlPolymorphicDescriptor, private val polyInfo: PolyInfo?) :
-        TagDecoder<XmlPolymorphicDescriptor>(xmlDescriptor) {
+    private inner class PolymorphicDecoder(
+        xmlDescriptor: XmlPolymorphicDescriptor,
+        private val polyInfo: PolyInfo?
+    ) : TagDecoder<XmlPolymorphicDescriptor>(xmlDescriptor) {
 
         private var nextIndex = 0
 
