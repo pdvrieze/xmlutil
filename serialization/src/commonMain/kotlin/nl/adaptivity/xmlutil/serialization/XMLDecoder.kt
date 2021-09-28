@@ -305,6 +305,7 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var currentPolyInfo: PolyInfo? = null
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
         protected var decodeElementIndexCalled = false
@@ -380,6 +381,7 @@ internal open class XmlDecoderBase internal constructor(
                 input.require(EventType.START_ELEMENT, null)
                 return input.siblingsToFragment().let {
                     input.pushBackCurrent() // Make the closing tag again be the next read.
+                    @Suppress("UNCHECKED_CAST")
                     (it as? CompactFragment ?: CompactFragment(it)) as T
                 }
             }
@@ -433,6 +435,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         open fun indexOf(name: QName, inputType: InputKind): Int {
             // Two functions that allow matching only if the input kind matches the outputkind of the candidate
 
@@ -508,8 +511,9 @@ internal open class XmlDecoderBase internal constructor(
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            if (! decodeElementIndexCalled && input.depth < tagDepth) {
+            if (!decodeElementIndexCalled && input.depth < tagDepth) {
                 return CompositeDecoder.DECODE_DONE
             }
 
@@ -540,7 +544,7 @@ internal open class XmlDecoderBase internal constructor(
             // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
             lastAttrIndex++
 
-            if (lastAttrIndex >= 0 && lastAttrIndex < attrCount) {
+            if (lastAttrIndex in 0 until attrCount) {
 
                 val name = input.getAttributeName(lastAttrIndex)
 
@@ -654,6 +658,7 @@ internal open class XmlDecoderBase internal constructor(
             return input.getAttributeValue(this.lastAttrIndex)
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         private inline fun <reified T> handleRecovery(index: Int, onSuccess: (T) -> Unit) {
             if (pendingRecovery.isNotEmpty()) {
                 val d = pendingRecovery.removeFirst()
