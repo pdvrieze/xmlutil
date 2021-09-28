@@ -91,8 +91,8 @@ kotlin {
                     listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
                     listOf(
                         woodstoxCompilation.get()
-                          )
-                                      )
+                    )
+                )
             }
 
 
