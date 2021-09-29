@@ -81,7 +81,7 @@ internal abstract class XmlCodecBase internal constructor(
     @Suppress("RedundantInnerClassModifier") // The actual children must be inner
     abstract inner class XmlCodec<out D : SafeXmlDescriptor>(
         protected val xmlDescriptor: D
-                                                            ) {
+    ) {
         val serialName: QName get() = xmlDescriptor.tagName
     }
 

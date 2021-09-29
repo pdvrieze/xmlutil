@@ -6,6 +6,8 @@ Features:
   `@XmlValue` annotation (it requires use of the `CompactFragmentSerializer`).
 - Add `XmlBufferReader` as a reader of lists of events (the counterpoint to 
   `@XmlBufferedWriter`)
+- Support serializing lists of primitives (or inlines of primitives, or qnames).
+  This is derived from the xml schema standard (and needed for xml schema).
 
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC

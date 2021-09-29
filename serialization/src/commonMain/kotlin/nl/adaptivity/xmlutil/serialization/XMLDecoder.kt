@@ -45,31 +45,12 @@ internal open class XmlDecoderBase internal constructor(
 
     override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
-    /**
-     * @param xmlDescriptor The descriptor for the value that this decoder should decode
-     * @property polyInfo If this was instantiated due to a polymorphic match, this property holds that information
-     * @property attrIndex If this was instantiated to deserialize an attribute this parameter determines which
-     *                     attribute it deserialize (index into the attribute list of the containing tag)
-     */
-    internal open inner class XmlDecoder(
+    abstract inner class DecodeCommons(
         xmlDescriptor: XmlDescriptor,
-        protected val polyInfo: PolyInfo? = null,
-        private val attrIndex: Int = -1
-    ) :
-        XmlCodec<XmlDescriptor>(xmlDescriptor), Decoder, XML.XmlInput {
-
-        private var triggerInline = false
-
-        override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
-
-        override val config: XmlConfig get() = this@XmlDecoderBase.config
-
-        override val serializersModule get() = this@XmlDecoderBase.serializersModule
-
-        override fun decodeNotNullMark(): Boolean {
-            // No null values unless the entire document is empty (not sure the parser is happy with it)
-            return input.eventType != EventType.END_DOCUMENT
-        }
+    ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
+        final override val config: XmlConfig get() = this@XmlDecoderBase.config
+        final override val serializersModule: SerializersModule get() = this@XmlDecoderBase.serializersModule
+        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
 
         override fun decodeNull(): Nothing? {
             // We don't write nulls, so if we know that we have a null we just return it
@@ -103,13 +84,8 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeFloat(): Float = decodeStringImpl().toFloat()
-
         override fun decodeDouble(): Double = decodeStringImpl().toDouble()
-
         override fun decodeChar(): Char = decodeStringImpl().single()
-
-        override fun decodeString(): String = decodeStringImpl(false)
-
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             val stringName = decodeStringImpl()
             for (i in 0 until enumDescriptor.elementsCount) {
@@ -118,13 +94,36 @@ internal open class XmlDecoderBase internal constructor(
             throw SerializationException("No enum constant found for name $enumDescriptor")
         }
 
+        abstract fun decodeStringImpl(defaultOverEmpty: Boolean = true): String
+        override fun decodeString(): String = decodeStringImpl(false)
+    }
+
+    /**
+     * @param xmlDescriptor The descriptor for the value that this decoder should decode
+     * @property polyInfo If this was instantiated due to a polymorphic match, this property holds that information
+     * @property attrIndex If this was instantiated to deserialize an attribute this parameter determines which
+     *                     attribute it deserialize (index into the attribute list of the containing tag)
+     */
+    internal open inner class XmlDecoder(
+        xmlDescriptor: XmlDescriptor,
+        protected val polyInfo: PolyInfo? = null,
+        val attrIndex: Int = -1
+    ) : DecodeCommons(xmlDescriptor), Decoder, XML.XmlInput {
+
+        private var triggerInline = false
+
+        override fun decodeNotNullMark(): Boolean {
+            // No null values unless the entire document is empty (not sure the parser is happy with it)
+            return input.eventType != EventType.END_DOCUMENT
+        }
+
         @ExperimentalSerializationApi
         override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
             triggerInline = true
             return this
         }
 
-        private fun decodeStringImpl(defaultOverEmpty: Boolean = true): String {
+        override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
             val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
             val descOutputKind = xmlDescriptor.outputKind
 
@@ -155,6 +154,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            val deser: DeserializationStrategy<T> = (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
             /*
              * When the element is actually an inline we need to make sure to use the child descriptor (for the inline).
              * But only if decodeInline was called previously.
@@ -166,9 +166,37 @@ internal open class XmlDecoderBase internal constructor(
                 else -> xmlDescriptor
 
             }
-            return deserializer.deserialize(SerialValueDecoder(desc, polyInfo, attrIndex))
+            return deser.deserialize(SerialValueDecoder(desc, polyInfo, attrIndex))
         }
 
+    }
+
+    private inner class StringDecoder(xmlDescriptor: XmlDescriptor, private val stringValue: String) :
+        Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
+
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+            throw UnsupportedOperationException("Strings cannot be decoded to structures")
+        }
+
+        @ExperimentalSerializationApi
+        override fun decodeNotNullMark(): Boolean = true
+
+        @ExperimentalSerializationApi
+        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+            return StringDecoder(xmlDescriptor.getElementDescriptor(0), stringValue)
+        }
+
+        override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
+            val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
+            if (defaultOverEmpty && defaultString!=null && stringValue.isEmpty()) return defaultString
+            return stringValue
+        }
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            val deser: DeserializationStrategy<T> = (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
+
+            return deser.deserialize(this)
+        }
     }
 
     private open inner class SerialValueDecoder(
@@ -189,10 +217,11 @@ internal open class XmlDecoderBase internal constructor(
 
                 xmlDescriptor is XmlListDescriptor
                 -> {
-                    if (xmlDescriptor.isListEluded) {
-                        AnonymousListDecoder(xmlDescriptor, polyInfo)
-                    } else {
-                        NamedListDecoder(xmlDescriptor)
+                    when {
+                        xmlDescriptor.outputKind == OutputKind.Attribute ->
+                            AttributeListDecoder(xmlDescriptor, attrIndex)
+                        xmlDescriptor.isListEluded -> AnonymousListDecoder(xmlDescriptor, polyInfo)
+                        else -> NamedListDecoder(xmlDescriptor)
                     }
                 }
 
@@ -788,6 +817,38 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int { // always 1 child
             return 1
+        }
+    }
+
+    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, val attrIndex: Int) :
+        TagDecoder<XmlListDescriptor>(xmlDescriptor) {
+        private var listIndex = 0
+        private val attrValues = input.getAttributeValue(attrIndex)
+            .split(' ', '\t', '\n', '\r')
+
+        @ExperimentalSerializationApi
+        override fun decodeSequentially(): Boolean = true
+
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
+            return attrValues.size
+        }
+
+        override fun <T> decodeSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T>,
+            previousValue: T?
+        ): T {
+            val decoder = StringDecoder(xmlDescriptor.getElementDescriptor(index), attrValues[listIndex++])
+            return decoder.decodeSerializableValue(deserializer)
+        }
+
+        override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
+            return attrValues[listIndex++]
+        }
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            // Do nothing
         }
     }
 
