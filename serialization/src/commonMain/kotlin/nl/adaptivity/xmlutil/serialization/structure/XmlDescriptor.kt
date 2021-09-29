@@ -589,6 +589,9 @@ public class XmlListDescriptor internal constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     override val outputKind: OutputKind = when {
+        tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false -> {
+            OutputKind.Attribute
+        }
         !isListEluded -> OutputKind.Element
 
         tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&

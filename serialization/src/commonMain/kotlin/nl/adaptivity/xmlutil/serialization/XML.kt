@@ -221,10 +221,11 @@ public class XML constructor(
             config.isCollectingNSAttributes ->
                 xmlEncoderBase.NSAttrXmlEncoder(
                     xmlDescriptor,
-                    collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
+                    collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value),
+                    -1
                 )
 
-            else -> xmlEncoderBase.XmlEncoder(xmlDescriptor)
+            else -> xmlEncoderBase.XmlEncoder(xmlDescriptor, -1)
         }
 
         serializer.serialize(encoder, value)
@@ -288,7 +289,7 @@ public class XML constructor(
             pendingNamespaces.clear()
             val collector = NamespaceCollectingXmlWriter(prefixToNamespaceMap, namespaceToPrefixMap, pendingNamespaces)
             val base = XmlEncoderBase(xmlEncoderBase.serializersModule, xmlEncoderBase.config, collector)
-            base.XmlEncoder(xmlDescriptor).encodeSerializableValue(serializer, value)
+            base.XmlEncoder(xmlDescriptor, -1).encodeSerializableValue(serializer, value)
 
         }
 
