@@ -209,12 +209,29 @@ different policy.
 | `@XmlChildrenName` | |  Used in lists. This causes the children to be serialized as separate tags in an outer tag. The outer tag name is determined regularly.
 |`@XmlElement` | | Force a property to be either serialized as tag or attribute. |
 | | `value: Boolean` | `true` to indicate serialization as tag, `false` to indicate serialization as attribute. Note that not all values can be serialized as attribute |
-|`@XmlValue` | | Force a property to be element content. Note that only one field can be element content and tags would not be expected. |
+|`@XmlValue` | | Force a property to be element content. Note that only one field can be element content and tags would not be expected. When applied on `CompactFragment` this is treated specially. |
 | `@XmlDefault` | | Older versions of the framework do not support default values. This annotation allows a default value to be specified. The default value will not be written out if matched. |
 | | `value: String` | The default value used if no value is specified. The value is parsed as if there was textual substitution of this value into the serialized XML. |
+|`@XmlBefore` | | Annotation to support serialization order. |
+| | `value: Array<String>`| All the children that should be serialized after this one (uses the `@SerialName` value or field name) |
+|`@XmlAfter` | | Annotation to support serialization order. |
+| | `value: Array<String>`| All the children that should be serialized before this one (uses the `@SerialName` value or field name) |
+|`@XmlCData` | | Force serialization as CData. |
+|`@XmlMixed` | | When specified on a polymorphic list it will store mixed content (like html) where text is done as Strings. |
+|`@XmlOtherAttributes` | | Can be specified on a `Map<QName, String>` to store unsupported attributes. |
 
 
-### Special type
+### Special types
+These types have contextual support by default (without needed user intervention),
+but the serializer can also be specified explicitly by the user. They get special
+treatment to support their features.
+
+#### `QName`
+By default (configurable by the policy) QName is handled by special logic that
+stores QNames in a prefix:localName manner ensuring the prefix is valid in the
+tag. Many XML standards use this approach for string attributes.
+
+#### `CompactFragment`
 The `CompactFragment` class is a special class (with supporting serializer) that will be able to capture the tag soup
 content of an element. Instead of using regular serialization its custom serializer will (in the case of xml serialization)
 directly read all the child content of the tag and store it as string content. It will also make a best effort attempt

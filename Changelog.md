@@ -8,6 +8,10 @@ Features:
   `@XmlBufferedWriter`)
 - Support serializing lists of primitives (or inlines of primitives, or qnames).
   This is derived from the xml schema standard (and needed for xml schema).
+- Support storing unknown attributes in a `Map<QName, String>`
+  (Using [QNameSerializer] or contextual). The field needs to be annotated with
+  `@XmlOtherAttributes`. (Technically other types than QName and String are
+  supported, but only if all values will be able to read from that string value)
 
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
