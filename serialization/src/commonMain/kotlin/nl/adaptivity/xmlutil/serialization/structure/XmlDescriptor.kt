@@ -96,6 +96,12 @@ public sealed class XmlDescriptor(
     final override val tagParent: SafeParentInfo = serializerParent,
 ) : SafeXmlDescriptor {
 
+    public val effectiveOutputKind: OutputKind
+        get() = when (outputKind) {
+            OutputKind.Inline -> getElementDescriptor(0).effectiveOutputKind
+            else -> outputKind
+        }
+
     public val policy: XmlSerializationPolicy get() = xmlCodecBase.config.policy
 
     final override val overriddenSerializer: KSerializer<*>? = serializerParent.overriddenSerializer
@@ -163,26 +169,28 @@ public sealed class XmlDescriptor(
                 }
             }
 
-            return when (elementSerialDescriptor.kind) {
+            when (elementSerialDescriptor.kind) {
                 SerialKind.ENUM,
                 is PrimitiveKind ->
-                    XmlPrimitiveDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
+                    return XmlPrimitiveDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
 
                 StructureKind.LIST ->
-                    XmlListDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
+                    return XmlListDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
 
-                //                StructureKind.MAP -> TODO("MAP")
-                is PolymorphicKind ->
-                    XmlPolymorphicDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
-
-                else -> when {
-                    xmlCodecBase.config.isInlineCollapsed &&
-                            elementSerialDescriptor.isInline ->
-                        XmlInlineDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
-
-                    else ->
-                        XmlCompositeDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
+                StructureKind.MAP -> when (serializerParent.elementUseOutputKind) {
+                    OutputKind.Attribute -> return XmlAttributeMapDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
                 }
+                is PolymorphicKind ->
+                    return XmlPolymorphicDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
+            }
+
+            return when {
+                xmlCodecBase.config.isInlineCollapsed &&
+                        elementSerialDescriptor.isInline ->
+                    XmlInlineDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
+
+                else ->
+                    XmlCompositeDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
             }
         }
 
@@ -349,7 +357,36 @@ public class XmlInlineDescriptor internal constructor(
             ULong.serializer().descriptor
         )
     }
+}
 
+public class XmlAttributeMapDescriptor internal constructor(
+    xmlCodecBase: XmlCodecBase,
+    serializerParent: SafeParentInfo,
+    tagParent: SafeParentInfo,
+) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
+    @ExperimentalSerializationApi
+    override val doInline: Boolean get() = false
+    override val outputKind: OutputKind get() = OutputKind.Attribute
+
+    public val keyDescriptor: XmlDescriptor by lazy {
+        from(
+            xmlCodecBase,
+            ParentInfo(this, 0, useOutputKind = OutputKind.Text),
+            tagParent, true)
+    }
+    public val valueDescriptor: XmlDescriptor by lazy {
+        from(
+            xmlCodecBase,
+            ParentInfo(this, 1, useOutputKind = OutputKind.Text),
+            tagParent, true)
+    }
+
+    override val elementsCount: Int get() = 2
+
+    override fun getElementDescriptor(index: Int): XmlDescriptor = when (index % 2) {
+        0 -> keyDescriptor
+        else -> valueDescriptor
+    }
 
 }
 
@@ -791,12 +828,12 @@ private fun <T : Annotation> Iterable<T>.getRequestedOutputKind(): OutputKind? {
     var xmlCData: XmlCData? = null
 
     for (annotation in this) {
-        when (annotation) {
-            is XmlValue -> return OutputKind.Mixed
-            is XmlElement -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
-            is XmlPolyChildren,
-            is XmlChildrenName -> return OutputKind.Element
-            is XmlCData -> xmlCData = annotation
+        when {
+            (annotation as? XmlValue)?.value == true -> return OutputKind.Mixed
+            annotation is XmlOtherAttributes -> return OutputKind.Attribute
+            annotation is XmlElement -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
+            annotation is XmlPolyChildren || annotation is XmlChildrenName -> return OutputKind.Element
+            annotation is XmlCData -> xmlCData = annotation
         }
     }
     if (xmlCData?.value == true) return OutputKind.Element

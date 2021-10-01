@@ -18,12 +18,16 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
+
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
@@ -32,7 +36,7 @@ import kotlin.test.assertEquals
 
 expect fun assertXmlEquals(expected: String, actual:String)
 
-abstract class TestBase<T> constructor(
+abstract class XmlTestBase<T>(
     val value: T,
     val serializer: KSerializer<T>,
     val serializersModule: SerializersModule = EmptySerializersModule,
@@ -40,19 +44,12 @@ abstract class TestBase<T> constructor(
         policy = DefaultXmlSerializationPolicy(
             pedantic = true,
             encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-                                              )
-    },
-    private val baseJsonFormat: Json = Json {
-        defaultJsonTestConfiguration()
-        this.serializersModule = serializersModule
+        )
     }
-                                      ) {
+) {
     abstract val expectedXML: String
-    abstract val expectedJson: String
 
     fun serializeXml(): String = baseXmlFormat.encodeToString(serializer, value).normalizeXml()
-
-    fun serializeJson(): String = baseJsonFormat.encodeToString(serializer, value)
 
     @Test
     open fun testSerializeXml() {
@@ -63,6 +60,27 @@ abstract class TestBase<T> constructor(
     open fun testDeserializeXml() {
         assertEquals(value, baseXmlFormat.decodeFromString(serializer, expectedXML))
     }
+
+}
+
+abstract class TestBase<T> constructor(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseXmlFormat: XML = XML(serializersModule) {
+        policy = DefaultXmlSerializationPolicy(
+            pedantic = true,
+            encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
+        )
+    },
+    private val baseJsonFormat: Json = Json {
+        defaultJsonTestConfiguration()
+        this.serializersModule = serializersModule
+    }
+) : XmlTestBase<T>(value, serializer, serializersModule, baseXmlFormat) {
+    abstract val expectedJson: String
+
+    fun serializeJson(): String = baseJsonFormat.encodeToString(serializer, value)
 
     @Test
     open fun testSerializeJson() {

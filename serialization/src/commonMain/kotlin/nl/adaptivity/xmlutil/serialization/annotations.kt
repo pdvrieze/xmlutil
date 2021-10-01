@@ -71,6 +71,10 @@ public annotation class XmlElement(val value: Boolean = true)
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlValue(val value: Boolean = true)
 
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class XmlOtherAttributes()
+
 /**
  * Mark the property for serialization as CData, rather than text (where appropriate). It also means
  * that the value is not written as attribute.

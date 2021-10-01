@@ -94,12 +94,14 @@ public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : kotlinx/
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Node;)V
 }
 
-public final class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
+public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public static final field Attribute Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static final field Element Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static final field Inline Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static final field Mixed Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static final field Text Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun isTextual ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
 }
@@ -380,6 +382,13 @@ public final class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/adap
 	public final synthetic fun value ()Z
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes : java/lang/annotation/Annotation {
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes$Impl : nl/adaptivity/xmlutil/serialization/XmlOtherAttributes {
+	public fun <init> ()V
+}
+
 public final class nl/adaptivity/xmlutil/serialization/XmlParsingException : nl/adaptivity/xmlutil/serialization/XmlSerialException {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -539,6 +548,15 @@ public final class nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescript
 	public static fun isNullable (Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Z
 }
 
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public fun getDoInline ()Z
+	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getElementsCount ()I
+	public final fun getKeyDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public final fun getValueDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+}
+
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
 	public final fun getChildReorderMap ()[I
 	public fun getDoInline ()Z
@@ -550,6 +568,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor : nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getEffectiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getElementsCount ()I
 	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;

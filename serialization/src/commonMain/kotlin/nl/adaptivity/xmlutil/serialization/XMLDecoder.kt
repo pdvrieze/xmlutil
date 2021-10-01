@@ -30,6 +30,7 @@ import kotlinx.serialization.internal.AbstractCollectionSerializer
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.DummyDecoder
+import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
@@ -154,7 +155,8 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val deser: DeserializationStrategy<T> = (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
+            val deser: DeserializationStrategy<T> =
+                (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
             /*
              * When the element is actually an inline we need to make sure to use the child descriptor (for the inline).
              * But only if decodeInline was called previously.
@@ -188,12 +190,13 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
             val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
-            if (defaultOverEmpty && defaultString!=null && stringValue.isEmpty()) return defaultString
+            if (defaultOverEmpty && defaultString != null && stringValue.isEmpty()) return defaultString
             return stringValue
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val deser: DeserializationStrategy<T> = (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
+            val deser: DeserializationStrategy<T> =
+                (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
 
             return deser.deserialize(this)
         }
@@ -334,6 +337,8 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var currentPolyInfo: PolyInfo? = null
 
+        private val otherAttrIndex: Int = xmlDescriptor.getAttrMap()
+
         @OptIn(ExperimentalXmlUtilApi::class)
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
@@ -415,8 +420,12 @@ internal open class XmlDecoderBase internal constructor(
                 }
             }
 
-            val decoder = serialElementDecoder(descriptor, index, effectiveDeserializer)
-                ?: NullDecoder(childXmlDescriptor)
+            val decoder: Decoder = if (lastAttrIndex>=0 && childXmlDescriptor is XmlAttributeMapDescriptor) {
+                AttributeMapDecoder(childXmlDescriptor, lastAttrIndex)
+            } else {
+                serialElementDecoder(descriptor, index, effectiveDeserializer)
+                    ?: NullDecoder(childXmlDescriptor)
+            }
 
             val result: T = if (effectiveDeserializer is AbstractCollectionSerializer<*, T, *>) {
                 effectiveDeserializer.merge(decoder, previousValue)
@@ -519,7 +528,9 @@ internal open class XmlDecoderBase internal constructor(
                 nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it }
             }
 
-            if (inputType != InputKind.Attribute) {
+            if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
+                otherAttrIndex.takeIf { it >= 0 }?.let { return it }
+            } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
                     val valChildDesc = xmlDescriptor.getElementDescriptor(valueChildIdx)
                     if (valChildDesc.serialDescriptor == CompactFragmentSerializer.descriptor) {
@@ -818,6 +829,101 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int { // always 1 child
             return 1
         }
+    }
+
+    internal inner class AttributeMapDecoder(xmlDescriptor: XmlAttributeMapDescriptor, val attrIndex: Int) :
+        TagDecoder<XmlAttributeMapDescriptor>(xmlDescriptor), Decoder {
+
+        var correctStartIndex = -1
+        var nextIndex: Int = 0
+
+        @ExperimentalSerializationApi
+        override fun decodeSequentially(): Boolean = true
+
+        override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = 1
+
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int = when (nextIndex) {
+            0, 1 -> nextIndex++
+            else -> CompositeDecoder.DECODE_DONE
+        }
+
+        override fun <T> decodeSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            deserializer: DeserializationStrategy<T>,
+            previousValue: T?
+        ): T {
+            if (correctStartIndex<0) correctStartIndex = index
+            val fixedIndex = (index - correctStartIndex) % 2
+            @Suppress("UNCHECKED_CAST")
+            val effectiveDeserializer: DeserializationStrategy<T> =
+                (xmlDescriptor.getElementDescriptor(fixedIndex).overriddenSerializer as DeserializationStrategy<T>?)
+                    ?: deserializer
+
+            if (fixedIndex == 0) {
+
+                @Suppress("UNCHECKED_CAST")
+                if (effectiveDeserializer == XmlQNameSerializer) {
+                    return input.getAttributeName(attrIndex) as T
+                }
+            }
+            return effectiveDeserializer.deserialize(
+                StringDecoder(
+                    xmlDescriptor.valueDescriptor,
+                    input.getAttributeValue(attrIndex)
+                )
+            )
+        }
+
+        override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = when (index % 2) {
+            0 -> {
+                val name = input.getAttributeName(attrIndex)
+                if (name.prefix.isEmpty() || name.namespaceURI.isEmpty()) {
+                    name.localPart
+                } else {
+                    throw XmlSerialException("A QName in a namespace cannot be converted to a string")
+                }
+            }
+            else -> input.getAttributeValue(attrIndex)
+        }
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            // do nothing
+        }
+
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
+
+        override fun decodeBoolean(): Boolean = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeByte(): Byte = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeChar(): Char = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeDouble(): Double = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+            throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeFloat(): Float = throw UnsupportedOperationException("Expect map structure")
+
+        @ExperimentalSerializationApi
+        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+            return this
+        }
+
+        override fun decodeInt(): Int = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeLong(): Long = throw UnsupportedOperationException("Expect map structure")
+
+        @ExperimentalSerializationApi
+        override fun decodeNotNullMark(): Boolean = throw UnsupportedOperationException("Expect map structure")
+
+        @ExperimentalSerializationApi
+        override fun decodeNull(): Nothing = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeShort(): Short = throw UnsupportedOperationException("Expect map structure")
+
+        override fun decodeString(): String = throw UnsupportedOperationException("Expect map structure")
     }
 
     internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, val attrIndex: Int) :

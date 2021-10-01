@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -35,6 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
+import nl.adaptivity.xmlutil.serialization.structure.XmlAttributeMapDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -1045,6 +1047,15 @@ internal fun SerialDescriptor.getValueChild(): Int {
 internal fun XmlDescriptor.getValueChild(): Int {
     for (i in 0 until elementsCount) {
         if (serialDescriptor.getElementAnnotations(i).any { it is XmlValue }) return i
+    }
+    return -1
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun XmlDescriptor.getAttrMap(): Int {
+
+    for (i in 0 until elementsCount) {
+        if (getElementDescriptor(i) is XmlAttributeMapDescriptor) return i
     }
     return -1
 }

@@ -163,7 +163,11 @@ internal open class XmlEncoderBase internal constructor(
         }
     }
 
-    internal inner class NSAttrXmlEncoder(xmlDescriptor: XmlDescriptor, namespaces: Iterable<Namespace>, elementIndex: Int) :
+    internal inner class NSAttrXmlEncoder(
+        xmlDescriptor: XmlDescriptor,
+        namespaces: Iterable<Namespace>,
+        elementIndex: Int
+    ) :
         XmlEncoder(xmlDescriptor, elementIndex) {
 
         private val namespaces = namespaces.toList()
@@ -194,15 +198,15 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
-        override fun encodeByte(value: Byte)  = encodeString(value.toString())
+        override fun encodeByte(value: Byte) = encodeString(value.toString())
 
-        override fun encodeChar(value: Char)  = encodeString(value.toString())
+        override fun encodeChar(value: Char) = encodeString(value.toString())
 
-        override fun encodeDouble(value: Double)  = encodeString(value.toString())
+        override fun encodeDouble(value: Double) = encodeString(value.toString())
 
         override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
             val tagName = xmlDescriptor.getElementDescriptor(index).tagName
-            if (tagName.namespaceURI=="" && tagName.prefix=="") {
+            if (tagName.namespaceURI == "" && tagName.prefix == "") {
                 encodeString(tagName.localPart)
             } else {
                 encodeSerializableValue(QNameSerializer, tagName)
@@ -214,14 +218,14 @@ internal open class XmlEncoderBase internal constructor(
         @ExperimentalSerializationApi
         override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
 
-        override fun encodeInt(value: Int)  = encodeString(value.toString())
+        override fun encodeInt(value: Int) = encodeString(value.toString())
 
-        override fun encodeLong(value: Long)  = encodeString(value.toString())
+        override fun encodeLong(value: Long) = encodeString(value.toString())
 
         @ExperimentalSerializationApi
         override fun encodeNull() = Unit
 
-        override fun encodeShort(value: Short)  = encodeString(value.toString())
+        override fun encodeShort(value: Short) = encodeString(value.toString())
 
         override fun encodeString(value: String) {
             output.append(value)
@@ -246,7 +250,24 @@ internal open class XmlEncoderBase internal constructor(
             is PrimitiveKind -> throw AssertionError("A primitive is not a composite")
 
             SerialKind.CONTEXTUAL, // TODO handle contextual in a more elegant way
-            StructureKind.MAP,
+            StructureKind.MAP -> when {
+                xmlDescriptor.outputKind == OutputKind.Attribute -> {
+                    val valueType = xmlDescriptor.getElementDescriptor(1)
+                    if (!valueType.effectiveOutputKind.isTextual &&
+                        valueType.overriddenSerializer != XmlQNameSerializer
+                    ) {
+                        throw XmlSerialException("Values of an attribute map must be textual or a qname")
+                    }
+                    val keyType = xmlDescriptor.getElementDescriptor(0)
+                    if (keyType.overriddenSerializer != XmlQNameSerializer &&
+                        !keyType.effectiveOutputKind.isTextual
+                    ) {
+                        throw XmlSerialException("The keys of an attribute map must be string or qname")
+                    }
+                    AttributeMapEncoder(xmlDescriptor)
+                }
+                else -> TagEncoder(xmlDescriptor)
+            }
             StructureKind.CLASS,
             StructureKind.OBJECT,
             SerialKind.ENUM -> TagEncoder(xmlDescriptor)
@@ -698,6 +719,45 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+    }
+
+    internal inner class AttributeMapEncoder(xmlDescriptor: XmlDescriptor) : TagEncoder<XmlDescriptor>(xmlDescriptor) {
+        lateinit var key: QName
+        override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
+            deferred()
+        }
+
+        override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
+            when (index % 2) {
+                0 -> key = QName(value)
+                1 -> smartWriteAttribute(key, value, null)
+            }
+        }
+
+        override fun <T> encodeSerializableElement(
+            elementDescriptor: XmlDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T
+        ) {
+            if (index % 2 == 0) {
+                key = when (elementDescriptor.overriddenSerializer) {
+                    XmlQNameSerializer -> value as QName
+                    else -> QName(PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
+                        encodeSerializableValue(serializer, value)
+                    }.output.toString())
+                }
+            } else {
+                val value = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
+                    encodeSerializableValue(serializer, value)
+                }.output.toString()
+                doWriteAttribute(index, key, value)
+            }
+        }
+
+        override fun writeBegin() {}
+
+        override fun endStructure(descriptor: SerialDescriptor) {}
     }
 
     internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :

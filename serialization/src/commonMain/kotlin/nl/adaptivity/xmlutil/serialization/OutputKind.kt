@@ -21,5 +21,15 @@
 package nl.adaptivity.xmlutil.serialization
 
 public enum class OutputKind {
-    Element, Attribute, Text, Mixed, Inline;
+    Element,
+    Attribute {
+        override val isTextual: Boolean get() = true
+    },
+    Text {
+        override val isTextual: Boolean get() = true
+    },
+    Mixed,
+    Inline;
+
+    public open val isTextual: Boolean get() = false
 }
