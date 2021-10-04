@@ -54,6 +54,10 @@ internal open class XmlEncoderBase internal constructor(
         override val serializersModule get() = this@XmlEncoderBase.serializersModule
         override val config: XmlConfig get() = this@XmlEncoderBase.config
 
+        override fun ensureNamespace(qName: QName): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName)
+        }
+
         override fun encodeBoolean(value: Boolean) =
             encodeString(value.toString())
 
@@ -192,6 +196,10 @@ internal open class XmlEncoderBase internal constructor(
         override val serialName: QName get() = xmlDescriptor.tagName
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
+        override fun ensureNamespace(qName: QName): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName)
+        }
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
             throw IllegalArgumentException("Primitives cannot be structs")
         }
@@ -318,6 +326,10 @@ internal open class XmlEncoderBase internal constructor(
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
+
+        override fun ensureNamespace(qName: QName): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName)
+        }
 
         private val deferredBuffer =
             mutableListOf<Pair<Int, CompositeEncoder.() -> Unit>>()

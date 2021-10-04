@@ -28,6 +28,12 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
+    init { // Record also for the first element
+        for(ns in delegate.namespaceContext) {
+            namespaceHolder.addPrefixToContext(ns)
+        }
+    }
+
     @XmlUtilInternal
     protected abstract val hasPeekItems: Boolean
 
@@ -102,7 +108,8 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             return when (val c = current) {
                 is StartElementEvent -> c.namespaceContext
                 is EndElementEvent -> c.namespaceContext
-                else -> delegate.namespaceContext // We are not in a place that could introduce more, so use the delegate directly
+                else -> namespaceHolder.namespaceContext
+                    //delegate.namespaceContext // We are not in a place that could introduce more, so use the delegate directly
             }
         }
 
