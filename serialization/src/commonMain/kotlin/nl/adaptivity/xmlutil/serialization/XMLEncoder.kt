@@ -712,6 +712,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalSerializationApi::class)
         override fun <T> encodeSerializableElement(
             elementDescriptor: XmlDescriptor,
             index: Int,
@@ -734,15 +735,15 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     internal inner class AttributeMapEncoder(xmlDescriptor: XmlDescriptor) : TagEncoder<XmlDescriptor>(xmlDescriptor) {
-        lateinit var key: QName
+        lateinit var entryKey: QName
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             when (index % 2) {
-                0 -> key = QName(value)
-                1 -> smartWriteAttribute(key, value, null)
+                0 -> entryKey = QName(value)
+                1 -> smartWriteAttribute(entryKey, value, null)
             }
         }
 
@@ -753,17 +754,17 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             if (index % 2 == 0) {
-                key = when (elementDescriptor.overriddenSerializer) {
+                entryKey = when (elementDescriptor.overriddenSerializer) {
                     XmlQNameSerializer -> value as QName
                     else -> QName(PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                         encodeSerializableValue(serializer, value)
                     }.output.toString())
                 }
             } else {
-                val value = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
+                val entryValue = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                     encodeSerializableValue(serializer, value)
                 }.output.toString()
-                doWriteAttribute(index, key, value)
+                doWriteAttribute(index, entryKey, entryValue)
             }
         }
 
