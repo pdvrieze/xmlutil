@@ -155,6 +155,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            @Suppress("UNCHECKED_CAST")
             val deser: DeserializationStrategy<T> =
                 (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
             /*
@@ -195,6 +196,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            @Suppress("UNCHECKED_CAST")
             val deser: DeserializationStrategy<T> =
                 (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
 
