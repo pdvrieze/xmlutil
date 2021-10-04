@@ -12,6 +12,8 @@ Features:
   (Using [QNameSerializer] or contextual). The field needs to be annotated with
   `@XmlOtherAttributes`. (Technically other types than QName and String are
   supported, but only if all values will be able to read from that string value)
+- add methods on [XmlInput] and [XmlOutput] to allow custom serializers the
+  ability to ensure a prefix is registered/look it up.
 
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
@@ -19,6 +21,8 @@ Fixes:
 - Fix compact fragments that redeclare the default namespace
 - Fix deserialization of empty types where decodeElementIndex is never called
   (this applies for object)
+- Fix XmlBufferedReader's use of it's own namespace context and initializing
+  it properly for the initial event (adding all visible namespaces).
 
 # 0.83.0 – Changes, here we come
 

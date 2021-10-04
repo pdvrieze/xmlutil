@@ -980,6 +980,16 @@ public class XML constructor(
         public val serialName: QName
 
         /**
+         * Ensure that the prefix of the [qName] is recorded (and the prefix added). This will not
+         * add the actual name anywhere, just ensures the namespace attribute if needed
+         *
+         * @param qName The name to try to ensure is valid
+         * @return The [QName] to use. This may have a different prefix if the prefix for the parameter would be
+         *         conflicting.
+         */
+        public fun ensureNamespace(qName: QName): QName
+
+        /**
          * The XmlWriter used. Can be used directly by serializers
          */
         public val target: XmlWriter
@@ -1000,6 +1010,8 @@ public class XML constructor(
          * The reader used. Can be used directly by serializers
          */
         public val input: XmlReader
+
+        public fun getNamespaceURI(prefix: String): String? = input.namespaceContext.getNamespaceURI(prefix)
     }
 
 
