@@ -28,18 +28,22 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlin.test.Test
 
 class AClassWithPolymorhpicChild : TestPolymorphicBase<AClassWithPolymorhpicChild.Container>(
     Container("lbl", ChildA("data")),
     Container.serializer(),
     baseModule
-                                                                 ) {
+) {
     override val expectedXML: String
         get() = "<Container label=\"lbl\"><childA valueA=\"data\"/></Container>"
     override val expectedJson: String
         get() = "{\"label\":\"lbl\",\"member\":{\"type\":\"nl.adaptivity.xml.serialization.AClassWithPolymorhpicChild.ChildA\",\"valueA\":\"data\"}}"
-    override val expectedNonAutoPolymorphicXML: String get() = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
+    override val expectedNonAutoPolymorphicXML: String
+        get() = "<Container label=\"lbl\"><member type=\".ChildA\"><value valueA=\"data\"/></member></Container>"
 
+    override val expectedXSIPolymorphicXML: String
+        get() = "<Container label=\"lbl\"><member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"childA\" valueA=\"data\"/></Container>"
 
     @Serializable
     data class Container(val label: String, @Polymorphic val member: Base)

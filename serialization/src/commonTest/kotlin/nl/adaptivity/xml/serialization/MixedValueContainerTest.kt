@@ -28,6 +28,7 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import kotlin.test.Test
 
 class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainerTest.MixedValueContainer>(
     MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"), "bar")),
@@ -38,13 +39,23 @@ class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainerTest.Mixe
         serializersModule = MixedValueContainer.module()
         encodeDefaults = true
     }
-                                                                        ) {
+) {
     override val expectedXML: String =
         "<MixedValueContainer>foo<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>bar</MixedValueContainer>"
     override val expectedNonAutoPolymorphicXML: String =
         "<MixedValueContainer><data type=\"kotlin.String\"><value>foo</value></data><data type=\".Address\"><value houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></data><data type=\"kotlin.String\"><value>bar</value></data></MixedValueContainer>"
+    override val expectedXSIPolymorphicXML: String
+        get() = "<MixedValueContainer>" +
+                "<data xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xsd:string\">foo</data>" +
+                "<data xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"address\" houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>" +
+                "<data xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"xsd:string\">bar</data></MixedValueContainer>"
     override val expectedJson: String =
         "{\"data\":[[\"kotlin.String\",\"foo\"],[\"nl.adaptivity.xml.serialization.MixedValueContainerTest.Address\",{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}],[\"kotlin.String\",\"bar\"]]}"
+
+    @Test
+    override fun xsi_serialization_should_work() {
+        super.xsi_serialization_should_work()
+    }
 
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 

@@ -27,4 +27,9 @@ public object XMLConstants {
     public const val XMLNS_ATTRIBUTE: String = "xmlns"
     public const val XML_NS_PREFIX: String = "xml"
     public const val XML_NS_URI: String = "http://www.w3.org/XML/1998/namespace"
+    public const val XSI_PREFIX: String = "xsi"
+    public const val XSI_NS_URI: String = "http://www.w3.org/2001/XMLSchema-instance"
+    public const val XSD_PREFIX: String = "xsd"
+    public const val XSD_NS_URI: String = "http://www.w3.org/2001/XMLSchema"
+
 }

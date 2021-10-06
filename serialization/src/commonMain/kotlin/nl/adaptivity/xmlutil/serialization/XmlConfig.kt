@@ -37,11 +37,6 @@ import kotlin.jvm.JvmOverloads
  *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
  * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
  *                  characters, everything else as 1
- * @param autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
- *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
- *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
- * @param unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
- *                     but the function can silently ignore it as well.
  * @property policy The policy allows for dynamic configuration of the creation of the XML tree that represents
  *                  the serialized format.
  */
@@ -53,8 +48,10 @@ constructor(
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val indentString: String = "",
     public val policy: XmlSerializationPolicy,
+    public val nilAttribute: Pair<QName, String>? = null
 ) {
 
+    @ExperimentalXmlUtilApi
     @Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
     public constructor(
         repairNamespaces: Boolean = true,
@@ -69,6 +66,7 @@ constructor(
         DefaultXmlSerializationPolicy(false, autoPolymorphic, unknownChildHandler = unknownChildHandler)
     )
 
+    @ExperimentalXmlUtilApi
     @Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
     public constructor(
         repairNamespaces: Boolean = true,
@@ -77,11 +75,14 @@ constructor(
         autoPolymorphic: Boolean = false,
         unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
         policy: XmlSerializationPolicy,
+        nilAttribute: Pair<QName, String>? = null
     ) : this(
         repairNamespaces,
         xmlDeclMode,
         indentString,
-        policy
+        (policy as? DefaultXmlSerializationPolicy)
+            ?.copy(autoPolymorphic = autoPolymorphic, unknownChildHandler = unknownChildHandler) ?: policy,
+        nilAttribute
     )
 
     /**
@@ -111,6 +112,7 @@ constructor(
      */
     public var isCollectingNSAttributes: Boolean = false
 
+    @ExperimentalXmlUtilApi
     @Suppress("DEPRECATION")
     @Deprecated("Use version taking XmlDeclMode")
     @OptIn(ExperimentalSerializationApi::class)
@@ -132,6 +134,7 @@ constructor(
 
     )
 
+    @ExperimentalXmlUtilApi
     @OptIn(ExperimentalSerializationApi::class)
     @Suppress("DEPRECATION")
     @Deprecated("Use version taking XmlDeclMode")
@@ -143,7 +146,7 @@ constructor(
         unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER
     ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     @Suppress("DEPRECATION")
     @JvmOverloads
     public constructor(builder: Builder = Builder()) : this(
@@ -268,6 +271,8 @@ constructor(
          */
         public var isInlineCollapsed: Boolean = true
 
+        public var nilAttribute: Pair<QName, String>? = null
+
         /**
          * This property determines whether the serialization will collect all used namespaces and
          * emits all namespace attributes on the root tag.
@@ -290,6 +295,19 @@ constructor(
                     else -> XmlDeclMode.Auto
                 }
             }
+
+        @OptIn(ExperimentalXmlUtilApi::class)
+        public fun recommended() {
+            autoPolymorphic = true
+            isInlineCollapsed = true
+            indent = 4
+            policy = DefaultXmlSerializationPolicy(
+                false,
+                QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX),
+                XmlEncodeDefault.ANNOTATED,
+                DEFAULT_UNKNOWN_CHILD_HANDLER
+            )
+        }
     }
 
     public companion object {
@@ -309,6 +327,7 @@ constructor(
     }
 }
 
+@ExperimentalXmlUtilApi
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun NonRecoveryUnknownChildHandler.asRecoverable(): UnknownChildHandler {
     return UnknownChildHandler { input, inputKind, descriptor, name, candidates ->

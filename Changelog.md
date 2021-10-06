@@ -14,7 +14,14 @@ Features:
   supported, but only if all values will be able to read from that string value)
 - add methods on [XmlInput] and [XmlOutput] to allow custom serializers the
   ability to ensure a prefix is registered/look it up.
-
+- Support using the xml schema instance namespace type attribute as type
+  discriminator for all reading, and an type discriminator attribute mode
+  specified by the policy. This uses the QName for the type (using existing
+  mechanisms), but amended to map kotlin primitive names to XMLSchema types.
+  Note that this mechanism is only for polymorphic serialization, no
+  substitution happens outside the polymorphic case (the same way that 
+  substitution) needs to be declared in XMLschema.
+  
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
 - Fix/change XmlReader.namespaceDecls (make it a member, not an extension)

@@ -38,6 +38,8 @@ class AClassWithXMLPolymorphicNullableChild : TestPolymorphicBase<AClassWithXMLP
         get() = "<Container4 name=\"name2\"><childA valueA=\"data\"/></Container4>"
     override val expectedNonAutoPolymorphicXML: String
         get() = expectedXML
+    override val expectedXSIPolymorphicXML: String
+        get() = expectedXML
     override val expectedJson: String
         get() = "{\"name\":\"name2\",\"child\":{\"type\":\"nl.adaptivity.xml.serialization.AClassWithXMLPolymorphicNullableChild.ChildA\",\"valueA\":\"data\"}}"
 

@@ -23,6 +23,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
@@ -30,6 +31,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefau
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 
+
+/**
+ *
+ */
 public interface XmlSerializationPolicy {
 
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
@@ -66,6 +71,8 @@ public interface XmlSerializationPolicy {
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): Boolean
+
+    public fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName?
 
     @Suppress("DEPRECATION")
     public fun serialTypeNameToQName(
@@ -179,13 +186,34 @@ public interface XmlSerializationPolicy {
 
 }
 
+public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName {
+    return  xmlDescriptor.typeDescriptor.typeQname
+        ?:serialTypeNameToQName(xmlDescriptor.typeDescriptor.typeNameInfo, xmlDescriptor.tagParent.namespace)
+}
+
+/**
+ * @param autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+ *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
+ *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
+ * @param unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+ *                     but the function can silently ignore it as well.
+ */
 public open class DefaultXmlSerializationPolicy
 @ExperimentalXmlUtilApi constructor(
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean = false,
     public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-    private val unknownChildHandler: UnknownChildHandler
+    private val unknownChildHandler: UnknownChildHandler,
+    private val typeDiscriminatorName: QName? = null,
 ) : XmlSerializationPolicy {
+
+    @ExperimentalXmlUtilApi
+    public constructor(
+        pedantic: Boolean,
+        typeDiscriminatorName: QName,
+        encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+    ): this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
 
     /**
      * Stable constructor that doesn't use experimental api.
@@ -221,6 +249,10 @@ public open class DefaultXmlSerializationPolicy
         autoPolymorphic: Boolean = false,
         unknownChildHandler: NonRecoveryUnknownChildHandler
     ) : this(pedantic, autoPolymorphic, XmlEncodeDefault.ANNOTATED, unknownChildHandler)
+
+    override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
+        return typeDiscriminatorName
+    }
 
     override fun isListEluded(
         serializerParent: SafeParentInfo,
@@ -318,7 +350,22 @@ public open class DefaultXmlSerializationPolicy
         serialName: String,
         parentNamespace: Namespace
     ): QName {
-        return serialName.substringAfterLast('.').toQname(parentNamespace)
+        return when (serialName) {
+            "kotlin.Boolean" -> QName(XMLConstants.XSD_NS_URI, "boolean", XMLConstants.XSD_PREFIX)
+            "kotlin.Byte" -> QName(XMLConstants.XSD_NS_URI, "byte", XMLConstants.XSD_PREFIX)
+            "kotlin.UByte" -> QName(XMLConstants.XSD_NS_URI, "unsignedByte", XMLConstants.XSD_PREFIX)
+            "kotlin.Short" -> QName(XMLConstants.XSD_NS_URI, "short", XMLConstants.XSD_PREFIX)
+            "kotlin.UShort" -> QName(XMLConstants.XSD_NS_URI, "unsignedShort", XMLConstants.XSD_PREFIX)
+            "kotlin.Int" -> QName(XMLConstants.XSD_NS_URI, "int", XMLConstants.XSD_PREFIX)
+            "kotlin.UInt" -> QName(XMLConstants.XSD_NS_URI, "unsignedInt", XMLConstants.XSD_PREFIX)
+            "kotlin.Long" -> QName(XMLConstants.XSD_NS_URI, "long", XMLConstants.XSD_PREFIX)
+            "kotlin.ULong" -> QName(XMLConstants.XSD_NS_URI, "unsignedLong", XMLConstants.XSD_PREFIX)
+            "kotlin.Float",
+            "kotlin.Double" -> QName(XMLConstants.XSD_NS_URI, "double", XMLConstants.XSD_PREFIX)
+            "kotlin.String" -> QName(XMLConstants.XSD_NS_URI, "string", XMLConstants.XSD_PREFIX)
+
+            else -> serialName.substringAfterLast('.').toQname(parentNamespace)
+        }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -488,5 +535,26 @@ public open class DefaultXmlSerializationPolicy
 
     override fun ignoredSerialInfo(message: String) {
         if (pedantic) throw XmlSerialException(message)
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    public fun copy(
+        pedantic: Boolean = this.pedantic,
+        autoPolymorphic: Boolean = this.autoPolymorphic,
+        encodeDefault: XmlEncodeDefault = this.encodeDefault,
+        typeDiscriminatorName: QName? = this.typeDiscriminatorName
+    ): DefaultXmlSerializationPolicy {
+        return DefaultXmlSerializationPolicy(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+    }
+
+    @ExperimentalXmlUtilApi
+    public fun copy(
+        pedantic: Boolean = this.pedantic,
+        autoPolymorphic: Boolean = this.autoPolymorphic,
+        encodeDefault: XmlEncodeDefault = this.encodeDefault,
+        unknownChildHandler: UnknownChildHandler,
+        typeDiscriminatorName: QName? = this.typeDiscriminatorName
+    ): DefaultXmlSerializationPolicy {
+        return DefaultXmlSerializationPolicy(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName)
     }
 }

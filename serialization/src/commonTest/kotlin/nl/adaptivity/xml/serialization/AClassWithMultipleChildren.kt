@@ -38,6 +38,8 @@ class AClassWithMultipleChildren : TestPolymorphicBase<AClassWithMultipleChildre
         get() = "<Container2 name=\"name2\"><childA valueA=\"data\"/><better a=\"1\" b=\"2\" c=\"3\" valueB=\"xxx\"/></Container2>"
     override val expectedNonAutoPolymorphicXML: String
         get() = expectedXML
+    override val expectedXSIPolymorphicXML: String
+        get() = expectedXML
     override val expectedJson: String
         get() = "{\"name\":\"name2\",\"children\":[{\"type\":\"nl.adaptivity.xml.serialization.AClassWithMultipleChildren.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"a\":1,\"b\":2,\"c\":3,\"valueB\":\"xxx\"}]}"
 

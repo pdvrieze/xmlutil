@@ -28,9 +28,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
+import nl.adaptivity.xmlutil.serialization.copy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -99,17 +102,24 @@ abstract class TestPolymorphicBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule,
-    baseJsonFormat: Json = Json{
+    baseJsonFormat: Json = Json {
         defaultJsonTestConfiguration()
         this.serializersModule = serializersModule
     }
-                                     ) :
-    TestBase<T>(value, serializer, serializersModule, XML(serializersModule) { autoPolymorphic = true }, baseJsonFormat) {
+) : TestBase<T>(
+    value,
+    serializer,
+    serializersModule,
+    XML(serializersModule) { autoPolymorphic = true },
+    baseJsonFormat
+) {
 
     abstract val expectedNonAutoPolymorphicXML: String
 
+    abstract val expectedXSIPolymorphicXML: String
+
     @Test
-    fun nonAutoPolymorphic_serialization_should_work() {
+    open fun nonAutoPolymorphic_serialization_should_work() {
         val serialized =
             XML(serializersModule = serializersModule) { autoPolymorphic = false }.encodeToString(serializer, value)
                 .normalizeXml()
@@ -117,11 +127,57 @@ abstract class TestPolymorphicBase<T>(
     }
 
     @Test
-    fun nonAutoPolymorphic_deserialization_should_work() {
+    open fun nonAutoPolymorphic_deserialization_should_work() {
         val actualValue = XML(serializersModule = serializersModule) { autoPolymorphic = false }
             .decodeFromString(serializer, expectedNonAutoPolymorphicXML)
 
         assertEquals(value, actualValue)
     }
 
+    @Test
+    open fun xsi_serialization_should_work() {
+        val serialized =
+            XML(serializersModule = serializersModule) {
+                autoPolymorphic = false
+                policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+            }.encodeToString(serializer, value)
+                .normalizeXml()
+        assertEquals(expectedXSIPolymorphicXML, serialized)
+    }
+
+    @Test
+    open fun xsi_deserialization_should_work() {
+        val actualValue = XML(serializersModule = serializersModule) {
+            autoPolymorphic = false
+            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+        }.decodeFromString(serializer, expectedXSIPolymorphicXML)
+
+        assertEquals(value, actualValue)
+    }
+
+    @Test
+    open fun attribute_discriminator_deserialization_should_work() {
+        val modifiedXml = expectedXSIPolymorphicXML.replace(XMLConstants.XSI_NS_URI, "urn:notquitexsi")
+        val actualValue = XML(serializersModule = serializersModule) {
+            autoPolymorphic = false
+            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi"))
+        }.decodeFromString(serializer, modifiedXml)
+
+        assertEquals(value, actualValue)
+    }
+
+    @Test
+    open fun xsi_deserialization_should_work_implicitly() {
+        val actualValue = XML(serializersModule = serializersModule) {
+            autoPolymorphic = false
+            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+        }.decodeFromString(serializer, expectedXSIPolymorphicXML)
+
+        assertEquals(value, actualValue)
+    }
+
+
+    companion object {
+        val xsiType = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+    }
 }

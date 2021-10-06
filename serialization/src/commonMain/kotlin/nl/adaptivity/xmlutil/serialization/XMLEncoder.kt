@@ -46,7 +46,11 @@ internal open class XmlEncoderBase internal constructor(
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
      */
-    internal open inner class XmlEncoder(xmlDescriptor: XmlDescriptor, private val elementIndex: Int) :
+    internal open inner class XmlEncoder(
+        xmlDescriptor: XmlDescriptor,
+        private val elementIndex: Int,
+        private val discriminatorName: QName? = null
+    ) :
         XmlCodec<XmlDescriptor>(xmlDescriptor), Encoder, XML.XmlOutput {
 
         override val target: XmlWriter get() = this@XmlEncoderBase.target
@@ -115,6 +119,10 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Inline, // shouldn't occur, but treat as element
                 OutputKind.Element -> { // This may occur with list values.
                     target.smartStartTag(serialName) {
+                        if (discriminatorName != null) {
+                            val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor))
+                            smartWriteAttribute(discriminatorName, typeRef.toPrefixed(), serialName.namespaceURI)
+                        }
                         if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
@@ -158,12 +166,11 @@ internal open class XmlEncoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
-            return XmlEncoder(xmlDescriptor.getElementDescriptor(0), elementIndex)
+            return XmlEncoder(xmlDescriptor.getElementDescriptor(0), elementIndex, discriminatorName)
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-
-            return beginEncodeCompositeImpl(xmlDescriptor, elementIndex)
+            return beginEncodeCompositeImpl(xmlDescriptor, elementIndex, discriminatorName)
         }
     }
 
@@ -252,7 +259,11 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    internal fun beginEncodeCompositeImpl(xmlDescriptor: XmlDescriptor, elementIndex: Int): CompositeEncoder {
+    internal fun beginEncodeCompositeImpl(
+        xmlDescriptor: XmlDescriptor,
+        elementIndex: Int,
+        discriminatorName: QName?
+    ): CompositeEncoder {
 
         return when (xmlDescriptor.serialKind) {
             is PrimitiveKind -> throw AssertionError("A primitive is not a composite")
@@ -274,17 +285,17 @@ internal open class XmlEncoderBase internal constructor(
                     }
                     AttributeMapEncoder(xmlDescriptor)
                 }
-                else -> TagEncoder(xmlDescriptor)
+                else -> TagEncoder(xmlDescriptor, discriminatorName)
             }
             StructureKind.CLASS,
             StructureKind.OBJECT,
-            SerialKind.ENUM -> TagEncoder(xmlDescriptor)
+            SerialKind.ENUM -> TagEncoder(xmlDescriptor, discriminatorName)
 
             StructureKind.LIST -> when {
                 xmlDescriptor.outputKind == OutputKind.Attribute ->
                     AttributeListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex)
 
-                else -> ListEncoder(xmlDescriptor as XmlListDescriptor)
+                else -> ListEncoder(xmlDescriptor as XmlListDescriptor, discriminatorName)
             }
 
             is PolymorphicKind -> PolymorphicEncoder(xmlDescriptor as XmlPolymorphicDescriptor)
@@ -293,8 +304,9 @@ internal open class XmlEncoderBase internal constructor(
 
     private inner class InlineEncoder<D : XmlDescriptor>(
         private val parent: TagEncoder<D>,
-        private val childIndex: Int
-    ) : XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex), childIndex) {
+        private val childIndex: Int,
+        discriminatorName: QName? = null
+    ) : XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex), childIndex, discriminatorName) {
         override fun encodeString(value: String) {
             val d = xmlDescriptor.getElementDescriptor(0)
             parent.encodeStringElement(d, childIndex, value)
@@ -321,6 +333,7 @@ internal open class XmlEncoderBase internal constructor(
 
     internal open inner class TagEncoder<D : XmlDescriptor>(
         xmlDescriptor: D,
+        protected val discriminatorName: QName?,
         private var deferring: Boolean = true
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeEncoder, XML.XmlOutput {
 
@@ -339,6 +352,10 @@ internal open class XmlEncoderBase internal constructor(
 
         open fun writeBegin() {
             target.smartStartTag(serialName)
+            if (discriminatorName != null) {
+                val typeName = ensureNamespace(config.policy.typeQName(xmlDescriptor))
+                smartWriteAttribute(discriminatorName, typeName.toPrefixed(), serialName.namespaceURI)
+            }
         }
 
         open fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
@@ -397,7 +414,7 @@ internal open class XmlEncoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
-            return InlineEncoder(this, index)
+            return InlineEncoder(this, index, null)
         }
 
         @ExperimentalSerializationApi
@@ -649,6 +666,7 @@ internal open class XmlEncoderBase internal constructor(
     internal inner class PolymorphicEncoder(xmlDescriptor: XmlPolymorphicDescriptor) :
         TagEncoder<XmlPolymorphicDescriptor>(
             xmlDescriptor,
+            discriminatorName = null,
             deferring = false
         ), XML.XmlOutput {
 
@@ -660,15 +678,16 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun writeBegin() {
-            // Don't write a tag if we are transparent
-            if (!xmlDescriptor.isTransparent) super.writeBegin()
+            // write the if we're in tag mode
+            if (xmlDescriptor.polymorphicMode == PolymorphicMode.TAG) super.writeBegin()
         }
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
+            val polymorphicMode = xmlDescriptor.polymorphicMode
             when {
                 index == 0 -> {
-                    if (!xmlDescriptor.isTransparent) {
+                    if (polymorphicMode == PolymorphicMode.TAG) { // Don't write for non-tag mode
                         val childDesc =
                             xmlDescriptor.getElementDescriptor(0)
 
@@ -694,7 +713,7 @@ internal open class XmlEncoderBase internal constructor(
                         }
                     } // else if (index == 0) { } // do nothing
                 }
-                xmlDescriptor.isTransparent -> {
+                polymorphicMode == PolymorphicMode.TRANSPARENT -> {
                     when {
                         isMixed -> target.text(value)
                         else -> target.smartStartTag(serialName) {
@@ -702,6 +721,14 @@ internal open class XmlEncoderBase internal constructor(
                                 value
                             )
                         }
+                    }
+                }
+                polymorphicMode is PolymorphicMode.ATTR -> {
+                    target.smartStartTag(serialName) {
+                        val elementQName = ensureNamespace(config.policy.typeQName(elementDescriptor))
+                        smartWriteAttribute(polymorphicMode.name, elementQName.toPrefixed(), serialName.namespaceURI)
+
+                        text(value)
                     }
                 }
                 else -> super.encodeStringElement(
@@ -721,20 +748,24 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             val childXmlDescriptor =
                 xmlDescriptor.getPolymorphicDescriptor(serializer.descriptor.serialName)
-            val encoder = XmlEncoder(childXmlDescriptor, index)
+
+            val discriminatorName = (xmlDescriptor.polymorphicMode as? PolymorphicMode.ATTR)?.name
+            val encoder = XmlEncoder(childXmlDescriptor, index, discriminatorName)
             serializer.serialize(encoder, value)
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            // Don't write anything if we're transparent
-            if (!xmlDescriptor.isTransparent) {
+            // Only write the tag here if we're not in attribute or transparent mode
+            if (xmlDescriptor.polymorphicMode == PolymorphicMode.TAG) {
                 super.endStructure(descriptor)
             }
         }
 
     }
 
-    internal inner class AttributeMapEncoder(xmlDescriptor: XmlDescriptor) : TagEncoder<XmlDescriptor>(xmlDescriptor) {
+    internal inner class AttributeMapEncoder(xmlDescriptor: XmlDescriptor) :
+        TagEncoder<XmlDescriptor>(xmlDescriptor, null) {
+
         lateinit var entryKey: QName
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
@@ -774,7 +805,7 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :
-        TagEncoder<XmlListDescriptor>(xmlDescriptor) {
+        TagEncoder<XmlListDescriptor>(xmlDescriptor, null) {
         private val valueBuilder = StringBuilder()
 
         init {
@@ -821,8 +852,8 @@ internal open class XmlEncoderBase internal constructor(
      * be wrapped inside a list (unless it is the root). If [XmlChildrenName] is not specified it will determine tag names
      * as if the list was not present and there was a single value.
      */
-    internal inner class ListEncoder(xmlDescriptor: XmlListDescriptor) :
-        TagEncoder<XmlListDescriptor>(xmlDescriptor, deferring = false),
+    internal inner class ListEncoder(xmlDescriptor: XmlListDescriptor, discriminatorName: QName?) :
+        TagEncoder<XmlListDescriptor>(xmlDescriptor, discriminatorName, deferring = false),
         XML.XmlOutput {
 
         override fun defer(

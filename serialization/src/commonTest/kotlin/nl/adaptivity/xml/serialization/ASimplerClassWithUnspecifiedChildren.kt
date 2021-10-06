@@ -40,6 +40,11 @@ class ASimplerClassWithUnspecifiedChildren : TestPolymorphicBase<ASimplerClassWi
         get() = "{\"xxx\":\"name2\",\"member\":[{\"type\":\"nl.adaptivity.xml.serialization.ASimplerClassWithUnspecifiedChildren.ChildA\",\"valueA\":\"data\"},{\"type\":\"childBNameFromAnnotation\",\"a\":4,\"b\":5,\"c\":6,\"valueB\":\"xxx\"},{\"type\":\"nl.adaptivity.xml.serialization.ASimplerClassWithUnspecifiedChildren.ChildA\",\"valueA\":\"yyy\"}]}"
     override val expectedNonAutoPolymorphicXML: String
         get() = "<container-3 xxx=\"name2\"><member type=\"nl.adaptivity.xml.serialization.ASimplerClassWithUnspecifiedChildren.ChildA\"><value valueA=\"data\"/></member><member type=\"childBNameFromAnnotation\"><value a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/></member><member type=\"nl.adaptivity.xml.serialization.ASimplerClassWithUnspecifiedChildren.ChildA\"><value valueA=\"yyy\"/></member></container-3>"
+    override val expectedXSIPolymorphicXML: String
+        get() = "<container-3 xxx=\"name2\">" +
+                "<member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"childA\" valueA=\"data\"/>" +
+                "<member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"childB\" a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/>" +
+                "<member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"childA\" valueA=\"yyy\"/></container-3>"
 
     @Serializable
     open class Base

@@ -36,7 +36,10 @@ class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
         get() = "{\"name\":\"mySealed\",\"members\":[{\"type\":\"nl.adaptivity.xml.serialization.sealed.SealedA\",\"data\":\"a-data\",\"extra\":\"2\"},{\"type\":\"nl.adaptivity.xml.serialization.sealed.SealedB\",\"main\":\"b-data\",\"ext\":0.5}]}"
     override val expectedNonAutoPolymorphicXML: String
         get() = "<Sealed name=\"mySealed\"><member type=\".SealedA\"><value data=\"a-data\" extra=\"2\"/></member><member type=\".SealedB\"><value main=\"b-data\" ext=\"0.5\"/></member></Sealed>"
-
+    override val expectedXSIPolymorphicXML: String
+        get() = "<Sealed name=\"mySealed\">" +
+                "<member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"SealedA\" data=\"a-data\" extra=\"2\"/>" +
+                "<member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"SealedB_renamed\" main=\"b-data\" ext=\"0.5\"/></Sealed>"
 }
 
 @Serializable
