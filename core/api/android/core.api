@@ -194,6 +194,10 @@ public final class nl/adaptivity/xmlutil/XMLConstants {
 	public static final field XMLNS_ATTRIBUTE_NS_URI Ljava/lang/String;
 	public static final field XML_NS_PREFIX Ljava/lang/String;
 	public static final field XML_NS_URI Ljava/lang/String;
+	public static final field XSD_NS_URI Ljava/lang/String;
+	public static final field XSD_PREFIX Ljava/lang/String;
+	public static final field XSI_NS_URI Ljava/lang/String;
+	public static final field XSI_PREFIX Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil/XmlReader {

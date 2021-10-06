@@ -479,6 +479,12 @@ public class XmlCompositeDescriptor internal constructor(
     }
 }
 
+public sealed class PolymorphicMode {
+    public object TRANSPARENT: PolymorphicMode()
+    public object TAG: PolymorphicMode()
+    public class ATTR(public val name: QName): PolymorphicMode()
+}
+
 public class XmlPolymorphicDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
@@ -492,21 +498,29 @@ public class XmlPolymorphicDescriptor internal constructor(
     override val outputKind: OutputKind =
         xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute = false)
 
-    public val isTransparent: Boolean
+    public val polymorphicMode: PolymorphicMode
+    public val isTransparent: Boolean get() = polymorphicMode == PolymorphicMode.TRANSPARENT
     public val polyInfo: Map<String, XmlDescriptor>
 
     init {
         val xmlPolyChildren = tagParent.elementUseAnnotations.firstOrNull<XmlPolyChildren>()
 
         // xmlPolyChildren and sealed also leads to a transparent polymorphic
-        isTransparent = xmlCodecBase.config.policy.isTransparentPolymorphic(serializerParent, tagParent)
+        val polyAttrName = xmlCodecBase.config.policy.polymorphicDiscriminatorName(serializerParent, tagParent)
+        polymorphicMode = when {
+            xmlCodecBase.config.policy.isTransparentPolymorphic(serializerParent, tagParent) ->
+                PolymorphicMode.TRANSPARENT
+            polyAttrName == null -> PolymorphicMode.TAG
+            else -> PolymorphicMode.ATTR(polyAttrName)
+        }
 
         @OptIn(ExperimentalSerializationApi::class)
         polyInfo = mutableMapOf<String, XmlDescriptor>().also { map ->
 
-            val qName = when {
-                isTransparent -> null
-                else -> from(xmlCodecBase, ParentInfo(this, 1), canBeAttribute = false).tagName
+            val qName = when(polymorphicMode) {
+                PolymorphicMode.TRANSPARENT -> null
+                PolymorphicMode.TAG -> from(xmlCodecBase, ParentInfo(this, 1), canBeAttribute = false).tagName
+                is PolymorphicMode.ATTR -> tagName
             }
 
             when {
