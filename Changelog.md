@@ -1,4 +1,4 @@
-# 0.83.1
+# 0.84.0
 *()<br />*
 Features:
 - Add `@XmlCData` annotation to force serialization as CData for a type (#71)
