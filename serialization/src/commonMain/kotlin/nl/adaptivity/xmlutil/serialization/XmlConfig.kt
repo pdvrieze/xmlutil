@@ -72,16 +72,26 @@ constructor(
         repairNamespaces: Boolean = true,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         indentString: String = "",
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        autoPolymorphic: Boolean? = false,
+        unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         policy: XmlSerializationPolicy,
         nilAttribute: Pair<QName, String>? = null
     ) : this(
         repairNamespaces,
         xmlDeclMode,
         indentString,
-        (policy as? DefaultXmlSerializationPolicy)
-            ?.copy(autoPolymorphic = autoPolymorphic, unknownChildHandler = unknownChildHandler) ?: policy,
+        (policy as? DefaultXmlSerializationPolicy)?.run {
+            when {
+                autoPolymorphic == null && unknownChildHandler == null ->
+                    copy()
+                autoPolymorphic == null ->
+                    copy(unknownChildHandler = unknownChildHandler!!)
+                unknownChildHandler==null ->
+                    copy(autoPolymorphic=autoPolymorphic)
+                else ->
+                    copy()
+            }
+        } ?: policy,
         nilAttribute
     )
 
@@ -153,14 +163,15 @@ constructor(
         builder.repairNamespaces,
         builder.xmlDeclMode,
         builder.indentString,
-        builder.autoPolymorphic,
-        builder.unknownChildHandler,
+        null,
+        null,
         builder.policy ?: DefaultXmlSerializationPolicy(
-            false,
-            builder.autoPolymorphic,
-            builder.encodeDefault,
-            builder.unknownChildHandler
-        )
+            pedantic = false,
+            autoPolymorphic = builder.autoPolymorphic ?: false,
+            encodeDefault = builder.encodeDefault,
+            unknownChildHandler = builder.unknownChildHandler ?: DEFAULT_UNKNOWN_CHILD_HANDLER
+        ),
+        builder.nilAttribute
     ) {
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
@@ -196,8 +207,8 @@ constructor(
         public var repairNamespaces: Boolean = true,
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
-        public var autoPolymorphic: Boolean = false,
-        public var unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        public var autoPolymorphic: Boolean? = null,
+        public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @ExperimentalXmlUtilApi
         public var policy: XmlSerializationPolicy? = null
     ) {
@@ -210,6 +221,20 @@ constructor(
             unknownChildHandler: NonRecoveryUnknownChildHandler,
             policy: XmlSerializationPolicy? = null
         ) :this(repairNamespaces, xmlDeclMode, indentString, autoPolymorphic, unknownChildHandler.asRecoverable(), policy)
+
+        public constructor(config: XmlConfig) : this(
+            config.repairNamespaces,
+            config.xmlDeclMode,
+            config.indentString,
+            (config.policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic,
+            null,
+            config.policy
+        ) {
+            this.nilAttribute = config.nilAttribute
+            this.isInlineCollapsed = config.isInlineCollapsed
+            this.isCollectingNSAttributes = config.isCollectingNSAttributes
+        }
+
 
         @OptIn(ExperimentalSerializationApi::class)
         @Deprecated("Use version taking XmlDeclMode")

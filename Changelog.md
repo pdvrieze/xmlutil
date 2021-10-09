@@ -21,6 +21,9 @@ Features:
   Note that this mechanism is only for polymorphic serialization, no
   substitution happens outside the polymorphic case (the same way that 
   substitution) needs to be declared in XMLschema.
+- Support using XMLSchema instance nil attributes (or a user configured
+  alternative). The nil attribute is recognized unconditionally, but only
+  written if specified.
   
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC

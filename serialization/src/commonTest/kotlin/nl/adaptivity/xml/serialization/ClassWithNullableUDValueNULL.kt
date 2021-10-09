@@ -21,18 +21,66 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.ContainerOfUserNullable>(
     ContainerOfUserNullable(null),
     ContainerOfUserNullable.serializer()
-                                                                                                   ) {
+) {
     override val expectedXML: String = "<ContainerOfUserNullable/>"
     override val expectedJson: String = "{\"data\":null}"
+    val expectedXMLNil: String =
+        "<ContainerOfUserNullable><SimpleUserType xmlns:xsi=\"${XMLConstants.XSI_NS_URI}\" xsi:nil=\"true\"/></ContainerOfUserNullable>"
+
+    @Test
+    fun testSerializeXmlWithXSINil() {
+        val xml = baseXmlFormat.copy { nilAttribute = NIL_ATTRIBUTE_NAME to "true"}
+        val serialized = xml.encodeToString(serializer, value)
+        assertEquals(expectedXMLNil, serialized)
+    }
+
+    @Test
+    fun testDeserializeXmlWithXSINil() {
+        val deserialized = baseXmlFormat.decodeFromString(serializer, expectedXMLNil)
+        assertEquals(value, deserialized)
+    }
+
+    @Test
+    fun testSerializeXmlWithNilAttribute() {
+        val expected =expectedXMLNil
+            .replace(XMLConstants.XSI_NS_URI, "urn:foo")
+            .replace("xmlns:xsi", "xmlns:ns5")
+            .replace("xsi:nil","ns5:isNull")
+            .replace("true", "yes")
+        val xml = baseXmlFormat.copy { nilAttribute = QName("urn:foo", "isNull", "ns5") to "yes"}
+        val serialized = xml.encodeToString(serializer, value)
+        assertEquals(expected, serialized)
+    }
+
+    @Test
+    fun testDeserializeXmlWithNilAttribute() {
+        val serializedXml =expectedXMLNil
+            .replace(XMLConstants.XSI_NS_URI, "urn:foo")
+            .replace("xmlns:xsi", "xmlns:tada")
+            .replace("xsi:nil","tada:isNull")
+            .replace("true", "yes")
+        val xml = baseXmlFormat.copy { nilAttribute = QName("urn:foo", "isNull", "ns5") to "yes"}
+        val newValue = xml.decodeFromString(serializer, serializedXml)
+        assertEquals(value, newValue)
+    }
 
     @Serializable
     data class ContainerOfUserNullable(val data: SimpleUserType?)
 
     @Serializable
     data class SimpleUserType(val data: String)
+
+
+    companion object {
+        val NIL_ATTRIBUTE_NAME = QName(XMLConstants.XSI_NS_URI, "nil", XMLConstants.XSI_PREFIX)
+    }
 
 }
