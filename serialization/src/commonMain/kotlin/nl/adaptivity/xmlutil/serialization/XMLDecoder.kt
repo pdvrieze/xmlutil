@@ -49,6 +49,20 @@ internal open class XmlDecoderBase internal constructor(
 
     override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
+    fun hasNullMark(): Boolean {
+        if (input.eventType == EventType.START_ELEMENT) {
+            val hasNilAttr = (0 until input.attributeCount).any { i ->
+                (input.getAttributeNamespace(i) == XSI_NS_URI &&
+                        input.getAttributeLocalName(i) == "nil" &&
+                        input.getAttributeValue(i) == "true") ||
+                        (input.getAttributeName(i) == config.nilAttribute?.first &&
+                                input.getAttributeValue(i) == config.nilAttribute!!.second)
+            }
+            if (hasNilAttr) return true // we detected a nullable element
+        }
+        return false
+    }
+
     abstract inner class DecodeCommons(
         xmlDescriptor: XmlDescriptor,
     ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
@@ -119,7 +133,10 @@ internal open class XmlDecoderBase internal constructor(
         protected open val typeDiscriminatorName: QName? get() = null
 
         override fun decodeNotNullMark(): Boolean {
-            // No null values unless the entire document is empty (not sure the parser is happy with it)
+            if (hasNullMark()) return false
+
+            // No null values if we don't have a null mark (or are not looking at an element) unless
+            // the entire document is empty (not sure the parser is happy with it)
             return input.eventType != EventType.END_DOCUMENT
         }
 
@@ -455,6 +472,13 @@ internal open class XmlDecoderBase internal constructor(
         ): T? {
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
+
+            if(hasNullMark()) { // process the element
+                if (input.nextTag() != EventType.END_ELEMENT)
+                    throw SerializationException("Elements with nill tags may not have content")
+                return null
+            }
+
 
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: return null
 

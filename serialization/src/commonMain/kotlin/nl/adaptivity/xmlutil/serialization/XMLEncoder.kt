@@ -148,7 +148,17 @@ internal open class XmlEncoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun encodeNull() {
-            // Null is absence, no mark needed
+            val nilAttr = config.nilAttribute
+            if (xmlDescriptor.outputKind==OutputKind.Element && nilAttr!=null) {
+                target.smartStartTag(serialName) {
+                    if (discriminatorName != null) {
+                        val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor))
+                        smartWriteAttribute(discriminatorName, typeRef.toPrefixed(), serialName.namespaceURI)
+                    }
+                    smartWriteAttribute(nilAttr.first, nilAttr.second, serialName.namespaceURI)
+                }
+            }
+            // Null is absence, no mark needed, except in nil mode
         }
 
         override fun <T> encodeSerializableValue(
@@ -238,7 +248,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeLong(value: Long) = encodeString(value.toString())
 
         @ExperimentalSerializationApi
-        override fun encodeNull() = Unit
+        override fun encodeNull() {}
 
         override fun encodeShort(value: Short) = encodeString(value.toString())
 
@@ -486,13 +496,14 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T?
         ) {
+            val nilAttr = config.nilAttribute
+            val elemDescriptor = xmlDescriptor.getElementDescriptor(index)
             if (value != null) {
                 encodeSerializableElement(descriptor, index, serializer, value)
             } else if (serializer.descriptor.isNullable) {
-                val xmlDescriptor = xmlDescriptor.getElementDescriptor(index)
                 val encoder = when {
-                    xmlDescriptor.doInline -> InlineEncoder(this, index)
-                    else -> XmlEncoder(xmlDescriptor, index)
+                    elemDescriptor.doInline -> InlineEncoder(this, index)
+                    else -> XmlEncoder(elemDescriptor, index)
                 }
 
                 // This should be safe as we are handling the case when a serializer explicitly handles nulls
@@ -501,6 +512,10 @@ internal open class XmlEncoderBase internal constructor(
                 @Suppress("UNCHECKED_CAST")
                 defer(index) {
                     (serializer as SerializationStrategy<T?>).serialize(encoder, null)
+                }
+            } else if (nilAttr!=null && elemDescriptor.effectiveOutputKind == OutputKind.Element) {
+                target.smartStartTag(elemDescriptor.tagName) {
+                    smartWriteAttribute(nilAttr.first, nilAttr.second, elemDescriptor.tagName.namespaceURI)
                 }
             }
 

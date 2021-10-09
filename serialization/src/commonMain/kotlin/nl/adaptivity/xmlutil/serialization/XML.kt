@@ -123,6 +123,16 @@ public class XML constructor(
         configure: XmlConfig.Builder.() -> Unit = {}
     ) : this(XmlConfig.Builder().apply(configure), serializersModule)
 
+    public fun copy(
+        config: XmlConfig = this.config,
+        serializersModule: SerializersModule = this.serializersModule
+    ):XML = XML(config, serializersModule)
+
+    public fun copy(
+        serializersModule: SerializersModule = this.serializersModule,
+        configure: XmlConfig.Builder.() -> Unit,
+    ):XML = XML(XmlConfig.Builder(config).apply(configure), serializersModule)
+
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         return encodeToString(serializer, value, null)
     }
