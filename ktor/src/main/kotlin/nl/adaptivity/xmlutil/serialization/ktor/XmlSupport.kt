@@ -46,7 +46,7 @@ public val DefaultXml: XML = XML {
         pedantic = false,
         autoPolymorphic = true,
         encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-                                          )
+    )
 }
 
 /**
@@ -60,6 +60,6 @@ public val DefaultXml: XML = XML {
 public fun ContentNegotiation.Configuration.xml(
     xml: XML = DefaultXml,
     contentType: ContentType = ContentType.Application.Xml
-                                               ) {
+) {
     register(contentType, XmlStreamConverter(xml))
 }
