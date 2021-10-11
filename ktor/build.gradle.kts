@@ -1,7 +1,3 @@
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.doPublish
-import org.gradle.jvm.tasks.Jar
-
 /*
  * Copyright (c) 2021.
  *
@@ -21,6 +17,10 @@ import org.gradle.jvm.tasks.Jar
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.doPublish
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     kotlin("jvm")
