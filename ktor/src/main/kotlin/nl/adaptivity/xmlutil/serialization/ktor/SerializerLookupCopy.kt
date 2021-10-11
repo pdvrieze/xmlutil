@@ -54,13 +54,13 @@ private fun arraySerializer(type: KType): KSerializer<*> {
     return ArraySerializer(
         elementType.jvmErasure as KClass<Any>,
         elementSerializer as KSerializer<Any>
-                          )
+    )
 }
 
 internal fun serializerFromResponseType(
     context: PipelineContext<Any, ApplicationCall>,
     module: SerializersModule
-                                       ): KSerializer<*>? {
+): KSerializer<*>? {
     val responseType = context.call.response.responseType ?: return null
     return module.serializer(responseType)
 }
@@ -69,20 +69,20 @@ internal fun serializerFromResponseType(
 internal fun guessSerializer(
     value: Any,
     module: SerializersModule
-                            ): KSerializer<*> {
+): KSerializer<*> {
     return when (value) {
-        is JsonElement     -> JsonElement.serializer()
-        is List<*>         -> ListSerializer(value.elementSerializer(module))
-        is Set<*>          -> SetSerializer(value.elementSerializer(module))
-        is Map<*, *>       -> MapSerializer(
+        is JsonElement -> JsonElement.serializer()
+        is List<*> -> ListSerializer(value.elementSerializer(module))
+        is Set<*> -> SetSerializer(value.elementSerializer(module))
+        is Map<*, *> -> MapSerializer(
             value.keys.elementSerializer(module),
             value.values.elementSerializer(module)
-                                           )
+        )
         is Map.Entry<*, *> -> MapEntrySerializer(
             guessSerializer(value.key ?: error("Map.Entry(null, ...) is not supported"), module),
             guessSerializer(value.value ?: error("Map.Entry(..., null) is not supported)"), module)
-                                                )
-        is Array<*>        -> {
+        )
+        is Array<*> -> {
             val componentType = value.javaClass.componentType.kotlin.starProjectedType
             val componentClass =
                 componentType.classifier as? KClass<*> ?: error("Unsupported component type $componentType")
@@ -91,9 +91,9 @@ internal fun guessSerializer(
             (ArraySerializer(
                 componentClass as KClass<Any>,
                 serializerByTypeInfo(componentType) as KSerializer<Any>
-                            ))
+            ))
         }
-        else               -> module.getContextual(value::class)
+        else -> module.getContextual(value::class)
             ?: @OptIn(InternalSerializationApi::class) value::class.serializer()
     }
 }

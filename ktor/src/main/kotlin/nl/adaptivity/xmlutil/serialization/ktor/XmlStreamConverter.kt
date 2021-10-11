@@ -45,12 +45,12 @@ import java.nio.charset.Charset
 public class XmlStreamConverter constructor(
     public var format: XML = DefaultXml,
     private val defaultCharset: Charset = Charsets.UTF_8
-                                           ) : ContentConverter {
+) : ContentConverter {
     override suspend fun convertForSend(
         context: PipelineContext<Any, ApplicationCall>,
         contentType: ContentType,
         value: Any
-                                       ): WriterContent {
+    ): WriterContent {
         try {
             serializerFromResponseType(context, format.serializersModule)?.let {
                 return serializeContent(it, format, value, contentType)
@@ -70,7 +70,7 @@ public class XmlStreamConverter constructor(
         format: XML,
         value: Any,
         contentType: ContentType
-                                ): WriterContent {
+    ): WriterContent {
         return WriterContent(contentType = contentType, body = {
             XmlStreaming.newWriter(this).use { writer ->
                 @Suppress("UNCHECKED_CAST")
@@ -92,6 +92,6 @@ public class XmlStreamConverter constructor(
         return format.decodeFromReader(
             serializer,
             xmlReader
-                                      )
+        )
     }
 }
