@@ -41,12 +41,13 @@ val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "ktor"
+    archivesName.set("ktor")
     version = xmlutil_serial_version
 }
 
 java {
     withSourcesJar()
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -79,7 +80,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-core:$ktor_version")
     testImplementation("io.ktor:ktor-server-netty:$ktor_version")
     testImplementation("ch.qos.logback:logback-classic:$logback_version")
-    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    testImplementation(kotlin("test"))
 }
 
 publishing {
