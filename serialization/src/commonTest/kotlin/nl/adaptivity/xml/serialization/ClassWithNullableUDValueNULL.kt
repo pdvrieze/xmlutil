@@ -38,7 +38,7 @@ class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.Conta
     @Test
     fun testSerializeXmlWithXSINil() {
         val xml = baseXmlFormat.copy { nilAttribute = NIL_ATTRIBUTE_NAME to "true"}
-        val serialized = xml.encodeToString(serializer, value)
+        val serialized = xml.encodeToString(serializer, value).replace(" />", "/>")
         assertEquals(expectedXMLNil, serialized)
     }
 
@@ -56,7 +56,7 @@ class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.Conta
             .replace("xsi:nil","ns5:isNull")
             .replace("true", "yes")
         val xml = baseXmlFormat.copy { nilAttribute = QName("urn:foo", "isNull", "ns5") to "yes"}
-        val serialized = xml.encodeToString(serializer, value)
+        val serialized = xml.encodeToString(serializer, value).replace(" />", "/>")
         assertEquals(expected, serialized)
     }
 
