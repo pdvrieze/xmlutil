@@ -573,6 +573,8 @@ public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/XmlStreaming;
+	public final fun newGenericWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
+	public static synthetic fun newGenericWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
 	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -726,6 +728,35 @@ public final class nl/adaptivity/xmlutil/XmlWriterUtil {
 
 public final class nl/adaptivity/xmlutil/_actualAliassesKt {
 	public static final fun prefixesFor (Ljavax/xml/namespace/NamespaceContext;Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	public final fun getAddTrailingSpaceBeforeEnd ()Z
+	public fun getDepth ()I
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public final fun isRepairNamespaces ()Z
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public final fun setAddTrailingSpaceBeforeEnd (Z)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
 }
 
 public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {

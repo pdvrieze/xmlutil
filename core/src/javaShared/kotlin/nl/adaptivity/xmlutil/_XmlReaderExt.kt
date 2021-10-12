@@ -23,8 +23,7 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter

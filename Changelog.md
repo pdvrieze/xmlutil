@@ -24,6 +24,10 @@ Features:
 - Support using XMLSchema instance nil attributes (or a user configured
   alternative). The nil attribute is recognized unconditionally, but only
   written if specified.
+- Explicitly expose the platform independent writer (KtXmlWriter), it has been
+  moved out of the implementation package, and can also be created by the
+  XmlStreaming object (using newGenericWriter). Serialization can use this
+  writer to have more predictable outputs.
   
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC

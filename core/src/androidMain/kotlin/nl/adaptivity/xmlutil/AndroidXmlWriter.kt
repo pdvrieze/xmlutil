@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
-import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import org.xmlpull.v1.XmlPullParserException

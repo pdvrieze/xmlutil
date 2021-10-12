@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 
 /**
@@ -39,6 +40,8 @@ public expect object XmlStreaming {
     public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter
 
     public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+
+    public fun newGenericWriter(output: Appendable, isRepairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): KtXmlWriter
 
     @Deprecated("Use the version that takes an xmlDeclMode")
     public fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter

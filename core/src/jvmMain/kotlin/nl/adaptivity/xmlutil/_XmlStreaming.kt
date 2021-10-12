@@ -22,6 +22,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import java.io.InputStream
 import java.io.OutputStream
@@ -42,7 +43,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon() {
     private var _factory: XmlStreamingFactory? = StAXStreamingFactory()
 
     private val factory: XmlStreamingFactory
-        get() = _factory ?: serviceLoader.first().apply { _factory = this }
+        get() = _factory ?: serviceLoader.first().also { _factory = it }
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
@@ -62,6 +63,14 @@ public actual object XmlStreaming : XmlStreamingJavaCommon() {
 
     public actual override fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         return factory.newWriter(output, repairNamespaces, xmlDeclMode)
+    }
+
+    public actual fun newGenericWriter(
+        output: Appendable,
+        isRepairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode
+    ): KtXmlWriter {
+        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {

@@ -135,6 +135,10 @@ public final class nl/adaptivity/xmlutil/serialization/XML : kotlinx/serializati
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/modules/SerializersModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZILkotlinx/serialization/modules/SerializersModule;)V
 	public synthetic fun <init> (ZZILkotlinx/serialization/modules/SerializersModule;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/XML;
+	public final fun copy (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/modules/SerializersModule;)Lnl/adaptivity/xmlutil/serialization/XML;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/XML;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/XML;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/modules/SerializersModule;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/XML;
 	public final fun decodeFromReader (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
 	public final fun decodeFromReader (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;)Ljava/lang/Object;
 	public static synthetic fun decodeFromReader$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Ljava/lang/Object;
@@ -308,14 +312,14 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public fun <init> ()V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;)V
+	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;)V
-	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZIZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
@@ -334,19 +338,20 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 
 public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public fun <init> ()V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;IZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
+	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
-	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZIZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun getAutoPolymorphic ()Z
+	public final fun getAutoPolymorphic ()Ljava/lang/Boolean;
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getIndent ()I
 	public final fun getIndentString ()Ljava/lang/String;
@@ -359,7 +364,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
 	public final fun recommended ()V
-	public final fun setAutoPolymorphic (Z)V
+	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
 	public final fun setCollectingNSAttributes (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setIndent (I)V

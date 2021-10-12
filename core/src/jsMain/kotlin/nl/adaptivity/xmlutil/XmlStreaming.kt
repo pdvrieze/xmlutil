@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
@@ -80,6 +81,14 @@ public actual object XmlStreaming {
         xmlDeclMode: XmlDeclMode
     ): XmlWriter {
         return AppendingWriter(output, JSDomWriter(xmlDeclMode))
+    }
+
+    public actual fun newGenericWriter(
+        output: Appendable,
+        isRepairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode
+    ): KtXmlWriter {
+        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
     public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {

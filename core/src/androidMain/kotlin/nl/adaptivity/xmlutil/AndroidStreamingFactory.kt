@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.KtXmlWriter
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import org.xmlpull.v1.XmlPullParserException
 import java.io.*
 import javax.xml.transform.Result
@@ -42,7 +42,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
         encoding: String,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
-                          ): XmlWriter {
+    ): XmlWriter {
         val writer = OutputStreamWriter(outputStream, encoding)
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
