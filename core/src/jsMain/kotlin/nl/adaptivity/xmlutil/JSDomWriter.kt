@@ -125,20 +125,21 @@ public class JSDomWriter constructor(
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
         val cur = requireCurrent("Namespace attribute")
         when {
-            namespacePrefix.isEmpty()
-                // Also ignore setting the namespace to empty if it is set.
-                 -> if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("").isNullOrEmpty()))) {
-                     cur.setAttributeNS(
-                         XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                         XMLConstants.XMLNS_ATTRIBUTE, namespaceUri
-                                       )
-                 }
 
-            else -> cur.setAttributeNS(
-                XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                "${XMLConstants.XMLNS_ATTRIBUTE}:$namespacePrefix",
-                namespaceUri
-                                      )
+            namespacePrefix.isEmpty() -> // Also ignore setting the namespace to empty if it is set.
+                if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("").isNullOrEmpty()))) {
+                    cur.setAttributeNS(
+                        XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                        XMLConstants.XMLNS_ATTRIBUTE, namespaceUri
+                    )
+                }
+
+            else ->
+                cur.setAttributeNS(
+                    XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                    "${XMLConstants.XMLNS_ATTRIBUTE}:$namespacePrefix",
+                    namespaceUri
+                )
         }
     }
 
@@ -150,12 +151,13 @@ public class JSDomWriter constructor(
                 docDelegate = document.implementation.createDocument(
                     namespace ?: "",
                     qname(prefix, localName)
-                                                                    )
-
+                )
+                currentNode = docDelegate
                 for (pending in pendingOperations) {
                     pending(docDelegate!!)
                 }
                 (pendingOperations as MutableList).clear()
+                lastTagDepth = 0
                 currentNode = docDelegate?.firstElementChild
                 return
             }
@@ -231,7 +233,7 @@ public class JSDomWriter constructor(
         val ce = currentNode
         if (ce == null) {
             addToPending { ignorableWhitespace(text) }
-        } else {
+        } else if (ce !is Document) { // There is no way to specify whitespace on a document element
             target.createTextNode(text).let { textNode ->
                 ce.append(textNode)
             }

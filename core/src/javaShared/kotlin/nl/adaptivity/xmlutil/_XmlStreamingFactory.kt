@@ -44,7 +44,7 @@ public actual interface XmlStreamingFactory {
         encoding: String,
         repairNamespaces: Boolean = false,
         omitXmlDecl: Boolean
-                 ): XmlWriter =
+    ): XmlWriter =
         newWriter(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     public fun newWriter(

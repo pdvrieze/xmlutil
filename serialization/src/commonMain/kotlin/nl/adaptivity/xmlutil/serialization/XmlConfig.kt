@@ -24,6 +24,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.jvm.JvmOverloads
@@ -42,13 +43,13 @@ import kotlin.jvm.JvmOverloads
  */
 public class XmlConfig
 @OptIn(ExperimentalSerializationApi::class)
-@Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
-constructor(
+private constructor(
     public val repairNamespaces: Boolean = true,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val indentString: String = "",
     public val policy: XmlSerializationPolicy,
-    public val nilAttribute: Pair<QName, String>? = null
+    public val nilAttribute: Pair<QName, String>? = null,
+    public val xmlVersion: XmlVersion = XmlVersion.XML11
 ) {
 
     @ExperimentalXmlUtilApi
@@ -160,18 +161,17 @@ constructor(
     @Suppress("DEPRECATION")
     @JvmOverloads
     public constructor(builder: Builder = Builder()) : this(
-        builder.repairNamespaces,
-        builder.xmlDeclMode,
-        builder.indentString,
-        null,
-        null,
-        builder.policy ?: DefaultXmlSerializationPolicy(
+        repairNamespaces = builder.repairNamespaces,
+        xmlDeclMode = builder.xmlDeclMode,
+        indentString = builder.indentString,
+        policy = builder.policy ?: DefaultXmlSerializationPolicy(
             pedantic = false,
             autoPolymorphic = builder.autoPolymorphic ?: false,
             encodeDefault = builder.encodeDefault,
             unknownChildHandler = builder.unknownChildHandler ?: DEFAULT_UNKNOWN_CHILD_HANDLER
         ),
-        builder.nilAttribute
+        nilAttribute = builder.nilAttribute,
+        xmlVersion = builder.xmlVersion
     ) {
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
@@ -233,6 +233,7 @@ constructor(
             this.nilAttribute = config.nilAttribute
             this.isInlineCollapsed = config.isInlineCollapsed
             this.isCollectingNSAttributes = config.isCollectingNSAttributes
+            this.xmlVersion = config.xmlVersion
         }
 
 
@@ -297,6 +298,8 @@ constructor(
         public var isInlineCollapsed: Boolean = true
 
         public var nilAttribute: Pair<QName, String>? = null
+
+        public var xmlVersion: XmlVersion = XmlVersion.XML11
 
         /**
          * This property determines whether the serialization will collect all used namespaces and

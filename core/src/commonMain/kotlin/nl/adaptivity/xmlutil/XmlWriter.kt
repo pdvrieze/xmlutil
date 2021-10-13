@@ -124,7 +124,7 @@ public interface XmlWriter : Closeable {
 
     public fun docdecl(text: String)
 
-    public fun startDocument(version: String?, encoding: String?, standalone: Boolean?)
+    public fun startDocument(version: String? = null, encoding: String? = null, standalone: Boolean? = null)
 
     public fun endDocument()
 

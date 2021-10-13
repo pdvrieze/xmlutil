@@ -28,6 +28,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.*
 
@@ -57,6 +59,7 @@ class TestCommon {
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
         val format = XML {
+            xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Charset
             indentString = "    "
         }
@@ -81,6 +84,7 @@ class TestCommon {
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
         val format = XML {
+            xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Minimal
             indentString = "<!--i-->"
         }

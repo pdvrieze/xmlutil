@@ -685,6 +685,7 @@ public final class nl/adaptivity/xmlutil/XmlWriter$DefaultImpls {
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/Namespace;)V
 	public static fun setIndent (Lnl/adaptivity/xmlutil/XmlWriter;I)V
 	public static fun setPrefix (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public static synthetic fun startDocument$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)V
 }
 
 public final class nl/adaptivity/xmlutil/XmlWriterUtil {
@@ -731,8 +732,8 @@ public final class nl/adaptivity/xmlutil/_actualAliassesKt {
 }
 
 public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
-	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
-	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;)V
+	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun cdsect (Ljava/lang/String;)V
 	public fun close ()V
@@ -748,6 +749,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmluti
 	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
 	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public fun ignorableWhitespace (Ljava/lang/String;)V
 	public final fun isRepairNamespaces ()Z
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
@@ -757,6 +759,14 @@ public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmluti
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun text (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/core/XmlVersion : java/lang/Enum {
+	public static final field XML10 Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public static final field XML11 Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public final fun getVersionString ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public static fun values ()[Lnl/adaptivity/xmlutil/core/XmlVersion;
 }
 
 public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {

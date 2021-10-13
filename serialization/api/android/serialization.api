@@ -295,8 +295,6 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig$Builder;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Ljava/lang/Boolean;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;)V
-	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
 	public synthetic fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLkotlin/jvm/functions/Function4;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZLnl/adaptivity/xmlutil/XmlDeclMode;Ljava/lang/String;ZLnl/adaptivity/xmlutil/serialization/UnknownChildHandler;)V
@@ -312,6 +310,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
 	public final fun getRepairNamespaces ()Z
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
 	public final fun setCollectingNSAttributes (Z)V
@@ -342,6 +341,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun getRepairNamespaces ()Z
 	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
 	public final fun recommended ()V
@@ -357,6 +357,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun setRepairNamespaces (Z)V
 	public final fun setUnknownChildHandler (Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;)V
 	public final fun setXmlDeclMode (Lnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public final fun setXmlVersion (Lnl/adaptivity/xmlutil/core/XmlVersion;)V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Companion {

@@ -37,8 +37,12 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 public class KtXmlWriter(
     private val writer: Appendable,
     public val isRepairNamespaces: Boolean = true,
-    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    xmlVersion: XmlVersion = XmlVersion.XML11
 ) : PlatformXmlWriterBase(), XmlWriter {
+
+    public var xmlVersion: XmlVersion = xmlVersion
+        private set
 
     public var addTrailingSpaceBeforeEnd: Boolean = true
 
@@ -98,35 +102,58 @@ public class KtXmlWriter(
         writer.append(endOfTag)
     }
 
-    private fun writeEscapedText(s: String, quot: Int) {
+    private enum class EscapeMode {
+        /**
+         * Escaping characters that may not occur directly anywhere, including in comments or cdata
+         */
+        MINIMAL,
+        ATTRCONTENTQUOT,
+        ATTRCONTENTAPOS,
+        TEXTCONTENT,
+        DTD
+    }
 
-        loop@ for (c in s) {
-            when (c) {
-                '&' -> writer.append("&amp;")
+    private fun Appendable.appendXmlChar(ch: Char, mode: EscapeMode) {
 
-                '>' -> writer.append("&gt;")
+        fun appendNumCharRef(code: Int) {
+            append("&#x").append(code.toString(16)).append(';')
+        }
 
-                '<' -> writer.append("&lt;")
+        fun throwInvalid(code: Int): Nothing {
+            throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
+        }
 
-                '"',
-                '\'' -> {
-                    if (c.code == quot) {
-                        writer.append(if (c == '"') "&quot;" else "&apos;")
-                        break@loop
-                    }
-                    writer.append(c)
-                }
+        val c = ch.code
+        when {
+            c == 0x0 -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
+            ch == '&' -> append("&amp;")
+            ch == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
+            ch == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
+            ch == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
+            ch == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
 
-                '\n',
-                '\r',
-                '\t' -> {
-                    writer.append(c)
-                }
-
-                else -> {
-                    writer.append(c)
+            c in 0x1..0x8 ||
+                    c == 0xB || c == 0xC ||
+                    c in 0xE..0x1F -> when (xmlVersion) {
+                XmlVersion.XML10 -> throwInvalid(c)
+                XmlVersion.XML11 -> {
+                    appendNumCharRef(c)
                 }
             }
+
+            c in 0x7f..0x84 || c in 0x86..0x9f -> when (xmlVersion) {
+                XmlVersion.XML10 -> append(ch)
+                XmlVersion.XML11 -> appendNumCharRef(c)
+            }
+            c in 0xD800..0xDFFF || c == 0xFFFE || c == 0xFFFF -> throwInvalid(c)
+            else -> append(ch)
+
+        }
+    }
+
+    private fun writeEscapedText(s: String, mode: EscapeMode) {
+        loop@ for (c in s) {
+            writer.appendXmlChar(c, mode)
         }
     }
 
@@ -176,7 +203,8 @@ public class KtXmlWriter(
 
     /**
      * {@inheritDoc}
-     * @param version Unfortunately the serializer is forced to version 1.0
+     * @param version The value of the version attribute. This will update the [xmlVersion] property
+     *          where any other version that 1.0 or 1.1 will be interpreted as being 1.1
      */
     override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
@@ -185,13 +213,24 @@ public class KtXmlWriter(
         }
         state = WriteState.AfterXmlDecl
 
-        writer.append("<?xml version='1.0'")
+        val verString = when (version) {
+            null -> xmlVersion.versionString
+            "1",
+            "1.0" -> {
+                xmlVersion = XmlVersion.XML10; version
+            }
+            else -> {
+                xmlVersion = XmlVersion.XML11; version
+            }
+        }
+
+        writer.append("<?xml version='$verString'")
 
         val effectiveEncoding = encoding ?: "UTF-8"
 
         if (xmlDeclMode != XmlDeclMode.Minimal || encoding != null) {
             writer.append(" encoding='")
-            writer.append(effectiveEncoding)
+            writeEscapedText(effectiveEncoding, EscapeMode.ATTRCONTENTAPOS)
             writer.append('\'')
 
             if (standalone != null) {
@@ -200,9 +239,8 @@ public class KtXmlWriter(
                 writer.append('\'')
             }
         }
+        if (addTrailingSpaceBeforeEnd) writer.append(' ')
         writer.append("?>")
-
-        if (indentSequence.isNotEmpty()) writer.appendLine()
     }
 
     override fun docdecl(text: String) {
@@ -288,14 +326,30 @@ public class KtXmlWriter(
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         triggerStartDocument() // No content before XmlDeclaration
 
+        var lastWasHyphen = false
         // TODO escape comment end strings
-        writer.append("<!--").append(text).append("-->")
+        writer.append("<!--")
+        for (ch in text) {
+            when (ch) {
+                '-' -> {
+                    if (lastWasHyphen) {
+                        lastWasHyphen = false
+                        writer.append("&#x2d;")
+                    } else {
+                        lastWasHyphen = true
+                        writer.append('-')
+                    }
+                }
+                else -> writer.appendXmlChar(ch, EscapeMode.MINIMAL)
+            }
+        }
+        writer.append("-->")
     }
 
     override fun text(text: String) {
         finishPartialStartTag(false)
 
-        writeEscapedText(text, -1)
+        writeEscapedText(text, EscapeMode.TEXTCONTENT)
 
         lastTagDepth = TAG_DEPTH_NOT_TAG
     }
@@ -303,7 +357,21 @@ public class KtXmlWriter(
     override fun cdsect(text: String) {
         finishPartialStartTag(false)
         // Handle cdata with close part as element
-        writer.append("<![CDATA[").append(text).append("]]>")
+        var endPos = 0
+        writer.append("<![CDATA[")
+        for (ch in text) {
+            when {
+                ch == ']' && (endPos == 0 || endPos == 1) -> {
+                    ++endPos; writer.append(ch)
+                }
+                ch == '>' && endPos == 2 -> writer.append("&gt;")
+                ch == ']' && endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
+                else -> {
+                    endPos = 0; writer.appendXmlChar(ch, EscapeMode.MINIMAL)
+                }
+            }
+        }
+        writer.append("]]>")
 
         lastTagDepth = TAG_DEPTH_NOT_TAG
     }
@@ -395,9 +463,12 @@ public class KtXmlWriter(
         }
         writer.append(localName).append('=')
 
-        val q = if (value.indexOf('"') == -1) '"' else '\''
+        val (q, mode) = when (value.indexOf('"')) {
+            -1 -> Pair('"', EscapeMode.ATTRCONTENTQUOT)
+            else -> Pair('\'', EscapeMode.ATTRCONTENTAPOS)
+        }
         writer.append(q)
-        writeEscapedText(value, q.code)
+        writeEscapedText(value, mode)
         writer.append(q)
     }
 

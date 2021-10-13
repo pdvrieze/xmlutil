@@ -110,13 +110,10 @@ public class XML constructor(
         omitXmlDecl: Boolean = true,
         indent: Int = 0,
         serializersModule: SerializersModule = EmptySerializersModule
-    )
-            : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), serializersModule)
+    ) : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), serializersModule)
 
-    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule) : this(
-        XmlConfig(config),
-        serializersModule
-    )
+    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule) :
+            this(XmlConfig(config), serializersModule)
 
     public constructor(
         serializersModule: SerializersModule = EmptySerializersModule,
@@ -126,12 +123,12 @@ public class XML constructor(
     public fun copy(
         config: XmlConfig = this.config,
         serializersModule: SerializersModule = this.serializersModule
-    ):XML = XML(config, serializersModule)
+    ): XML = XML(config, serializersModule)
 
     public fun copy(
         serializersModule: SerializersModule = this.serializersModule,
         configure: XmlConfig.Builder.() -> Unit,
-    ):XML = XML(XmlConfig.Builder(config).apply(configure), serializersModule)
+    ): XML = XML(XmlConfig.Builder(config).apply(configure), serializersModule)
 
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         return encodeToString(serializer, value, null)
@@ -223,6 +220,19 @@ public class XML constructor(
         rootName: QName,
     ) {
         target.indentString = config.indentString
+
+        if (target.depth == 0) {
+            @Suppress("NON_EXHAUSTIVE_WHEN")
+            when (config.xmlDeclMode) {
+                XmlDeclMode.Minimal -> {
+                    target.startDocument(config.xmlVersion.versionString)
+                }
+                XmlDeclMode.Charset -> {
+                    // TODO support non-utf8 encoding
+                    target.startDocument(config.xmlVersion.versionString, encoding = "UTF-8")
+                }
+            }
+        }
 
         val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
         val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, rootName)
