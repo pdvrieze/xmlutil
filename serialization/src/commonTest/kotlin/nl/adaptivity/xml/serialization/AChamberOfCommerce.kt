@@ -30,10 +30,10 @@ class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
         "hightech", listOf(
             Business("foo", null),
             Business("bar", null)
-                          )
-           ),
+        )
+    ),
     Chamber.serializer()
-                                                               ) {
+) {
     override val expectedXML: String = "<chamber name=\"hightech\">" +
             "<member name=\"foo\"/>" +
             "<member name=\"bar\"/>" +
@@ -44,7 +44,12 @@ class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
 
     @Serializable
     @XmlSerialName("chamber")
-    data class Chamber(val name: String, @XmlSerialName("member", namespace = "", prefix = "") val members: List<Business>)
+    data class Chamber(
+        val name: String,
+        @XmlSerialName("member", namespace = "", prefix = "")
+        val members: List<Business>
+    )
+
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
@@ -53,8 +58,9 @@ class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
         val houseNumber: String,
         val street: String,
         val city: String,
-        @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+        @XmlElement(false)
+        val status: AddresStatus = AddresStatus.VALID
+    )
 
     @Serializable
     data class Business(val name: String, @XmlSerialName("headOffice", "", "") val headOffice: Address?)
