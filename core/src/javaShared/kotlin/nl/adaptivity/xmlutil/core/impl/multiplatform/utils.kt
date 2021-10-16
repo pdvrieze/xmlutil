@@ -38,3 +38,6 @@ public actual typealias Closeable = java.io.Closeable
 
 public actual typealias Writer = java.io.Writer
 public actual typealias StringWriter = java.io.StringWriter
+
+public actual typealias Reader = java.io.Reader
+public actual typealias StringReader = java.io.StringReader

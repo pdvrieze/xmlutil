@@ -22,11 +22,13 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader
+import java.io.StringReader
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
@@ -93,6 +95,17 @@ public actual object XmlStreaming : XmlStreamingJavaCommon() {
     override fun newReader(inputStr: String): XmlReader {
         return factory.newReader(inputStr)
     }
+
+    public actual fun newGenericReader(input: CharSequence): XmlReader =
+        newGenericReader(StringReader(input.toString()))
+
+    public fun newGenericReader(input: String): XmlReader =
+        newGenericReader(StringReader(input))
+
+    public fun newGenericReader(inputStream: InputStream, encoding: String?): XmlReader =
+        KtXmlReader(inputStream, encoding)
+
+    public actual fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
     public actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory ?: StAXStreamingFactory()

@@ -104,6 +104,34 @@ public actual open class StringWriter : Writer() {
     }
 }
 
+public actual abstract class Reader {
+    public actual open fun read(): Int {
+        val b = CharArray(1)
+        if (read(b, 0, 1) < 0) return -1
+        return b[0].code
+    }
+    public actual abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+}
+
+public actual open class StringReader(private val source: CharSequence): Reader() {
+    private var offset: Int = 0
+
+    override fun read(): Int = when {
+        offset >= source.length -> -1
+        else -> source[offset++].code
+    }
+
+    override fun read(buf: CharArray, offset: Int, len: Int): Int {
+        if (offset >= source.length) return -1
+        val count = minOf(len, source.length - offset)
+        for (i in 0 until count) {
+            buf[i] = source[offset + i]
+        }
+        return count
+    }
+}
+
+
 public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
     try {
         return block(this)

@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 
 /**
@@ -35,6 +36,10 @@ public expect object XmlStreaming {
     public inline fun <reified T : Any> deSerialize(input: String): T
 
     public fun newReader(input: CharSequence): XmlReader
+
+    public fun newGenericReader(input: CharSequence): XmlReader
+
+    public fun newGenericReader(reader: Reader): XmlReader
 
     @Deprecated("Use the version that takes an xmlDeclMode")
     public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter

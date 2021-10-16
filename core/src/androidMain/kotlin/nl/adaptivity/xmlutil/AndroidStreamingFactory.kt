@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import org.xmlpull.v1.XmlPullParserException
 import java.io.*
@@ -60,7 +61,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(reader: Reader): XmlReader {
         try {
-            return AndroidXmlReader(reader)
+            return KtXmlReader(reader)
         } catch (e: XmlPullParserException) {
             throw XmlException(e)
         }
@@ -70,7 +71,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         try {
-            return AndroidXmlReader(inputStream, encoding)
+            return KtXmlReader(inputStream, encoding)
         } catch (e: XmlPullParserException) {
             throw XmlException(e)
         }

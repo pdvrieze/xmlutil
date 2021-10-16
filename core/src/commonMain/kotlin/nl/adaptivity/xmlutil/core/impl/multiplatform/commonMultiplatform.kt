@@ -54,3 +54,10 @@ public expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 public expect abstract class Writer: Appendable
 public expect open class StringWriter(): Writer
+
+public expect abstract class Reader {
+    public open fun read(): Int
+    public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+}
+
+public expect open class StringReader: Reader

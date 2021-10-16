@@ -23,24 +23,17 @@ package nl.adaptivity.xmlutil.core
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.Reader
+import nl.adaptivity.xmlutil.core.impl.isIgnorableWhitespace
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 
 @ExperimentalXmlUtilApi
-public class KtXmlReader private constructor(
-    private var reader: Reader,
+public class KtXmlReader internal constructor(
+    private val reader: Reader,
     encoding: String?,
-    srcBuf: CharArray,
-    srcBufPos: Int = 0,
-    srcBufCount: Int = 0,
-): XmlReader {
+    public val relaxed: Boolean = false
+) : XmlReader {
 
-    public constructor(reader: Reader) : this(
-        reader,
-        null,
-        CharArray(if (Runtime.getRuntime().freeMemory() >= 1048576) 8192 else 128)
-    )
+    public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
 
     private var line = 1
     private var column = 0
@@ -74,11 +67,11 @@ public class KtXmlReader private constructor(
 
     public override var standalone: Boolean? = null
 
-    private var srcBuf = srcBuf
+    private val srcBuf = CharArray(8192)
 
-    private var srcBufPos: Int = srcBufPos
+    private var srcBufPos: Int = 0
 
-    private var srcBufCount: Int = srcBufCount
+    private var srcBufCount: Int = 0
 
     /**
      * A separate peek buffer seems simpler than managing
@@ -93,31 +86,6 @@ public class KtXmlReader private constructor(
         it["gt"] = ">"
         it["lt"] = "<"
         it["quot"] = "\""
-    }
-
-    private fun setInput(reader: Reader) {
-        this.reader = reader
-        line = 1
-        column = 0
-        _eventType = START_DOCUMENT
-        _name = null
-        _namespace = null
-        isSelfClosing = false
-        attributeCount = -1
-        encoding = null
-        version = null
-        standalone = null
-
-        srcBufPos = 0
-        srcBufCount = 0
-        peekCount = 0
-
-        entityMap = HashMap()
-        entityMap["amp"] = "&"
-        entityMap["apos"] = "'"
-        entityMap["gt"] = ">"
-        entityMap["lt"] = "<"
-        entityMap["quot"] = "\""
     }
 
     private var location: Any? = null
@@ -160,115 +128,6 @@ public class KtXmlReader private constructor(
         get() = namespaceHolder.namespaceContext
 
 
-    public fun setInput(inputStream: InputStream, encoding: String? = null) {
-        srcBufPos = 0
-        srcBufCount = 0
-        var enc = encoding
-
-        try {
-            if (enc == null) {
-                // read four bytes
-                var chk = 0
-                while (srcBufCount < 4) {
-                    val i: Int = inputStream.read()
-                    if (i == -1) break
-                    chk = chk shl 8 or i
-                    srcBuf[srcBufCount++] = i.toChar()
-                }
-                if (srcBufCount == 4) {
-                    when (chk) {
-                        0x00000FEFF -> {
-                            enc = "UTF-32BE"
-                            srcBufCount = 0
-                        }
-                        -0x20000 -> {
-                            enc = "UTF-32LE"
-                            srcBufCount = 0
-                        }
-                        0x03c -> {
-                            enc = "UTF-32BE"
-                            srcBuf[0] = '<'
-                            srcBufCount = 1
-                        }
-                        0x03c000000 -> {
-                            enc = "UTF-32LE"
-                            srcBuf[0] = '<'
-                            srcBufCount = 1
-                        }
-                        0x0003c003f -> {
-                            enc = "UTF-16BE"
-                            srcBuf[0] = '<'
-                            srcBuf[1] = '?'
-                            srcBufCount = 2
-                        }
-                        0x03c003f00 -> {
-                            enc = "UTF-16LE"
-                            srcBuf[0] = '<'
-                            srcBuf[1] = '?'
-                            srcBufCount = 2
-                        }
-                        0x03c3f786d -> {
-                            while (true) {
-                                val i: Int = inputStream.read()
-                                if (i == -1) break
-                                srcBuf[srcBufCount++] = i.toChar()
-                                if (i == '>'.code) {
-                                    val s = String(srcBuf, 0, srcBufCount)
-                                    var i0 = s.indexOf("encoding")
-                                    if (i0 != -1) {
-                                        while (s[i0] != '"'
-                                            && s[i0] != '\''
-                                        ) i0++
-                                        val deli = s[i0++]
-                                        val i1 = s.indexOf(deli, i0)
-                                        enc = s.substring(i0, i1)
-                                    }
-                                    break
-                                }
-                            }
-                            if (chk and -0x10000 == -0x1010000) {
-                                enc = "UTF-16BE"
-                                srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                                srcBufCount = 1
-                            } else if (chk and -0x10000 == -0x20000) {
-                                enc = "UTF-16LE"
-                                srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                                srcBufCount = 1
-                            } else if (chk and -0x100 == -0x10444100) {
-                                enc = "UTF-8"
-                                srcBuf[0] = srcBuf[3]
-                                srcBufCount = 1
-                            }
-                        }
-                        else -> if (chk and -0x10000 == -0x1010000) {
-                            enc = "UTF-16BE"
-                            srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                            srcBufCount = 1
-                        } else if (chk and -0x10000 == -0x20000) {
-                            enc = "UTF-16LE"
-                            srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                            srcBufCount = 1
-                        } else if (chk and -0x100 == -0x10444100) {
-                            enc = "UTF-8"
-                            srcBuf[0] = srcBuf[3]
-                            srcBufCount = 1
-                        }
-                    }
-                }
-            }
-            if (enc == null) enc = "UTF-8"
-            val sc = srcBufCount
-            setInput(InputStreamReader(inputStream, enc))
-            this.encoding = encoding
-            srcBufCount = sc
-        } catch (e: java.lang.Exception) {
-            throw XmlException(
-                "Invalid stream or encoding: " + e.toString(),
-                this,
-                e
-            )
-        }
-    }
 
 
     override fun close() {
@@ -304,14 +163,7 @@ public class KtXmlReader private constructor(
 
                 //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
 
-                //System.out.println (prefixMap);
-                System.arraycopy(
-                    attributes,
-                    i + 4,
-                    attributes,
-                    i,
-                    (--attributeCount shl 2) - i
-                )
+                attributes.copyInto(attributes, i, i+4, ((attributeCount--) * 4))
                 i -= 4
             }
             i += 4
@@ -322,14 +174,12 @@ public class KtXmlReader private constructor(
                 var attrName = attributes[i + 2]!!
                 val cIndex = attrName.indexOf(':')
                 if (cIndex == 0 && !relaxed) {
-                    throw java.lang.RuntimeException("illegal attribute name: $attrName at $this")
+                    throw RuntimeException("illegal attribute name: $attrName at $this")
                 } else if (cIndex != -1) {
                     val attrPrefix = attrName.substring(0, cIndex)
                     attrName = attrName.substring(cIndex + 1)
                     val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
-                    if (attrNs == null && !relaxed) throw java.lang.RuntimeException(
-                        "Undefined Prefix: $attrPrefix in $this"
-                    )
+                    if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
                     attributes[i] = attrNs
                     attributes[i + 1] = attrPrefix
                     attributes[i + 2] = attrName
@@ -361,9 +211,8 @@ public class KtXmlReader private constructor(
 
     private fun ensureCapacity(arr: Array<String?>, required: Int): Array<String?> {
         if (arr.size >= required) return arr
-        val bigger = arrayOfNulls<String>(required + 16)
-        System.arraycopy(arr, 0, bigger, 0, arr.size)
-        return bigger
+
+        return arr.copyOf(required + 16)
     }
 
     private fun error(desc: String) {
@@ -581,7 +430,6 @@ public class KtXmlReader private constructor(
         }
     }
 
-    @Throws(java.io.IOException::class)
     private fun peekType(): EventType {
         return when (peek(0)) {
             -1 -> END_DOCUMENT
@@ -597,15 +445,13 @@ public class KtXmlReader private constructor(
     }
 
     private operator fun get(pos: Int): String {
-        return String(txtBuf, pos, txtBufPos - pos)
+        return txtBuf.concatToString(pos, pos + (txtBufPos - pos))
     }
 
     private fun push(c: Int) {
         isWhitespace = isWhitespace and (c <= ' '.code)
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            val bigger = CharArray(txtBufPos * 4 / 3 + 4)
-            System.arraycopy(txtBuf, 0, bigger, 0, txtBufPos)
-            txtBuf = bigger
+            txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
         }
         if (c > 0xffff) {
             // write high Unicode value as surrogate pair
@@ -768,7 +614,6 @@ public class KtXmlReader private constructor(
         if (a != c.code) error("expected: '" + c + "' actual: '" + a.toChar() + "'")
     }
 
-    @Throws(java.io.IOException::class)
     private fun read(): Int {
         val result: Int
         if (peekCount == 0) result = peek(0) else {
@@ -786,7 +631,6 @@ public class KtXmlReader private constructor(
     }
 
     /** Does never read more than needed  */
-    @Throws(java.io.IOException::class)
     private fun peek(pos: Int): Int {
         while (pos >= peekCount) {
             var nw: Int
@@ -832,7 +676,6 @@ public class KtXmlReader private constructor(
         return result
     }
 
-    @Throws(java.io.IOException::class)
     private fun skip() {
         while (true) {
             val c = peek(0)
@@ -949,22 +792,22 @@ public class KtXmlReader private constructor(
     }
 
     override fun getAttributeNamespace(index: Int): String {
-        if (index >= attributeCount) throw java.lang.IndexOutOfBoundsException()
+        if (index >= attributeCount) throw IndexOutOfBoundsException()
         return attributes[index shl 2]!!
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        if (index >= attributeCount) throw java.lang.IndexOutOfBoundsException()
+        if (index >= attributeCount) throw IndexOutOfBoundsException()
         return attributes[(index shl 2) + 2]!!
     }
 
     override fun getAttributePrefix(index: Int): String {
-        if (index >= attributeCount) throw java.lang.IndexOutOfBoundsException()
+        if (index >= attributeCount) throw IndexOutOfBoundsException()
         return attributes[(index shl 2) + 1]!!
     }
 
     override fun getAttributeValue(index: Int): String {
-        if (index >= attributeCount) throw java.lang.IndexOutOfBoundsException()
+        if (index >= attributeCount) throw IndexOutOfBoundsException()
         return attributes[(index shl 2) + 3]!!
     }
 
@@ -1042,11 +885,7 @@ public class KtXmlReader private constructor(
     private companion object {
         const val UNEXPECTED_EOF = "Unexpected EOF"
         const val ILLEGAL_TYPE = "Wrong event type"
-        const val LEGACY = 999
-        const val XML_DECL = 998
 
         const val processNsp = true
-        const val relaxed = false
-
     }
 }

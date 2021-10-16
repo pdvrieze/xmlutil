@@ -28,6 +28,8 @@ Features:
   moved out of the implementation package, and can also be created by the
   XmlStreaming object (using newGenericWriter). Serialization can use this
   writer to have more predictable outputs.
+- Create (based upon kxml2) a platform independent parser (KtXmlReader) in line
+  with the writer.
 - Support generating xml in either version 1.0 or 1.1 (with the platform
   independent writer)
   

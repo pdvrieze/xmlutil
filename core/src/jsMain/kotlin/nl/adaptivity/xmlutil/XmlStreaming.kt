@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
@@ -66,6 +69,11 @@ public actual object XmlStreaming {
     public actual fun newReader(input: CharSequence): XmlReader {
         return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
     }
+
+    public actual fun newGenericReader(input: CharSequence): XmlReader =
+        newGenericReader(StringReader(input))
+
+    public actual fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
     public actual fun newWriter(
         output: Appendable,

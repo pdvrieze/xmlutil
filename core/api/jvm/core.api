@@ -485,6 +485,7 @@ public class nl/adaptivity/xmlutil/XmlException : java/io/IOException {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader;)V
 	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Throwable;)V
 	public fun <init> (Ljava/lang/Throwable;)V
 	public final fun doThrow ()Ljava/lang/Void;
@@ -573,6 +574,10 @@ public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/XmlStreaming;
+	public final fun newGenericReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public final fun newGenericReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public final fun newGenericReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
+	public final fun newGenericReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
 	public static synthetic fun newGenericWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
 	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -729,6 +734,61 @@ public final class nl/adaptivity/xmlutil/XmlWriterUtil {
 
 public final class nl/adaptivity/xmlutil/_actualAliassesKt {
 	public static final fun prefixesFor (Ljavax/xml/namespace/NamespaceContext;Ljava/lang/String;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmlutil/XmlReader {
+	public static final field ILLEGAL_TYPE Ljava/lang/String;
+	public static final field UNEXPECTED_EOF Ljava/lang/String;
+	public static final field processNsp Z
+	public fun <init> (Ljava/io/Reader;Z)V
+	public synthetic fun <init> (Ljava/io/Reader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public final fun getColumnNumber ()I
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getLineNumber ()I
+	public fun getLocalName ()Ljava/lang/String;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getName ()Ljavax/xml/namespace/QName;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public final fun getRelaxed ()Z
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public fun isCharacters ()Z
+	public final fun isEmptyElementTag ()Z
+	public fun isEndElement ()Z
+	public fun isStartElement ()Z
+	public fun isStarted ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun setStandalone (Ljava/lang/Boolean;)V
+	public fun setVersion (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/core/KtXmlReaderJavaKt {
+	public static final fun KtXmlReader (Ljava/io/InputStream;Ljava/lang/String;Z)Lnl/adaptivity/xmlutil/core/KtXmlReader;
+	public static synthetic fun KtXmlReader$default (Ljava/io/InputStream;Ljava/lang/String;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/core/KtXmlReader;
 }
 
 public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {

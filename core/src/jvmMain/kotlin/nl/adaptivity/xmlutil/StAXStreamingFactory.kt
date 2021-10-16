@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import java.io.*
 import javax.xml.stream.XMLStreamException
 import javax.xml.transform.Result
@@ -65,7 +66,8 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(reader: Reader): XmlReader {
         try {
-            return StAXReader(reader)
+            return KtXmlReader(reader)
+//            return StAXReader(reader)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
