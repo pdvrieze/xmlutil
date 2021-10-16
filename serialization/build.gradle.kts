@@ -46,7 +46,7 @@ val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlutil-serialization"
+    archivesName.set("xmlutil-serialization")
     version = xmlutil_serial_version
 }
 
@@ -54,6 +54,7 @@ val serializationVersion: String by project
 val jupiterVersion: String by project
 val woodstoxVersion: String by project
 val kotlin_version: String by project
+val kxml2Version: String by project
 
 val argJvmDefault: String by project
 
@@ -217,7 +218,7 @@ kotlin {
             dependsOn(javaShared)
 
             dependencies {
-                compileOnly("net.sf.kxml:kxml2:2.3.0")
+                compileOnly("net.sf.kxml:kxml2:$kxml2Version")
             }
         }
 
@@ -229,7 +230,7 @@ kotlin {
 
             dependencies {
                 implementation(kotlin("test-junit5"))
-                runtimeOnly("net.sf.kxml:kxml2:2.3.0")
+                runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
 
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")

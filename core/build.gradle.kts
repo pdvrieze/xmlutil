@@ -49,6 +49,7 @@ val serializationVersion: String by project
 val woodstoxVersion: String by project
 val kotlin_version: String by project
 val jupiterVersion: String by project
+val kxml2Version: String by project
 
 val argJvmDefault: String by project
 
@@ -174,7 +175,7 @@ kotlin {
             dependsOn(javaShared)
 
             dependencies {
-                compileOnly("net.sf.kxml:kxml2:2.3.0")
+                compileOnly("net.sf.kxml:kxml2:$kxml2Version")
             }
         }
 
@@ -186,7 +187,7 @@ kotlin {
                 implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
 
                 runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-                runtimeOnly("net.sf.kxml:kxml2:2.3.0")
+                runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
             }
         }
 
