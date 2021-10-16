@@ -30,6 +30,7 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
@@ -60,8 +61,22 @@ abstract class XmlTestBase<T>(
     }
 
     @Test
+    open fun testGenericSerializeXml() {
+        val stringBuilder = StringBuilder()
+        val writer = XmlStreaming.newGenericWriter(stringBuilder)
+        baseXmlFormat.encodeToWriter(writer, serializer, value)
+        assertXmlEquals(expectedXML, stringBuilder.toString().normalizeXml())
+    }
+
+    @Test
     open fun testDeserializeXml() {
         assertEquals(value, baseXmlFormat.decodeFromString(serializer, expectedXML))
+    }
+
+    @Test
+    open fun testGenericDeserializeXml() {
+        val reader = XmlStreaming.newGenericReader(expectedXML)
+        assertEquals(value, baseXmlFormat.decodeFromReader(serializer, reader))
     }
 
 }
