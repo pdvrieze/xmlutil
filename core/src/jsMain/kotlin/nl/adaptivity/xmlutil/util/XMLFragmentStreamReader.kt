@@ -33,8 +33,7 @@ import org.w3c.dom.parsing.DOMParser
 public actual class XMLFragmentStreamReader constructor(
     text: String,
     wrapperNamespaceContext: Iterable<Namespace>
-                                                ) :
-    XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
+) : XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
 
     private class FragmentNamespaceContext : SimpleNamespaceContext {
 
@@ -108,7 +107,7 @@ public actual class XMLFragmentStreamReader constructor(
     private var localNamespaceContext: FragmentNamespaceContext = FragmentNamespaceContext(
         null, emptyArray(),
         emptyArray()
-                                                                                          )
+    )
 
     init {
         if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
@@ -118,24 +117,25 @@ public actual class XMLFragmentStreamReader constructor(
         val result = delegate.next()
 
         when (result) {
-            EventType.END_DOCUMENT  -> return result
+            EventType.END_DOCUMENT -> return result
 
             EventType.START_DOCUMENT,
             EventType.PROCESSING_INSTRUCTION,
-            EventType.DOCDECL       -> return next()
+            EventType.DOCDECL -> return next()
 
             EventType.START_ELEMENT -> {
                 if (WRAPPERNAMESPACE == delegate.namespaceURI) return next()
 
                 extendNamespace()
             }
-            EventType.END_ELEMENT   -> {
+            EventType.END_ELEMENT -> {
                 if (WRAPPERNAMESPACE == delegate.namespaceURI) {
                     return delegate.next()
                 }
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
             }
-            else -> {} // Ignore others
+            else -> {
+            } // Ignore others
         }
         return result
     }
@@ -176,7 +176,7 @@ public actual class XMLFragmentStreamReader constructor(
         private fun getDelegate(
             text: String,
             wrapperNamespaceContext: Iterable<Namespace>
-                               ): XmlReader {
+        ): XmlReader {
             val wrapper = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
                 for (ns in wrapperNamespaceContext) {
