@@ -127,6 +127,11 @@ kotlin {
                 }
             }
         }
+        linuxX64 {
+            binaries {
+                sharedLib()
+            }
+        }
     }
 
     targets.forEach { target ->
@@ -200,6 +205,14 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-js"))
             }
+        }
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
+
+        val linuxX64Main by getting {
+            dependsOn(nativeMain)
         }
 
     }

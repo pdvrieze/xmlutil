@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -51,7 +51,7 @@ public actual class QName public actual constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class.js != other::class.js) return false
+        if (other == null || this::class != other::class) return false
 
         other as QName
 

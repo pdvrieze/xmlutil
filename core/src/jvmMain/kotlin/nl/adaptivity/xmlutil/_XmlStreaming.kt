@@ -79,7 +79,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon() {
         return factory.newReader(inputStream, encoding)
     }
 
-    override fun newReader(reader: Reader): XmlReader {
+    actual override fun newReader(reader: Reader): XmlReader {
         return factory.newReader(reader)
     }
 

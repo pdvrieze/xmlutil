@@ -37,6 +37,8 @@ public expect object XmlStreaming {
 
     public fun newReader(input: CharSequence): XmlReader
 
+    public fun newReader(reader: Reader): XmlReader
+
     public fun newGenericReader(input: CharSequence): XmlReader
 
     public fun newGenericReader(reader: Reader): XmlReader
