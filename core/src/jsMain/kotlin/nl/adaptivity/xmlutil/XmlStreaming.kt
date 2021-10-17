@@ -70,6 +70,8 @@ public actual object XmlStreaming {
         return JSDomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
     }
 
+    public actual fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
+
     public actual fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input))
 
