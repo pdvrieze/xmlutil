@@ -25,29 +25,6 @@ import kotlin.reflect.KClass
 @PublishedApi
 internal actual val KClass<*>.name get() = js.name
 
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.CONSTRUCTOR
-       )
-@Retention(AnnotationRetention.SOURCE)
-actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
-
-
-actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    if (!value) console.error("Assertion failed: ${lazyMessage()}")
-}
-
-actual fun assert(value: Boolean) {
-    if (!value) console.error("Assertion failed")
-}
-
-actual interface AutoCloseable {
-    actual fun close()
-}
-
-actual interface Closeable : AutoCloseable
 
 @PublishedApi
 internal actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()

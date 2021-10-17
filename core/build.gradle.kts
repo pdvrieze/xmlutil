@@ -18,10 +18,7 @@
  * under the License.
  */
 
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
+import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -127,11 +124,13 @@ kotlin {
                 }
             }
         }
+/*
         linuxX64 {
             binaries {
                 sharedLib()
             }
         }
+*/
     }
 
     targets.forEach { target ->
@@ -207,6 +206,7 @@ kotlin {
             }
         }
 
+/*
         val nativeMain by creating {
             dependsOn(commonMain)
         }
@@ -214,6 +214,7 @@ kotlin {
         val linuxX64Main by getting {
             dependsOn(nativeMain)
         }
+*/
 
     }
     sourceSets.all {
@@ -229,6 +230,8 @@ kotlin {
     }
 
 }
+
+addNativeTargets()
 
 apiValidation {
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")

@@ -20,12 +20,3 @@
 
 package nl.adaptivity.serialutil.impl
 
-internal actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    kotlin.assert(value, lazyMessage)
-}
-
-internal actual fun assert(value: Boolean) = kotlin.assert(value)
-
-actual typealias AutoCloseable = java.lang.AutoCloseable
-
-actual typealias Closeable = java.io.Closeable

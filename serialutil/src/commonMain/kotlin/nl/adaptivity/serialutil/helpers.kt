@@ -30,7 +30,6 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.serialutil.impl.toCharArray
 import kotlin.jvm.JvmOverloads
 
 object CharArrayAsStringSerializer : KSerializer<CharArray> {

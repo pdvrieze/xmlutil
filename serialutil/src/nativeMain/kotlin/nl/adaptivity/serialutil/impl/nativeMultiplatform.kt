@@ -18,14 +18,14 @@
  * under the License.
  */
 
-@file:JvmName("Strings")
-@file:JvmMultifileClass
-
 package nl.adaptivity.serialutil.impl
 
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
+import kotlin.reflect.KClass
 
-internal fun CharSequence.toCharArray(): CharArray = CharArray(length) { get(it) }
+@PublishedApi
+internal actual val KClass<*>.name
+    get() = qualifiedName ?: "<unnamed>"
 
-internal expect fun String.toCharArray(): CharArray
+
+@PublishedApi
+internal actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()

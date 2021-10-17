@@ -105,6 +105,8 @@ public sealed class XmlEvent(public val locationInfo: String?) {
                     prefix == ev.prefix
         }
 
+        public val name: QName get() = QName(namespaceUri, localName, prefix)
+
         override fun toString(): String {
             return "$eventType - {$namespaceUri}$prefix:$localName (${locationInfo ?: ""})"
         }
@@ -226,6 +228,8 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         public val localName: String = localName.toString()
         public val namespaceUri: String = namespaceUri.toString()
         override val eventType: EventType get() = EventType.ATTRIBUTE
+
+        public val name: QName get() = QName(namespaceUri, localName, prefix)
 
         override fun writeTo(writer: XmlWriter) {
             if (hasNamespaceUri()) {

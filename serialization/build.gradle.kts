@@ -21,10 +21,7 @@
 
 @file:Suppress("PropertyName")
 
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
+import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -261,6 +258,8 @@ kotlin {
     }
 
 }
+
+addNativeTargets()
 
 apiValidation {
     nonPublicMarkers.apply {

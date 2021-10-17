@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2021.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,11 @@
  * under the License.
  */
 
-package nl.adaptivity.serialutil.impl
+package nl.adaptivity.xmlutil.serialization
 
-@Suppress("NOTHING_TO_INLINE")
-internal actual inline fun String.toCharArray(): CharArray = (this as CharSequence).toCharArray()
+import kotlinx.serialization.modules.EmptySerializersModule
+import kotlinx.serialization.modules.SerializersModule
+//import nl.adaptivity.xmlutil.serialization.ExperimentalXmlUtilApi
+
+//@ExperimentalXmlUtilApi
+public actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule

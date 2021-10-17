@@ -25,8 +25,6 @@ import kotlin.reflect.KClass
 @PublishedApi
 internal actual val KClass<*>.name get() = java.name
 
-actual typealias Throws = kotlin.jvm.Throws
-
 internal typealias URI = java.net.URI
 
 
