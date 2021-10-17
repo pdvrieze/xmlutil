@@ -66,6 +66,7 @@ public actual class CompactFragment : ICompactFragment {
 
     override fun serialize(out: XmlWriter) {
         XMLFragmentStreamReader.from(this).use { reader ->
+            println("out.serialize(reader)")
             out.serialize(reader)
         }
     }

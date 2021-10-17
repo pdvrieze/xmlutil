@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
-import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 
 public class CombiningReader(private vararg val sources: Reader) : Reader(), Closeable {
