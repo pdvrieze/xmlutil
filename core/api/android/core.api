@@ -384,6 +384,7 @@ public final class nl/adaptivity/xmlutil/XmlEvent$Attribute : nl/adaptivity/xmlu
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
 	public final fun getLocalName ()Ljava/lang/String;
+	public final fun getName ()Ljavax/xml/namespace/QName;
 	public final fun getNamespaceUri ()Ljava/lang/String;
 	public final fun getPrefix ()Ljava/lang/String;
 	public final fun getValue ()Ljava/lang/String;
@@ -414,6 +415,7 @@ public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivit
 public abstract class nl/adaptivity/xmlutil/XmlEvent$NamedEvent : nl/adaptivity/xmlutil/XmlEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public final fun getLocalName ()Ljava/lang/String;
+	public final fun getName ()Ljavax/xml/namespace/QName;
 	public final fun getNamespaceUri ()Ljava/lang/String;
 	public final fun getPrefix ()Ljava/lang/String;
 	public final fun isEqualNames (Lnl/adaptivity/xmlutil/XmlEvent$NamedEvent;)Z
