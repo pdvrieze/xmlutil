@@ -136,11 +136,11 @@ fun Project.addNativeTargets() {
                     getByName("nativeMain") { dependsOn(commonMain) }
                     getByName("nativeTest") { dependsOn(commonTest) }
                 } else {
-                    val nativeMain = register("nativeMain") { dependsOn(commonMain) }
-                    val nativeTest = register("nativeTest") { dependsOn(commonTest) }
+                    val nativeMain = maybeCreate("nativeMain").apply { dependsOn(commonMain) }
+                    val nativeTest = maybeCreate("nativeTest").apply { dependsOn(commonTest) }
 
-                    configure(nativeMainSets) { dependsOn(nativeMain.get()) }
-                    configure(nativeTestSets) { dependsOn(nativeTest.get()) }
+                    configure(nativeMainSets) { dependsOn(nativeMain) }
+                    configure(nativeTestSets) { dependsOn(nativeTest) }
                 }
             }
         }
