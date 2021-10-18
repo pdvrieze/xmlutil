@@ -45,20 +45,25 @@ actual fun assertXmlEquals(expected: String, actual: String) {
     }
 }
 
-fun XmlReader.skipIgnorable() {
-    do { val ev = next() } while (ev.isIgnorable)
+fun XmlReader.nextNotIgnored() {
+    do {
+        val ev = next()
+    } while (ev.isIgnorable && hasNext())
 }
 
 fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
     do {
-        expected.skipIgnorable()
-        actual.skipIgnorable()
-        val expectedType = expected.eventType
-        val actualType = expected.eventType
-        assertEquals(expectedType, actualType, "Different event found")
+        expected.nextNotIgnored()
+        actual.nextNotIgnored()
+
         assertXmlEquals(expected.toEvent(), actual.toEvent())
 
-    } while (expectedType != EventType.END_DOCUMENT)
+    } while (expected.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
+
+    while (expected.hasNext() && expected.isIgnorable()) { expected.next() }
+    while (actual.hasNext() && actual.isIgnorable()) { actual.next() }
+
+    assertEquals(expected.hasNext(), actual.hasNext())
 }
 
 fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
@@ -73,9 +78,11 @@ fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
 fun assertStartElementEquals(expectedEvent: StartElementEvent, actualEvent: StartElementEvent) {
     assertEquals(expectedEvent.name, actualEvent.name)
     assertEquals(expectedEvent.attributes.size, actualEvent.attributes.size)
+
     val expectedAttrs = expectedEvent.attributes.map { Attribute(it.namespaceUri, it.localName, "", it.value) }
         .sortedBy { "{${it.namespaceUri}}${it.localName}" }
     val actualAttrs = actualEvent.attributes.map { Attribute(it.namespaceUri, it.localName, "", it.value) }
         .sortedBy { "{${it.namespaceUri}}${it.localName}" }
+
     assertContentEquals(expectedAttrs, actualAttrs)
 }
