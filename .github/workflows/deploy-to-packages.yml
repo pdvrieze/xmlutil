@@ -2,8 +2,9 @@ name: Create and publish a package
 on:
   release:
     types: [created]
+  workflow_dispatch:
 jobs:
-  build-and-publish:
+  build-and-publish-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,9 +15,15 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+      - id: install-secret-key
+        name: Install GPG sectet key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
       - name: Check with gradle
         run: ./gradlew check
-      - name: Publish with gradle
-        run: ./gradlew publish
+      - id: publish-to-central
+        name: Publish with gradle
+        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.ORSSRH_GPG_SECRET_KEY_PASSWORD }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
