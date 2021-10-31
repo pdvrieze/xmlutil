@@ -89,8 +89,7 @@ fun Project.doPublish(
             configure<SigningExtension> {
                 setRequired {
                     (project.extra["isReleaseVersion"] as Boolean) &&
-                            gradle.taskGraph.hasTask("publishAllPublicationsToOSS_Release_Staging_registryRepository") &&
-                            System.getenv("CI") != "true"
+                            gradle.taskGraph.hasTask("publishAllPublicationsToOSS_registryRepository")
                 }
 
                 sign(pub)

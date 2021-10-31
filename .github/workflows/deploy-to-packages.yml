@@ -66,6 +66,7 @@ jobs:
                 run: ./gradlew nativeTest
             -   id: publish-to-central
                 name: Publish with gradle
+                shell: bash
                 run: ./gradlew publishNative -Pgpg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
