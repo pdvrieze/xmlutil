@@ -60,14 +60,11 @@ fun Project.doPublish(
             }
 */
             maven {
+                name = "OSS_registry"
                 if ("SNAPSHOT" in version.toString().toUpperCase()) {
-                    name = "OSS_Snapshot_registry"
-                    url =
-                        uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                    url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
                 } else {
-                    name = "OSS_Release_Staging_registry"
-                    url =
-                        uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                    url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 }
                 credentials {
                     username = project.findProperty("ossrhUsername") as String?
@@ -94,9 +91,7 @@ fun Project.doPublish(
                             System.getenv("CI") != "true"
                 }
 
-                if (System.getenv("GITHUB_JOB").isNullOrEmpty()) {
-                    sign(pub)
-                }
+                sign(pub)
             }
             pom {
                 name.set(pubName)
