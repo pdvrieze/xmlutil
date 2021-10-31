@@ -20,10 +20,10 @@ jobs:
         run: |
           cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
-      - name: Check with gradle
-        run: ./gradlew check
+#      - name: Check with gradle
+#        run: ./gradlew check
       - id: publish-to-central
         name: Publish with gradle
-        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.ORSSRH_GPG_SECRET_KEY_PASSWORD }}
+        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.ORSSRH_GPG_SECRET_KEY_PASSWORD }} -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
