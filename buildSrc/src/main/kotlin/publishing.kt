@@ -20,80 +20,21 @@
 
 package net.devrieze.gradle.ext
 
-import groovy.util.Node
-import groovy.xml.QName
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.withType
-import org.gradle.plugins.signing.SigningExtension
+import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.Sign
-import org.gradle.kotlin.dsl.extra
-
-
-inline fun XmlProvider.dependencies(config: Node.() -> Unit): Unit {
-    asNode().dependencies(config)
-}
-
-inline val Node.qName: QName
-    get() = name().let {
-        if (it is QName) it else QName(
-            it.toString()
-                                      )
-    }
-
-inline fun Node.nodeChildren(): List<Node> = children() as List<Node>
-fun Node.child(name: String) =
-    nodeChildren().firstOrNull { it.qName.localPart == name }
-
-fun Node.child(name: QName) =
-    nodeChildren().firstOrNull { it.qName.matches(name) }
+import org.gradle.plugins.signing.SigningExtension
 
 private const val POM_NS = "http://maven.apache.org/POM/4.0.0"
-val DEPENDENCIES = QName(POM_NS, "dependencies")
-val GROUPID = QName(POM_NS, "groupId")
-
-inline fun Node.dependencies(config: Node.() -> Unit): Node {
-    val node: Node = child(DEPENDENCIES) ?: appendNode(DEPENDENCIES)
-    return node.apply(config)
-}
-/*
-fun Node.dependency(spec: String, type: String = "jar", scope: String = "compile", optional: Boolean = false): Node {
-    return spec.split(':', limit = 3).run {
-        val groupId = get(0)
-        val artifactId = get(1)
-        val version = get(2)
-        dependency(groupId, artifactId, version, type, scope, optional)
-    }
-}
-
-fun Node.dependency(groupId: String,
-                    artifactId: String,
-                    version: String,
-                    type: String = "jar",
-                    scope: String = "compile",
-                    optional: Boolean = false): Node {
-    return appendNode("dependency").apply {
-        appendNode("groupId", groupId)
-        appendNode("artifactId", artifactId)
-        appendNode("version", version)
-        appendNode("type", type)
-        if (scope != "compile") appendNode("scope", scope)
-        if (optional) appendNode("optional", "true")
-    }
-}
- */
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
     pubName: String = project.displayName,
     pubDescription: String = "Component of the XMLUtil library"
-                     ) {
+) {
     val xmlutil_version: String by project
 
     if (version == "unspecified") version = xmlutil_version
@@ -104,6 +45,7 @@ fun Project.doPublish(
     configure<PublishingExtension> {
         repositories {
 
+/*
             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
@@ -116,6 +58,7 @@ fun Project.doPublish(
                                 ?: System.getenv("TOKEN")
                 }
             }
+*/
             maven {
                 if ("SNAPSHOT" in version.toString().toUpperCase()) {
                     name = "OSS_Snapshot_registry"
@@ -145,11 +88,15 @@ fun Project.doPublish(
 
             val pub = this
             configure<SigningExtension> {
-                setRequired({(project.extra["isReleaseVersion"] as Boolean) &&
-                        gradle.taskGraph.hasTask("publishAllPublicationsToOSS_Release_Staging_registryRepository") &&
-                        System.getenv("CI")!="true" }
-                           )
-                if (System.getenv("GITHUB_JOB").isNullOrEmpty()) { sign(pub) }
+                setRequired {
+                    (project.extra["isReleaseVersion"] as Boolean) &&
+                            gradle.taskGraph.hasTask("publishAllPublicationsToOSS_Release_Staging_registryRepository") &&
+                            System.getenv("CI") != "true"
+                }
+
+                if (System.getenv("GITHUB_JOB").isNullOrEmpty()) {
+                    sign(pub)
+                }
             }
             pom {
                 name.set(pubName)
