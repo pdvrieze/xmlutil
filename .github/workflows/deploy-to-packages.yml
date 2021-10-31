@@ -24,6 +24,8 @@ jobs:
 #        run: ./gradlew check
       - id: publish-to-central
         name: Publish with gradle
-        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.ORSSRH_GPG_SECRET_KEY_PASSWORD }} -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
+        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.ORSSRH_GPG_SECRET_KEY_PASSWORD }} \
+          -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
+          -Pnative.deploy=all
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
