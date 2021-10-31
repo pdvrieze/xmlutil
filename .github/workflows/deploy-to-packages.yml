@@ -24,7 +24,7 @@ jobs:
         run: ./gradlew check
       - id: publish-to-central
         name: Publish with gradle
-        run: ./gradlew publish -Pgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} -Possrh.username=${{ secrets.OSSRH_USERNAME }} -Possrh.password=${{ secrets.OSSRH_PASSWORD }} -Pnative.deploy=all
+        run: ./gradlew publish -Pgpg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build-and-publish-windows:
@@ -48,7 +48,7 @@ jobs:
             run: ./gradlew nativeTest
           - id: publish-to-central
             name: Publish with gradle
-            run: ./gradlew -Pgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} -Possrh.username=${{ secrets.OSSRH_USERNAME }} -Possrh.password=${{ secrets.OSSRH_PASSWORD }} -Pnative.deploy=all  publishNative
+            run: ./gradlew publishNative -Pgpg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build-and-publish-macos:
@@ -71,6 +71,6 @@ jobs:
             run: ./gradlew nativeTest
           - id: publish-to-central
             name: Publish with gradle
-            run: ./gradlew -Pgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} -Possrh.username=${{ secrets.OSSRH_USERNAME }} -Possrh.password=${{ secrets.OSSRH_PASSWORD }} -Pnative.deploy=all publishNative
+            run: ./gradlew publishNative -Pgpg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
             env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
