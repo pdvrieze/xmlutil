@@ -28,7 +28,7 @@ jobs:
                         ~/.gradle/caches
                         ~/.gradle/wrapper
                         ~/.konan/cache
-                    key: ${{runner.os}}-build-gradle-cache
+                    key: ${{runner.os}}-build-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
             -   name: Check with gradle
                 run: ./gradlew check
             -   id: publish-to-central
@@ -61,7 +61,7 @@ jobs:
                         ~/.gradle/caches
                         ~/.gradle/wrapper
                         ~/.konan/cache
-                    key: ${{runner.os}}-build-gradle-cache
+                    key: ${{runner.os}}-build-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
             -   name: Check with gradle
                 run: ./gradlew nativeTest
             -   id: publish-to-central
@@ -94,7 +94,7 @@ jobs:
                         ~/.gradle/caches
                         ~/.gradle/wrapper
                         ~/.konan/cache
-                    key: ${{runner.os}}-build-gradle-cache
+                    key: ${{runner.os}}-build-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
             -   name: Check with gradle
                 run: ./gradlew nativeTest
             -   id: publish-to-central
