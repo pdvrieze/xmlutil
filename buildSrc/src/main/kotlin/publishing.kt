@@ -21,8 +21,10 @@
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.Sign
@@ -67,8 +69,8 @@ fun Project.doPublish(
                     url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 }
                 credentials {
-                    username = project.findProperty("ossrhUsername") as String?
-                    password = project.findProperty("ossrhPassword") as String?
+                    username = project.findProperty("ossrh.username") as String?
+                    password = project.findProperty("ossrh.password") as String?
                 }
 
             }
@@ -118,6 +120,15 @@ fun Project.doPublish(
                 }
             }
 
+        }
+    }
+    val publishNativeTask = tasks.create<Task>("publishNative") {
+        group = "Publishing"
+        description = "Task to publish all native artefacts only"
+    }
+    tasks.withType<PublishToMavenRepository> {
+        if (this.isEnabled && arrayOf("Js", "Jvm", "Android").none { "${it}Publication" in name }) {
+            publishNativeTask.dependsOn(this)
         }
     }
 
