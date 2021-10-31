@@ -27,6 +27,7 @@ jobs:
                     path: |
                         ~/.gradle/caches
                         ~/.gradle/wrapper
+                        ~/.konan/cache
                     key: ${{runner.os}}-build-gradle-cache
             -   name: Check with gradle
                 run: ./gradlew check
@@ -59,6 +60,7 @@ jobs:
                     path: |
                         ~/.gradle/caches
                         ~/.gradle/wrapper
+                        ~/.konan/cache
                     key: ${{runner.os}}-build-gradle-cache
             -   name: Check with gradle
                 run: ./gradlew nativeTest
@@ -90,6 +92,7 @@ jobs:
                     path: |
                         ~/.gradle/caches
                         ~/.gradle/wrapper
+                        ~/.konan/cache
                     key: ${{runner.os}}-build-gradle-cache
             -   name: Check with gradle
                 run: ./gradlew nativeTest
