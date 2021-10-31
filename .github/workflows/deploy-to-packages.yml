@@ -43,7 +43,7 @@ jobs:
           - id: install-secret-key
             name: Install GPG sectet key
             run: |
-                cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+                echo "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | gpg --batch --import
                 gpg --list-secret-keys --keyid-format LONG
           - name: Check with gradle
             run: ./gradlew check
