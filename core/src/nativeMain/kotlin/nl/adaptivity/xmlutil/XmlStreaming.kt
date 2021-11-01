@@ -33,10 +33,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
  */
 public actual object XmlStreaming {
 
-    private var factory: XmlStreamingFactory? = null
-
     public actual fun setFactory(factory: XmlStreamingFactory?) {
-        this.factory = factory
+        throw UnsupportedOperationException("Native does not support setting the factory")
     }
 
     public actual inline fun <reified T : Any> deSerialize(input: String): T {
