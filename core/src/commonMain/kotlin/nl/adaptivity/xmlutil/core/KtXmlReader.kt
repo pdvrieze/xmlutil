@@ -291,7 +291,7 @@ public class KtXmlReader internal constructor(
 
     private fun parseLegacy(push: Boolean): EventType {
         var localPush = push
-        var req = ""
+        val expected: String
         val term: Int
         val result: EventType
         var prev = 0
@@ -320,8 +320,11 @@ public class KtXmlReader internal constructor(
                     if (pos < attributeCount && "standalone" == attributes[pos].localName
                     ) {
                         val st = attributes[pos].value
-                        if ("yes" == st) standalone = true else if ("no" == st) standalone =
-                            false else error("illegal standalone value: $st")
+                        when (st) {
+                            "yes" -> standalone = true
+                            "no" -> standalone = false
+                            else -> error("illegal standalone value: $st")
+                        }
                         pos++
                     }
                     if (pos != attributeCount) error("illegal xmldecl")
@@ -336,26 +339,27 @@ public class KtXmlReader internal constructor(
                         int */
             term = '?'.code
             result = PROCESSING_INSTRUCTION
+            expected = ""
         } else if (c == '!'.code) {
             if (peek(0) == '-'.code) {
                 result = COMMENT
-                req = "--"
+                expected = "--"
                 term = '-'.code
             } else if (peek(0) == '['.code) {
                 result = CDSECT
-                req = "[CDATA["
+                expected = "[CDATA["
                 term = ']'.code
                 localPush = true
             } else {
                 result = DOCDECL
-                req = "DOCTYPE"
+                expected = "DOCTYPE"
                 term = -1
             }
         } else {
             error("illegal: <$c")
             return COMMENT
         }
-        for (i in 0 until req.length) read(req[i])
+        for (ch in expected) read(ch)
         if (result == DOCDECL) parseDoctype(localPush) else {
             while (true) {
                 c = read()
@@ -418,7 +422,11 @@ public class KtXmlReader internal constructor(
         if (!relaxed) {
             val expectedPrefix = elementStack[spIdx].prefix ?: exception("Missing prefix")
             val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
-            val expectedFullname = if (expectedPrefix.isEmpty()) expectedLocalName else "$expectedPrefix:$expectedLocalName"
+            val expectedFullname = when {
+                expectedPrefix.isEmpty() -> expectedLocalName
+                else -> "$expectedPrefix:$expectedLocalName"
+            }
+
             if (fullName != expectedFullname) {
                 error("expected: /${elementStack[spIdx].fullName} read: $fullName")
             }
@@ -796,7 +804,7 @@ public class KtXmlReader internal constructor(
     }
 
     override fun hasNext(): Boolean {
-        return _eventType != END_DOCUMENT // TODO handle this better
+        return _eventType != END_DOCUMENT
     }
 
     override fun nextTag(): EventType {
@@ -823,9 +831,6 @@ public class KtXmlReader internal constructor(
 
     private class ElementStack {
         var data: Array<String?> = arrayOfNulls(16)
-            private set
-
-        var size: Int = 0
             private set
 
         operator fun get(idx: Int) = ElementDelegate(idx)
