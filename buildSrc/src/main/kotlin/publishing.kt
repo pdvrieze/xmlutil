@@ -87,9 +87,9 @@ fun Project.doPublish(
 
             val pub = this
             configure<SigningExtension> {
-                setRequired {
+                setRequired { true
 //                    (project.extra["isReleaseVersion"] as Boolean) &&
-                    gradle.taskGraph.hasTask("publishAllPublicationsToOSS_registryRepository")
+//                    gradle.taskGraph.hasTask("publishAllPublicationsToOSS_registryRepository")
                 }
 
                 sign(pub)
