@@ -320,7 +320,7 @@ public fun XmlReader.readSimpleElement(): String {
  * @receiver The stream reader to skip
  */
 public fun XmlReader.skipPreamble() {
-    while (isIgnorable() && hasNext()) {
+    while ((!isStarted || isIgnorable()) && hasNext()) {
         next()
     }
 }
