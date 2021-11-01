@@ -23,8 +23,8 @@ package nl.adaptivity.xmlutil.core
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.core.impl.isIgnorableWhitespace
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
+import kotlin.jvm.JvmInline
 
 @ExperimentalXmlUtilApi
 public class KtXmlReader internal constructor(
@@ -38,12 +38,12 @@ public class KtXmlReader internal constructor(
     private var line = 1
     private var column = 0
 
-    private var _eventType: EventType = START_DOCUMENT // Already have this state
+    private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
-        get() = _eventType
+        get() = _eventType ?: throw IllegalStateException("Not yet started")
 
-    override var isStarted: Boolean = false
-        private set
+    override val isStarted: Boolean
+        get() = _eventType != null
 
     private var _name: String? = null
     public override val localName: String
@@ -55,10 +55,10 @@ public class KtXmlReader internal constructor(
 
     private var isSelfClosing = false
 
-    override var attributeCount: Int = -1
-        private set
+    override val attributeCount: Int
+        get() = attributes.size
 
-    private var attributes = arrayOfNulls<String>(16)
+    private var attributes: AttributesCollection = AttributesCollection()
 
     override var encoding: String? = encoding
         private set
@@ -96,10 +96,7 @@ public class KtXmlReader internal constructor(
     public override val depth: Int
         get() = namespaceHolder.depth
 
-    private var elementStack = arrayOfNulls<String>(16)
-
-
-
+    private var elementStack: ElementStack = ElementStack()
 
     /** Target buffer for storing incoming text (including aggregated resolved entities)  */
     private var txtBuf = CharArray(128)
@@ -128,19 +125,20 @@ public class KtXmlReader internal constructor(
         get() = namespaceHolder.namespaceContext
 
 
-
-
     override fun close() {
         //NO-Op
     }
 
     private fun adjustNsp(fullName: String): Boolean {
         var hasActualAttributeWithPrefix = false
-        var i = 0
-        while (i < (attributeCount * 4)) {
 
-            // * 4 - 4; i >= 0; i -= 4) {
-            var attrName: String? = attributes[i + 2]
+        // Loop through all attributes to collect namespace attributes and split name into prefix/localName.
+        // Namespaces will not be set yet (as the namespace declaring attribute may be afterwards)
+        var attrIdx = 0
+        while (attrIdx < (attributes.size)) {
+            val attr = attributes[attrIdx]
+
+            var attrName: String? = attr.localname
             val cIndex = attrName!!.indexOf(':')
             var prefix: String
             if (cIndex >= 0) {
@@ -150,28 +148,27 @@ public class KtXmlReader internal constructor(
                 prefix = attrName
                 attrName = null
             } else {
-                attributes[i] = XMLConstants.NULL_NS_URI // the namespace for the attribute must be the null namespace
-                attributes[i + 1] = XMLConstants.DEFAULT_NS_PREFIX
-                i += 4
+                attr.namespace = XMLConstants.NULL_NS_URI // the namespace for the attribute must be the null namespace
+                attr.prefix = XMLConstants.DEFAULT_NS_PREFIX
+                attrIdx += 1
                 continue
             }
             if (prefix != "xmlns") {
                 hasActualAttributeWithPrefix = true
             } else {
-                namespaceHolder.addPrefixToContext(attrName, attributes[i+3])
-                if (attrName != null && attributes[i + 3] == "") error("illegal empty namespace")
+                namespaceHolder.addPrefixToContext(attrName, attributes[attrIdx].value)
+                if (attrName != null && attributes[attrIdx].value == "") error("illegal empty namespace")
 
                 //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
-
-                attributes.copyInto(attributes, i, i+4, ((attributeCount--) * 4))
-                i -= 4
+                attributes.removeAttr(attr)
+                attrIdx -= 1
             }
-            i += 4
+            attrIdx += 1
         }
         if (hasActualAttributeWithPrefix) {
-            var i = (attributeCount - 1) * 4
+            var i = attributes.size - 1
             while (i >= 0) {
-                var attrName = attributes[i + 2]!!
+                var attrName = attributes[i].localname!!
                 val cIndex = attrName.indexOf(':')
                 if (cIndex == 0 && !relaxed) {
                     throw RuntimeException("illegal attribute name: $attrName at $this")
@@ -180,15 +177,16 @@ public class KtXmlReader internal constructor(
                     attrName = attrName.substring(cIndex + 1)
                     val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
                     if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
-                    attributes[i] = attrNs
-                    attributes[i + 1] = attrPrefix
-                    attributes[i + 2] = attrName
+                    attributes[i].namespace = attrNs
+                    attributes[i].prefix = attrPrefix
+                    attributes[i].localname = attrName
 
                 }
-                i -= 4
+                i -= 1
             }
         }
-        val cut = fullName.indexOf(':') // TODO store name temporarilly
+
+        val cut = fullName.indexOf(':') // TODO store name temporarily
         if (cut == 0) error("illegal tag name: $name")
         val prefix: String
         val localName: String
@@ -199,20 +197,15 @@ public class KtXmlReader internal constructor(
             prefix = ""
             localName = fullName
         }
+
         _prefix = prefix
         _name = localName
-        _namespace = namespaceHolder.getNamespaceUri(prefix)
-        if (_namespace == null) {
+        _namespace = namespaceHolder.getNamespaceUri(prefix) ?: run {
             if (cut >= 0) error("undefined prefix: $prefix")
-            _namespace = XMLConstants.NULL_NS_URI
+            XMLConstants.NULL_NS_URI
         }
+
         return hasActualAttributeWithPrefix
-    }
-
-    private fun ensureCapacity(arr: Array<String?>, required: Int): Array<String?> {
-        if (arr.size >= required) return arr
-
-        return arr.copyOf(required + 16)
     }
 
     private fun error(desc: String) {
@@ -236,9 +229,9 @@ public class KtXmlReader internal constructor(
      * txtPos and whitespace. Does not set the type variable  */
     private fun nextImpl() {
         if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
-        isStarted = true
+
         while (true) {
-            attributeCount = -1
+            attributes.clear()
 
             // degenerated needs to be handled before error because of possible
             // processor expectations(!)
@@ -313,19 +306,16 @@ public class KtXmlReader internal constructor(
                 if ((peek(0) == 'l'.code || peek(0) == 'L'.code) && peek(1) <= ' '.code) {
                     if (line != 1 || column > 4) error("PI must not start with xml")
                     parseStartTag(true)
-                    if (attributeCount < 1 || "version" != attributes[2]) error("version expected")
-                    version = attributes[3]
+                    if (attributeCount < 1 || "version" != attributes[0].localname) error("version expected")
+                    version = attributes[0].value
                     var pos = 1
-                    if (pos < attributeCount
-                        && "encoding" == attributes[2 + 4]
-                    ) {
-                        encoding = attributes[3 + 4]
+                    if (pos < attributeCount && "encoding" == attributes[1].localname) {
+                        encoding = attributes[1].value
                         pos++
                     }
-                    if (pos < attributeCount
-                        && "standalone" == attributes[4 * pos + 2]
+                    if (pos < attributeCount && "standalone" == attributes[pos].localname
                     ) {
-                        val st = attributes[3 + 4 * pos]
+                        val st = attributes[pos].value
                         if ("yes" == st) standalone = true else if ("no" == st) standalone =
                             false else error("illegal standalone value: $st")
                         pos++
@@ -339,7 +329,8 @@ public class KtXmlReader internal constructor(
 
             /*            int c0 = read ();
                         int c1 = read ();
-                        int */term = '?'.code
+                        int */
+            term = '?'.code
             result = PROCESSING_INSTRUCTION
         } else if (c == '!'.code) {
             if (peek(0) == '-'.code) {
@@ -414,19 +405,19 @@ public class KtXmlReader internal constructor(
         val fullName = readName() // TODO store local before handling namespaces
         skip()
         read('>')
-        val sp = depth - 1 shl 2
+        val spIdx = depth - 1
         if (depth == 0) {
             error("element stack empty")
             _eventType = COMMENT
             return
         }
         if (!relaxed) {
-            if (!fullName.equals(elementStack[sp + 3])) {
-                error("expected: /" + elementStack[sp + 3] + " read: " + fullName)
+            if (fullName != elementStack[spIdx].fullName) {
+                error("expected: /${elementStack[spIdx].fullName} read: $fullName")
             }
-            _namespace = elementStack[sp]
-            _prefix = elementStack[sp + 1]
-            _name = elementStack[sp + 2]
+            _namespace = elementStack[spIdx].namespace
+            _prefix = elementStack[spIdx].prefix
+            _name = elementStack[spIdx].localname
         }
     }
 
@@ -467,7 +458,7 @@ public class KtXmlReader internal constructor(
     private fun parseStartTag(xmldecl: Boolean) {
         if (!xmldecl) read()
         val fullName = readName()
-        attributeCount = 0
+        attributes.clear(0)
         while (true) {
             skip()
             val c = peek(0)
@@ -496,22 +487,17 @@ public class KtXmlReader internal constructor(
                 return
             }
             val attrName = readName()
-            if (attrName.length == 0) {
+            if (attrName.isEmpty()) {
                 error("attr name expected")
                 //type = COMMENT;
                 break
             }
-            var i = attributeCount++ shl 2
-            attributes = ensureCapacity(attributes, i + 4)
-            attributes[i++] = ""
-            attributes[i++] = null
-            attributes[i++] = attrName
             skip()
             if (peek(0) != '='.code) {
                 if (!relaxed) {
                     error("Attr.value missing f. $attrName")
                 }
-                attributes[i] = attrName
+                attributes.addNoNS(attrName, attrName)
             } else {
                 read('=')
                 skip()
@@ -524,20 +510,25 @@ public class KtXmlReader internal constructor(
                 } else read()
                 val p = txtBufPos
                 pushText(delimiter, true)
-                attributes[i] = get(p)
+                attributes.addNoNS(attrName, get(p))
+
                 txtBufPos = p
                 if (delimiter != ' '.code) read() // skip endquote
             }
         }
-        val sp = depth * 4 // Determine this before increasing the depth
-        namespaceHolder.incDepth()
-        elementStack = ensureCapacity(elementStack, sp + 4)
-        elementStack[sp + 3] = fullName
 
-        if (processNsp) adjustNsp(fullName) else { _namespace = ""; _prefix= ""; _name = fullName }
-        elementStack[sp] = _namespace
-        elementStack[sp + 1] = _prefix
-        elementStack[sp + 2] = _name
+        val d = depth
+        namespaceHolder.incDepth()
+        elementStack.ensureCapacity(depth)
+
+        elementStack[d].fullName = fullName  // TODO don't split this stuff half into adjustNsp
+
+        if (processNsp) adjustNsp(fullName) else {
+            _namespace = ""; _prefix = ""; _name = fullName
+        }
+        elementStack[d].namespace = _namespace
+        elementStack[d].prefix = _prefix
+        elementStack[d].localname = _name
     }
 
     /**
@@ -685,10 +676,6 @@ public class KtXmlReader internal constructor(
     }
 
 
-    private fun defineEntityReplacementText(entity: String, value: String) {
-        entityMap[entity] = value
-    }
-
     override fun getNamespacePrefix(namespaceUri: String): String? {
         return namespaceHolder.getPrefix(namespaceUri)
     }
@@ -700,41 +687,49 @@ public class KtXmlReader internal constructor(
     private fun getPositionDescription(): String {
         val et = this._eventType ?: return ("<!--Parsing not started yet-->")
 
-        val buf: StringBuilder = StringBuilder(et.name)
+        val buf = StringBuilder(et.name)
         buf.append(' ')
-        if (et == START_ELEMENT || et == END_ELEMENT) {
-            if (isSelfClosing) buf.append("(empty) ")
-            buf.append('<')
-            if (et == END_ELEMENT) buf.append('/')
-            if (_prefix != null) buf.append("{$_namespace}$prefix:")
-            buf.append(name)
-            val cnt = attributeCount shl 2
-            var i = 0
-            while (i < cnt) {
-                buf.append(' ')
-                if (attributes[i + 1] != null) buf.append(
-                    "{" + attributes[i] + "}" + attributes[i + 1] + ":"
-                )
-                buf.append(attributes[i + 2].toString() + "='" + attributes[i + 3] + "'")
-                i += 4
+        when {
+            et == START_ELEMENT || et == END_ELEMENT -> {
+                if (isSelfClosing) buf.append("(empty) ")
+                buf.append('<')
+                if (et == END_ELEMENT) buf.append('/')
+                if (_prefix != null) buf.append("{$_namespace}$prefix:")
+                buf.append(name)
+
+                for (x in 0 until attributes.size) {
+                    buf.append(' ')
+                    val a = attributes[x]
+                    if (a.namespace != null) {
+                        buf.append('{').append(a.namespace).append('}').append(a.prefix).append(':')
+                    }
+                    buf.append("${a.localname}='${a.value}'")
+                }
+
+                buf.append('>')
             }
-            buf.append('>')
-        } else if (et == IGNORABLE_WHITESPACE) ; else if (et != TEXT) buf.append(text) else if (isWhitespace) buf.append(
-            "(whitespace)"
-        ) else {
-            var textCpy = text
-            if (textCpy.length > 16) textCpy = textCpy.substring(0, 16) + "..."
-            buf.append(textCpy)
+            et == IGNORABLE_WHITESPACE -> {}
+            et != TEXT -> buf.append(text)
+            isWhitespace -> buf.append(
+                "(whitespace)"
+            )
+            else -> {
+                var textCpy = text
+                if (textCpy.length > 16) textCpy = textCpy.substring(0, 16) + "..."
+                buf.append(textCpy)
+            }
         }
-        buf.append("@$line:$column")
+        buf.append("@$line:$column in ")
         if (location != null) {
-            buf.append(" in ")
             buf.append(location)
         } else {
-            buf.append(" in ")
             buf.append(reader.toString())
         }
         return buf.toString()
+    }
+
+    override fun toString(): String {
+        return "KtXmlReader [${getPositionDescription()}]"
     }
 
     override val locationInfo: String
@@ -760,84 +755,36 @@ public class KtXmlReader internal constructor(
             else -> throw XmlException("The element is not text")
         }
 
-/*
-    fun getTextCharacters(poslen: IntArray): CharArray? {
-        if (type >= TEXT) {
-            if (type == ENTITY_REF) {
-                poslen[0] = 0
-                poslen[1] = name!!.length()
-                return name!!.toCharArray()
-            }
-            poslen[0] = 0
-            poslen[1] = txtPos
-            return txtBuf
-        }
-        poslen[0] = -1
-        poslen[1] = -1
-        return null
-    }
-*/
-
     public fun isEmptyElementTag(): Boolean {
         if (_eventType != START_ELEMENT) exception(ILLEGAL_TYPE)
         return isSelfClosing
     }
 
-    private fun getAttributeType(index: Int): String {
-        return "CDATA"
-    }
-
-    private fun isAttributeDefault(index: Int): Boolean {
-        return false
-    }
-
     override fun getAttributeNamespace(index: Int): String {
-        if (index >= attributeCount) throw IndexOutOfBoundsException()
-        return attributes[index shl 2]!!
+        return attributes[index].namespace!!
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        if (index >= attributeCount) throw IndexOutOfBoundsException()
-        return attributes[(index shl 2) + 2]!!
+        return attributes[index].localname!!
     }
 
     override fun getAttributePrefix(index: Int): String {
-        if (index >= attributeCount) throw IndexOutOfBoundsException()
-        return attributes[(index shl 2) + 1]!!
+        return attributes[index].prefix!!
     }
 
     override fun getAttributeValue(index: Int): String {
-        if (index >= attributeCount) throw IndexOutOfBoundsException()
-        return attributes[(index shl 2) + 3]!!
+        return attributes[index].value!!
     }
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
-        var i = (attributeCount shl 2) - 4
-        while (i >= 0) {
-            if (attributes[i + 2] == localName && (nsUri == null || attributes[i] == nsUri)) return attributes[i + 3]
-            i -= 4
+        for (attrIdx in 0 until attributes.size) {
+            val attr = attributes[attrIdx]
+            if (attr.localname == localName && (nsUri == null || attr.namespace == nsUri)) {
+                return attr.value
+            }
         }
         return null
     }
-
-/*
-    private fun nextUnignored(): EventType {
-        txtPos = 0
-        isWhitespace = true
-        var minType = 9999
-        token = false
-        do {
-            nextImpl()
-            if (_eventType._eventType < minType) minType = _eventType
-            //	    if (curr <= TEXT) type = curr;
-        } while (minType > ENTITY_REF // ignorable
-            || minType >= TEXT && peekType() >= TEXT
-        )
-        _eventType = minType
-        if (_eventType > TEXT) _eventType = TEXT
-        return _eventType
-    }
-*/
 
     override fun next(): EventType {
         isWhitespace = true
@@ -850,11 +797,7 @@ public class KtXmlReader internal constructor(
     override fun hasNext(): Boolean {
         return _eventType != END_DOCUMENT // TODO handle this better
     }
-//
-    // utility methods to make XML parsing easier ...
 
-    //
-    // utility methods to make XML parsing easier ...
     override fun nextTag(): EventType {
         do {
             next()
@@ -870,22 +813,146 @@ public class KtXmlReader internal constructor(
         ) exception("expected: $type {$namespace}$name")
     }
 
-    private fun nextText(): String? {
-        if (_eventType != START_ELEMENT) exception("precondition: START_ELEMENT")
-        next()
-        val result: String?
-        if (_eventType == TEXT) {
-            result = text
-            next()
-        } else result = ""
-        if (_eventType != END_ELEMENT) exception("END_ELEMENT expected")
-        return result
-    }
-
     private companion object {
         const val UNEXPECTED_EOF = "Unexpected EOF"
         const val ILLEGAL_TYPE = "Wrong event type"
 
         const val processNsp = true
     }
+
+    private class ElementStack {
+        var data: Array<String?> = arrayOfNulls(16)
+            private set
+
+        var size: Int = 0
+            private set
+
+        operator fun get(idx: Int) = ElementDelegate(idx)
+
+        fun ensureCapacity(required: Int) {
+            if (data.size >= required) return
+
+            data = data.copyOf(required + 16)
+        }
+
+    }
+
+    @JvmInline
+    private value class ElementDelegate(val index: Int)
+
+    private var ElementDelegate.namespace: String?
+        get() {
+            if (index !in 0..depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 4]
+        }
+        set(value) {
+            elementStack.data[index * 4] = value
+        }
+
+    private var ElementDelegate.prefix: String?
+        get() {
+            if (index !in 0..depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 4 + 1]
+        }
+        set(value) {
+            elementStack.data[index * 4 + 1] = value
+        }
+
+    private var ElementDelegate.localname: String?
+        get() {
+            if (index !in 0..depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 4 + 2]
+        }
+        set(value) {
+            elementStack.data[index * 4 + 2] = value
+        }
+
+    private var ElementDelegate.fullName: String?
+        get() {
+            if (index !in 0..depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 4 + 3]
+        }
+        set(value) {
+            elementStack.data[index * 4 + 3] = value
+        }
+
+    private class AttributesCollection {
+        var data: Array<String?> = arrayOfNulls(16)
+            private set
+
+        var size: Int = 0
+            private set
+
+        operator fun get(index: Int): AttributeDelegate = AttributeDelegate(index)
+
+        fun removeAttr(attr: AttributeDelegate) {
+            data.copyInto(data, attr.index, attr.index + 4, ((size--) * 4))
+            data.fill(null, size * 4, size * 4 + 4)
+        }
+
+        fun clear(newSize: Int = -1) {
+            if (size > 0) {
+                data.fill(null, 0, size * 4)
+            }
+            size = newSize
+        }
+
+        fun ensureCapacity(required: Int) {
+            val requiredSize = required * 4
+            if (data.size >= requiredSize) return
+
+            data = data.copyOf(requiredSize + 16)
+        }
+
+        fun addNoNS(attrName: String, attrValue: String) {
+            size = if (size < 0) 1 else size + 1
+
+            ensureCapacity(size)
+            var i = size * 4 - 4
+
+            data[i++] = ""
+            data[i++] = null
+            data[i++] = attrName
+            data[i] = attrValue
+        }
+    }
+
+    @JvmInline
+    private value class AttributeDelegate(val index: Int)
+
+    private var AttributeDelegate.namespace: String?
+        get() {
+            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
+            return attributes.data[index * 4]
+        }
+        set(value) {
+            attributes.data[index * 4] = value
+        }
+
+    private var AttributeDelegate.prefix: String?
+        get() {
+            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
+            return attributes.data[index * 4 + 1]
+        }
+        set(value) {
+            attributes.data[index * 4 + 1] = value
+        }
+
+    private var AttributeDelegate.localname: String?
+        get() {
+            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
+            return attributes.data[index * 4 + 2]
+        }
+        set(value) {
+            attributes.data[index * 4 + 2] = value
+        }
+
+    private var AttributeDelegate.value: String?
+        get() {
+            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
+            return attributes.data[index * 4 + 3]
+        }
+        set(value) {
+            attributes.data[index * 4 + 3] = value
+        }
 }
