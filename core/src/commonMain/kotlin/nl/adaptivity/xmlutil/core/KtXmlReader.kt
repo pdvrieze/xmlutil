@@ -45,13 +45,26 @@ public class KtXmlReader internal constructor(
     override val isStarted: Boolean
         get() = _eventType != null
 
-    private var _name: String? = null
-    public override val localName: String
-        get() = _name ?: throw XmlException("Missing name")
+    private var entityName: String? = null
 
-    private var _namespace: String? = null
+    public override val localName: String
+        get() = when (_eventType) {
+            ENTITY_REF -> entityName ?: throw XmlException("Missing entity name")
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].localName ?: throw XmlException("Missing local name")
+            else -> throw IllegalStateException("Local name not accessible outside of element tags")
+        }
+
     public override val namespaceURI: String
-        get() = _namespace ?: throw XmlException("Missing namespace")
+        get() = when (_eventType) {
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].namespace ?: throw XmlException("Missing namespace")
+            else -> throw IllegalStateException("Local name not accessible outside of element tags")
+        }
+
+    public override val prefix: String
+        get() = when (_eventType) {
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException("Missing prefix")
+            else -> throw IllegalStateException("Local name not accessible outside of element tags")
+        }
 
     private var isSelfClosing = false
 
@@ -76,7 +89,7 @@ public class KtXmlReader internal constructor(
     /**
      * A separate peek buffer seems simpler than managing
      * wrap around in the first level read buffer
-     */ // TODO review this
+     */
     private val peek = IntArray(2)
     private var peekCount = 0
 
@@ -87,9 +100,6 @@ public class KtXmlReader internal constructor(
         it["lt"] = "<"
         it["quot"] = "\""
     }
-
-    private var location: Any? = null
-
 
     private val namespaceHolder = NamespaceHolder()
 
@@ -106,10 +116,6 @@ public class KtXmlReader internal constructor(
 
     private var isWhitespace = false
 
-    private var _prefix: String? = null
-    public override val prefix: String
-        get() = _prefix ?: throw XmlException("Missing prefix")
-
     //    private int stackMismatch = 0;
     private var error: String? = null
 
@@ -124,7 +130,6 @@ public class KtXmlReader internal constructor(
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
-
     override fun close() {
         //NO-Op
     }
@@ -138,7 +143,7 @@ public class KtXmlReader internal constructor(
         while (attrIdx < (attributes.size)) {
             val attr = attributes[attrIdx]
 
-            var attrName: String? = attr.localname
+            var attrName: String? = attr.localName
             val cIndex = attrName!!.indexOf(':')
             var prefix: String
             if (cIndex >= 0) {
@@ -168,7 +173,7 @@ public class KtXmlReader internal constructor(
         if (hasActualAttributeWithPrefix) {
             var i = attributes.size - 1
             while (i >= 0) {
-                var attrName = attributes[i].localname!!
+                var attrName = attributes[i].localName!!
                 val cIndex = attrName.indexOf(':')
                 if (cIndex == 0 && !relaxed) {
                     throw RuntimeException("illegal attribute name: $attrName at $this")
@@ -179,31 +184,33 @@ public class KtXmlReader internal constructor(
                     if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
                     attributes[i].namespace = attrNs
                     attributes[i].prefix = attrPrefix
-                    attributes[i].localname = attrName
+                    attributes[i].localName = attrName
 
                 }
                 i -= 1
             }
         }
 
-        val cut = fullName.indexOf(':') // TODO store name temporarily
-        if (cut == 0) error("illegal tag name: $name")
+        val cIdx = fullName.indexOf(':')
+        if (cIdx == 0) error("illegal tag name: $fullName")
         val prefix: String
         val localName: String
-        if (cut != -1) {
-            prefix = fullName.substring(0, cut)
-            localName = fullName.substring(cut + 1)
+        if (cIdx != -1) {
+            prefix = fullName.substring(0, cIdx)
+            localName = fullName.substring(cIdx + 1)
         } else {
             prefix = ""
             localName = fullName
         }
 
-        _prefix = prefix
-        _name = localName
-        _namespace = namespaceHolder.getNamespaceUri(prefix) ?: run {
-            if (cut >= 0) error("undefined prefix: $prefix")
+        val ns = namespaceHolder.getNamespaceUri(prefix) ?: run {
+            if (cIdx >= 0) error("undefined prefix: $prefix")
             XMLConstants.NULL_NS_URI
         }
+        val d = depth - 1
+        elementStack[d].prefix = prefix
+        elementStack[d].localName = localName
+        elementStack[d].namespace = ns
 
         return hasActualAttributeWithPrefix
     }
@@ -214,7 +221,7 @@ public class KtXmlReader internal constructor(
         } else exception(desc)
     }
 
-    private fun exception(desc: String) {
+    private fun exception(desc: String): Nothing {
         throw XmlException(
             when {
                 desc.length < 100 -> desc
@@ -240,7 +247,7 @@ public class KtXmlReader internal constructor(
                 _eventType = END_ELEMENT
                 return
             }
-            error?.let { e -> // TODO Error should be different
+            error?.let { e ->
                 for (element in e) push(element.code)
 
                 this.error = null
@@ -248,9 +255,6 @@ public class KtXmlReader internal constructor(
                 return
             }
 
-            _prefix = null
-            _name = null
-            _namespace = null
             //            text = null;
             _eventType = peekType()
             when (_eventType) {
@@ -306,14 +310,14 @@ public class KtXmlReader internal constructor(
                 if ((peek(0) == 'l'.code || peek(0) == 'L'.code) && peek(1) <= ' '.code) {
                     if (line != 1 || column > 4) error("PI must not start with xml")
                     parseStartTag(true)
-                    if (attributeCount < 1 || "version" != attributes[0].localname) error("version expected")
+                    if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
                     version = attributes[0].value
                     var pos = 1
-                    if (pos < attributeCount && "encoding" == attributes[1].localname) {
+                    if (pos < attributeCount && "encoding" == attributes[1].localName) {
                         encoding = attributes[1].value
                         pos++
                     }
-                    if (pos < attributeCount && "standalone" == attributes[pos].localname
+                    if (pos < attributeCount && "standalone" == attributes[pos].localName
                     ) {
                         val st = attributes[pos].value
                         if ("yes" == st) standalone = true else if ("no" == st) standalone =
@@ -402,7 +406,7 @@ public class KtXmlReader internal constructor(
     private fun parseEndTag() {
         read() // '<'
         read() // '/'
-        val fullName = readName() // TODO store local before handling namespaces
+        val fullName = readName()
         skip()
         read('>')
         val spIdx = depth - 1
@@ -412,12 +416,12 @@ public class KtXmlReader internal constructor(
             return
         }
         if (!relaxed) {
-            if (fullName != elementStack[spIdx].fullName) {
+            val expectedPrefix = elementStack[spIdx].prefix ?: exception("Missing prefix")
+            val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
+            val expectedFullname = if (expectedPrefix.isEmpty()) expectedLocalName else "$expectedPrefix:$expectedLocalName"
+            if (fullName != expectedFullname) {
                 error("expected: /${elementStack[spIdx].fullName} read: $fullName")
             }
-            _namespace = elementStack[spIdx].namespace
-            _prefix = elementStack[spIdx].prefix
-            _name = elementStack[spIdx].localname
         }
     }
 
@@ -425,10 +429,10 @@ public class KtXmlReader internal constructor(
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
-            '<'.code -> when (peek(1).toChar()) {
-                '/' -> END_ELEMENT
-                '?' -> PROCESSING_INSTRUCTION
-                '!' -> COMMENT
+            '<'.code -> when (peek(1)) {
+                '/'.code -> END_ELEMENT
+                '?'.code -> PROCESSING_INSTRUCTION
+                '!'.code -> COMMENT
                 else -> START_ELEMENT
             }
             else -> TEXT
@@ -521,14 +525,15 @@ public class KtXmlReader internal constructor(
         namespaceHolder.incDepth()
         elementStack.ensureCapacity(depth)
 
-        elementStack[d].fullName = fullName  // TODO don't split this stuff half into adjustNsp
+        elementStack[d].fullName = fullName
 
-        if (processNsp) adjustNsp(fullName) else {
-            _namespace = ""; _prefix = ""; _name = fullName
+        if (processNsp) {
+            adjustNsp(fullName)
+        } else {
+            elementStack[d].namespace = ""
+            elementStack[d].prefix = ""
+            elementStack[d].localName = fullName
         }
-        elementStack[d].namespace = _namespace
-        elementStack[d].prefix = _prefix
-        elementStack[d].localname = _name
     }
 
     /**
@@ -561,7 +566,7 @@ public class KtXmlReader internal constructor(
         val code = get(pos)
         txtBufPos = pos - 1
         if (token && _eventType == ENTITY_REF) {
-            _name = code
+            entityName = code
         }
         if (code[0] == '#') {
             val c = if (code[1] == 'x') code.substring(2).toInt(16) else code.substring(1).toInt()
@@ -694,7 +699,7 @@ public class KtXmlReader internal constructor(
                 if (isSelfClosing) buf.append("(empty) ")
                 buf.append('<')
                 if (et == END_ELEMENT) buf.append('/')
-                if (_prefix != null) buf.append("{$_namespace}$prefix:")
+                if (elementStack[depth].prefix != null) buf.append("{$namespaceURI}$prefix:")
                 buf.append(name)
 
                 for (x in 0 until attributes.size) {
@@ -703,7 +708,7 @@ public class KtXmlReader internal constructor(
                     if (a.namespace != null) {
                         buf.append('{').append(a.namespace).append('}').append(a.prefix).append(':')
                     }
-                    buf.append("${a.localname}='${a.value}'")
+                    buf.append("${a.localName}='${a.value}'")
                 }
 
                 buf.append('>')
@@ -720,11 +725,7 @@ public class KtXmlReader internal constructor(
             }
         }
         buf.append("@$line:$column in ")
-        if (location != null) {
-            buf.append(location)
-        } else {
-            buf.append(reader.toString())
-        }
+        buf.append(reader.toString())
         return buf.toString()
     }
 
@@ -765,7 +766,7 @@ public class KtXmlReader internal constructor(
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        return attributes[index].localname!!
+        return attributes[index].localName!!
     }
 
     override fun getAttributePrefix(index: Int): String {
@@ -779,7 +780,7 @@ public class KtXmlReader internal constructor(
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
         for (attrIdx in 0 until attributes.size) {
             val attr = attributes[attrIdx]
-            if (attr.localname == localName && (nsUri == null || attr.namespace == nsUri)) {
+            if (attr.localName == localName && (nsUri == null || attr.namespace == nsUri)) {
                 return attr.value
             }
         }
@@ -808,8 +809,8 @@ public class KtXmlReader internal constructor(
     }
 
     override fun require(type: EventType, namespace: String?, name: String?) {
-        if (type != this._eventType || namespace != null && namespace != _namespace
-            || name != null && name != this._name
+        if (type != this._eventType || namespace != null && namespace != elementStack[depth].namespace
+            || name != null && name != elementStack[depth].localName
         ) exception("expected: $type {$namespace}$name")
     }
 
@@ -858,7 +859,7 @@ public class KtXmlReader internal constructor(
             elementStack.data[index * 4 + 1] = value
         }
 
-    private var ElementDelegate.localname: String?
+    private var ElementDelegate.localName: String?
         get() {
             if (index !in 0..depth) throw IndexOutOfBoundsException()
             return elementStack.data[index * 4 + 2]
@@ -938,7 +939,7 @@ public class KtXmlReader internal constructor(
             attributes.data[index * 4 + 1] = value
         }
 
-    private var AttributeDelegate.localname: String?
+    private var AttributeDelegate.localName: String?
         get() {
             if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
             return attributes.data[index * 4 + 2]
