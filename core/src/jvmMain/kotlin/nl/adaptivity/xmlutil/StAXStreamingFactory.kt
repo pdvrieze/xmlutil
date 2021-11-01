@@ -66,8 +66,7 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(reader: Reader): XmlReader {
         try {
-            return KtXmlReader(reader)
-//            return StAXReader(reader)
+            return StAXReader(reader)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
