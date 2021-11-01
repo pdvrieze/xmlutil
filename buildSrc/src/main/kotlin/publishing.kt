@@ -30,8 +30,6 @@ import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 
-private const val POM_NS = "http://maven.apache.org/POM/4.0.0"
-
 @Suppress("LocalVariableName")
 fun Project.doPublish(
     pubName: String = project.displayName,
@@ -75,22 +73,22 @@ fun Project.doPublish(
 
             }
         }
+
         configure<SigningExtension> {
             useGpgCmd()
         }
+
         val javadocJarTask = tasks.create<Jar>("javadocJar") {
             archiveClassifier.set("javadoc")
             from(tasks.named("dokkaHtml"))
         }
+
         publications.withType<MavenPublication> {
             artifact(javadocJarTask)
 
             val pub = this
             configure<SigningExtension> {
-                setRequired { true
-//                    (project.extra["isReleaseVersion"] as Boolean) &&
-//                    gradle.taskGraph.hasTask("publishAllPublicationsToOSS_registryRepository")
-                }
+                setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
 
                 sign(pub)
             }
@@ -102,7 +100,7 @@ fun Project.doPublish(
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                     }
                 }
                 developers {
@@ -121,10 +119,12 @@ fun Project.doPublish(
 
         }
     }
+
     val publishNativeTask = tasks.create<Task>("publishNative") {
         group = "Publishing"
         description = "Task to publish all native artefacts only"
     }
+
     tasks.withType<PublishToMavenRepository> {
         if (this.isEnabled && arrayOf("Js", "Jvm", "Android").none { "${it}Publication" in name }) {
             publishNativeTask.dependsOn(this)

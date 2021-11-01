@@ -26,7 +26,10 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder
 
-fun Project.configureDokka(myModuleName: String = name, myModuleVersion: String? = property("xmlutil_version") as String?) {
+fun Project.configureDokka(
+    myModuleName: String = name,
+    myModuleVersion: String? = property("xmlutil_version") as String?
+) {
     tasks.withType<DokkaTask> {
         moduleName.set(myModuleName)
         myModuleVersion.let { moduleVersion.set(it) }
@@ -45,7 +48,7 @@ fun Project.configureDokka(myModuleName: String = name, myModuleVersion: String?
 
 private fun Project.configureDokkaSourceSet(
     sourceSet: GradleDokkaSourceSetBuilder
-                                           ) = with(sourceSet){
+) = with(sourceSet) {
     logger.lifecycle("Configuring dokka on sourceSet: $name = ${displayName.orNull}")
     if (name.startsWith("android")) {
         noAndroidSdkLink.set(false)
@@ -54,13 +57,15 @@ private fun Project.configureDokkaSourceSet(
         noAndroidSdkLink.set(true)
         noJdkLink.set(false)
     }
-    displayName.set(when(val dn = displayName.get()){
-        "jvm" -> "JVM"
-        "android" -> "Android"
-        "common" -> "Common"
-        "js" -> "JS"
-        else -> dn
-    })
+    displayName.set(
+        when (val dn = displayName.get()) {
+            "jvm" -> "JVM"
+            "android" -> "Android"
+            "common" -> "Common"
+            "js" -> "JS"
+            else -> dn
+        }
+    )
     includeNonPublic.set(false)
     skipEmptyPackages.set(true)
     skipDeprecated.set(true)
@@ -68,13 +73,13 @@ private fun Project.configureDokkaSourceSet(
         matchingRegex.set(".*\\.(impl|internal)(|\\..*)")
         suppress.set(true)
     }
-    if ("Main" in name)  {
+    if ("Main" in name) {
         val readme = project.file(project.relativePath("src/README.md"))
         if (readme.exists() && readme.canRead()) {
             includes.from(listOf(readme))
-            logger.lifecycle("Adding ${readme} to sourceSet ${project.name}:${name}(${displayName.orNull})")
+            logger.lifecycle("Adding $readme to sourceSet ${project.name}:${name}(${displayName.orNull})")
         } else {
-            logger.warn("Missing ${readme} for project ${project.name}")
+            logger.warn("Missing $readme for project ${project.name}")
         }
     }
 }

@@ -22,35 +22,19 @@ package net.devrieze.gradle.ext
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectCollection
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
-import org.gradle.kotlin.dsl.getting
-import org.gradle.kotlin.dsl.named
-import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
-import org.jetbrains.kotlin.gradle.dsl.KotlinTargetContainerWithPresetFunctions
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 
 enum class NativeState {
     ALL, HOST, SINGLE, DISABLED
-}
-
-internal fun getHostName(): String {
-    val target = System.getProperty("os.name")
-    return when {
-        target == "Linux" -> "linux"
-        target.startsWith("Windows") -> "windows"
-        target.startsWith("Mac") -> "macos"
-        else -> "unknown"
-    }
 }
 
 private fun NamedDomainObjectCollection<KotlinTargetPreset<*>>.nativePreset(name: String): AbstractKotlinNativeTargetPreset<*> {
@@ -72,7 +56,7 @@ fun Project.addNativeTargets() {
     val kotlin = extensions.getByName<KotlinMultiplatformExtension>("kotlin")
 
     val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>> = kotlin.presets
-    val linuxEnabled = manager.isEnabled(presets.nativePreset("linuxX64").konanTarget)
+
     val macosEnabled = manager.isEnabled(presets.nativePreset("macosX64").konanTarget)
     val winEnabled = manager.isEnabled(presets.nativePreset("mingwX64").konanTarget)
 
@@ -90,7 +74,7 @@ fun Project.addNativeTargets() {
         nativeTestSets.add(compilations.getByName("test").kotlinSourceSets.first())
     }
 
-    fun KotlinTargetContainerWithPresetFunctions.addTarget(targetName: String) {
+    fun addTarget(targetName: String) {
         kotlin.targetFromPreset(presets.getByName<AbstractKotlinNativeTargetPreset<*>>(targetName)) {
             addSourceSets()
         }
@@ -132,7 +116,7 @@ fun Project.addNativeTargets() {
             sourceSets {
                 val commonMain = getByName("commonMain")
                 val commonTest = getByName("commonTest")
-                if(singleTargetMode) {
+                if (singleTargetMode) {
                     getByName("nativeMain") { dependsOn(commonMain) }
                     getByName("nativeTest") { dependsOn(commonTest) }
                 } else {

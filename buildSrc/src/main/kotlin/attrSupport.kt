@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Project
