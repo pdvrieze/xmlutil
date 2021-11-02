@@ -45,7 +45,7 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
         FragmentNamespaceContext(null, emptyArray(), emptyArray())
 
     public constructor(reader: Reader, namespaces: Iterable<Namespace>) : this(getDelegate(reader, namespaces)) {
-        if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
+        if (delegate.isStarted && delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
     override fun getNamespaceURI(prefix: String): String? {

@@ -45,7 +45,7 @@ public actual class XMLFragmentStreamReader constructor(reader: Reader, namespac
     )
 
     init {
-        if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
+        if (delegate.isStarted && delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
     override fun getNamespaceURI(prefix: String): String? {
