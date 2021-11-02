@@ -817,9 +817,11 @@ public class KtXmlReader internal constructor(
     }
 
     override fun require(type: EventType, namespace: String?, name: String?) {
-        if (type != this._eventType || namespace != null && namespace != elementStack[depth].namespace
-            || name != null && name != elementStack[depth].localName
-        ) exception("expected: $type {$namespace}$name")
+        if (type != this._eventType || (namespace != null && namespace != elementStack[depth-1].namespace)
+            || (name != null && name != elementStack[depth-1].localName)
+        ) {
+            exception("expected: $type {$namespace}$name, found: $_eventType {$namespaceURI}$localName")
+        }
     }
 
     private companion object {
