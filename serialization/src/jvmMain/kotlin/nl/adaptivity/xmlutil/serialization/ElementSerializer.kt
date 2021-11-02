@@ -198,6 +198,7 @@ public class WrappedDeserializationStrategy<T>(
     }
 }
 
+@OptIn(WillBePrivate::class)
 private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDeserializationStrategy<T> {
     return WrappedDeserializationStrategy(this, document)
 }

@@ -87,8 +87,8 @@ private constructor(
                     copy()
                 autoPolymorphic == null ->
                     copy(unknownChildHandler = unknownChildHandler!!)
-                unknownChildHandler==null ->
-                    copy(autoPolymorphic=autoPolymorphic)
+                unknownChildHandler == null ->
+                    copy(autoPolymorphic = autoPolymorphic)
                 else ->
                     copy()
             }
@@ -106,7 +106,9 @@ private constructor(
     public var isInlineCollapsed: Boolean = true
         private set
 
+    @Suppress("DEPRECATION")
     @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalXmlUtilApi
     @Deprecated("Use the primary constructor that takes a recoverable child handler")
     public constructor(
         repairNamespaces: Boolean = true,
@@ -138,7 +140,7 @@ private constructor(
         if (omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
         indentString,
         autoPolymorphic,
-        UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+        UnknownChildHandler { input, inputKind, _, name, candidates ->
             unknownChildHandler(input, inputKind, name, candidates)
             emptyList()
         }
@@ -195,24 +197,26 @@ private constructor(
      * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
      *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
      * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
-     *                  characters, everything else as 1. When setting it it will update [indentString] with `indent` space characters
+     *                  characters, everything else as 1. When setting it will update [indentString] with `indent` space characters
      * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
      *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
      *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
-     * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+     * @property unknownChildHandler A function that is called when an unknown child is found. By default, an exception is thrown
      *                     but the function can silently ignore it as well.
      */
     @OptIn(ExperimentalSerializationApi::class)
-    public class Builder constructor(
+    public class Builder @ExperimentalXmlUtilApi constructor(
         public var repairNamespaces: Boolean = true,
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
         public var autoPolymorphic: Boolean? = null,
+        @ExperimentalXmlUtilApi
         public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @ExperimentalXmlUtilApi
         public var policy: XmlSerializationPolicy? = null
     ) {
 
+        @ExperimentalXmlUtilApi
         public constructor(
             repairNamespaces: Boolean = true,
             xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
@@ -220,8 +224,16 @@ private constructor(
             autoPolymorphic: Boolean = false,
             unknownChildHandler: NonRecoveryUnknownChildHandler,
             policy: XmlSerializationPolicy? = null
-        ) :this(repairNamespaces, xmlDeclMode, indentString, autoPolymorphic, unknownChildHandler.asRecoverable(), policy)
+        ) : this(
+            repairNamespaces,
+            xmlDeclMode,
+            indentString,
+            autoPolymorphic,
+            unknownChildHandler.asRecoverable(),
+            policy
+        )
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         public constructor(config: XmlConfig) : this(
             config.repairNamespaces,
             config.xmlDeclMode,
@@ -237,6 +249,7 @@ private constructor(
         }
 
 
+        @ExperimentalXmlUtilApi
         @OptIn(ExperimentalSerializationApi::class)
         @Deprecated("Use version taking XmlDeclMode")
         public constructor(
@@ -253,6 +266,7 @@ private constructor(
             unknownChildHandler.asRecoverable()
         )
 
+        @ExperimentalXmlUtilApi
         @OptIn(ExperimentalSerializationApi::class)
         @Suppress("DEPRECATION")
         @Deprecated("Use version taking XmlDeclMode")
@@ -264,6 +278,7 @@ private constructor(
             unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER,
         ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
+        @ExperimentalXmlUtilApi
         @Deprecated("If using the constructor directly, use the one that uses the recoverable child handler")
         @OptIn(ExperimentalSerializationApi::class)
         public constructor(
@@ -274,6 +289,7 @@ private constructor(
             unknownChildHandler: NonRecoveryUnknownChildHandler
         ) : this(repairNamespaces, xmlDeclMode, indent, autoPolymorphic, unknownChildHandler.asRecoverable())
 
+        @ExperimentalXmlUtilApi
         @OptIn(ExperimentalSerializationApi::class)
         public constructor(
             repairNamespaces: Boolean = true,
@@ -340,14 +356,14 @@ private constructor(
 
     public companion object {
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-        @OptIn(ExperimentalSerializationApi::class)
+        @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         public val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
                 throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)
             }
 
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-        @OptIn(ExperimentalSerializationApi::class)
+        @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         public val DEFAULT_NONRECOVERABLE_CHILD_HANDLER: NonRecoveryUnknownChildHandler =
             { input, inputKind, name, candidates ->
                 throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)
@@ -355,10 +371,11 @@ private constructor(
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
 @ExperimentalXmlUtilApi
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun NonRecoveryUnknownChildHandler.asRecoverable(): UnknownChildHandler {
-    return UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+    return UnknownChildHandler { input, inputKind, _, name, candidates ->
         this(input, inputKind, name, candidates)
         emptyList()
     }

@@ -56,7 +56,7 @@ internal open class XmlDecoderBase internal constructor(
                         input.getAttributeLocalName(i) == "nil" &&
                         input.getAttributeValue(i) == "true") ||
                         (input.getAttributeName(i) == config.nilAttribute?.first &&
-                                input.getAttributeValue(i) == config.nilAttribute!!.second)
+                                input.getAttributeValue(i) == config.nilAttribute.second)
             }
             if (hasNilAttr) return true // we detected a nullable element
         }

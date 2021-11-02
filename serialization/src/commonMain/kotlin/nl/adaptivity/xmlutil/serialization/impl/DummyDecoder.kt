@@ -32,7 +32,9 @@ import kotlinx.serialization.modules.SerializersModule
  * Simple class that decodes a statically provided value (or throws an exception when the types are incorrect)
  */
 public class DummyDecoder(public val value: Any?) : Decoder {
-    override val serializersModule: SerializersModule get() = EmptySerializersModule
+    @OptIn(ExperimentalSerializationApi::class)
+    override val serializersModule: SerializersModule
+        get() = EmptySerializersModule
 
     override fun decodeBoolean(): Boolean = value as Boolean
 

@@ -27,15 +27,15 @@ public class CombiningReader(private vararg val sources: Reader) : Reader(), Clo
 
     private var currentSource: Int = 0
 
-    public override fun read(cbuf: CharArray, off: Int, len: Int): Int {
+    public override fun read(buf: CharArray, offset: Int, len: Int): Int {
         if (currentSource >= sources.size) return -1
 
         val source = sources[currentSource]
-        val i = source.read(cbuf, off, len)
+        val i = source.read(buf, offset, len)
         if (i < 0) {
             (source as? Closeable)?.close()
             ++currentSource
-            return read(cbuf, off, len)
+            return read(buf, offset, len)
         }
         return i
     }

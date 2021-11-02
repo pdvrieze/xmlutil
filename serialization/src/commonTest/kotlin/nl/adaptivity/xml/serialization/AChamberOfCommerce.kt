@@ -23,6 +23,7 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlin.test.Test
 
 
 class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
@@ -41,6 +42,10 @@ class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
     override val expectedJson: String =
         "{\"name\":\"hightech\",\"members\":[{\"name\":\"foo\",\"headOffice\":null},{\"name\":\"bar\",\"headOffice\":null}]}"
 
+    @Test
+    override fun testGenericDeserializeXml() {
+        super.testGenericDeserializeXml()
+    }
 
     @Serializable
     @XmlSerialName("chamber")

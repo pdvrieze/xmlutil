@@ -33,7 +33,6 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
     }
     bufferedInput.mark(4000)
     val srcBuf = CharArray(4000)
-    var srcBufPos = 0
     var srcBufCount = 0
     var enc = encoding
 
@@ -51,33 +50,27 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                 when (chk) {
                     0x00000FEFF -> {
                         enc = "UTF-32BE"
-                        srcBufCount = 0
                     }
                     -0x20000 -> {
                         enc = "UTF-32LE"
-                        srcBufCount = 0
                     }
                     0x03c -> {
                         enc = "UTF-32BE"
                         srcBuf[0] = '<'
-                        srcBufCount = 1
                     }
                     0x03c000000 -> {
                         enc = "UTF-32LE"
                         srcBuf[0] = '<'
-                        srcBufCount = 1
                     }
                     0x0003c003f -> {
                         enc = "UTF-16BE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
-                        srcBufCount = 2
                     }
                     0x03c003f00 -> {
                         enc = "UTF-16LE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
-                        srcBufCount = 2
                     }
                     0x03c3f786d -> {
                         while (true) {
@@ -131,29 +124,23 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                         if (chk and -0x10000 == -0x1010000) {
                             enc = "UTF-16BE"
                             srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                            srcBufCount = 1
                         } else if (chk and -0x10000 == -0x20000) {
                             enc = "UTF-16LE"
                             srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                            srcBufCount = 1
                         } else if (chk and -0x100 == -0x10444100) {
                             enc = "UTF-8"
                             srcBuf[0] = srcBuf[3]
-                            srcBufCount = 1
                         }
                     }
                     else -> if (chk and -0x10000 == -0x1010000) {
                         enc = "UTF-16BE"
                         srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                        srcBufCount = 1
                     } else if (chk and -0x10000 == -0x20000) {
                         enc = "UTF-16LE"
                         srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                        srcBufCount = 1
                     } else if (chk and -0x100 == -0x10444100) {
                         enc = "UTF-8"
                         srcBuf[0] = srcBuf[3]
-                        srcBufCount = 1
                     }
                 }
             }

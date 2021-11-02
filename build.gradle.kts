@@ -19,6 +19,9 @@
  */
 
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
 plugins {
     idea
@@ -66,7 +69,48 @@ allprojects {
         }
     }
 
+    tasks.withType<KotlinNpmInstallTask> {
+        args += "--ignore-scripts"
+        dependsOn(":restoreYarnLock")
+    }
+
 }
+
+rootProject.plugins.withType(YarnPlugin::class.java) {
+    rootProject.the<YarnRootExtension>().disableGranularWorkspaces()
+}
+
+tasks.register("backupYarnLock") {
+    dependsOn("kotlinNpmInstall")
+
+    doLast {
+        copy {
+            from("$rootDir/build/js/yarn.lock")
+            rename { "yarn.lock.bak" }
+            into(rootDir)
+        }
+    }
+
+    inputs.file("$rootDir/build/js/yarn.lock").withPropertyName("inputFile")
+    outputs.file("$rootDir/yarn.lock.bak").withPropertyName("outputFile")
+}
+
+val restoreYarnLock = tasks.register("restoreYarnLock") {
+    doLast {
+        copy {
+            from("$rootDir/yarn.lock.bak")
+            rename { "yarn.lock" }
+            into("$rootDir/build/js")
+        }
+    }
+
+    inputs.file("$rootDir/yarn.lock.bak").withPropertyName("inputFile")
+    outputs.file("$rootDir/build/js/yarn.lock").withPropertyName("outputFile")
+}
+
+//tasks.named("kotlinNpmInstall").configure {
+//    dependsOn(restoreYarnLock)
+//}
 
 configurations.all {
     resolutionStrategy {
