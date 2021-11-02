@@ -786,6 +786,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
 	public fun setStandalone (Ljava/lang/Boolean;)V
 	public fun setVersion (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/core/KtXmlReaderJavaKt {

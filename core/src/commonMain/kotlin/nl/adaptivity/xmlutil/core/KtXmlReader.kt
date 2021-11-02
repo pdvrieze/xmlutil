@@ -160,15 +160,14 @@ public class KtXmlReader internal constructor(
             }
             if (prefix != "xmlns") {
                 hasActualAttributeWithPrefix = true
+                attrIdx += 1
             } else {
                 namespaceHolder.addPrefixToContext(attrName, attributes[attrIdx].value)
                 if (attrName != null && attributes[attrIdx].value == "") error("illegal empty namespace")
 
                 //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
                 attributes.removeAttr(attr)
-                attrIdx -= 1
             }
-            attrIdx += 1
         }
         if (hasActualAttributeWithPrefix) {
             var i = attributes.size - 1
@@ -894,7 +893,7 @@ public class KtXmlReader internal constructor(
         operator fun get(index: Int): AttributeDelegate = AttributeDelegate(index)
 
         fun removeAttr(attr: AttributeDelegate) {
-            data.copyInto(data, attr.index, attr.index + 4, ((size--) * 4))
+            data.copyInto(data, attr.index * 4, attr.index * 4 + 4, ((size--) * 4))
             data.fill(null, size * 4, size * 4 + 4)
         }
 
