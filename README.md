@@ -57,41 +57,41 @@ repositories {
 ### Core
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:core:0.84.0-RC1")
 ```
 #### JVM -- uses the stax API not available on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.84.0-RC1")
 ```
 #### Android -- Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.84.0-RC1")
 ```
 #### JS -- Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.84.0-RC1")
 ```
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.84.0-RC1")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.84.0-RC1")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.84.0-RC1")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.82.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.84.0-RC1")
 ```
 
 ### Ktor
 ```groovy
-  implementation("io.github.pdvrieze.xmlutil:ktor:0.82.0")
+  implementation("io.github.pdvrieze.xmlutil:ktor:0.84.0-RC1")
 ```
 This module provides simple ktor support for xml (de)serialization. To use
 in your application use:

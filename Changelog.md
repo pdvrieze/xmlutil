@@ -1,5 +1,5 @@
-# 0.84.0
-*()<br />*
+# 0.84.0-RC1
+*(Nov 3, 2021)<br />*
 Features:
 - Add `@XmlCData` annotation to force serialization as CData for a type (#71)
 - Allow compact fragments to be used transparently in conjunction with the 
