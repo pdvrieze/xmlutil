@@ -62,12 +62,12 @@ jobs:
                         ~/.gradle/wrapper
                         ~/.konan/cache
                     key: ${{runner.os}}-build-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-            -   name: Check with gradle
-                run: ./gradlew check
+#            -   name: Check with gradle
+#                run: ./gradlew check
             -   id: publish-to-central
                 name: Publish with gradle
                 shell: bash
-                run: ./gradlew publish -Psignatory.keyId=6329ADE2B25B244B -Psignatory.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publish -Psigning.gnupg.keyId=6329ADE2B25B244B -Psigning.gnupg.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     build-and-publish-macos:
@@ -95,10 +95,10 @@ jobs:
                         ~/.gradle/wrapper
                         ~/.konan/cache
                     key: ${{runner.os}}-build-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-            -   name: Check with gradle
-                run: ./gradlew nativeTest
+#            -   name: Check with gradle
+#                run: ./gradlew nativeTest
             -   id: publish-to-central
                 name: Publish with gradle
-                run: ./gradlew publishNative -Pgpg.passphrase='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publishNative -Psigning.gnupg.keyId=6329ADE2B25B244B -Psigning.gnupg.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
