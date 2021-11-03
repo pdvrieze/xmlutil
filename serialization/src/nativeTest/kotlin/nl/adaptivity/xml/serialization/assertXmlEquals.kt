@@ -27,13 +27,14 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalXmlUtilApi::class)
 actual fun assertXmlEquals(expected: String, actual: String) {
     if (expected != actual) {
         val expectedReader = KtXmlReader(StringReader(expected)).apply { skipPreamble() }
         val actualReader = KtXmlReader(StringReader(actual)).apply { skipPreamble() }
 
         try {
-            assertXmlEquals(expectedReader, expectedReader)
+            assertXmlEquals(expectedReader, actualReader)
         } catch (e: AssertionError) {
             try {
                 assertEquals(expected, actual)
