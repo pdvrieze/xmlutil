@@ -67,7 +67,7 @@ jobs:
             -   id: publish-to-central
                 name: Publish with gradle
                 shell: bash
-                run: ./gradlew publish -Psigning.keyId=6329ADE2B25B244B -Psigning.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publish -Psignatory.keyId=6329ADE2B25B244B -Psignatory.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     build-and-publish-macos:
