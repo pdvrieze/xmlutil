@@ -41,14 +41,16 @@ sealed class Fruit {
     abstract val name: String
 }
 
+@Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
 @Serializable(with = Fruit.FruitSerializer::class)
 data class Apple(
     override val name: String,
     val numAppleSeeds: Int
-): Fruit()
+) : Fruit()
 
+@Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
 @Serializable(Fruit.FruitSerializer::class)
 data class Tomato(
     override val name: String,
     val color: String
-): Fruit()
+) : Fruit()

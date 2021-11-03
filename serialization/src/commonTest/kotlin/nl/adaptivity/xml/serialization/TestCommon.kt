@@ -27,13 +27,14 @@ import kotlinx.serialization.json.JsonBuilder
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-fun String.normalizeXml() = replace(" />", "/>")
+fun String.normalizeXml(): String = replace(" />", "/>")
     .replace(" ?>", "?>")
     .replace("\r\n", "\n")
     .replace("&gt;", ">")
@@ -45,6 +46,7 @@ fun JsonBuilder.defaultJsonTestConfiguration() {
 }
 
 
+@OptIn(ExperimentalXmlUtilApi::class)
 class TestCommon {
 
     @Test
@@ -110,7 +112,7 @@ class TestCommon {
 
     @Test
     fun serializeIntList() {
-        val data = IntList(listOf(1,2,3,4))
+        val data = IntList(listOf(1, 2, 3, 4))
         val expectedXml = "<IntList><values>1</values><values>2</values><values>3</values><values>4</values></IntList>"
         val xml = XML
         val serializer = IntList.serializer()
@@ -146,7 +148,7 @@ class TestCommon {
         val expected = StringWithMarkup("Chloroacetic acid, >=99%")
 
         val actual = xml.decodeFromString<StringWithMarkup>(
-            "<StringWithMarkup xmlns=\"http://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
+            "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
                     "    <String>Chloroacetic acid, &gt;=99%</String>\n" +
                     "</StringWithMarkup>"
         )
@@ -154,7 +156,7 @@ class TestCommon {
     }
 
 
-    @XmlSerialName("StringWithMarkup", "http://pubchem.ncbi.nlm.nih.gov/pug_view", "")
+    @XmlSerialName("StringWithMarkup", "https://pubchem.ncbi.nlm.nih.gov/pug_view", "")
     @Serializable
     data class StringWithMarkup(
         @XmlElement(true) @SerialName("String") val string: String = "",
@@ -181,7 +183,7 @@ class TestCommon {
         @XmlValue(true)
         val data: List<@Polymorphic Any>
     ) {
-        constructor(vararg data: Any): this(data.toList())
+        constructor(vararg data: Any) : this(data.toList())
 
     }
 
@@ -192,7 +194,7 @@ class TestCommon {
         val data: List<@Polymorphic Any>
     ) {
 
-        constructor(vararg data: Any): this(data.toList())
+        constructor(vararg data: Any) : this(data.toList())
 
         companion object {
             val module = SerializersModule {
@@ -212,7 +214,7 @@ class TestCommon {
         @XmlValue(true)
         val data: List<@Polymorphic Any>
     ) {
-        constructor(vararg data: Any): this(data.toList())
+        constructor(vararg data: Any) : this(data.toList())
 
     }
 

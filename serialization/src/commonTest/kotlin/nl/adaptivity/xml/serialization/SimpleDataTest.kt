@@ -21,6 +21,7 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.*
@@ -28,17 +29,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@OptIn(ExperimentalXmlUtilApi::class)
 class SimpleDataTest : TestBase<SimpleDataTest.Address>(
     Address("10", "Downing Street", "London"),
     Address.serializer()
-                                        ) {
+) {
     override val expectedXML: String =
         "<address houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
 
     override val expectedJson: String =
         "{\"houseNumber\":\"10\",\"street\":\"Downing Street\",\"city\":\"London\",\"status\":\"VALID\"}"
 
-    val unknownValues
+    private val unknownValues: String
         get() =
             "<address xml:lang=\"en\" houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
 
@@ -61,7 +63,7 @@ class SimpleDataTest : TestBase<SimpleDataTest.Address>(
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler(){ _, inputKind, _, name, _ ->
+            unknownChildHandler = UnknownChildHandler { _, inputKind, _, name, _ ->
                 ignoredName = name
                 ignoredKind = inputKind
                 emptyList()
@@ -85,6 +87,6 @@ class SimpleDataTest : TestBase<SimpleDataTest.Address>(
         val street: String,
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+    )
 
 }

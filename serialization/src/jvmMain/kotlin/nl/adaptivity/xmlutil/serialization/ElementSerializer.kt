@@ -171,6 +171,7 @@ private class DocumentCompositeDecoder(private val delegate: CompositeDecoder, v
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
+        @OptIn(WillBePrivate::class)
         return delegate.decodeSerializableElement(descriptor, index, deserializer.wrap(document), previousValue)
     }
 
@@ -181,6 +182,7 @@ private class DocumentCompositeDecoder(private val delegate: CompositeDecoder, v
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
     ): T? {
+        @OptIn(WillBePrivate::class)
         return delegate.decodeNullableSerializableElement(descriptor, index, deserializer.wrap(document), previousValue)
     }
 }

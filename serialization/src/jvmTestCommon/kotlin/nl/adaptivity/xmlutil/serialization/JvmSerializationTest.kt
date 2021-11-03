@@ -30,6 +30,7 @@ import kotlin.test.assertEquals
 
 class JvmSerializationTest {
 
+    @Suppress("DEPRECATION")
     @Test
     fun `deserialize DOM node from xml`() {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"

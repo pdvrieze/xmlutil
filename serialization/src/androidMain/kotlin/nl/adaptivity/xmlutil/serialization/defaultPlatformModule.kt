@@ -20,9 +20,11 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
+@OptIn(ExperimentalSerializationApi::class)
 @ExperimentalXmlUtilApi
 public actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule

@@ -22,53 +22,66 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class OptionalBooleanTest : TestBase<OptionalBooleanTest.Location>(
     Location(Address("1600", "Pensylvania Avenue", "Washington DC")),
     Location.serializer()
-                                                                  ) {
+) {
     override val expectedXML: String =
         "<Location><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
     override val expectedJson: String =
         "{\"addres\":{\"houseNumber\":\"1600\",\"street\":\"Pensylvania Avenue\",\"city\":\"Washington DC\",\"status\":\"VALID\"},\"temperature\":NaN}"
 
-    val noisyXml
+    private val noisyXml: String
         get() =
             "<Location><unexpected><address>Foo</address></unexpected><address houseNumber=\"1600\" street=\"Pensylvania Avenue\" city=\"Washington DC\" status=\"VALID\"/></Location>"
 
+    @Test
     fun fails_with_unexpected_child_tags() {
         val e = assertFailsWith<UnknownXmlFieldException> {
             XML.decodeFromString(serializer, noisyXml)
         }
         assertEquals(
-            "Could not find a field for name {http://www.w3.org/XML/1998/namespace}lang\n" +
-                    "  candidates: houseNumber, street, city, status at position [row,col {unknown-source}]: [1,1]",
-            e.message
-                    )
+            "Could not find a field for name unexpected\n  candidates: address, temperature",
+            e.message?.substringBeforeLast(" at position")
+        )
     }
 
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     @Test
     fun deserialize_with_unused_attributes_and_custom_handler() {
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
+        var ignoredDescriptor: XmlDescriptor? = null
+        var ignoredCandidates: Collection<Any>? = null
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+            unknownChildHandler = UnknownChildHandler { _, inputKind, descriptor, name, candidates ->
                 ignoredName = name
                 ignoredKind = inputKind
+                ignoredDescriptor = descriptor
+                ignoredCandidates = candidates
                 emptyList()
             }
         }
         assertEquals(value, xml.decodeFromString(serializer, noisyXml))
         assertEquals(QName(XMLConstants.NULL_NS_URI, "unexpected", ""), ignoredName)
         assertEquals(InputKind.Element, ignoredKind)
+        assertTrue(ignoredDescriptor is XmlCompositeDescriptor)
+        assertEquals(QName("Location"), ignoredDescriptor?.tagName)
+        assertEquals(QName("address"), ignoredDescriptor?.getElementDescriptor(0)?.tagName)
+        assertEquals(QName("temperature"), ignoredDescriptor?.getElementDescriptor(1)?.tagName)
+        assertEquals(setOf(QName("address"), QName("temperature")), ignoredCandidates?.toSet())
     }
 
     enum class AddresStatus { VALID, INVALID, TEMPORARY }

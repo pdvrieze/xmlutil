@@ -23,7 +23,6 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -48,7 +47,6 @@ class CustomSerializedClass : TestBase<CustomSerializedClass.CustomContainer>(
 
     data class Custom(val property: String)
 
-    @Serializer(forClass = Custom::class)
     class CustomSerializer : KSerializer<Custom> {
 
         override val descriptor: SerialDescriptor = serialDescriptor<String>()

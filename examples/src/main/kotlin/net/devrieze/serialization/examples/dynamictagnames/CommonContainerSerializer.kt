@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 /**
  * A common base class that contains the actual code needed to serialize/deserialize the container.
  */
-abstract class CommonContainerSerializer: KSerializer<Container> {
+abstract class CommonContainerSerializer : KSerializer<Container> {
     /** We need to have the serializer for the elements */
     private val elementSerializer = serializer<TestElement>()
 
@@ -82,27 +82,45 @@ abstract class CommonContainerSerializer: KSerializer<Container> {
                         // Comments and whitespace are just ignored
                     }
                     EventType.ENTITY_REF,
-                    EventType.TEXT                 -> if (reader.text.isNotBlank()) {
-                        // Some parsers can return whitespace as text instead of ignorable whitespace
+                    EventType.TEXT -> {
+                        if (reader.text.isNotBlank()) {
+                            // Some parsers can return whitespace as text instead of ignorable whitespace
 
-                        // Use the handler from the configuration to throw the exception.
-                        xml.config.policy.handleUnknownContentRecovering(reader, InputKind.Text, elementXmlDescriptor, null, emptyList())
+                            // Use the handler from the configuration to throw the exception.
+                            @OptIn(ExperimentalXmlUtilApi::class)
+                            xml.config.policy.handleUnknownContentRecovering(
+                                reader,
+                                InputKind.Text,
+                                elementXmlDescriptor,
+                                null,
+                                emptyList()
+                            )
+                        }
                     }
                     // It's best to still check the name before parsing
-                    EventType.START_ELEMENT        -> if(reader.namespaceURI.isEmpty() && reader.localName.startsWith("Test_")) {
-                        // When reading the child tag we use the DynamicTagReader to present normalized XML to the
-                        // deserializer for elements
-                        val filter = DynamicTagReader(reader, elementXmlDescriptor)
+                    EventType.START_ELEMENT -> {
+                        if (reader.namespaceURI.isEmpty() && reader.localName.startsWith("Test_")) {
+                            // When reading the child tag we use the DynamicTagReader to present normalized XML to the
+                            // deserializer for elements
+                            val filter = DynamicTagReader(reader, elementXmlDescriptor)
 
-                        // The test element can now be decoded as normal (with the filter applied)
-                        val testElement = xml.decodeFromReader(elementSerializer, filter)
-                        dataList.add(testElement)
-                    } else { // handling unexpected tags
-                        xml.config.policy.handleUnknownContentRecovering(reader, InputKind.Element, elementXmlDescriptor, reader.name, listOf("Test_??"))
+                            // The test element can now be decoded as normal (with the filter applied)
+                            val testElement = xml.decodeFromReader(elementSerializer, filter)
+                            dataList.add(testElement)
+                        } else { // handling unexpected tags
+                            @OptIn(ExperimentalXmlUtilApi::class)
+                            xml.config.policy.handleUnknownContentRecovering(
+                                reader,
+                                InputKind.Element,
+                                elementXmlDescriptor,
+                                reader.name,
+                                listOf("Test_??")
+                            )
+                        }
                     }
-                    else                           -> { // other content that shouldn't happen
+
+                    else -> // other content that shouldn't happen
                         throw XmlException("Unexpected tag content")
-                    }
                 }
             }
         }

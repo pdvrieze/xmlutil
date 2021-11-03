@@ -192,7 +192,6 @@ public sealed class XmlDescriptor(
                 is PolymorphicKind ->
                     return XmlPolymorphicDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
 
-
             }
 
             return when {

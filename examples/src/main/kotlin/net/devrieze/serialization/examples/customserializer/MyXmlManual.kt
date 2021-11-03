@@ -50,9 +50,9 @@ data class MyXmlManual(val attribute: String) {
     private class DescriptorDelegate(
         val attribute: String,
         @XmlSerialName("schemalocation", "http://www.w3.org/2001/XMLSchema-instance", "xsi")
-        @Required val schemalocation: String = "urn:OECD:MyXmlFile.xsd")
+        @Required val schemalocation: String = "urn:OECD:MyXmlFile.xsd"
+    )
 
-    @Serializer(MyXmlManual::class)
     companion object : KSerializer<MyXmlManual> {
         override val descriptor: SerialDescriptor =
             DescriptorDelegate.serializer().descriptor
@@ -60,7 +60,7 @@ data class MyXmlManual(val attribute: String) {
         private val NS_XSI = XmlEvent.NamespaceImpl(
             "xsi",
             "http://www.w3.org/2001/XMLSchema-instance"
-                                                   )
+        )
 
 
         override fun serialize(encoder: Encoder, value: MyXmlManual) {
@@ -68,12 +68,9 @@ data class MyXmlManual(val attribute: String) {
                 (encoder as? XML.XmlOutput)?.target?.run {
                     namespaceAttr(NS_XSI)
                     writeAttribute(
-                        QName(
-                            NS_XSI.namespaceURI,
-                            "schemalocation",
-                            "xsi"
-                             ), "urn:OECD:MyXmlFile.xsd"
-                                  )
+                        QName(NS_XSI.namespaceURI, "schemalocation", "xsi"),
+                        "urn:OECD:MyXmlFile.xsd"
+                    )
                 }
                 encodeStringElement(descriptor, 0, value.attribute)
             }
@@ -87,11 +84,10 @@ data class MyXmlManual(val attribute: String) {
                     when (idx) {
                         1, // just ignore the schema attribute
                         CompositeDecoder.DECODE_DONE -> continue
-                        0                            -> attribute =
-                            decodeStringElement(descriptor, 0)
-                        else                         -> throw SerializationException(
-                            "Not found"
-                                                                                    )
+
+                        0 -> attribute = decodeStringElement(descriptor, 0)
+                        
+                        else -> throw SerializationException("Not found")
                     }
                 } while (idx != CompositeDecoder.DECODE_DONE)
                 MyXmlManual(attribute)

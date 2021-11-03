@@ -20,11 +20,14 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.InputKind
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.test.Test
@@ -35,28 +38,26 @@ import kotlin.test.assertFailsWith
 class RecoveryTest {
 
     @Serializable
-    data class Data(
-        val a: String,
-        val b: String
-    )
+    data class Data(val a: String, val b: String)
 
-    @OptIn(ExperimentalXmlUtilApi::class)
+    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     @Test
     fun testDeserializeRecovering() {
-        val serialized ="<Data a=\"foo\" c=\"bar\" />"
+        val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
             unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
                 assertEquals(QName("c"), name)
-                listOf(
-                    XML.ParsedData<String?>(
-                        1,
-                        input.getAttributeValue(name!!)
-                    )
-                )
+                assertEquals(InputKind.Attribute, inputKind)
+                assertEquals(StructureKind.CLASS, descriptor.kind)
+                assertEquals(QName("a"), descriptor.getElementDescriptor(0).tagName)
+                assertEquals(QName("b"), descriptor.getElementDescriptor(1).tagName)
+                assertEquals(setOf(QName("a"), QName("b")), candidates)
+
+                listOf(XML.ParsedData(1, input.getAttributeValue(name!!)))
             }
         }
-        val parsed:Data = xml.decodeFromString(serialized)
+        val parsed: Data = xml.decodeFromString(serialized)
         val expected = Data("foo", "bar")
         assertEquals(expected, parsed)
     }
@@ -64,10 +65,10 @@ class RecoveryTest {
     @OptIn(ExperimentalXmlUtilApi::class)
     @Test
     fun testDeserializeRecoveringNotProvidingRequired() {
-        val serialized ="<Data a=\"foo\" c=\"bar\" />"
+        val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+            unknownChildHandler = UnknownChildHandler { _, _, _, name, _ ->
                 assertEquals(QName("c"), name)
                 emptyList()
             }
@@ -80,17 +81,14 @@ class RecoveryTest {
     @OptIn(ExperimentalXmlUtilApi::class)
     @Test
     fun testDeserializeRecoveringDuplicateData() {
-        val serialized ="<Data a=\"foo\" c=\"bar\" />"
+        val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+            unknownChildHandler = UnknownChildHandler { input, _, _, name, _ ->
                 assertEquals(QName("c"), name)
                 listOf(
-                    XML.ParsedData<String?>(
-                        1,
-                        input.getAttributeValue(name!!)
-                    ),
-                    XML.ParsedData<String>(1, "baz"),
+                    XML.ParsedData(1, input.getAttributeValue(name!!)),
+                    XML.ParsedData(1, "baz"),
                 )
             }
         }

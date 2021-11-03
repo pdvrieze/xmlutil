@@ -23,11 +23,13 @@ package net.devrieze.serialization.examples.jackson
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.XML
 
 fun main() {
     val t = Team(listOf(Person("Joe", 15)))
     val xml = XML {
+        @OptIn(ExperimentalXmlUtilApi::class)
         policy = JacksonPolicy
     }
 

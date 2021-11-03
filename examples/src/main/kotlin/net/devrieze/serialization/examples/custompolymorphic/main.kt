@@ -22,18 +22,19 @@ package net.devrieze.serialization.examples.custompolymorphic
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 
 val fruits: List<Fruit> = listOf(
     Apple("MyApple", 5),
     Tomato("MyTomato", "red")
-                                )
-
+)
 
 fun main() {
     val xml = XML {
-        this.policy = DefaultXmlSerializationPolicy(pedantic = true, autoPolymorphic = false)
+        @OptIn(ExperimentalXmlUtilApi::class)
+        policy = DefaultXmlSerializationPolicy(pedantic = true, autoPolymorphic = false)
     }
 
     println("Example fruits as XML:")
@@ -52,7 +53,7 @@ fun main() {
     fruits.forEach { fruit ->
         val s: KSerializer<out Fruit>
         val encoded = when (fruit) {
-            is Apple  -> {
+            is Apple -> {
                 s = Apple.serializer()
                 val a: Apple = fruit
                 xml.encodeToString(a)
