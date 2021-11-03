@@ -26,5 +26,5 @@ package nl.adaptivity.xmlutil
 public annotation class XmlUtilInternal
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR)
-@RequiresOptIn("This code is not stable and may be subject to binary and source incompatible changes", RequiresOptIn.Level.WARNING)
+@RequiresOptIn("This XML Serialization code is not stable and may be subject to binary and source incompatible changes", RequiresOptIn.Level.WARNING)
 public annotation class ExperimentalXmlUtilApi
