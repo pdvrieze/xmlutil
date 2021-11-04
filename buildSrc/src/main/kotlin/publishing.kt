@@ -44,27 +44,16 @@ fun Project.doPublish(
 
     configure<PublishingExtension> {
         repositories {
-
-/*
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/pdvrieze/xmlutil")
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                        ?: project.findProperty("gpr.user") as String?
-                                ?: System.getenv("USERNAME")
-                    password = System.getenv("GITHUB_TOKEN")
-                        ?: project.findProperty("gpr.key") as String?
-                                ?: System.getenv("TOKEN")
-                }
-            }
-*/
             maven {
                 name = "OSS_registry"
-                if ("SNAPSHOT" in version.toString().toUpperCase()) {
-                    url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-                } else {
-                    url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                val repositoryId = project.property("repositoryId") as String?
+                url = when {
+                    "SNAPSHOT" in version.toString().toUpperCase() ->
+                        uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                    repositoryId != null ->
+                        uri("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
+                    else ->
+                        uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 }
                 credentials {
                     username = project.findProperty("ossrh.username") as String?
