@@ -75,11 +75,12 @@ fun Project.doPublish(
         }
 
         configure<SigningExtension> {
-            if (System.getenv("CI")?.toLowerCase()!="true") {
+            val priv_key:String? = System.getenv("GPG_PRIV_KEY")
+            val passphrase:String? = System.getenv("GPG_PASSPHRASE")
+            if (priv_key==null ||passphrase==null) {
+                logger.warn("No private key information found in environment. Falling back to gnupg.")
                 useGpgCmd()
             } else {
-                val priv_key:String = System.getenv("GPG_PRIV_KEY")
-                val passphrase:String = System.getenv("GPG_PASSPHRASE")
                 useInMemoryPgpKeys(priv_key, passphrase)
             }
         }
