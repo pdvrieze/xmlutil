@@ -58,7 +58,7 @@ jobs:
                 shell: bash
             -   name: Upload (macos / windows)
                 if: matrix.os != 'ubuntu-latest'
-                run: ./gradlew publishNative -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishNative -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=host --stacktrace
                 shell: bash
             # Linux / JVM / JS
             -   name: Check (ubuntu)
