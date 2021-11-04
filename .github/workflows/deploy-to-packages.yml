@@ -15,7 +15,7 @@ jobs:
                 with:
                     username: ${{ secrets.OSSRH_USERNAME }}
                     password: ${{ secrets.OSSRH_PASSWORD }}
-                    staging_profile_id: io.github.pdvrieze
+                    staging_profile_id: 'io.github.pdvrieze'
     build-and-publish:
         needs: create-staging-repository
         runs-on: ${{ matrix.os }}
