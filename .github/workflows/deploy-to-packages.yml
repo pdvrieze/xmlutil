@@ -47,12 +47,6 @@ jobs:
                 with:
                     java-version: '11'
                     distribution: 'adopt'
-            -   id: install-secret-key
-                name: Install GPG secret key
-                shell: bash
-                run: |
-                    cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-                    gpg --list-secret-keys --keyid-format LONG
             -   id: cache-gradle-windows
                 name: Cache gradle
                 uses: actions/cache@v2
@@ -67,9 +61,11 @@ jobs:
             -   id: publish-to-central
                 name: Publish with gradle
                 shell: bash
-                run: ./gradlew publish -Psigning.gnupg.keyId=6329ADE2B25B244B -Psigning.gnupg.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publish -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    GPG_PRIV_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+                    GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
     build-and-publish-macos:
         runs-on: macos-latest
 
@@ -81,11 +77,6 @@ jobs:
                 with:
                     java-version: '11'
                     distribution: 'adopt'
-            -   id: install-secret-key
-                name: Install GPG secret key
-                run: |
-                    cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-                    gpg --list-secret-keys --keyid-format LONG
             -   id: cache-gradle-macos
                 name: Cache gradle
                 uses: actions/cache@v2
@@ -99,6 +90,8 @@ jobs:
 #                run: ./gradlew nativeTest
             -   id: publish-to-central
                 name: Publish with gradle
-                run: ./gradlew publishNative -Psigning.gnupg.keyId=6329ADE2B25B244B -Psigning.gnupg.password='${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publishNative -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    GPG_PRIV_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+                    GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}

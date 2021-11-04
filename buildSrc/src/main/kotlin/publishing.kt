@@ -75,7 +75,13 @@ fun Project.doPublish(
         }
 
         configure<SigningExtension> {
-            useGpgCmd()
+            if (System.getenv("CI")?.toLowerCase()!="true") {
+                useGpgCmd()
+            } else {
+                val priv_key:String = System.getenv("GPG_PRIV_KEY")
+                val passphrase:String = System.getenv("GPG_PASSPHRASE")
+                useInMemoryPgpKeys(priv_key, passphrase)
+            }
         }
 
         val javadocJarTask = tasks.create<Jar>("javadocJar") {
