@@ -33,6 +33,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 
+enum class Host {
+    Windows,
+    Macos,
+    Linux
+}
+
 enum class NativeState {
     ALL, HOST, SINGLE, DISABLED
 }
@@ -60,6 +66,12 @@ fun Project.addNativeTargets() {
     val macosEnabled = manager.isEnabled(presets.nativePreset("macosX64").konanTarget)
     val winEnabled = manager.isEnabled(presets.nativePreset("mingwX64").konanTarget)
 
+    val host = when {
+        macosEnabled -> Host.Macos
+        winEnabled -> Host.Windows
+        else -> Host.Linux
+    }
+
     ext["ideaPreset"] = when {
         winEnabled -> presets.nativePreset("mingwX64")
         macosEnabled -> presets.nativePreset("macosX64")
@@ -86,30 +98,36 @@ fun Project.addNativeTargets() {
                 if (singleTargetMode) {
                     kotlin.targetFromPreset(ext["ideaPreset"] as AbstractKotlinNativeTargetPreset<*>, "native")
                 } else {
-                    linuxX64 { addSourceSets() }
-                    linuxArm32Hfp { addSourceSets() }
-                    linuxArm64 { addSourceSets() }
+                    if (nativeState != NativeState.HOST || host == Host.Linux) {
+                        linuxX64 { addSourceSets() }
+                        linuxArm32Hfp { addSourceSets() }
+                        linuxArm64 { addSourceSets() }
+                    }
 
-                    macosX64 { addSourceSets() }
-                    iosArm64 { addSourceSets() }
-                    iosArm32 { addSourceSets() }
-                    iosX64 { addSourceSets() }
+                    if (nativeState != NativeState.HOST || host == Host.Macos) {
+                        macosX64 { addSourceSets() }
+                        iosArm64 { addSourceSets() }
+                        iosArm32 { addSourceSets() }
+                        iosX64 { addSourceSets() }
 
-                    watchosX86 { addSourceSets() }
-                    watchosX64 { addSourceSets() }
-                    watchosArm32 { addSourceSets() }
-                    watchosArm64 { addSourceSets() }
+                        watchosX86 { addSourceSets() }
+                        watchosX64 { addSourceSets() }
+                        watchosArm32 { addSourceSets() }
+                        watchosArm64 { addSourceSets() }
 
-                    tvosArm64 { addSourceSets() }
-                    tvosX64 { addSourceSets() }
+                        tvosArm64 { addSourceSets() }
+                        tvosX64 { addSourceSets() }
 
-                    addTarget("iosSimulatorArm64")
-                    addTarget("watchosSimulatorArm64")
-                    addTarget("tvosSimulatorArm64")
-                    addTarget("macosArm64")
+                        addTarget("iosSimulatorArm64")
+                        addTarget("watchosSimulatorArm64")
+                        addTarget("tvosSimulatorArm64")
+                        addTarget("macosArm64")
+                    }
 
-                    mingwX64 { addSourceSets() }
-                    mingwX86 { addSourceSets() }
+                    if (nativeState != NativeState.HOST || host == Host.Windows) {
+                        mingwX64 { addSourceSets() }
+                        mingwX86 { addSourceSets() }
+                    }
                 }
             }
 

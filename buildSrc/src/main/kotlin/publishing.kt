@@ -124,14 +124,8 @@ fun Project.doPublish(
     val ghOs = System.getenv("RUNNER_OS")?.toLowerCase()
     tasks.withType<PublishToMavenRepository> {
         if (isEnabled) {
-            val doPublish = when (ghOs) {
-                "windows" -> "publishMingw" in name
-                "macos" -> arrayOf("publishLinux", "publishJs", "publishKotlinMultiplatform", "publishAndroid", "publishJvm").none {
-                    it in name
-                }
-                else -> "publishKotlinMultiplatform" !in name
-            }
-            if (doPublish && arrayOf("Js", "Jvm", "Android").none { "${it}Publication" in name }) {
+            val doPublish = arrayOf("publishKotlinMultiplatform", "publishJs", "publishJvm", "publishAndroid").none { "${it}Publication" in name }
+            if (doPublish) {
                 publishNativeTask.dependsOn(this)
             }
         }
