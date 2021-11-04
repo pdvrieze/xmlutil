@@ -46,7 +46,7 @@ fun Project.doPublish(
         repositories {
             maven {
                 name = "OSS_registry"
-                val repositoryId = project.property("repositoryId") as String?
+                val repositoryId = project.property("xmlutil.repositoryId") as String?
                 url = when {
                     "SNAPSHOT" in version.toString().toUpperCase() ->
                         uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")

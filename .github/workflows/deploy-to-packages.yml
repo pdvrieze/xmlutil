@@ -58,7 +58,7 @@ jobs:
                 shell: bash
             -   name: Upload (macos / windows)
                 if: matrix.os != 'ubuntu-latest'
-                run: ./gradlew publishNative -PrepositoryId=${{ needs.create-staging-repository.outputs.repository_id }} -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publishNative -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 shell: bash
             # Linux / JVM / JS
             -   name: Check (ubuntu)
@@ -67,7 +67,7 @@ jobs:
                 shell: bash
             -   name: Upload (ubuntu)
                 if: matrix.os == 'ubuntu-latest'
-                run: ./gradlew publish -PrepositoryId=${{ needs.create-staging-repository.outputs.repository_id }} -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
+                run: ./gradlew publish -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 shell: bash
 
     drop-on-failure:
