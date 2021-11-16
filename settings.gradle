@@ -62,7 +62,7 @@ include(":serialization")
 include(":xmlserializable")
 include(":testutil")
 include(":examples")
-
+include(":xmlschema")
 
 gradleEnterprise {
     buildScan {
