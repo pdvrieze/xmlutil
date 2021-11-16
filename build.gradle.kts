@@ -60,6 +60,7 @@ val xmlutil_version: String by project
 val kotlin_version: String get() = libs.versions.kotlin.get()
 
 allprojects {
+    val projectName = name
     group = "io.github.pdvrieze.xmlutil"
     version = xmlutil_version
     repositories {
@@ -124,7 +125,11 @@ allprojects {
                     languageSettings {
                         progressiveMode = true
                         languageVersion = "1.9"
-                        apiVersion = "1.8"
+
+                        apiVersion = when(projectName) {
+                            "xmlschema" -> "1.9"
+                            else -> "1.8"
+                        }
                         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                     }
                 }
