@@ -466,7 +466,7 @@ public open class DefaultXmlSerializationPolicy
 
         fun String.toChildIndex(): Int {
             return nameToIdx[this]
-                ?: throw XmlSerialException("Could not find the attribute with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
+                ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
         val orderConstraints = HashSet<XmlOrderConstraint>()

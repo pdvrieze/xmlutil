@@ -469,7 +469,7 @@ public class XmlCompositeDescriptor internal constructor(
     ): XmlDescriptor {
         return from(xmlCodecBase, ParentInfo(this, index), canBeAttribute = canBeAttribute).also { desc ->
             if (valueChildIndex >= 0 && index != valueChildIndex && desc.outputKind == OutputKind.Element) {
-                throw XmlSerialException("Types with an @XmlValue member may not contain other child elements")
+                throw XmlSerialException("Types with an @XmlValue member may not contain other child elements (${serialDescriptor.getElementDescriptor(index)}")
             }
         }
     }

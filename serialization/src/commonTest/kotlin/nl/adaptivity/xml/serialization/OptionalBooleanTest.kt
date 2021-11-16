@@ -51,10 +51,15 @@ class OptionalBooleanTest : TestBase<OptionalBooleanTest.Location>(
         val e = assertFailsWith<UnknownXmlFieldException> {
             XML.decodeFromString(serializer, noisyXml)
         }
-        assertEquals(
-            "Could not find a field for name unexpected\n  candidates: address, temperature",
-            e.message?.substringBeforeLast(" at position")
-        )
+        try {
+            assertEquals(
+                "Could not find a field for name Location/unexpected\n  candidates: address, temperature",
+                e.message?.substringBeforeLast(" at position")
+            )
+        } catch (f: AssertionError) {
+            f.addSuppressed(e);
+            throw f
+        }
     }
 
 
