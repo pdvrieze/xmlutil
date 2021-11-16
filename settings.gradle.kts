@@ -61,6 +61,7 @@ include(":serialization")
 include(":xmlserializable")
 include(":testutil")
 include(":examples")
+include(":xmlschema")
 
 project(":core").projectDir = file("core/base")
 project(":coreJdk").projectDir = file("core/jdk")
