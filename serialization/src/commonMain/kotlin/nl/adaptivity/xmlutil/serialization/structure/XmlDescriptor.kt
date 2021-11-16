@@ -426,13 +426,25 @@ public class XmlCompositeDescriptor internal constructor(
 
     private val children: List<XmlDescriptor> by lazy {
 
-        if (initialChildReorderInfo != null) {
-            getElementDescriptors(initialChildReorderInfo)
-        } else {
-            val valueChildIndex = getValueChild()
+        val valueChildIndex = getValueChild()
 
-            List(elementsCount) { index -> createElementDescriptor(xmlCodecBase, index, valueChildIndex, true) }
+        val l = when {
+            initialChildReorderInfo != null -> getElementDescriptors(initialChildReorderInfo)
+            else -> List(elementsCount) { index -> createElementDescriptor(xmlCodecBase, index, true) }
         }
+
+        if (valueChildIndex>=0) {
+            val valueChild = l[valueChildIndex]
+            if (valueChild.serialKind != StructureKind.LIST || valueChild.getElementDescriptor(0).serialDescriptor != CompactFragmentSerializer.descriptor) {
+                val invalidIdx = l.indices
+                    .firstOrNull() { idx -> idx !=valueChildIndex && l[idx].outputKind == OutputKind.Element}
+                if (invalidIdx != null) {
+                    throw XmlSerialException("Types with an @XmlValue member may not contain other child elements (${serialDescriptor.getElementDescriptor(invalidIdx)}")
+                }
+            }
+        }
+
+        l
     }
 
     private fun getElementDescriptors(initialChildReorderInfo: Collection<XmlOrderConstraint>): List<XmlDescriptor> {
@@ -444,7 +456,7 @@ public class XmlCompositeDescriptor internal constructor(
                 val canBeAttribute =
                     if (predecessors.isEmpty()) true else predecessors.all { it.ensureDescriptor().outputKind == OutputKind.Attribute }
 
-                createElementDescriptor(xmlCodecBase, elementIdx, valueChildIndex, canBeAttribute).also {
+                createElementDescriptor(xmlCodecBase, elementIdx, canBeAttribute).also {
                     descriptors[elementIdx] = it
                 }
             }
@@ -464,14 +476,9 @@ public class XmlCompositeDescriptor internal constructor(
     private fun createElementDescriptor(
         xmlCodecBase: XmlCodecBase,
         index: Int,
-        valueChildIndex: Int,
         canBeAttribute: Boolean
     ): XmlDescriptor {
-        return from(xmlCodecBase, ParentInfo(this, index), canBeAttribute = canBeAttribute).also { desc ->
-            if (valueChildIndex >= 0 && index != valueChildIndex && desc.outputKind == OutputKind.Element) {
-                throw XmlSerialException("Types with an @XmlValue member may not contain other child elements (${serialDescriptor.getElementDescriptor(index)}")
-            }
-        }
+        return from(xmlCodecBase, ParentInfo(this, index), canBeAttribute = canBeAttribute)
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor =

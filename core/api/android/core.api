@@ -531,6 +531,7 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun asSubstream (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static final fun consecutiveTextContent (Lnl/adaptivity/xmlutil/XmlBufferedReader;)Ljava/lang/String;
 	public static final fun elementContentToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public static final fun elementToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
 	public static final fun getAttributeIndices (Lnl/adaptivity/xmlutil/XmlReader;)Lkotlin/ranges/IntRange;
 	public static final fun getAttributes (Lnl/adaptivity/xmlutil/XmlReader;)[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
 	public static final fun getQname (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;

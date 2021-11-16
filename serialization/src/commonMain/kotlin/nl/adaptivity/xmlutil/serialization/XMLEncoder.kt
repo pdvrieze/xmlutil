@@ -149,7 +149,7 @@ internal open class XmlEncoderBase internal constructor(
         @ExperimentalSerializationApi
         override fun encodeNull() {
             val nilAttr = config.nilAttribute
-            if (xmlDescriptor.outputKind==OutputKind.Element && nilAttr!=null) {
+            if (xmlDescriptor.outputKind == OutputKind.Element && nilAttr != null) {
                 target.smartStartTag(serialName) {
                     if (discriminatorName != null) {
                         val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor))
@@ -305,7 +305,7 @@ internal open class XmlEncoderBase internal constructor(
                 xmlDescriptor.outputKind == OutputKind.Attribute ->
                     AttributeListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex)
 
-                else -> ListEncoder(xmlDescriptor as XmlListDescriptor, discriminatorName)
+                else -> ListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex, discriminatorName)
             }
 
             is PolymorphicKind -> PolymorphicEncoder(xmlDescriptor as XmlPolymorphicDescriptor)
@@ -867,9 +867,13 @@ internal open class XmlEncoderBase internal constructor(
      * be wrapped inside a list (unless it is the root). If [XmlChildrenName] is not specified it will determine tag names
      * as if the list was not present and there was a single value.
      */
-    internal inner class ListEncoder(xmlDescriptor: XmlListDescriptor, discriminatorName: QName?) :
-        TagEncoder<XmlListDescriptor>(xmlDescriptor, discriminatorName, deferring = false),
-        XML.XmlOutput {
+    internal inner class ListEncoder(
+        xmlDescriptor: XmlListDescriptor,
+        private val listChildIdx: Int,
+        discriminatorName: QName?
+    ) : TagEncoder<XmlListDescriptor>(xmlDescriptor, discriminatorName, deferring = false), XML.XmlOutput {
+
+        private val parentXmlDescriptor: XmlDescriptor get() = xmlDescriptor.tagParent.descriptor as XmlDescriptor
 
         override fun defer(
             index: Int,
@@ -907,10 +911,17 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            if (xmlDescriptor.isListEluded) { // Use the outer decriptor and element index
-                serializer.serialize(XmlEncoder(childDescriptor, index), value)
-            } else {
-                serializer.serialize(XmlEncoder(childDescriptor, index), value)
+            @Suppress("UNCHECKED_CAST")
+            val overriddenSerializer: SerializationStrategy<T> =
+                (elementDescriptor.overriddenSerializer ?: serializer) as SerializationStrategy<T>
+
+            when (overriddenSerializer) {
+                CompactFragmentSerializer -> if (parentXmlDescriptor.getValueChild() == listChildIdx) {
+                    CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
+                } else {
+                    serializer.serialize(XmlEncoder(childDescriptor, index), value)
+                }
+                else -> serializer.serialize(XmlEncoder(childDescriptor, index), value)
             }
         }
 

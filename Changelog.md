@@ -1,3 +1,11 @@
+# 0.85.0-SNAPSHOT
+*(??, 202?)<br />*
+Features:
+- Support (de)serializing anyElement content into a list of CompactFragments if
+  annotated with `@XmlValue`. Each element will be deserialized individually,
+  text is not allowed. While order is preserved, declared children will be parsed
+  out of order.
+
 # 0.84.0-RC1
 *(Nov 3, 2021)<br />*
 Features:
