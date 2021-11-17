@@ -760,7 +760,7 @@ public class KtXmlReader internal constructor(
     override val text: String
         get() = when {
             eventType.isTextElement -> get(0)
-            else -> throw XmlException("The element is not text")
+            else -> throw XmlException("The element is not text, it is: $eventType")
         }
 
     public fun isEmptyElementTag(): Boolean {
