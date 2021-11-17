@@ -5,6 +5,8 @@ Features:
   annotated with `@XmlValue`. Each element will be deserialized individually,
   text is not allowed. While order is preserved, declared children will be parsed
   out of order.
+Fixes:
+- Fix native parser for depth>=4
 
 # 0.84.0-RC1
 *(Nov 3, 2021)<br />*
