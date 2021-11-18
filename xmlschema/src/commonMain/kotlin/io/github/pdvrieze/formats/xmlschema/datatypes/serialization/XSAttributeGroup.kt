@@ -40,4 +40,32 @@ class XSAttributeGroup(
     override val anyAttribute: XSAnyAttribute? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : G_Redefinable.AttributeGroup, T_NamedAttributeGroup
+) : G_Redefinable.AttributeGroup, T_NamedAttributeGroup {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSAttributeGroup
+
+        if (name != other.name) return false
+        if (id != other.id) return false
+        if (attributes != other.attributes) return false
+        if (attributeGroups != other.attributeGroups) return false
+        if (anyAttribute != other.anyAttribute) return false
+        if (annotations != other.annotations) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + attributes.hashCode()
+        result = 31 * result + attributeGroups.hashCode()
+        result = 31 * result + (anyAttribute?.hashCode() ?: 0)
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+}

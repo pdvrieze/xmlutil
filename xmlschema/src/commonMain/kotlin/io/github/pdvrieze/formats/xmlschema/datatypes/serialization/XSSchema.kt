@@ -76,4 +76,67 @@ class XSSchema(
     override val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : T_OpenAttrs, GX_Compositions, GX_SchemaTop
+) : T_OpenAttrs, GX_Compositions, GX_SchemaTop {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSSchema
+
+        if (attributeFormDefault != other.attributeFormDefault) return false
+        if (blockDefault != other.blockDefault) return false
+        if (defaultAttributes != other.defaultAttributes) return false
+        if (xpathDefaultNamespace != other.xpathDefaultNamespace) return false
+        if (elementFormDefault != other.elementFormDefault) return false
+        if (finalDefault != other.finalDefault) return false
+        if (id != other.id) return false
+        if (targetNamespace != other.targetNamespace) return false
+        if (version != other.version) return false
+        if (lang != other.lang) return false
+        if (includes != other.includes) return false
+        if (imports != other.imports) return false
+        if (redefines != other.redefines) return false
+        if (overrides != other.overrides) return false
+        if (annotations != other.annotations) return false
+        if (defaultOpenContent != other.defaultOpenContent) return false
+        if (simpleTypes != other.simpleTypes) return false
+        if (complexTypes != other.complexTypes) return false
+        if (groups != other.groups) return false
+        if (attributeGroups != other.attributeGroups) return false
+        if (elements != other.elements) return false
+        if (attributes != other.attributes) return false
+        if (notations != other.notations) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = attributeFormDefault.hashCode()
+        result = 31 * result + blockDefault.hashCode()
+        result = 31 * result + (defaultAttributes?.hashCode() ?: 0)
+        result = 31 * result + (xpathDefaultNamespace?.hashCode() ?: 0)
+        result = 31 * result + elementFormDefault.hashCode()
+        result = 31 * result + finalDefault.hashCode()
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (targetNamespace?.hashCode() ?: 0)
+        result = 31 * result + (version?.hashCode() ?: 0)
+        result = 31 * result + (lang?.hashCode() ?: 0)
+        result = 31 * result + includes.hashCode()
+        result = 31 * result + imports.hashCode()
+        result = 31 * result + redefines.hashCode()
+        result = 31 * result + overrides.hashCode()
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + defaultOpenContent.hashCode()
+        result = 31 * result + simpleTypes.hashCode()
+        result = 31 * result + complexTypes.hashCode()
+        result = 31 * result + groups.hashCode()
+        result = 31 * result + attributeGroups.hashCode()
+        result = 31 * result + elements.hashCode()
+        result = 31 * result + attributes.hashCode()
+        result = 31 * result + notations.hashCode()
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+}
