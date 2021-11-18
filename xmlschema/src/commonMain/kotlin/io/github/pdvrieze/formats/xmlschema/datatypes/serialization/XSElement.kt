@@ -58,4 +58,53 @@ class XSElement(
     override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): G_SchemaTop.Element {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSElement
+
+        if (name != other.name) return false
+        if (block != other.block) return false
+        if (default != other.default) return false
+        if (fixed != other.fixed) return false
+        if (id != other.id) return false
+        if (nillable != other.nillable) return false
+        if (type != other.type) return false
+        if (abstract != other.abstract) return false
+        if (substitutionGroup != other.substitutionGroup) return false
+        if (final != other.final) return false
+        if (annotations != other.annotations) return false
+        if (simpleTypes != other.simpleTypes) return false
+        if (complexTypes != other.complexTypes) return false
+        if (alternatives != other.alternatives) return false
+        if (uniques != other.uniques) return false
+        if (keys != other.keys) return false
+        if (keyref != other.keyref) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (block?.hashCode() ?: 0)
+        result = 31 * result + (default?.hashCode() ?: 0)
+        result = 31 * result + (fixed?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (nillable?.hashCode() ?: 0)
+        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + abstract.hashCode()
+        result = 31 * result + substitutionGroup.hashCode()
+        result = 31 * result + final.hashCode()
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + simpleTypes.hashCode()
+        result = 31 * result + complexTypes.hashCode()
+        result = 31 * result + alternatives.hashCode()
+        result = 31 * result + uniques.hashCode()
+        result = 31 * result + keys.hashCode()
+        result = 31 * result + keyref.hashCode()
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
 }
