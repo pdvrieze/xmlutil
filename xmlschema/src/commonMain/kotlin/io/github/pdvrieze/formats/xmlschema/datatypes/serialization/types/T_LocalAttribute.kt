@@ -31,7 +31,7 @@ interface T_AttributeBase: T_Annotated {
     val default: String?
     val fixed: String?
     val form: T_FormChoice?
-    val name: NCName
+    val name: NCName?
     val ref: QName?
     val targetNamespace: AnyURI?
     val type: QName?

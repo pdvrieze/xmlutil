@@ -39,38 +39,95 @@ abstract class XSAttributeBase(
     final override val default: String? = null,
     final override val fixed: String? = null,
     final override val id: ID? = null,
-    final override val name: NCName,
     final override val type: QName? = null,
     final override val inheritable: Boolean? = null,
     final override val annotations: List<XSAnnotation> = emptyList(),
     final override val simpleType: XSLocalSimpleType? = null,
     final override val otherAttrs: Map<QName, String> = emptyMap(),
-) : T_AttributeBase
+) : T_AttributeBase {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSAttributeBase
+
+        if (default != other.default) return false
+        if (fixed != other.fixed) return false
+        if (id != other.id) return false
+        if (type != other.type) return false
+        if (inheritable != other.inheritable) return false
+        if (annotations != other.annotations) return false
+        if (simpleType != other.simpleType) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = default?.hashCode() ?: 0
+        result = 31 * result + (fixed?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + (inheritable?.hashCode() ?: 0)
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (simpleType?.hashCode() ?: 0)
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+}
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
+
+    override val name: NCName
+
     constructor(
         default: String? = null,
         fixed: String? = null,
         id: ID? = null,
         name: NCName,
         type: QName? = null,
-        inheritable: Boolean,
+        inheritable: Boolean? = null,
         annotations: List<XSAnnotation> = emptyList(),
         simpleType: XSLocalSimpleType? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, name, type, inheritable, annotations, simpleType, otherAttrs)
+    ) : super(default, fixed, id, type, inheritable, annotations, simpleType, otherAttrs) {
+        this.name = name
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSAttribute
+
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
+
+
 }
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
 
+    override val name: NCName?
+
     @XmlElement(false)
     override val form: T_FormChoice?
     override var ref: QName? = null
         private set
+
     @XmlElement(false)
     override val use: XSAttrUse?
     override val targetNamespace: AnyURI?
@@ -81,20 +138,48 @@ class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
         fixed: String? = null,
         form: T_FormChoice? = null,
         id: ID? = null,
-        name: NCName,
+        name: NCName? = null,
         ref: QName? = null,
         type: QName? = null,
         use: XSAttrUse? = null,
-        inheritable: Boolean = false,
+        inheritable: Boolean? = null,
         targetNamespace: AnyURI? = null,
         annotations: List<XSAnnotation> = emptyList(),
         simpleType: XSLocalSimpleType? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, name, type, inheritable, annotations, simpleType, otherAttrs) {
+    ) : super(default, fixed, id, type, inheritable, annotations, simpleType, otherAttrs) {
+        this.name = name
         this.form = form
         this.ref = ref
         this.use = use
         this.targetNamespace = targetNamespace
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalAttribute
+
+        if (name != other.name) return false
+        if (form != other.form) return false
+        if (ref != other.ref) return false
+        if (use != other.use) return false
+        if (targetNamespace != other.targetNamespace) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (form?.hashCode() ?: 0)
+        result = 31 * result + (ref?.hashCode() ?: 0)
+        result = 31 * result + (use?.hashCode() ?: 0)
+        result = 31 * result + (targetNamespace?.hashCode() ?: 0)
+        return result
+    }
+
 }
 

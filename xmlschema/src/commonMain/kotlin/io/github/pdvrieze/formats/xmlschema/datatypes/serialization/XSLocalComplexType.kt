@@ -45,6 +45,30 @@ abstract class XSLocalComplexType(
 
     protected abstract fun toSerialDelegate(): SerialDelegate
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSLocalComplexType
+
+        if (mixed != other.mixed) return false
+        if (defaultAttributesApply != other.defaultAttributesApply) return false
+        if (id != other.id) return false
+        if (annotations != other.annotations) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = mixed?.hashCode() ?: 0
+        result = 31 * result + (defaultAttributesApply?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+
     @Serializable
     class SerialDelegate(
         val mixed: Boolean? = null,
@@ -55,7 +79,7 @@ abstract class XSLocalComplexType(
         val choices: List<XSChoice> = emptyList(),
         val sequences: List<XSSequence> = emptyList(),
         val asserts: List<XSAssert> = emptyList(),
-        val atributes: List<T_LocalAttribute> = emptyList(),
+        val atributes: List<XSLocalAttribute> = emptyList(),
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
         val anyAttribute: XSAnyAttribute? = null,
         val openContents: List<XSOpenContent> = emptyList(),
@@ -125,12 +149,12 @@ abstract class XSLocalComplexType(
 }
 
 class XSLocalComplexTypeComplex(
-    mixed: Boolean?,
-    defaultAttributesApply: Boolean?,
+    mixed: Boolean? = null,
+    defaultAttributesApply: Boolean? = null,
     override val content: XSComplexContent,
     id: ID? = null,
-    annotations: List<XSAnnotation>,
-    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+    annotations: List<XSAnnotation> = emptyList(),
+    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
     mixed,
     defaultAttributesApply,
@@ -148,6 +172,25 @@ class XSLocalComplexTypeComplex(
             otherAttrs = otherAttrs
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalComplexTypeComplex
+
+        if (content != other.content) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + content.hashCode()
+        return result
+    }
+
 }
 
 class XSLocalComplexTypeSimple(
@@ -174,23 +217,43 @@ class XSLocalComplexTypeSimple(
             otherAttrs = otherAttrs
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalComplexTypeSimple
+
+        if (content != other.content) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + content.hashCode()
+        return result
+    }
+
+
 }
 
 class XSLocalComplexTypeShorthand(
-    mixed: Boolean?,
-    defaultAttributesApply: Boolean?,
-    override val groups: List<XSGroupRef>,
-    override val alls: List<XSAll>,
-    override val choices: List<XSChoice>,
-    override val sequences: List<XSSequence>,
-    override val asserts: List<XSAssert>,
-    override val attributes: List<T_LocalAttribute>,
-    override val attributeGroups: List<XSAttributeGroupRef>,
-    override val anyAttribute: XSAnyAttribute?,
-    override val openContents: List<XSOpenContent>,
+    mixed: Boolean? = null,
+    defaultAttributesApply: Boolean? = null,
+    override val groups: List<XSGroupRef> = emptyList(),
+    override val alls: List<XSAll> = emptyList(),
+    override val choices: List<XSChoice> = emptyList(),
+    override val sequences: List<XSSequence> = emptyList(),
+    override val asserts: List<XSAssert> = emptyList(),
+    override val attributes: List<XSLocalAttribute> = emptyList(),
+    override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+    override val anyAttribute: XSAnyAttribute? = null,
+    override val openContents: List<XSOpenContent> = emptyList(),
     id: ID? = null,
-    annotations: List<XSAnnotation>,
-    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+    annotations: List<XSAnnotation> = emptyList(),
+    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
     mixed,
     defaultAttributesApply,
@@ -217,6 +280,40 @@ class XSLocalComplexTypeShorthand(
             annotations = annotations,
             otherAttrs = otherAttrs,
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalComplexTypeShorthand
+
+        if (groups != other.groups) return false
+        if (alls != other.alls) return false
+        if (choices != other.choices) return false
+        if (sequences != other.sequences) return false
+        if (asserts != other.asserts) return false
+        if (attributes != other.attributes) return false
+        if (attributeGroups != other.attributeGroups) return false
+        if (anyAttribute != other.anyAttribute) return false
+        if (openContents != other.openContents) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + groups.hashCode()
+        result = 31 * result + alls.hashCode()
+        result = 31 * result + choices.hashCode()
+        result = 31 * result + sequences.hashCode()
+        result = 31 * result + asserts.hashCode()
+        result = 31 * result + attributes.hashCode()
+        result = 31 * result + attributeGroups.hashCode()
+        result = 31 * result + (anyAttribute?.hashCode() ?: 0)
+        result = 31 * result + openContents.hashCode()
+        return result
     }
 
 }

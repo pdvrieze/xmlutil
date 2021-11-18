@@ -33,8 +33,8 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 class XSComplexContent(
     override val id: ID? = null,
-    override val otherAttrs: Map<QName, String>,
-    override val annotations: List<XSAnnotation>,
+    override val otherAttrs: Map<QName, String> = emptyMap(),
+    override val annotations: List<XSAnnotation> = emptyList(),
     val derivation: RestrictionExtensionChoice
 
 ): T_Annotated, G_ComplexTypeModel.ComplexContent {
@@ -78,7 +78,7 @@ class XSComplexContent(
         override val anyAttribute: XSAnyAttribute? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
         override val openContents: List<XSOpenContent> = emptyList(),
-        override val otherAttrs: Map<QName, String>
+        override val otherAttrs: Map<QName, String> = emptyMap()
 
     ): RestrictionExtensionChoice(), T_ExtensionType
 
