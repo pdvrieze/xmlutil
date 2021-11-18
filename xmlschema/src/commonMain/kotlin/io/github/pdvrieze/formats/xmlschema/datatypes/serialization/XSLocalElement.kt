@@ -59,4 +59,58 @@ class XSLocalElement(
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),
     override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap(),
-) : T_LocalElement, G_NestedParticle.Element, G_Particle.Element
+) : T_LocalElement, G_NestedParticle.Element, G_Particle.Element {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSLocalElement
+
+        if (name != other.name) return false
+        if (block != other.block) return false
+        if (default != other.default) return false
+        if (fixed != other.fixed) return false
+        if (form != other.form) return false
+        if (id != other.id) return false
+        if (maxOccurs != other.maxOccurs) return false
+        if (minOccurs != other.minOccurs) return false
+        if (nillable != other.nillable) return false
+        if (ref != other.ref) return false
+        if (targetNamespace != other.targetNamespace) return false
+        if (type != other.type) return false
+        if (annotations != other.annotations) return false
+        if (simpleTypes != other.simpleTypes) return false
+        if (complexTypes != other.complexTypes) return false
+        if (alternatives != other.alternatives) return false
+        if (uniques != other.uniques) return false
+        if (keys != other.keys) return false
+        if (keyref != other.keyref) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name?.hashCode() ?: 0
+        result = 31 * result + (block?.hashCode() ?: 0)
+        result = 31 * result + (default?.hashCode() ?: 0)
+        result = 31 * result + (fixed?.hashCode() ?: 0)
+        result = 31 * result + (form?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + maxOccurs.hashCode()
+        result = 31 * result + minOccurs.hashCode()
+        result = 31 * result + (nillable?.hashCode() ?: 0)
+        result = 31 * result + (ref?.hashCode() ?: 0)
+        result = 31 * result + (targetNamespace?.hashCode() ?: 0)
+        result = 31 * result + (type?.hashCode() ?: 0)
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + simpleTypes.hashCode()
+        result = 31 * result + complexTypes.hashCode()
+        result = 31 * result + alternatives.hashCode()
+        result = 31 * result + uniques.hashCode()
+        result = 31 * result + keys.hashCode()
+        result = 31 * result + keyref.hashCode()
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+}

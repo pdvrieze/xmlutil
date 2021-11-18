@@ -23,18 +23,14 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
-import kotlin.test.Test
-import kotlin.test.assertNotNull
 
-class TestSchemaReading {
-
-    @Test
-    fun testDeserializeDatatypes() {
-        val deserialized = javaClass.classLoader.getResourceAsStream("datatypes.xsd").use { inStream ->
-            XML { autoPolymorphic = true }
-                .decodeFromReader(XSSchema.serializer(), XmlStreaming.newGenericReader(inStream, "UTF-8"))
+abstract class ResourceTestBase(val baseDir: String) {
+    fun deserializeXsd(fileName: String): XSSchema {
+        val resourceName = "${baseDir.dropLastWhile { it=='/' }}/$fileName"
+        return javaClass.classLoader.getResourceAsStream(resourceName)!!.use { inStream ->
+            XmlStreaming.newGenericReader(inStream, "UTF-8").use { reader ->
+                XML { autoPolymorphic = true }.decodeFromReader(XSSchema.serializer(), reader)
+            }
         }
-        assertNotNull(deserialized)
     }
-
 }

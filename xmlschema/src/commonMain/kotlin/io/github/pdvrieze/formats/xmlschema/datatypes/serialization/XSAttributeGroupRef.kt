@@ -31,12 +31,40 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("attributeGroup", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSAttributeGroupRef(
-    override val id: ID?,
+    override val id: ID? = null,
     override val ref: QName,
-    override val annotations: List<XSAnnotation>,
-    override val attributeGroups: List<XSAttributeGroupRef>,
-    override val attributes: List<T_LocalAttribute>,
-    override val anyAttribute: XSAnyAttribute?,
-    override val otherAttrs: Map<QName, String>
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+    override val attributes: List<T_LocalAttribute> = emptyList(),
+    override val anyAttribute: XSAnyAttribute? = null,
+    override val otherAttrs: Map<QName, String> = emptyMap()
 
-): T_AttributeGroupRef
+): T_AttributeGroupRef {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XSAttributeGroupRef
+
+        if (id != other.id) return false
+        if (ref != other.ref) return false
+        if (annotations != other.annotations) return false
+        if (attributeGroups != other.attributeGroups) return false
+        if (attributes != other.attributes) return false
+        if (anyAttribute != other.anyAttribute) return false
+        if (otherAttrs != other.otherAttrs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id?.hashCode() ?: 0
+        result = 31 * result + ref.hashCode()
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + attributeGroups.hashCode()
+        result = 31 * result + attributes.hashCode()
+        result = 31 * result + (anyAttribute?.hashCode() ?: 0)
+        result = 31 * result + otherAttrs.hashCode()
+        return result
+    }
+}
