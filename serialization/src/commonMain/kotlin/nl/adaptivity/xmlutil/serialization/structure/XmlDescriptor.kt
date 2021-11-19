@@ -143,6 +143,48 @@ public sealed class XmlDescriptor(
         throw IndexOutOfBoundsException("There are no children")
     }
 
+    internal fun <A: Appendable> toString(builder: A, indent: Int, seen: MutableSet<String>): A {
+        when (this) {
+            is XmlListDescriptor,
+            is XmlPrimitiveDescriptor -> appendTo(builder, indent, seen)
+            else -> if (serialDescriptor.serialName in seen) {
+                builder.append(tagName.toString()).append("<...> = ").append(outputKind.name)
+            } else {
+                seen.add(serialDescriptor.serialName)
+                appendTo(builder, indent, seen)
+            }
+        }
+        return builder
+    }
+
+    internal abstract fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>)
+
+    final override fun toString(): String {
+        return toString(StringBuilder(), 0, mutableSetOf()).toString()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XmlDescriptor
+
+        if (xmlCodecBase != other.xmlCodecBase) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+        if (useNameInfo != other.useNameInfo) return false
+        if (typeDescriptor != other.typeDescriptor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = xmlCodecBase.hashCode()
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        result = 31 * result + useNameInfo.hashCode()
+        result = 31 * result + typeDescriptor.hashCode()
+        return result
+    }
+
     internal companion object {
 
         /**
@@ -243,9 +285,14 @@ public class XmlRootDescriptor internal constructor(
         return from(xmlCodecBase, tagParent, canBeAttribute = false)
     }
 
-    override fun toString(): String {
-        return "<root>(\n${getElementDescriptor(0).toString().prependIndent("    ")}\n)"
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append("<root>(")
+            getElementDescriptor(0).appendTo(builder, indent + 4, seen)
+            append(")")
+        }
     }
+
 }
 
 public sealed class XmlValueDescriptor(
@@ -288,6 +335,28 @@ public sealed class XmlValueDescriptor(
         return d as T
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlValueDescriptor
+
+        if (isCData != other.isCData) return false
+        if (default != other.default) return false
+        if (defaultValue != other.defaultValue) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + isCData.hashCode()
+        result = 31 * result + (default?.hashCode() ?: 0)
+        result = 31 * result + (defaultValue?.hashCode() ?: 0)
+        return result
+    }
+
     private object UNSET
 }
 
@@ -296,8 +365,7 @@ public class XmlPrimitiveDescriptor internal constructor(
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
     canBeAttribute: Boolean,
-) :
-    XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
+) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
@@ -306,8 +374,32 @@ public class XmlPrimitiveDescriptor internal constructor(
     override val outputKind: OutputKind =
         xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
 
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun toString(): String = "$tagName:$kind = $outputKind"
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.append(tagName.toString())
+            .append(':')
+            .append(kind.toString())
+            .append(" = ")
+            .append(outputKind.toString())
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlPrimitiveDescriptor
+
+        if (outputKind != other.outputKind) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + outputKind.hashCode()
+        return result
+    }
+
 }
 
 public class XmlInlineDescriptor internal constructor(
@@ -363,12 +455,35 @@ public class XmlInlineDescriptor internal constructor(
         return child
     }
 
-    override fun toString(): String {
-        return "$tagName (\n${child.toString().prependIndent("    ")}\n)"
-    }
-
     override val isUnsigned: Boolean =
         serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS
+
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append(tagName.toString())
+            append(": Inline (")
+            child.toString(this, indent + 4, seen)
+            append(')')
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlInlineDescriptor
+
+        if (isUnsigned != other.isUnsigned) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + isUnsigned.hashCode()
+        return result
+    }
 
     private companion object {
         @OptIn(ExperimentalSerializationApi::class)
@@ -411,6 +526,19 @@ public class XmlAttributeMapDescriptor internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor = when (index % 2) {
         0 -> keyDescriptor
         else -> valueDescriptor
+    }
+
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append(tagName.toString())
+                .appendLine(" (")
+            appendIndent(indent)
+            keyDescriptor.toString(this, indent + 4, seen)
+                .appendLine(",")
+            appendIndent(indent)
+            valueDescriptor.toString(this, indent + 4, seen)
+                .append(')')
+        }
     }
 
 }
@@ -503,10 +631,36 @@ public class XmlCompositeDescriptor internal constructor(
         }
     }
 
-    override fun toString(): String {
-        return children.joinToString(",\n", "$tagName (\n", "\n)") {
-            it.toString().prependIndent("    ")
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append(tagName.toString())
+                .appendLine(" (")
+            var first = true
+            for (child in children) {
+                if (first) first = false else appendLine(',')
+                appendIndent(indent)
+                child.toString(this, indent + 4, seen)
+            }
+            appendLine().appendIndent(indent - 4).append(')')
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlCompositeDescriptor
+
+        if (initialChildReorderInfo != other.initialChildReorderInfo) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (initialChildReorderInfo?.hashCode() ?: 0)
+        return result
     }
 }
 
@@ -626,15 +780,53 @@ public class XmlPolymorphicDescriptor internal constructor(
             ?: throw XmlSerialException("Missing polymorphic information for $typeName")
     }
 
-    override fun toString(): String = when (isTransparent) {
-        true -> polyInfo.values.joinToString("\n", "[\n", "\n]") { "  - $it".indentNonFirst("    ") }
-        else -> "$tagName (\n${getElementDescriptor(0).toString().prependIndent("    ")}\n" +
-                polyInfo.values.joinToString(
-                    "\n",
-                    "    ${getElementDescriptor(1).tagName}: <poly> [\n",
-                    "\n    ]\n)"
-                ) { "- $it".prependIndent("        ") }
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append(tagName.toString())
+            when {
+                isTransparent -> {
+                    append(" <~(")
+                    for (polyVal in polyInfo.values) {
+                        polyVal.toString(this, indent + 4, seen).appendLine(',')
+                    }
+                }
+                else -> {
+                    append(" (")
+                    append(" <poly> [")
+                    for (polyVal in polyInfo.values) {
+                        polyVal.toString(this, indent + 4, seen).appendLine(',')
+                    }
+                    append(']')
+                }
+            }
+        }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlPolymorphicDescriptor
+
+        if (outputKind != other.outputKind) return false
+        if (polymorphicMode != other.polymorphicMode) return false
+        if (polyInfo != other.polyInfo) return false
+        if (parentSerialName != other.parentSerialName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + outputKind.hashCode()
+        result = 31 * result + polymorphicMode.hashCode()
+        result = 31 * result + polyInfo.hashCode()
+        result = 31 * result + (parentSerialName?.hashCode() ?: 0)
+        return result
+    }
+
+
 }
 
 @ExperimentalSerializationApi
@@ -704,10 +896,45 @@ public class XmlListDescriptor internal constructor(
         return childDescriptor
     }
 
-    override fun toString(): String = when (isListEluded){
-        true -> "${tagName}: EludedList<$childDescriptor>"
-        false -> "${tagName}: ExplicitList<$childDescriptor>"
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.apply {
+            append(tagName.toString())
+            when {
+                isListEluded -> {
+                    append(": EludedList<")
+                    childDescriptor.toString(this, indent, seen)
+                    append('>')
+                }
+                else -> {
+                    append(": ExplicitList<")
+                    childDescriptor.toString(this, indent, seen)
+                    append('>')
+                }
+            }
+        }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlListDescriptor
+
+        if (isListEluded != other.isListEluded) return false
+        if (outputKind != other.outputKind) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + isListEluded.hashCode()
+        result = 31 * result + outputKind.hashCode()
+        return result
+    }
+
+
 }
 
 /**
@@ -788,6 +1015,30 @@ private class DetachedParent(
         return DetachedParent(serialDescriptor, useNameInfo, isDocumentRoot, useOutputKind, overriddenSerializer)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as DetachedParent
+
+        if (serialDescriptor != other.serialDescriptor) return false
+        if (elementUseNameInfo != other.elementUseNameInfo) return false
+        if (isDocumentRoot != other.isDocumentRoot) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+        if (elementUseOutputKind != other.elementUseOutputKind) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = serialDescriptor.hashCode()
+        result = 31 * result + elementUseNameInfo.hashCode()
+        result = 31 * result + isDocumentRoot.hashCode()
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
+        return result
+    }
+
     override val index: Int get() = -1
 
     override val descriptor: SafeXmlDescriptor? get() = null
@@ -806,6 +1057,8 @@ private class DetachedParent(
     override val namespace: Namespace
         get() = elementUseNameInfo.annotatedName?.toNamespace()
             ?: XmlEvent.NamespaceImpl("", "")
+
+
 }
 
 @WillBePrivate // 2021-07-05 Should not have been public.
@@ -823,6 +1076,30 @@ public class ParentInfo(
         overriddenSerializer: KSerializer<*>?
     ): ParentInfo {
         return ParentInfo(descriptor, index, useNameInfo, useOutputKind, overriddenSerializer)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ParentInfo
+
+        if (descriptor != other.descriptor) return false
+        if (index != other.index) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+        if (elementUseNameInfo != other.elementUseNameInfo) return false
+        if (elementUseOutputKind != other.elementUseOutputKind) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = descriptor.hashCode()
+        result = 31 * result + index
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        result = 31 * result + elementUseNameInfo.hashCode()
+        result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
+        return result
     }
 
     override val parentIsInline: Boolean get() = descriptor is XmlInlineDescriptor
@@ -870,6 +1147,8 @@ public class ParentInfo(
         -1 -> null
         else -> descriptor.serialDescriptor.getElementAnnotations(index).getRequestedOutputKind()
     }
+
+
 }
 
 
@@ -959,3 +1238,27 @@ internal fun String.indentNonFirst(indent: String) =
             else -> indent + s
         }
     }.joinToString("\n")
+
+internal fun <A: Appendable> A.appendLineIndented(indent: Int, lines: CharSequence): A = apply {
+    val indentStr = " ".repeat(indent)
+    var first = true
+    for (line in lines.lineSequence()) {
+        if (first) { first = false } else { append(indentStr) }
+        appendLine(line)
+    }
+}
+
+internal fun <A: Appendable> A.appendIndented(indent: Int, lines: CharSequence): A = apply {
+    val indentStr = " ".repeat(indent)
+    var first = true
+    for (line in lines.lineSequence()) {
+        if (first) { first = false } else { appendLine().append(indentStr) }
+        append(indentStr).append(line)
+    }
+}
+
+internal fun <A: Appendable> A.appendIndent(count: Int) = apply {
+    for (i in 0 until count) {
+        append(' ')
+    }
+}
