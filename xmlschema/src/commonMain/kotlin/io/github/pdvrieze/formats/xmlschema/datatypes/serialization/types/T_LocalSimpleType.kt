@@ -19,7 +19,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
-interface T_LocalSimpleType: T_SimpleType {
+interface T_LocalSimpleType: T_SimpleType, T_Element.Simple {
     override val name: Nothing? get() = null
 }
 

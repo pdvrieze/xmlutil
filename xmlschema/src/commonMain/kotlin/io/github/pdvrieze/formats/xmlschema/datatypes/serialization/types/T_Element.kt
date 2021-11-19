@@ -24,9 +24,10 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
 interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
-    val simpleTypes: List<T_LocalSimpleType>
-
-    val complexTypes: List<T_ComplexType_Base>
+    val localType: Type?
+//    val simpleTypes: List<T_LocalSimpleType>
+//
+//    val complexTypes: List<T_ComplexType_Base>
 
     val alternatives: List<T_AltType>
 
@@ -52,4 +53,9 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
     val form: T_FormChoice?
 
     val targetNamespace: AnyURI?
+
+    interface Type
+
+    interface Complex: Type
+    interface Simple: Type
 }
