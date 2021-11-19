@@ -50,8 +50,7 @@ class XSElement(
     @XmlElement(false)
     override val final: T_DerivationSet = emptySet(),
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
-    override val complexTypes: List<XSLocalComplexType> = emptyList(),
+    override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),
@@ -75,8 +74,7 @@ class XSElement(
         if (substitutionGroup != other.substitutionGroup) return false
         if (final != other.final) return false
         if (annotations != other.annotations) return false
-        if (simpleTypes != other.simpleTypes) return false
-        if (complexTypes != other.complexTypes) return false
+        if (localType != other.localType) return false
         if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
         if (keys != other.keys) return false
@@ -98,8 +96,7 @@ class XSElement(
         result = 31 * result + substitutionGroup.hashCode()
         result = 31 * result + final.hashCode()
         result = 31 * result + annotations.hashCode()
-        result = 31 * result + simpleTypes.hashCode()
-        result = 31 * result + complexTypes.hashCode()
+        result = 31 * result + (localType?.hashCode() ?: 0)
         result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()
         result = 31 * result + keys.hashCode()
