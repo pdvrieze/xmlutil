@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -37,6 +38,13 @@ class TestSunData {
     inner class AGroupDef {
         @Nested
         inner class AGAttrUse: ResourceTestBase("sunData/AGroupDef/AG_attrUse/AG_attrUseNS00101m/") {
+
+            @Test
+            fun testXmlDescriptorToString() {
+                val xml = XML { autoPolymorphic = true }
+                val desc = xml.xmlDescriptor(XSSchema.serializer())
+                assertNotNull(desc.toString())
+            }
 
             @Test
             fun testDeserializeValid() {
@@ -57,20 +65,19 @@ class TestSunData {
                     elements = listOf(
                         XSElement(name= NCName("root")),
                         XSElement(
-                            name= NCName("elementWithAttr"),
-                            complexTypes = listOf(
-                                XSLocalComplexTypeShorthand(
-                                    attributes = listOf(
-                                        XSLocalAttribute(
-                                            name = NCName("good"),
-                                            type = QName(XS_NAMESPACE, "string", "xsd")
-                                        )
-                                    ),
-                                    attributeGroups = listOf(
-                                        XSAttributeGroupRef(ref = QName(ns, "aGr", "tn"))
-                                    ),
-                                )
+                            name = NCName("elementWithAttr"),
+                            localType = XSLocalComplexTypeShorthand(
+                                attributes = listOf(
+                                    XSLocalAttribute(
+                                        name = NCName("good"),
+                                        type = QName(XS_NAMESPACE, "string", "xsd")
+                                    )
+                                ),
+                                attributeGroups = listOf(
+                                    XSAttributeGroupRef(ref = QName(ns, "aGr", "tn"))
+                                ),
                             )
+
                         )
                     ),
                     attributes = listOf(
