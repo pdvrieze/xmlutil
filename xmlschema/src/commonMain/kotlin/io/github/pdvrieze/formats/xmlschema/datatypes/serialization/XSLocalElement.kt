@@ -52,8 +52,7 @@ class XSLocalElement(
     override val type: QName? = null,
 
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
-    override val complexTypes: List<XSLocalComplexType> = emptyList(),
+    override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),
@@ -79,8 +78,7 @@ class XSLocalElement(
         if (targetNamespace != other.targetNamespace) return false
         if (type != other.type) return false
         if (annotations != other.annotations) return false
-        if (simpleTypes != other.simpleTypes) return false
-        if (complexTypes != other.complexTypes) return false
+        if (localType != other.localType) return false
         if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
         if (keys != other.keys) return false
@@ -104,8 +102,7 @@ class XSLocalElement(
         result = 31 * result + (targetNamespace?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
         result = 31 * result + annotations.hashCode()
-        result = 31 * result + simpleTypes.hashCode()
-        result = 31 * result + complexTypes.hashCode()
+        result = 31 * result + (localType?.hashCode() ?: 0)
         result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()
         result = 31 * result + keys.hashCode()

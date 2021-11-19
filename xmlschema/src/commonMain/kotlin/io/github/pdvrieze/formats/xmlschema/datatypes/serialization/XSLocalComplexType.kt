@@ -34,13 +34,13 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable(XSLocalComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-abstract class XSLocalComplexType(
+sealed class XSLocalComplexType(
     override val mixed: Boolean? = null,
     override val defaultAttributesApply: Boolean? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_LocalComplexType_Base, G_Redefinable.ComplexType {
+) : XSLocalType(), T_LocalComplexType_Base, G_Redefinable.ComplexType {
     abstract override val content: G_ComplexTypeModel.Base
 
     protected abstract fun toSerialDelegate(): SerialDelegate
@@ -70,6 +70,7 @@ abstract class XSLocalComplexType(
     }
 
     @Serializable
+    @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     class SerialDelegate(
         val mixed: Boolean? = null,
         val complexContent: XSComplexContent? = null,
