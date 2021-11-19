@@ -21,7 +21,33 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Element
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SealedClassSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-@Serializable
-sealed class XSLocalType: T_Element.Type
+@Serializable(XSLocalType.Serializer::class)
+sealed class XSLocalType: T_Element.Type {
+    companion object Serializer: KSerializer<XSLocalType> {
+        @OptIn(InternalSerializationApi::class)
+        private val delegate: KSerializer<XSLocalType> = SealedClassSerializer(
+            "XSLocalType",
+            XSLocalType::class,
+            arrayOf(XSLocalSimpleType::class, XSLocalComplexType::class),
+            arrayOf(XSLocalSimpleType.serializer(), XSLocalComplexType.serializer())
+        )
+
+        override val descriptor: SerialDescriptor = delegate.descriptor
+
+        override fun serialize(encoder: Encoder, value: XSLocalType) {
+            delegate.serialize(encoder, value)
+        }
+
+        override fun deserialize(decoder: Decoder): XSLocalType {
+            return delegate.deserialize(decoder)
+        }
+    }
+}
