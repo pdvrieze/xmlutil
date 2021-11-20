@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @XmlSerialName("attributeGroup", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -37,6 +38,7 @@ class XSAttributeGroupRef(
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val attributes: List<T_LocalAttribute> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 
 ): T_AttributeGroupRef {

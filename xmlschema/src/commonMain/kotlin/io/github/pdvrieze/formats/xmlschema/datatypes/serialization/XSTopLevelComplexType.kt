@@ -21,7 +21,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Base
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -45,6 +46,7 @@ abstract class XSTopLevelComplexType(
     override val defaultAttributesApply: Boolean?,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType {
     abstract override val content: G_ComplexTypeModel.Base
@@ -148,135 +150,3 @@ abstract class XSTopLevelComplexType(
     }
 }
 
-class XSTopLevelComplexTypeComplex(
-    name: NCName,
-    mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
-    defaultAttributesApply: Boolean?,
-    override val content: XSComplexContent,
-    id: ID? = null,
-    annotations: List<XSAnnotation>,
-    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
-    name,
-    mixed,
-    abstract,
-    final,
-    block,
-    defaultAttributesApply,
-    id,
-    annotations,
-    otherAttrs
-), T_TopLevelComplexType_Complex {
-    override fun toSerialDelegate(): SerialDelegate {
-        return SerialDelegate(
-            name = name,
-            mixed = mixed,
-            abstract = abstract,
-            final = final,
-            block = block,
-            defaultAttributesApply = defaultAttributesApply,
-            complexContent = content,
-            id = id,
-            annotations = annotations,
-            otherAttrs = otherAttrs
-        )
-    }
-}
-
-class XSTopLevelComplexTypeSimple(
-    name: NCName,
-    mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
-    defaultAttributesApply: Boolean?,
-    override val content: XSSimpleContent,
-    id: ID? = null,
-    annotations: List<XSAnnotation>,
-    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
-    name,
-    mixed,
-    abstract,
-    final,
-    block,
-    defaultAttributesApply,
-    id,
-    annotations,
-    otherAttrs
-), T_TopLevelComplexType_Simple {
-    override fun toSerialDelegate(): SerialDelegate {
-        return SerialDelegate(
-            name = name,
-            mixed = mixed,
-            abstract = abstract,
-            final = final,
-            block = block,
-            defaultAttributesApply = defaultAttributesApply,
-            simpleContent = content,
-            id = id,
-            annotations = annotations,
-            otherAttrs = otherAttrs
-        )
-    }
-}
-
-class XSTopLevelComplexTypeShorthand(
-    name: NCName,
-    mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
-    defaultAttributesApply: Boolean?,
-    override val groups: List<XSGroupRef>,
-    override val alls: List<XSAll>,
-    override val choices: List<XSChoice>,
-    override val sequences: List<XSSequence>,
-    override val asserts: List<XSAssert>,
-    override val attributes: List<XSLocalAttribute>,
-    override val attributeGroups: List<XSAttributeGroupRef>,
-    override val anyAttribute: XSAnyAttribute?,
-    override val openContents: List<XSOpenContent>,
-    id: ID? = null,
-    annotations: List<XSAnnotation>,
-    otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
-    name,
-    mixed,
-    abstract,
-    final,
-    block,
-    defaultAttributesApply,
-    id,
-    annotations,
-    otherAttrs
-), T_TopLevelComplexType_Shorthand {
-    override val content: G_ComplexTypeModel.Shorthand get() = this
-
-    override fun toSerialDelegate(): SerialDelegate {
-        return SerialDelegate(
-            name = name,
-            mixed = mixed,
-            abstract = abstract,
-            final = final,
-            block = block,
-            defaultAttributesApply = defaultAttributesApply,
-            groups = groups,
-            alls = alls,
-            choices = choices,
-            sequences = sequences,
-            asserts = asserts,
-            atributes = attributes,
-            atributeGroups = attributeGroups,
-            anyAttribute = anyAttribute,
-            openContents = openContents,
-            id = id,
-            annotations = annotations,
-            otherAttrs = otherAttrs
-        )
-    }
-
-}

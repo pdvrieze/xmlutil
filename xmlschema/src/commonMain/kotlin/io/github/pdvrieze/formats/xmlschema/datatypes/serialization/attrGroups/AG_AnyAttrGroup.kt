@@ -25,7 +25,7 @@ interface AG_AnyAttrGroup {
     val namespace: T_NamespaceList?
 
     /** Optional, Min length 1 */
-    val notNamespace: T_NotNamespaceList
+    val notNamespace: T_NotNamespaceList?
 
     /** Optional, default strict */
     val processContents: T_ProcessContents
