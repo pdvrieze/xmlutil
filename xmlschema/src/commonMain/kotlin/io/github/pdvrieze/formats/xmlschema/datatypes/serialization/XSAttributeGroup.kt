@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -39,6 +40,7 @@ class XSAttributeGroup(
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : G_Redefinable.AttributeGroup, T_NamedAttributeGroup {
     override fun equals(other: Any?): Boolean {

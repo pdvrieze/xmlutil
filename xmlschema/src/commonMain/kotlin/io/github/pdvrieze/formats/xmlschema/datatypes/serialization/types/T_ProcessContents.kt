@@ -16,8 +16,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
+@Serializable
+@XmlSerialName("processContents", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 enum class T_ProcessContents {
     @SerialName("skip") SKIP,
     @SerialName("lax") LAX,

@@ -29,6 +29,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -40,21 +41,22 @@ class XSElement(
     override val default: String? = null,
     override val fixed: String? = null,
     override val id: ID? = null,
-    override val nillable: Boolean? = false,
+    override val nillable: Boolean? = null,
     @XmlElement(false)
     override val type: QName? = null,
-    override val abstract: Boolean = false,
+    override val abstract: Boolean? = null,
 
     @XmlElement(false)
-    override val substitutionGroup: List<QName> = emptyList(),
+    override val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
-    override val final: T_DerivationSet = emptySet(),
+    override val final: T_DerivationSet? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),
     override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): G_SchemaTop.Element {
     override fun equals(other: Any?): Boolean {

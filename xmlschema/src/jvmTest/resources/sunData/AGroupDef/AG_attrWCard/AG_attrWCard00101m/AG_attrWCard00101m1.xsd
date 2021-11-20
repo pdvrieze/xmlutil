@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Ident: @(#)AG_attrWCard00101m1.xsd
+   generated from: @(#)AG_attrWCard00101m.jmpp	1.3 02/08/22
+
+-->
+
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="AttrGroup/attrWCard"
+	xmlns:tn="AttrGroup/attrWCard">
+
+	<xsd:element name="root"/>
+
+	<xsd:element name="elementWithAttr">
+	  <xsd:complexType>
+	    <xsd:attribute name="good" type="xsd:string"/>
+	    <xsd:attributeGroup ref="tn:aGr"/>
+	  </xsd:complexType>
+	</xsd:element>
+
+	<xsd:attributeGroup name="aGr">
+	  <xsd:attribute name="number" type="xsd:integer"/>
+	  <xsd:attribute name="height" type="xsd:decimal"/>
+	  <xsd:anyAttribute processContents="skip"/>
+	</xsd:attributeGroup>
+
+</xsd:schema>
+

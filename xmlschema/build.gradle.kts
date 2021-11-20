@@ -95,6 +95,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.serialization.json)
+                implementation(project(":testutil"))
             }
         }
         val javaShared by creating {

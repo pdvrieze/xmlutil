@@ -29,13 +29,15 @@ class SchemaEnumSetSerializer<T: Enum<T>>(val elementSerializer: KSerializer<T>)
         PrimitiveSerialDescriptor("Set<${elementSerializer.descriptor.serialName}>", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Set<T>) {
-        if (value.size == elementSerializer.descriptor.elementsCount) {
-            encoder.encodeString("#all")
-        } else {
-            val stringListEncoder = SimpleStringEncoder(encoder.serializersModule)
-            SetSerializer(elementSerializer).serialize(stringListEncoder, value)
+        if (value.size > 0) {
+            if (value.size == elementSerializer.descriptor.elementsCount) {
+                encoder.encodeString("#all")
+            } else {
+                val stringListEncoder = SimpleStringEncoder(encoder.serializersModule)
+                SetSerializer(elementSerializer).serialize(stringListEncoder, value)
 
-            encoder.encodeString(stringListEncoder.joinToString(" "))
+                encoder.encodeString(stringListEncoder.joinToString(" "))
+            }
         }
     }
 

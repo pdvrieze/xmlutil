@@ -29,12 +29,15 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalElement(
+    @XmlBefore("type")
     override val name: NCName? = null,
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,
@@ -57,6 +60,7 @@ class XSLocalElement(
     override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),
     override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ) : T_LocalElement, G_NestedParticle.Element, G_Particle.Element {
     override fun equals(other: Any?): Boolean {
