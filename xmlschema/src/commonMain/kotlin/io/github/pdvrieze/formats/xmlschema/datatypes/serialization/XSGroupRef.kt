@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Grou
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -36,5 +37,6 @@ class XSGroupRef(
     override val minOccurs: ULong = 1.toULong(),
     override val ref: @Serializable(QNameSerializer::class) QName,
     override val annotations: List<XSAnnotation>,
+    @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ): T_GroupRef, G_TypeDefParticle.Group, G_NestedParticle.Group, G_Particle.Group

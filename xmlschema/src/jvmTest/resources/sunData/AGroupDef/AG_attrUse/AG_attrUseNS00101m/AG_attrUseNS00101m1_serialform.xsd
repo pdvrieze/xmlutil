@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Ident: @(#)AG_attrUseNS00101m1_p.xsd
+   generated from: @(#)AG_attrUseNS00101m.jmpp	1.4 02/11/19
+
+-->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="AttrGroup/attrUse"
+	xmlns:tn="AttrGroup/attrUse">
+    <xs:element name="root"/>
+    <xs:element name="elementWithAttr">
+	  <xs:complexType>
+	    <xs:attribute name="good" type="xs:string"/>
+	    <xs:attributeGroup ref="tn:aGr"/>
+	  </xs:complexType>
+	</xs:element>
+    <xs:attribute name="number" type="xs:integer"/>
+    <xs:attributeGroup name="aGr">
+	  <xs:attribute ref="tn:number"/>
+	  <xs:attribute name="height" type="xs:decimal"/>
+	</xs:attributeGroup>
+</xs:schema>
+

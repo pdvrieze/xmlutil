@@ -25,15 +25,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlAfter
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("schema", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSSchema(
-    val attributeFormDefault: T_FormChoice = T_FormChoice.UNQUALIFIED,
+    @XmlElement(false)
+    val attributeFormDefault: T_FormChoice? = null,
 
     @Serializable(SchemaEnumSetSerializer::class)
     val blockDefault: Set<T_BlockSet> = emptySet(),
@@ -43,13 +41,15 @@ class XSSchema(
 
     val xpathDefaultNamespace: String? = null,
 
-    val elementFormDefault: T_FormChoice = T_FormChoice.UNQUALIFIED,
+    @XmlElement(false)
+    val elementFormDefault: T_FormChoice? = null,
 
     @Serializable(SchemaEnumSetSerializer::class)
     val finalDefault: Set<T_TypeDerivationControl> = emptySet(),
 
     val id: ID? = null,
 
+    @XmlElement(false)
     val targetNamespace: AnyURI? = null,
 
     val version: Token? = null,
@@ -70,9 +70,9 @@ class XSSchema(
     override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
     override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
     override val groups: List<XSGroup> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val elements: List<XSElement> = emptyList(),
     override val attributes: List<XSAttribute> = emptyList(),
+    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
@@ -138,5 +138,9 @@ class XSSchema(
         result = 31 * result + notations.hashCode()
         result = 31 * result + otherAttrs.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return XML{ autoPolymorphic = true }.encodeToString(serializer(), this)
     }
 }
