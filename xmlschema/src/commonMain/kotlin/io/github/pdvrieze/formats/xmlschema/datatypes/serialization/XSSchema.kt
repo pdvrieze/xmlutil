@@ -141,6 +141,6 @@ class XSSchema(
     }
 
     override fun toString(): String {
-        return XML{ autoPolymorphic = true }.encodeToString(serializer(), this)
+        return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
     }
 }

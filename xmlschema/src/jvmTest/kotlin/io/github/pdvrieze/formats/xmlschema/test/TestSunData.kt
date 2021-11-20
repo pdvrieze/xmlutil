@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrUseDefaults
 import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrWCardDefaults
+import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGNameDefaults
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -68,6 +69,24 @@ class TestSunData {
                 assertXmlEquals(
                     readResourceAsString("AG_attrWCard00101m1.xsd"),
                     format.encodeToString(XSSchema.serializer(), AGAttrWCardDefaults.expectedSchema, "xsd")
+                )
+            }
+
+        }
+
+        @Nested
+        inner class AGName: ResourceTestBase("sunData/AGroupDef/AG_name/AG_name00101m/") {
+
+            @Test
+            fun testDeserializeValid() {
+                assertEquals(AGNameDefaults.expectedSchema, deserializeXsd("AG_name00101m1_p.xsd"))
+            }
+
+            @Test
+            fun testSerializeValid() {
+                assertXmlEquals(
+                    readResourceAsString("AG_name00101m1_p.xsd"),
+                    format.encodeToString(XSSchema.serializer(), AGNameDefaults.expectedSchema, "xsd")
                 )
             }
 
