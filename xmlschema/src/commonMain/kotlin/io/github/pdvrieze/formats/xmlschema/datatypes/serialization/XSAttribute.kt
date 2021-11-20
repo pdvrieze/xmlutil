@@ -30,7 +30,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -43,6 +45,7 @@ abstract class XSAttributeBase(
     final override val inheritable: Boolean? = null,
     final override val annotations: List<XSAnnotation> = emptyList(),
     final override val simpleType: XSLocalSimpleType? = null,
+    @XmlOtherAttributes
     final override val otherAttrs: Map<QName, String> = emptyMap(),
 ) : T_AttributeBase {
     override fun equals(other: Any?): Boolean {
@@ -80,6 +83,7 @@ abstract class XSAttributeBase(
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
 
+    @XmlBefore("type")
     override val name: NCName
 
     constructor(
@@ -121,6 +125,7 @@ class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
 
+    @XmlBefore("type")
     override val name: NCName?
 
     @XmlElement(false)

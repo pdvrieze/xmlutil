@@ -24,9 +24,9 @@ import nl.adaptivity.xmlutil.QName
 interface T_TopLevelElement: T_Element {
     override val name: NCName
 
-    override val substitutionGroup: List<QName>
+    override val substitutionGroup: List<QName>?
 
-    override val final: T_DerivationSet
+    override val final: T_DerivationSet?
 
     override val ref: Nothing? get() = null
     override val form: Nothing? get() = null
@@ -35,5 +35,5 @@ interface T_TopLevelElement: T_Element {
     override val maxOccurs: Nothing? get() = null
 
     /** Default: false */
-    override val abstract: Boolean
+    override val abstract: Boolean?
 }

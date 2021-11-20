@@ -20,18 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XS_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.XML
+import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrUseDefaults
+import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrWCardDefaults
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class TestSunData {
     @Nested
@@ -41,53 +37,40 @@ class TestSunData {
 
             @Test
             fun testXmlDescriptorToString() {
-                val xml = XML { autoPolymorphic = true }
-                val desc = xml.xmlDescriptor(XSSchema.serializer())
+                val desc = format.xmlDescriptor(XSSchema.serializer())
                 assertNotNull(desc.toString())
             }
 
             @Test
             fun testDeserializeValid() {
-                val schema = deserializeXsd("AG_attrUseNS00101m1_p.xsd")
-
-                val ns = "AttrGroup/attrUse"
-
-                val ag = XSAttributeGroup(
-                    name = NCName("aGr"),
-                    attributes = listOf(
-                        XSLocalAttribute(ref=QName(ns, "number", "tn")),
-                        XSLocalAttribute(name=NCName("height"), type = QName(XS_NAMESPACE, "decimal", "xsd"))
-                    )
-                )
-
-                val expectedSchema = XSSchema(
-                    targetNamespace = AnyURI(ns),
-                    elements = listOf(
-                        XSElement(name= NCName("root")),
-                        XSElement(
-                            name = NCName("elementWithAttr"),
-                            localType = XSLocalComplexTypeShorthand(
-                                attributes = listOf(
-                                    XSLocalAttribute(
-                                        name = NCName("good"),
-                                        type = QName(XS_NAMESPACE, "string", "xsd")
-                                    )
-                                ),
-                                attributeGroups = listOf(
-                                    XSAttributeGroupRef(ref = QName(ns, "aGr", "tn"))
-                                ),
-                            )
-
-                        )
-                    ),
-                    attributes = listOf(
-                        XSAttribute(name = NCName("number"), type = QName(XS_NAMESPACE, "integer", "xsd"))
-                    ),
-                    attributeGroups = listOf(ag)
-                )
-
-                assertEquals(expectedSchema, schema)
+                assertEquals(AGAttrUseDefaults.expectedSchema, deserializeXsd("AG_attrUseNS00101m1_p.xsd"))
             }
+
+            @Test
+            fun testSerializeValid() {
+                assertXmlEquals(
+                    readResourceAsString("AG_attrUseNS00101m1_serialform.xsd"),
+                    format.encodeToString(XSSchema.serializer(), AGAttrUseDefaults.expectedSchema)
+                )
+            }
+        }
+
+        @Nested
+        inner class AGAttrWCard: ResourceTestBase("sunData/AGroupDef/AG_attrWCard/AG_attrWCard00101m/") {
+
+            @Test
+            fun testDeserializeValid() {
+                assertEquals(AGAttrWCardDefaults.expectedSchema, deserializeXsd("AG_attrWCard00101m1.xsd"))
+            }
+
+            @Test
+            fun testSerializeValid() {
+                assertXmlEquals(
+                    readResourceAsString("AG_attrWCard00101m1.xsd"),
+                    format.encodeToString(XSSchema.serializer(), AGAttrWCardDefaults.expectedSchema, "xsd")
+                )
+            }
+
         }
     }
 }

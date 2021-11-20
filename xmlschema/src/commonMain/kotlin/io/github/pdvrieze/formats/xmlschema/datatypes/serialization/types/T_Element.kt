@@ -44,7 +44,7 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
     val nillable: Boolean?
 
     /** Optional, default false */
-    val abstract: Boolean
+    val abstract: Boolean?
 
     val final: T_DerivationSet?
 

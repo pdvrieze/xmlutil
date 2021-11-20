@@ -26,6 +26,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
@@ -33,6 +34,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 class XSComplexContent(
     override val id: ID? = null,
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
     override val annotations: List<XSAnnotation> = emptyList(),
     val derivation: RestrictionExtensionChoice
@@ -59,6 +61,7 @@ class XSComplexContent(
         override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
         override val facets: List<T_Facet_Base> = emptyList(),
         override val otherContents: List<CompactFragment> = emptyList(),
+        @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
 
     ): RestrictionExtensionChoice(), T_ComplexRestrictionType
@@ -78,6 +81,7 @@ class XSComplexContent(
         override val anyAttribute: XSAnyAttribute? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
         override val openContents: List<XSOpenContent> = emptyList(),
+        @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
 
     ): RestrictionExtensionChoice(), T_ExtensionType

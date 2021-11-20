@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
@@ -48,6 +49,10 @@ class SimpleStringEncoder(override val serializersModule: SerializersModule = Em
     override fun listIterator(index: Int): ListIterator<String> = _strings.listIterator(index)
 
     override fun subList(fromIndex: Int, toIndex: Int): List<String> = _strings.subList(fromIndex, toIndex)
+
+    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
+        return ListEncoder()
+    }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         throw UnsupportedOperationException("SimpleStringEncoder doesn't allow for structures")
@@ -84,4 +89,73 @@ class SimpleStringEncoder(override val serializersModule: SerializersModule = Em
     override fun encodeNull() = encodeString("null")
 
     override fun encodeShort(value: Short) = encodeString(value.toString())
+
+    inner class ListEncoder: CompositeEncoder {
+        override val serializersModule: SerializersModule
+            get() = this@SimpleStringEncoder.serializersModule
+
+        override fun encodeBooleanElement(descriptor: SerialDescriptor, index: Int, value: Boolean) {
+            encodeBoolean(value)
+        }
+
+        override fun encodeByteElement(descriptor: SerialDescriptor, index: Int, value: Byte) {
+            encodeByte(value)
+        }
+
+        override fun encodeCharElement(descriptor: SerialDescriptor, index: Int, value: Char) {
+            encodeChar(value)
+        }
+
+        override fun encodeDoubleElement(descriptor: SerialDescriptor, index: Int, value: Double) {
+            encodeDouble(value)
+        }
+
+        override fun encodeFloatElement(descriptor: SerialDescriptor, index: Int, value: Float) {
+            encodeFloat(value)
+        }
+
+        @ExperimentalSerializationApi
+        override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder {
+            return this@SimpleStringEncoder
+        }
+
+        override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
+            encodeInt(value)
+        }
+
+        override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
+            encodeLong(value)
+        }
+
+        @ExperimentalSerializationApi
+        override fun <T : Any> encodeNullableSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T?
+        ) {
+            throw UnsupportedOperationException("Nullable list elements cannot be in simple string encoders")
+        }
+
+        override fun <T> encodeSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T
+        ) {
+            encodeSerializableValue(serializer, value)
+        }
+
+        override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
+            encodeShort(value)
+        }
+
+        override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
+            encodeString(value)
+        }
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            // do nothing
+        }
+    }
 }

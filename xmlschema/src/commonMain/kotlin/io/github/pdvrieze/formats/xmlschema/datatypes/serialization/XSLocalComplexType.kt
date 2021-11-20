@@ -39,6 +39,7 @@ sealed class XSLocalComplexType(
     override val defaultAttributesApply: Boolean? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSLocalType(), T_LocalComplexType_Base, G_Redefinable.ComplexType {
     abstract override val content: G_ComplexTypeModel.Base
