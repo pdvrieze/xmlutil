@@ -23,14 +23,32 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
+import java.io.InputStreamReader
 
 abstract class ResourceTestBase(val baseDir: String) {
     fun deserializeXsd(fileName: String): XSSchema {
         val resourceName = "${baseDir.dropLastWhile { it=='/' }}/$fileName"
         return javaClass.classLoader.getResourceAsStream(resourceName)!!.use { inStream ->
             XmlStreaming.newGenericReader(inStream, "UTF-8").use { reader ->
-                XML { autoPolymorphic = true }.decodeFromReader(XSSchema.serializer(), reader)
+                format.decodeFromReader(XSSchema.serializer(), reader)
             }
+        }
+    }
+
+    fun readResourceAsString(fileName: String): String {
+        val resourceName = "${baseDir.dropLastWhile { it=='/' }}/$fileName"
+        return javaClass.classLoader.getResourceAsStream(resourceName)!!.use { inStream ->
+            InputStreamReader(inStream).use { reader ->
+                reader.readText()
+            }
+        }
+    }
+
+    companion object {
+        val format = XML {
+            autoPolymorphic = true
+            indent = 4
+//            isCollectingNSAttributes = true
         }
     }
 }

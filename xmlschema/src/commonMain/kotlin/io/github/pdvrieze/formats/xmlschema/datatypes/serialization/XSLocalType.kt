@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.encodeStructure
 
 @Serializable(XSLocalType.Serializer::class)
 sealed class XSLocalType: T_Element.Type {
@@ -37,13 +38,28 @@ sealed class XSLocalType: T_Element.Type {
             "XSLocalType",
             XSLocalType::class,
             arrayOf(XSLocalSimpleType::class, XSLocalComplexType::class),
-            arrayOf(XSLocalSimpleType.serializer(), XSLocalComplexType.serializer())
+            arrayOf(XSLocalSimpleType.serializer(), XSLocalComplexType.Serializer)
         )
 
-        override val descriptor: SerialDescriptor = delegate.descriptor
+        override val descriptor: SerialDescriptor get() = delegate.descriptor
 
         override fun serialize(encoder: Encoder, value: XSLocalType) {
-            delegate.serialize(encoder, value)
+            when (value) {
+                is XSLocalSimpleType -> {
+                    val actualSerializer = XSLocalSimpleType.serializer()
+                    encoder.encodeStructure(descriptor) {
+                        encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
+                        encodeSerializableElement(descriptor, 1, actualSerializer, value)
+                    }
+                }
+                is XSLocalComplexType -> {
+                    val actualSerializer = XSLocalComplexType
+                    encoder.encodeStructure(descriptor) {
+                        encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
+                        encodeSerializableElement(descriptor, 1, actualSerializer, value)
+                    }
+                }
+            }
         }
 
         override fun deserialize(decoder: Decoder): XSLocalType {
