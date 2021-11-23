@@ -1,0 +1,7 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:ipo="http://www.example.com/IPO" targetNamespace="http://www.example.com/IPO"
+ elementFormDefault="qualified"
+>
+	<xsd:element name="ExternFirstElement" type="xsd:string"/>
+
+</xsd:schema>
