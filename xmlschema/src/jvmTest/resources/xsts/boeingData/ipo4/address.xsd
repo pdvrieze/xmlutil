@@ -1,0 +1,54 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns="http://www.example.com/IPO" targetNamespace="http://www.example.com/IPO"
+>
+
+	<xsd:complexType name="AddressType">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string"/>
+			<xsd:element name="street" type="xsd:string"/>
+			<xsd:element name="city" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="USAddress">
+		<xsd:complexContent>
+			<xsd:extension base="AddressType">
+				<xsd:sequence>
+					<xsd:element name="state" type="USState"/>
+					<xsd:element name="zip" type="xsd:positiveInteger"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="UKAddress">
+		<xsd:complexContent>
+			<xsd:extension base="AddressType">
+				<xsd:sequence>
+					<xsd:element name="postcode" type="UKPostcode"/>
+				</xsd:sequence>
+				<xsd:attribute name="exportCode" type="xsd:positiveInteger" fixed="1"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- other Address derivations for US states -->
+	<xsd:simpleType name="USState">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="AK"/>
+			<xsd:enumeration value="AL"/>
+			<xsd:enumeration value="AR"/>
+			<xsd:enumeration value="CA"/>
+			<xsd:enumeration value="PA"/>
+			<!-- and so on ... -->
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<!-- simple type definition for UKPostcode -->
+	<xsd:simpleType name="UKPostcode">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[A-Z]{2}\d\s\d[A-Z]{2}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+</xsd:schema>

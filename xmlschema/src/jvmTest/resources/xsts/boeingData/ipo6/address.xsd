@@ -1,0 +1,10 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+ xmlns:add="http://www.example.com/add" targetNamespace="http://www.example.com/add"
+ xmlns:ipo="http://www.example.com/IPO"
+ elementFormDefault="qualified"
+>
+	<import namespace="http://www.example.com/IPO" schemaLocation="extend.xsd"/>
+
+	<element name="salutation" type="normalizedString" substitutionGroup="ipo:ExternFirstElement"/>
+
+</schema>

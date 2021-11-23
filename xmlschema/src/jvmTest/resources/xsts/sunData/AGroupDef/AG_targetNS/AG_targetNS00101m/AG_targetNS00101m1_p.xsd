@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Ident: @(#)AG_targetNS00101m1_p.xsd
+   generated from: @(#)AG_targetNS00101m.jmpp	1.4 02/11/19
+
+-->
+
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="AttrGroup/targetNS"
+	xmlns:tn="AttrGroup/targetNS">
+
+	<xsd:element name="root"/>
+
+	<xsd:element name="elementWithAttr">
+	  <xsd:complexType>
+	    <xsd:attribute name="good" type="xsd:string"/>
+	    <xsd:attributeGroup ref="tn:aGr"/>
+	  </xsd:complexType>
+	</xsd:element>
+
+	<xsd:attributeGroup name="aGr">
+	  <xsd:attribute name="number" type="xsd:integer" use="required"/>
+	  <xsd:attribute name="height" type="xsd:decimal"/>
+	</xsd:attributeGroup>
+
+</xsd:schema>
+
