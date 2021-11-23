@@ -27,7 +27,7 @@ import kotlin.test.assertNotNull
 class TestBoeingData {
 
     @Nested
-    inner class Ipo1: ResourceTestBase("boeingData/ipo1") {
+    inner class Ipo1: ResourceTestBase("xsts/boeingData/ipo1") {
         @Test
         fun testDeserializeIpo() {
             val deserialized = deserializeXsd("ipo.xsd")
@@ -36,23 +36,7 @@ class TestBoeingData {
     }
 
     @Nested
-    inner class Ipo2: ResourceTestBase("boeingData/ipo2") {
-
-        @Test
-        fun testDeserializeIpo() {
-            val deserialized = deserializeXsd("ipo.xsd")
-            assertNotNull(deserialized)
-        }
-
-        @Test
-        fun testDeserializeAddress() {
-            val deserialized = deserializeXsd("address.xsd")
-            assertNotNull(deserialized)
-        }
-    }
-
-    @Nested
-    inner class Ipo3: ResourceTestBase("boeingData/ipo3") {
+    inner class Ipo2: ResourceTestBase("xsts/boeingData/ipo2") {
 
         @Test
         fun testDeserializeIpo() {
@@ -65,16 +49,10 @@ class TestBoeingData {
             val deserialized = deserializeXsd("address.xsd")
             assertNotNull(deserialized)
         }
-
-        @Test
-        fun testDeserializeItematt() {
-            val deserialized = deserializeXsd("itematt.xsd")
-            assertNotNull(deserialized)
-        }
     }
 
     @Nested
-    inner class Ipo4: ResourceTestBase("boeingData/ipo4") {
+    inner class Ipo3: ResourceTestBase("xsts/boeingData/ipo3") {
 
         @Test
         fun testDeserializeIpo() {
@@ -96,7 +74,7 @@ class TestBoeingData {
     }
 
     @Nested
-    inner class Ipo5: ResourceTestBase("boeingData/ipo5") {
+    inner class Ipo4: ResourceTestBase("xsts/boeingData/ipo4") {
 
         @Test
         fun testDeserializeIpo() {
@@ -118,11 +96,39 @@ class TestBoeingData {
     }
 
     @Nested
-    inner class Ipo6: ResourceTestBase("boeingData/ipo6") {
+    inner class Ipo5: ResourceTestBase("xsts/boeingData/ipo5") {
 
         @Test
         fun testDeserializeIpo() {
             val deserialized = deserializeXsd("ipo.xsd")
+            assertNotNull(deserialized)
+        }
+
+        @Test
+        fun testDeserializeAddress() {
+            val deserialized = deserializeXsd("address.xsd")
+            assertNotNull(deserialized)
+        }
+
+        @Test
+        fun testDeserializeItematt() {
+            val deserialized = deserializeXsd("itematt.xsd")
+            assertNotNull(deserialized)
+        }
+    }
+
+    @Nested
+    inner class Ipo6: ResourceTestBase("xsts/boeingData/ipo6") {
+
+        @Test
+        fun testDeserializeIpo() {
+            val deserialized = deserializeXsd("ipo.xsd")
+            assertNotNull(deserialized)
+        }
+
+        @Test
+        fun testDeserializeExtend() {
+            val deserialized = deserializeXsd("extend.xsd")
             assertNotNull(deserialized)
         }
 

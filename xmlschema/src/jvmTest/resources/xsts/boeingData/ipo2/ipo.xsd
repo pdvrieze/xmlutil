@@ -1,0 +1,79 @@
+<xsd:schema targetNamespace="http://www.example.com/IPO"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:ipo="http://www.example.com/IPO"
+        xmlns:add="http://www.example.com/add">
+
+ <xsd:import namespace="http://www.example.com/add" schemaLocation="address.xsd"/>
+
+ <xsd:element name="purchaseOrder" type="ipo:PurchaseOrderType"/>
+
+ <xsd:element name="comment" type="xsd:string"/>
+ <xsd:element name="shipComment" type="xsd:string"
+  substitutionGroup="ipo:comment"/>
+ <xsd:element name="customerComment" type="xsd:string"
+  substitutionGroup="ipo:comment"/>
+
+ <xsd:complexType name="PurchaseOrderType">
+  <xsd:sequence>
+   <xsd:choice>
+    <xsd:group   ref="ipo:shipAndBill"/>
+    <xsd:element name="singleAddress" type="add:AddressType"/>
+   </xsd:choice>
+   <xsd:element ref="ipo:comment" minOccurs="0"/>
+   <xsd:element name="items"      type="ipo:ItemsType"/>
+  </xsd:sequence>
+  <xsd:attribute name="orderDate" type="xsd:date"/>
+ </xsd:complexType>
+
+ <xsd:group name="shipAndBill">
+  <xsd:sequence>
+   <xsd:element name="shipTo"     type="add:AddressType"/>
+   <xsd:element name="billTo"     type="add:AddressType"/>
+  </xsd:sequence>
+ </xsd:group>
+
+<xsd:complexType name="ItemsType" mixed="true">
+ <xsd:sequence>
+ <xsd:element name="item" minOccurs="0" maxOccurs="unbounded">
+  <xsd:complexType>
+    <xsd:sequence>
+      <xsd:element name="productName" type="xsd:string"/>
+      <xsd:element name="quantity">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:positiveInteger">
+            <xsd:maxExclusive value="100"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="USPrice"  type="xsd:decimal"/>
+      <xsd:element ref="ipo:comment"   minOccurs="0" maxOccurs="2"/>
+      <xsd:element name="shipDate" type="xsd:date" minOccurs="0"/>
+    </xsd:sequence>
+    <!-- attributeGroup replaces individual declarations -->
+    <xsd:attributeGroup ref="ipo:ItemDelivery"/>
+  </xsd:complexType>
+ </xsd:element>
+ </xsd:sequence>
+</xsd:complexType>
+
+<xsd:attributeGroup name="ItemDelivery">
+  <xsd:attribute name="partNum"  type="ipo:SKU" use="required"/>
+  <xsd:attribute name="weightKg" type="xsd:decimal"/>
+  <xsd:attribute name="shipBy">
+    <xsd:simpleType>
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="air"/>
+        <xsd:enumeration value="land"/>
+        <xsd:enumeration value="any"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+  </xsd:attribute>
+</xsd:attributeGroup>
+
+ <xsd:simpleType name="SKU">
+  <xsd:restriction base="xsd:string">
+   <xsd:pattern value="\d{3}-[A-Z]{2}"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+
+</xsd:schema>

@@ -34,7 +34,7 @@ class TestSunData {
     @Nested
     inner class AGroupDef {
         @Nested
-        inner class AGAttrUse: ResourceTestBase("sunData/AGroupDef/AG_attrUse/AG_attrUseNS00101m/") {
+        inner class AGAttrUse: ResourceTestBase("xsts/sunData/AGroupDef/AG_attrUse/AG_attrUseNS00101m/") {
 
             @Test
             fun testXmlDescriptorToString() {
@@ -57,7 +57,7 @@ class TestSunData {
         }
 
         @Nested
-        inner class AGAttrWCard: ResourceTestBase("sunData/AGroupDef/AG_attrWCard/AG_attrWCard00101m/") {
+        inner class AGAttrWCard: ResourceTestBase("xsts/sunData/AGroupDef/AG_attrWCard/AG_attrWCard00101m/") {
 
             @Test
             fun testDeserializeValid() {
@@ -75,7 +75,7 @@ class TestSunData {
         }
 
         @Nested
-        inner class AGName: ResourceTestBase("sunData/AGroupDef/AG_name/AG_name00101m/") {
+        inner class AGName: ResourceTestBase("xsts/sunData/AGroupDef/AG_name/AG_name00101m/") {
 
             @Test
             fun testDeserializeValid() {
