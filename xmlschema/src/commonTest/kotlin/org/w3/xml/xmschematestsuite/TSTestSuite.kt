@@ -18,25 +18,29 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.test.impl.testSuite
+package org.w3.xml.xmschematestsuite
 
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.w3.xml.xmschematestsuite.TSAnnotation
-import org.w3.xml.xmschematestsuite.TSDocumentationReference
-import org.w3.xml.xmschematestsuite.TSInstanceTest
-import org.w3.xml.xmschematestsuite.TSSchemaTest
 
-@XmlSerialName(TESTSUITE_NS, "testGroup", "ts")
-class XSTestGroup(
-    val annotation: TSAnnotation? = null,
-    val documentationReferences: List<TSDocumentationReference> = emptyList(),
-    val schemaTest: TSSchemaTest? = null,
-    val instanceTests: List<TSInstanceTest> = emptyList(),
+@Serializable
+@XmlSerialName("testSuite", TS_NAMESPACE, TS_PREFIX)
+class TSTestSuite(
     val name: String,
+    val releaseDate: TSDate,
+    val schemaVersion: String,
+    @XmlElement(true)
+    val annotation: TSAnnotation? = null,
+    @XmlElement(true)
+    val testSetRefs: List<TSTestSetRef> = emptyList(),
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 )
+
+
+const val TS_NAMESPACE="http://www.w3.org/XML/2004/xml-schema-test-suite/"
+const val TS_PREFIX="ts"
