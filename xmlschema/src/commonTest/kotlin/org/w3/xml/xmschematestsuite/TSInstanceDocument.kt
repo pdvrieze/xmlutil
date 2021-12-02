@@ -18,25 +18,22 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.test.impl.testSuite
+package org.w3.xml.xmschematestsuite
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.w3.xml.xmschematestsuite.TSAnnotation
-import org.w3.xml.xmschematestsuite.TSDocumentationReference
-import org.w3.xml.xmschematestsuite.TSInstanceTest
-import org.w3.xml.xmschematestsuite.TSSchemaTest
 
-@XmlSerialName(TESTSUITE_NS, "testGroup", "ts")
-class XSTestGroup(
-    val annotation: TSAnnotation? = null,
-    val documentationReferences: List<TSDocumentationReference> = emptyList(),
-    val schemaTest: TSSchemaTest? = null,
-    val instanceTests: List<TSInstanceTest> = emptyList(),
-    val name: String,
+@Serializable
+@XmlSerialName("instanceDocument", TS_NAMESPACE, TS_PREFIX)
+class TSInstanceDocument(
+    @XmlSerialName("href", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    override val href: String,
+    @XmlSerialName("type", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    override val locator: String = "locator",
     @XmlOtherAttributes
-    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-)
+    override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+) : TSRefT
