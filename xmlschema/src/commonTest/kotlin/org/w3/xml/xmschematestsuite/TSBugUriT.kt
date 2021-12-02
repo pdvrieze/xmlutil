@@ -17,24 +17,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.pdvrieze.formats.xmlschema.test.impl.testSuite
+
+package org.w3.xml.xmschematestsuite
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.w3.xml.xmschematestsuite.TSAnnotation
-import org.w3.xml.xmschematestsuite.TSTestGroup
+import kotlin.jvm.JvmInline
 
-@XmlSerialName(TESTSUITE_NS, "testSet", "ts")
 @Serializable
-public class TSTestSet(
-    val annotation: TSAnnotation? = null,
-    val testGroups: List<TSTestGroup> = emptyList(),
-    val contributor: String,
-    val name: String,
-    @XmlOtherAttributes
-    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) {
+@JvmInline
+value class TSBugUriT(val uri: String) {
+    init {
+        if (! PATTERN.matches(uri)) {
+            throw IllegalArgumentException("Uri provided is not a valid bug uri: $uri")
+        }
+    }
+
+    companion object {
+        private val PATTERN = Regex("http://www\\.w3\\.org/Bugs/Public/show_bug\\.cgi\\?id=[0-9]*")
+    }
 }

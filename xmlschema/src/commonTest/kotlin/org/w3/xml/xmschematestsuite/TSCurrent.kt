@@ -18,25 +18,19 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.test.impl.testSuite
+package org.w3.xml.xmschematestsuite
 
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.w3.xml.xmschematestsuite.TSAnnotation
-import org.w3.xml.xmschematestsuite.TSDocumentationReference
-import org.w3.xml.xmschematestsuite.TSInstanceTest
-import org.w3.xml.xmschematestsuite.TSSchemaTest
 
-@XmlSerialName(TESTSUITE_NS, "testGroup", "ts")
-class XSTestGroup(
-    val annotation: TSAnnotation? = null,
-    val documentationReferences: List<TSDocumentationReference> = emptyList(),
-    val schemaTest: TSSchemaTest? = null,
-    val instanceTests: List<TSInstanceTest> = emptyList(),
-    val name: String,
-    @XmlOtherAttributes
-    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-)
+@Serializable
+@XmlSerialName("current", TS_NAMESPACE, TS_PREFIX)
+class TSCurrent(
+    override val status: TSStatusT,
+    override val date: XSDate,
+    override val bugzilla: TSBugUriT,
+    override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String>,
+) : TSStatusEntryT
+
