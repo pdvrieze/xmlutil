@@ -17,24 +17,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.pdvrieze.formats.xmlschema.test.impl.testSuite
 
+package org.w3.xml.xmschematestsuite
+
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import org.w3.xml.xmschematestsuite.TSAnnotation
-import org.w3.xml.xmschematestsuite.TSTestGroup
 
-@XmlSerialName(TESTSUITE_NS, "testSet", "ts")
 @Serializable
-public class TSTestSet(
-    val annotation: TSAnnotation? = null,
-    val testGroups: List<TSTestGroup> = emptyList(),
-    val contributor: String,
-    val name: String,
-    @XmlOtherAttributes
-    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) {
+enum class TSStatusT {
+    @SerialName("accepted")
+    ACCEPTED,
+
+    @SerialName("stable")
+    STABLE,
+
+    @SerialName("queried")
+    QUERIED,
+
+    @SerialName("disputed-test")
+    DISPUTEDTEST,
+
+    @SerialName("disputed-spec")
+    DISPUTEDSPEC,
 }
