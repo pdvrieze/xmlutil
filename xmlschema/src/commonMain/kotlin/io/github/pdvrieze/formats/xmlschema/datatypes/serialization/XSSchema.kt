@@ -34,7 +34,7 @@ class XSSchema(
     val attributeFormDefault: T_FormChoice? = null,
 
     @Serializable(SchemaEnumSetSerializer::class)
-    val blockDefault: Set<T_BlockSet> = emptySet(),
+    val blockDefault: T_BlockSet = emptySet(),
 
     @Serializable(QNameSerializer::class)
     val defaultAttributes: QName? = null,

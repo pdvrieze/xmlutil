@@ -28,5 +28,5 @@ interface AG_AnyAttrGroup {
     val notNamespace: T_NotNamespaceList?
 
     /** Optional, default strict */
-    val processContents: T_ProcessContents
+    val processContents: T_ProcessContents?
 }

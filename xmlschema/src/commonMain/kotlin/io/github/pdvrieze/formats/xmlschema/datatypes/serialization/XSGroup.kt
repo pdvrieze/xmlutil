@@ -15,6 +15,7 @@
  */
 
 @file:UseSerializers(QNameSerializer::class)
+
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
@@ -22,6 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedGroup
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -35,14 +37,55 @@ class XSGroup(
     override val name: NCName,
     override val id: ID? = null,
     override val ref: QName? = null,
-    override val minOccurs: ULong = 1L.toULong(),
-    override val maxOccurs: T_AllNNI = T_AllNNI.Value(1L.toULong()),
-    val alls: List<XSAll>,
-    val choices: List<XSChoice>,
-    val sequences: List<XSSequence>,
+    override val particle: Particle,
     override val annotations: List<XSAnnotation>,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String>
-) : G_Redefinable.Group {
+) : G_Redefinable.Group, T_NamedGroup {
+    override val minOccurs: Nothing? get() = null
+    override val maxOccurs: Nothing? get() = null
+
+    @Serializable
+    sealed class Particle : T_NamedGroup.NG_Particle
+
+    @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @Serializable
+    class All(
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val elements: List<XSLocalElement> = emptyList(),
+        override val anys: List<XSAny> = emptyList(),
+        override val groups: List<XSGroupRef> = emptyList(),
+        @XmlOtherAttributes
+        override val otherAttributes: Map<QName, String> = emptyMap()
+
+    ): Particle(), T_NamedGroup.All
+
+    @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @Serializable
+    class Choice(
+        override val elements: List<XSLocalElement> = emptyList(),
+        override val groups: List<XSGroupRef> = emptyList(),
+        override val choices: List<XSChoice> = emptyList(),
+        override val sequences: List<XSSequence> = emptyList(),
+        override val anys: List<XSAny> = emptyList(),
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val id: ID? = null,
+        @XmlOtherAttributes
+        override val otherAttrs: Map<QName, String> = emptyMap()
+    ) : Particle(), T_NamedGroup.Choice
+
+    @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @Serializable
+    class Sequence(
+        override val elements: List<XSLocalElement> = emptyList(),
+        override val groups: List<XSGroupRef> = emptyList(),
+        override val choices: List<XSChoice> = emptyList(),
+        override val sequences: List<XSSequence> = emptyList(),
+        override val anys: List<XSAny> = emptyList(),
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val id: ID? = null,
+        @XmlOtherAttributes
+        override val otherAttrs: Map<QName, String> = emptyMap()
+    ): Particle(), T_NamedGroup.Sequence
 
 }

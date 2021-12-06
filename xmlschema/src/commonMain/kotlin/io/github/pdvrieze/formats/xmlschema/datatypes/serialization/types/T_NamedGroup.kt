@@ -16,4 +16,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-typealias T_NamedGroup = T_Group
+import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+
+interface T_NamedGroup: T_RealGroup {
+    override val particle: NG_Particle
+    val name: NCName
+
+    val minOccurs: Nothing? get() = null
+    val maxOccurs: Nothing? get() = null
+
+    interface NG_Particle: T_RealGroup.RG_Particle
+    interface All: T_RealGroup.All
+    interface Choice: T_RealGroup.Choice
+    interface Sequence: T_RealGroup.Sequence
+}

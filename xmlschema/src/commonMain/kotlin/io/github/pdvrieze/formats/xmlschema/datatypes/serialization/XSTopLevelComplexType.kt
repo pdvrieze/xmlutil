@@ -59,8 +59,10 @@ abstract class XSTopLevelComplexType(
         val mixed: Boolean? = null,
         val abstract: Boolean = false,
         @XmlElement(false)
+        @Serializable(SchemaEnumSetSerializer::class)
         val final: T_DerivationSet = emptySet(),
         @XmlElement(false)
+        @Serializable(SchemaEnumSetSerializer::class)
         val block: T_DerivationSet = emptySet(),
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
