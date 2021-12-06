@@ -16,4 +16,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-typealias T_RealGroup = T_Group
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AllModel
+import nl.adaptivity.xmlutil.QName
+
+interface T_RealGroup: T_Group {
+    val particle: RG_Particle?
+    override val particles: List<RG_Particle>
+        get() = listOfNotNull(particle)
+
+    sealed interface RG_Particle: T_Group.Particle
+    interface All: T_Group.All, G_AllModel {
+        val minOccurs: Nothing? get() = null
+        val maxOccurs: Nothing? get() = null
+        val otherAttributes: Map<QName, String>
+    }
+    interface Choice: T_Group.Choice, T_SimpleExplicitGroup
+    interface Sequence: T_Group.Sequence, T_SimpleExplicitGroup
+}
+
+

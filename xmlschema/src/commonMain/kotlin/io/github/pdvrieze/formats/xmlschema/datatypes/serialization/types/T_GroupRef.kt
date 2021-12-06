@@ -19,7 +19,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import nl.adaptivity.xmlutil.QName
 
-interface T_GroupRef: T_GroupBase, AG_Occurs {
+interface T_GroupRef : T_RealGroup, T_Annotated, AG_Occurs {
     val ref: QName // required
 
+    val name: Nothing? get() = null
+
+    override val particle: T_RealGroup.RG_Particle? get() = null
+    override val particles: List<T_RealGroup.RG_Particle> get() = emptyList()
 }

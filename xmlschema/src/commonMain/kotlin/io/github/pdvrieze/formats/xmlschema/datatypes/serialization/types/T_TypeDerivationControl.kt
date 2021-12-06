@@ -17,7 +17,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class T_TypeDerivationControl {
     @SerialName("restriction")
     RESTRICTION,

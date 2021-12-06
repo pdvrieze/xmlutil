@@ -20,68 +20,92 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import kotlinx.serialization.SerializationException
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.w3.xml.xmschematestsuite.TSTestSet
-import org.w3.xml.xmschematestsuite.TSTestSuite
+import org.w3.xml.xmschematestsuite.*
 import java.net.URI
 import java.net.URL
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.test.assertFails
+import kotlin.test.assertIs
 
 class TestXSTestSuite {
+
+    val xml = XML { autoPolymorphic = true }
 
     @DisplayName("Test suites: suite.xml")
     @TestFactory
     fun testFromTestSetRef(): List<DynamicNode> {
-        val xml = XML { autoPolymorphic = true }
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
-        XmlStreaming.newReader(suiteURL.openStream(), "UTF-8").use { xmlReader ->
+
+        suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             return suite.testSetRefs.map { setRef ->
 
-                val setBaseUrl: URI? = javaClass.getResource("/xsts/${setRef.href}")?.toURI()
-                val testSet = setBaseUrl?.toURL()?.openStream()
-                    ?.let { str -> xml.decodeFromReader<TSTestSet>(XmlStreaming.newReader(str, "UTF-8")) }
+                val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
+                val testSet = setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
 
-                val tsName = testSet?.name?.let{} ?: setRef.href.removeSuffix(".testSet")
+                val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
+
+                val tsName = "$folderName - ${testSet.name}"
 
                 buildDynamicContainer("Test set $tsName") {
-                    dynamicTest("Test set file ${setRef.href} set exists") {
-                        javaClass.getResourceAsStream("/xsts/${setRef.href}").use { stream ->
-                            assertNotNull(stream)
+                    for (group in testSet.testGroups) {
+                        dynamicContainer("Group ${group.name}") {
+                            addSchemaTests(setBaseUrl, group)
                         }
                     }
-                    for (group in testSet!!.testGroups) {
-                        dynamicContainer("Group ${group.name} exists") {
-                            group.schemaTest?.let { schemaTest ->
-                                if (schemaTest.schemaDocuments.size==1) {
-                                    val schemaDoc = schemaTest.schemaDocuments.single()
-                                    dynamicTest("Schema document ${schemaDoc.href}") {
-                                        val docUrl = setBaseUrl.resolve(schemaDoc.href)
-                                        assertNotNull(docUrl.toURL().openStream())
-                                    }
-                                } else {
-                                    dynamicContainer("Schema documents") {
-                                        for (schemaDoc in schemaTest.schemaDocuments) {
-                                            dynamicTest("Schema document ${schemaDoc.href}") {
-                                                val docUrl = setBaseUrl.resolve(schemaDoc.href)
-                                                assertNotNull(docUrl.toURL().openStream())
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                }
+            }
+        }
+    }
 
-                        }
+    private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
+        setBaseUrl: URI,
+        group: TSTestGroup
+    ) {
+        group.schemaTest?.let { schemaTest ->
+            if (schemaTest.schemaDocuments.size == 1) {
+                val schemaDoc = schemaTest.schemaDocuments.single()
+                addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc)
+            } else {
+                dynamicContainer("Schema documents") {
+                    for (schemaDoc in schemaTest.schemaDocuments) {
+                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc)
                     }
+                }
+            }
+        }
+    }
 
-                    dynamicTest("Read set") {
-
-                        assertNotNull(testSet)
-
+    private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
+        setBaseUrl: URI,
+        schemaTest: TSSchemaTest,
+        schemaDoc: TSSchemaDocument
+    ) {
+        if (schemaTest.expected?.validity == TSValidityOutcome.INVALID) {
+            dynamicTest("Schema document ${schemaDoc.href} exists") {
+                assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
+            }
+/*
+            dynamicTest("Schema document ${schemaDoc.href} does not parse") {
+                val e = assertIs<SerializationException>(assertFails {
+                    setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->
+                        xml.decodeFromReader<XSSchema>(r)
                     }
+                })
+            }
+*/
+        } else {
+            dynamicTest("Schema document ${schemaDoc.href} parses") {
+                setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->
+                    val schema = xml.decodeFromReader<XSSchema>(r)
+                    assertNotNull(schema)
                 }
             }
         }
@@ -105,4 +129,14 @@ internal suspend fun SequenceScope<in DynamicTest>.dynamicTest(displayName: Stri
 @OptIn(ExperimentalTypeInference::class)
 internal suspend fun SequenceScope<in DynamicContainer>.dynamicContainer(displayName: String, @BuilderInference block: suspend SequenceScope<DynamicNode>.() -> Unit) {
     yield(DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable()))
+}
+
+inline fun <R> URI.withXmlReader(body: (XmlReader)->R): R {
+    return toURL().withXmlReader(body)
+}
+
+inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
+    return openStream().use { inStream ->
+        XmlStreaming.newReader(inStream, "UTF-8").use(body)
+    }
 }

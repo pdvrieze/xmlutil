@@ -49,6 +49,7 @@ class XSElement(
     @XmlElement(false)
     override val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
+    @Serializable(SchemaEnumSetSerializer::class)
     override val final: T_DerivationSet? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val localType: XSLocalType? = null,
@@ -59,6 +60,7 @@ class XSElement(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): G_SchemaTop.Element {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

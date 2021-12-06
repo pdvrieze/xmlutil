@@ -32,7 +32,7 @@ class SimpleStringDecoder constructor(
     override val serializersModule: SerializersModule = EmptySerializersModule
 ): Decoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        throw SerializationException("Structures are not supported by the simple string decoder")
+        throw SerializationException("Structures are not supported by the simple string decoder: decoding $value")
     }
 
     @ExperimentalSerializationApi
@@ -49,7 +49,8 @@ class SimpleStringDecoder constructor(
     }
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return (0 until enumDescriptor.elementsCount).first { enumDescriptor.getElementName(it) == value }
+        return (0 until enumDescriptor.elementsCount).firstOrNull() { enumDescriptor.getElementName(it) == value }
+            ?: throw SerializationException("Could not find enum constant for ${enumDescriptor.serialName}.$value")
     }
 
     override fun decodeBoolean(): Boolean = value.toBoolean()
