@@ -17,9 +17,24 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.Token
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("selector", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSelector
+class XSSelector(
+    val xpath: Token,
+    @XmlElement(false)
+    val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+
+) : T_Annotated
