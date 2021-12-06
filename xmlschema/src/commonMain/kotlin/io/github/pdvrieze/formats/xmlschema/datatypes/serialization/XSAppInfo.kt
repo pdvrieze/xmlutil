@@ -25,16 +25,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlSerialName("appinfo", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAppInfo(
-    val source: AnyURI,
+    @XmlElement(false)
+    val source: AnyURI? = null,
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)
     val content: CompactFragment,

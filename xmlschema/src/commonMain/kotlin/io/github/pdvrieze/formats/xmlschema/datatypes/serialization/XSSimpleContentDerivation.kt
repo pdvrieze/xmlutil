@@ -30,12 +30,11 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 sealed class XSSimpleContentDerivation(
     val base: @Serializable(QNameSerializer::class) QName,
     override val id: ID? = null,
-    override val attributes: List<T_LocalAttribute> = emptyList(),
+    override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
     override val asserts: List<XSAssert> = emptyList(),
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): T_Annotated, G_Assertions, G_AttrDecls {
-}
+) : T_Annotated, G_Assertions, G_AttrDecls
