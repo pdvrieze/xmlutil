@@ -23,14 +23,20 @@ package org.w3.xml.xmschematestsuite
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("prior", TS_NAMESPACE, TS_PREFIX)
 class TSPrior(
+    @XmlElement(false)
     override val status: TSStatusT,
+    @XmlElement(false)
     override val date: XSDate,
-    override val bugzilla: TSBugUriT,
-    override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String>,
+    @XmlElement(false)
+    override val bugzilla: TSBugUriT? = null,
+    @XmlOtherAttributes
+    override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
 ): TSStatusEntryT
 
