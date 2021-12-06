@@ -54,9 +54,9 @@ class XSElement(
     override val annotations: List<XSAnnotation> = emptyList(),
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
-    override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
-    override val keys: List<G_IdentityConstraint.Key> = emptyList(),
-    override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
+    override val uniques: List<XSUnique> = emptyList(),
+    override val keys: List<XSKey> = emptyList(),
+    override val keyref: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): G_SchemaTop.Element {

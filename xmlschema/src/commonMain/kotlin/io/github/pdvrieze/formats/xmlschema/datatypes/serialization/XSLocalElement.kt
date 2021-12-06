@@ -43,6 +43,7 @@ class XSLocalElement(
     override val block: T_BlockSet? = null,
     override val default: String? = null,
     override val fixed: String? = null,
+    @XmlElement(false)
     override val form: T_FormChoice? = null,
     override val id: ID? = null,
     override val maxOccurs: T_AllNNI = T_AllNNI(1),
@@ -57,9 +58,9 @@ class XSLocalElement(
     override val annotations: List<XSAnnotation> = emptyList(),
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
-    override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
-    override val keys: List<G_IdentityConstraint.Key> = emptyList(),
-    override val keyref: List<G_IdentityConstraint.Keyref> = emptyList(),
+    override val uniques: List<XSUnique> = emptyList(),
+    override val keys: List<XSKey> = emptyList(),
+    override val keyref: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ) : T_LocalElement, G_NestedParticle.Element, G_Particle.Element {
