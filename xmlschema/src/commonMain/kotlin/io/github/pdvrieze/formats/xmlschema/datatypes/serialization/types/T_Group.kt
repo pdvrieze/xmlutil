@@ -17,15 +17,19 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAll
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 
 /** Base for XS_Group */
 interface T_Group: T_GroupBase {
-    val name: NCName
-
-    val particle: Particle
+    val particles: List<Particle>
 
     sealed interface Particle
-    interface All: Particle
-    interface Choice: Particle
-    interface Sequence: Particle
+    interface All: Particle, G_Particle.All
+    interface Group: Particle, G_Particle.Group
+    interface Choice: Particle, G_Particle.Choice
+    interface Sequence: Particle, G_Particle.Sequence
+    interface Any: Particle, G_Particle.Any
+    interface Element: Particle, G_Particle.Element
+
 }
