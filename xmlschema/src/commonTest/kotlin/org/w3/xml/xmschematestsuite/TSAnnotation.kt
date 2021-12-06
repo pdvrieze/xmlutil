@@ -43,24 +43,24 @@ class TSAnnotation(
     @Serializable
     @XmlSerialName("appinfo", TS_NAMESPACE, TS_PREFIX)
     class AppInfo(
-        @XmlValue
+        @XmlValue(true)
         @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
-        val source: AnyURI,
+        val source: AnyURI? = null,
         @XmlOtherAttributes
         val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-    )
+    ) : AnnotationElement()
 
     @Serializable
     @XmlSerialName("documentation", TS_NAMESPACE, TS_PREFIX)
     class Documentation(
-        @XmlValue
+        @XmlValue(true)
         @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
-        val source: AnyURI,
+        val source: AnyURI? = null,
         @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
         val lang: String? = null,
         @XmlOtherAttributes
         val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-    )
+    ) : AnnotationElement()
 }
