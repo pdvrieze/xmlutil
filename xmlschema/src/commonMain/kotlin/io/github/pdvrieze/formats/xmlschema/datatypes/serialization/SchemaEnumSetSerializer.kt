@@ -50,7 +50,7 @@ class SchemaEnumSetSerializer<T: Enum<T>>(val elementSerializer: KSerializer<T>)
                 }
             }
             else -> str.split(' ')
-        }
+        }.filter { it.isNotEmpty() }
         return SetSerializer(elementSerializer).deserialize(SimpleStringListDecoder(names, decoder.serializersModule))
     }
 }
