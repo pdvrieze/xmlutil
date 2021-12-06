@@ -25,6 +25,6 @@ import nl.adaptivity.xmlutil.QName
 interface TSStatusEntryT {
     val status: TSStatusT
     val date: XSDate
-    val bugzilla: TSBugUriT
+    val bugzilla: TSBugUriT?
     val otherAttributes: Map<QName, String>
 }

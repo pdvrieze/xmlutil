@@ -25,8 +25,10 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
+@XmlSerialName("expected", TS_NAMESPACE, TS_PREFIX)
 class TSExpected(
     @XmlElement(false)
     val validity: TSValidityOutcome,
