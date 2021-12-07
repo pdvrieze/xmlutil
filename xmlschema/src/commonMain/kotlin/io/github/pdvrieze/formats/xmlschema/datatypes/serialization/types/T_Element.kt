@@ -16,12 +16,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.SchemaEnumSetSerializer
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_IdentityConstraints
-import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
@@ -54,7 +52,7 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
 
     val form: T_FormChoice?
 
-    val targetNamespace: AnyURI?
+    val targetNamespace: VAnyURI?
 
     interface Type
 

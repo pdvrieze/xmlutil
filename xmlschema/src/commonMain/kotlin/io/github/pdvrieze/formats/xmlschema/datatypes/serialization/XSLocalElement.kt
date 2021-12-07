@@ -18,10 +18,10 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -38,20 +38,20 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalElement(
     @XmlBefore("type")
-    override val name: NCName? = null,
+    override val name: VNCName? = null,
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,
     override val default: String? = null,
     override val fixed: String? = null,
     @XmlElement(false)
     override val form: T_FormChoice? = null,
-    override val id: ID? = null,
-    override val maxOccurs: T_AllNNI = T_AllNNI(1),
-    override val minOccurs: ULong = 1.toULong(),
+    override val id: VID? = null,
+    override val maxOccurs: T_AllNNI? = null,
+    override val minOccurs: VNonNegativeInteger? = null,
     override val nillable: Boolean? = false,
     @XmlElement(false)
     override val ref: QName? = null,
-    override val targetNamespace: AnyURI? = null,
+    override val targetNamespace: VAnyURI? = null,
     @XmlElement(false)
     override val type: QName? = null,
 

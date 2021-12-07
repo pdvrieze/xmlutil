@@ -16,13 +16,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
 
 interface T_TopLevelElement: T_Element {
-    override val name: NCName
+    override val name: VNCName
 
     override val substitutionGroup: List<QName>?
 

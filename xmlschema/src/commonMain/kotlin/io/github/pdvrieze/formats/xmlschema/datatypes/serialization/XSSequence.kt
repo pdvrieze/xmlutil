@@ -18,10 +18,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ExplicitGroup
 import kotlinx.serialization.Serializable
@@ -34,9 +32,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSSequence(
-    override val id: ID? = null,
-    override val minOccurs: ULong? = 1.toULong(),
-    override val maxOccurs: T_AllNNI? = T_AllNNI(1),
+    override val id: VID? = null,
+    override val minOccurs: VNonNegativeInteger? = null,
+    override val maxOccurs: T_AllNNI? = null,
     override val elements: List<XSLocalElement> = emptyList(),
     override val groups: List<XSGroupRef> = emptyList(),
     override val choices: List<XSChoice> = emptyList(),

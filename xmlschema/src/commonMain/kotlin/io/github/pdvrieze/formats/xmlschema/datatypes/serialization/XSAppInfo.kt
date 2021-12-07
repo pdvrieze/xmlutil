@@ -19,7 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_OpenAttrs
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @XmlSerialName("appinfo", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAppInfo(
     @XmlElement(false)
-    val source: AnyURI? = null,
+    val source: VAnyURI? = null,
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)
     val content: CompactFragment = CompactFragment(""),

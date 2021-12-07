@@ -16,11 +16,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -29,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 @Serializable
 sealed class XSSimpleContentDerivation(
     val base: @Serializable(QNameSerializer::class) QName?,
-    override val id: ID?,
+    override val id: VID?,
     override val attributes: List<XSLocalAttribute>,
     override val attributeGroups: List<XSAttributeGroupRef>,
     override val anyAttribute: XSAnyAttribute?,

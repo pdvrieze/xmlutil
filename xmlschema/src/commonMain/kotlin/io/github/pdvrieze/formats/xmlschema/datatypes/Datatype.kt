@@ -1,25 +1,31 @@
 /*
  * Copyright (c) 2021.
  *
- * This file is part of ProcessManager.
+ * This file is part of xmlutil.
  *
- * ProcessManager is free software: you can redistribute it and/or modify it under the terms of version 3 of the
- * GNU Lesser General Public License as published by the Free Software Foundation.
+ * This file is licenced to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You should have received a copy of the license with the source distribution.
+ * Alternatively, you may obtain a copy of the License at
  *
- * ProcessManager is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public License along with ProcessManager.  If not,
- * see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 
-sealed class Datatype(
+abstract class Datatype(
     val name: String,
     val targetNamespace: String,
 ) {
@@ -54,20 +60,6 @@ class ExtensionComplexDatatype(name: String, targetNamespace: String, override v
 
 class RestrictionComplexDatatype(name: String, targetNamespace: String, override val baseType: ComplexDatatype) :
     ComplexDatatype(name, targetNamespace)
-
-sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace)
-
-class RestrictedAtomicDatatype(name: String, targetNamespace: String, override val baseType: AtomicDatatype) :
-    AtomicDatatype(name, targetNamespace) {
-
-    init {
-        if (baseType == AnyAtomicType)
-            throw IllegalArgumentException("Restricted types cannot derive directly from anyAtomicType")
-    }
-
-}
-
-sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace)
 
 /**
  * Space separated for primitives. If the itemType is a Union the members of that union must be atomic.
@@ -166,7 +158,6 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val baseType: AnyType get() = AnyType
 }
 
-object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAMESPACE) {
-    override val baseType: AnySimpleType get() = AnySimpleType
-}
 
+typealias VAnySimpleType = io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
+typealias Token = io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken

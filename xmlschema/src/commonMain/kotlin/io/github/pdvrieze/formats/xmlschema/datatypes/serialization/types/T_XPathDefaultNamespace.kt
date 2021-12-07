@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -31,7 +31,7 @@ sealed class T_XPathDefaultNamespace {
     object DEFAULTNAMESPACE: T_XPathDefaultNamespace()
     object TARGETNAMESPACE: T_XPathDefaultNamespace()
     object LOCAL: T_XPathDefaultNamespace()
-    class Uri(val value: AnyURI): T_XPathDefaultNamespace()
+    class Uri(val value: VAnyURI): T_XPathDefaultNamespace()
 
     companion object Serializer: KSerializer<T_XPathDefaultNamespace> {
         override val descriptor: SerialDescriptor =
@@ -48,7 +48,7 @@ sealed class T_XPathDefaultNamespace {
             "##defaultNamespace" -> DEFAULTNAMESPACE
             "##targetNamespace" -> TARGETNAMESPACE
             "##local" -> LOCAL
-            else -> Uri(AnyURI(str))
+            else -> Uri(VAnyURI(str))
         }
     }
 }

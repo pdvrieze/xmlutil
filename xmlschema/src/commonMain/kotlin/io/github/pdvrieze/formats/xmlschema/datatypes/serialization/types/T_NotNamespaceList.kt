@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -33,14 +33,14 @@ class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : Li
             fun fromString(string: String) = when (string) {
                 "##targetNamespace" -> TARGETNAMESPACE
                 "##local" -> LOCAL
-                else -> Uri(AnyURI(string))
+                else -> Uri(VAnyURI(string))
             }
         }
     }
 
     object TARGETNAMESPACE : Elem()
     object LOCAL : Elem()
-    class Uri(val value: AnyURI) : Elem()
+    class Uri(val value: VAnyURI) : Elem()
 
     object Serializer : KSerializer<T_NotNamespaceList> {
         override val descriptor: SerialDescriptor =

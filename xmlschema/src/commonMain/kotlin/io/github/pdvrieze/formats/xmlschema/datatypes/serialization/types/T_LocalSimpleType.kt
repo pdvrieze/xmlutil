@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
 interface T_LocalSimpleType: T_SimpleType, T_Element.Simple {
@@ -25,9 +25,9 @@ interface T_LocalSimpleType: T_SimpleType, T_Element.Simple {
 
 interface T_TopLevelSimpleType: T_SimpleType {
     val final: Set<T_SimpleDerivationSetElem>
-    override val name: NCName
+    override val name: VNCName
 }
 
 interface T_SimpleType: T_Annotated, G_SimpleDerivation {
-    val name: NCName?
+    val name: VNCName?
 }

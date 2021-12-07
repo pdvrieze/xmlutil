@@ -20,7 +20,7 @@
 
 package org.w3.xml.xmschematestsuite
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -46,7 +46,7 @@ class TSAnnotation(
         @XmlValue(true)
         @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
-        val source: AnyURI? = null,
+        val source: VAnyURI? = null,
         @XmlOtherAttributes
         val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) : AnnotationElement()
@@ -57,7 +57,7 @@ class TSAnnotation(
         @XmlValue(true)
         @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
-        val source: AnyURI? = null,
+        val source: VAnyURI? = null,
         @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
         val lang: String? = null,
         @XmlOtherAttributes

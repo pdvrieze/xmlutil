@@ -19,9 +19,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeBase
@@ -40,7 +40,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 abstract class XSAttributeBase(
     final override val default: String? = null,
     final override val fixed: String? = null,
-    final override val id: ID? = null,
+    final override val id: VID? = null,
     final override val type: QName? = null,
     final override val inheritable: Boolean? = null,
     final override val annotations: List<XSAnnotation> = emptyList(),
@@ -84,13 +84,13 @@ abstract class XSAttributeBase(
 class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
 
     @XmlBefore("type")
-    override val name: NCName
+    override val name: VNCName
 
     constructor(
         default: String? = null,
         fixed: String? = null,
-        id: ID? = null,
-        name: NCName,
+        id: VID? = null,
+        name: VNCName,
         type: QName? = null,
         inheritable: Boolean? = null,
         annotations: List<XSAnnotation> = emptyList(),
@@ -126,7 +126,7 @@ class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
 class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
 
     @XmlBefore("type")
-    override val name: NCName?
+    override val name: VNCName?
 
     @XmlElement(false)
     override val form: T_FormChoice?
@@ -135,20 +135,20 @@ class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
 
     @XmlElement(false)
     override val use: XSAttrUse?
-    override val targetNamespace: AnyURI?
+    override val targetNamespace: VAnyURI?
 
 
     constructor(
         default: String? = null,
         fixed: String? = null,
         form: T_FormChoice? = null,
-        id: ID? = null,
-        name: NCName? = null,
+        id: VID? = null,
+        name: VNCName? = null,
         ref: QName? = null,
         type: QName? = null,
         use: XSAttrUse? = null,
         inheritable: Boolean? = null,
-        targetNamespace: AnyURI? = null,
+        targetNamespace: VAnyURI? = null,
         annotations: List<XSAnnotation> = emptyList(),
         simpleType: XSLocalSimpleType? = null,
         otherAttrs: Map<QName, String> = emptyMap()

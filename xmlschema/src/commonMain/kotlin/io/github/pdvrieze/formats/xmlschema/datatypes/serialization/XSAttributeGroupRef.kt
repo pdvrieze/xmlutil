@@ -19,7 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import kotlinx.serialization.Serializable
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("attributeGroup", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSAttributeGroupRef(
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val ref: QName,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
