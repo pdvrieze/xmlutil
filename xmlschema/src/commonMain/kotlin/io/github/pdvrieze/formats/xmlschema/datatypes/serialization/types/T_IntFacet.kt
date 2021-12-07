@@ -21,17 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 
-@Serializable
-sealed class T_IntFacet : T_Facet {
-    constructor(
-        value: Int,
-        fixed: Boolean = false,
-        id: ID? = null,
-        annotations: List<XSAnnotation> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(fixed, id, annotations, otherAttrs) {
-        this.value = value
-    }
+interface T_IntFacet : T_Facet {
 
     final override val value: Int
 

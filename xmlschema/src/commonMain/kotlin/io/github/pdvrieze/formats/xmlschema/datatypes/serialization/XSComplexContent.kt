@@ -59,7 +59,7 @@ class XSComplexContent(
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
         override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
-        override val facets: List<T_Facet_Base> = emptyList(),
+        override val facets: List<XSFacet> = emptyList(),
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()

@@ -26,6 +26,6 @@ import nl.adaptivity.xmlutil.QName
 interface T_RestrictionType :
     T_Annotated, GX_TypeDefParticles, G_SimpleRestrictionModels, G_AttrDecls, G_Assertions {
 
-    val base: QName
+    val base: QName?
     val openContents: List<XSOpenContent>
 }

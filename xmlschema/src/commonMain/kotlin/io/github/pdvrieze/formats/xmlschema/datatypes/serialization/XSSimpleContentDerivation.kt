@@ -28,13 +28,13 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 sealed class XSSimpleContentDerivation(
-    val base: @Serializable(QNameSerializer::class) QName,
-    override val id: ID? = null,
-    override val attributes: List<XSLocalAttribute> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-    override val anyAttribute: XSAnyAttribute? = null,
-    override val asserts: List<XSAssert> = emptyList(),
-    override val annotations: List<XSAnnotation> = emptyList(),
+    val base: @Serializable(QNameSerializer::class) QName?,
+    override val id: ID?,
+    override val attributes: List<XSLocalAttribute>,
+    override val attributeGroups: List<XSAttributeGroupRef>,
+    override val anyAttribute: XSAnyAttribute?,
+    override val asserts: List<XSAssert>,
+    override val annotations: List<XSAnnotation>,
     @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : T_Annotated, G_Assertions, G_AttrDecls
