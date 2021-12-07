@@ -17,20 +17,21 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NumFacet
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("fractionDigits", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSFractionDigits : T_NumFacet {
-    constructor(
-        value: ULong,
-        fixed: Boolean = false,
-        id: ID? = null,
-        annotations: List<XSAnnotation> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(value, fixed, id, annotations, otherAttrs)
-}
+class XSFractionDigits(
+    override val value: ULong,
+    override val fixed: Boolean? = null,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+) : XSFacet(), T_NumFacet

@@ -21,20 +21,36 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls {
+class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, SimpleRestrictionModel {
 
     constructor(
-        base: QName,
+        simpleType: XSLocalSimpleType? = null,
+        facets: List<XSFacet> = emptyList(),
+        base: QName? = null,
         id: ID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
         assertions: List<XSAssert> = emptyList(),
         annotations: List<XSAnnotation> = emptyList(),
+        otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ): super(base, id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs)
+    ): super(base, id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs) {
+        this.simpleType = simpleType
+        this.facets = facets
+        this.otherContents = otherContents
+    }
+
+    override val simpleType: XSLocalSimpleType?
+
+    override val facets: List<XSFacet>
+
+    val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
+
 }
