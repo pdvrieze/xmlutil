@@ -39,3 +39,6 @@ value class AnyURI(val value: String)
 @Serializable
 value class XPathExpression(val test: String)
 
+@JvmInline
+@Serializable
+value class AnySimpleValue(val value: String)

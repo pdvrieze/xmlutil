@@ -18,20 +18,14 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
-@Serializable
-abstract class T_Facet : T_Facet_Base {
+interface T_Facet: T_Annotated {
+    val value: Any
 
-    final override val fixed: Boolean
-
-    constructor(
-        fixed: Boolean = false,
-        id: ID? = null,
-        annotations: List<XSAnnotation>,
-        otherAttrs: Map<QName, String>
-    ) : super(id, annotations, otherAttrs) {
-        this.fixed = fixed
-    }
+    val fixed: Boolean?
 }

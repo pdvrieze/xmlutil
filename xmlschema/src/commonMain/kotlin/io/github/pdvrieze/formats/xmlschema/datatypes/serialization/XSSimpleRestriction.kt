@@ -37,7 +37,7 @@ internal class XSSimpleRestriction(
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
-    override val facets: List<T_Facet> = emptyList(),
+    override val facets: List<XSFacet> = emptyList(),
     @XmlValue(true)
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
     @XmlOtherAttributes

@@ -21,10 +21,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 
-@Serializable
-abstract class T_NoFixedFacet : T_Facet_Base {
-    constructor(id: ID? = null, annotations: List<XSAnnotation>, otherAttrs: Map<QName, String>) :
-            super(id, annotations, otherAttrs)
-
-    override val fixed get() = false
+interface T_NoFixedFacet : T_Facet {
+    override val fixed: Nothing? get() = null
 }

@@ -17,23 +17,20 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NoFixedFacet
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("pattern", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSPattern : T_NoFixedFacet {
-    constructor(
-        value: String,
-        id: ID? = null,
-        annotations: List<XSAnnotation> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, annotations, otherAttrs) {
-        this.value = value
-    }
-
-    override val value: String
-}
+class XSPattern(
+    override val value: String,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+) : XSFacet(), T_NoFixedFacet
