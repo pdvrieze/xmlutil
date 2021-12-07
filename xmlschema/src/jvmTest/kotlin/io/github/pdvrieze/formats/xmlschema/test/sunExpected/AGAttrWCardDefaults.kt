@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ProcessContents
 import nl.adaptivity.xmlutil.QName
@@ -32,24 +32,30 @@ object AGAttrWCardDefaults {
     val ns = "AttrGroup/attrWCard"
 
     val ag = XSAttributeGroup(
-        name = NCName("aGr"),
+        name = VNCName("aGr"),
         attributes = listOf(
-            XSLocalAttribute(name = NCName("number"), type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd")),
-            XSLocalAttribute(name= NCName("height"), type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd"))
+            XSLocalAttribute(
+                name = VNCName("number"),
+                type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd")
+            ),
+            XSLocalAttribute(
+                name = VNCName("height"),
+                type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd")
+            )
         ),
         anyAttribute = XSAnyAttribute(processContents = T_ProcessContents.SKIP)
     )
 
     val expectedSchema = XSSchema(
-        targetNamespace = AnyURI(ns),
+        targetNamespace = VAnyURI(ns),
         elements = listOf(
-            XSElement(name= NCName("root")),
+            XSElement(name = VNCName("root")),
             XSElement(
-                name = NCName("elementWithAttr"),
+                name = VNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(
                         XSLocalAttribute(
-                            name = NCName("good"),
+                            name = VNCName("good"),
                             type = QName(XmlSchemaConstants.XS_NAMESPACE, "string", "xsd")
                         )
                     ),

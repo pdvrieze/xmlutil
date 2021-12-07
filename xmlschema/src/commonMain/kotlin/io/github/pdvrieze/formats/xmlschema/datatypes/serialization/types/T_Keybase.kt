@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import nl.adaptivity.xmlutil.QName
@@ -29,6 +29,6 @@ interface T_Keybase: T_Annotated {
      */
     val fields: List<XSField>
 
-    val name: NCName?
+    val name: VNCName?
     val ref: QName?
 }

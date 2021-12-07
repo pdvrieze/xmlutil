@@ -16,13 +16,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
 
 /**
  * for element, group and attributeGroup, which both define and reference
  */
 interface AG_DefRef {
-    val name: NCName?
+    val name: VNCName?
     val ref: QName?
 }

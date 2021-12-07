@@ -19,10 +19,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedGroup
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -34,13 +33,13 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroup(
-    override val name: NCName,
-    override val id: ID? = null,
+    override val name: VNCName,
+    override val id: VID? = null,
     override val ref: QName? = null,
     override val particle: Particle,
-    override val annotations: List<XSAnnotation>,
+    override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String>
+    override val otherAttrs: Map<QName, String> = emptyMap()
 ) : G_Redefinable.Group, T_NamedGroup {
     override val minOccurs: Nothing? get() = null
     override val maxOccurs: Nothing? get() = null
@@ -69,7 +68,7 @@ class XSGroup(
         override val sequences: List<XSSequence> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
         override val annotations: List<XSAnnotation> = emptyList(),
-        override val id: ID? = null,
+        override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : Particle(), T_NamedGroup.Choice
@@ -83,7 +82,7 @@ class XSGroup(
         override val sequences: List<XSSequence> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
         override val annotations: List<XSAnnotation> = emptyList(),
-        override val id: ID? = null,
+        override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ): Particle(), T_NamedGroup.Sequence

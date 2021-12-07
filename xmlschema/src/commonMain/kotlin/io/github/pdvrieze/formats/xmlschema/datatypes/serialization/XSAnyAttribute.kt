@@ -19,7 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("anyAttribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnyAttribute(
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val notQName: T_QNameListA? = null,
 
     override val namespace: T_NamespaceList? = null,

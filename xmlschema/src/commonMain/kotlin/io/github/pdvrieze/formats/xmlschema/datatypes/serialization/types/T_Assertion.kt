@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 
 interface T_Assertion: T_Annotated {
     val test: XPathExpression?

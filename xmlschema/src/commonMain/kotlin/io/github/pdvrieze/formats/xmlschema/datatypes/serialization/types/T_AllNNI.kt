@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -29,7 +30,11 @@ sealed class T_AllNNI {
     object UNBOUNDED: T_AllNNI() {
         override fun toString(): String = "unbounded"
     }
-    class Value(val value: ULong): T_AllNNI() {
+
+    class Value(val value: VNonNegativeInteger): T_AllNNI(), VNonNegativeInteger by value {
+        constructor(value: ULong): this(VNonNegativeInteger(value))
+        constructor(value: UInt): this(VNonNegativeInteger(value))
+
         override fun toString(): String = value.toString()
     }
 
@@ -47,7 +52,7 @@ sealed class T_AllNNI {
 
         override fun deserialize(decoder: Decoder): T_AllNNI = when (val v= decoder.decodeString()) {
             "unbounded" -> UNBOUNDED
-            else -> Value(v.toULong())
+            else -> Value(VNonNegativeInteger(v))
         }
 
         override fun serialize(encoder: Encoder, value: T_AllNNI) {

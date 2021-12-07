@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Simple
 import kotlinx.serialization.Serializable
@@ -29,14 +29,14 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
 class XSTopLevelComplexTypeSimple(
-    name: NCName,
+    name: VNCName,
     mixed: Boolean?,
     abstract: Boolean,
     final: T_DerivationSet,
     block: T_DerivationSet,
     defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
-    id: ID? = null,
+    id: VID? = null,
     annotations: List<XSAnnotation>,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSTopLevelComplexType(

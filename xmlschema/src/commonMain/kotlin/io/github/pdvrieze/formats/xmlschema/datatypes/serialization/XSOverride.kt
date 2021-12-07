@@ -17,8 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
@@ -31,8 +31,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("override", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSOverride(
-    val schemaLocation: AnyURI,
-    override val id: ID? = null,
+    val schemaLocation: VAnyURI,
+    override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
     override val complexTypes: List<XSTopLevelComplexType> = emptyList(),

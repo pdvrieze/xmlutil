@@ -16,9 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
-import nl.adaptivity.xmlutil.QName
 
 interface T_LocalElement: T_Element, AG_Occurs {
     override val substitutionGroup: Nothing? get() = null

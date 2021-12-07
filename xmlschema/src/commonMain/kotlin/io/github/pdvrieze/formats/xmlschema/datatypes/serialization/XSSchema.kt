@@ -18,10 +18,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Compositions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -47,10 +48,10 @@ class XSSchema(
     @Serializable(SchemaEnumSetSerializer::class)
     val finalDefault: Set<T_TypeDerivationControl> = emptySet(),
 
-    val id: ID? = null,
+    val id: VID? = null,
 
     @XmlElement(false)
-    val targetNamespace: AnyURI? = null,
+    val targetNamespace: VAnyURI? = null,
 
     val version: Token? = null,
 

@@ -17,8 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Assertion
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAssertionFacet(
     override val test: XPathExpression? = null,
     override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>

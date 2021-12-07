@@ -17,7 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AllModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
@@ -32,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAll(
-    override val minOccurs: ULong? = null,
+    override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
     override val elements: List<XSLocalElement> = emptyList(),
     override val groups: List<XSGroupRef> = emptyList(),
@@ -40,7 +41,7 @@ class XSAll(
     override val sequences: List<XSSequence> = emptyList(),
     override val anys: List<XSAny> = emptyList(),
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val id: ID? = null,
+    override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ): G_TypeDefParticle.All, G_Particle.All, T_ExplicitGroup, G_AllModel {

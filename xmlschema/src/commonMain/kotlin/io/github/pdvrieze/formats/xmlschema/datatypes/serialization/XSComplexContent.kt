@@ -19,7 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @XmlSerialName("complexContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSComplexContent(
-    override val id: ID? = null,
+    override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
     override val annotations: List<XSAnnotation> = emptyList(),
@@ -48,7 +48,7 @@ class XSComplexContent(
     @Serializable
     class Restriction(
         override val base: QName,
-        override val id: ID? = null,
+        override val id: VID? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
         override val openContents: List<XSOpenContent> = emptyList(),
         override val groups: List<XSGroupRef> = emptyList(), // TODO shouldn't be lists
@@ -71,7 +71,7 @@ class XSComplexContent(
     @Serializable
     class Extension(
         override val base: QName,
-        override val id: ID? = null,
+        override val id: VID? = null,
         override val groups: List<XSGroupRef> = emptyList(),
         override val alls: List<XSAll> = emptyList(),
         override val choices: List<XSChoice> = emptyList(),

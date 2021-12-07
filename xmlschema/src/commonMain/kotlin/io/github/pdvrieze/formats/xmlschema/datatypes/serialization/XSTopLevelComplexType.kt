@@ -17,8 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
@@ -38,13 +38,13 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable(XSTopLevelComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 abstract class XSTopLevelComplexType(
-    override val name: NCName,
+    override val name: VNCName,
     override val mixed: Boolean?,
     override val abstract: Boolean,
     override val final: T_DerivationSet,
     override val block: T_DerivationSet,
     override val defaultAttributesApply: Boolean?,
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
@@ -55,7 +55,7 @@ abstract class XSTopLevelComplexType(
 
     @Serializable
     class SerialDelegate(
-        val name: NCName,
+        val name: VNCName,
         val mixed: Boolean? = null,
         val abstract: Boolean = false,
         @XmlElement(false)
@@ -76,7 +76,7 @@ abstract class XSTopLevelComplexType(
         val anyAttribute: XSAnyAttribute? = null,
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
-        val id: ID? = null,
+        val id: VID? = null,
         val annotations: List<XSAnnotation> = emptyList(),
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()

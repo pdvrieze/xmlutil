@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 
 /**
@@ -24,5 +24,5 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
  */
 interface T_Annotated: T_OpenAttrs {
     val annotations: List<XSAnnotation>
-    val id: ID?
+    val id: VID?
 }
