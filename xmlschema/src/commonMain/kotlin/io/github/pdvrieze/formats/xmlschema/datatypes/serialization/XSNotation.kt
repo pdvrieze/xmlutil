@@ -17,10 +17,26 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SchemaTop
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Public
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("notation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSNotation: G_SchemaTop.Notation
+class XSNotation(
+    val name: NCName,
+    val public: T_Public? = null,
+    val system: AnyURI? = null,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+) : G_SchemaTop.Notation, T_Annotated

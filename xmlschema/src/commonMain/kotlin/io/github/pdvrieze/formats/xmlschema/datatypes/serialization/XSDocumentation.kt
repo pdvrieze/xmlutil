@@ -39,7 +39,7 @@ class XSDocumentation(
     val lang: String? = null,
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)
-    val content: CompactFragment,
+    val content: CompactFragment = CompactFragment(""),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ): T_OpenAttrs
