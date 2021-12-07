@@ -16,12 +16,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
 
 /** for all particles */
 interface AG_Occurs {
     /** Optional, default 1 */
-    val minOccurs: ULong?
+    val minOccurs: VNonNegativeInteger?
 //        get() = 1.toULong()
 
     /** Optional, default 1 */

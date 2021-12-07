@@ -18,7 +18,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
@@ -34,15 +35,15 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSChoice(
-    override val minOccurs: ULong = 1.toULong(),
-    override val maxOccurs: T_AllNNI = T_AllNNI(1),
+    override val minOccurs: VNonNegativeInteger? = null,
+    override val maxOccurs: T_AllNNI? = null,
     override val elements: List<XSLocalElement> = emptyList(),
     override val groups: List<XSGroupRef> = emptyList(),
     override val choices: List<XSChoice> = emptyList(),
     override val sequences: List<XSSequence> = emptyList(),
     override val anys: List<XSAny> = emptyList(),
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val id: ID? = null,
+    override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_ExplicitGroup, G_TypeDefParticle.Choice, G_NestedParticle.Choice, G_Particle.All

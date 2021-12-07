@@ -21,32 +21,35 @@
 package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
 
 object AGAttrUseDefaults {
     val ns = "AttrGroup/attrUse"
 
-    val heightAttr = XSLocalAttribute(name = NCName("height"), type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd"))
+    val heightAttr = XSLocalAttribute(
+        name = VNCName("height"),
+        type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd")
+    )
     val ag = XSAttributeGroup(
-        name = NCName("aGr"),
+        name = VNCName("aGr"),
         attributes = listOf(
-            XSLocalAttribute(ref=QName(ns, "number", "tn")),
+            XSLocalAttribute(ref = QName(ns, "number", "tn")),
             heightAttr
         )
     )
     val expectedSchema = XSSchema(
-        targetNamespace = AnyURI(ns),
+        targetNamespace = VAnyURI(ns),
         elements = listOf(
-            XSElement(name= NCName("root")),
+            XSElement(name = VNCName("root")),
             XSElement(
-                name = NCName("elementWithAttr"),
+                name = VNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(
                         XSLocalAttribute(
-                            name = NCName("good"),
+                            name = VNCName("good"),
                             type = QName(XmlSchemaConstants.XS_NAMESPACE, "string", "xsd")
                         )
                     ),
@@ -57,7 +60,10 @@ object AGAttrUseDefaults {
             )
         ),
         attributes = listOf(
-            XSAttribute(name = NCName("number"), type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd"))
+            XSAttribute(
+                name = VNCName("number"),
+                type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd")
+            )
         ),
         attributeGroups = listOf(ag)
     )

@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ContentMode
 import kotlinx.serialization.Serializable
@@ -37,7 +37,7 @@ class XSDefaultOpenContent(
     @XmlValue(true)
     val content: List<@Serializable(CompactFragmentSerializer::class) CompactFragment> = emptyList(),
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val id: ID? = null,
+    override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
 ): T_Annotated
