@@ -17,28 +17,26 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Facet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("explicitTimezone", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSExplicitTimezone : T_Facet {
-    constructor(
-        value: Value,
-        fixed: Boolean = false,
-        id: ID? = null,
-        annotations: List<XSAnnotation> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(fixed, id, annotations, otherAttrs) {
-        this.value = value
-    }
+class XSExplicitTimezone(
+    override val value: Value,
+    override val fixed: Boolean? = null,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+) : XSFacet(), T_Facet{
 
-    override val value: Value
-
+    @Serializable
     enum class Value {
         @SerialName("optional")
         OPTIONAL,
