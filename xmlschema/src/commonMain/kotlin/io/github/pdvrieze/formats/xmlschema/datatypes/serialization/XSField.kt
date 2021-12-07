@@ -17,11 +17,21 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.Token
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("field", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSField
-
-// TODO actually give field some content
+class XSField(
+    val xpath: Token,
+    val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+    override val id: ID? = null,
+    override val annotations: List<XSAnnotation> = emptyList(),
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+) : T_Annotated
