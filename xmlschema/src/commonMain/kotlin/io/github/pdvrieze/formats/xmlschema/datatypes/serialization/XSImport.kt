@@ -30,8 +30,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("import", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSImport(
-    val namespace: AnyURI,
-    val schemaLocation: AnyURI,
+    val namespace: AnyURI? = null,
+    val schemaLocation: AnyURI? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
