@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -33,7 +33,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
         simpleType: XSLocalSimpleType? = null,
         facets: List<XSFacet> = emptyList(),
         base: QName? = null,
-        id: ID? = null,
+        id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,

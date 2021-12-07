@@ -17,7 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
@@ -32,9 +33,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroupRef(
-    override val id: ID?,
-    override val maxOccurs: T_AllNNI = T_AllNNI(1),
-    override val minOccurs: ULong = 1.toULong(),
+    override val id: VID?,
+    override val minOccurs: VNonNegativeInteger? = null,
+    override val maxOccurs: T_AllNNI? = null,
     override val ref: @Serializable(QNameSerializer::class) QName,
     override val annotations: List<XSAnnotation>,
     @XmlOtherAttributes

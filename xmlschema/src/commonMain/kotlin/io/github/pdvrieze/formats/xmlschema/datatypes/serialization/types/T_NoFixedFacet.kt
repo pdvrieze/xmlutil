@@ -16,11 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-
 interface T_NoFixedFacet : T_Facet {
     override val fixed: Nothing? get() = null
 }

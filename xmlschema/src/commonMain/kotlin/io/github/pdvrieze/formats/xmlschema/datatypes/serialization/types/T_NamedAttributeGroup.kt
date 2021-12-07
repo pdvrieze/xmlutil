@@ -16,8 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
 interface T_NamedAttributeGroup: T_AttributeGroupBase {
-    val name: NCName
+    val name: VNCName
 }

@@ -16,8 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAll
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 
 /** Base for XS_Group */

@@ -17,8 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -29,7 +28,7 @@ class XSSimpleContentExtension: XSSimpleContentDerivation {
 
     constructor(
         base: QName,
-        id: ID? = null,
+        id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,

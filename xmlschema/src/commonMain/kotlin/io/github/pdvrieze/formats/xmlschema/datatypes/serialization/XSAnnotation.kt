@@ -19,7 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_OpenAttrs
 import kotlinx.serialization.Serializable
@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAnnotation(
     val documentationElements: List<XSDocumentation> = emptyList(),
     val appInfos: List<XSAppInfo> = emptyList(),
-    val id: ID? = null,
+    val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_OpenAttrs, G_Composition.Annotation

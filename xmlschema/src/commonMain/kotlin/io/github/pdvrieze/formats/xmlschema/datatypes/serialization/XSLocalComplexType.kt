@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 sealed class XSLocalComplexType(
     override val mixed: Boolean? = null,
     override val defaultAttributesApply: Boolean? = null,
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
@@ -86,7 +86,7 @@ sealed class XSLocalComplexType(
         val anyAttribute: XSAnyAttribute? = null,
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
-        val id: ID? = null,
+        val id: VID? = null,
         val annotations: List<XSAnnotation> = emptyList(),
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
@@ -154,7 +154,7 @@ class XSLocalComplexTypeComplex(
     mixed: Boolean? = null,
     defaultAttributesApply: Boolean? = null,
     override val content: XSComplexContent,
-    id: ID? = null,
+    id: VID? = null,
     annotations: List<XSAnnotation> = emptyList(),
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
@@ -199,7 +199,7 @@ class XSLocalComplexTypeSimple(
     mixed: Boolean?,
     defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
-    id: ID? = null,
+    id: VID? = null,
     annotations: List<XSAnnotation>,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSLocalComplexType(
@@ -253,7 +253,7 @@ class XSLocalComplexTypeShorthand(
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
     override val openContents: List<XSOpenContent> = emptyList(),
-    id: ID? = null,
+    id: VID? = null,
     annotations: List<XSAnnotation> = emptyList(),
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
