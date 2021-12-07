@@ -50,7 +50,9 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
             XML.decodeFromString(serializer, unknownValues)
         }
 
-        val expectedMsgStart = "Could not find a field for name address/{http://www.w3.org/XML/1998/namespace}lang\n" +
+        val expectedMsgStart = "Could not find a field for name " +
+                "(nl.adaptivity.xml.serialization.SimpleDataTest.Address) address/" +
+                "{http://www.w3.org/XML/1998/namespace}lang (Attribute)\n" +
                 "  candidates: houseNumber, street, city, status at position "
         val msgSubstring = e.message?.let { it.substring(0, minOf(it.length, expectedMsgStart.length)) }
 

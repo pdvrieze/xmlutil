@@ -362,7 +362,7 @@ private constructor(
                 if (inputKind == InputKind.Attribute && name?.namespaceURI==XMLConstants.XSI_NS_URI) {
                     emptyList()
                 } else {
-                    throw UnknownXmlFieldException(input.locationInfo, "${descriptor.tagName}/${name ?: "<CDATA>"}", candidates)
+                    throw UnknownXmlFieldException(input.locationInfo, "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)", candidates)
                 }
             }
 
