@@ -22,24 +22,21 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Face
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("whiteSpace", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSWhiteSpace : T_Facet {
-    constructor(
-        value: Values,
-        fixed: Boolean = false,
-        id: ID? = null,
-        annotations: List<XSAnnotation> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(fixed, id, annotations, otherAttrs) {
-        this.value = value
-    }
-
-    override val value: Values
+class XSWhiteSpace(
+        override val value: Values,
+        override val fixed: Boolean? = null,
+        override val id: ID? = null,
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : XSFacet(), T_Facet {
 
 
+    @Serializable
     enum class Values {
         @SerialName("preserve")
         PRESERVE,
