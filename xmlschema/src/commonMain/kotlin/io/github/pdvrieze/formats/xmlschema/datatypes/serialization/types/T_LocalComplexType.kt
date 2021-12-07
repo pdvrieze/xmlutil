@@ -16,8 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
-
 interface T_LocalComplexType_Base: T_ComplexType_Base {
 
 }

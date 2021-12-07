@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleRestrictionModels
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -32,9 +32,9 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 internal class XSSimpleRestriction(
     @XmlElement(false)
     @Serializable(QNameSerializer::class)
-    val base: QName,
+    val base: QName? = null, // Rrequiers an embedded restriction
     @XmlElement(false)
-    override val id: ID? = null,
+    override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
     override val facets: List<XSFacet> = emptyList(),
