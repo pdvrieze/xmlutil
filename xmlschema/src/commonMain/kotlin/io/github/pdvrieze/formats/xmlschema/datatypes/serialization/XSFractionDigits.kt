@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NumF
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -33,5 +34,6 @@ class XSFractionDigits(
     override val fixed: Boolean? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSFacet(), T_NumFacet

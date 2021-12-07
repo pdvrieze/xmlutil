@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -39,6 +40,7 @@ class XSKeyref(
     val refer: QName? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation>,
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String>
 
 ): G_IdentityConstraint.Keyref, T_Keybase

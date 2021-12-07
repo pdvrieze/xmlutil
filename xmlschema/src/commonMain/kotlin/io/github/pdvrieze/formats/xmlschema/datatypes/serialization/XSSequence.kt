@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -42,5 +43,6 @@ class XSSequence(
     override val sequences: List<XSSequence> = emptyList(),
     override val anys: List<XSAny> = emptyList(),
     override val annotations: List<XSAnnotation> = emptyList(),
+    @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ): T_ExplicitGroup
