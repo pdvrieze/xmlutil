@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -34,6 +35,7 @@ class XSWhiteSpace(
         override val fixed: Boolean? = null,
         override val id: ID? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
+        @XmlOtherAttributes
         override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) : XSFacet(), T_Facet {
 
