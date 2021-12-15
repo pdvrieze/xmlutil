@@ -32,6 +32,7 @@ import java.net.URI
 import java.net.URL
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.test.assertFails
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
 class TestXSTestSuite {
@@ -70,13 +71,14 @@ class TestXSTestSuite {
         group: TSTestGroup
     ) {
         group.schemaTest?.let { schemaTest ->
+            val documentation = group.documentationString()
             if (schemaTest.schemaDocuments.size == 1) {
                 val schemaDoc = schemaTest.schemaDocuments.single()
-                addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc)
+                addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
             } else {
                 dynamicContainer("Schema documents") {
                     for (schemaDoc in schemaTest.schemaDocuments) {
-                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc)
+                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
                     }
                 }
             }
@@ -86,21 +88,24 @@ class TestXSTestSuite {
     private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         setBaseUrl: URI,
         schemaTest: TSSchemaTest,
-        schemaDoc: TSSchemaDocument
+        schemaDoc: TSSchemaDocument,
+        documentation: String
     ) {
         if (schemaTest.expected?.validity == TSValidityOutcome.INVALID) {
             dynamicTest("Schema document ${schemaDoc.href} exists") {
                 assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
             }
-/*
-            dynamicTest("Schema document ${schemaDoc.href} does not parse") {
-                val e = assertIs<SerializationException>(assertFails {
+            dynamicTest("Schema document ${schemaDoc.href} does not parse or is invalid") {
+                val e = assertFails(documentation) {
                     setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->
-                        xml.decodeFromReader<XSSchema>(r)
+                        val schema = xml.decodeFromReader<XSSchema>(r)
+                        schema.check()
                     }
-                })
+                }
+                if (e is NotImplementedError) throw e
+                System.err.println("Expected error: \n")
+                System.err.println(documentation.prependIndent("    "))
             }
-*/
         } else {
             dynamicTest("Schema document ${schemaDoc.href} parses") {
                 setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->

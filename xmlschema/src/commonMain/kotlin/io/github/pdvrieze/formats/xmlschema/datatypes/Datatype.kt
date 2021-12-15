@@ -21,15 +21,22 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
+import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
-    val name: String,
+    val name: VNCName,
     val targetNamespace: String,
 ) {
     abstract val baseType: Datatype
+
+    constructor(name: String, targetNamespace: String): this(VNCName(name), targetNamespace)
 
     val dtFunctions: List<DataFunction> get() = emptyList()
     val identityFunction: DataFunction get() = TODO()
@@ -150,8 +157,11 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: Datatype get() = ErrorType
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE) {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), T_Type {
     override val baseType: AnyType get() = AnyType // No actual base type
+    override val annotations: List<XSAnnotation> get() = emptyList()
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, String> get() = emptyMap()
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE) {
