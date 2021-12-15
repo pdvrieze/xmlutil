@@ -31,6 +31,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSLocalSimpleType(
     override val id: VID? = null,
 
+
+
     override val annotations: List<XSAnnotation> = emptyList(),
     /** restriction or list or union */
     @XmlAfter("annotations")
@@ -39,6 +41,8 @@ class XSLocalSimpleType(
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : XSLocalType(), T_LocalSimpleType {
+
+    override val name: Nothing? get() = null
 
 }
 

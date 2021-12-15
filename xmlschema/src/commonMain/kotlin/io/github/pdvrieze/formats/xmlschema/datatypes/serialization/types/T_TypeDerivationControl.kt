@@ -23,10 +23,22 @@ import kotlinx.serialization.Serializable
 enum class T_TypeDerivationControl {
     @SerialName("restriction")
     RESTRICTION,
+
     @SerialName("extension")
     EXTENSION,
+
     @SerialName("list")
     LIST,
+
     @SerialName("union")
     UNION
 }
+
+fun Set<T_TypeDerivationControl>.toDerivationSet(): T_DerivationSet = asSequence()
+    .mapNotNull {
+        when (it) {
+            T_TypeDerivationControl.EXTENSION -> T_ReducedDerivationControl.EXTENSION
+            T_TypeDerivationControl.RESTRICTION -> T_ReducedDerivationControl.RESTRICTION
+            else -> null
+        }
+    }.toSet()

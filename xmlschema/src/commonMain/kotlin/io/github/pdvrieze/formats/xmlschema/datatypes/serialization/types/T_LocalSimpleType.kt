@@ -28,6 +28,5 @@ interface T_TopLevelSimpleType: T_SimpleType {
     override val name: VNCName
 }
 
-interface T_SimpleType: T_Annotated, G_SimpleDerivation {
-    val name: VNCName?
-}
+interface T_SimpleType: T_Type, G_SimpleDerivation
+
