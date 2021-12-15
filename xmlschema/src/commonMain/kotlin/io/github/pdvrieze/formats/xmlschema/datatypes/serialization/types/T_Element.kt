@@ -54,7 +54,7 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
 
     val targetNamespace: VAnyURI?
 
-    interface Type
+    interface Type: T_Type
 
     interface Complex: Type
     interface Simple: Type

@@ -21,7 +21,7 @@ import nl.adaptivity.xmlutil.QName
 interface T_AltType: T_Annotated {
     val simpleTypes: List<T_LocalSimpleType>
 
-    val complexTypes: List<T_ComplexType_Base>
+    val complexTypes: List<T_ComplexType>
 
     val test: String?
 
