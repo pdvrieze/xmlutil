@@ -41,4 +41,17 @@ class TSTestGroup(
     val name: String,
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-)
+) {
+    fun documentationString(): String {
+        return buildString {
+            if (annotation!=null) {
+                for (elem in annotation.elements) {
+                    when(elem) {
+                        is TSAnnotation.Documentation -> append(elem.info.contentString)
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+}

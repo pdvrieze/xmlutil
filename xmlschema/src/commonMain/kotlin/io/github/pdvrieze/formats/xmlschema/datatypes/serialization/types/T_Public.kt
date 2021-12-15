@@ -16,6 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.Token
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 
-typealias T_Public = Token
+typealias T_Public = VToken

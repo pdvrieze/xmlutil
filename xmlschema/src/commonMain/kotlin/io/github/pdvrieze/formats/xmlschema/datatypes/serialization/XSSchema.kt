@@ -17,12 +17,14 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Compositions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -40,23 +42,23 @@ class XSSchema(
     @Serializable(QNameSerializer::class)
     val defaultAttributes: QName? = null,
 
-    val xpathDefaultNamespace: String? = null,
+    val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
 
     @XmlElement(false)
     val elementFormDefault: T_FormChoice? = null,
 
     @Serializable(SchemaEnumSetSerializer::class)
-    val finalDefault: Set<T_TypeDerivationControl> = emptySet(),
+    val finalDefault: Set<T_TypeDerivationControl>? = null,
 
     val id: VID? = null,
 
     @XmlElement(false)
     val targetNamespace: VAnyURI? = null,
 
-    val version: Token? = null,
+    val version: VToken? = null,
 
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
-    val lang: String? = null,
+    val lang: VLanguage? = null,
 
     override val includes: List<XSInclude> = emptyList(),
     override val imports: List<XSImport> = emptyList(),
@@ -143,5 +145,11 @@ class XSSchema(
 
     override fun toString(): String {
         return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
+    }
+
+    fun resolve(): ResolvedSchema = ResolvedSchema(this)
+
+    fun check() {
+        resolve().check()
     }
 }

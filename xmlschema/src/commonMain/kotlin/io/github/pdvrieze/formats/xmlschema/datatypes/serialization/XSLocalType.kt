@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Element
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -32,6 +33,9 @@ import kotlinx.serialization.encoding.encodeStructure
 
 @Serializable(XSLocalType.Serializer::class)
 sealed class XSLocalType: T_Element.Type {
+
+    override val name: Nothing? get() = null
+
     companion object Serializer: KSerializer<XSLocalType> {
         @OptIn(InternalSerializationApi::class)
         private val delegate: KSerializer<XSLocalType> = SealedClassSerializer(
