@@ -138,7 +138,7 @@ abstract class TestPolymorphicBase<T>(
         val serialized =
             XML(serializersModule = serializersModule) { autoPolymorphic = false }.encodeToString(serializer, value)
                 .normalizeXml()
-        assertEquals(expectedNonAutoPolymorphicXML, serialized)
+        assertXmlEquals(expectedNonAutoPolymorphicXML, serialized)
     }
 
     @Test
@@ -157,7 +157,7 @@ abstract class TestPolymorphicBase<T>(
                 policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
             }.encodeToString(serializer, value)
                 .normalizeXml()
-        assertEquals(expectedXSIPolymorphicXML, serialized)
+        assertXmlEquals(expectedXSIPolymorphicXML, serialized)
     }
 
     @Test

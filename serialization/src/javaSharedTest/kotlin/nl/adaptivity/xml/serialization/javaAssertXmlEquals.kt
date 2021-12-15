@@ -25,7 +25,6 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.Text
-import java.lang.AssertionError
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.assertEquals
 
@@ -45,7 +44,7 @@ actual fun assertXmlEquals(expected: String, actual: String) {
 
         try {
             assertXmlEquals(expectedDom, actualDom)
-        } catch (f: AssertionError) {
+        } catch (f: Throwable) {
             e.addSuppressed(f)
             throw e
         }
@@ -69,12 +68,12 @@ fun assertXmlEquals(expected: Node, actual: Node): Unit = when {
 fun assertElementEquals(expected: Element, actual: Element) {
     val expectedAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
     val actualAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
+    assertEquals(expectedAttrsSorted, actualAttrsSorted, message = "Sorted attributes should match")
 
-    assertEquals(expectedAttrsSorted, actualAttrsSorted, "Sorted attributes should match")
     val expectedChildren = expected.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
     val actualChildren = actual.childNodes.iterator().asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.toList()
+    assertEquals(expectedChildren.size, actualChildren.size, message = "Different child count")
 
-    assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
     for ((idx, expectedChild) in expectedChildren.withIndex()) {
         assertXmlEquals(expectedChild, actualChildren[idx])
     }
