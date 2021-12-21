@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ValueContainerTest : TestBase<ValueContainerTest.ValueContainer>(
+class ValueContainerTest : PlatformTestBase<ValueContainerTest.ValueContainer>(
     ValueContainer("<foo&bar>"),
     ValueContainer.serializer()
 ) {

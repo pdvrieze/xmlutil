@@ -40,6 +40,25 @@ import kotlin.test.assertEquals
 
 expect fun assertXmlEquals(expected: String, actual:String)
 
+internal fun defaultXmlFormat(serializersModule: SerializersModule) = XML(serializersModule) {
+    policy = DefaultXmlSerializationPolicy(
+        pedantic = true,
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
+    )
+}
+
+internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
+    defaultJsonTestConfiguration()
+    this.serializersModule = serializersModule
+}
+
+expect abstract class PlatformXmlTestBase<T> constructor(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseXmlFormat: XML = defaultXmlFormat(serializersModule)
+) : XmlTestBase<T>
+
 abstract class XmlTestBase<T>(
     val value: T,
     val serializer: KSerializer<T>,
@@ -81,6 +100,14 @@ abstract class XmlTestBase<T>(
 
 }
 
+expect abstract class PlatformTestBase<T>(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseXmlFormat: XML = defaultXmlFormat(serializersModule),
+    baseJsonFormat: Json = defaultJsonFormat(serializersModule)
+) : TestBase<T>
+
 abstract class TestBase<T> constructor(
     value: T,
     serializer: KSerializer<T>,
@@ -112,6 +139,12 @@ abstract class TestBase<T> constructor(
 
 }
 
+expect abstract class PlatformTestPolymorphicBase<T>(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseJsonFormat: Json = defaultJsonFormat(serializersModule)
+) : TestPolymorphicBase<T>
 
 abstract class TestPolymorphicBase<T>(
     value: T,

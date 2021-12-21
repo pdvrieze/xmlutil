@@ -24,7 +24,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-class NullableListTestNull : TestBase<NullableListTestNull.NullList>(
+class NullableListTestNull : PlatformTestBase<NullableListTestNull.NullList>(
     NullList("A String"),
     NullList.serializer()
 ) {

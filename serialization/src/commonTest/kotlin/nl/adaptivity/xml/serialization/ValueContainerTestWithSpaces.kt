@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ValueContainerTestWithSpaces : TestBase<ValueContainerTestWithSpaces.ValueContainer>(
+class ValueContainerTestWithSpaces : PlatformTestBase<ValueContainerTestWithSpaces.ValueContainer>(
     ExpectedSerialization.valueContainerWithSpacesObj,
     ValueContainer.serializer()
                                                                                           ) {

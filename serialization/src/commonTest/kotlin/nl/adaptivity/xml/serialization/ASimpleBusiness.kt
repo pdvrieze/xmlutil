@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class ASimpleBusiness : TestBase<ASimpleBusiness.Business>(
+class ASimpleBusiness : PlatformTestBase<ASimpleBusiness.Business>(
     Business("ABC Corp", Address("1", "ABC road", "ABCVille")),
     Business.serializer()
 ) {

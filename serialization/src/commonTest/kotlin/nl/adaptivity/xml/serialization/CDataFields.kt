@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 
-class CDataFields : TestBase<CDataFields.Business>(
+class CDataFields : PlatformTestBase<CDataFields.Business>(
     Business("ABC Corp", Address("1", StreetHolder("ABC road"), "ABCVille")),
     Business.serializer()
 ) {

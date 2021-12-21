@@ -23,11 +23,11 @@ package nl.adaptivity.xml.serialization.sealed
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.EmptySerializersModule
-import nl.adaptivity.xml.serialization.TestPolymorphicBase
+import nl.adaptivity.xml.serialization.PlatformTestPolymorphicBase
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @OptIn(ExperimentalSerializationApi::class)
-class AContainerWithSealedChildren : TestPolymorphicBase<Sealed>(
+class AContainerWithSealedChildren : PlatformTestPolymorphicBase<Sealed>(
     Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
     Sealed.serializer(),
     EmptySerializersModule//sealedModule

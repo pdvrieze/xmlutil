@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalXmlUtilApi::class)
-class SimpleDataTest : TestBase<SimpleDataTest.Address>(
+class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
     Address("10", "Downing Street", "London"),
     Address.serializer()
 ) {

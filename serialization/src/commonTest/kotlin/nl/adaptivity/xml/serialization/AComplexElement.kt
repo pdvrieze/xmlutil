@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class AComplexElement : TestBase<AComplexElement.Special>(
+class AComplexElement : PlatformTestBase<AComplexElement.Special>(
     Special(),
     Special.serializer()
 ) {

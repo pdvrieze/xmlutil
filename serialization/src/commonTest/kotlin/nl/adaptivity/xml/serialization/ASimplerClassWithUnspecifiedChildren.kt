@@ -26,10 +26,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class ASimplerClassWithUnspecifiedChildren : TestPolymorphicBase<ASimplerClassWithUnspecifiedChildren.Container3>(
+class ASimplerClassWithUnspecifiedChildren : PlatformTestPolymorphicBase<ASimplerClassWithUnspecifiedChildren.Container3>(
     Container3("name2", listOf(ChildA("data"), ChildB(4, 5, 6, "xxx"), ChildA("yyy"))),
     Container3.serializer(),
     baseModule

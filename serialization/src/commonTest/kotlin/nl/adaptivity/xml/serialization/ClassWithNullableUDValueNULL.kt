@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.XMLConstants
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.ContainerOfUserNullable>(
+class ClassWithNullableUDValueNULL : PlatformTestBase<ClassWithNullableUDValueNULL.ContainerOfUserNullable>(
     ContainerOfUserNullable(null),
     ContainerOfUserNullable.serializer()
 ) {

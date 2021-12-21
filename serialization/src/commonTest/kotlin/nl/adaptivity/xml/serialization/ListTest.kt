@@ -24,11 +24,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import kotlin.math.exp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ListTest : TestBase<ListTest.SimpleList>(
+class ListTest : PlatformTestBase<ListTest.SimpleList>(
     SimpleList("1", "2", "3"),
     SimpleList.serializer()
                                               ) {

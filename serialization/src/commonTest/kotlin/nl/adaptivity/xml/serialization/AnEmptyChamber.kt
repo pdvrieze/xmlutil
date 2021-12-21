@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class AnEmptyChamber : TestBase<AnEmptyChamber.Chamber>(
+class AnEmptyChamber : PlatformTestBase<AnEmptyChamber.Chamber>(
     Chamber("lowtech", emptyList()),
     Chamber.serializer()
 ) {

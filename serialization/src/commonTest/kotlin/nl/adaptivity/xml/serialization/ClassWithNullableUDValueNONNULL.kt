@@ -22,7 +22,7 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
 
-class ClassWithNullableUDValueNONNULL : TestBase<ClassWithNullableUDValueNONNULL.ContainerOfUserNullable>(
+class ClassWithNullableUDValueNONNULL : PlatformTestBase<ClassWithNullableUDValueNONNULL.ContainerOfUserNullable>(
     ContainerOfUserNullable(SimpleUserType("foobar")),
     ContainerOfUserNullable.serializer()
                                                                                                          ) {

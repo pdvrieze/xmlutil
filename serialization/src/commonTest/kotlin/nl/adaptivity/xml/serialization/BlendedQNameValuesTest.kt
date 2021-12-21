@@ -36,12 +36,11 @@ import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 
-class BlendedQNameValuesTest : XmlTestBase<BlendedQNameValuesTest.Container>(
+class BlendedQNameValuesTest : PlatformXmlTestBase<BlendedQNameValuesTest.Container>(
     Container(
         PseudoList(
             listOf(

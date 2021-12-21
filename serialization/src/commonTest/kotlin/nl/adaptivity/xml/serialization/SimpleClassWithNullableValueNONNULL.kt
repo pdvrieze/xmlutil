@@ -23,7 +23,7 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class SimpleClassWithNullableValueNONNULL : TestBase<SimpleClassWithNullableValueNONNULL.NullableContainer>(
+class SimpleClassWithNullableValueNONNULL : PlatformTestBase<SimpleClassWithNullableValueNONNULL.NullableContainer>(
     NullableContainer("myBar"),
     NullableContainer.serializer()
                                                                                                            ) {

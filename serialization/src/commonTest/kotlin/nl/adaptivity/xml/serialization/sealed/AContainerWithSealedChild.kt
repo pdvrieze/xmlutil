@@ -21,9 +21,9 @@
 package nl.adaptivity.xml.serialization.sealed
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xml.serialization.TestBase
+import nl.adaptivity.xml.serialization.PlatformTestBase
 
-class AContainerWithSealedChild : TestBase<AContainerWithSealedChild.SealedSingle>(
+class AContainerWithSealedChild : PlatformTestBase<AContainerWithSealedChild.SealedSingle>(
     SealedSingle("mySealed", SealedA("a-data")),
     SealedSingle.serializer()
                                                                                   ) {
