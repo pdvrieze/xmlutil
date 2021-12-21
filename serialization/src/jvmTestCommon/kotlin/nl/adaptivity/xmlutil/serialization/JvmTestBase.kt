@@ -24,6 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.DomWriter
+import nl.adaptivity.xmlutil.DomReader
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3c.dom.Document
@@ -31,6 +32,7 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     val writer = DomWriter()
@@ -42,6 +44,18 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
     assertXmlEquals(expectedDom, writer.target)
+}
+
+private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
+    val expectedDom: Document = DocumentBuilderFactory
+        .newDefaultInstance()
+        .apply { isNamespaceAware = true }
+        .newDocumentBuilder()
+        .parse(InputSource(StringReader(expectedXML)))
+
+    val actualReader = DomReader(expectedDom)
+
+    assertEquals(value, baseXmlFormat.decodeFromReader(serializer, actualReader))
 }
 
 
@@ -56,8 +70,13 @@ actual abstract class PlatformXmlTestBase<T> actual constructor(
     serializersModule,
     baseXmlFormat
 ) {
-    @org.junit.jupiter.api.Test
+    @Test
     fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }
@@ -69,8 +88,13 @@ actual abstract class PlatformTestBase<T> actual constructor(
     baseXmlFormat: XML,
     baseJsonFormat: Json
 ) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat) {
-    @org.junit.jupiter.api.Test
+    @Test
     fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }
@@ -81,8 +105,13 @@ actual abstract class PlatformTestPolymorphicBase<T> actual constructor(
     serializersModule: SerializersModule,
     baseJsonFormat: Json
 ) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat) {
-    @org.junit.jupiter.api.Test
+    @Test
     fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }

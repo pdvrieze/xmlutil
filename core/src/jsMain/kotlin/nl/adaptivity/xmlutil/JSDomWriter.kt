@@ -22,4 +22,5 @@ package nl.adaptivity.xmlutil
 
 public actual typealias PlatformXmlWriter = DomWriter
 
+@Deprecated("Just use DomWriter", ReplaceWith("DomWriter"))
 public typealias JSDomWriter = DomWriter

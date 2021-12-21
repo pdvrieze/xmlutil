@@ -194,7 +194,7 @@ public actual class XMLFragmentStreamReader constructor(
 
             val actualInput = "$wrapper$text</$WRAPPERPPREFIX:wrapper>"
             val parser = DOMParser()
-            return JSDomReader(parser.parseFromString(actualInput, "text/xml"))
+            return DomReader(parser.parseFromString(actualInput, "text/xml"))
         }
 
 

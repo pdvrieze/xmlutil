@@ -34,7 +34,7 @@ import org.w3c.dom.parsing.XMLSerializer
  * @throws XmlException parsing failed
  */
 public actual fun XmlReader.siblingsToFragment(): CompactFragment {
-    val doc = when (val d = (this as? JSDomReader)?.delegate) {
+    val doc = when (val d = (this as? DomReader)?.delegate) {
         is Document -> d
         is Node     -> d.ownerDocument ?: Document()
         else        -> Document()
@@ -70,7 +70,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             when (type) {
                 EventType.START_ELEMENT -> {
-                    val out = JSDomWriter(wrapperElement, true)
+                    val out = DomWriter(wrapperElement, true)
                     out.addUndeclaredNamespaces(this, missingNamespaces)
                     writeCurrent(out) // writes the start tag
                     out.writeElementContent(missingNamespaces, this) // writes the children and end tag
