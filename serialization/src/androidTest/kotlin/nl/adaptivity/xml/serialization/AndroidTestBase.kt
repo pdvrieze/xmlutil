@@ -23,7 +23,25 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.serialization.XML
+import org.junit.jupiter.api.Test
+import org.w3c.dom.Document
+import org.xml.sax.InputSource
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
+
+private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
+    val writer = DomWriter()
+    baseXmlFormat.encodeToWriter(writer, serializer, value)
+    writer.target
+    val expectedDom: Document = DocumentBuilderFactory
+        .newDefaultInstance()
+        .apply { isNamespaceAware = true }
+        .newDocumentBuilder()
+        .parse(InputSource(StringReader(expectedXML)))
+    assertXmlEquals(expectedDom, writer.target)
+}
 
 actual abstract class PlatformXmlTestBase<T> actual constructor(
     value: T,
@@ -35,7 +53,12 @@ actual abstract class PlatformXmlTestBase<T> actual constructor(
     serializer,
     serializersModule,
     baseXmlFormat
-)
+) {
+    @Test
+    fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}
 
 actual abstract class PlatformTestBase<T> actual constructor(
     value: T,
@@ -43,11 +66,21 @@ actual abstract class PlatformTestBase<T> actual constructor(
     serializersModule: SerializersModule,
     baseXmlFormat: XML,
     baseJsonFormat: Json
-) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat)
+) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat) {
+    @Test
+    fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}
 
 actual abstract class PlatformTestPolymorphicBase<T> actual constructor(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule,
     baseJsonFormat: Json
-) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat)
+) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat) {
+    @Test
+    fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,8 +18,17 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.util
 
-public actual typealias PlatformXmlWriter = DomWriter
+import kotlinx.browser.document
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.toCName
+import org.w3c.dom.Document
+import org.w3c.dom.NamedNodeMap
 
-public typealias JSDomWriter = DomWriter
+internal actual fun createDocument(rootElementName: QName): Document {
+    return document.implementation.createDocument(
+        rootElementName.getNamespaceURI() ?: "",
+        rootElementName.toCName()
+    )
+}

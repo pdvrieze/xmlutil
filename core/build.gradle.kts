@@ -146,6 +146,10 @@ kotlin {
             }
         }
 
+        val commonDom by creating {
+            dependsOn(commonMain)
+        }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -154,7 +158,7 @@ kotlin {
         }
 
         val javaShared by creating {
-            dependsOn(commonMain)
+            dependsOn(commonDom)
         }
 
         val jvmMain by getting {
@@ -196,7 +200,7 @@ kotlin {
         }
 
         val jsMain by getting {
-            dependsOn(commonMain)
+            dependsOn(commonDom)
         }
 
         val jsTest by getting {

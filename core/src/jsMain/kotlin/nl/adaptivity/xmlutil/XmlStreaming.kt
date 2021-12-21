@@ -42,7 +42,7 @@ public actual object XmlStreaming {
     }
 
     public fun newWriter(dest: ParentNode): JSDomWriter {
-        return JSDomWriter(dest)
+        return JSDomWriter(dest as Node)
     }
 
 

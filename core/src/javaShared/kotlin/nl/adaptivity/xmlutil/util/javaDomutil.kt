@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
 import javax.xml.parsers.DocumentBuilderFactory
 
-internal fun createDocument(rootElementName: QName): Document {
+actual internal fun createDocument(rootElementName: QName): Document {
     return DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }
@@ -34,10 +34,6 @@ internal fun createDocument(rootElementName: QName): Document {
             val rootElement = doc.createElement(rootElementName)
             doc.appendChild(rootElement)
         }
-}
-
-internal fun Document.createElement(name: QName): Element {
-    return createElementNS(name.namespaceURI, name.toCName())
 }
 
 internal val Document.firstElementChild: Element?
@@ -59,14 +55,6 @@ internal val Document.childElementCount: Int
             c = c.nextSibling
         }
         return count
-    }
-
-internal val Node.isElement: Boolean get() = nodeType == Node.ELEMENT_NODE
-
-internal val Node.isText: Boolean
-    get() = when (nodeType) {
-        Node.ELEMENT_NODE, Node.CDATA_SECTION_NODE -> true
-        else -> false
     }
 
 /** Get the parent element if it is an element, and there is one. */
@@ -93,72 +81,13 @@ internal fun Node.asElement(): Element? = if (isElement) this as Element else nu
 /** Allow access to the node as [Text], if so, otherwise null. */
 internal fun Node.asText(): Text? = if (isText) this as Text else null
 
-/** Remove all the child nodes that are elements. */
-internal fun Node.removeElementChildren() {
-    val top = this
-    var cur = top.firstChild
-    while (cur != null) {
-        val n = cur.nextSibling
-        if (cur.isElement) {
-            top.removeChild(cur)
-        }
-        cur = n
-    }
-}
-
-public operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
-    private var idx = 0
-
-    override fun hasNext(): Boolean = idx < length
-
-    override fun next(): Node {
-        return get(idx)!!.also { idx++ }
-    }
-}
-
-public operator fun NamedNodeMap.iterator(): Iterator<Node> = object : Iterator<Node> {
-    private var idx = 0
-
-    override fun hasNext(): Boolean = idx < length
-
-    override fun next(): Node {
-        return (get(idx) as Node).also { idx++ }
-    }
-}
-
-/** A simple for each implementation for [NamedNodeMap]s. */
-public inline fun NamedNodeMap.forEach(body: (Node) -> Unit) {
-    val l = getLength()
-    for (idx in 0 until l) {
-        body(item(idx))
-    }
-}
-
-/** Implement forEach with a built-in cast to attr. */
-internal inline fun NamedNodeMap.forEachAttr(body: (Attr) -> Unit) {
-    for (i in this) {
-        body(i as Attr)
-    }
-}
-
 /** A filter function on a [NamedNodeMap] that returns a list of all
  * (attributes)[Attr] that meet the [predicate].
  */
 internal inline fun NamedNodeMap.filter(predicate: (Node) -> Boolean): List<Node> {
     val result = mutableListOf<Node>()
-    forEach { attr ->
+    forEachAttr { attr ->
         if (predicate(attr)) result.add(attr)
-    }
-    return result
-}
-
-/** A filter function on a [NamedNodeMap] that returns a list of all
- * (attributes)[Attr] that meet the [predicate].
- */
-internal inline fun <reified T : Node> NamedNodeMap.filterTyped(predicate: (T) -> Boolean): List<T> {
-    val result = mutableListOf<T>()
-    forEach { attr ->
-        if (attr is T && predicate(attr)) result.add(attr)
     }
     return result
 }
@@ -168,7 +97,7 @@ internal inline fun <reified T : Node> NamedNodeMap.filterTyped(predicate: (T) -
  */
 internal inline fun <R> NamedNodeMap.map(body: (Node) -> R): List<R> {
     val result = mutableListOf<R>()
-    forEach { attr ->
+    forEachAttr { attr ->
         result.add(body(attr))
     }
     return result
@@ -179,37 +108,10 @@ internal inline fun <R> NamedNodeMap.map(body: (Node) -> R): List<R> {
  */
 internal inline fun NamedNodeMap.count(predicate: (Node) -> Boolean): Int {
     var count = 0
-    forEach { attr ->
+    forEachAttr { attr ->
         if (predicate(attr)) count++
     }
     return count
-}
-
-
-internal fun Node.myLookupPrefix(namespaceUri: String): String? {
-    if (this !is Element) return null
-    attributes.forEachAttr { attr ->
-        when {
-            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return attr.localName
-
-            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return ""
-        }
-    }
-    return parentNode?.myLookupPrefix(namespaceUri)
-}
-
-internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
-    !is Element -> null
-    else -> {
-        attributes.filterTyped<Attr> {
-            (prefix == "" && it.localName == "xmlns") ||
-                    (it.prefix == "xmlns" && it.localName == prefix)
-        }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
-    }
 }
 
 /** Remove namespaces attributes from a tree that have already been declared by a parent. */

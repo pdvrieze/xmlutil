@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2021.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -24,17 +24,14 @@ import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.util.*
 import org.w3c.dom.Document
-import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-
-private typealias ParentNode = Node
 
 /**
  * Created by pdvrieze on 04/04/17.
  */
 public class DomWriter constructor(
-    current: ParentNode?,
+    current: Node?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ) : PlatformXmlWriterBase(), XmlWriter {
@@ -48,7 +45,7 @@ public class DomWriter constructor(
     public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
 
     public val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
-    public var currentNode: ParentNode? = current
+    public var currentNode: Node? = current
         private set
 
     private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
@@ -169,7 +166,7 @@ public class DomWriter constructor(
             }
         }
 
-        target.createElement(qname(namespace, localName, prefix)).let { elem ->
+        target.createElement(qname(namespace, localName, prefix)).let { elem: Element ->
             currentNode!!.appendChild(elem)
             currentNode = elem
         }
