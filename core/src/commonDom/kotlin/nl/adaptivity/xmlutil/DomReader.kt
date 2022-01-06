@@ -88,13 +88,13 @@ public class DomReader(public val delegate: Node) : XmlReader {
             fun <A : Appendable> helper(node: Node?, result: A): A = when {
                 node == null ||
                         node.nodeType == Node.DOCUMENT_NODE
-                     -> result
+                -> result
 
                 node.isElement
-                     -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
+                -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
 
                 node.isText
-                     -> helper(node.parentNode, result).apply { append("/text()") }
+                -> helper(node.parentNode, result).apply { append("/text()") }
 
                 else -> helper(node.parentNode, result).apply { append("/.") }
             }
@@ -110,11 +110,11 @@ public class DomReader(public val delegate: Node) : XmlReader {
             private val currentElement: Element? = (requireCurrent as? Element) ?: requireCurrent.parentNode as? Element
 
             override fun getNamespaceURI(prefix: String): String? {
-                return currentElement?.lookupNamespaceURI(prefix)
+                return currentElement?.myLookupNamespaceURI(prefix)
             }
 
             override fun getPrefix(namespaceURI: String): String? {
-                return currentElement?.lookupPrefix(namespaceURI)
+                return currentElement?.myLookupPrefix(namespaceURI)
             }
 
             override fun freeze(): IterableNamespaceContext = this
@@ -122,7 +122,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
             override fun iterator(): Iterator<Namespace> {
                 return sequence<Namespace> {
                     var c: Element? = currentElement
-                    while (c!=null) {
+                    while (c != null) {
                         c.attributes.forEachAttr { attr ->
                             when {
                                 attr.prefix == "xmlns" ->
