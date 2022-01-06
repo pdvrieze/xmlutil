@@ -56,8 +56,6 @@ val argJvmDefault: String by project
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 val environmentAttr = TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 
-val moduleName = "net.devrieze.xmlutil.xmlserializable"
-
 val testTask = tasks.create("test") {
     group = "verification"
 }
@@ -87,7 +85,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
                 tasks.named<Jar>("jvmJar") {
                     manifest {
-                        attributes("Automatic-Module-Name" to moduleName)
+                        attributes("Automatic-Module-Name" to "net.devrieze.xmlutil.xmlserializable")
                     }
                 }
             }
