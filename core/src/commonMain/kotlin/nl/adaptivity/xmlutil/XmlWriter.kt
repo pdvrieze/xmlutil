@@ -362,7 +362,7 @@ public fun XmlWriter.writeAttribute(name: String, value: Any?) {
 public fun XmlWriter.writeAttribute(name: QName, value: String?) {
     value?.let {
         if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
-            attribute(null, name.localPart, name.prefix, value)
+            attribute(null, name.localPart, null, value)
         } else {
             attribute(name.namespaceURI, name.localPart, name.prefix, value)
         }
@@ -371,12 +371,12 @@ public fun XmlWriter.writeAttribute(name: QName, value: String?) {
 
 public fun XmlWriter.writeAttribute(name: String, value: Double) {
     if (!value.isNaN()) {
-        attribute(null, name, null, value.toString())
+        writeAttribute(name, value.toString())
     }
 }
 
 public fun XmlWriter.writeAttribute(name: String, value: Long) {
-    attribute(null, name, null, value.toString())
+    writeAttribute(name, value.toString())
 }
 
 public fun XmlWriter.writeAttribute(name: String, value: QName?) {

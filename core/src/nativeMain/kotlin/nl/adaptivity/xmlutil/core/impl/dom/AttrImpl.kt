@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XMLConstants
 import org.w3c.dom.*
 
 internal class AttrImpl(
@@ -37,6 +38,12 @@ internal class AttrImpl(
         original.prefix,
         original.value
     )
+
+    init {
+        if (prefix.isNullOrEmpty() && !namespaceURI.isNullOrEmpty() && namespaceURI!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+            throw IllegalArgumentException("Attributes without prefix are always in the default namespace ({$namespaceURI}$localName = \"$value\")")
+        }
+    }
 
     override val name: String
         get() = when(prefix) {
@@ -65,6 +72,9 @@ internal class AttrImpl(
             throw UnsupportedOperationException()
         }
 
+    override val textContent: String?
+        get() = value
+
     override fun appendChild(node: Node): Node {
         throw DOMException("Attributes have no children")
     }
@@ -83,5 +93,13 @@ internal class AttrImpl(
 
     override fun lookupNamespaceURI(prefix: String?): String? {
         return ownerElement?.lookupNamespaceURI(prefix)
+    }
+
+    override fun toString(): String {
+        val attrName = when (prefix.isNullOrBlank()) {
+            true -> localName
+            else -> "$prefix:$localName"
+        }
+        return "$attrName=\"$value\""
     }
 }

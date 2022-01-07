@@ -20,8 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.Document
-import org.w3c.dom.Node
+import org.w3c.dom.*
 
 internal abstract class NodeImpl(
     ownerDocument: Document
@@ -58,3 +57,13 @@ internal abstract class NodeImpl(
         }
 }
 
+internal fun Appendable.appendTextContent(node: Node){
+    when(node) {
+        is DocumentFragment,
+        is Element -> for(n in node.childNodes) {
+            appendTextContent(n)
+        }
+        is Attr -> append(node.value)
+        is CharacterData -> append(node.data)
+    }
+}

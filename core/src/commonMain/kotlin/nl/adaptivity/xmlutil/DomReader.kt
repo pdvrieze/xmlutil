@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2022.
  *
  * This file is part of xmlutil.
  *
@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.util.*
 import nl.adaptivity.xmlutil.util.filterTyped
 import nl.adaptivity.xmlutil.util.isElement
 import nl.adaptivity.xmlutil.util.isText
+import nl.adaptivity.xmlutil.util.impl.*
 import org.w3c.dom.*
 
 /**
@@ -217,22 +218,22 @@ public class DomReader(public val delegate: Node) : XmlReader {
     }
 
     override fun getAttributeNamespace(index: Int): String {
-        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = (currentElement.attributes.get(index) as Attr?) ?: throw IndexOutOfBoundsException()
         return attr.namespaceURI ?: ""
     }
 
     override fun getAttributePrefix(index: Int): String {
-        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = (currentElement.attributes.get(index) as Attr?) ?: throw IndexOutOfBoundsException()
         return attr.prefix ?: ""
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        val attr = currentElement.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = (currentElement.attributes.get(index) as Attr?) ?: throw IndexOutOfBoundsException()
         return attr.localName
     }
 
     override fun getAttributeValue(index: Int): String {
-        val attr: Attr = currentElement.attributes.item(index) as Attr? ?: throw IndexOutOfBoundsException()
+        val attr: Attr = (currentElement.attributes.get(index) as Attr?) ?: throw IndexOutOfBoundsException()
         return attr.value
     }
 

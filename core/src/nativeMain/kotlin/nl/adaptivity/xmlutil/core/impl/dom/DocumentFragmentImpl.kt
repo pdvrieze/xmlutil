@@ -45,6 +45,11 @@ internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDoc
     override val lastChild: Node?
         get() = _childNodes.elements.lastOrNull()
 
+    override val textContent: String?
+        get() = buildString {
+            for(n in childNodes) { appendTextContent(n) }
+        }
+
     override fun appendChild(node: Node): Node {
         val n = checkNode(node)
         _childNodes.elements.add(n)

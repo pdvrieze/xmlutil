@@ -23,7 +23,96 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import org.w3c.dom.*
+import nl.adaptivity.xmlutil.util.impl.createDocument
+
+
+private fun parseToDocument(xmlReader: XmlReader): Document {
+    while((! xmlReader.isStarted) || xmlReader.eventType!=EventType.START_ELEMENT) {
+        xmlReader.next()
+    }
+
+    val document = createDocument(xmlReader.name)
+
+    parseToElementChildren(document.documentElement!!, xmlReader)
+    return document
+}
+
+private fun parseToElementChildren(parent: Element, xmlReader: XmlReader) {
+    for (nsDecl in xmlReader.namespaceDecls) {
+        if (nsDecl.prefix.isBlank()) {
+            parent.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE, nsDecl.namespaceURI)
+        } else {
+            parent.setAttributeNS(
+                namespace = XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                cName = "${XMLConstants.XMLNS_ATTRIBUTE}:${nsDecl.prefix}",
+                value = nsDecl.namespaceURI
+            )
+        }
+    }
+
+    for (attrIdx in 0 until xmlReader.attributeCount) {
+        val prefix = xmlReader.getAttributePrefix(attrIdx)
+        val cName = when {
+            prefix.isEmpty() -> xmlReader.getAttributeLocalName(attrIdx)
+            else -> "$prefix:${xmlReader.getAttributeLocalName(attrIdx)}"
+        }
+
+        parent.setAttributeNS(
+            namespace = xmlReader.getAttributeNamespace(attrIdx),
+            cName = cName,
+            value = xmlReader.getAttributeValue(attrIdx)
+        )
+    }
+
+    while (xmlReader.hasNext() && xmlReader.next() != EventType.END_ELEMENT) {
+        when (xmlReader.eventType) {
+            EventType.START_ELEMENT -> {
+                val newChild = parent.ownerDocument.createElementNS(xmlReader.namespaceURI, xmlReader.name.toCName())
+
+                parent.appendChild(newChild)
+                parseToElementChildren(newChild, xmlReader)
+            }
+            EventType.START_DOCUMENT,
+            EventType.END_DOCUMENT,
+            EventType.ATTRIBUTE,
+            EventType.END_ELEMENT -> throw UnsupportedOperationException("Should not happen: ${xmlReader.eventType}")
+            EventType.ENTITY_REF -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
+            EventType.COMMENT -> parent.appendChild(parent.ownerDocument.createComment(xmlReader.text))
+            EventType.TEXT -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
+            EventType.CDSECT -> parent.appendChild(parent.ownerDocument.createCDATASection(xmlReader.text))
+            EventType.PROCESSING_INSTRUCTION -> parent.appendChild(parent.ownerDocument.createProcessingInstruction(xmlReader.name.toCName(), xmlReader.text))
+            EventType.DOCDECL -> Unit // ignore
+            EventType.IGNORABLE_WHITESPACE -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
+        }
+    }
+}
+
+private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
+    val expectedDom = parseToDocument(XmlStreaming.newGenericReader(expectedXML))
+
+    println("Expected xml\n${expectedDom.toString().prependIndent("    ")}\n")
+
+    val writer = DomWriter()
+
+    baseXmlFormat.encodeToWriter(writer, serializer, value)
+
+    println("Actual xml\n${writer.target.toString().prependIndent("    ")}\n")
+
+    assertDomEquals(expectedDom, writer.target)
+}
+
+private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
+    val expectedDom = parseToDocument(XmlStreaming.newGenericReader(expectedXML))
+
+    val actualReader = DomReader(expectedDom)
+
+    assertEquals(value, baseXmlFormat.decodeFromReader(serializer, actualReader))
+}
 
 actual abstract class PlatformXmlTestBase<T> actual constructor(
     value: T,
@@ -35,7 +124,17 @@ actual abstract class PlatformXmlTestBase<T> actual constructor(
     serializer,
     serializersModule,
     baseXmlFormat
-)
+) {
+    @Test
+    open fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    open fun testDomDeserializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}
 
 actual abstract class PlatformTestBase<T> actual constructor(
     value: T,
@@ -43,11 +142,32 @@ actual abstract class PlatformTestBase<T> actual constructor(
     serializersModule: SerializersModule,
     baseXmlFormat: XML,
     baseJsonFormat: Json
-) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat)
+) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat) {
+    @Test
+    open fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    open fun testDomDeserializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}
 
 actual abstract class PlatformTestPolymorphicBase<T> actual constructor(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule,
     baseJsonFormat: Json
-) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat)
+) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat) {
+    @Test
+    open fun testDomSerializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+
+    @Test
+    open fun testDomDeserializeXml() {
+        testDomSerializeXmlImpl(baseXmlFormat)
+    }
+}
+

@@ -18,13 +18,15 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.util.impl
 
+import nl.adaptivity.xmlutil.util.*
 import nl.adaptivity.xmlutil.*
 import org.w3c.dom.*
 import javax.xml.parsers.DocumentBuilderFactory
 
-actual internal fun createDocument(rootElementName: QName): Document {
+@XmlUtilInternal
+public actual fun createDocument(rootElementName: QName): Document {
     return DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }

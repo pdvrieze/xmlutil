@@ -61,6 +61,11 @@ internal class ElementImpl(
 
     override val lastChild: Node? get() = _childNodes.elements.lastOrNull()
 
+    override val textContent: String?
+        get() = buildString {
+            for(n in childNodes) { appendTextContent(n) }
+        }
+
     override fun getElementsByTagName(qualifiedName: String): NodeList {
         val elems = _childNodes.elements
             .filter { it is Element && it.tagName == qualifiedName }
@@ -87,7 +92,9 @@ internal class ElementImpl(
                 appendChild(n2)
             }
         } else {
-            if (n.parentNode != null) n.parentNode = this
+            n.parentNode?.removeChild(n)
+
+            n.parentNode = this
 
             _childNodes.elements.add(n)
         }
@@ -159,21 +166,24 @@ internal class ElementImpl(
 
     override fun setAttribute(qualifiedName: String, value: String) {
         val prefix = qualifiedName.substringBeforeLast(':', "")
+        val namespaceURI = if (prefix.isEmpty()) "" else lookupNamespaceURI(prefix)
         setAttributeAt(
             getAttrIdx(qualifiedName),
-            lookupNamespaceURI(prefix),
+            namespaceURI,
             qualifiedName.substringAfterLast(':', qualifiedName),
             prefix,
             value
         )
     }
 
-    override fun setAttributeNS(namespace: String?, localName: String, value: String) {
+    override fun setAttributeNS(namespace: String?, cName: String, value: String) {
+        val localName = cName.substringAfterLast(':', cName)
+        val prefix = cName.substringBeforeLast(':', "")
         setAttributeAt(
             getAttrIdxNS(namespace, localName),
             namespace,
             localName,
-            lookupPrefix(namespace),
+            prefix,
             value
         )
     }
@@ -261,6 +271,29 @@ internal class ElementImpl(
         return (parentNode as? Element)?.lookupNamespaceURI(prefix)
     }
 
+    override fun toString(): String {
+        return buildString {
+            append('<')
+            val tagName = when {
+                prefix.isNullOrEmpty() -> localName
+                else -> "$prefix:$localName"
+            }
+            append(tagName)
+
+            if (_attributes.isNotEmpty()) append(' ')
+
+            _attributes.joinTo(this, " ")
+
+            if (_childNodes.length==0) {
+                append("/>")
+            } else {
+                append(">")
+                _childNodes.elements.joinTo(this, "")
+                append("</").append(tagName).append('>')
+            }
+        }
+    }
+
     inner class AttrMap() : NamedNodeMap {
         override val length: Int get() = _attributes.size
 
@@ -268,6 +301,8 @@ internal class ElementImpl(
             in 0 until _attributes.size -> _attributes[index]
             else -> null
         }
+
+        override fun iterator(): Iterator<Attr> = AttrIterator()
 
         override fun getNamedItem(qualifiedName: String): Attr? = _attributes.firstOrNull {
             it.name == qualifiedName
@@ -298,5 +333,13 @@ internal class ElementImpl(
         override fun removeNamedItemNS(namespace: String?, localName: String): Attr? {
             return removeAttrAt(getAttrIdxNS(namespaceURI, localName))
         }
+    }
+
+    inner class AttrIterator: Iterator<Attr> {
+        private var pos = 0
+
+        override fun hasNext(): Boolean = pos < _attributes.size
+
+        override fun next(): Attr = _attributes[pos++]
     }
 }

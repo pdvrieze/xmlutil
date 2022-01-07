@@ -232,6 +232,7 @@ public final class nl/adaptivity/xmlutil/serialization/XML$XmlInput$DefaultImpls
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlOutput : nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig {
 	public abstract fun ensureNamespace (Ljavax/xml/namespace/QName;)Ljavax/xml/namespace/QName;
+	public abstract fun ensureNamespace (Ljavax/xml/namespace/QName;Z)Ljavax/xml/namespace/QName;
 	public abstract synthetic fun getCurrentTypeName ()Ljava/lang/Void;
 	public abstract fun getSerialName ()Ljavax/xml/namespace/QName;
 	public abstract fun getTarget ()Lnl/adaptivity/xmlutil/XmlWriter;
@@ -239,6 +240,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlOutpu
 
 public final class nl/adaptivity/xmlutil/serialization/XML$XmlOutput$DefaultImpls {
 	public static fun delegateFormat (Lnl/adaptivity/xmlutil/serialization/XML$XmlOutput;)Lnl/adaptivity/xmlutil/serialization/XML;
+	public static fun ensureNamespace (Lnl/adaptivity/xmlutil/serialization/XML$XmlOutput;Ljavax/xml/namespace/QName;)Ljavax/xml/namespace/QName;
 	public static synthetic fun getCurrentTypeName (Lnl/adaptivity/xmlutil/serialization/XML$XmlOutput;)Ljava/lang/Void;
 }
 

@@ -43,7 +43,7 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
-    assertXmlEquals(expectedDom, writer.target)
+    assertDomEquals(expectedDom, writer.target)
 }
 
 private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {

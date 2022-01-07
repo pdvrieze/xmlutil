@@ -100,8 +100,3 @@ internal abstract class XmlCodecBase internal constructor(
 
     }
 }
-
-internal fun QName.toPrefixed(): String = when {
-    prefix.isNullOrEmpty() -> localPart
-    else -> "$prefix:$localPart"
-}

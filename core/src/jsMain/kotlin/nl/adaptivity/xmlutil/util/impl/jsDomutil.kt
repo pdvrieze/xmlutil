@@ -18,15 +18,17 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.util.impl
 
 import kotlinx.browser.document
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.toCName
 import org.w3c.dom.Document
 import org.w3c.dom.NamedNodeMap
 
-internal actual fun createDocument(rootElementName: QName): Document {
+@XmlUtilInternal
+public actual fun createDocument(rootElementName: QName): Document {
     return document.implementation.createDocument(
         rootElementName.getNamespaceURI() ?: "",
         rootElementName.toCName()

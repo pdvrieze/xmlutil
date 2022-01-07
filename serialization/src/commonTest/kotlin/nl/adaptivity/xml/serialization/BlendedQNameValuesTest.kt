@@ -101,7 +101,7 @@ class BlendedQNameValuesTest : PlatformXmlTestBase<BlendedQNameValuesTest.Contai
                 val output = encoder as XML.XmlOutput
                 val str = value.values.joinToString(" ") { elem ->
                     when (elem) {
-                        is QName -> output.ensureNamespace(elem).let { "${it.prefix}:${it.localPart}" }
+                        is QName -> output.ensureNamespace(elem, false).let { "${it.prefix}:${it.localPart}" }
                         else -> elem.toString()
                     }
                 }

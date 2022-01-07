@@ -32,4 +32,8 @@ internal open class TextImpl(ownerDocument: Document, data: String) : CharacterD
     override val nodeType: Short get() = Node.TEXT_NODE
 
     override val nodeName: String get() = "#text"
+
+    override fun toString(): String {
+        return data
+    }
 }

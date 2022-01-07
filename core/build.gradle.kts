@@ -210,17 +210,11 @@ kotlin {
             }
         }
 
-        all {
-            if (name.endsWith("Main") && (name.startsWith("linux") || name.startsWith("win") || name.startsWith("ios"))) {
-                dependsOn(commonDom)
-            }
+        val nativeMain by creating {
+            dependsOn(commonDom)
         }
 
 /*
-        val nativeMain by creating {
-            dependsOn(commonMain)
-        }
-
         val linuxX64Main by getting {
             dependsOn(nativeMain)
         }

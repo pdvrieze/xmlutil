@@ -31,4 +31,8 @@ internal class CommentImpl(ownerDocument: Document, data: String) : CharacterDat
     override val nodeType: Short get() = Node.COMMENT_NODE
 
     override val nodeName: String get() = "#comment"
+
+    override fun toString(): String {
+        return "<!--$data-->"
+    }
 }

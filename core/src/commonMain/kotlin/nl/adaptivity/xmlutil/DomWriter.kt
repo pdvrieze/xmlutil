@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2022.
  *
  * This file is part of xmlutil.
  *
@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.util.*
+import nl.adaptivity.xmlutil.util.impl.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -155,11 +156,11 @@ public class DomWriter constructor(
                 }
                 (pendingOperations as MutableList).clear()
                 lastTagDepth = 0
-                currentNode = docDelegate?.firstElementChild
+                currentNode = docDelegate?.documentElement
                 return
             }
             currentNode == null && !isAppend -> {
-                if (target.childElementCount > 0) {
+                if (target.childNodes.iterator().asSequence().count { it is Element } > 0) {
                     target.removeElementChildren()
 
                 }
@@ -292,7 +293,7 @@ public class DomWriter constructor(
         depth--
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
 
-        currentNode = requireCurrent("No current element or no parent element").parentElement
+        currentNode = requireCurrent("No current element or no parent element").parentNode
     }
 
     override fun getNamespaceUri(prefix: String): String? {

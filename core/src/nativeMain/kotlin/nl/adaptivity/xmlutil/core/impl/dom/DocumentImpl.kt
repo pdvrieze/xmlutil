@@ -28,6 +28,8 @@ internal class DocumentImpl(override val docType: DocumentType?) : Document {
     private var _documentElement: ElementImpl? = null
     override val documentElement: Element? get() = _documentElement
 
+    override var characterSet: String = "UTF-8"
+
     override val nodeType: Short get() = Node.DOCUMENT_NODE
 
     override val nodeName: String get() = "#document"
@@ -58,6 +60,8 @@ internal class DocumentImpl(override val docType: DocumentType?) : Document {
     override val previousSibling: Node? get() = null
 
     override val nextSibling: Node? get() = null
+
+    override val textContent: String? get() = null
 
     override fun adoptNode(node: Node): Node {
         if (node !is NodeImpl) throw DOMException("Not supported")
@@ -92,6 +96,7 @@ internal class DocumentImpl(override val docType: DocumentType?) : Document {
         if (documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
         if (n !is ElementImpl) throw UnsupportedOperationException("Only element children to root supported for now")
         _documentElement = n
+        n.parentNode = this
         return n
     }
 
@@ -155,6 +160,11 @@ internal class DocumentImpl(override val docType: DocumentType?) : Document {
 
     override fun lookupNamespaceURI(prefix: String?): String? {
         return (_documentElement ?: return null).lookupNamespaceURI(prefix)
+    }
+
+    override fun toString(): String = when (val e = _documentElement){
+        null -> "<Empty Document>"
+        else -> e.toString()
     }
 }
 

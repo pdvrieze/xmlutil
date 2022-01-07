@@ -20,7 +20,7 @@
 
 package org.w3c.dom
 
-public interface DocumentType {
+public interface DocumentType : Node {
     public val name: String
     public val publicId: String
     public val systemId: String

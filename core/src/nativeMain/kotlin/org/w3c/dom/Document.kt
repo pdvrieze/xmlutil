@@ -28,6 +28,10 @@ public interface Document : Node {
 
     public val documentElement: Element?
 
+    public val characterSet: String?
+
+    public val inputEncoding: String? get() = characterSet
+
     public fun createElement(localName: String): Element
 
     public fun createElementNS(namespaceURI: String, qualifiedName: String): Element

@@ -37,6 +37,9 @@ internal abstract class CharacterDataImpl(
     final override val lastChild: Nothing? get() = null
     final override val childNodes: NodeList get() = EmptyNodeList
 
+    override val textContent: String?
+        get() = data
+
     final override fun substringData(offset: Int, count: Int): String {
         return data.substring(offset, offset+count)
     }

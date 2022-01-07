@@ -18,29 +18,15 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.util
+package nl.adaptivity.xmlutil.util.impl
 
-import org.w3c.dom.NamedNodeMap
-import org.w3c.dom.NodeList
-import org.w3c.dom.Node
-import kotlin.jvm.JvmName
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
+import nl.adaptivity.xmlutil.toCName
+import org.w3c.dom.Document
 
-public operator fun NodeList.iterator(): Iterator<Node> = object : Iterator<Node> {
-    private var idx = 0
-
-    override fun hasNext(): Boolean = idx < length
-
-    override fun next(): Node {
-        return item(idx)!!.also { idx++ }
-    }
-}
-
-public operator fun NamedNodeMap.iterator(): Iterator<Node> = object : Iterator<Node> {
-    private var idx = 0
-
-    override fun hasNext(): Boolean = idx < length
-
-    override fun next(): Node {
-        return (item(idx) as Node).also { idx++ }
-    }
+@XmlUtilInternal
+public actual fun createDocument(rootElementName: QName): Document {
+    return SimpleDOMImplementation.createDocument(rootElementName.getNamespaceURI(), rootElementName.toCName())
 }

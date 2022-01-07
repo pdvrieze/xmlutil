@@ -20,9 +20,11 @@
 
 package org.w3c.dom
 
-public interface NamedNodeMap {
+public interface NamedNodeMap: Iterable<Attr> {
     public val length: Int
     public fun item(index: Int): Node?
+
+    public operator fun get(index:Int): Attr? = item((index)) as Attr?
 
     public fun getNamedItem(qualifiedName: String): Node?
 

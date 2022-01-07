@@ -29,6 +29,8 @@ public interface Node {
 
     public val parentNode: Node?
 
+    public val parentElement: Element? get() = parentNode as? Element?
+
     public val childNodes: NodeList
 
     public val firstChild: Node?
@@ -48,6 +50,8 @@ public interface Node {
     public fun replaceChild(oldChild: Node, newChild: Node): Node
 
     public fun removeChild(node: Node): Node
+
+    public val textContent: String?
 
     public companion object {
         // NodeType

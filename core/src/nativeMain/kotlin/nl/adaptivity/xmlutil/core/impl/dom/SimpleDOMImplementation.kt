@@ -23,15 +23,15 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import org.w3c.dom.DOMImplementation
 import org.w3c.dom.Document
 import org.w3c.dom.DocumentType
-import org.w3c.dom.Node
 
 internal object SimpleDOMImplementation: DOMImplementation {
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType {
-        return DocumentTypeImpl(qualifiedName, publicId, systemId)
+        return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
     }
 
     override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document {
         return DocumentImpl(documentType).also {
+            (documentType as DocumentTypeImpl?)?.ownerDocument = it
             val elem = when (namespace) {
                 null -> it.createElement(qualifiedName)
                 else -> it.createElementNS(namespace, qualifiedName)

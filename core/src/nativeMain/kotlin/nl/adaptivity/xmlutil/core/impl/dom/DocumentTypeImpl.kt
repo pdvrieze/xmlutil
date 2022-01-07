@@ -20,10 +20,45 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.DocumentType
+import org.w3c.dom.*
 
 internal class DocumentTypeImpl(
+    ownerDocument: Document,
     override val name: String,
     override val publicId: String,
     override val systemId: String
-) : DocumentType
+) : NodeImpl(ownerDocument), DocumentType {
+    override var parentNode: Node? = null
+
+    override val nodeType: Short get() = Node.DOCUMENT_TYPE_NODE
+
+    override val nodeName: String get() = name
+
+    override val childNodes: NodeList get() = EmptyNodeList
+
+    override val firstChild: Nothing? get() = null
+
+    override val lastChild: Nothing? get() = null
+
+    override val textContent: String? get() = null
+
+    override fun lookupPrefix(namespace: String?): String? {
+        return parentNode?.lookupPrefix(namespace)
+    }
+
+    override fun lookupNamespaceURI(prefix: String?): String? {
+        return parentNode?.lookupNamespaceURI(prefix)
+    }
+
+    override fun appendChild(node: Node): Node {
+        throw DOMException("Document types have no children")
+    }
+
+    override fun replaceChild(oldChild: Node, newChild: Node): Node {
+        throw DOMException("Document types have no children")
+    }
+
+    override fun removeChild(node: Node): Node {
+        throw DOMException("Document types have no children")
+    }
+}

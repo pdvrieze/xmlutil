@@ -58,8 +58,8 @@ internal open class XmlEncoderBase internal constructor(
         override val serializersModule get() = this@XmlEncoderBase.serializersModule
         override val config: XmlConfig get() = this@XmlEncoderBase.config
 
-        override fun ensureNamespace(qName: QName): QName {
-            return this@XmlEncoderBase.ensureNamespace(qName)
+        override fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
         override fun encodeBoolean(value: Boolean) =
@@ -103,7 +103,7 @@ internal open class XmlEncoderBase internal constructor(
             encodeString(value.toString())
 
         private fun encodeQName(value: QName) {
-            val effectiveQName: QName = ensureNamespace(value)
+            val effectiveQName: QName = ensureNamespace(value, false)
 
             XmlQNameSerializer.serialize(this, effectiveQName)
         }
@@ -120,8 +120,8 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Element -> { // This may occur with list values.
                     target.smartStartTag(serialName) {
                         if (discriminatorName != null) {
-                            val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor))
-                            smartWriteAttribute(discriminatorName, typeRef.toPrefixed(), serialName.namespaceURI)
+                            val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
+                            smartWriteAttribute(discriminatorName, typeRef.toCName(), serialName.namespaceURI)
                         }
                         if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
@@ -152,8 +152,8 @@ internal open class XmlEncoderBase internal constructor(
             if (xmlDescriptor.outputKind == OutputKind.Element && nilAttr != null) {
                 target.smartStartTag(serialName) {
                     if (discriminatorName != null) {
-                        val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor))
-                        smartWriteAttribute(discriminatorName, typeRef.toPrefixed(), serialName.namespaceURI)
+                        val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
+                        smartWriteAttribute(discriminatorName, typeRef.toCName(), serialName.namespaceURI)
                     }
                     smartWriteAttribute(nilAttr.first, nilAttr.second, serialName.namespaceURI)
                 }
@@ -213,8 +213,8 @@ internal open class XmlEncoderBase internal constructor(
         override val serialName: QName get() = xmlDescriptor.tagName
         override val target: XmlWriter get() = this@XmlEncoderBase.target
 
-        override fun ensureNamespace(qName: QName): QName {
-            return this@XmlEncoderBase.ensureNamespace(qName)
+        override fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -260,7 +260,7 @@ internal open class XmlEncoderBase internal constructor(
             val ser = xmlDescriptor.overriddenSerializer ?: serializer
             when (ser) {
                 XmlQNameSerializer -> {
-                    val actualQName = ensureNamespace(value as QName)
+                    val actualQName = ensureNamespace(value as QName, false)
                     XmlQNameSerializer.serialize(this, actualQName)
                 }
                 else -> super.encodeSerializableValue(serializer, value)
@@ -350,8 +350,8 @@ internal open class XmlEncoderBase internal constructor(
         override val target: XmlWriter get() = this@XmlEncoderBase.target
         override val namespaceContext: NamespaceContext get() = this@XmlEncoderBase.target.namespaceContext
 
-        override fun ensureNamespace(qName: QName): QName {
-            return this@XmlEncoderBase.ensureNamespace(qName)
+        override fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
+            return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
         private val deferredBuffer =
@@ -363,8 +363,8 @@ internal open class XmlEncoderBase internal constructor(
         open fun writeBegin() {
             target.smartStartTag(serialName)
             if (discriminatorName != null) {
-                val typeName = ensureNamespace(config.policy.typeQName(xmlDescriptor))
-                smartWriteAttribute(discriminatorName, typeName.toPrefixed(), serialName.namespaceURI)
+                val typeName = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
+                smartWriteAttribute(discriminatorName, typeName.toCName(), serialName.namespaceURI)
             }
         }
 
@@ -523,7 +523,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         private fun encodeQName(elementDescriptor: XmlDescriptor, index: Int, value: QName) {
-            val effectiveQName: QName = ensureNamespace(value)
+            val effectiveQName: QName = ensureNamespace(value, false)
 
             val encoder = XmlEncoder(elementDescriptor, index)
             defer(index) { XmlQNameSerializer.serialize(encoder, effectiveQName) }
@@ -599,33 +599,32 @@ internal open class XmlEncoderBase internal constructor(
     /**
      * Determine/reserve a a namespace for this element.
      * Will reuse a prefix if available.
-     *
-     * @param tagNamespace For attributes only, this determines the namespace of the containing tag
      */
-    private fun ensureNamespace(qName: QName, tagNamespace: String? = null): QName {
-        val registeredNamespace = target.getNamespaceUri(qName.getPrefix())
-        val registeredPrefix = target.getPrefix(qName.namespaceURI)
-        return when { // Attributes with empty prefix are always in the default namespace, so if they are to be otherwise
-            !tagNamespace.isNullOrEmpty() &&
-                    tagNamespace != qName.namespaceURI &&
-                    qName.prefix == "" &&
-                    qName.namespaceURI.isNotEmpty() -> {
+    private fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
+        when {
+            !isAttr -> Unit // skip attribute handling in this stage
+            // for empty namespace uri, force empty prefix
+            qName.namespaceURI == "" -> return qName.copy(prefix = "")
+
+            qName.prefix == "" -> { // the namespace is set
                 val effectivePrefix = target.namespaceContext.prefixesFor(qName.namespaceURI).asSequence()
                     .firstOrNull { it.isNotEmpty() }
                     ?: namespaceContext.nextAutoPrefix()
-                qName.copy(prefix = effectivePrefix)
+                target.namespaceAttr(effectivePrefix, qName.namespaceURI)
+                return qName.copy(prefix = effectivePrefix)
             }
+        }
 
-            // If things match, or no namespace, no need to do anything
-            registeredNamespace == qName.namespaceURI ||
-                    (qName.namespaceURI == "" && qName.prefix == "")
-            -> qName
+        val registeredNamespace = target.getNamespaceUri(qName.getPrefix())
 
-            // for empty namespace uri, force empty prefix
-            qName.namespaceURI == "" -> qName.copy(prefix = "")
+        // If things match, or no namespace, no need to do anything
+        if (registeredNamespace == qName.namespaceURI) return qName
+
+        val registeredPrefix = target.getPrefix(qName.namespaceURI)
+        return when { // Attributes with empty prefix are always in the default namespace, so if they are to be otherwise
 
             // There is a prefix to reuse, just reuse that (TODO make configurable)
-            registeredPrefix != null -> return qName.copy(prefix = registeredPrefix)
+            registeredPrefix != null -> qName.copy(prefix = registeredPrefix)
 
             // If there is a namespace for this prefix and it doesn't match, create a new prefix
             registeredNamespace != null -> { // prefix no longer valid
@@ -656,12 +655,12 @@ internal open class XmlEncoderBase internal constructor(
                     .first { target.getNamespaceUri(it) == null }
 
                 target.namespaceAttr(newPrefix, qName.namespaceURI)
-                return qName.copy(prefix = newPrefix)
+                qName.copy(prefix = newPrefix)
             }
 
             else -> { // No existing namespace or prefix
                 target.namespaceAttr(qName.prefix, qName.namespaceURI)
-                return qName
+                qName
             }
         }
     }
@@ -670,7 +669,7 @@ internal open class XmlEncoderBase internal constructor(
      * Helper function that ensures writing the namespace attribute if needed.
      */
     private fun smartWriteAttribute(name: QName, value: String, tagNamespace: String?) {
-        val effectiveQName = ensureNamespace(name, tagNamespace)
+        val effectiveQName = ensureNamespace(name, true)
         if (effectiveQName.prefix != "" && target.getNamespaceUri(effectiveQName.prefix) == null) {
             target.namespaceAttr(effectiveQName.toNamespace())
         }
@@ -740,8 +739,8 @@ internal open class XmlEncoderBase internal constructor(
                 }
                 polymorphicMode is PolymorphicMode.ATTR -> {
                     target.smartStartTag(serialName) {
-                        val elementQName = ensureNamespace(config.policy.typeQName(elementDescriptor))
-                        smartWriteAttribute(polymorphicMode.name, elementQName.toPrefixed(), serialName.namespaceURI)
+                        val attrQName = ensureNamespace(config.policy.typeQName(elementDescriptor), true)
+                        smartWriteAttribute(polymorphicMode.name, attrQName.toCName(), serialName.namespaceURI)
 
                         text(value)
                     }

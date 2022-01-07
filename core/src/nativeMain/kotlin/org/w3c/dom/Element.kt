@@ -31,7 +31,7 @@ public interface Element : Node {
     public fun getAttributeNS(namespace: String?, localName: String): String?
 
     public fun setAttribute(qualifiedName: String, value: String)
-    public fun setAttributeNS(namespace: String?, localName: String, value: String)
+    public fun setAttributeNS(namespace: String?, cName: String, value: String)
 
     public fun removeAttribute(qualifiedName: String)
     public fun removeAttributeNS(namespace: String?, localName: String)
