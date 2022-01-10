@@ -67,8 +67,8 @@ kotlin {
 
     sourceSets.all {
         languageSettings.apply {
-            languageVersion = "1.5"
-            apiVersion = "1.5"
+            languageVersion = "1.6"
+            apiVersion = "1.6"
             optIn("kotlin.RequiresOptIn")
         }
     }
@@ -76,11 +76,11 @@ kotlin {
 
 dependencies {
     api(project(":serialization"))
-    implementation("io.ktor:ktor-serialization:$ktor_version")
-    testImplementation("io.ktor:ktor-server-core:$ktor_version")
-    testImplementation("io.ktor:ktor-server-netty:$ktor_version")
-    testImplementation("ch.qos.logback:logback-classic:$logback_version")
-    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    implementation(libs.ktor.serialization)
+    testImplementation(libs.ktor.server.core)
+    testImplementation(libs.ktor.server.netty)
+    testImplementation(libs.logback.classic)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(kotlin("test"))
 }
 

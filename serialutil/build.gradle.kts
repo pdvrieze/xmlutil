@@ -41,14 +41,9 @@ val xmlutil_util_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "serialutil"
+    archivesName.set("serialutil")
     version = xmlutil_util_version
 }
-
-val serializationVersion: String by project
-
-val jupiterVersion: String by project
-val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
@@ -115,14 +110,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                api(libs.serialization.core)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation(libs.serialization.json)
             }
         }
         val javaShared by creating {
@@ -132,15 +127,15 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation(kotlin("stdlib-jdk8", kotlin_version))
+                implementation(kotlin("stdlib-jdk8", libs.versions.kotlin.get()))
             }
         }
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
             }
         }
         val androidMain by getting {
@@ -150,9 +145,9 @@ kotlin {
         val androidTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
             }
         }
         val jsTest by getting {

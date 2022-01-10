@@ -38,7 +38,7 @@ val xmlutil_core_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlutil"
+    archivesName.set("xmlutil")
     version = xmlutil_core_version
 }
 
@@ -172,10 +172,10 @@ kotlin {
             dependencies {
                 dependsOn(commonTest)
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-                runtimeOnly("com.fasterxml.woodstox:woodstox-core:${woodstoxVersion}")
+                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.woodstox)
             }
         }
 
@@ -183,7 +183,7 @@ kotlin {
             dependsOn(javaShared)
 
             dependencies {
-                compileOnly("net.sf.kxml:kxml2:$kxml2Version")
+                compileOnly(libs.kxml2)
             }
         }
 
@@ -192,10 +192,10 @@ kotlin {
                 dependsOn(commonTest)
 
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-                runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
+                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.kxml2)
             }
         }
 
@@ -224,8 +224,8 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             progressiveMode = true
-            apiVersion = "1.5"
-            languageVersion = "1.5"
+            apiVersion = "1.6"
+            languageVersion = "1.6"
 
             optIn("kotlin.RequiresOptIn")
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
