@@ -52,7 +52,7 @@ val kotlin_version: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
-val moduleName = "net.devrieze.serialutil"
+val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {

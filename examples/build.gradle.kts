@@ -37,7 +37,7 @@ val serializationVersion: String by project
 
 val kotlin_version: String by project
 
-val moduleName = "net.devrieze.serialexamples"
+val autoModuleName = "net.devrieze.serialexamples"
 
 java {
     targetCompatibility = JavaVersion.VERSION_1_8
