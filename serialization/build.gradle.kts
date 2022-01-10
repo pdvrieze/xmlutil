@@ -57,7 +57,7 @@ val argJvmDefault: String by project
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
-val moduleName = "net.devrieze.xmlutil.serialization"
+val autoModuleName = "net.devrieze.xmlutil.serialization"
 
 
 kotlin {
@@ -78,7 +78,7 @@ kotlin {
                 }
                 tasks.named<Jar>("jvmJar") {
                     manifest {
-                        attributes("Automatic-Module-Name" to moduleName)
+                        attributes("Automatic-Module-Name" to autoModuleName)
                     }
                 }
             }
