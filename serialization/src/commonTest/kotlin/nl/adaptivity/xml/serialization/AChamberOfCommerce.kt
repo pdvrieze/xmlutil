@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 
 
-class AChamberOfCommerce : TestBase<AChamberOfCommerce.Chamber>(
+class AChamberOfCommerce : PlatformTestBase<AChamberOfCommerce.Chamber>(
     Chamber(
         "hightech", listOf(
             Business("foo", null),

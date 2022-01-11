@@ -50,8 +50,8 @@ base {
 val serializationVersion: String by project
 val jupiterVersion: String by project
 val woodstoxVersion: String by project
-val kotlin_version: String by project
-val kxml2Version: String by project
+val kotlin_version: String = libs.versions.kotlin.get()
+val kxml2Version: String = libs.kxml2.get().versionConstraint.requiredVersion
 
 val argJvmDefault: String by project
 
@@ -147,14 +147,14 @@ kotlin {
             dependencies {
                 api(project(":core"))
 
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                api(libs.serialization.core)
             }
         }
 
         val commonTest by getting {
             dependencies {
                 implementation(project(":serialutil"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation(libs.serialization.json)
 
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
@@ -186,9 +186,9 @@ kotlin {
 
             dependencies {
 //                implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
             }
         }
@@ -206,8 +206,8 @@ kotlin {
             dependsOn(jvmTestCommon)
             dependencies {
                 implementation(kotlin("test-junit5"))
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-                runtimeOnly("com.fasterxml.woodstox:woodstox-core:${woodstoxVersion}")
+                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.woodstox)
             }
         }
 
@@ -215,7 +215,7 @@ kotlin {
             dependsOn(javaShared)
 
             dependencies {
-                compileOnly("net.sf.kxml:kxml2:$kxml2Version")
+                compileOnly(libs.kxml2)
             }
         }
 
@@ -227,12 +227,12 @@ kotlin {
 
             dependencies {
                 implementation(kotlin("test-junit5"))
-                runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
+                runtimeOnly(libs.kxml2)
 
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
             }
         }
 
@@ -249,8 +249,8 @@ kotlin {
 
         all {
             languageSettings.apply {
-                languageVersion = "1.5"
-                apiVersion = "1.5"
+                languageVersion = "1.6"
+                apiVersion = "1.6"
                 optIn("kotlin.RequiresOptIn")
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }

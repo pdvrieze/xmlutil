@@ -29,7 +29,7 @@ import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class AClassWithXMLPolymorphicNullableChild : TestPolymorphicBase<AClassWithXMLPolymorphicNullableChild.Container4>(
+class AClassWithXMLPolymorphicNullableChild : PlatformTestPolymorphicBase<AClassWithXMLPolymorphicNullableChild.Container4>(
     Container4("name2", ChildA("data")),
     Container4.serializer(),
     baseModule

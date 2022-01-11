@@ -27,18 +27,95 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.copy
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 expect fun assertXmlEquals(expected: String, actual:String)
+
+fun assertXmlStringEquals(expected: String, actual: String) {
+    if (expected != actual) {
+        val expectedReader = XmlStreaming.newGenericReader(expected).apply { skipPreamble() }
+        val actualReader = XmlStreaming.newGenericReader(actual).apply { skipPreamble() }
+
+        try {
+            assertXmlEquals(expectedReader, actualReader)
+        } catch (e: AssertionError) {
+            try {
+                assertEquals(expected, actual)
+            } catch (f: AssertionError) {
+                f.addSuppressed(e)
+                throw f
+            }
+        }
+    }
+}
+
+private fun XmlReader.nextNotIgnored() {
+    do {
+        val ev = next()
+    } while (ev.isIgnorable && hasNext())
+}
+
+private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
+    do {
+        expected.nextNotIgnored()
+        actual.nextNotIgnored()
+
+        assertXmlEquals(expected.toEvent(), actual.toEvent())
+
+    } while (expected.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
+
+    while (expected.hasNext() && expected.isIgnorable()) { expected.next() }
+    while (actual.hasNext() && actual.isIgnorable()) { actual.next() }
+
+    assertEquals(expected.hasNext(), actual.hasNext())
+}
+
+private fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
+    assertEquals(expectedEvent.eventType, actualEvent.eventType, "Different event found")
+    when (expectedEvent) {
+        is XmlEvent.StartElementEvent -> assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent)
+        is XmlEvent.EndElementEvent -> assertEquals(expectedEvent.name, (actualEvent as XmlEvent.EndElementEvent).name)
+        is XmlEvent.TextEvent -> assertEquals(expectedEvent.text, (actualEvent as XmlEvent.TextEvent).text)
+    }
+}
+
+private fun assertStartElementEquals(expectedEvent: XmlEvent.StartElementEvent, actualEvent: XmlEvent.StartElementEvent) {
+    assertEquals(expectedEvent.name, actualEvent.name)
+    assertEquals(expectedEvent.attributes.size, actualEvent.attributes.size)
+
+    val expectedAttrs = expectedEvent.attributes.map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
+        .sortedBy { "{${it.namespaceUri}}${it.localName}" }
+    val actualAttrs = actualEvent.attributes.map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
+        .sortedBy { "{${it.namespaceUri}}${it.localName}" }
+
+    assertContentEquals(expectedAttrs, actualAttrs)
+}
+
+internal fun defaultXmlFormat(serializersModule: SerializersModule) = XML(serializersModule) {
+    policy = DefaultXmlSerializationPolicy(
+        pedantic = true,
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
+    )
+}
+
+internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
+    defaultJsonTestConfiguration()
+    this.serializersModule = serializersModule
+}
+
+expect abstract class PlatformXmlTestBase<T> constructor(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseXmlFormat: XML = defaultXmlFormat(serializersModule)
+) : XmlTestBase<T>
 
 abstract class XmlTestBase<T>(
     val value: T,
@@ -81,6 +158,14 @@ abstract class XmlTestBase<T>(
 
 }
 
+expect abstract class PlatformTestBase<T>(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseXmlFormat: XML = defaultXmlFormat(serializersModule),
+    baseJsonFormat: Json = defaultJsonFormat(serializersModule)
+) : TestBase<T>
+
 abstract class TestBase<T> constructor(
     value: T,
     serializer: KSerializer<T>,
@@ -112,6 +197,12 @@ abstract class TestBase<T> constructor(
 
 }
 
+expect abstract class PlatformTestPolymorphicBase<T>(
+    value: T,
+    serializer: KSerializer<T>,
+    serializersModule: SerializersModule = EmptySerializersModule,
+    baseJsonFormat: Json = defaultJsonFormat(serializersModule)
+) : TestPolymorphicBase<T>
 
 abstract class TestPolymorphicBase<T>(
     value: T,
@@ -138,7 +229,7 @@ abstract class TestPolymorphicBase<T>(
         val serialized =
             XML(serializersModule = serializersModule) { autoPolymorphic = false }.encodeToString(serializer, value)
                 .normalizeXml()
-        assertEquals(expectedNonAutoPolymorphicXML, serialized)
+        assertXmlEquals(expectedNonAutoPolymorphicXML, serialized)
     }
 
     @Test
@@ -157,7 +248,7 @@ abstract class TestPolymorphicBase<T>(
                 policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
             }.encodeToString(serializer, value)
                 .normalizeXml()
-        assertEquals(expectedXSIPolymorphicXML, serialized)
+        assertXmlEquals(expectedXSIPolymorphicXML, serialized)
     }
 
     @Test

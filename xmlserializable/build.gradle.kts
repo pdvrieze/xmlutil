@@ -41,7 +41,7 @@ val xmlutil_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlserializable"
+    archivesName.set("xmlserializable")
     version = xmlutil_version
 }
 
@@ -165,9 +165,9 @@ kotlin {
             dependencies {
                 dependsOn(commonTest)
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
                 runtimeOnly("com.fasterxml.woodstox:woodstox-core:$woodstoxVersion")
             }
         }
@@ -185,9 +185,9 @@ kotlin {
                 dependsOn(commonTest)
 
                 implementation(kotlin("test-junit5"))
-                implementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+                implementation(libs.junit5.api)
 
-                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+                runtimeOnly(libs.junit5.engine)
                 runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
             }
         }
@@ -207,8 +207,8 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             progressiveMode = true
-            apiVersion="1.5"
-            languageVersion="1.5"
+            apiVersion="1.6"
+            languageVersion="1.6"
             optIn("kotlin.RequiresOptIn")
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
         }

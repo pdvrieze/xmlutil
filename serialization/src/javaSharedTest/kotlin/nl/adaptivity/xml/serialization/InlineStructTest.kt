@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.jvm.JvmInline
 
-class InlineStructTest: TestBase<InlineStructTest.InlineStructParent>(
+class InlineStructTest: PlatformTestBase<InlineStructTest.InlineStructParent>(
     InlineStructParent(InlineStruct(Address("10", "Downing Street", "London"))),
     InlineStructParent.serializer()
                                                                      ) {

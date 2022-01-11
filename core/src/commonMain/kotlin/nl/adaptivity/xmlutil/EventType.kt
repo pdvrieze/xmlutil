@@ -77,6 +77,8 @@ public enum class EventType {
     COMMENT {
         override val isIgnorable: Boolean get() = true
 
+        override val isTextElement: Boolean get() = true
+
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
             TextEvent(locationInfo, COMMENT, text)
         }

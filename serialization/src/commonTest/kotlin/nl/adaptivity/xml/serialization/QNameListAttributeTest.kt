@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 
-class QNameListAttributeTest : TestBase<QNameListAttributeTest.Container>(
+class QNameListAttributeTest : PlatformTestBase<QNameListAttributeTest.Container>(
     Container(
         "ABC Corp",
         listOf(

@@ -37,14 +37,6 @@ pluginManagement {
                     def ver = requested.version!=null ? requested.version : androidBuildToolsVersion
                     useModule("com.android.tools.build:gradle:${ver}");
                     break
-                case "org.jetbrains.kotlin.android":
-                case "org.jetbrains.kotlin.jvm":
-                case "kotlin-android-extensions" :
-                case "org.jetbrains.kotlin.multiplatform":
-                    def ver = requested.version!=null ? requested.version : kotlin_version
-                    useVersion(ver)
-                    break
-                case "org.jetbrains.dokka" :
                 case "org.jetbrains.dokka-android" :
                     def ver = requested.version!=null ? requested.version : dokkaVersion
                     useVersion(ver)
@@ -65,6 +57,8 @@ pluginManagement {
 plugins {
     id "com.gradle.enterprise" version "3.1.1"
 }
+
+enableFeaturePreview("VERSION_CATALOGS")
 
 rootProject.name = "xmlutil"
 

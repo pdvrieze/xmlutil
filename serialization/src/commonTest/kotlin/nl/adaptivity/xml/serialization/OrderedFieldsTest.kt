@@ -24,9 +24,8 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlAfter
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class OrderedFieldsTest : TestBase<OrderedFieldsTest.Employee>(
+class OrderedFieldsTest : PlatformTestBase<OrderedFieldsTest.Employee>(
     Employee("John", "Doe", "1980-02-29", "New York", 12345, "Principal Engineer", 666),
     Employee.serializer()
                                                               ) {

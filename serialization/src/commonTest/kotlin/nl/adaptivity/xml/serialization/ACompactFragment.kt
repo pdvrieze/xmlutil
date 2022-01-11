@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.serializer
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-class ACompactFragment : TestBase<CompactFragment>(
+class ACompactFragment : PlatformTestBase<CompactFragment>(
     CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>"),
     CompactFragment.serializer()
                                                   ) {

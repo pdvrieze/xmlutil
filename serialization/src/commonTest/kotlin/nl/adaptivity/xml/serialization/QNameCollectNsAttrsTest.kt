@@ -30,9 +30,8 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
 
-class QNameCollectNsAttrsTest : TestBase<QNameCollectNsAttrsTest.Container>(
+class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Container>(
     Container(Child1(Child2(QName("urn:foo", "bar", "baz")))),
     Container.serializer(),baseXmlFormat = XML { isCollectingNSAttributes = true }
                                                                            ) {

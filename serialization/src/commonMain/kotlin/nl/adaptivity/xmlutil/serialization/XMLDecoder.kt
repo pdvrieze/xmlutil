@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -248,7 +251,8 @@ internal open class XmlDecoderBase internal constructor(
                     when {
                         xmlDescriptor.outputKind == OutputKind.Attribute ->
                             AttributeListDecoder(xmlDescriptor, attrIndex)
-                        xmlDescriptor.isListEluded -> AnonymousListDecoder(xmlDescriptor, polyInfo, typeDiscriminatorName)
+                        xmlDescriptor.isListEluded ->
+                            AnonymousListDecoder(xmlDescriptor, polyInfo, typeDiscriminatorName)
                         else -> NamedListDecoder(xmlDescriptor, typeDiscriminatorName)
                     }
                 }
@@ -437,7 +441,7 @@ internal open class XmlDecoderBase internal constructor(
             if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
                 (xmlDescriptor.getValueChild() == index)
             ) {
-                input.require(EventType.START_ELEMENT, null)
+//                input.require(EventType.START_ELEMENT, null)
                 return input.siblingsToFragment().let {
                     input.pushBackCurrent() // Make the closing tag again be the next read.
                     @Suppress("UNCHECKED_CAST")
@@ -564,7 +568,13 @@ internal open class XmlDecoderBase internal constructor(
                 otherAttrIndex.takeIf { it >= 0 }?.let { return it }
             } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
-                    val valChildDesc = xmlDescriptor.getElementDescriptor(valueChildIdx)
+                    var valChildDesc: XmlDescriptor = xmlDescriptor.getElementDescriptor(valueChildIdx)
+                    while ((valChildDesc is XmlListDescriptor && valChildDesc.isListEluded) ||
+                        valChildDesc is XmlInlineDescriptor
+                    ) {
+                        valChildDesc = valChildDesc.getElementDescriptor(0)
+                    }
+
                     if (valChildDesc.serialDescriptor == CompactFragmentSerializer.descriptor) {
                         return valueChildIdx
                     }
@@ -713,7 +723,7 @@ internal open class XmlDecoderBase internal constructor(
                 val index = decodeElementIndex(descriptor)
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
-            if (typeDiscriminatorName== null) {
+            if (typeDiscriminatorName == null) {
                 input.require(EventType.END_ELEMENT, serialName)
             } else { // if there is a type discriminator we have an inherited name
                 input.require(EventType.END_ELEMENT, null)
@@ -830,8 +840,14 @@ internal open class XmlDecoderBase internal constructor(
     private inner class AnonymousListDecoder(
         xmlDescriptor: XmlListDescriptor,
         private val polyInfo: PolyInfo?,
-        typeDiscriminatorName: QName?
+        typeDiscriminatorName: QName?,
     ) : TagDecoder<XmlListDescriptor>(xmlDescriptor, typeDiscriminatorName) {
+
+        private val parentXmlDescriptor: XmlDescriptor get() = xmlDescriptor.tagParent.descriptor as XmlDescriptor
+        private val listChildIdx: Int = (0 until parentXmlDescriptor.elementsCount)
+            .firstOrNull {
+                parentXmlDescriptor.serialDescriptor.getElementAnnotations(it).firstOrNull<XmlValue>()?.value == true
+            } ?: -1
 
         private var finished: Boolean = false
 
@@ -856,7 +872,21 @@ internal open class XmlDecoderBase internal constructor(
             // Note that the child descriptor a list is always at index 0
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(0)
 
+            @Suppress("UNCHECKED_CAST") val overriddenDeserializer =
+                xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>? ?: deserializer
+
+            if (((overriddenDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
+                (parentXmlDescriptor.getValueChild() == listChildIdx)
+            ) {
+                return input.elementToFragment().let {
+                    @Suppress("UNCHECKED_CAST")
+                    (it as? CompactFragment ?: CompactFragment(it)) as T
+                }
+            }
+
             val decoder = SerialValueDecoder(childXmlDescriptor, polyInfo, Int.MIN_VALUE, typeDiscriminatorName)
+
+
             return deserializer.deserialize(decoder)
         }
 

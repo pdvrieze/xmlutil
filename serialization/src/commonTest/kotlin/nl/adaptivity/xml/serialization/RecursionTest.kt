@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
 /**
  * Class to test recursion issue #32
  */
-class RecursionTest : TestBase<RecursionTest.RecursiveContainer>(
+class RecursionTest : PlatformTestBase<RecursionTest.RecursiveContainer>(
     RecursiveContainer(
         listOf(
             RecursiveContainer(listOf(RecursiveContainer(), RecursiveContainer())),

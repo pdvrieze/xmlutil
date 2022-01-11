@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class CustomSerializedClass : TestBase<CustomSerializedClass.CustomContainer>(
+class CustomSerializedClass : PlatformTestBase<CustomSerializedClass.CustomContainer>(
     CustomContainer(Custom("foobar")),
     CustomContainer.serializer()
 ) {

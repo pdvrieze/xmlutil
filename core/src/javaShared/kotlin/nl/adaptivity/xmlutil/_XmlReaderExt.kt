@@ -31,11 +31,11 @@ import java.util.*
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-/**
+/*
  * Functions that work on both js/jvm but have different implementations
  */
 
-/*
+/**
  * Read the current element (and content) and all its siblings into a fragment.
  *
  * @param this The source stream.

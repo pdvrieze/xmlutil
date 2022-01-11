@@ -28,10 +28,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class ClassWithImplicitChildNamespace : TestBase<ClassWithImplicitChildNamespace.Namespaced>(
+class ClassWithImplicitChildNamespace : PlatformTestBase<ClassWithImplicitChildNamespace.Namespaced>(
     Namespaced("foo", "bar", "bla", "lalala", "tada"),
     Namespaced.serializer()
-                                                                                            ) {
+) {
     override val expectedXML: String =
         ExpectedSerialization.classWithImplicitChildNamespaceXml
     val invalidXml =
@@ -62,6 +62,6 @@ class ClassWithImplicitChildNamespace : TestBase<ClassWithImplicitChildNamespace
         @XmlSerialName("Elem5", "urn:foobar", "")
         @XmlElement(false)
         val elem5: String
-                         )
+    )
 
 }

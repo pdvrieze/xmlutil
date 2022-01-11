@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import kotlin.test.Test
 
-class OtherAttributeContainer : XmlTestBase<MixedAttributeContainer>(
+class OtherAttributeContainer : PlatformXmlTestBase<MixedAttributeContainer>(
     MixedAttributeContainer(
         "value1",
         mapOf(

@@ -397,17 +397,11 @@ public open class DefaultXmlSerializationPolicy
                     serialKind == PolymorphicKind.OPEN ||
                     typeNameInfo.serialName == "kotlin.Unit" || // Unit needs a special case
                     parentSerialKind is PolymorphicKind // child of explict polymorphic uses predefined names
-            -> serialUseNameToQName(
-                useName,
-                parentNamespace
-            )
+            -> serialUseNameToQName(useName, parentNamespace)
 
             typeNameInfo.annotatedName != null -> typeNameInfo.annotatedName
 
-            else -> serialTypeNameToQName(
-                typeNameInfo,
-                parentNamespace
-            )
+            else -> serialTypeNameToQName(typeNameInfo, parentNamespace)
         }
     }
 
@@ -466,7 +460,7 @@ public open class DefaultXmlSerializationPolicy
 
         fun String.toChildIndex(): Int {
             return nameToIdx[this]
-                ?: throw XmlSerialException("Could not find the attribute with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
+                ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
         val orderConstraints = HashSet<XmlOrderConstraint>()

@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class InvertedPropertyOrder : TestBase<InvertedPropertyOrder.Inverted>(
+class InvertedPropertyOrder : PlatformTestBase<InvertedPropertyOrder.Inverted>(
     Inverted("value2", 7),
     Inverted.serializer()
                                                                       ) {

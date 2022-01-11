@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class QNameContentContainerTest : TestBase<QNameContentContainerTest.Container>(
+class QNameContentContainerTest : PlatformTestBase<QNameContentContainerTest.Container>(
     Container(
         "ABC Corp",
         QName("urn:foo", "bar", "baz"),

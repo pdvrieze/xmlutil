@@ -35,7 +35,7 @@ actual fun assertXmlEquals(expected: String, actual: String) {
         val actualDom = DOMParser().parseFromString(actual, "text/xml")
 
         try {
-            assertXmlEquals(expectedDom, actualDom)
+            assertXmlEqualsImpl(expectedDom, actualDom)
         } catch (e: AssertionError) {
             try {
                 assertEquals(expected, actual)
@@ -47,12 +47,12 @@ actual fun assertXmlEquals(expected: String, actual: String) {
     }
 }
 
-fun assertXmlEquals(expected: Node, actual: Node): Unit = when {
+private fun assertXmlEqualsImpl(expected: Node, actual: Node): Unit = when {
     expected.nodeType != actual.nodeType
          -> throw AssertionError("Node types for $expected and $actual are not the same")
     expected.nodeType == Node.DOCUMENT_NODE
-         -> assertXmlEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
-    expected.isElement -> assertElementEquals(expected as Element, actual as Element)
+         -> assertXmlEqualsImpl((expected as Document).documentElement!!, (actual as Document).documentElement!!)
+    expected.isElement -> assertElementEqualsImpl(expected as Element, actual as Element)
     expected.isText -> assertEquals(expected.textContent, actual.textContent)
 
 //    !expected.isEqualNode(actual)
@@ -60,7 +60,7 @@ fun assertXmlEquals(expected: Node, actual: Node): Unit = when {
     else -> println("Asserting equality for node ${expected} of type ${expected.nodeType}")
 }
 
-fun assertElementEquals(expected: Element, actual: Element) {
+private fun assertElementEqualsImpl(expected: Element, actual: Element) {
     val expectedAttrsSorted = expected.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
     val actualAttrsSorted = actual.attributes.iterator().asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
 
@@ -80,6 +80,6 @@ fun assertElementEquals(expected: Element, actual: Element) {
     assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
     for ((idx, expectedChild) in expectedChildren.withIndex()) {
         val actualChild = actualChildren[idx]
-        assertXmlEquals(expectedChild, actualChild)
+        assertXmlEqualsImpl(expectedChild, actualChild)
     }
 }

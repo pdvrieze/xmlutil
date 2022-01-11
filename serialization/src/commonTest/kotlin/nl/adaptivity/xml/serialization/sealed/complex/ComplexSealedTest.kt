@@ -25,11 +25,11 @@ package nl.adaptivity.xml.serialization.sealed.complex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.EmptySerializersModule
-import nl.adaptivity.xml.serialization.TestBase
+import nl.adaptivity.xml.serialization.PlatformTestBase
 import nl.adaptivity.xmlutil.serialization.XML
 
 @OptIn(ExperimentalSerializationApi::class)
-class ComplexSealedTest : TestBase<ComplexSealedTest.ComplexSealedHolder>(
+class ComplexSealedTest : PlatformTestBase<ComplexSealedTest.ComplexSealedHolder>(
     ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
     ComplexSealedHolder.serializer(),
     EmptySerializersModule,

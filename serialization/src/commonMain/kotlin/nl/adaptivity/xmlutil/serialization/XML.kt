@@ -24,7 +24,6 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -231,6 +230,8 @@ public class XML constructor(
                     // TODO support non-utf8 encoding
                     target.startDocument(config.xmlVersion.versionString, encoding = "UTF-8")
                 }
+                XmlDeclMode.None,
+                XmlDeclMode.Auto -> {} // no implementation needed
             }
         }
 
@@ -1007,7 +1008,18 @@ public class XML constructor(
          * @return The [QName] to use. This may have a different prefix if the prefix for the parameter would be
          *         conflicting.
          */
-        public fun ensureNamespace(qName: QName): QName
+        public fun ensureNamespace(qName: QName): QName = ensureNamespace(qName, false)
+
+        /**
+         * Ensure that the prefix of the [qName] is recorded (and the prefix added). This will not
+         * add the actual name anywhere, just ensures the namespace attribute if needed
+         *
+         * @param qName The name to try to ensure is valid
+         * @param isAttr Ensure handling attribute default namespaces correctly
+         * @return The [QName] to use. This may have a different prefix if the prefix for the parameter would be
+         *         conflicting.
+         */
+        public fun ensureNamespace(qName: QName, isAttr: Boolean): QName
 
         /**
          * The XmlWriter used. Can be used directly by serializers

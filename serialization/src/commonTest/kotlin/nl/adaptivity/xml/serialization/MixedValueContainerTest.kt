@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 
-class MixedValueContainerTest : TestPolymorphicBase<MixedValueContainerTest.MixedValueContainer>(
+class MixedValueContainerTest : PlatformTestPolymorphicBase<MixedValueContainerTest.MixedValueContainer>(
     MixedValueContainer(listOf("foo", Address("10", "Downing Street", "London"), "bar")),
     MixedValueContainer.serializer(),
     MixedValueContainer.module(),

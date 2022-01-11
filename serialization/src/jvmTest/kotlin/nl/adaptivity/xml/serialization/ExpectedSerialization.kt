@@ -31,5 +31,5 @@ actual object ExpectedSerialization : DefaultExpectedSerialization() {
         get() = ValueContainerTestWithSpaces.ValueContainer("    \nfoobar")
 
     override val classWithImplicitChildNamespaceXml: String
-        get() = "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" xmlns=\"urn:foobar\" p3:Elem3=\"bla\" elem4=\"lalala\" Elem5=\"tada\"><xo:elem1>foo</xo:elem1><p2:Elem2 xmlns:p2=\"urn:myurn\">bar</p2:Elem2></xo:namespaced>"
+        get() = "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" xmlns:n1=\"urn:foobar\" p3:Elem3=\"bla\" elem4=\"lalala\" n1:Elem5=\"tada\"><xo:elem1>foo</xo:elem1><p2:Elem2 xmlns:p2=\"urn:myurn\">bar</p2:Elem2></xo:namespaced>"
 }

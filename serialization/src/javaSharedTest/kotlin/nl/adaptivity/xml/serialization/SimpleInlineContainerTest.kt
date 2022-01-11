@@ -27,7 +27,7 @@ import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SimpleInlineContainerTest : TestBase<SimpleInlineContainerTest.SimpleInlineContainer>(
+class SimpleInlineContainerTest : PlatformTestBase<SimpleInlineContainerTest.SimpleInlineContainer>(
     SimpleInlineContainer(InlineString("<foo&bar>")),
     SimpleInlineContainer.serializer()
                                                                                            ) {

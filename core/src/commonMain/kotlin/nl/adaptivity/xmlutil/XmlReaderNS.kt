@@ -24,6 +24,8 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
 import kotlin.jvm.JvmMultifileClass
@@ -51,3 +53,49 @@ public expect fun XmlReader.siblingsToFragment(): CompactFragment
 @Deprecated("This is inefficient in Javascript")
 public fun XmlReader.siblingsToCharArray(): CharArray = siblingsToFragment().content
 
+/**
+ * Read the current element (and content) *only* into a fragment.
+ *
+ * @receiver The source stream.
+ *
+ * @return the fragment
+ *
+ * @throws XmlException parsing failed
+ */
+public fun XmlReader.elementToFragment(): CompactFragment {
+    val output = StringBuilder()
+    if (!isStarted) {
+        if (hasNext()) {
+            next()
+        } else {
+            return CompactFragment("")
+        }
+    }
+
+    val startLocation = locationInfo
+    try {
+
+        val missingNamespaces = mutableMapOf<String, String>()
+        // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
+
+        require(EventType.START_ELEMENT, null, null)
+        KtXmlWriter(output, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
+            out.indentString = "" // disable indents
+            val namespaceForPrefix = out.getNamespaceUri(prefix)
+            writeCurrent(out) // writes the start tag
+            if (namespaceForPrefix != namespaceURI) {
+                out.addUndeclaredNamespaces(this, missingNamespaces)
+            }
+            out.writeElementContent(missingNamespaces, this) // writes the children and end tag
+        }
+
+        if (missingNamespaces[""] == "") missingNamespaces.remove("")
+
+        return CompactFragment(SimpleNamespaceContext(missingNamespaces), output.toString())
+    } catch (e: XmlException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    } catch (e: RuntimeException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    }
+
+}

@@ -23,7 +23,7 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class InlineCounterTest: TestBase<InlineCounterTest.Counter>(
+class InlineCounterTest: PlatformTestBase<InlineCounterTest.Counter>(
     Counter(239.toUByte(), "tries"),
     Counter.serializer()
                                                             ) {

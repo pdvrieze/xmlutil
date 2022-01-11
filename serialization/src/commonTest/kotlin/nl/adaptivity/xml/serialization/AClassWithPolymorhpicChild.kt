@@ -26,11 +26,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import nl.adaptivity.xmlutil.serialization.XmlPolyChildren
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import kotlin.test.Test
 
-class AClassWithPolymorhpicChild : TestPolymorphicBase<AClassWithPolymorhpicChild.Container>(
+class AClassWithPolymorhpicChild : PlatformTestPolymorphicBase<AClassWithPolymorhpicChild.Container>(
     Container("lbl", ChildA("data")),
     Container.serializer(),
     baseModule

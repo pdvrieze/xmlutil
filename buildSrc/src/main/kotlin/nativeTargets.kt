@@ -63,19 +63,18 @@ fun Project.addNativeTargets() {
 
     val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>> = kotlin.presets
 
-    val macosEnabled = manager.isEnabled(presets.nativePreset("macosX64").konanTarget)
-    val winEnabled = manager.isEnabled(presets.nativePreset("mingwX64").konanTarget)
+    val hostTarget = manager.targetByName("host")
 
     val host = when {
-        macosEnabled -> Host.Macos
-        winEnabled -> Host.Windows
+        hostTarget.name.startsWith("mingw") -> Host.Windows
+        hostTarget.name.startsWith("macos") -> Host.Macos
         else -> Host.Linux
     }
 
-    ext["ideaPreset"] = when {
-        winEnabled -> presets.nativePreset("mingwX64")
-        macosEnabled -> presets.nativePreset("macosX64")
-        else -> presets.nativePreset("linuxX64")
+    ext["ideaPreset"] = when (host) {
+        Host.Windows -> presets.nativePreset("mingwX64")
+        Host.Macos -> presets.nativePreset("macosX64")
+        Host.Linux -> presets.nativePreset("linuxX64")
     }
 
     val nativeMainSets = mutableListOf<KotlinSourceSet>()

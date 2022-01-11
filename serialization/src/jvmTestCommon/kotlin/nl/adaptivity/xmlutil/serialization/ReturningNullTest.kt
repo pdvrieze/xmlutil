@@ -9,9 +9,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.nullable
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xml.serialization.TestBase
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xml.serialization.PlatformTestBase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -21,7 +19,7 @@ import java.time.format.DateTimeFormatter
  * @see https://github.com/pdvrieze/xmlutil/issues/53
  * @see https://gist.github.com/conorfarrell-coats/f6a6970dd74196b3ab47a289a2dc99c9
  */
-class ReturningNullTest : TestBase<TestDto>(
+class ReturningNullTest : PlatformTestBase<TestDto>(
     TestDto(null, 25),
     TestDto.serializer()
                                            ) {

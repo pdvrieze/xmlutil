@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.XMLConstants
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.ContainerOfUserNullable>(
+class ClassWithNullableUDValueNULL : PlatformTestBase<ClassWithNullableUDValueNULL.ContainerOfUserNullable>(
     ContainerOfUserNullable(null),
     ContainerOfUserNullable.serializer()
 ) {
@@ -57,7 +57,7 @@ class ClassWithNullableUDValueNULL : TestBase<ClassWithNullableUDValueNULL.Conta
             .replace("true", "yes")
         val xml = baseXmlFormat.copy { nilAttribute = QName("urn:foo", "isNull", "ns5") to "yes"}
         val serialized = xml.encodeToString(serializer, value).replace(" />", "/>")
-        assertEquals(expected, serialized)
+        assertXmlEquals(expected, serialized)
     }
 
     @Test

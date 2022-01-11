@@ -98,6 +98,81 @@ public final class nl/adaptivity/xmlutil/AndroidXmlWriter : nl/adaptivity/xmluti
 	public fun text (Ljava/lang/String;)V
 }
 
+public final class nl/adaptivity/xmlutil/DomReader : nl/adaptivity/xmlutil/XmlReader {
+	public fun <init> (Lorg/w3c/dom/Node;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeName (I)Ljavax/xml/namespace/QName;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getAttributeValue (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public final fun getDelegate ()Lorg/w3c/dom/Node;
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun getLocalName ()Ljava/lang/String;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getName ()Ljavax/xml/namespace/QName;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public fun isCharacters ()Z
+	public fun isEndElement ()Z
+	public fun isStartElement ()Z
+	public fun isStarted ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+}
+
+public final class nl/adaptivity/xmlutil/DomWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/w3c/dom/Node;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Lorg/w3c/dom/Node;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	public final fun getCurrentNode ()Lorg/w3c/dom/Node;
+	public fun getDepth ()I
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getRequestedEncoding ()Ljava/lang/String;
+	public final fun getRequestedStandalone ()Ljava/lang/Boolean;
+	public final fun getRequestedVersion ()Ljava/lang/String;
+	public final fun getTarget ()Lorg/w3c/dom/Document;
+	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public final fun isAppend ()Z
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
+}
+
 public abstract class nl/adaptivity/xmlutil/EventType : java/lang/Enum {
 	public static final field ATTRIBUTE Lnl/adaptivity/xmlutil/EventType;
 	public static final field CDSECT Lnl/adaptivity/xmlutil/EventType;
@@ -531,6 +606,7 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun asSubstream (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static final fun consecutiveTextContent (Lnl/adaptivity/xmlutil/XmlBufferedReader;)Ljava/lang/String;
 	public static final fun elementContentToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public static final fun elementToFragment (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
 	public static final fun getAttributeIndices (Lnl/adaptivity/xmlutil/XmlReader;)Lkotlin/ranges/IntRange;
 	public static final fun getAttributes (Lnl/adaptivity/xmlutil/XmlReader;)[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
 	public static final fun getQname (Lnl/adaptivity/xmlutil/XmlReader;)Ljavax/xml/namespace/QName;
@@ -815,6 +891,116 @@ public final class nl/adaptivity/xmlutil/core/XmlVersion : java/lang/Enum {
 	public static fun values ()[Lnl/adaptivity/xmlutil/core/XmlVersion;
 }
 
+public final class nl/adaptivity/xmlutil/dom/AttrKt {
+	public static final fun getLocalName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getOwnerElement (Lorg/w3c/dom/Attr;)Lorg/w3c/dom/Element;
+	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getValue (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun setValue (Lorg/w3c/dom/Attr;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/CharacterDataKt {
+	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
+	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/DocumentKt {
+	public static final fun getCharacterSet (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
+	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
+	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
+	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun importNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+}
+
+public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
+	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
+	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
+	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
+	public static final fun getData (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
+	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
+	public static final fun getFirstChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
+	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun getLastChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getLength (Lorg/w3c/dom/NamedNodeMap;)I
+	public static final fun getLength (Lorg/w3c/dom/NodeList;)I
+	public static final fun getLocalName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getLocalName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getNextSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNodeName (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getNodeType (Lorg/w3c/dom/Node;)S
+	public static final fun getOwnerDocument (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Document;
+	public static final fun getOwnerElement (Lorg/w3c/dom/Attr;)Lorg/w3c/dom/Element;
+	public static final fun getParentNode (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getTarget (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getValue (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
+	public static final fun setData (Lorg/w3c/dom/ProcessingInstruction;Ljava/lang/String;)V
+	public static final fun setValue (Lorg/w3c/dom/Attr;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/ElementKt {
+	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
+	public static final fun getLocalName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NamedNodeMapKt {
+	public static final fun get (Lorg/w3c/dom/NamedNodeMap;I)Lorg/w3c/dom/Attr;
+	public static final fun getLength (Lorg/w3c/dom/NamedNodeMap;)I
+	public static final fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeConsts {
+	public static final field ATTRIBUTE_NODE S
+	public static final field CDATA_SECTION_NODE S
+	public static final field COMMENT_NODE S
+	public static final field DOCUMENT_FRAGMENT_NODE S
+	public static final field DOCUMENT_NODE S
+	public static final field DOCUMENT_TYPE_NODE S
+	public static final field ELEMENT_NODE S
+	public static final field ENTITY_NODE S
+	public static final field ENTITY_REFERENCE_NODE S
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/dom/NodeConsts;
+	public static final field NOTATION_NODE S
+	public static final field PROCESSING_INSTRUCTION_NODE S
+	public static final field TEXT_NODE S
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeKt {
+	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
+	public static final fun getFirstChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getLastChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNextSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNodeName (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getNodeType (Lorg/w3c/dom/Node;)S
+	public static final fun getOwnerDocument (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Document;
+	public static final fun getParentElement (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Element;
+	public static final fun getParentNode (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeListKt {
+	public static final fun get (Lorg/w3c/dom/NodeList;I)Lorg/w3c/dom/Attr;
+	public static final fun getLength (Lorg/w3c/dom/NodeList;)I
+	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
+}
+
 public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {
 	public fun <init> ([Ljava/io/Reader;)V
 	public fun close ()V
@@ -858,6 +1044,11 @@ public final class nl/adaptivity/xmlutil/util/DefaultSerializationProvider : nl/
 	public fun <init> ()V
 	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public final class nl/adaptivity/xmlutil/util/DomutilKt {
+	public static final synthetic fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
+	public static final synthetic fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
 public final class nl/adaptivity/xmlutil/util/GatheringNamespaceContext : nl/adaptivity/xmlutil/NamespaceContextImpl {

@@ -359,7 +359,7 @@ private constructor(
         @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         public val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
-                throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)
+                throw UnknownXmlFieldException(input.locationInfo, "${descriptor.tagName}/${name ?: "<CDATA>"}", candidates)
             }
 
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
