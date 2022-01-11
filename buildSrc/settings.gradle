@@ -28,40 +28,14 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
+}
 
+enableFeaturePreview("VERSION_CATALOGS")
 
-    Properties properties = new Properties()
-    FileInputStream input = new FileInputStream(file('../gradle.properties'))
-    properties.load(input)
-    input.close()
-
-    for (String key : properties.stringPropertyNames()) {
-        ext.set(key, properties.getProperty(key))
-    }
-
-    resolutionStrategy {
-
-        eachPlugin {
-
-            switch (requested.id.id) {
-                case "com.android.library":
-                case "com.android.application" :
-                    def ver = requested.version!=null ? requested.version : androidBuildToolsVersion
-                    useModule("com.android.tools.build:gradle:${ver}");
-                    break
-                case "org.jetbrains.kotlin.android":
-                case "kotlin-android-extensions" :
-                    def ver = requested.version!=null ? requested.version : embeddedKotlinVersion
-                    useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${ver}");
-                    break
-                case "org.jetbrains.dokka-android" :
-                    def ver = requested.version!=null ? requested.version : dokkaVersion
-                    useModule("org.jetbrains.dokka:dokka-android-gradle-plugin:${ver}")
-                    break
-                case "kotlinx-serialization":
-                    def version = (requested.version == null || requested.version.length() == 0) ? embeddedKotlinVersion : requested.version
-                    useModule("org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$version")
-            }
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
         }
     }
 }

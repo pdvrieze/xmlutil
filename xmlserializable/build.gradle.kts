@@ -41,7 +41,7 @@ val xmlutil_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "xmlserializable"
+    archivesName.set("xmlserializable")
     version = xmlutil_version
 }
 

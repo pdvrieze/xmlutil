@@ -20,38 +20,15 @@
 
 @file:Suppress("PropertyName")
 
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     `kotlin-dsl`
 }
 
-run {
-    val properties = Properties()
-    FileInputStream(file("../gradle.properties")).use { input ->
-        properties.load(input)
-    }
-    for(key in properties.stringPropertyNames()) {
-        ext[key]=properties[key]
-    }
-}
-
-val kotlin_version:String by project
-val dokkaVersion: String by project
-
 dependencies {
 //    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-native-utils:$kotlin_version")
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion")
-}
-
-configurations.all {
-    resolutionStrategy {
-        force("org.apache.httpcomponents:httpclient:4.5.9")
-        force("org.apache.httpcomponents:httpcore:4.4.11")
-    }
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
+    implementation("org.jetbrains.kotlin:kotlin-native-utils:${libs.versions.kotlin.get()}")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
 }
 
 repositories {

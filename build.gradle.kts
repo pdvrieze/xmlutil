@@ -28,7 +28,7 @@ plugins {
     kotlin("multiplatform") apply false
     id("maven-publish")
     id("signing")
-    id("org.jetbrains.dokka")
+    id(libs.plugins.dokka.get().pluginId)
 }
 
 description = "The overall project for cross-platform xml access"

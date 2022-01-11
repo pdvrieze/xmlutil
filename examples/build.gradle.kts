@@ -30,7 +30,7 @@ plugins {
 }
 
 base {
-    archivesBaseName = "examples"
+    archivesName.set("examples")
 }
 
 val serializationVersion: String by project

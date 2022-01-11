@@ -37,14 +37,6 @@ pluginManagement {
                     def ver = requested.version!=null ? requested.version : androidBuildToolsVersion
                     useModule("com.android.tools.build:gradle:${ver}");
                     break
-                case "org.jetbrains.kotlin.android":
-                case "org.jetbrains.kotlin.jvm":
-                case "kotlin-android-extensions" :
-                case "org.jetbrains.kotlin.multiplatform":
-                    def ver = requested.version!=null ? requested.version : kotlin_version
-                    useVersion(ver)
-                    break
-                case "org.jetbrains.dokka" :
                 case "org.jetbrains.dokka-android" :
                     def ver = requested.version!=null ? requested.version : dokkaVersion
                     useVersion(ver)
@@ -67,32 +59,6 @@ plugins {
 }
 
 enableFeaturePreview("VERSION_CATALOGS")
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        libs {
-            version("ktor", "1.6.7")
-            version("junit5-jupiter", "5.2.0")
-            version("kotlinx-serialization", "1.3.1")
-            version("kotlin", "1.6.10")
-
-            alias('logback-classic').to('ch.qos.logback:logback-classic:1.2.10')
-            alias('woodstox').to("com.fasterxml.woodstox:woodstox-core:6.2.6")
-            alias("kxml2").to("net.sf.kxml:kxml2:2.3.0")
-
-            alias('ktor-server-core').to("io.ktor","ktor-serialization").versionRef("ktor")
-            alias('ktor-server-netty').to("io.ktor","ktor-server-netty").versionRef("ktor")
-            alias('ktor-server-test-host').to("io.ktor", "ktor-server-test-host").versionRef("ktor")
-            alias('ktor-serialization').to("io.ktor", "ktor-server-core").versionRef("ktor")
-
-            alias('junit5-api').to("org.junit.jupiter", "junit-jupiter-api").versionRef("junit5-jupiter")
-            alias('junit5-engine').to("org.junit.jupiter", "junit-jupiter-engine").versionRef("junit5-jupiter")
-
-            alias("serialization-core").to("org.jetbrains.kotlinx", "kotlinx-serialization-core").versionRef("kotlinx-serialization")
-            alias("serialization-json").to("org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("kotlinx-serialization")
-        }
-    }
-}
 
 rootProject.name = "xmlutil"
 
