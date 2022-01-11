@@ -39,7 +39,7 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     baseXmlFormat.encodeToWriter(writer, serializer, value)
     writer.target
     val expectedDom: Document = DocumentBuilderFactory
-        .newDefaultInstance()
+        .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
@@ -48,7 +48,7 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
 
 private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
     val expectedDom: Document = DocumentBuilderFactory
-        .newDefaultInstance()
+        .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
