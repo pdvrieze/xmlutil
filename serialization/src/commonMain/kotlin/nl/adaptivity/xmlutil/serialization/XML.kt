@@ -230,6 +230,8 @@ public class XML constructor(
                     // TODO support non-utf8 encoding
                     target.startDocument(config.xmlVersion.versionString, encoding = "UTF-8")
                 }
+                XmlDeclMode.None,
+                XmlDeclMode.Auto -> {} // no implementation needed
             }
         }
 

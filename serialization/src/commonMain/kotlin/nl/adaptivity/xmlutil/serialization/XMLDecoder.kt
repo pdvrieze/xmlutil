@@ -872,7 +872,7 @@ internal open class XmlDecoderBase internal constructor(
             // Note that the child descriptor a list is always at index 0
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            val overriddenDeserializer =
+            @Suppress("UNCHECKED_CAST") val overriddenDeserializer =
                 xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>? ?: deserializer
 
             if (((overriddenDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&

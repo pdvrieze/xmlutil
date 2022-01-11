@@ -182,8 +182,8 @@ public sealed class XmlDescriptor(
                 StructureKind.LIST ->
                     return XmlListDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
 
-                StructureKind.MAP -> @Suppress("NON_EXHAUSTIVE_WHEN") when (serializerParent.elementUseOutputKind) {
-                    OutputKind.Attribute -> return XmlAttributeMapDescriptor(
+                StructureKind.MAP -> {
+                    if (serializerParent.elementUseOutputKind == OutputKind.Attribute) return XmlAttributeMapDescriptor(
                         xmlCodecBase,
                         effectiveSerializerParent,
                         effectiveTagParent
@@ -192,6 +192,7 @@ public sealed class XmlDescriptor(
                 is PolymorphicKind ->
                     return XmlPolymorphicDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
 
+                else -> {} // fall through to other handler.
             }
 
             return when {
@@ -448,7 +449,6 @@ public class XmlCompositeDescriptor internal constructor(
     }
 
     private fun getElementDescriptors(initialChildReorderInfo: Collection<XmlOrderConstraint>): List<XmlDescriptor> {
-        val valueChildIndex = getValueChild()
         val descriptors = arrayOfNulls<XmlDescriptor>(elementsCount)
 
         fun XmlOrderNode.ensureDescriptor(): XmlDescriptor {
