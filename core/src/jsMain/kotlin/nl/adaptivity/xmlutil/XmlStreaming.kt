@@ -42,12 +42,12 @@ public actual object XmlStreaming {
     }
 
     public fun newWriter(dest: ParentNode): DomWriter {
-        return DomWriter(dest as Node)
+        return DomWriter(dest as nl.adaptivity.xmlutil.dom.Node)
     }
 
 
     public fun newReader(delegate: Node): DomReader {
-        return DomReader(delegate)
+        return DomReader(delegate as nl.adaptivity.xmlutil.dom.Node)
     }
 
     public actual fun setFactory(factory: XmlStreamingFactory?) {
@@ -67,7 +67,7 @@ public actual object XmlStreaming {
     }*/
 
     public actual fun newReader(input: CharSequence): XmlReader {
-        return DomReader(DOMParser().parseFromString(input.toString(), "text/xml"))
+        return DomReader(DOMParser().parseFromString(input.toString(), "text/xml") as nl.adaptivity.xmlutil.dom.Node)
     }
 
     public actual fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
@@ -125,7 +125,7 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     override fun close() {
         try {
             val xmls = XMLSerializer()
-            val domText = xmls.serializeToString(delegate.target)
+            val domText = xmls.serializeToString(delegate.target as Node)
             target.append(domText)
         } finally {
             delegate.close()
@@ -141,7 +141,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
     override fun close() {
         try {
             val xmls = XMLSerializer()
-            val domText = xmls.serializeToString(delegate.target)
+            val domText = xmls.serializeToString(delegate.target as Node)
 
             val xmlDeclMode = delegate.xmlDeclMode
             if (xmlDeclMode != XmlDeclMode.None) {

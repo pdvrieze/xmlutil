@@ -20,11 +20,13 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.dom.ProcessingInstruction
 
 internal class ProcessingInstructionImpl(
     ownerDocument: Document,
-    val target: String,
+    override val target: String,
     data: String
 ) : CharacterDataImpl(ownerDocument, data), ProcessingInstruction {
     constructor(ownerDocument: DocumentImpl, original: ProcessingInstruction) : this(

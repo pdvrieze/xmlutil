@@ -21,8 +21,10 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.util.CompactFragment
-import org.w3c.dom.Document
-import org.w3c.dom.Node
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.Element
+import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.dom.NodeConsts
 import org.w3c.dom.parsing.XMLSerializer
 
 /**
@@ -34,14 +36,15 @@ import org.w3c.dom.parsing.XMLSerializer
  * @throws XmlException parsing failed
  */
 public actual fun XmlReader.siblingsToFragment(): CompactFragment {
-    val doc = when (val d = (this as? DomReader)?.delegate) {
-        is Document -> d
-        is Node     -> d.ownerDocument ?: Document()
-        else        -> Document()
+    val d = (this as? DomReader)?.delegate
+    val doc: Document = when (d?.nodeType) {
+        NodeConsts.DOCUMENT_NODE -> d as Document
+        null -> org.w3c.dom.Document() as Document
+        else -> d.ownerDocument ?: org.w3c.dom.Document() as Document
     }
     val frag = doc.createDocumentFragment()
-    val wrapperElement = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)
-    frag.append(wrapperElement)
+    val wrapperElement: Element = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)
+    frag.appendChild(wrapperElement)
     if (!isStarted) {
         if (hasNext()) {
             next()
@@ -78,17 +81,17 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 }
 
                 EventType.IGNORABLE_WHITESPACE,
-                EventType.TEXT          -> wrapperElement.append(wrapperElement.ownerDocument!!.createTextNode(text))
+                EventType.TEXT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createTextNode(text))
 
-                EventType.CDSECT        -> wrapperElement.append(wrapperElement.ownerDocument!!.createCDATASection(text))
+                EventType.CDSECT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createCDATASection(text))
 
-                EventType.COMMENT       -> wrapperElement.append(wrapperElement.ownerDocument!!.createComment(text))
+                EventType.COMMENT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createComment(text))
 
-                EventType.ENTITY_REF    -> throw XmlException("Entity references are not expected here")
+                EventType.ENTITY_REF -> throw XmlException("Entity references are not expected here")
 
-                EventType.ATTRIBUTE     -> throw AssertionError("Attributes are not expected in the event stream")
+                EventType.ATTRIBUTE -> throw AssertionError("Attributes are not expected in the event stream")
 
-                else                    -> Unit // These elements are ignored/not part of a fragment
+                else -> Unit // These elements are ignored/not part of a fragment
             }
             type = if (hasNext()) next() else null
         }
@@ -106,9 +109,9 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 XmlEvent.NamespaceImpl(prefix, uri)
             }.toList()
 
-        val wrappedString = XMLSerializer().serializeToString(wrapperElement)
+        val wrappedString = XMLSerializer().serializeToString(wrapperElement as org.w3c.dom.Node)
         val unwrappedString = wrappedString.substring(
-            wrappedString.indexOf('>', WRAPPERQNAME.length)+1,
+            wrappedString.indexOf('>', WRAPPERQNAME.length) + 1,
             wrappedString.length - WRAPPERQNAME.length - 3
         )
         return CompactFragment(ns, unwrappedString)

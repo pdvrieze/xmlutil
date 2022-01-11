@@ -20,8 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
+import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.dom.NodeList
 
 internal class NodeListImpl(
     internal val elements: MutableList<NodeImpl> = mutableListOf()

@@ -1,5 +1,5 @@
-# 0.85.0-SNAPSHOT
-*(??, 202?)<br />*
+# 0.84.0
+*(Jan 11, 2022)<br />*
 Features:
 - Support (de)serializing anyElement content into a list of CompactFragments if
   annotated with `@XmlValue`. Each element will be deserialized individually,
@@ -7,11 +7,14 @@ Features:
   out of order.
 - Support DOM on all platforms. This includes a minimal implementation for native
   but delegating to the jvm/js implementations on those platforms (to allow
-  consistency) 
+  consistency). Note that this doesn't independently support DOM on nodejs
 
 Fixes:
 - Fix native parser for depth>=4
 - Improve handling of attribute prefixes and namepaces to be standard compliant
+- Fix execution of native tests (not user visible)
+- Fix module names (due to variable name clash in build script). Thanks to
+  @rsinukov in pull request #79 
 
 # 0.84.0-RC1
 *(Nov 3, 2021)<br />*

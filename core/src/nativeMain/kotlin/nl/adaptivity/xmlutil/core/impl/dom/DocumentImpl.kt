@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 
 internal class DocumentImpl(override val docType: DocumentType?) : Document {
     override val implementation: DOMImplementation get() = SimpleDOMImplementation

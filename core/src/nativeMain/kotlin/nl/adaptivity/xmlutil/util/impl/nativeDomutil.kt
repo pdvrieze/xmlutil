@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.toCName
-import org.w3c.dom.Document
+import nl.adaptivity.xmlutil.dom.Document
 
 @XmlUtilInternal
 public actual fun createDocument(rootElementName: QName): Document {

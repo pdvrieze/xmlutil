@@ -23,14 +23,14 @@ package nl.adaptivity.xmlutil.util.impl
 import kotlinx.browser.document
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.dom.Document
 import nl.adaptivity.xmlutil.toCName
-import org.w3c.dom.Document
-import org.w3c.dom.NamedNodeMap
 
 @XmlUtilInternal
 public actual fun createDocument(rootElementName: QName): Document {
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     return document.implementation.createDocument(
         rootElementName.getNamespaceURI() ?: "",
         rootElementName.toCName()
-    )
+    ) as Document
 }

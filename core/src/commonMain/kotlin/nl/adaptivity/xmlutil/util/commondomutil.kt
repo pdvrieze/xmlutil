@@ -21,25 +21,20 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.toCName
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import org.w3c.dom.Document
-import org.w3c.dom.NamedNodeMap
-import org.w3c.dom.Attr
-import org.w3c.dom.Element
-import org.w3c.dom.Node
+import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.toCName
 
 
 internal fun Document.createElement(name: QName): Element {
     return createElementNS(name.getNamespaceURI(), name.toCName())
 }
 
-internal val Node.isElement: Boolean get() = nodeType == Node.ELEMENT_NODE
+internal val Node.isElement: Boolean get() = nodeType == NodeConsts.ELEMENT_NODE
 
 internal val Node.isText: Boolean
     get() = when (nodeType) {
-        Node.ELEMENT_NODE, Node.CDATA_SECTION_NODE -> true
+        NodeConsts.ELEMENT_NODE, NodeConsts.CDATA_SECTION_NODE -> true
         else -> false
     }
 
@@ -67,17 +62,17 @@ internal fun Node.removeElementChildren() {
 /** A filter function on a [NamedNodeMap] that returns a list of all
  * (attributes)[Attr] that meet the [predicate].
  */
-internal inline fun <reified T : Node> NamedNodeMap.filterTyped(predicate: (T) -> Boolean): List<T> {
-    val result = mutableListOf<T>()
+internal inline fun NamedNodeMap.filterTyped(predicate: (Attr) -> Boolean): List<Attr> {
+    val result = mutableListOf<Attr>()
     forEachAttr { attr ->
-        if (attr is T && predicate(attr)) result.add(attr)
+        if (predicate(attr)) result.add(attr)
     }
     return result
 }
 
 internal fun Node.myLookupPrefix(namespaceUri: String): String? {
-    if (this !is Element) return null
-    attributes.forEachAttr { attr ->
+    if (nodeType != NodeConsts.ELEMENT_NODE) return null
+    (this as Element).attributes.forEachAttr { attr ->
         when {
             attr.prefix == XMLConstants.XMLNS_ATTRIBUTE &&
                     attr.value == namespaceUri
@@ -91,10 +86,10 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? {
     return parentNode?.myLookupPrefix(namespaceUri)
 }
 
-internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
-    !is Element -> null
+internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
+    nodeType!=NodeConsts.ELEMENT_NODE -> null
     else -> {
-        attributes.filterTyped<Attr> {
+        (this as Element).attributes.filterTyped {
             (prefix == "" && it.localName == "xmlns") ||
                     (it.prefix == "xmlns" && it.localName == prefix)
         }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)

@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XMLConstants
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 
 internal class ElementImpl(
     ownerDocument: DocumentImpl,
@@ -46,7 +46,7 @@ internal class ElementImpl(
             else -> "$prefix:$localName"
         }
 
-    final override var parentNode: Node? = null
+    override var parentNode: Node? = null
 
     private val _childNodes: NodeListImpl = NodeListImpl()
 
@@ -61,9 +61,11 @@ internal class ElementImpl(
 
     override val lastChild: Node? get() = _childNodes.elements.lastOrNull()
 
-    override val textContent: String?
+    override val textContent: String
         get() = buildString {
-            for(n in childNodes) { appendTextContent(n) }
+            for (n in childNodes) {
+                appendTextContent(n)
+            }
         }
 
     override fun getElementsByTagName(qualifiedName: String): NodeList {
@@ -77,7 +79,7 @@ internal class ElementImpl(
         val elems = _childNodes.elements
             .filter {
                 it is Element &&
-                        (it.namespaceURI?:"") == (namespaceURI ?:"") &&
+                        (it.namespaceURI ?: "") == (namespaceURI ?: "") &&
                         it.localName == localName
             }.toMutableList()
         return NodeListImpl(elems)
@@ -103,7 +105,7 @@ internal class ElementImpl(
 
     override fun replaceChild(oldChild: Node, newChild: Node): Node {
         val idx = _childNodes.indexOf(checkNode(oldChild))
-        if (idx <0) throw DOMException()
+        if (idx < 0) throw DOMException()
         val newNode = checkNode(newChild)
 
         _childNodes.elements[idx].parentNode = null
@@ -230,16 +232,20 @@ internal class ElementImpl(
         return attributes.getNamedItemNS(namespace, localName) as Attr?
     }
 
-    override fun setAttributeNode(attr: Attr) {
-        attributes.setNamedItem(attr)
+    override fun setAttributeNode(attr: Attr): Attr? {
+        return attributes.setNamedItem(attr) as Attr?
     }
 
-    override fun setAttributeNodeNS(attr: Attr) {
-        attributes.setNamedItemNS(attr)
+    override fun setAttributeNodeNS(attr: Attr): Attr? {
+        return attributes.setNamedItemNS(attr) as Attr?
     }
 
-    override fun removeAttributeNode(attr: Attr) {
-        _attributes.remove(checkNode(attr) as AttrImpl)
+    override fun removeAttributeNode(attr: Attr): Attr {
+        val a = checkNode(attr) as AttrImpl
+        if (!_attributes.remove(a)) {
+            throw DOMException("Missing attribute for removal")
+        }
+        return a
     }
 
     override fun lookupPrefix(namespace: String?): String? {
@@ -284,7 +290,7 @@ internal class ElementImpl(
 
             _attributes.joinTo(this, " ")
 
-            if (_childNodes.length==0) {
+            if (_childNodes.length == 0) {
                 append("/>")
             } else {
                 append(">")
@@ -294,7 +300,7 @@ internal class ElementImpl(
         }
     }
 
-    inner class AttrMap() : NamedNodeMap {
+    inner class AttrMap : NamedNodeMap {
         override val length: Int get() = _attributes.size
 
         override fun item(index: Int): Attr? = when (index) {
@@ -335,7 +341,7 @@ internal class ElementImpl(
         }
     }
 
-    inner class AttrIterator: Iterator<Attr> {
+    inner class AttrIterator : Iterator<Attr> {
         private var pos = 0
 
         override fun hasNext(): Boolean = pos < _attributes.size

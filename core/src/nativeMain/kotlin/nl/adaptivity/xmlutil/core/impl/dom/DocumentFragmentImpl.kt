@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 
 internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDocument), DocumentFragment {
     override val previousSibling: Nothing? get() = null
@@ -45,7 +45,7 @@ internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDoc
     override val lastChild: Node?
         get() = _childNodes.elements.lastOrNull()
 
-    override val textContent: String?
+    override val textContent: String
         get() = buildString {
             for(n in childNodes) { appendTextContent(n) }
         }

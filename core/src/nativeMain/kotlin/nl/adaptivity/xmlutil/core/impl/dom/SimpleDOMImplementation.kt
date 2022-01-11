@@ -20,9 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.DOMImplementation
-import org.w3c.dom.Document
-import org.w3c.dom.DocumentType
+import nl.adaptivity.xmlutil.dom.DOMImplementation
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.DocumentType
 
 internal object SimpleDOMImplementation: DOMImplementation {
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType {

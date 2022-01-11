@@ -20,10 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.Comment
-import org.w3c.dom.Document
-import org.w3c.dom.Node
-import org.w3c.dom.Text
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.dom.Text
 
 internal open class TextImpl(ownerDocument: Document, data: String) : CharacterDataImpl(ownerDocument, data), Text {
 

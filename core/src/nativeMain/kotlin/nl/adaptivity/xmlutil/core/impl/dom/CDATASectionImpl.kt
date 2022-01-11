@@ -20,10 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.CDATASection
-import org.w3c.dom.Document
-import org.w3c.dom.Node
-import org.w3c.dom.Text
+import nl.adaptivity.xmlutil.dom.CDATASection
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.Node
 
 internal class CDATASectionImpl(ownerDocument: Document, data: String) : TextImpl(ownerDocument, data), CDATASection {
 

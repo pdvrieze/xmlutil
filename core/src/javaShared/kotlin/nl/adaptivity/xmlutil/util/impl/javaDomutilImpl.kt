@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.util.*
 import nl.adaptivity.xmlutil.*
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 import javax.xml.parsers.DocumentBuilderFactory
 
 @XmlUtilInternal
@@ -58,13 +58,6 @@ internal val Document.childElementCount: Int
         }
         return count
     }
-
-/** Get the parent element if it is an element, and there is one. */
-internal val Node.parentElement: Element? get() = parentNode as? Element
-
-internal fun NamedNodeMap.get(index: Int) = item(index)
-
-internal fun NodeList.get(index: Int) = item(index)
 
 internal fun NodeList.asList(): List<Node> {
     return object : AbstractList<Node>() {
@@ -118,7 +111,7 @@ internal inline fun NamedNodeMap.count(predicate: (Node) -> Boolean): Int {
 
 /** Remove namespaces attributes from a tree that have already been declared by a parent. */
 internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceContext = ExtendingNamespaceContext()) {
-    if (nodeType == Node.ELEMENT_NODE) {
+    if (nodeType == NodeConsts.ELEMENT_NODE) {
         @Suppress("UnsafeCastFromDynamic")
         val elem: Element = this as Element
 

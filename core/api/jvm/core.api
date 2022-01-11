@@ -908,6 +908,116 @@ public final class nl/adaptivity/xmlutil/core/XmlVersion : java/lang/Enum {
 	public static fun values ()[Lnl/adaptivity/xmlutil/core/XmlVersion;
 }
 
+public final class nl/adaptivity/xmlutil/dom/AttrKt {
+	public static final fun getLocalName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getOwnerElement (Lorg/w3c/dom/Attr;)Lorg/w3c/dom/Element;
+	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getValue (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun setValue (Lorg/w3c/dom/Attr;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/CharacterDataKt {
+	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
+	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/DocumentKt {
+	public static final fun getCharacterSet (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
+	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
+	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
+	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun importNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+}
+
+public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
+	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
+	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
+	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
+	public static final fun getData (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
+	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
+	public static final fun getFirstChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
+	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
+	public static final fun getLastChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getLength (Lorg/w3c/dom/NamedNodeMap;)I
+	public static final fun getLength (Lorg/w3c/dom/NodeList;)I
+	public static final fun getLocalName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getLocalName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getName (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getNextSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNodeName (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getNodeType (Lorg/w3c/dom/Node;)S
+	public static final fun getOwnerDocument (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Document;
+	public static final fun getOwnerElement (Lorg/w3c/dom/Attr;)Lorg/w3c/dom/Element;
+	public static final fun getParentNode (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getTarget (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getValue (Lorg/w3c/dom/Attr;)Ljava/lang/String;
+	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
+	public static final fun setData (Lorg/w3c/dom/ProcessingInstruction;Ljava/lang/String;)V
+	public static final fun setValue (Lorg/w3c/dom/Attr;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/ElementKt {
+	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
+	public static final fun getLocalName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
+	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NamedNodeMapKt {
+	public static final fun get (Lorg/w3c/dom/NamedNodeMap;I)Lorg/w3c/dom/Attr;
+	public static final fun getLength (Lorg/w3c/dom/NamedNodeMap;)I
+	public static final fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeConsts {
+	public static final field ATTRIBUTE_NODE S
+	public static final field CDATA_SECTION_NODE S
+	public static final field COMMENT_NODE S
+	public static final field DOCUMENT_FRAGMENT_NODE S
+	public static final field DOCUMENT_NODE S
+	public static final field DOCUMENT_TYPE_NODE S
+	public static final field ELEMENT_NODE S
+	public static final field ENTITY_NODE S
+	public static final field ENTITY_REFERENCE_NODE S
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/dom/NodeConsts;
+	public static final field NOTATION_NODE S
+	public static final field PROCESSING_INSTRUCTION_NODE S
+	public static final field TEXT_NODE S
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeKt {
+	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
+	public static final fun getFirstChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getLastChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNextSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getNodeName (Lorg/w3c/dom/Node;)Ljava/lang/String;
+	public static final fun getNodeType (Lorg/w3c/dom/Node;)S
+	public static final fun getOwnerDocument (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Document;
+	public static final fun getParentElement (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Element;
+	public static final fun getParentNode (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom/NodeListKt {
+	public static final fun get (Lorg/w3c/dom/NodeList;I)Lorg/w3c/dom/Attr;
+	public static final fun getLength (Lorg/w3c/dom/NodeList;)I
+	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
+}
+
 public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {
 	public fun <init> ([Ljava/io/Reader;)V
 	public fun close ()V
@@ -954,8 +1064,8 @@ public final class nl/adaptivity/xmlutil/util/DefaultSerializationProvider : nl/
 }
 
 public final class nl/adaptivity/xmlutil/util/DomutilKt {
-	public static final fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
-	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
+	public static final synthetic fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
+	public static final synthetic fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
 public final class nl/adaptivity/xmlutil/util/GatheringNamespaceContext : nl/adaptivity/xmlutil/NamespaceContextImpl {

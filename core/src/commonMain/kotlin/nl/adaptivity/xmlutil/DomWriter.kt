@@ -24,9 +24,7 @@ import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.util.*
 import nl.adaptivity.xmlutil.util.impl.*
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.Node
+import nl.adaptivity.xmlutil.dom.*
 
 /**
  * Created by pdvrieze on 04/04/17.
@@ -37,9 +35,9 @@ public class DomWriter constructor(
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ) : PlatformXmlWriterBase(), XmlWriter {
 
-    private var docDelegate: Document? = when (current) {
+    private var docDelegate: Document? = when (current?.nodeType) {
         null -> null
-        is Document -> current
+        NodeConsts.DOCUMENT_NODE -> current as Document
         else -> current.ownerDocument
     }
 
@@ -79,7 +77,7 @@ public class DomWriter constructor(
         currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
 
     @Suppress("OverridingDeprecatedMember")
-    override val namespaceContext: NamespaceContext = object : NamespaceContext {
+    override val namespaceContext: NamespaceContext = object : NamespaceContextImpl {
         override fun getNamespaceURI(prefix: String): String? {
             return currentNode?.lookupNamespaceURI(prefix)
         }
@@ -110,7 +108,7 @@ public class DomWriter constructor(
         }
 
         @OptIn(ExperimentalStdlibApi::class)
-        override fun getPrefixes(namespaceURI: String): Iterator<String> {
+        override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
             return buildSet<String> {
                 (currentNode as Element?)?.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
             }.toList().iterator()
@@ -160,7 +158,7 @@ public class DomWriter constructor(
                 return
             }
             currentNode == null && !isAppend -> {
-                if (target.childNodes.iterator().asSequence().count { it is Element } > 0) {
+                if (target.childNodes.iterator().asSequence().count { it.nodeType == NodeConsts.ELEMENT_NODE } > 0) {
                     target.removeElementChildren()
 
                 }
@@ -212,7 +210,7 @@ public class DomWriter constructor(
 
     override fun processingInstruction(text: String) {
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
-        if (currentNode is Element) throw XmlException("Document already started")
+        if (currentNode?.nodeType != NodeConsts.ELEMENT_NODE) throw XmlException("Document already started")
         if (docDelegate == null) {
             addToPending { processingInstruction(text) }
         } else {
@@ -231,7 +229,7 @@ public class DomWriter constructor(
         val ce = currentNode
         if (ce == null) {
             addToPending { ignorableWhitespace(text) }
-        } else if (ce !is Document) { // There is no way to specify whitespace on a document element
+        } else if (ce.nodeType != NodeConsts.DOCUMENT_NODE) { // There is no way to specify whitespace on a document element
             target.createTextNode(text).let { textNode ->
                 ce.appendChild(textNode)
             }

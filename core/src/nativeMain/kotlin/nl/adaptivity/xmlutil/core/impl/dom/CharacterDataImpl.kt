@@ -20,16 +20,12 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 
 internal abstract class CharacterDataImpl(
     ownerDocument: Document,
-    data: String
+    final override var data: String
 ): NodeImpl(ownerDocument), CharacterData {
-
-
-    final override var data = data
-        private set
 
     final override var parentNode: Node? = null
 

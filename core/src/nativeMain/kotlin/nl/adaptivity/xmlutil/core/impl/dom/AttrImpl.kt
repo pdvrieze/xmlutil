@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XMLConstants
-import org.w3c.dom.*
+import nl.adaptivity.xmlutil.dom.*
 
 internal class AttrImpl(
     ownerDocument: Document,
@@ -40,13 +40,13 @@ internal class AttrImpl(
     )
 
     init {
-        if (prefix.isNullOrEmpty() && !namespaceURI.isNullOrEmpty() && namespaceURI!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+        if (prefix.isNullOrEmpty() && !namespaceURI.isNullOrEmpty() && namespaceURI != XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
             throw IllegalArgumentException("Attributes without prefix are always in the default namespace ({$namespaceURI}$localName = \"$value\")")
         }
     }
 
     override val name: String
-        get() = when(prefix) {
+        get() = when (prefix) {
             null -> localName
             else -> "$prefix:$localName"
         }
@@ -72,7 +72,7 @@ internal class AttrImpl(
             throw UnsupportedOperationException()
         }
 
-    override val textContent: String?
+    override val textContent: String
         get() = value
 
     override fun appendChild(node: Node): Node {

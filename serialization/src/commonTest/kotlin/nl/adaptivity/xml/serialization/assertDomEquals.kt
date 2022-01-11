@@ -20,13 +20,22 @@
 
 package nl.adaptivity.xml.serialization
 
+import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.dom.*
 import kotlin.test.assertEquals
-import org.w3c.dom.*
 import kotlin.test.assertTrue
 
-private val Node.isElement: Boolean get() = this.nodeType == Node.ELEMENT_NODE
+private val Node.isElement: Boolean get() = this.nodeType == NodeConsts.ELEMENT_NODE
 
-private val Node.isText: Boolean get() = this.nodeType == Node.TEXT_NODE
+private val Node.isText: Boolean get() = this.nodeType == NodeConsts.TEXT_NODE
+
+private val Node.isCharacterData: Boolean
+    get() = when (nodeType) {
+        NodeConsts.TEXT_NODE,
+        NodeConsts.CDATA_SECTION_NODE,
+        NodeConsts.COMMENT_NODE -> true
+        else -> false
+    }
 
 private fun NamedNodeMap.asSequence(): Sequence<Attr> {
     return sequence {
@@ -47,10 +56,10 @@ private fun NodeList.asSequence(): Sequence<Node> {
 fun assertDomEquals(expected: Node, actual: Node): Unit = when {
     expected.nodeType != actual.nodeType
     -> throw AssertionError("Node types for $expected and $actual are not the same")
-    expected.nodeType == Node.DOCUMENT_NODE
+    expected.nodeType == NodeConsts.DOCUMENT_NODE
     -> assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
     expected.isElement -> assertElementEquals(expected as Element, actual as Element)
-    expected is CharacterData -> assertEquals(expected.textContent, actual.textContent)
+    expected.isCharacterData -> assertEquals(expected.textContent, actual.textContent)
 
 //    !expected.isEqualNode(actual)
 //         -> throw AssertionError("Nodes $expected and $actual are not equal")
@@ -70,13 +79,18 @@ private fun assertElementEquals(expected: Element, actual: Element) {
         val actualAttr = actualAttrsSorted[idx]
         assertEquals(expectedAttr.namespaceURI ?: "", actualAttr.namespaceURI ?: "")
 
-        val expectedLocalName = if(expectedAttr.prefix==null) expectedAttr.name else expectedAttr.localName
-        val actualLocalName = if(actualAttr.prefix==null) actualAttr.name else actualAttr.localName
+        val expectedLocalName = if (expectedAttr.prefix == null) expectedAttr.name else expectedAttr.localName
+        val actualLocalName = if (actualAttr.prefix == null) actualAttr.name else actualAttr.localName
         assertEquals(expectedLocalName, actualLocalName)
     }
 
-    val expectedChildren = expected.childNodes.asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.mergeText().toList()
-    val actualChildren = actual.childNodes.asSequence().filter { it.nodeType!=Node.TEXT_NODE || it.textContent!="" }.mergeText().toList()
+    val expectedChildren =
+        expected.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent != "" }
+            .mergeText().toList()
+
+    val actualChildren =
+        actual.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent != "" }
+            .mergeText().toList()
 
     assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
     for ((idx, expectedChild) in expectedChildren.withIndex()) {
@@ -90,9 +104,9 @@ private fun Sequence<Node>.mergeText(): Sequence<Node> {
         val pendingString = StringBuilder()
         var document: Document? = null
         for (n in this@mergeText) {
-            when (n) {
-                is Text -> {
-                    pendingString.append(n.data)
+            when (n.nodeType) {
+                NodeConsts.TEXT_NODE -> {
+                    pendingString.append((n as Text).data)
                     document = n.ownerDocument
                 }
                 else -> {

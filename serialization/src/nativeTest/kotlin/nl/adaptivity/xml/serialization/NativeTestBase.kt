@@ -24,11 +24,12 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.w3c.dom.*
-import nl.adaptivity.xmlutil.util.impl.createDocument
 
 
 private fun parseToDocument(xmlReader: XmlReader): Document {

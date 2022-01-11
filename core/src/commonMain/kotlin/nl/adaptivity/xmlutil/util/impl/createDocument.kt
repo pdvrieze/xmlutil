@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import org.w3c.dom.Document
+import nl.adaptivity.xmlutil.dom.Document
 
 
 @XmlUtilInternal
