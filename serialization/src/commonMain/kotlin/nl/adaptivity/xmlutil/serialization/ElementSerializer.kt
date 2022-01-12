@@ -26,14 +26,9 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import nl.adaptivity.xmlutil.XmlStreaming
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.smartStartTag
-import nl.adaptivity.xmlutil.writeElement
-import org.w3c.dom.*
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.dom.DOMResult
-import kotlin.collections.Iterator
+import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.component1
@@ -59,14 +54,13 @@ public object ElementSerializer : KSerializer<Element> {
     }
 
     private fun deserializeInput(decoder: XML.XmlInput): Element {
-        val document = DocumentBuilderFactory.newInstance().apply {
-            isNamespaceAware = true
-        }.newDocumentBuilder().newDocument()
+        val document = createDocument(decoder.input.name)
+
         val fragment = document.createDocumentFragment()
-        val out = XmlStreaming.newWriter(DOMResult(fragment))
+        val out = DomWriter(fragment)
         out.writeElement(null, decoder.input)
         var e = fragment.firstChild
-        while (e != null && e !is Element) {
+        while (e != null && e.nodeType != NodeConsts.ELEMENT_NODE) {
             e = e.nextSibling
         }
         return e as Element? ?: throw SerializationException("Expected element, but did not find it")
@@ -121,13 +115,15 @@ public object ElementSerializer : KSerializer<Element> {
                     if (ln == null) {
                         encodeStringElement(descriptor, 1, value.tagName)
                     } else {
-                        if (!value.namespaceURI.isNullOrEmpty()) {
-                            encodeStringElement(descriptor, 0, value.namespaceURI)
+                        val namespaceURI = value.namespaceURI
+                        if (!namespaceURI.isNullOrEmpty()) {
+                            encodeStringElement(descriptor, 0, namespaceURI)
                         }
                         encodeStringElement(descriptor, 1, value.localName)
                     }
 
-                    val m = value.attributes.iterator().asSequence().associate { it.nodeName to it.nodeValue }
+                    val attrIterator: Iterator<Attr> = value.attributes.iterator()
+                    val m = attrIterator.asSequence().associate { it.nodeName to it.value }
                     encodeSerializableElement(descriptor, 2, attrSerializer, m)
 
                     val n = value.childNodes.iterator().asSequence().toList()
@@ -154,7 +150,7 @@ private class DocumentDecoder(private val delegate: Decoder, val document: Docum
 
     constructor(delegate: Decoder) : this(
         delegate,
-        DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        createDocument(QName("dummy")).apply { documentElement?.let { removeChild(it) } }
     )
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -210,51 +206,29 @@ private fun serialize(encoder: XmlWriter, value: Attr) {
 }
 
 private fun serialize(encoder: XmlWriter, value: CDATASection) {
-    encoder.cdsect(value.textContent)
+    encoder.cdsect(value.textContent!!)
 }
 
 private fun serialize(encoder: XmlWriter, value: Text) {
-    encoder.text(value.textContent)
+    encoder.text(value.textContent!!)
 }
 
 private fun serialize(encoder: XmlWriter, value: Comment) {
-    encoder.comment(value.textContent)
+    encoder.comment(value.textContent!!)
 }
 
 private fun serialize(encoder: XmlWriter, value: ProcessingInstruction) {
-    encoder.processingInstruction(value.textContent)
+    encoder.processingInstruction("${value.getTarget()} ${value.textContent ?: ""}")
 }
 
-private fun serialize(encoder: XmlWriter, value: Node) = when (value) {
-    is Element -> serialize(encoder, value)
-    is Attr -> serialize(encoder, value)
-    is CDATASection -> serialize(encoder, value)
-    is Text -> serialize(encoder, value)
-    is Comment -> serialize(encoder, value)
-    is ProcessingInstruction -> serialize(encoder, value)
-    else -> throw IllegalArgumentException("Can not serialize node of type: ${value.javaClass}")
-}
-
-internal operator fun NodeList.iterator() = object : Iterator<Node> {
-    val list = this@iterator
-    private var nextIdx = 0
-
-    override fun hasNext() = nextIdx < list.length
-
-    override fun next(): Node = list.item(nextIdx++)
-}
-
-internal operator fun NamedNodeMap.iterator() = object : Iterator<Node> {
-    private val map = this@iterator
-    private var nextIdx = 0
-
-    override fun hasNext(): Boolean = nextIdx < map.length
-
-    override fun next(): Node {
-        val idx = nextIdx++ // update nextIdx afterwards
-        return map.item(idx) as Node
-    }
-
+private fun serialize(encoder: XmlWriter, value: Node) = when (value.nodeType) {
+    NodeConsts.ELEMENT_NODE -> serialize(encoder, value as Element)
+    NodeConsts.ATTRIBUTE_NODE -> serialize(encoder, value as Attr)
+    NodeConsts.CDATA_SECTION_NODE -> serialize(encoder, value as CDATASection)
+    NodeConsts.TEXT_NODE -> serialize(encoder, value as Text)
+    NodeConsts.COMMENT_NODE -> serialize(encoder, value as Comment)
+    NodeConsts.PROCESSING_INSTRUCTION_NODE -> serialize(encoder, value as ProcessingInstruction)
+    else -> throw IllegalArgumentException("Can not serialize node: ${value}")
 }
 
 public object NodeSerializer : KSerializer<Node> {
@@ -317,26 +291,26 @@ public object NodeSerializer : KSerializer<Node> {
 
     override fun serialize(encoder: Encoder, value: Node) {
         encoder.encodeStructure(descriptor) {
-            when (value) {
-                is Element -> {
+            when (value.nodeType) {
+                NodeConsts.ELEMENT_NODE -> {
                     encodeStringElement(descriptor, 0, "element")
-                    encodeSerializableElement(descriptor, 1, ElementSerializer, value)
+                    encodeSerializableElement(descriptor, 1, ElementSerializer, value as Element)
                 }
-                is Attr -> {
+                NodeConsts.ATTRIBUTE_NODE -> {
                     encodeStringElement(descriptor, 0, "attr")
-                    encodeSerializableElement(descriptor, 1, attrSerializer, mapOf(value.name to value.value))
+                    encodeSerializableElement(descriptor, 1, attrSerializer, mapOf((value as Attr).name to value.value))
                 }
-                is Text,
-                is CDATASection -> {
+                NodeConsts.TEXT_NODE,
+                NodeConsts.CDATA_SECTION_NODE -> {
                     encodeStringElement(descriptor, 0, "text")
-                    encodeStringElement(descriptor, 1, value.textContent)
+                    encodeStringElement(descriptor, 1, value.textContent ?: "")
                 }
-                is Comment -> {
+                NodeConsts.COMMENT_NODE -> {
                     encodeStringElement(descriptor, 0, "comment")
-                    encodeStringElement(descriptor, 1, value.textContent)
+                    encodeStringElement(descriptor, 1, value.textContent ?: "")
                 } // ignore comments
-                is ProcessingInstruction -> throw SerializationException("Processing instructions can not be serialized")
-                else -> throw SerializationException("Cannot serialize: ${value.javaClass.name}")
+                NodeConsts.PROCESSING_INSTRUCTION_NODE -> throw SerializationException("Processing instructions can not be serialized")
+                else -> throw SerializationException("Cannot serialize: $value")
             }
 
         }

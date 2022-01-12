@@ -58,6 +58,15 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
 }
 
+public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ElementSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Element;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Element;)V
+}
+
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
@@ -80,6 +89,16 @@ public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvi
 	public fun <init> ()V
 	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/NodeSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Node;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun getEd ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Node;)V
 }
 
 public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {

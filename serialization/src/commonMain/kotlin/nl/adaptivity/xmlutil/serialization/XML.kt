@@ -31,6 +31,8 @@ import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.dom.Element
+import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
