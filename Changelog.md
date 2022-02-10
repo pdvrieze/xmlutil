@@ -1,4 +1,8 @@
 # 0.84.1
+Features:
+- Enable NodeSerializer and ElementSerializer on all platforms. Note that for
+  JS it is not registered in the context due to technical limitations.
+
 Fixes:
 - Fix handling of whitespace text (#84)
 
