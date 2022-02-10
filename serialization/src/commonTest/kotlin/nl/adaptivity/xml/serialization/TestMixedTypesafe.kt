@@ -117,6 +117,22 @@ class TestMixedTypesafe {
         val actual = json.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun typesafeMixedWithWhitespace() {
+        val data = TypedMixed {
+            text("a")
+            elem(TypedMixed.E {
+                text(" ")
+            })
+            text("b")
+        }
+        val expectedXml = "<mixed>a<e> </e>b</mixed>"
+        val xml = XML(TypedMixed.module) { autoPolymorphic = true }
+        assertXmlStringEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
+
+        assertEquals(data, xml.decodeFromString(TypedMixed.serializer(), expectedXml))
+    }
 }
 
 internal interface TypedMixedContent

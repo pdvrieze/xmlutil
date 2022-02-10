@@ -1,3 +1,7 @@
+# 0.84.1
+Fixes:
+- Fix handling of whitespace text (#84)
+
 # 0.84.0
 *(Jan 11, 2022)<br />*
 Features:

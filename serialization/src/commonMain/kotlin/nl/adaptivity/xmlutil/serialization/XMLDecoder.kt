@@ -26,6 +26,7 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -165,7 +166,7 @@ internal open class XmlDecoderBase internal constructor(
                         "Attribute parsing without a concrete index is unsupported"
                     )
                     OutputKind.Inline -> throw SerializationException("Inline classes can not be decoded directly")
-                    OutputKind.Mixed -> input.consecutiveTextContent()//.also { input.next() } // Move to the next element
+                    OutputKind.Mixed -> input.allConsecutiveTextContent()//.also { input.next() } // Move to the next element
                     OutputKind.Text -> input.allText()
                 }
             }
@@ -343,7 +344,10 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
-    internal open inner class TagDecoder<D : XmlDescriptor>(xmlDescriptor: D, protected val typeDiscriminatorName: QName?) :
+    internal open inner class TagDecoder<D : XmlDescriptor>(
+        xmlDescriptor: D,
+        protected val typeDiscriminatorName: QName?
+    ) :
         XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput {
 
         private val nameToMembers: Map<QName, Int>
@@ -477,7 +481,7 @@ internal open class XmlDecoderBase internal constructor(
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
 
-            if(hasNullMark()) { // process the element
+            if (hasNullMark()) { // process the element
                 if (input.nextTag() != EventType.END_ELEMENT)
                     throw SerializationException("Elements with nill tags may not have content")
                 return null
@@ -646,42 +650,54 @@ internal open class XmlDecoderBase internal constructor(
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
 
             for (eventType in input) {
-                if (!eventType.isIgnorable) {
+                when (eventType) {
+                    EventType.END_ELEMENT -> return readElementEnd(descriptor)
 
-                    when (eventType) {
-                        EventType.END_ELEMENT -> return readElementEnd(descriptor)
+                    EventType.START_DOCUMENT,
+                    EventType.COMMENT,
+                    EventType.DOCDECL,
+                    EventType.PROCESSING_INSTRUCTION -> {
+                    } // do nothing/ignore
 
-                        EventType.ENTITY_REF,
-                        EventType.CDSECT,
-                        EventType.TEXT -> {
-                            // The android reader doesn't check whitespaceness. This code should throw
-                            if (!input.isWhitespace()) {
-                                return descriptor.getValueChild().ifUnknown {
-                                    config.policy.handleUnknownContentRecovering(
-                                        input,
-                                        InputKind.Text,
-                                        xmlDescriptor,
-                                        QName("<CDATA>"),
-                                        emptyList()
-                                    ).let { pendingRecovery.addAll(it) }
-                                    decodeElementIndex(descriptor) // if this doesn't throw, recursively continue
-                                }
+                    EventType.ENTITY_REF,
+                    EventType.CDSECT,
+                    EventType.IGNORABLE_WHITESPACE,
+                    EventType.TEXT -> {
+                        // The android reader doesn't check whitespaceness. This code should throw
+                        val valueChild = descriptor.getValueChild()
+                        if (input.isWhitespace()) {
+                            if (valueChild != CompositeDecoder.UNKNOWN_NAME &&
+                                descriptor.getElementDescriptor(valueChild).kind == StructureKind.LIST
+                            ) {
+                                return valueChild // We can handle whitespace
+                            }
+                        } else if (!input.isWhitespace()) {
+                            return valueChild.ifUnknown {
+                                config.policy.handleUnknownContentRecovering(
+                                    input,
+                                    InputKind.Text,
+                                    xmlDescriptor,
+                                    QName("<CDATA>"),
+                                    emptyList()
+                                ).let { pendingRecovery.addAll(it) }
+                                decodeElementIndex(descriptor) // if this doesn't throw, recursively continue
                             }
                         }
-
-                        EventType.ATTRIBUTE -> return indexOf(
-                            input.name,
-                            InputKind.Attribute
-                        ).ifUnknown { decodeElementIndex(descriptor) }
-
-                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
-                            // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
-                            // as a shortcut.
-                            CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
-                            else -> return i
-                        }
-                        else -> throw AssertionError("Unexpected event in stream")
                     }
+
+                    EventType.ATTRIBUTE -> return indexOf(
+                        input.name,
+                        InputKind.Attribute
+                    ).ifUnknown { decodeElementIndex(descriptor) }
+
+                    EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
+                        // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
+                        // as a shortcut.
+                        CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
+                        else -> return i
+                    }
+
+                    EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
                 }
             }
             return CompositeDecoder.DECODE_DONE
@@ -778,7 +794,7 @@ internal open class XmlDecoderBase internal constructor(
 
                 OutputKind.Mixed,
                 OutputKind.Text -> {
-                    input.consecutiveTextContent().also { // add some checks that we only have text content
+                    input.allConsecutiveTextContent().also { // add some checks that we only have text content
                         val peek = input.peek()
                         if (peek !is XmlEvent.EndElementEvent) {
                             throw XmlSerialException("Missing end tag after text only content")
@@ -1080,7 +1096,7 @@ internal open class XmlDecoderBase internal constructor(
                         1 -> 1
                         else -> CompositeDecoder.DECODE_DONE
                     }
-                    if (nextIndex==0) {
+                    if (nextIndex == 0) {
                         for (i in 0 until attrCount) {
                             val attrName = input.getAttributeName(i)
 
@@ -1107,7 +1123,7 @@ internal open class XmlDecoderBase internal constructor(
                             }
                         }
                     }
-                    return super.decodeElementIndex(descriptor).also { nextIndex = it+1 }
+                    return super.decodeElementIndex(descriptor).also { nextIndex = it + 1 }
                 }
             }
         }
@@ -1126,6 +1142,7 @@ internal open class XmlDecoderBase internal constructor(
                     }
 
                     isMixed && (input.eventType == EventType.TEXT ||
+                            input.eventType == EventType.IGNORABLE_WHITESPACE ||
                             input.eventType == EventType.CDSECT)
                     -> "kotlin.String" // hardcode handling text input polymorphically
 
@@ -1138,7 +1155,7 @@ internal open class XmlDecoderBase internal constructor(
                     !xmlDescriptor.isTransparent ->
                         throw XmlSerialException("NonTransparent polymorphic values cannot have text content only")
 
-                    isMixed -> input.consecutiveTextContent()
+                    isMixed -> input.allConsecutiveTextContent()
 
                     else -> super.decodeStringElement(descriptor, index)
                 }

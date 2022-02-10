@@ -229,8 +229,9 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
     val whiteSpace = StringBuilder()
     val t = this
     return buildString {
-        if (eventType.isTextElement) {
-            append(text)
+        when {
+            eventType.isTextElement -> append(text)
+            eventType == EventType.IGNORABLE_WHITESPACE -> whiteSpace.append(text)
         }
 
         var event: XmlEvent? = null
@@ -261,7 +262,10 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     append(t.text)
                 }
                 EventType.START_ELEMENT
-                -> { // don't progress the event either
+                -> {
+                    // If we have text we will actually not ignore the whitespace
+                    if (isNotEmpty()) { append(whiteSpace); whiteSpace.clear() }
+                    // don't progress the event either
                     break@loop
                 }
 
@@ -269,7 +273,60 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
             }//ignore
 
         }
+        if (event?.eventType == EventType.END_ELEMENT) { // If we don't have element content do handle text as "significant"
+            append(whiteSpace)
+        }
 
+    }
+}
+
+/**
+ * Consume all text and non-content (comment/processing instruction) to get an uninterrupted text sequence. This will
+ * skip over comments but *not* ignorable whitespace that starts the string, but not tags. Any tags encountered will lead
+ * to a return of this function.
+ * Any tags encountered with cause an exception to be thrown. It can either be invoked when in a start tag to return
+ * all text content, or on a content element to include it (if text or cdata) and all subsequent siblings.
+ *
+ * The function will move to the containing end tag.
+ *
+ * @return   The text found
+ *
+ * @throws XmlException If reading breaks, or an unexpected element was found.
+ */
+public fun XmlBufferedReader.allConsecutiveTextContent(): String {
+    val t = this
+    return buildString {
+        if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
+
+        var event: XmlEvent? = null
+
+        loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
+            when (event?.eventType) {
+                EventType.PROCESSING_INSTRUCTION,
+                EventType.COMMENT
+                -> {
+                    t.next();Unit
+                } // ignore
+
+                // ignore whitespace starting the element.
+                EventType.IGNORABLE_WHITESPACE,
+                EventType.TEXT,
+                EventType.ENTITY_REF,
+                EventType.CDSECT
+                -> {
+                    t.next()
+                    append(t.text)
+                }
+                EventType.START_ELEMENT
+                -> {
+                    // don't progress the event either
+                    break@loop
+                }
+
+                else -> throw XmlException("Found unexpected child tag: $event")
+            }//ignore
+
+        }
     }
 }
 
@@ -299,9 +356,9 @@ public fun XmlReader.readSimpleElement(): String {
         while ((t.next()) !== EventType.END_ELEMENT) {
             when (t.eventType) {
                 EventType.COMMENT,
-                EventType.IGNORABLE_WHITESPACE,
                 EventType.PROCESSING_INSTRUCTION -> {
                 }
+                EventType.IGNORABLE_WHITESPACE,
                 EventType.TEXT,
                 EventType.ENTITY_REF,
                 EventType.CDSECT -> append(t.text)
