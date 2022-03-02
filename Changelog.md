@@ -1,10 +1,13 @@
 # 0.84.1
+*(Mar 2, 2022)<br />*
 Features:
 - Enable NodeSerializer and ElementSerializer on all platforms. Note that for
   JS it is not registered in the context due to technical limitations.
 
 Fixes:
 - Fix handling of whitespace text (#84)
+- Fix compilation on native with 1.6.20 (#85) and a general infinite loop bug
+  when retrieving doctype on a document in native.
 
 # 0.84.0
 *(Jan 11, 2022)<br />*
