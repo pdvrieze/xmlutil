@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom.*
 
-internal class DocumentImpl(override val docType: DocumentType?) : Document {
+internal class DocumentImpl(override val doctype: DocumentType?) : Document {
     override val implementation: DOMImplementation get() = SimpleDOMImplementation
 
     private var _documentElement: ElementImpl? = null

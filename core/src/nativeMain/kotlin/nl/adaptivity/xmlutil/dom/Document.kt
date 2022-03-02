@@ -24,7 +24,10 @@ public actual interface Document : Node {
 
     public val implementation: DOMImplementation
 
-    public val docType: DocumentType?
+    public val doctype: DocumentType?
+
+    @Deprecated("Accidentally misnamed type", ReplaceWith("doctype"))
+    public val docType: DocumentType? get() = doctype
 
     public val documentElement: Element?
 
