@@ -602,6 +602,7 @@ public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
 }
 
 public final class nl/adaptivity/xmlutil/XmlReaderUtil {
+	public static final fun allConsecutiveTextContent (Lnl/adaptivity/xmlutil/XmlBufferedReader;)Ljava/lang/String;
 	public static final fun allText (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/String;
 	public static final fun asSubstream (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static final fun consecutiveTextContent (Lnl/adaptivity/xmlutil/XmlBufferedReader;)Ljava/lang/String;
