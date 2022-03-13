@@ -35,8 +35,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable(XSLocalComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 abstract class XSLocalComplexType(
-    override val mixed: Boolean,
-    override val defaultAttributesApply: Boolean,
+    override val mixed: Boolean? = null,
+    override val defaultAttributesApply: Boolean? = null,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap()
@@ -47,7 +47,7 @@ abstract class XSLocalComplexType(
 
     @Serializable
     class SerialDelegate(
-        val mixed: Boolean,
+        val mixed: Boolean? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         val groups: List<XSGroupRef> = emptyList(),
@@ -59,16 +59,16 @@ abstract class XSLocalComplexType(
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
         val anyAttribute: XSAnyAttribute? = null,
         val openContents: List<XSOpenContent> = emptyList(),
-        val defaultAttributesApply: Boolean,
-        val id: ID?,
-        val annotations: List<XSAnnotation>,
+        val defaultAttributesApply: Boolean? = null,
+        val id: ID? = null,
+        val annotations: List<XSAnnotation> = emptyList(),
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
     ) {
         fun toLocalComplexType(): XSLocalComplexType {
             // TODO verify
             return when {
-                simpleContent!=null -> XSLocalComplexTypeSimple(
+                simpleContent != null -> XSLocalComplexTypeSimple(
                     mixed = mixed,
                     defaultAttributesApply = defaultAttributesApply,
                     content = simpleContent,
@@ -76,7 +76,7 @@ abstract class XSLocalComplexType(
                     annotations = annotations,
                     otherAttrs = otherAttrs,
                 )
-                complexContent!=null -> XSLocalComplexTypeComplex(
+                complexContent != null -> XSLocalComplexTypeComplex(
                     mixed = mixed,
                     defaultAttributesApply = defaultAttributesApply,
                     content = complexContent,
@@ -125,8 +125,8 @@ abstract class XSLocalComplexType(
 }
 
 class XSLocalComplexTypeComplex(
-    mixed: Boolean,
-    defaultAttributesApply: Boolean,
+    mixed: Boolean?,
+    defaultAttributesApply: Boolean?,
     override val content: XSComplexContent,
     id: ID? = null,
     annotations: List<XSAnnotation>,
@@ -151,8 +151,8 @@ class XSLocalComplexTypeComplex(
 }
 
 class XSLocalComplexTypeSimple(
-    mixed: Boolean,
-    defaultAttributesApply: Boolean,
+    mixed: Boolean?,
+    defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
     id: ID? = null,
     annotations: List<XSAnnotation>,
@@ -177,8 +177,8 @@ class XSLocalComplexTypeSimple(
 }
 
 class XSLocalComplexTypeShorthand(
-    mixed: Boolean,
-    defaultAttributesApply: Boolean,
+    mixed: Boolean?,
+    defaultAttributesApply: Boolean?,
     override val groups: List<XSGroupRef>,
     override val alls: List<XSAll>,
     override val choices: List<XSChoice>,

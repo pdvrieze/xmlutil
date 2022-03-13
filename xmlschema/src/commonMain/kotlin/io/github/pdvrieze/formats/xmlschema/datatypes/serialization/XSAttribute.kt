@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
@@ -40,7 +41,7 @@ abstract class XSAttributeBase(
     final override val id: ID? = null,
     final override val name: NCName,
     final override val type: QName? = null,
-    final override val inheritable: Boolean,
+    final override val inheritable: Boolean? = null,
     final override val annotations: List<XSAnnotation> = emptyList(),
     final override val simpleType: XSLocalSimpleType? = null,
     final override val otherAttrs: Map<QName, String> = emptyMap(),
@@ -66,8 +67,11 @@ class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
 
+    @XmlElement(false)
     override val form: T_FormChoice?
-    override val ref: QName?
+    override var ref: QName? = null
+        private set
+    @XmlElement(false)
     override val use: XSAttrUse?
     override val targetNamespace: AnyURI?
 

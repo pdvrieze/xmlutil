@@ -22,6 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.XmlElement
 
 interface T_LocalAttribute: T_AttributeBase, AG_DefRef {
 }
@@ -35,6 +36,6 @@ interface T_AttributeBase: T_Annotated {
     val targetNamespace: AnyURI?
     val type: QName?
     val use: XSAttrUse?
-    val inheritable: Boolean
+    val inheritable: Boolean?
     val simpleType: XSLocalSimpleType?
 }
