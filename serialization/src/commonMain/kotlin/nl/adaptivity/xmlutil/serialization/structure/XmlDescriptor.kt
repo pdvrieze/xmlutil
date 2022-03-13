@@ -25,6 +25,7 @@ package nl.adaptivity.xmlutil.serialization.structure
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
@@ -116,6 +117,16 @@ public sealed class XmlDescriptor(
     override val tagName: QName by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
+    }
+
+    internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
+        @Suppress("UNCHECKED_CAST")
+        return (overriddenSerializer ?: fallback) as SerializationStrategy<V>
+    }
+
+    internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
+        @Suppress("UNCHECKED_CAST")
+        return (overriddenSerializer ?: fallback) as DeserializationStrategy<V>
     }
 
     override val serialDescriptor: SerialDescriptor get() = typeDescriptor.serialDescriptor
@@ -693,6 +704,10 @@ public class XmlListDescriptor internal constructor(
         return childDescriptor
     }
 
+    override fun toString(): String = when (isListEluded){
+        true -> "${tagName}: EludedList<$childDescriptor>"
+        false -> "${tagName}: ExplicitList<$childDescriptor>"
+    }
 }
 
 /**

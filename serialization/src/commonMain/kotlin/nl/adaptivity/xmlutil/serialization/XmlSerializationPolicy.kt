@@ -290,7 +290,8 @@ public open class DefaultXmlSerializationPolicy
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean
     ): OutputKind {
-        val serialDescriptor = serializerParent.elementSerialDescriptor
+        val serialDescriptor = overrideSerializerOrNull(serializerParent, tagParent)?.descriptor
+            ?: serializerParent.elementSerialDescriptor
 
         return when (val overrideOutputKind =
             serializerParent.elementUseOutputKind) {
@@ -441,6 +442,7 @@ public open class DefaultXmlSerializationPolicy
         tagParent: SafeParentInfo
     ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
+            "javax.xml.namespace.QName?",
             "javax.xml.namespace.QName" -> XmlQNameSerializer
             else -> null
         }

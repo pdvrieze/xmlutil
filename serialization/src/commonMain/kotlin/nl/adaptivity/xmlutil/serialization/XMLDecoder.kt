@@ -26,7 +26,6 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -113,7 +112,7 @@ internal open class XmlDecoderBase internal constructor(
             for (i in 0 until enumDescriptor.elementsCount) {
                 if (stringName == config.policy.enumEncoding(enumDescriptor, i)) return i
             }
-            throw SerializationException("No enum constant found for name $enumDescriptor")
+            throw SerializationException("No enum constant found for name $stringName in ${enumDescriptor.serialName}")
         }
 
         abstract fun decodeStringImpl(defaultOverEmpty: Boolean = true): String
@@ -181,9 +180,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            @Suppress("UNCHECKED_CAST")
-            val deser: DeserializationStrategy<T> =
-                (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
+            val deser: DeserializationStrategy<T> = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
             /*
              * When the element is actually an inline we need to make sure to use the child descriptor (for the inline).
              * But only if decodeInline was called previously.
@@ -222,9 +219,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            @Suppress("UNCHECKED_CAST")
-            val deser: DeserializationStrategy<T> =
-                (xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?) ?: deserializer
+            val deser: DeserializationStrategy<T> = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
             return deser.deserialize(this)
         }
@@ -347,8 +342,7 @@ internal open class XmlDecoderBase internal constructor(
     internal open inner class TagDecoder<D : XmlDescriptor>(
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
-    ) :
-        XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput {
+    ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput {
 
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
@@ -415,10 +409,13 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>
         ): XmlDecoder? {
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
+
+            val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
+
             return when {
                 nulledItemsIdx >= 0 -> null
 
-                deserializer.descriptor.kind is PrimitiveKind ->
+                effectiveDeserializer.descriptor.kind is PrimitiveKind ->
                     XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
 
                 else -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex, null)
@@ -438,9 +435,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
-            @Suppress("UNCHECKED_CAST")
-            val effectiveDeserializer = (childXmlDescriptor.overriddenSerializer as DeserializationStrategy<T>?)
-                ?: deserializer
+            val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
             if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
                 (xmlDescriptor.getValueChild() == index)
@@ -490,11 +485,15 @@ internal open class XmlDecoderBase internal constructor(
 
             val decoder = serialElementDecoder(descriptor, index, deserializer) ?: return null
 
+            val effectiveDeserializer = xmlDescriptor
+                .getElementDescriptor(index)
+                .effectiveDeserializationStrategy(deserializer)
+
             // TODO make merging more reliable
-            val result: T? = if (deserializer is AbstractCollectionSerializer<*, T?, *>) {
-                deserializer.merge(decoder, previousValue)
+            val result: T? = if (effectiveDeserializer is AbstractCollectionSerializer<*, T?, *>) {
+                effectiveDeserializer.merge(decoder, previousValue)
             } else {
-                deserializer.deserialize(decoder)
+                effectiveDeserializer.deserialize(decoder)
             }
 
             seenItems[index] = true
@@ -888,10 +887,9 @@ internal open class XmlDecoderBase internal constructor(
             // Note that the child descriptor a list is always at index 0
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            @Suppress("UNCHECKED_CAST") val overriddenDeserializer =
-                xmlDescriptor.overriddenSerializer as DeserializationStrategy<T>? ?: deserializer
+            val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
-            if (((overriddenDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
+            if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
                 (parentXmlDescriptor.getValueChild() == listChildIdx)
             ) {
                 return input.elementToFragment().let {
@@ -940,10 +938,9 @@ internal open class XmlDecoderBase internal constructor(
             if (correctStartIndex < 0) correctStartIndex = index
             val fixedIndex = (index - correctStartIndex) % 2
 
-            @Suppress("UNCHECKED_CAST")
-            val effectiveDeserializer: DeserializationStrategy<T> =
-                (xmlDescriptor.getElementDescriptor(fixedIndex).overriddenSerializer as DeserializationStrategy<T>?)
-                    ?: deserializer
+            val effectiveDeserializer = xmlDescriptor
+                .getElementDescriptor(fixedIndex)
+                .effectiveDeserializationStrategy(deserializer)
 
             if (fixedIndex == 0) {
 

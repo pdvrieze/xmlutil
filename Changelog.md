@@ -1,3 +1,11 @@
+# 0.84.2-SNAPSHOT
+*(??, 202?)<br />*
+Features:
+
+Fixes:
+- Fix storing comment events
+
+
 # 0.84.1
 *(Mar 2, 2022)<br />*
 Features:
