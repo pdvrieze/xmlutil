@@ -1,0 +1,54 @@
+<schema targetNamespace="http://www.example.com/add"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:add="http://www.example.com/add">
+
+ <complexType name="AddressType">
+  <sequence>
+   <element name="name"   type="string"/>
+   <element name="street" type="string"/>
+   <element name="city"   type="string"/>
+  </sequence>
+ </complexType>
+
+ <complexType name="USAddress">
+  <complexContent>
+   <extension base="add:AddressType">
+    <sequence>
+     <element name="state" type="add:USState"/>
+     <element name="zip"   type="positiveInteger"/>
+    </sequence>
+   </extension>
+  </complexContent>
+ </complexType>
+
+ <complexType name="UKAddress">
+  <complexContent>
+   <extension base="add:AddressType">
+    <sequence>
+     <element name="postcode" type="add:UKPostcode"/>
+    </sequence>
+    <attribute name="exportCode" type="positiveInteger" fixed="1"/>
+   </extension>
+  </complexContent>
+ </complexType>
+
+ <!-- other Address derivations for more countries --> 
+ <simpleType name="USState">
+  <restriction base="string">
+   <enumeration value="AK"/>
+   <enumeration value="AL"/>
+   <enumeration value="AR"/>
+   <enumeration value="CA"/>
+   <!-- and so on ... -->
+   <enumeration value="PA"/>
+  </restriction>
+ </simpleType>
+
+ <!-- simple type definition for UKPostcode -->
+ <simpleType name="UKPostcode">
+  <restriction base="string">
+   <pattern value="[A-Z]{2}\d\s\d[A-Z]{2}"/>
+  </restriction>
+ </simpleType>
+
+</schema>

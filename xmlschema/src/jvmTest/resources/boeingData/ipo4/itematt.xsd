@@ -1,0 +1,25 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:att="http://www.example.com/att" targetNamespace="http://www.example.com/att"
+ attributeFormDefault="qualified">
+
+	<xsd:attributeGroup name="ItemDelivery">
+		<xsd:attribute name="partNum" type="att:SKU" use="required"/>
+		<xsd:attribute name="weightKg" type="xsd:decimal"/>
+		<xsd:attribute name="shipBy">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="air"/>
+					<xsd:enumeration value="land"/>
+					<xsd:enumeration value="any"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+
+	<xsd:simpleType name="SKU">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="\d{3}-[A-Z]{2}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+</xsd:schema>

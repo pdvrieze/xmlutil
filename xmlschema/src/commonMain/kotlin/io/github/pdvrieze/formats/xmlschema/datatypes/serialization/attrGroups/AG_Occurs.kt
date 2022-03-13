@@ -21,10 +21,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllN
 /** for all particles */
 interface AG_Occurs {
     /** Optional, default 1 */
-    val minOccurs: ULong
+    val minOccurs: ULong?
 //        get() = 1.toULong()
 
     /** Optional, default 1 */
-    val maxOccurs: T_AllNNI
+    val maxOccurs: T_AllNNI?
 //        get() = T_AllNNI(1)
 }
