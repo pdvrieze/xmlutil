@@ -18,7 +18,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import kotlinx.serialization.SerialName
 
-enum class T_BlockSet {
+typealias T_BlockSet=Set<T_BlockSetValues>
+
+enum class T_BlockSetValues {
     @SerialName("extension")
     EXTENSION,
     @SerialName("restriction")

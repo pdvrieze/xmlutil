@@ -16,11 +16,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_IdentityConstraints
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element: GX_IdentityConstraints, T_Annotated {
+interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, T_Annotated {
     val simpleTypes: List<T_LocalSimpleType>
 
     val complexTypes: List<T_ComplexType_Base>
@@ -29,6 +32,9 @@ interface T_Element: GX_IdentityConstraints, T_Annotated {
 
     val type: QName?
 
+    /** Attribute */
+    val substitutionGroup: List<QName>?
+
     val default: String?
 
     @XmlElement(false)
@@ -36,5 +42,14 @@ interface T_Element: GX_IdentityConstraints, T_Annotated {
 
     val nillable: Boolean?
 
-    val block: Set<T_BlockSet>
+    /** Optional, default false */
+    val abstract: Boolean
+
+    val final: T_DerivationSet?
+
+    val block: T_BlockSet?
+
+    val form: T_FormChoice?
+
+    val targetNamespace: AnyURI?
 }

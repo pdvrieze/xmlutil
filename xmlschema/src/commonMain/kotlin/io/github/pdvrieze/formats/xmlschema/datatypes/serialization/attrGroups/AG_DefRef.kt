@@ -23,6 +23,6 @@ import nl.adaptivity.xmlutil.QName
  * for element, group and attributeGroup, which both define and reference
  */
 interface AG_DefRef {
-    val name: NCName
+    val name: NCName?
     val ref: QName?
 }
