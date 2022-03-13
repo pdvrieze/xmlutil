@@ -21,7 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.A
 import nl.adaptivity.xmlutil.QName
 
 interface T_LocalElement: T_Element, AG_Occurs {
-    val ref: QName?
-    val form: T_FormChoice
-    val targetNamespace: AnyURI?
+    override val substitutionGroup: Nothing? get() = null
+    override val abstract: Boolean get() = false
+    override val final: Nothing? get() = null
 }

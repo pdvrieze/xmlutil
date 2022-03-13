@@ -22,10 +22,10 @@ sealed interface T_ComplexType_Base: T_Annotated, G_ComplexTypeModel {
     /**
      * May not have simpleContent child
      */
-    val mixed: Boolean
+    val mixed: Boolean?
 
     /** Default: false */
-    val defaultAttributesApply: Boolean // default true
+    val defaultAttributesApply: Boolean? // default true
 
     /** Either this or shorthand content */
     override val content: G_ComplexTypeModel.Base

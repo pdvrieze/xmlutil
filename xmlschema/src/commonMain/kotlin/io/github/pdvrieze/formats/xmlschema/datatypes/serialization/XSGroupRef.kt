@@ -32,8 +32,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroupRef(
     override val id: ID?,
-    override val maxOccurs: T_AllNNI,
-    override val minOccurs: ULong,
+    override val maxOccurs: T_AllNNI = T_AllNNI(1),
+    override val minOccurs: ULong = 1.toULong(),
     override val ref: @Serializable(QNameSerializer::class) QName,
     override val annotations: List<XSAnnotation>,
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>

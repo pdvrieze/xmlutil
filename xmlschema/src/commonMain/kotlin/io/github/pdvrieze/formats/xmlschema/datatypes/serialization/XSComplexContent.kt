@@ -14,13 +14,74 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:UseSerializers(QNameSerializer::class, CompactFragmentSerializer::class)
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.ID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.util.CompactFragment
 
 @XmlSerialName("complexContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
-class XSComplexContent: G_ComplexTypeModel.ComplexContent
+class XSComplexContent(
+    override val id: ID? = null,
+    override val otherAttrs: Map<QName, String>,
+    override val annotations: List<XSAnnotation>,
+    val derivation: RestrictionExtensionChoice
+
+): T_Annotated, G_ComplexTypeModel.ComplexContent {
+    @Serializable
+    sealed class RestrictionExtensionChoice
+
+    @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @Serializable
+    class Restriction(
+        override val base: QName,
+        override val id: ID? = null,
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val openContents: List<XSOpenContent> = emptyList(),
+        override val groups: List<T_GroupRef> = emptyList(), // TODO shouldn't be lists
+        override val alls: List<XSAll> = emptyList(),
+        override val choices: List<XSChoice> = emptyList(),
+        override val sequences: List<XSSequence> = emptyList(),
+        override val asserts: List<T_Assertion> = emptyList(),
+        override val attributes: List<T_LocalAttribute> = emptyList(),
+        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        override val anyAttribute: XSAnyAttribute? = null,
+        override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
+        override val facets: List<T_Facet_Base> = emptyList(),
+        override val otherContents: List<CompactFragment> = emptyList(),
+        override val otherAttrs: Map<QName, String> = emptyMap()
+
+    ): RestrictionExtensionChoice(), T_ComplexRestrictionType
+
+    @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @Serializable
+    class Extension(
+        override val base: QName,
+        override val id: ID? = null,
+        override val groups: List<T_GroupRef> = emptyList(),
+        override val alls: List<XSAll> = emptyList(),
+        override val choices: List<XSChoice> = emptyList(),
+        override val sequences: List<XSSequence> = emptyList(),
+        override val asserts: List<XSAssert> = emptyList(),
+        override val attributes: List<XSLocalAttribute> = emptyList(),
+        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        override val anyAttribute: XSAnyAttribute? = null,
+        override val annotations: List<XSAnnotation> = emptyList(),
+        override val openContents: List<XSOpenContent> = emptyList(),
+        override val otherAttrs: Map<QName, String>
+
+    ): RestrictionExtensionChoice(), T_ExtensionType
+
+
+}
+

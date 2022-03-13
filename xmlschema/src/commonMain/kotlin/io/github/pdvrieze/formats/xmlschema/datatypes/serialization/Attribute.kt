@@ -25,17 +25,22 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
+@Serializable
 enum class XSAttrUse {
     @SerialName("optional")
+    @XmlSerialName("optional", "", "")
     OPTIONAL,
 
     @SerialName("prohibited")
+    @XmlSerialName("optional", "", "")
     PROHIBITED,
 
     @SerialName("required")
+    @XmlSerialName("optional", "", "")
     REQUIRED
 }
 
+@Serializable
 enum class XSScopeVariety {
     @SerialName("global")
     GLOBAL,

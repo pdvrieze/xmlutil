@@ -16,17 +16,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import nl.adaptivity.xmlutil.QName
 
 interface T_TopLevelElement: T_Element {
-    val name: NCName
+    override val name: NCName
 
-    val substitutionGroup: List<QName>
+    override val substitutionGroup: List<QName>
 
-    val final: T_DerivationSet
+    override val final: T_DerivationSet
+
+    override val ref: Nothing? get() = null
+    override val form: Nothing? get() = null
+    override val targetNamespace: Nothing? get() = null
+    override val minOccurs: Nothing? get() = null
+    override val maxOccurs: Nothing? get() = null
 
     /** Default: false */
-    val abstract: Boolean?
+    override val abstract: Boolean
 }

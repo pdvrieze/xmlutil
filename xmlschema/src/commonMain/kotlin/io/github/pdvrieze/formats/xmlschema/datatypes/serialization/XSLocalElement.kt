@@ -14,37 +14,46 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:UseSerializers(QNameSerializer::class)
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.ID
+import io.github.pdvrieze.formats.xmlschema.datatypes.NCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
+@Serializable
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalElement(
+    override val name: NCName? = null,
     @Serializable(SchemaEnumSetSerializer::class)
-    override val block: Set<T_BlockSet>,
+    override val block: T_BlockSet? = null,
     override val default: String? = null,
     override val fixed: String? = null,
-    override val form: T_FormChoice,
+    override val form: T_FormChoice? = null,
     override val id: ID? = null,
     override val maxOccurs: T_AllNNI = T_AllNNI(1),
     override val minOccurs: ULong = 1.toULong(),
     override val nillable: Boolean? = false,
+    @XmlElement(false)
     override val ref: QName? = null,
     override val targetNamespace: AnyURI? = null,
+    @XmlElement(false)
     override val type: QName? = null,
 
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val simpleTypes: List<T_LocalSimpleType> = emptyList(),
-    override val complexTypes: List<T_ComplexType_Base> = emptyList(),
+    override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
+    override val complexTypes: List<XSLocalComplexType> = emptyList(),
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<G_IdentityConstraint.Unique> = emptyList(),
     override val keys: List<G_IdentityConstraint.Key> = emptyList(),

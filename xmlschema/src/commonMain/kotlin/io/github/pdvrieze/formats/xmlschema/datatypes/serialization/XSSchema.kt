@@ -55,7 +55,7 @@ class XSSchema(
     val version: Token? = null,
 
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
-    val lang: String,
+    val lang: String? = null,
 
     override val includes: List<XSInclude> = emptyList(),
     override val imports: List<XSImport> = emptyList(),

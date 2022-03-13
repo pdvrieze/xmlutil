@@ -30,6 +30,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -37,11 +38,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 abstract class XSTopLevelComplexType(
     override val name: NCName,
-    override val mixed: Boolean,
+    override val mixed: Boolean?,
     override val abstract: Boolean,
     override val final: T_DerivationSet,
     override val block: T_DerivationSet,
-    override val defaultAttributesApply: Boolean,
+    override val defaultAttributesApply: Boolean?,
     override val id: ID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     override val otherAttrs: Map<QName, String> = emptyMap()
@@ -53,10 +54,12 @@ abstract class XSTopLevelComplexType(
     @Serializable
     class SerialDelegate(
         val name: NCName,
-        val mixed: Boolean,
-        val abstract: Boolean,
-        val final: T_DerivationSet,
-        val block: T_DerivationSet,
+        val mixed: Boolean? = null,
+        val abstract: Boolean = false,
+        @XmlElement(false)
+        val final: T_DerivationSet = emptySet(),
+        @XmlElement(false)
+        val block: T_DerivationSet = emptySet(),
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         val groups: List<XSGroupRef> = emptyList(),
@@ -64,15 +67,15 @@ abstract class XSTopLevelComplexType(
         val choices: List<XSChoice> = emptyList(),
         val sequences: List<XSSequence> = emptyList(),
         val asserts: List<XSAssert> = emptyList(),
-        val atributes: List<T_LocalAttribute> = emptyList(),
+        val atributes: List<XSLocalAttribute> = emptyList(),
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
         val anyAttribute: XSAnyAttribute? = null,
         val openContents: List<XSOpenContent> = emptyList(),
-        val defaultAttributesApply: Boolean,
-        val id: ID?,
-        val annotations: List<XSAnnotation>,
+        val defaultAttributesApply: Boolean? = null,
+        val id: ID? = null,
+        val annotations: List<XSAnnotation> = emptyList(),
         @XmlOtherAttributes
-        val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+        val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) {
         fun toTopLevelComplexType(): XSTopLevelComplexType {
             // TODO verify
@@ -147,11 +150,11 @@ abstract class XSTopLevelComplexType(
 
 class XSTopLevelComplexTypeComplex(
     name: NCName,
-    mixed: Boolean,
+    mixed: Boolean?,
     abstract: Boolean,
     final: T_DerivationSet,
     block: T_DerivationSet,
-    defaultAttributesApply: Boolean,
+    defaultAttributesApply: Boolean?,
     override val content: XSComplexContent,
     id: ID? = null,
     annotations: List<XSAnnotation>,
@@ -185,11 +188,11 @@ class XSTopLevelComplexTypeComplex(
 
 class XSTopLevelComplexTypeSimple(
     name: NCName,
-    mixed: Boolean,
+    mixed: Boolean?,
     abstract: Boolean,
     final: T_DerivationSet,
     block: T_DerivationSet,
-    defaultAttributesApply: Boolean,
+    defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
     id: ID? = null,
     annotations: List<XSAnnotation>,
@@ -223,17 +226,17 @@ class XSTopLevelComplexTypeSimple(
 
 class XSTopLevelComplexTypeShorthand(
     name: NCName,
-    mixed: Boolean,
+    mixed: Boolean?,
     abstract: Boolean,
     final: T_DerivationSet,
     block: T_DerivationSet,
-    defaultAttributesApply: Boolean,
+    defaultAttributesApply: Boolean?,
     override val groups: List<XSGroupRef>,
     override val alls: List<XSAll>,
     override val choices: List<XSChoice>,
     override val sequences: List<XSSequence>,
     override val asserts: List<XSAssert>,
-    override val attributes: List<T_LocalAttribute>,
+    override val attributes: List<XSLocalAttribute>,
     override val attributeGroups: List<XSAttributeGroupRef>,
     override val anyAttribute: XSAnyAttribute?,
     override val openContents: List<XSOpenContent>,
