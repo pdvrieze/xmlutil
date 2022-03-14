@@ -1,7 +1,8 @@
 # 0.84.2-SNAPSHOT
 *(??, 202?)<br />*
 Features:
-
+- Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
+  a list of `CompactFragment`s
 Fixes:
 - Fix storing comment events
 - Don't defer serializing inline values as that is not valid. This

@@ -180,6 +180,11 @@ public interface XmlSerializationPolicy {
         return enumDescriptor.getElementName(index)
     }
 
+    @ExperimentalXmlUtilApi
+    public fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+        return true
+    }
+
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }
@@ -187,8 +192,8 @@ public interface XmlSerializationPolicy {
 }
 
 public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName {
-    return  xmlDescriptor.typeDescriptor.typeQname
-        ?:serialTypeNameToQName(xmlDescriptor.typeDescriptor.typeNameInfo, xmlDescriptor.tagParent.namespace)
+    return xmlDescriptor.typeDescriptor.typeQname
+        ?: serialTypeNameToQName(xmlDescriptor.typeDescriptor.typeNameInfo, xmlDescriptor.tagParent.namespace)
 }
 
 /**
@@ -213,7 +218,7 @@ public open class DefaultXmlSerializationPolicy
         typeDiscriminatorName: QName,
         encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
         unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
-    ): this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+    ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
 
     /**
      * Stable constructor that doesn't use experimental api.
@@ -529,6 +534,14 @@ public open class DefaultXmlSerializationPolicy
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalXmlUtilApi
+    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+        serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
+        return ! (serializerParent.elementTypeDescriptor.serialDescriptor.annotations
+            .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
+    }
+
     override fun ignoredSerialInfo(message: String) {
         if (pedantic) throw XmlSerialException(message)
     }
@@ -540,7 +553,13 @@ public open class DefaultXmlSerializationPolicy
         encodeDefault: XmlEncodeDefault = this.encodeDefault,
         typeDiscriminatorName: QName? = this.typeDiscriminatorName
     ): DefaultXmlSerializationPolicy {
-        return DefaultXmlSerializationPolicy(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+        return DefaultXmlSerializationPolicy(
+            pedantic,
+            autoPolymorphic,
+            encodeDefault,
+            unknownChildHandler,
+            typeDiscriminatorName
+        )
     }
 
     @ExperimentalXmlUtilApi
@@ -551,6 +570,12 @@ public open class DefaultXmlSerializationPolicy
         unknownChildHandler: UnknownChildHandler,
         typeDiscriminatorName: QName? = this.typeDiscriminatorName
     ): DefaultXmlSerializationPolicy {
-        return DefaultXmlSerializationPolicy(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+        return DefaultXmlSerializationPolicy(
+            pedantic,
+            autoPolymorphic,
+            encodeDefault,
+            unknownChildHandler,
+            typeDiscriminatorName
+        )
     }
 }

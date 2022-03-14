@@ -666,7 +666,8 @@ internal open class XmlDecoderBase internal constructor(
                         val valueChild = descriptor.getValueChild()
                         if (input.isWhitespace()) {
                             if (valueChild != CompositeDecoder.UNKNOWN_NAME &&
-                                descriptor.getElementDescriptor(valueChild).kind == StructureKind.LIST
+                                xmlDescriptor.getElementDescriptor(valueChild).kind == StructureKind.LIST &&
+                                xmlDescriptor.preserveSpace
                             ) {
                                 return valueChild // We can handle whitespace
                             }
