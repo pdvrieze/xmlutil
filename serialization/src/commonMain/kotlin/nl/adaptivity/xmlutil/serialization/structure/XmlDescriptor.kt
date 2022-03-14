@@ -267,6 +267,8 @@ public class XmlRootDescriptor internal constructor(
     tagName: QName,
 ) : XmlDescriptor(xmlCodecBase, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
+    private val element: XmlDescriptor by lazy { from(xmlCodecBase, tagParent, canBeAttribute = false) }
+
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = true // effectively a root descriptor is inline
@@ -282,7 +284,7 @@ public class XmlRootDescriptor internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor {
         if (index != 0) throw IndexOutOfBoundsException("There is exactly one child to a root tag")
 
-        return from(xmlCodecBase, tagParent, canBeAttribute = false)
+        return element
     }
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {

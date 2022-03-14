@@ -41,11 +41,10 @@ public inline fun CompactFragment.Companion.serializer(): KSerializer<CompactFra
 public object CompactFragmentSerializer : KSerializer<CompactFragment> {
     private val namespacesSerializer = ListSerializer(Namespace)
 
-    override val descriptor: SerialDescriptor
-        get() = buildClassSerialDescriptor("compactFragment") {
-            element("namespaces", namespacesSerializer.descriptor)
-            element("content", serialDescriptor<String>())
-        }
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("compactFragment") {
+        element("namespaces", namespacesSerializer.descriptor)
+        element("content", serialDescriptor<String>())
+    }
 
     override fun deserialize(decoder: Decoder): CompactFragment {
         return decoder.decodeStructure(descriptor) {
