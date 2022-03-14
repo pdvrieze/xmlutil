@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class TestRestriction {
 
@@ -33,5 +34,6 @@ class TestRestriction {
                 "    </xs:restriction>"
 
         val data = XML { autoPolymorphic = true }.decodeFromString(XSSimpleRestriction.serializer(), input)
+        assertEquals(0, data.otherContents.size)
     }
 }

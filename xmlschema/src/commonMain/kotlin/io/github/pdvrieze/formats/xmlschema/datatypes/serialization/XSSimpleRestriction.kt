@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
+@XmlIgnoreWhitespace(true)
 @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 internal class XSSimpleRestriction(
     @XmlElement(false)
