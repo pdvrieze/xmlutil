@@ -154,6 +154,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(project(":serialutil"))
+                implementation(project(":testutil"))
                 implementation(libs.serialization.json)
 
                 implementation(kotlin("test-common"))

@@ -22,8 +22,8 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -129,7 +129,7 @@ class TestMixedTypesafe {
         }
         val expectedXml = "<mixed>a<e> </e>b</mixed>"
         val xml = XML(TypedMixed.module) { autoPolymorphic = true }
-        assertXmlStringEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
+        assertXmlEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
 
         assertEquals(data, xml.decodeFromString(TypedMixed.serializer(), expectedXml))
     }
@@ -141,7 +141,7 @@ internal interface EContent
 @Serializable
 @SerialName("mixed")
 internal class TypedMixed(
-    @XmlValue
+    @XmlValue(true)
     override val data: List<MixedContent<TypedMixedContent>>
 ) : TypeMixedBase<TypedMixedContent>() {
     constructor(config: TypeMixedBase.Builder<TypedMixedContent>.() -> Unit)
@@ -157,7 +157,7 @@ internal class TypedMixed(
 
     @Serializable
     @SerialName("e")
-    class E(@XmlValue override val data: List<MixedContent<EContent>>) :
+    class E(@XmlValue(true) override val data: List<MixedContent<EContent>>) :
         TypeMixedBase<EContent>(), TypedMixedContent {
 
         constructor(config: TypeMixedBase.Builder<EContent>.() -> Unit)

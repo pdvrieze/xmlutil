@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -35,26 +36,6 @@ import nl.adaptivity.xmlutil.serialization.copy
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-
-expect fun assertXmlEquals(expected: String, actual:String)
-
-fun assertXmlStringEquals(expected: String, actual: String) {
-    if (expected != actual) {
-        val expectedReader = XmlStreaming.newGenericReader(expected).apply { skipPreamble() }
-        val actualReader = XmlStreaming.newGenericReader(actual).apply { skipPreamble() }
-
-        try {
-            assertXmlEquals(expectedReader, actualReader)
-        } catch (e: AssertionError) {
-            try {
-                assertEquals(expected, actual)
-            } catch (f: AssertionError) {
-                f.addSuppressed(e)
-                throw f
-            }
-        }
-    }
-}
 
 private fun XmlReader.nextNotIgnored() {
     do {
