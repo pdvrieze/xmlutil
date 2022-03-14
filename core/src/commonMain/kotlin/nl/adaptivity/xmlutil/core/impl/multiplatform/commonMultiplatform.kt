@@ -60,4 +60,4 @@ public expect abstract class Reader {
     public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
-public expect open class StringReader: Reader
+public expect open class StringReader(source: String): Reader

@@ -20,8 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 public actual val KClass<*>.name: String get() = js.name
@@ -113,20 +111,25 @@ public actual abstract class Reader {
     public actual abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
-public actual open class StringReader(private val source: CharSequence): Reader() {
-    private var offset: Int = 0
+public actual open class StringReader(source: CharSequence): Reader() {
+    private val source = source.toString()
+
+    public actual constructor(source: String): this(source as CharSequence)
+
+    private var srcOffset: Int = 0
 
     override fun read(): Int = when {
-        offset >= source.length -> -1
-        else -> source[offset++].code
+        srcOffset >= source.length -> -1
+        else -> source[srcOffset++].code
     }
 
     override fun read(buf: CharArray, offset: Int, len: Int): Int {
-        if (offset >= source.length) return -1
-        val count = minOf(len, source.length - offset)
+        if (srcOffset >= source.length) return -1
+        val count = minOf(len, source.length - srcOffset)
         for (i in 0 until count) {
-            buf[i] = source[offset + i]
+            buf[i + offset] = source[srcOffset + i]
         }
+        srcOffset+=count
         return count
     }
 }

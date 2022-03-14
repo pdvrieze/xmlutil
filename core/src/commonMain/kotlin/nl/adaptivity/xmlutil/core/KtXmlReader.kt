@@ -811,7 +811,7 @@ public class KtXmlReader internal constructor(
     override fun nextTag(): EventType {
         do {
             next()
-        } while (_eventType == IGNORABLE_WHITESPACE || (_eventType == TEXT && isWhitespace))
+        } while (_eventType?.isIgnorable == true || (_eventType == TEXT && isWhitespace))
 
         if (_eventType != END_ELEMENT && _eventType != START_ELEMENT) exception("unexpected type")
         return eventType

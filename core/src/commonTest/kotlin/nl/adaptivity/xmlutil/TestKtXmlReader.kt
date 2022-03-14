@@ -47,7 +47,7 @@ class TestKtXmlReader {
             assertEquals(EventType.END_ELEMENT, reader.next())
 
             assertTrue(reader.hasNext())
-            assertEquals(EventType.END_DOCUMENT, reader.next())
+            assertEquals(EventType.END_DOCUMENT, reader.next(), "Expected end of document, location: ${reader.locationInfo}")
 
             assertFalse(reader.hasNext())
 
