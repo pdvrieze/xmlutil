@@ -257,6 +257,7 @@ public class KtXmlReader internal constructor(
             //            text = null;
             _eventType = peekType()
             when (_eventType) {
+                START_DOCUMENT -> return // just return, no special things here
                 ENTITY_REF -> {
                     pushEntity()
                     return
@@ -433,6 +434,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun peekType(): EventType {
+        if (_eventType==null) return START_DOCUMENT
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
