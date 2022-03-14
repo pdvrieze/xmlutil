@@ -46,7 +46,9 @@ class TestXSTestSuite {
 
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
-            return suite.testSetRefs.map { setRef ->
+            return suite.testSetRefs
+                .filter { it.href.contains("NIST") }
+                .map { setRef ->
 
                 val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
                 val testSet = setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
@@ -57,8 +59,10 @@ class TestXSTestSuite {
 
                 buildDynamicContainer("Test set $tsName") {
                     for (group in testSet.testGroups) {
-                        dynamicContainer("Group ${group.name}") {
-                            addSchemaTests(setBaseUrl, group)
+                        if (group.name.contains("decimal-minExclusive-1")) {
+                            dynamicContainer("Group ${group.name}") {
+                                addSchemaTests(setBaseUrl, group)
+                            }
                         }
                     }
                 }
