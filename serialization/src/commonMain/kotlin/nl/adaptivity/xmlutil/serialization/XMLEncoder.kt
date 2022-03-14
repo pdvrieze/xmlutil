@@ -365,10 +365,12 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         open fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
-            if (reorderInfo != null) {
-                deferredBuffer.add(reorderInfo[index] to deferred)
-            } else if (!deferring) {
+            if (xmlDescriptor.getElementDescriptor(index).doInline) {
+                deferred() // Don't defer inline values as it has a problem with the value serializer deferring
+            } else if (!deferring) { // We should never defer if we are processing deferred elements
                 deferred()
+            } else if (reorderInfo != null) {
+                deferredBuffer.add(reorderInfo[index] to deferred)
             } else {
                 val outputKind =
                     xmlDescriptor.getElementDescriptor(index).outputKind
@@ -552,7 +554,9 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             deferring = false
-            for ((_, deferred) in deferredBuffer.sortedBy { it.first }) {
+
+            val actions = deferredBuffer.sortedBy { it.first }
+            for ((_, deferred) in actions) {
                 deferred()
             }
             target.endTag(serialName)

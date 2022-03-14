@@ -4,7 +4,8 @@ Features:
 
 Fixes:
 - Fix storing comment events
-
+- Don't defer serializing inline values as that is not valid. This
+  also addresses a potential similar issue when reordering.
 
 # 0.84.1
 *(Mar 2, 2022)<br />*
