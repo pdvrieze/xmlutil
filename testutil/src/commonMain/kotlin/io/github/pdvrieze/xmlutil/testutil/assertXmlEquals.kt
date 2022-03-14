@@ -83,7 +83,11 @@ fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
     when (expectedEvent) {
         is XmlEvent.StartElementEvent -> assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent)
         is XmlEvent.EndElementEvent -> assertEquals(expectedEvent.name, (actualEvent as XmlEvent.EndElementEvent).name)
-        is XmlEvent.TextEvent -> assertEquals(expectedEvent.text, (actualEvent as XmlEvent.TextEvent).text)
+        is XmlEvent.TextEvent -> {
+            if (! (expectedEvent.isIgnorable && actualEvent.isIgnorable)) {
+                assertEquals(expectedEvent.text, (actualEvent as XmlEvent.TextEvent).text)
+            }
+        }
     }
 }
 
