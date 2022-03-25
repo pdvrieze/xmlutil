@@ -1,5 +1,3 @@
-import org.gradle.api.plugins.JavaPluginExtension
-
 /*
  * Copyright (c) 2021.
  *
@@ -19,6 +17,8 @@ import org.gradle.api.plugins.JavaPluginExtension
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import org.gradle.api.plugins.JavaPluginExtension
 
 project.extensions.configure<JavaPluginExtension>("java") {
     toolchain {
