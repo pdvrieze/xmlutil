@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.serialization.impl
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlin.reflect.KClass
 
@@ -30,10 +31,19 @@ import kotlin.reflect.KClass
 internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>? = null) : SerializersModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 
-    override fun <Base : Any> polymorphicDefault(
+    @ExperimentalSerializationApi
+    override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
-                                                ) {
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+    ) {
+        // ignore
+    }
+
+    @ExperimentalSerializationApi
+    override fun <Base : Any> polymorphicDefaultSerializer(
+        baseClass: KClass<Base>,
+        defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
+    ) {
         // ignore
     }
 
@@ -44,7 +54,7 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
     override fun <T : Any> contextual(
         kClass: KClass<T>,
         provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>
-                                     ) {
+    ) {
         // ignore
     }
 
@@ -52,8 +62,8 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
         baseClass: KClass<Base>,
         actualClass: KClass<Sub>,
         actualSerializer: KSerializer<Sub>
-                                                     ) {
-        if (wantedBaseClass== null || wantedBaseClass == baseClass) {
+    ) {
+        if (wantedBaseClass == null || wantedBaseClass == baseClass) {
             children.add(actualSerializer)
         }
     }
