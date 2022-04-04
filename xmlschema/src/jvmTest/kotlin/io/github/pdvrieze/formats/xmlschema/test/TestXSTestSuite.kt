@@ -20,7 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import kotlinx.serialization.SerializationException
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
@@ -47,7 +49,7 @@ class TestXSTestSuite {
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             return suite.testSetRefs
-                .filter { true || it.href.contains("NIST") }
+                .filter { false || it.href.contains("sunMeta/suntest.testSet") }
                 .map { setRef ->
 
                 val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -59,7 +61,7 @@ class TestXSTestSuite {
 
                 buildDynamicContainer("Test set $tsName") {
                     for (group in testSet.testGroups) {
-                        if (true || group.name.contains("decimal-minExclusive-1")) {
+                        if (true || group.name.contains("xsd003b.e")) {
                             dynamicContainer("Group ${group.name}") {
                                 addSchemaTests(setBaseUrl, group)
                             }
@@ -95,16 +97,17 @@ class TestXSTestSuite {
         schemaDoc: TSSchemaDocument,
         documentation: String
     ) {
+        val resolver = SimpleResolver(setBaseUrl)
+
         if (schemaTest.expected?.validity == TSValidityOutcome.INVALID) {
             dynamicTest("Schema document ${schemaDoc.href} exists") {
                 assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
             }
             dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
                 val e = assertFails(documentation) {
-                    setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->
-                        val schema = xml.decodeFromReader<XSSchema>(r)
-                        schema.check()
-                    }
+                    val schema = resolver.readSchema(VAnyURI(schemaDoc.href))
+                    val resolvedSchema = schema.resolve(resolver)
+                    resolvedSchema.check()
                 }
                 if (e is NotImplementedError) throw e
                 System.err.println("Expected error: \n")
@@ -112,10 +115,8 @@ class TestXSTestSuite {
             }
         } else {
             dynamicTest("Schema document ${schemaDoc.href} parses") {
-                setBaseUrl.resolve(schemaDoc.href).withXmlReader { r ->
-                    val schema = xml.decodeFromReader<XSSchema>(r)
-                    assertNotNull(schema)
-                }
+                val schema = resolver.readSchema(VAnyURI(schemaDoc.href))
+                assertNotNull(schema)
             }
         }
     }
