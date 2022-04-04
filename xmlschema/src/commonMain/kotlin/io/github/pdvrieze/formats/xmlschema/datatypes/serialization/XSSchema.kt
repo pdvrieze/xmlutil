@@ -147,9 +147,9 @@ class XSSchema(
         return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
     }
 
-    fun resolve(): ResolvedSchema = ResolvedSchema(this)
+    fun resolve(resolver: ResolvedSchema.Resolver): ResolvedSchema = ResolvedSchema(this, resolver)
 
-    fun check() {
-        resolve().check()
+    fun check(resolver: ResolvedSchema.Resolver) {
+        resolve(resolver).check()
     }
 }

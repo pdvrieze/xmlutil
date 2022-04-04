@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+/** List that presents multiple part lists as a single whole */
 class CombiningList<T>(private vararg val parts: List<T>): AbstractList<T>() {
     override val size: Int
         get() = parts.sumOf { it.size }
