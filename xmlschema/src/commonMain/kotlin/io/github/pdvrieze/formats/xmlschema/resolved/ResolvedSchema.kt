@@ -29,7 +29,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Ide
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedSchema(val rawPart: XSSchema) {
+// TODO("Support resolving documents that are external to the original/have some resolver type")
+class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) {
     fun check() {
         for(element in elements) { element.check() }
     }
@@ -45,6 +46,7 @@ class ResolvedSchema(val rawPart: XSSchema) {
     val annotations: List<XSAnnotation> get() = TODO("Resolve annotations if needed")
     val types: List<ResolvedType> get() = TODO("Delegate list of resolved types")
     val attributes: List<XSAttribute> get() = TODO("Delegate list of resolved attributes")
+    val redefines: List<ResolvedRedefine> = DelegateList(rawPart.redefines) { ResolvedRedefine(it, this, resolver) }
 
     val elements: List<ResolvedToplevelElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedToplevelElement(it, this) }
 
@@ -76,5 +78,9 @@ class ResolvedSchema(val rawPart: XSSchema) {
 
     val lang: VLanguage? get() = rawPart.lang
 
+
+    interface Resolver {
+        fun readSchema(schemaLocation: VAnyURI): XSSchema
+    }
 }
 

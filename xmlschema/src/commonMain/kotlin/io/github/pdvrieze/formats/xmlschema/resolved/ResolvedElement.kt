@@ -41,6 +41,7 @@ class ResolvedToplevelElement(
     override val schema: ResolvedSchema
 ) : ResolvedElement() {
     fun check() {
+        println("typedef: $typeDef")
         //TODO("not implemented")
     }
 
@@ -52,7 +53,9 @@ class ResolvedToplevelElement(
         get() = rawPart.targetNamespace ?: schema.rawPart.targetNamespace
 
     val typeDef: T_Type = rawPart.localType
-        ?: type?.let { schema.type(it) }
+        ?: type?.let {
+            schema.type(it)
+        }
         ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
         ?: AnyType
 
