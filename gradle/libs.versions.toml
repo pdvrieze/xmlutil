@@ -2,7 +2,7 @@
 ktor = "1.6.7"
 junit5-jupiter = "5.2.0"
 kotlinx-serialization = "1.3.2"
-kotlin = "1.6.20"
+kotlin = "1.6.21"
 dokka = "1.6.10"
 
 [libraries]
