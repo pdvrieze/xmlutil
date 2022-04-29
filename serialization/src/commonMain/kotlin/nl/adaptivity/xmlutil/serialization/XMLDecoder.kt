@@ -797,7 +797,7 @@ internal open class XmlDecoderBase internal constructor(
                     input.allConsecutiveTextContent().also { // add some checks that we only have text content
                         val peek = input.peek()
                         if (peek !is XmlEvent.EndElementEvent) {
-                            throw XmlSerialException("Missing end tag after text only content")
+                            throw XmlSerialException("Missing end tag after text only content (found: ${peek})")
                         } else if (peek.localName != serialName.localPart) {
                             throw XmlSerialException("Expected end tag local name ${serialName.localPart}, found ${peek.localName}")
                         }

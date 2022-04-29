@@ -125,7 +125,7 @@ public actual open class StringReader(private val source: CharSequence): Reader(
         if (pos >= source.length) return -1
         val count = minOf(len, source.length - pos)
         for (i in 0 until count) {
-            buf[i] = source[offset + i]
+            buf[offset + i] = source[pos + i]
         }
         pos += count
         return count

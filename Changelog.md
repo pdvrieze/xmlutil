@@ -8,7 +8,9 @@ Fixes:
 - Don't defer serializing inline values as that is not valid. This
   also addresses a potential similar issue when reordering.
 - When deserializing element content to a `List<CompactFragment>` retain
-  ignorable whitespace.   
+  ignorable whitespace.
+- Fix the StringReader implementation for native (an issue with parsing from
+  strings over 8192 characters long). #86.
 
 # 0.84.1
 *(Mar 2, 2022)<br />*
