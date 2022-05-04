@@ -1,5 +1,5 @@
-# 0.84.2-SNAPSHOT
-*(??, 202?)<br />*
+# 0.84.2
+*(May 4, 202?)<br />*
 Features:
 - Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
   an `@XmlValue` field of type `List<CompactFragment>`
