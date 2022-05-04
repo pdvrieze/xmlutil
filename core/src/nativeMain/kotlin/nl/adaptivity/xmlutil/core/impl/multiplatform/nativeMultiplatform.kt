@@ -111,6 +111,9 @@ public actual abstract class Reader {
 }
 
 public actual open class StringReader(private val source: CharSequence): Reader() {
+
+    public actual constructor(source: String): this(source as CharSequence)
+
     private var pos: Int = 0
 
     override fun read(): Int = when {
@@ -122,7 +125,7 @@ public actual open class StringReader(private val source: CharSequence): Reader(
         if (pos >= source.length) return -1
         val count = minOf(len, source.length - pos)
         for (i in 0 until count) {
-            buf[i] = source[offset + i]
+            buf[offset + i] = source[pos + i]
         }
         pos += count
         return count

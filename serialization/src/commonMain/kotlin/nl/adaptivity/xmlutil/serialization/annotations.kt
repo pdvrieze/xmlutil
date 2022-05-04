@@ -72,6 +72,15 @@ public annotation class XmlElement(val value: Boolean = true)
 public annotation class XmlValue(val value: Boolean = true)
 
 @SerialInfo
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
+/**
+ * Determine whether whitespace should be ignored or preserved for the tag.
+ *
+ * @property value `true` if whitespace is to be ignored, `false` if preserved.
+ */
+
+@SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlOtherAttributes()
 

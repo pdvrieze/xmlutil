@@ -46,7 +46,7 @@ internal object XmlQNameSerializer : KSerializer<QName> {
         // the cursor may be at an end tag (and the context no longer present)
         val namespaceContext = decoder.input.namespaceContext.freeze()
 
-        val prefixedName = decoder.decodeString()
+        val prefixedName = decoder.decodeString().trim()
         val cIndex = prefixedName.indexOf(':')
 
         val prefix:String

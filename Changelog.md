@@ -1,3 +1,17 @@
+# 0.84.2-SNAPSHOT
+*(??, 202?)<br />*
+Features:
+- Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
+  an `@XmlValue` field of type `List<CompactFragment>`
+Fixes:
+- Fix storing comment events
+- Don't defer serializing inline values as that is not valid. This
+  also addresses a potential similar issue when reordering.
+- When deserializing element content to a `List<CompactFragment>` retain
+  ignorable whitespace.
+- Fix the StringReader implementation for native (an issue with parsing from
+  strings over 8192 characters long). #86.
+
 # 0.84.1
 *(Mar 2, 2022)<br />*
 Features:

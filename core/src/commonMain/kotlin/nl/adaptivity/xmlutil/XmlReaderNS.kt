@@ -78,9 +78,22 @@ public fun XmlReader.elementToFragment(): CompactFragment {
         val missingNamespaces = mutableMapOf<String, String>()
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
 
+        if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) return CompactFragment(text) // Allow for text only compact fragment.
+
         require(EventType.START_ELEMENT, null, null)
         KtXmlWriter(output, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
             out.indentString = "" // disable indents
+            while (eventType == EventType.IGNORABLE_WHITESPACE) {
+                out.ignorableWhitespace(text)
+                next()
+            }
+            if (eventType == EventType.END_ELEMENT || eventType == EventType.END_DOCUMENT) {
+                return CompactFragment(output.toString())
+            }
+
+            require(EventType.START_ELEMENT, null, null)
+
+
             val namespaceForPrefix = out.getNamespaceUri(prefix)
             writeCurrent(out) // writes the start tag
             if (namespaceForPrefix != namespaceURI) {

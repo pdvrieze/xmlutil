@@ -53,7 +53,7 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
         }
         try {
             assertEquals(
-                "Could not find a field for name Location/unexpected\n  candidates: address, temperature",
+                "Could not find a field for name (nl.adaptivity.xml.serialization.OptionalBooleanTest.Location) Location/unexpected (Element)\n  candidates: address, temperature",
                 e.message?.substringBeforeLast(" at position")
             )
         } catch (f: AssertionError) {

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants

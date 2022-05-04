@@ -88,6 +88,21 @@ class TestXmlWriter {
     }
 
     @Test
+    fun testCorrectWithFlush() {
+        val serialized = buildString {
+            XmlStreaming.newWriter(this).use { writer ->
+                writer.smartStartTag(null, "a") {
+                    flush()
+                    smartStartTag(null, "b") {
+                        attribute(null, "c", null, "xx")
+                    }
+                }
+            }
+        }
+        assertEquals("<a><b c=\"xx\"/></a>", serialized.replace(" />", "/>"))
+    }
+
+    @Test
     fun testIndentXml5Spaces1() {
         testIndentImpl1("     ")
     }

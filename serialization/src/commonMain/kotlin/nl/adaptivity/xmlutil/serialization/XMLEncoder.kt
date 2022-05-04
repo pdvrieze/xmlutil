@@ -165,12 +165,11 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
         ) {
-            @Suppress("UNCHECKED_CAST")
-            val overriddenSerializer = xmlDescriptor.overriddenSerializer as KSerializer<T>?
-            when (overriddenSerializer) {
-                null -> serializer.serialize(this, value)
+            val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)
+
+            when (effectiveSerializer) {
                 XmlQNameSerializer -> encodeQName(value as QName)
-                else -> overriddenSerializer.serialize(this, value)
+                else -> effectiveSerializer.serialize(this, value)
             }
         }
 
@@ -257,11 +256,9 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-            when (xmlDescriptor.overriddenSerializer ?: serializer) {
-                XmlQNameSerializer -> {
-                    val actualQName = ensureNamespace(value as QName, false)
-                    XmlQNameSerializer.serialize(this, actualQName)
-                }
+            val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)
+            when (effectiveSerializer) {
+                XmlQNameSerializer -> XmlQNameSerializer.serialize(this, ensureNamespace(value as QName))
                 else -> super.encodeSerializableValue(serializer, value)
             }
         }
@@ -303,6 +300,7 @@ internal open class XmlEncoderBase internal constructor(
             StructureKind.LIST -> when (xmlDescriptor.outputKind) {
                 OutputKind.Attribute ->
                     AttributeListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex)
+
                 else -> ListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex, discriminatorName)
             }
 
@@ -367,10 +365,12 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         open fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
-            if (reorderInfo != null) {
-                deferredBuffer.add(reorderInfo[index] to deferred)
-            } else if (!deferring) {
+            if (xmlDescriptor.getElementDescriptor(index).doInline) {
+                deferred() // Don't defer inline values as it has a problem with the value serializer deferring
+            } else if (!deferring) { // We should never defer if we are processing deferred elements
                 deferred()
+            } else if (reorderInfo != null) {
+                deferredBuffer.add(reorderInfo[index] to deferred)
             } else {
                 val outputKind =
                     xmlDescriptor.getElementDescriptor(index).outputKind
@@ -403,20 +403,18 @@ internal open class XmlEncoderBase internal constructor(
                 else -> XmlEncoder(elementDescriptor, index)
             }
 
-            @Suppress("UNCHECKED_CAST")
-            val overriddenSerializer: SerializationStrategy<T> =
-                (elementDescriptor.overriddenSerializer ?: serializer) as SerializationStrategy<T>
+            val effectiveSerializer = xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
-            when (overriddenSerializer) {
+            when (effectiveSerializer) {
                 XmlQNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
                 CompactFragmentSerializer -> if (xmlDescriptor.getValueChild() == index) {
                     defer(index) {
                         CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
                     }
                 } else {
-                    defer(index) { overriddenSerializer.serialize(encoder, value) }
+                    defer(index) { effectiveSerializer.serialize(encoder, value) }
                 }
-                else -> defer(index) { overriddenSerializer.serialize(encoder, value) }
+                else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
             }
         }
 
@@ -556,7 +554,9 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             deferring = false
-            for ((_, deferred) in deferredBuffer.sortedBy { it.first }) {
+
+            val actions = deferredBuffer.sortedBy { it.first }
+            for ((_, deferred) in actions) {
                 deferred()
             }
             target.endTag(serialName)
@@ -797,15 +797,19 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             if (index % 2 == 0) {
-                entryKey = when (elementDescriptor.overriddenSerializer) {
+                val effectiveSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)
+
+                entryKey = when (effectiveSerializer) {
                     XmlQNameSerializer -> value as QName
                     else -> QName(PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
-                        encodeSerializableValue(serializer, value)
+                        encodeSerializableValue(effectiveSerializer, value)
                     }.output.toString())
                 }
             } else {
+                val effectiveSerializer = xmlDescriptor.getElementDescriptor(1).effectiveSerializationStrategy(serializer)
+
                 val entryValue = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
-                    encodeSerializableValue(serializer, value)
+                    encodeSerializableValue(effectiveSerializer, value)
                 }.output.toString()
                 doWriteAttribute(index, entryKey, entryValue)
             }
@@ -908,11 +912,10 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            @Suppress("UNCHECKED_CAST", "MoveVariableDeclarationIntoWhen")
-            val overriddenSerializer: SerializationStrategy<T> =
-                (elementDescriptor.overriddenSerializer ?: serializer) as SerializationStrategy<T>
+            @Suppress("UNCHECKED_CAST")
+            val effectiveSerializer: SerializationStrategy<T> = elementDescriptor.effectiveSerializationStrategy(serializer)
 
-            when (overriddenSerializer) {
+            when (effectiveSerializer) {
                 CompactFragmentSerializer -> if (parentXmlDescriptor.getValueChild() == listChildIdx) {
                     CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
                 } else {

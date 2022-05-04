@@ -257,6 +257,7 @@ public class KtXmlReader internal constructor(
             //            text = null;
             _eventType = peekType()
             when (_eventType) {
+                START_DOCUMENT -> return // just return, no special things here
                 ENTITY_REF -> {
                     pushEntity()
                     return
@@ -433,6 +434,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun peekType(): EventType {
+        if (_eventType==null) return START_DOCUMENT
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
@@ -809,7 +811,7 @@ public class KtXmlReader internal constructor(
     override fun nextTag(): EventType {
         do {
             next()
-        } while (_eventType == IGNORABLE_WHITESPACE || (_eventType == TEXT && isWhitespace))
+        } while (_eventType?.isIgnorable == true || (_eventType == TEXT && isWhitespace))
 
         if (_eventType != END_ELEMENT && _eventType != START_ELEMENT) exception("unexpected type")
         return eventType
