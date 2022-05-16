@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.dom.*
 import kotlin.test.assertEquals
@@ -67,8 +68,12 @@ fun assertDomEquals(expected: Node, actual: Node): Unit = when {
 }
 
 private fun assertElementEquals(expected: Element, actual: Element) {
-    val expectedAttrsSorted = expected.attributes.asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
-    val actualAttrsSorted = actual.attributes.asSequence().sortedBy { "${it.prefix}:${it.localName}" }.toList()
+    val expectedAttrsSorted = expected.attributes.asSequence()
+        .filterNot { it.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .sortedBy { "${it.prefix}:${it.localName}" }.toList()
+    val actualAttrsSorted = actual.attributes.asSequence()
+        .filterNot { it.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .sortedBy { "${it.prefix}:${it.localName}" }.toList()
 
 //    val expectedString = expected.outerHTML
 //    val actualString = actual.outerHTML
