@@ -33,7 +33,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
 
     }
 
-    public class TextEvent(locationInfo: String?, override val eventType: EventType, public val text: String) :
+    public open class TextEvent(locationInfo: String?, override val eventType: EventType, public val text: String) :
         XmlEvent(locationInfo) {
 
         override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
@@ -41,6 +41,22 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         override val isIgnorable: Boolean
             get() = super.isIgnorable ||
                     (eventType == EventType.TEXT && isXmlWhitespace(text))
+
+        override fun toString(): String {
+            return "$eventType - \"$text\" (${locationInfo ?: ""})"
+        }
+    }
+
+    public class EntityRefEvent(
+        locationInfo: String?,
+        public val localName: String,
+        text: String
+    ) : TextEvent(locationInfo, EventType.ENTITY_REF, text) {
+
+        override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
+
+        override val isIgnorable: Boolean
+            get() = false
 
         override fun toString(): String {
             return "$eventType - \"$text\" (${locationInfo ?: ""})"
