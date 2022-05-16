@@ -90,11 +90,11 @@ private fun assertElementEquals(expected: Element, actual: Element) {
     }
 
     val expectedChildren =
-        expected.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent != "" }
+        expected.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent?.trim() != "" }
             .mergeText().toList()
 
     val actualChildren =
-        actual.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent != "" }
+        actual.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent?.trim() != "" }
             .mergeText().toList()
 
     assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
