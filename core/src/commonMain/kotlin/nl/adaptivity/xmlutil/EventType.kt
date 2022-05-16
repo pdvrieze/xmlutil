@@ -158,11 +158,11 @@ public enum class EventType {
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
-            writer.entityRef(textEvent.text)
+            writer.text(textEvent.text)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
-            writer.entityRef(reader.text)
+            writer.text(reader.text)
         }
     },
     IGNORABLE_WHITESPACE {

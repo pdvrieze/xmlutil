@@ -28,9 +28,13 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.dom.Element
+import nl.adaptivity.xmlutil.dom.documentElement
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -145,13 +149,59 @@ class TestCommon {
             policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
         }
 
-        val expected = StringWithMarkup("Chloroacetic acid, >=99%")
+        val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
 
         val actual = xml.decodeFromString<StringWithMarkup>(
             "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
-                    "    <String>Chloroacetic acid, &gt;=99%</String>\n" +
+                    "    <String>Chloroacetic acid, &gt;=99% &lt; 100%</String>\n" +
                     "</StringWithMarkup>"
         )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun deserializeToElementXmlWithEntity() {
+        val xml = XML {
+            repairNamespaces = true
+            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+        }
+
+//        val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
+
+        val actual = xml.decodeFromString(ElementSerializer,
+            "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
+                    "    <String>Chloroacetic acid, &gt;=99% &lt; 100%</String>\n" +
+                    "</StringWithMarkup>"
+        )
+
+        val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view","StringWithMarkup"))
+        val expected = doc.documentElement.also {stringWithMarkup ->
+            doc.createElement("String").also { string ->
+                stringWithMarkup.appendChild(string)
+                string.appendChild(doc.createTextNode("Chloroacetic acid, >=99% < 100%"))
+            }
+        }
+
+        assertDomEquals(expected, actual)
+    }
+
+
+    @Test
+    fun serializeXmlWithEntity() {
+        val xml = XML {
+            repairNamespaces = true
+            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+        }
+
+        val data = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
+
+        val expected =
+            "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">" +
+                    "<String>Chloroacetic acid, &gt;=99% &lt; 100%</String>" +
+                    "</StringWithMarkup>"
+
+        val actual = xml.encodeToString(StringWithMarkup.serializer(), data)
+
         assertEquals(expected, actual)
     }
 
