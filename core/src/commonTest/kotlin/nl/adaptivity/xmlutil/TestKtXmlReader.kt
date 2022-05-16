@@ -70,8 +70,6 @@ class TestKtXmlReader {
 
             assertEquals(EventType.END_ELEMENT, reader.eventType)
             assertEquals(QName("tag"), reader.name)
-
-            assertEquals(EventType.END_DOCUMENT, reader.next())
         }
     }
 
@@ -91,8 +89,6 @@ class TestKtXmlReader {
 
             assertEquals(EventType.END_ELEMENT, reader.eventType)
             assertEquals(QName("tag"), reader.name)
-
-            assertEquals(EventType.END_DOCUMENT, reader.next())
         }
     }
 }
