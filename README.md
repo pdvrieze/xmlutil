@@ -12,9 +12,9 @@ XmlUtil is a set of packages that supports multiplatform XML in Kotlin (only Jav
 * Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
 
 This project is a cross-platform XML serialization (wrapping) library compatible with kotlin serialization. It provides
-capabilities for Android, JVM and JS (alpha quality)
+capabilities for Android, JVM, JS and Native (beta quality).
 
-It also provides serialization support
+It also provides serialization support.
 
 **Help wanted**: Any help with extending this project is welcome. Help is especially needed for the following aspects:
 
@@ -23,7 +23,28 @@ It also provides serialization support
 * Javascript support
   * Core Javascript support needs testing but should work. It is based on DOM so may be slow
   * Javascript serialization support: make serialization work on Javascript once possible
-* Native support: Currently there is no implementation for Kotlin native. 
+* Native support: Currently there is no implementation for Kotlin native.
+
+#### Notes
+Please note that the JVM target will **not** work on Android due to different
+serialization libraries. It is possible to consume the multiplatform targets on
+single-target Kotlin but there may be issues with gradle not finding the correct
+version. To alleviate that you can add the following code to the project:
+
+```kotlin
+kotlin {
+    target {
+        attributes {
+            if (KotlinPlatformType.attribute !in this) {
+                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+            }
+        }
+    }
+}
+
+KotlinPlatformType.setupAttributesMatchingStrategy(dependencies.attributesSchema)
+```
+This code tells gradle that you use (in the example the Android platform)
 
 ### Versioning scheme
 This library is based upon the unstable [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) library. 
@@ -37,7 +58,7 @@ The library is designed as a multiplatform kotlin module, but platform-specific 
 ### Add repository
 The project's maven access is hosted on OSS Sonatype (and available from Maven Central).
 
-Releases can be added from maven central or:
+Releases can be added from **maven central** or:
 ```groovy
 repositories {
 	maven {
@@ -59,7 +80,7 @@ repositories {
 ```
    implementation("io.github.pdvrieze.xmlutil:core:0.84.2")
 ```
-#### JVM -- uses the stax API not available on Android
+#### JVM -- uses the stax API _not available_ on Android
 ```
    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.84.2")
 ```
