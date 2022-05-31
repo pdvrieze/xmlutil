@@ -56,5 +56,5 @@ private class NamedNodeMapIterator(private val map: NamedNodeMap): Iterator<Attr
     override fun hasNext(): Boolean = pos < map.getLength()
 
     @Suppress("UNCHECKED_CAST")
-    override fun next(): Attr = map.get(pos) as Attr
+    override fun next(): Attr = map.get(pos++) as Attr
 }

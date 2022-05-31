@@ -24,6 +24,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.XmlStreaming
 import org.junit.jupiter.api.Test
+import nl.adaptivity.xmlutil.dom.Element
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import kotlin.test.assertEquals
@@ -60,6 +61,18 @@ class JvmSerializationTest {
             assertEquals(expected, actual)
             throw e // if we reach here, throw anyway
         }
+    }
+
+    /**
+     * An issue from #78
+     */
+    @Test
+    fun `update dom node with additional attribute`() {
+        val xml: XML = XML {}
+        val rootNode: Element = xml.decodeFromString(ElementSerializer, "<root></root>")
+        rootNode.setAttribute("test", "value")
+        assertEquals("<root test=\"value\"/>", xml.encodeToString(ElementSerializer, rootNode))
+        println()
     }
 
     @Test
