@@ -175,7 +175,7 @@ class TestCommon {
         )
 
         val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view","StringWithMarkup"))
-        val expected = doc.documentElement.also {stringWithMarkup ->
+        val expected = doc.documentElement!!.also {stringWithMarkup ->
             doc.createElement("String").also { string ->
                 stringWithMarkup.appendChild(string)
                 string.appendChild(doc.createTextNode("Chloroacetic acid, >=99% < 100%"))
@@ -197,10 +197,10 @@ class TestCommon {
 
         val expected =
             "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">" +
-                    "<String>Chloroacetic acid, &gt;=99% &lt; 100%</String>" +
+                    "<String>Chloroacetic acid, >=99% &lt; 100%</String>" +
                     "</StringWithMarkup>"
 
-        val actual = xml.encodeToString(StringWithMarkup.serializer(), data)
+        val actual = xml.encodeToString(StringWithMarkup.serializer(), data).replace("&gt;", ">")
 
         assertEquals(expected, actual)
     }
