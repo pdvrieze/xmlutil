@@ -505,6 +505,14 @@ public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivit
 	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
+public final class nl/adaptivity/xmlutil/XmlEvent$EntityRefEvent : nl/adaptivity/xmlutil/XmlEvent$TextEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getLocalName ()Ljava/lang/String;
+	public fun isIgnorable ()Z
+	public fun toString ()Ljava/lang/String;
+	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
 public abstract class nl/adaptivity/xmlutil/XmlEvent$NamedEvent : nl/adaptivity/xmlutil/XmlEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public final fun getLocalName ()Ljava/lang/String;
@@ -550,7 +558,7 @@ public final class nl/adaptivity/xmlutil/XmlEvent$StartElementEvent : nl/adaptiv
 	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
-public final class nl/adaptivity/xmlutil/XmlEvent$TextEvent : nl/adaptivity/xmlutil/XmlEvent {
+public class nl/adaptivity/xmlutil/XmlEvent$TextEvent : nl/adaptivity/xmlutil/XmlEvent {
 	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;)V
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
 	public final fun getText ()Ljava/lang/String;
