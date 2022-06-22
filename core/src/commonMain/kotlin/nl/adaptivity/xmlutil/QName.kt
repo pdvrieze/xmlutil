@@ -74,7 +74,7 @@ public object QNameSerializer : KSerializer<QName> {
                 2 -> prefix = decodeStringElement(descriptor, 2)
             }
         }
-        return QName(namespace, localPart, prefix)
+        QName(namespace, localPart, prefix)
     }
 
     @OptIn(ExperimentalSerializationApi::class)

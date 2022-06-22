@@ -88,6 +88,9 @@ fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
                 assertEquals(expectedEvent.text, (actualEvent as XmlEvent.TextEvent).text)
             }
         }
+        else -> {
+            // ignore
+        }
     }
 }
 
