@@ -319,7 +319,6 @@ public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil
 public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/XmlBufferedReaderBase {
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
 	public fun close ()V
-	protected fun getHasPeekItems ()Z
 	protected fun peekFirst ()Lnl/adaptivity/xmlutil/XmlEvent;
 	public fun pushBackCurrent ()V
 }
@@ -327,7 +326,6 @@ public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/Xml
 public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlutil/XmlWriter {
 	public fun <init> (Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Lnl/adaptivity/xmlutil/IterableNamespaceContext;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun cdsect (Ljava/lang/String;)V
 	public fun close ()V
@@ -1041,7 +1039,6 @@ public final class nl/adaptivity/xmlutil/util/CompactFragment : nl/adaptivity/xm
 
 public final class nl/adaptivity/xmlutil/util/CompactFragment$Companion {
 	public final fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
-	public final fun getFACTORY ()Lnl/adaptivity/xmlutil/XmlDeserializerFactory;
 }
 
 public final class nl/adaptivity/xmlutil/util/CompactFragment$Factory : nl/adaptivity/xmlutil/XmlDeserializerFactory {
