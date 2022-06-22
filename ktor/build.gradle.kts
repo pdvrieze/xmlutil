@@ -25,16 +25,15 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("jvm")
     id("java-library")
-    id("kotlinx-serialization")
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
+    signing
     id("org.jetbrains.dokka")
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    alias(libs.plugins.binaryValidator)
 }
 
 val ktor_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
+val kotlin_version: String get() = libs.versions.kotlin.get()
 
 val xmlutil_serial_version: String by project
 val xmlutil_core_version: String by project

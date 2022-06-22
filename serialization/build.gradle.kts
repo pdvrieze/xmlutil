@@ -30,12 +30,12 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
+    signing
     id("org.jetbrains.dokka")
     idea
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_serial_version: String by project
@@ -48,7 +48,6 @@ base {
 }
 
 val serializationVersion: String by project
-val jupiterVersion: String by project
 val woodstoxVersion: String by project
 val kotlin_version: String = libs.versions.kotlin.get()
 val kxml2Version: String = libs.kxml2.get().versionConstraint.requiredVersion
@@ -100,15 +99,6 @@ kotlin {
                 attribute(androidAttribute, true)
                 attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-            compilations.all {
-                val isTest = name=="test"
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = if (isTest) "1.8" else "1.6"
-                        logger.lifecycle("Setting task $name to target ${jvmTarget}")
-                    }
-                }
             }
         }
         js(BOTH) {

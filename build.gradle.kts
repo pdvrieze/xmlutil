@@ -24,10 +24,11 @@ import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
 plugins {
+    id(libs.plugins.kotlinMultiplatform.get().pluginId)/* version "1.7.0"*/ apply false
     idea
-    kotlin("multiplatform") apply false
-    id("maven-publish")
-    id("signing")
+//    kotlin("multiplatform") apply false
+    `maven-publish`
+    signing
     id(libs.plugins.dokka.get().pluginId)
 }
 
@@ -44,7 +45,7 @@ tasks {
 }
 
 val xmlutil_version: String by project
-val kotlin_version: String by project
+val kotlin_version: String get() = libs.versions.kotlin.get()
 
 allprojects {
     group = "io.github.pdvrieze.xmlutil"

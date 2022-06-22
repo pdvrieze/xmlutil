@@ -41,14 +41,10 @@ pluginManagement {
                     def ver = requested.version!=null ? requested.version : dokkaVersion
                     useVersion(ver)
                     break
-                case "org.jetbrains.kotlinx.binary-compatibility-validator" :
-                    def ver = requested.version!=null ? requested.version : validatorVersion
-                    useModule("org.jetbrains.kotlinx:binary-compatibility-validator:$ver")
-                    break
-                case "kotlinx-serialization":
-                    def version = (requested.version == null || requested.version.length() == 0) ? kotlin_version : requested.version
-                    useModule("org.jetbrains.kotlin:kotlin-serialization:$version")
-                    break
+//                case "org.jetbrains.kotlinx.binary-compatibility-validator" :
+//                    def ver = requested.version!=null ? requested.version : validatorVersion
+//                    useModule("org.jetbrains.kotlinx:binary-compatibility-validator")
+//                    break
             }
         }
     }

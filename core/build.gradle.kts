@@ -26,12 +26,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
-    id("maven-publish")
-    id("signing")
-    id("org.jetbrains.dokka")
+    alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
+    signing
+    id(libs.plugins.dokka.get().pluginId)
     idea
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_core_version: String by project
@@ -42,10 +42,7 @@ base {
     version = xmlutil_core_version
 }
 
-val serializationVersion: String by project
 val woodstoxVersion: String by project
-val kotlin_version: String by project
-val jupiterVersion: String by project
 val kxml2Version: String by project
 
 val argJvmDefault: String by project
@@ -96,13 +93,6 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                val isTest = name == "test"
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = if (isTest) "1.8" else "1.6"
-                        logger.lifecycle("Setting task $name to target $jvmTarget")
-                    }
-                }
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)
@@ -142,7 +132,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation(libs.serialization.core)
             }
         }
 
@@ -164,7 +154,7 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation(kotlin("stdlib-jdk8", kotlin_version))
+                implementation(kotlin("stdlib-jdk8"))
             }
         }
 

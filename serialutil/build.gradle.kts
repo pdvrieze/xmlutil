@@ -27,12 +27,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlinSerialization)
     id("maven-publish")
-    id("signing")
+    signing
     idea
     id("org.jetbrains.dokka")
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_serial_version: String by project
@@ -69,11 +69,6 @@ kotlin {
                 attribute(androidAttribute, true)
                 attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = if (name=="test") "1.8" else "1.6"
-                }
             }
         }
         js(BOTH) {

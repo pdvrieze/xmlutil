@@ -29,12 +29,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
+    signing
     id("org.jetbrains.dokka")
     idea
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_version: String by project
@@ -45,11 +45,7 @@ base {
     version = xmlutil_version
 }
 
-val serializationVersion: String by project
-val kotlin_version: String by project
-val jupiterVersion: String by project
-val woodstoxVersion: String by project
-val kxml2Version: String by project
+val serializationVersion: String get() = libs.versions.kotlinx.serialization.get()
 
 val argJvmDefault: String by project
 
@@ -99,13 +95,6 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
             compilations.all {
-                val isTest = name=="test"
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = if (isTest) "1.8" else "1.6"
-                        logger.lifecycle("Setting task $compileKotlinTaskName to target ${jvmTarget}")
-                    }
-                }
                 tasks.named<Test>("${target.name}Test") {
                     useJUnitPlatform()
                     testTask.dependsOn(this)
@@ -157,7 +146,7 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaShared)
             dependencies {
-                implementation(kotlin("stdlib-jdk8", kotlin_version))
+                implementation(kotlin("stdlib-jdk8"))
             }
         }
 
@@ -168,7 +157,7 @@ kotlin {
                 implementation(libs.junit5.api)
 
                 runtimeOnly(libs.junit5.engine)
-                runtimeOnly("com.fasterxml.woodstox:woodstox-core:$woodstoxVersion")
+                runtimeOnly(libs.woodstox)
             }
         }
 
@@ -176,7 +165,7 @@ kotlin {
             dependsOn(javaShared)
 
             dependencies {
-                compileOnly("net.sf.kxml:kxml2:$kxml2Version")
+                compileOnly(libs.kxml2)
             }
         }
 
@@ -188,7 +177,7 @@ kotlin {
                 implementation(libs.junit5.api)
 
                 runtimeOnly(libs.junit5.engine)
-                runtimeOnly("net.sf.kxml:kxml2:$kxml2Version")
+                runtimeOnly(libs.kxml2)
             }
         }
 

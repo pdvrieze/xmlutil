@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlinSerialization)
     idea
 }
 
@@ -37,14 +37,11 @@ val xmlutil_util_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesBaseName = "serialutil"
+    archivesName.set("serialutil")
     version = xmlutil_util_version
 }
 
-val serializationVersion: String by project
-
-val jupiterVersion: String by project
-val kotlin_version: String by project
+val kotlin_version: String get() = libs.versions.kotlin.get()
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
@@ -99,7 +96,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                api(libs.serialization.core)
                 api(kotlin("test"))
                 api(project(":core"))
 

@@ -25,7 +25,7 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 
 plugins {
     kotlin("jvm")
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlinSerialization)
     idea
 }
 
@@ -35,7 +35,7 @@ base {
 
 val serializationVersion: String by project
 
-val kotlin_version: String by project
+val kotlin_version: String get() = libs.versions.kotlin.get()
 
 val autoModuleName = "net.devrieze.serialexamples"
 
