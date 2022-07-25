@@ -29,5 +29,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref="kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref="kotlin" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref="kotlin" }
+kotlinJs = { id = "org.jetbrains.kotlin.js", version.ref="kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref="dokka" }
 binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref="binaryValidator" }
