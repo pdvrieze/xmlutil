@@ -175,7 +175,7 @@ public interface XmlSerializationPolicy {
         children: List<XmlDescriptor>
     ): Collection<XmlOrderConstraint> = original
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @OptIn(ExperimentalSerializationApi::class)
     public fun enumEncoding(enumDescriptor: SerialDescriptor, index: Int): String {
         return enumDescriptor.getElementName(index)
     }
@@ -281,7 +281,7 @@ public open class DefaultXmlSerializationPolicy
         return autoPolymorphic || xmlPolyChildren != null
     }
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated("Don't use or implement this, use the 3 parameter version")
     override fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
@@ -351,7 +351,7 @@ public open class DefaultXmlSerializationPolicy
     }
 
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
     override fun serialNameToQName(
         serialName: String,
         parentNamespace: Namespace

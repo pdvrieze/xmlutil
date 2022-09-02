@@ -143,7 +143,10 @@ public class DomReader(public val delegate: Node) : XmlReader {
                 }.iterator()
             }
 
-            @Suppress("OverridingDeprecatedMember")
+            @Deprecated(
+                "Don't use as unsafe",
+                replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+            )
             override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
                 // TODO return all possible ones by doing so recursively
                 return listOfNotNull(getPrefix(namespaceURI)).iterator()

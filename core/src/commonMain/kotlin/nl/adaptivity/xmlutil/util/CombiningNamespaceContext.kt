@@ -75,7 +75,10 @@ public class CombiningNamespaceContext(
         return (primary.asSequence() + secondary.asSequence()).iterator()
     }
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        "Don't use as unsafe",
+        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+    )
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         val prefixes1 = primary.prefixesFor(namespaceURI)
         val prefixes2 = secondary.prefixesFor(namespaceURI)

@@ -52,11 +52,10 @@ public class GatheringNamespaceContext(
         }
     }
 
-    @Suppress(
-        "UNCHECKED_CAST",
-        "DEPRECATION",
-        "OverridingDeprecatedMember"
-    )// Somehow this type has no proper generic parameter
+    @Deprecated(
+        "Don't use as unsafe",
+        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+    )
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         if (parentContext == null) {
             return emptyList<String>().iterator()

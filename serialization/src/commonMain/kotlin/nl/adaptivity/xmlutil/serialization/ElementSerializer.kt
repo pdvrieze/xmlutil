@@ -137,8 +137,8 @@ public object ElementSerializer : KSerializer<Element> {
 
 private fun serialize(encoder: XmlWriter, value: Element) {
     encoder.smartStartTag(value.namespaceURI, value.localName ?: value.tagName, value.prefix) {
-        for (n in value.attributes) {
-            serialize(encoder, n as Attr)
+        for (n: Attr in value.attributes) {
+            serialize(encoder, n)
         }
         for (child in value.childNodes) {
             serialize(encoder, child)

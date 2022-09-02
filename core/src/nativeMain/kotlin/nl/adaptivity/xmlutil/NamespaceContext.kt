@@ -32,7 +32,10 @@ public actual interface NamespaceContext {
 public actual interface NamespaceContextImpl : NamespaceContext {
     public actual fun getPrefixesCompat(namespaceURI: String): Iterator<String>
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        "Don't use as unsafe",
+        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+    )
     override fun getPrefixes(namespaceURI: String): Iterator<String> = getPrefixesCompat(namespaceURI)
 }
 

@@ -56,6 +56,10 @@ internal class FreezableDelegatingNamespaceContext(private val delegator: () -> 
         return ((declaredHolder.asSequence() + gatheredHolder.asSequence())).iterator()
     }
 
+    @Deprecated(
+        "Don't use as unsafe",
+        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+    )
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
         val prefixes = mutableListOf<String>()
 

@@ -368,6 +368,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        @OptIn(ExperimentalSerializationApi::class)
         open fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             if (xmlDescriptor.getElementDescriptor(index).doInline) {
                 deferred() // Don't defer inline values as it has a problem with the value serializer deferring

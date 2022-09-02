@@ -183,7 +183,10 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
         }
     }
 
-    @Suppress("OverridingDeprecatedMember")
+    @Deprecated(
+        "Don't use as unsafe",
+        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+    )
     override fun getPrefixesCompat(namespaceURI: String): Iterator<String> = getPrefixSequence(namespaceURI).iterator()
 
     public fun getPrefix(index: Int): String {

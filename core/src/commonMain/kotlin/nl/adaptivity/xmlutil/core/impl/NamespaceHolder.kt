@@ -139,7 +139,10 @@ internal open class NamespaceHolder : Iterable<Namespace> {
 
         override fun iterator(): Iterator<Namespace> = this@NamespaceHolder.iterator()
 
-        @Suppress("OverridingDeprecatedMember")
+        @Deprecated(
+            "Don't use as unsafe",
+            replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+        )
         override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
             return ((totalNamespaceCount - 1) downTo 0)
                 .asSequence()

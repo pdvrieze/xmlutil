@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("EXPERIMENTAL_API_USAGE")
+@file:OptIn(WillBePrivate::class)
 
 package nl.adaptivity.xmlutil.serialization.structure
 
@@ -36,6 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
+@OptIn(ExperimentalSerializationApi::class)
 @ExperimentalXmlUtilApi
 internal val SerialDescriptor.declDefault: String?
     get() = annotations.declDefault
@@ -43,6 +45,7 @@ internal val SerialDescriptor.declDefault: String?
 internal val Collection<Annotation>.declDefault: String?
     get() = firstOrNull<XmlDefault>()?.value
 
+@OptIn(ExperimentalSerializationApi::class)
 @ExperimentalXmlUtilApi
 internal fun SerialDescriptor.declOutputKind(): OutputKind? {
     for (a in annotations) {
@@ -95,7 +98,7 @@ public interface SafeXmlDescriptor {
 
 public sealed class XmlDescriptor(
     @Suppress("EXPOSED_PROPERTY_TYPE_IN_CONSTRUCTOR") // it is actually private as sealed
-    protected val xmlCodecBase: XmlCodecBase,
+    internal val xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
     final override val tagParent: SafeParentInfo = serializerParent,
 ) : SafeXmlDescriptor {
@@ -146,10 +149,12 @@ public sealed class XmlDescriptor(
         throw IndexOutOfBoundsException("There are no children")
     }
 
-    internal fun <A: Appendable> toString(builder: A, indent: Int, seen: MutableSet<String>): A {
+    @OptIn(ExperimentalSerializationApi::class)
+    internal fun <A : Appendable> toString(builder: A, indent: Int, seen: MutableSet<String>): A {
         when (this) {
             is XmlListDescriptor,
             is XmlPrimitiveDescriptor -> appendTo(builder, indent, seen)
+
             else -> if (serialDescriptor.serialName in seen) {
                 builder.append(tagName.toString()).append("<...> = ").append(outputKind.name)
             } else {
@@ -199,7 +204,7 @@ public sealed class XmlDescriptor(
          *                   (and isn't builtin). It is used to determine the applied annotations and requested tag
          *                   name.
          */
-        @OptIn(ExperimentalSerializationApi::class)
+        @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         internal fun from(
             xmlCodecBase: XmlCodecBase,
             serializerParent: SafeParentInfo,
@@ -218,6 +223,7 @@ public sealed class XmlDescriptor(
                     effectiveSerializerParent = serializerParent
                     effectiveTagParent = tagParent
                 }
+
                 else -> {
                     elementSerialDescriptor = overridenSerializer.descriptor
                     effectiveSerializerParent = serializerParent.copy(overriddenSerializer = overridenSerializer)
@@ -248,6 +254,7 @@ public sealed class XmlDescriptor(
                         effectiveTagParent
                     )
                 }
+
                 is PolymorphicKind ->
                     return XmlPolymorphicDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
 
@@ -315,13 +322,14 @@ public sealed class XmlValueDescriptor(
     tagParent: SafeParentInfo,
 ) : XmlDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
+    @OptIn(ExperimentalSerializationApi::class)
     public final override val isCData: Boolean = (serializerParent.elementUseAnnotations.firstOrNull<XmlCData>()
         ?: tagParent.elementUseAnnotations.firstOrNull<XmlCData>()
         ?: serializerParent.elementSerialDescriptor.annotations.firstOrNull<XmlCData>())
         ?.value == true
 
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     public val default: String? = tagParent.elementUseAnnotations.declDefault
         ?: serializerParent.elementSerialDescriptor.declDefault
 
@@ -374,12 +382,13 @@ public sealed class XmlValueDescriptor(
     private object UNSET
 }
 
-public class XmlPrimitiveDescriptor internal constructor(
+public class XmlPrimitiveDescriptor @ExperimentalXmlUtilApi
+internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
     canBeAttribute: Boolean,
-    override @ExperimentalXmlUtilApi val preserveSpace: Boolean
+    @ExperimentalXmlUtilApi override val preserveSpace: Boolean
 ) : XmlValueDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
     @ExperimentalSerializationApi
@@ -389,6 +398,7 @@ public class XmlPrimitiveDescriptor internal constructor(
     override val outputKind: OutputKind =
         xmlCodecBase.config.policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.append(tagName.toString())
             .append(':')
@@ -433,6 +443,7 @@ public class XmlInlineDescriptor internal constructor(
         get() = child.preserveSpace
 
     init {
+        @OptIn(ExperimentalSerializationApi::class)
         if (!serializerParent.elementSerialDescriptor.isInline) {
             throw AssertionError("InlineDescriptors are only valid for inline classes")
         }
@@ -440,6 +451,7 @@ public class XmlInlineDescriptor internal constructor(
 
     override val outputKind: OutputKind get() = child.outputKind//OutputKind.Inline
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val child: XmlDescriptor by lazy {
 
         val effectiveUseNameInfo: DeclaredNameInfo = when {
@@ -505,7 +517,7 @@ public class XmlInlineDescriptor internal constructor(
     }
 
     private companion object {
-        @OptIn(ExperimentalSerializationApi::class)
+        @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
         val UNSIGNED_SERIALIZER_DESCRIPTORS: Array<SerialDescriptor> = arrayOf(
             UByte.serializer().descriptor,
             UShort.serializer().descriptor,
@@ -567,7 +579,8 @@ public class XmlAttributeMapDescriptor internal constructor(
 
 }
 
-public class XmlCompositeDescriptor internal constructor(
+public class XmlCompositeDescriptor @ExperimentalXmlUtilApi
+internal constructor(
     xmlCodecBase: XmlCodecBase,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
@@ -589,6 +602,7 @@ public class XmlCompositeDescriptor internal constructor(
     private val initialChildReorderInfo: Collection<XmlOrderConstraint>? =
         xmlCodecBase.config.policy.initialChildReorderMap(serialDescriptor)
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val children: List<XmlDescriptor> by lazy {
 
         val valueChildIndex = getValueChild()
@@ -598,13 +612,19 @@ public class XmlCompositeDescriptor internal constructor(
             else -> List(elementsCount) { index -> createElementDescriptor(xmlCodecBase, index, true) }
         }
 
-        if (valueChildIndex>=0) {
+        if (valueChildIndex >= 0) {
             val valueChild = l[valueChildIndex]
             if (valueChild.serialKind != StructureKind.LIST || valueChild.getElementDescriptor(0).serialDescriptor != CompactFragmentSerializer.descriptor) {
                 val invalidIdx = l.indices
-                    .firstOrNull() { idx -> idx !=valueChildIndex && l[idx].outputKind == OutputKind.Element}
+                    .firstOrNull() { idx -> idx != valueChildIndex && l[idx].outputKind == OutputKind.Element }
                 if (invalidIdx != null) {
-                    throw XmlSerialException("Types with an @XmlValue member may not contain other child elements (${serialDescriptor.getElementDescriptor(invalidIdx)}")
+                    throw XmlSerialException(
+                        "Types with an @XmlValue member may not contain other child elements (${
+                            serialDescriptor.getElementDescriptor(
+                                invalidIdx
+                            )
+                        }"
+                    )
                 }
             }
         }
@@ -724,6 +744,7 @@ public class XmlPolymorphicDescriptor internal constructor(
         polymorphicMode = when {
             xmlCodecBase.config.policy.isTransparentPolymorphic(serializerParent, tagParent) ->
                 PolymorphicMode.TRANSPARENT
+
             polyAttrName == null -> PolymorphicMode.TAG
             else -> PolymorphicMode.ATTR(polyAttrName)
         }
@@ -819,6 +840,7 @@ public class XmlPolymorphicDescriptor internal constructor(
                         polyVal.toString(this, indent + 4, seen).appendLine(',')
                     }
                 }
+
                 else -> {
                     append(" (")
                     append(" <poly> [")
@@ -899,6 +921,7 @@ public class XmlListDescriptor internal constructor(
         tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false -> {
             OutputKind.Attribute
         }
+
         !isListEluded -> OutputKind.Element
 
         tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
@@ -938,6 +961,7 @@ public class XmlListDescriptor internal constructor(
                     childDescriptor.toString(this, indent, seen)
                     append('>')
                 }
+
                 else -> {
                     append(": ExplicitList<")
                     childDescriptor.toString(this, indent, seen)
@@ -1076,6 +1100,7 @@ private class DetachedParent(
 
     override val descriptor: SafeXmlDescriptor? get() = null
 
+    @OptIn(ExperimentalSerializationApi::class)
     override val parentIsInline: Boolean get() = serialDescriptor.isInline
 
     override val elementTypeDescriptor
@@ -1146,6 +1171,7 @@ public class ParentInfo(
                 overriddenSerializer.descriptor,
                 descriptor.tagName.toNamespace()
             )
+
             index == -1 -> descriptor.typeDescriptor
             else -> XmlTypeDescriptor(elementSerialDescriptor, descriptor.tagParent.namespace)
         }
@@ -1268,29 +1294,38 @@ internal fun String.indentNonFirst(indent: String) =
                     else -> s
                 }
             }
+
             else -> indent + s
         }
     }.joinToString("\n")
 
-internal fun <A: Appendable> A.appendLineIndented(indent: Int, lines: CharSequence): A = apply {
+internal fun <A : Appendable> A.appendLineIndented(indent: Int, lines: CharSequence): A = apply {
     val indentStr = " ".repeat(indent)
     var first = true
     for (line in lines.lineSequence()) {
-        if (first) { first = false } else { append(indentStr) }
+        if (first) {
+            first = false
+        } else {
+            append(indentStr)
+        }
         appendLine(line)
     }
 }
 
-internal fun <A: Appendable> A.appendIndented(indent: Int, lines: CharSequence): A = apply {
+internal fun <A : Appendable> A.appendIndented(indent: Int, lines: CharSequence): A = apply {
     val indentStr = " ".repeat(indent)
     var first = true
     for (line in lines.lineSequence()) {
-        if (first) { first = false } else { appendLine().append(indentStr) }
+        if (first) {
+            first = false
+        } else {
+            appendLine().append(indentStr)
+        }
         append(indentStr).append(line)
     }
 }
 
-internal fun <A: Appendable> A.appendIndent(count: Int) = apply {
+internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
     for (i in 0 until count) {
         append(' ')
     }

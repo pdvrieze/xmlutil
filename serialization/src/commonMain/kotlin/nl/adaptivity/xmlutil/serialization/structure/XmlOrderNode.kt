@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization.structure
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.serialization.OutputKind
 
@@ -112,11 +113,11 @@ internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
 /**
  *
  */
-@Suppress("EXPERIMENTAL_API_USAGE")
+@OptIn(ExperimentalSerializationApi::class)
 internal fun Collection<XmlOrderNode>.fullFlatten(
     serialDescriptor: SerialDescriptor,
     children: List<XmlDescriptor>
-                                                 ): IntArray {
+): IntArray {
     val originalOrderNodes = arrayOfNulls<XmlOrderNode>(serialDescriptor.elementsCount)
 
     fun addTransitive(node: XmlOrderNode) {
@@ -182,7 +183,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
 }
 
 private inline fun <E, R : Comparable<R>> List<E>.indexOfMinBy(selector: (E) -> R): Int {
-    if (size == 0) return -1
+    if (isEmpty()) return -1
     if (size == 1) return 0
     var idx = 1
     var minIdx = 0

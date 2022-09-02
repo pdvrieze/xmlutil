@@ -69,7 +69,11 @@ public actual class XMLFragmentStreamReader constructor(
 
         }
 
-        @Suppress("OverridingDeprecatedMember", "DEPRECATION")
+        @Deprecated(
+            "Don't use as unsafe",
+            replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+        )
+        @Suppress("DEPRECATION")
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             if (parent == null) {
                 return super.getPrefixes(namespaceURI)

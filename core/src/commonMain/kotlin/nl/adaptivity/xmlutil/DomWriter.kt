@@ -107,7 +107,10 @@ public class DomWriter constructor(
             parentElement?.collectDeclaredPrefixes(namespaceUri, result, redeclared)
         }
 
-        @OptIn(ExperimentalStdlibApi::class)
+        @Deprecated(
+            "Don't use as unsafe",
+            replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
+        )
         override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
             return buildSet<String> {
                 (currentNode as Element?)?.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
