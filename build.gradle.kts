@@ -18,6 +18,7 @@
  * under the License.
  */
 
+import net.devrieze.gradle.ext.configureDokka
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
@@ -71,6 +72,8 @@ allprojects {
 rootProject.plugins.withType(YarnPlugin::class.java) {
     rootProject.the<YarnRootExtension>().disableGranularWorkspaces()
 }
+
+project.configureDokka()
 
 tasks.register("backupYarnLock") {
     dependsOn("kotlinNpmInstall")
