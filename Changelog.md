@@ -1,6 +1,9 @@
 # 0.84.3
 *(??, 2022)<br />*
 Fixes:
+- Fix reading of entity references. #88
+- Fix NamedNodeMap iterator (an issue for dom based apis)
+- Support Kotlin 1.7.10
 - Fix namespaceholder's getPrefix to not offer overridden prefixes. This
   addresses #99.
 - Dom getLocalName may return null for some implementations (where there is no
