@@ -277,7 +277,7 @@ public sealed class XmlDescriptor(
 public class XmlRootDescriptor internal constructor(
     xmlCodecBase: XmlCodecBase,
     descriptor: SerialDescriptor,
-    tagName: QName,
+    tagName: QName?,
 ) : XmlDescriptor(xmlCodecBase, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
     private val element: XmlDescriptor by lazy { from(xmlCodecBase, tagParent, canBeAttribute = false) }
@@ -808,7 +808,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val parentSerialName: String? = tagParent.descriptor?.serialDescriptor?.serialName
+    public val parentSerialName: String? = tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.qualifiedName
 
     private val children by lazy {
         List(elementsCount) { index ->
@@ -891,7 +891,7 @@ internal fun SerialDescriptor.getElementNameInfo(index: Int, parentNamespace: Na
 internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
-        else -> serialName
+        else -> capturedKClass?.qualifiedName ?: serialName
     }
     val qName = annotations.firstOrNull<XmlSerialName>()?.toQName(realSerialName, parentNamespace)
     return DeclaredNameInfo(realSerialName, qName)
@@ -1059,7 +1059,7 @@ private class DetachedParent(
         outputKind: OutputKind? = null
     ) : this(
         serialDescriptor,
-        DeclaredNameInfo(serialDescriptor.serialName, useName),
+        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.qualifiedName ?:serialName }, useName),
         isDocumentRoot,
         outputKind
     )
@@ -1173,6 +1173,9 @@ public class ParentInfo(
             )
 
             index == -1 -> descriptor.typeDescriptor
+            elementSerialDescriptor.kind == SerialKind.CONTEXTUAL ->
+                descriptor.typeDescriptor
+
             else -> XmlTypeDescriptor(elementSerialDescriptor, descriptor.tagParent.namespace)
         }
 
@@ -1194,6 +1197,9 @@ public class ParentInfo(
         get() {
             return when {
                 overriddenSerializer != null -> overriddenSerializer.descriptor
+
+                descriptor.serialKind == SerialKind.CONTEXTUAL ->
+                    descriptor.serialDescriptor
 
                 index == -1 -> descriptor.serialDescriptor
 
