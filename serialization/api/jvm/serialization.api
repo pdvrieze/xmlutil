@@ -640,7 +640,6 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public final fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
 	protected final fun getUseNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
-	protected final fun getXmlCodecBase ()Lnl/adaptivity/xmlutil/serialization/XmlCodecBase;
 	public fun hashCode ()I
 	public fun isCData ()Z
 	public fun isElementOptional (I)Z
