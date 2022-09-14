@@ -38,6 +38,11 @@ public expect class QName {
     public fun getNamespaceURI(): String
 }
 
+public fun QName.isEquivalent(other: QName): Boolean {
+    return getLocalPart() == other.getLocalPart() &&
+            getNamespaceURI() == other.getNamespaceURI()
+}
+
 public inline val QName.prefix: String get() = getPrefix()
 public inline val QName.localPart: String get() = getLocalPart()
 public inline val QName.namespaceURI: String get() = getNamespaceURI()

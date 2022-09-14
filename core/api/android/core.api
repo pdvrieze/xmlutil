@@ -249,6 +249,7 @@ public final class nl/adaptivity/xmlutil/QNameKt {
 	public static final fun getLocalPart (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static final fun getNamespaceURI (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static final fun getPrefix (Ljavax/xml/namespace/QName;)Ljava/lang/String;
+	public static final fun isEquivalent (Ljavax/xml/namespace/QName;Ljavax/xml/namespace/QName;)Z
 	public static final fun toNamespace (Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/Namespace;
 }
 
