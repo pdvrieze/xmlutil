@@ -1,5 +1,5 @@
 # 0.84.2
-*(May 4, 202?)<br />*
+*(May 4, 2022)<br />*
 Features:
 - Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
   an `@XmlValue` field of type `List<CompactFragment>`
