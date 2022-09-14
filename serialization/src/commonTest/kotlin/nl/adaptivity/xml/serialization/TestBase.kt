@@ -223,11 +223,11 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_serialization_should_work() {
-        val serialized =
-            XML(serializersModule = serializersModule) {
-                autoPolymorphic = false
-                policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
-            }.encodeToString(serializer, value)
+        val xml = XML(serializersModule = serializersModule) {
+            autoPolymorphic = false
+            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+        }
+        val serialized = xml.encodeToString(serializer, value)
                 .normalizeXml()
         assertXmlEquals(expectedXSIPolymorphicXML, serialized)
     }
