@@ -49,6 +49,7 @@ internal abstract class XmlCodecBase internal constructor(
 
         /**
          * TODO: move to policy
+         * TODO: use the XmlSerialDescriptor rather than type name, and maybe use known types.
          * This function is used by the decoder to try to expand a shortened type name. It is the
          * opposite of [tryShortenTypeName].
          */
