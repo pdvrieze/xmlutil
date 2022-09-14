@@ -297,6 +297,8 @@ public class XmlRootDescriptor internal constructor(
         return element
     }
 
+    override val elementsCount: Int get() = 1
+
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.apply {
             append("<root>(")
