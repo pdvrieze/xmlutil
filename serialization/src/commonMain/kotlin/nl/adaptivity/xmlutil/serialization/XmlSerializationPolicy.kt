@@ -538,7 +538,7 @@ public open class DefaultXmlSerializationPolicy
     @ExperimentalXmlUtilApi
     override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
         serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
-        return ! (serializerParent.elementTypeDescriptor.serialDescriptor.annotations
+        return ! (serializerParent.elementSerialDescriptor.annotations
             .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
     }
 
