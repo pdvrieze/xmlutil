@@ -1,5 +1,10 @@
 # 0.84.3
 *(??, 2022)<br />*
+Features:
+- Add the ability to have polymorphic root tags (#98). Note that for
+  a non-transparent approach it is strongly advised to explicitly
+  provide the tagname polymorphic types do not support annotations on
+  the type. 
 Fixes:
 - Fix reading of entity references. #88
 - Fix NamedNodeMap iterator (an issue for dom based apis)

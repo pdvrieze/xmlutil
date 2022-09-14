@@ -39,6 +39,7 @@ import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.XmlAttributeMapDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.jvm.JvmOverloads
@@ -192,18 +193,18 @@ public class XML constructor(
     ) {
         target.indentString = config.indentString
 
-        val serialQName = serializer.descriptor.annotations.firstOrNull<XmlSerialName>()
-            ?.toQName(serializer.descriptor.serialName, null)
-            ?.let { if (prefix != null) it.copy(prefix = prefix) else it }
-            ?: config.policy.serialTypeNameToQName(
-                XmlSerializationPolicy.DeclaredNameInfo(serializer.descriptor.serialName, null),
-                XmlEvent.NamespaceImpl(
-                    XMLConstants.DEFAULT_NS_PREFIX,
-                    XMLConstants.NULL_NS_URI
-                )
-            )
+        if (prefix != null) {
+            val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
+            val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, null)
 
-        encodeToWriter(target, serializer, value, serialQName)
+            val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
+
+            encodeToWriter(target, serializer, value, serialQName)
+
+        } else {
+            encodeToWriter(target, serializer, value, rootName = null)
+        }
+
     }
 
     /**
@@ -218,7 +219,7 @@ public class XML constructor(
         target: XmlWriter,
         serializer: SerializationStrategy<T>,
         value: T,
-        rootName: QName,
+        rootName: QName?,
     ) {
         target.indentString = config.indentString
 
@@ -228,10 +229,12 @@ public class XML constructor(
                 XmlDeclMode.Minimal -> {
                     target.startDocument(config.xmlVersion.versionString)
                 }
+
                 XmlDeclMode.Charset -> {
                     // TODO support non-utf8 encoding
                     target.startDocument(config.xmlVersion.versionString, encoding = "UTF-8")
                 }
+
                 XmlDeclMode.None,
                 XmlDeclMode.Auto -> {} // no implementation needed
             }
@@ -386,10 +389,6 @@ public class XML constructor(
         val serialName = rootName
             ?: deserializer.descriptor.annotations.firstOrNull<XmlSerialName>()
                 ?.toQName(deserializer.descriptor.serialName, null)
-            ?: config.policy.serialTypeNameToQName(
-                XmlSerializationPolicy.DeclaredNameInfo(deserializer.descriptor.serialName, null),
-                XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
-            )
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
@@ -399,8 +398,16 @@ public class XML constructor(
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
         val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, serialName)
 
+        val elementDescriptor = rootDescriptor.getElementDescriptor(0)
+        val polyInfo = (elementDescriptor as? XmlPolymorphicDescriptor)?.run {
+            val tagName = reader.name
+            polyInfo.values.singleOrNull {
+                tagName.isEquivalent(it.tagName)
+            }?.let { XmlDecoderBase.PolyInfo(tagName, 0, it) }
+        }
+
         val decoder = xmlDecoderBase.XmlDecoder(
-            rootDescriptor.getElementDescriptor(0)
+            elementDescriptor, polyInfo
         )
         return decoder.decodeSerializableValue(deserializer)
     }
@@ -1059,10 +1066,12 @@ public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?
         UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) } ?: QName(serialName)
         else -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
     }
+
     value == UNSET_ANNOTATION_VALUE -> when (prefix) {
         UNSET_ANNOTATION_VALUE -> QName(serialName, namespace)
         else -> QName(serialName, namespace, prefix)
     }
+
     prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
     else -> QName(namespace, value, prefix)
 }
