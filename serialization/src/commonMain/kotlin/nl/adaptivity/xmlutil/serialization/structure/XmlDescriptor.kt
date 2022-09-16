@@ -34,6 +34,7 @@ import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
+import nl.adaptivity.xmlutil.serialization.impl.serialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -808,7 +809,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val parentSerialName: String? = tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.qualifiedName
+    public val parentSerialName: String? = tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.serialName
 
     private val children by lazy {
         List(elementsCount) { index ->
@@ -891,7 +892,7 @@ internal fun SerialDescriptor.getElementNameInfo(index: Int, parentNamespace: Na
 internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
-        else -> capturedKClass?.qualifiedName ?: serialName
+        else -> capturedKClass?.serialName ?: serialName
     }
     val qName = annotations.firstOrNull<XmlSerialName>()?.toQName(realSerialName, parentNamespace)
     return DeclaredNameInfo(realSerialName, qName)
@@ -1059,7 +1060,7 @@ private class DetachedParent(
         outputKind: OutputKind? = null
     ) : this(
         serialDescriptor,
-        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.qualifiedName ?:serialName }, useName),
+        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.serialName ?:serialName }, useName),
         isDocumentRoot,
         outputKind
     )
@@ -1165,6 +1166,7 @@ public class ParentInfo(
     override val namespace: Namespace
         get() = descriptor.tagName.toNamespace()
 
+    @OptIn(ExperimentalSerializationApi::class)
     override val elementTypeDescriptor: XmlTypeDescriptor
         get() = when {
             overriddenSerializer != null -> XmlTypeDescriptor(
