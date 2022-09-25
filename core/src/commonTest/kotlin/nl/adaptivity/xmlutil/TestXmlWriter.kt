@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
-import kotlin.jvm.JvmOverloads
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -191,42 +190,64 @@ class TestXmlWriter {
     }
 
     @Test
-    fun testWriteSmartTag() {
+    fun testWritePlatformSmartTag() {
         val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
         val builder = StringBuilder()
         XmlStreaming.newWriter(builder).use { out ->
             out.smartStartTag("ns/a", "a", "") {
                 smartStartTag("ns/b", "b", "") {
-                    smartStartTag2("", "c", "")
+                    smartStartTag("", "c", "")
                     attribute("", "val", "", "value")
                     endTag("", "c", "")
                 }
             }
         }
 
-        assertEquals(expected, builder.toString())
-
+        assertEquals(expected, builder.toString().replace(" />", "/>"))
     }
 
-    @JvmOverloads
-    public fun XmlWriter.smartStartTag2(nsUri: String?, localName: String, prefix: String? = null) {
-        if (nsUri == null) {
-            val namespace = namespaceContext.getNamespaceURI(prefix ?: XMLConstants.DEFAULT_NS_PREFIX) ?: XMLConstants.NULL_NS_URI
-            startTag(namespace, localName, prefix)
-        } else {
-            var writeNs = false
-
-            val usedPrefix = getPrefix(nsUri) ?: run {
-                val currentNs = prefix?.let { getNamespaceUri(it) } ?: XMLConstants.NULL_NS_URI
-                if (nsUri != currentNs) {
-                    writeNs = true
-                }; prefix ?: XMLConstants.DEFAULT_NS_PREFIX
+    @Test
+    fun testWriteGenericSmartTag() {
+        val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
+        val builder = StringBuilder()
+        XmlStreaming.newGenericWriter(builder).use { out ->
+            out.smartStartTag("ns/a", "a", "") {
+                smartStartTag("ns/b", "b", "") {
+                    smartStartTag("", "c", "")
+                    attribute("", "val", "", "value")
+                    endTag("", "c", "")
+                }
             }
-
-            startTag(nsUri, localName, usedPrefix)
-
-            if (writeNs) this.namespaceAttr(usedPrefix, nsUri)
         }
+
+        assertEquals(expected, builder.toString().replace(" />", "/>"))
+    }
+
+    @Test
+    fun testWriteDomSmartTag() {
+        val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
+        val builder = StringBuilder()
+        val dw = DomWriter()
+        dw.let { out ->
+            out.smartStartTag("ns/a", "a", "") {
+                smartStartTag("ns/b", "b", "") {
+                    smartStartTag("", "c", "")
+                    attribute("", "val", "", "value")
+                    endTag("", "c", "")
+                }
+            }
+        }
+        XmlStreaming.newWriter(builder, false).use { out ->
+            val input = DomReader(dw.target)
+            while (input.hasNext()) {
+                input.next()
+                if (! input.eventType.isIgnorable)
+                    input.writeCurrent(out)
+            }
+        }
+
+        assertEquals(expected, builder.toString().replace(" />", "/>"))
+
     }
 
 }

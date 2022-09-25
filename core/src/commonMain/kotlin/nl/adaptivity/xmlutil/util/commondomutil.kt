@@ -72,18 +72,28 @@ internal inline fun NamedNodeMap.filterTyped(predicate: (Attr) -> Boolean): List
 
 internal fun Node.myLookupPrefix(namespaceUri: String): String? {
     if (nodeType != NodeConsts.ELEMENT_NODE) return null
-    (this as Element).attributes.forEachAttr { attr ->
-        when {
-            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return attr.localName
+    return (this as Element).myLookupPrefixImpl(namespaceUri, mutableSetOf())
+}
 
-            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return ""
+private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: MutableSet<String>): String? {
+    this.attributes?.forEachAttr { attr ->
+        when {
+            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE ->
+                if (attr.value == namespaceUri && attr.localName !in seenPrefixes) {
+                    return attr.localName
+                } else {
+                    seenPrefixes.add(attr.localName)
+                }
+
+            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE ->
+                if (attr.value == namespaceUri && attr.localName !in seenPrefixes) {
+                    return ""
+                } else {
+                    seenPrefixes.add("")
+                }
         }
     }
-    return parentNode?.myLookupPrefix(namespaceUri)
+    return (parentNode as? Element)?.myLookupPrefixImpl(namespaceUri, seenPrefixes)
 }
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {

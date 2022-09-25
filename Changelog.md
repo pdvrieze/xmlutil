@@ -1,3 +1,14 @@
+# 0.84.3
+*(??, 2022)<br />*
+Fixes:
+- Fix namespaceholder's getPrefix to not offer overridden prefixes. This
+  addresses #99.
+- Dom getLocalName may return null for some implementations (where there is no
+  namespace).
+- Fix empty namespace handling for dom namespace attributes
+- In DOMReader make sure that namespace declaration attributes are not exposed
+  as double (as attribute and nsDecl) events. 
+
 # 0.84.2
 *(May 4, 2022)<br />*
 Features:

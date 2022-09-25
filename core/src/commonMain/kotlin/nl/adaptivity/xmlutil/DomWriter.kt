@@ -120,11 +120,12 @@ public class DomWriter constructor(
         private set
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
+        println("DEBUG - namespaceAttribute - {$namespacePrefix}=$namespaceUri")
         val cur = requireCurrent("Namespace attribute")
         when {
 
             namespacePrefix.isEmpty() -> // Also ignore setting the namespace to empty if it is set.
-                if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("").isNullOrEmpty()))) {
+                if (!(namespaceUri.isEmpty() && (cur.lookupNamespaceURI("") == ""))) {
                     cur.setAttributeNS(
                         XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
                         XMLConstants.XMLNS_ATTRIBUTE, namespaceUri
@@ -238,6 +239,7 @@ public class DomWriter constructor(
     }
 
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
+        println("DEBUG - attribute - {$namespace}$prefix:$name=$value")
         val cur = requireCurrent("attribute")
         when {
             prefix.isNullOrEmpty() -> cur.setAttribute(name, value)

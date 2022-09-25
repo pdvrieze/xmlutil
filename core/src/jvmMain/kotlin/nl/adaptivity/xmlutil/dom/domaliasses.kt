@@ -63,7 +63,7 @@ public actual inline fun Node.getNextSibling(): Node? = nextSibling
 
 public actual inline fun Attr.getNamespaceURI(): String? = namespaceURI
 public actual inline fun Attr.getPrefix(): String? = prefix
-public actual inline fun Attr.getLocalName(): String = localName
+public actual inline fun Attr.getLocalName(): String? = localName
 public actual inline fun Attr.getName(): String = name
 public actual inline fun Attr.getValue(): String = value
 public actual inline fun Attr.setValue(value: String) { this.value = value }

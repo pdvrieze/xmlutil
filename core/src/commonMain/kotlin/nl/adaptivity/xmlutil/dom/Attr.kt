@@ -26,7 +26,7 @@ public expect interface Attr : Node
 
 public expect inline fun Attr.getNamespaceURI(): String?
 public expect inline fun Attr.getPrefix(): String?
-public expect inline fun Attr.getLocalName(): String
+public expect inline fun Attr.getLocalName(): String?
 public expect inline fun Attr.getName(): String
 public expect inline fun Attr.getValue(): String
 public expect inline fun Attr.setValue(value: String)
@@ -38,7 +38,7 @@ public inline val Attr.namespaceURI: String?
 public inline val Attr.prefix: String?
     get() = getPrefix()
 
-public inline val Attr.localName: String
+public inline val Attr.localName: String?
     get() = getLocalName()
 
 public inline val Attr.name: String

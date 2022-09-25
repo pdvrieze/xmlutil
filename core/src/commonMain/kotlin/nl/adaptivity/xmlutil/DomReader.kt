@@ -239,7 +239,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
 
     override fun getAttributeLocalName(index: Int): String {
         val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
-        return attr.localName
+        return attr.localName ?: attr.name
     }
 
     override fun getAttributeValue(index: Int): String {

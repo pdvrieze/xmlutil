@@ -56,12 +56,15 @@ public enum class EventType {
                 writer.namespaceAttr(attr.prefix, attr.namespaceURI)
             }
             for (i in 0 until reader.attributeCount) {
-                writer.attribute(
-                    reader.getAttributeNamespace(i),
-                    reader.getAttributeLocalName(i),
-                    null,
-                    reader.getAttributeValue(i)
-                )
+                val attrNs = reader.getAttributeNamespace(i)
+                if (attrNs!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+                    writer.attribute(
+                        attrNs,
+                        reader.getAttributeLocalName(i),
+                        null,
+                        reader.getAttributeValue(i)
+                    )
+                }
             }
         }
     },
