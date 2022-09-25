@@ -82,7 +82,7 @@ private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: Mutab
                 if (attr.value == namespaceUri && attr.localName !in seenPrefixes) {
                     return attr.localName
                 } else {
-                    seenPrefixes.add(attr.localName)
+                    seenPrefixes.add(attr.localName ?: attr.name)
                 }
 
             attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE ->

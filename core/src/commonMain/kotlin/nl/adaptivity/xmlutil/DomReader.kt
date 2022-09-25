@@ -132,7 +132,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
                         c.attributes.forEachAttr { attr ->
                             when {
                                 attr.prefix == "xmlns" ->
-                                    yield(XmlEvent.NamespaceImpl(attr.localName, attr.value))
+                                    yield(XmlEvent.NamespaceImpl(attr.localName ?: attr.name, attr.value))
 
                                 attr.prefix.isNullOrEmpty() && attr.localName == "xmlns" ->
                                     yield(XmlEvent.NamespaceImpl("", attr.value))
