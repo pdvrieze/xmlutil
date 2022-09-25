@@ -41,14 +41,14 @@ jobs:
                     path: ~/.konan
                     key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
                     restore-keys: ${{ runner.os }}-konan-
-            -   id: cache-gradle-windows
-                name: Set up gradle
-                uses: gradle/gradle-build-action@v2
             -   name: Set up JDK 11
                 uses: actions/setup-java@v3
                 with:
                     java-version: '11'
                     distribution: 'adopt'
+            -   id: cache-gradle-windows
+                name: Set up gradle
+                uses: gradle/gradle-build-action@v2
             -   name: Check (macos / windows)
                 if: matrix.os != 'ubuntu-latest'
                 run: ./gradlew nativeTest --stacktrace
