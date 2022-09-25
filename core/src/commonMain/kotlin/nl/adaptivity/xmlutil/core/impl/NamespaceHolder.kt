@@ -164,10 +164,15 @@ internal open class NamespaceHolder : Iterable<Namespace> {
         return when (val namespaceUriStr = namespaceUri.toString()) {
             XML_NS_URI -> XML_NS_PREFIX
             XMLNS_ATTRIBUTE_NS_URI -> XMLNS_ATTRIBUTE
-            else -> ((totalNamespaceCount - 1) downTo 0)
-                .firstOrNull { getNamespace(it) == namespaceUriStr }
-                ?.let { getPrefix(it) }
-                ?: if (namespaceUriStr == NULL_NS_URI) DEFAULT_NS_PREFIX else null
+            "" -> if ((0 until totalNamespaceCount).none { getPrefix(it).isEmpty() }) DEFAULT_NS_PREFIX else null
+            else -> {
+                ((totalNamespaceCount - 1) downTo 0)
+                    .firstOrNull { i ->
+                        getNamespace(i) == namespaceUriStr &&
+                                ((i + 1) until totalNamespaceCount).none { j -> getPrefix(i) == getPrefix(j) }
+                    }
+                    ?.let { getPrefix(it) }
+            }
 
         }
     }

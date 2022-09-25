@@ -74,7 +74,7 @@ private fun assertElementEquals(expected: Element, actual: Element) {
 //    val actualString = actual.outerHTML
 
 //    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: ${expectedString} & ${actualString}")
-    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: ")
+    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: $expectedAttrsSorted != $actualAttrsSorted")
     for ((idx, expectedAttr) in expectedAttrsSorted.withIndex()) {
         val actualAttr = actualAttrsSorted[idx]
         assertEquals(expectedAttr.namespaceURI ?: "", actualAttr.namespaceURI ?: "")

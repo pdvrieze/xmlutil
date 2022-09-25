@@ -126,9 +126,11 @@ internal open class XmlEncoderBase internal constructor(
                         if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
+
                 OutputKind.Attribute -> {
                     smartWriteAttribute(serialName, value)
                 }
+
                 OutputKind.Mixed,
                 OutputKind.Text -> {
                     if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
@@ -291,8 +293,10 @@ internal open class XmlEncoderBase internal constructor(
                     }
                     AttributeMapEncoder(xmlDescriptor)
                 }
+
                 else -> TagEncoder(xmlDescriptor, discriminatorName)
             }
+
             StructureKind.CLASS,
             StructureKind.OBJECT,
             SerialKind.ENUM -> TagEncoder(xmlDescriptor, discriminatorName)
@@ -403,7 +407,8 @@ internal open class XmlEncoderBase internal constructor(
                 else -> XmlEncoder(elementDescriptor, index)
             }
 
-            val effectiveSerializer = xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
+            val effectiveSerializer =
+                xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
             when (effectiveSerializer) {
                 XmlQNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
@@ -414,6 +419,7 @@ internal open class XmlEncoderBase internal constructor(
                 } else {
                     defer(index) { effectiveSerializer.serialize(encoder, value) }
                 }
+
                 else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
             }
         }
@@ -544,6 +550,7 @@ internal open class XmlEncoderBase internal constructor(
                         if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
+
                 OutputKind.Attribute -> doWriteAttribute(index, elementDescriptor.tagName, value)
                 OutputKind.Mixed,
                 OutputKind.Text -> defer(index) {
@@ -595,12 +602,12 @@ internal open class XmlEncoderBase internal constructor(
     }
 
     /**
-     * Determine/reserve a a namespace for this element.
+     * Determine/reserve a namespace for this element.
      * Will reuse a prefix if available.
      */
     private fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
         when {
-            !isAttr -> Unit // skip attribute handling in this stage
+            !isAttr -> Unit // This stage is only for attribute handling
             // for empty namespace uri, force empty prefix
             qName.namespaceURI == "" -> return qName.copy(prefix = "")
 
@@ -638,10 +645,12 @@ internal open class XmlEncoderBase internal constructor(
                         prefixBase = "ns"
                         prefixStart = 0
                     }
+
                     lastDigitIdx < prefix.length -> {
                         prefixBase = prefix.substring(0, lastDigitIdx)
                         prefixStart = prefix.substring(lastDigitIdx).toInt()
                     }
+
                     else -> {
                         prefixBase = prefix
                         prefixStart = 0
@@ -725,6 +734,7 @@ internal open class XmlEncoderBase internal constructor(
                         }
                     } // else if (index == 0) { } // do nothing
                 }
+
                 polymorphicMode == PolymorphicMode.TRANSPARENT -> {
                     when {
                         isMixed -> target.text(value)
@@ -735,6 +745,7 @@ internal open class XmlEncoderBase internal constructor(
                         }
                     }
                 }
+
                 polymorphicMode is PolymorphicMode.ATTR -> {
                     target.smartStartTag(serialName) {
                         val attrQName = ensureNamespace(config.policy.typeQName(elementDescriptor), true)
@@ -743,6 +754,7 @@ internal open class XmlEncoderBase internal constructor(
                         text(value)
                     }
                 }
+
                 else -> super.encodeStringElement(
                     elementDescriptor,
                     index,
@@ -806,7 +818,8 @@ internal open class XmlEncoderBase internal constructor(
                     }.output.toString())
                 }
             } else {
-                val effectiveSerializer = xmlDescriptor.getElementDescriptor(1).effectiveSerializationStrategy(serializer)
+                val effectiveSerializer =
+                    xmlDescriptor.getElementDescriptor(1).effectiveSerializationStrategy(serializer)
 
                 val entryValue = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                     encodeSerializableValue(effectiveSerializer, value)
@@ -913,7 +926,8 @@ internal open class XmlEncoderBase internal constructor(
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
 
             @Suppress("UNCHECKED_CAST")
-            val effectiveSerializer: SerializationStrategy<T> = elementDescriptor.effectiveSerializationStrategy(serializer)
+            val effectiveSerializer: SerializationStrategy<T> =
+                elementDescriptor.effectiveSerializationStrategy(serializer)
 
             when (effectiveSerializer) {
                 CompactFragmentSerializer -> if (parentXmlDescriptor.getValueChild() == listChildIdx) {
@@ -921,6 +935,7 @@ internal open class XmlEncoderBase internal constructor(
                 } else {
                     serializer.serialize(XmlEncoder(childDescriptor, index), value)
                 }
+
                 else -> serializer.serialize(XmlEncoder(childDescriptor, index), value)
             }
         }

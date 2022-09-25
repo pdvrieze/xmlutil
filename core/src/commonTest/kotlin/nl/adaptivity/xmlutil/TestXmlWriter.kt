@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
+import kotlin.jvm.JvmOverloads
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -80,8 +81,8 @@ class TestXmlWriter {
                 this,
                 repairNamespaces = false,
                 xmlDeclMode = XmlDeclMode.None
-                                          )
-            w.smartStartTag("foobar".toQname()) { text("xx")}
+            )
+            w.smartStartTag("foobar".toQname()) { text("xx") }
             w.close()
         }
         assertEquals("<foobar>xx</foobar>", serialized)
@@ -146,7 +147,7 @@ class TestXmlWriter {
     fun testIndentTextContent() {
         val w = XmlStreaming.newWriter(StringBuilder())
         assertFailsWith<XmlException> {
-            w.indentString="  ..."
+            w.indentString = "  ..."
         }
     }
 
@@ -154,16 +155,16 @@ class TestXmlWriter {
     fun testIndentIncompleteComment() {
         val w = XmlStreaming.newWriter(StringBuilder())
         assertFailsWith<XmlException> {
-            w.indentString="<!--"
+            w.indentString = "<!--"
         }
         assertFailsWith<XmlException> {
-            w.indentString="<!-- "
+            w.indentString = "<!-- "
         }
         assertFailsWith<XmlException> {
-            w.indentString="<!-- -"
+            w.indentString = "<!-- -"
         }
         assertFailsWith<XmlException> {
-            w.indentString="<!-- --"
+            w.indentString = "<!-- --"
         }
     }
 
@@ -188,4 +189,44 @@ class TestXmlWriter {
         }
         assertEquals(xml, builder.toString())
     }
+
+    @Test
+    fun testWriteSmartTag() {
+        val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
+        val builder = StringBuilder()
+        XmlStreaming.newWriter(builder).use { out ->
+            out.smartStartTag("ns/a", "a", "") {
+                smartStartTag("ns/b", "b", "") {
+                    smartStartTag2("", "c", "")
+                    attribute("", "val", "", "value")
+                    endTag("", "c", "")
+                }
+            }
+        }
+
+        assertEquals(expected, builder.toString())
+
+    }
+
+    @JvmOverloads
+    public fun XmlWriter.smartStartTag2(nsUri: String?, localName: String, prefix: String? = null) {
+        if (nsUri == null) {
+            val namespace = namespaceContext.getNamespaceURI(prefix ?: XMLConstants.DEFAULT_NS_PREFIX) ?: XMLConstants.NULL_NS_URI
+            startTag(namespace, localName, prefix)
+        } else {
+            var writeNs = false
+
+            val usedPrefix = getPrefix(nsUri) ?: run {
+                val currentNs = prefix?.let { getNamespaceUri(it) } ?: XMLConstants.NULL_NS_URI
+                if (nsUri != currentNs) {
+                    writeNs = true
+                }; prefix ?: XMLConstants.DEFAULT_NS_PREFIX
+            }
+
+            startTag(nsUri, localName, usedPrefix)
+
+            if (writeNs) this.namespaceAttr(usedPrefix, nsUri)
+        }
+    }
+
 }
