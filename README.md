@@ -6,8 +6,6 @@
 - SerialUtil:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialutil)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialutil)
 
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin.
-XmlUtil is a set of packages that supports multiplatform XML in Kotlin. Currently,
-only JavaScript, JVM, and Android are supported.
 
 ### Introduction
 * Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
