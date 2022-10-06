@@ -20,18 +20,16 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 /** Test for #102 */
 class MapTest : PlatformTestBase<MapTest.ListContainer>(
     ListContainer(
         listOf(
             MapContainer(id="myId", map = mapOf(
-                "a" to Resumen("valueOfA"),
-                "b" to Resumen("valueOfB")
+                "a" to MapElement("valueOfA"),
+                "b" to MapElement("valueOfB")
             ))
         )
     ),
@@ -51,10 +49,10 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
     data class MapContainer(
         val id: String,
         @XmlElement(true)
-        val map: Map<String, Resumen> = mapOf(),
+        val map: Map<String, MapElement> = mapOf(),
     )
 
     @Serializable
-    data class Resumen(val name: String)
+    data class MapElement(val name: String)
 
 }

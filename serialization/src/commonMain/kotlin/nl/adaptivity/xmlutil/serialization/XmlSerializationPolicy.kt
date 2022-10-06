@@ -185,6 +185,14 @@ public interface XmlSerializationPolicy {
         return true
     }
 
+    /** Determine the name of map keys for a given map type */
+    public fun mapKeyName(tagParent: SafeParentInfo): String
+
+    /**
+     * Determine the name of the values for a given map type
+     */
+    public fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo
+
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }
@@ -540,6 +548,15 @@ public open class DefaultXmlSerializationPolicy
         serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
         return ! (serializerParent.elementSerialDescriptor.annotations
             .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
+    }
+
+    override fun mapKeyName(tagParent: SafeParentInfo): String {
+        return "key"
+    }
+
+    override fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo {
+        val childrenName = tagParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
+        return DeclaredNameInfo("value", childrenName)
     }
 
     override fun ignoredSerialInfo(message: String) {

@@ -253,7 +253,9 @@ public sealed class XmlDescriptor(
                         xmlCodecBase,
                         effectiveSerializerParent,
                         effectiveTagParent
-                    )
+                    ) else {
+                        return XmlMapDescriptor(xmlCodecBase, effectiveSerializerParent, effectiveTagParent)
+                    }
                 }
 
                 is PolymorphicKind ->
@@ -896,6 +898,51 @@ internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): Declared
     }
     val qName = annotations.firstOrNull<XmlSerialName>()?.toQName(realSerialName, parentNamespace)
     return DeclaredNameInfo(realSerialName, qName)
+}
+
+
+public class XmlMapDescriptor internal constructor(
+    xmlCodecBase: XmlCodecBase,
+    serializerParent: SafeParentInfo,
+    tagParent: SafeParentInfo = serializerParent,
+) : XmlDescriptor(xmlCodecBase, serializerParent, tagParent) {
+    @ExperimentalSerializationApi
+    override val doInline: Boolean get() = false
+
+    @ExperimentalXmlUtilApi
+    override val preserveSpace: Boolean get() = false
+
+    override val outputKind: OutputKind get() = OutputKind.Element
+
+    private val keyDescriptor: XmlDescriptor by lazy {
+        val keyNameInfo = DeclaredNameInfo(xmlCodecBase.config.policy.mapKeyName(tagParent), null)
+        val parentInfo = ParentInfo(this, 0, keyNameInfo, outputKind)
+        from(xmlCodecBase, parentInfo, tagParent, true)
+    }
+
+    private val valueDescriptor: XmlDescriptor by lazy {
+        val valueNameInfo = xmlCodecBase.config.policy.mapValueName(tagParent)
+        val parentInfo = ParentInfo(this, 1, valueNameInfo, outputKind)
+        from(xmlCodecBase, parentInfo, tagParent, true)
+    }
+
+    override fun getElementDescriptor(index: Int): XmlDescriptor {
+        return when (index %2) {
+            0 -> keyDescriptor
+            else -> valueDescriptor
+        }
+    }
+
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder.append(tagName.toString())
+            .append(": Map<")
+        getElementDescriptor(0).appendTo(builder, indent+4, seen)
+        builder.append(", ")
+        getElementDescriptor(1).appendTo(builder, indent+4, seen)
+        builder.append('>')
+    }
+
+
 }
 
 public class XmlListDescriptor internal constructor(
