@@ -193,6 +193,12 @@ public interface XmlSerializationPolicy {
      */
     public fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo
 
+    /**
+     * Determine whether the key attribute should be collapsed into the value tag rather
+     * than the value being nested in a container for the element.
+     */
+    public fun isMapValueCollapsed(mapDescriptor: XmlMapDescriptor): Boolean
+
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }
@@ -557,6 +563,19 @@ public open class DefaultXmlSerializationPolicy
     override fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo {
         val childrenName = tagParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
         return DeclaredNameInfo("value", childrenName)
+    }
+
+    override fun isMapValueCollapsed(mapDescriptor: XmlMapDescriptor): Boolean {
+        val keyDescriptor = mapDescriptor.getElementDescriptor(0)
+        if (! keyDescriptor.effectiveOutputKind.isTextual) return false
+        val keyName = keyDescriptor.tagName
+        val valueDescriptor = mapDescriptor.getElementDescriptor(1)
+        (0 until valueDescriptor.elementsCount)
+            .map { valueDescriptor.getElementDescriptor(it) }
+            .forEach { elem ->
+                if (elem.tagName.isEquivalent(keyName)) return false
+            }
+        return true
     }
 
     override fun ignoredSerialInfo(message: String) {

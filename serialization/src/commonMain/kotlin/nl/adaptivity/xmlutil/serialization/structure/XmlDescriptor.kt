@@ -914,6 +914,10 @@ public class XmlMapDescriptor internal constructor(
 
     override val outputKind: OutputKind get() = OutputKind.Element
 
+    public val isValueCollapsed: Boolean by lazy {
+        xmlCodecBase.config.policy.isMapValueCollapsed(this)
+    }
+
     private val keyDescriptor: XmlDescriptor by lazy {
         val keyNameInfo = DeclaredNameInfo(xmlCodecBase.config.policy.mapKeyName(tagParent), null)
         val parentInfo = ParentInfo(this, 0, keyNameInfo, outputKind)
