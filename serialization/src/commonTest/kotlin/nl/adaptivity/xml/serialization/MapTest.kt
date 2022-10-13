@@ -20,25 +20,138 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XmlElement
+import kotlinx.serialization.descriptors.StructureKind
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /** Test for #102 */
 class MapTest : PlatformTestBase<MapTest.ListContainer>(
     ListContainer(
         listOf(
-            MapContainer(id="myId", map = mapOf(
-                "a" to MapElement("valueOfA"),
-                "b" to MapElement("valueOfB")
-            ))
+            MapContainer(
+                id = "myId", map = mapOf(
+                    "a" to MapElement("valueOfA"),
+                    "b" to MapElement("valueOfB")
+                )
+            )
         )
     ),
     ListContainer.serializer()
 ) {
     override val expectedXML: String =
-        "<Business name=\"ABC Corp\"><headOffice houseNumber=\"1\" street=\"ABC road\" city=\"ABCVille\" status=\"VALID\"/></Business>"
+        "<ListContainer><MapContainer id=\"myId\"><MapElement key=\"a\" name=\"valueOfA\"/><MapElement key=\"b\" name=\"valueOfB\"/></MapContainer></ListContainer>"
     override val expectedJson: String =
         "{\"values\":[{\"id\":\"myId\",\"map\":{\"a\":{\"name\":\"valueOfA\"},\"b\":{\"name\":\"valueOfB\"}}}]}"
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    @Test
+    fun testSerializeNotCollapsing() {
+        val xml = baseXmlFormat.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+                    return false
+                }
+            }
+        }
+
+        val serialized = xml.encodeToString(serializer, value)
+        assertXmlEquals(
+            "<ListContainer><MapContainer id=\"myId\">" +
+                    "<MapOuter key=\"a\"><MapElement name=\"valueOfA\"/></MapOuter>" +
+                    "<MapOuter key=\"b\"><MapElement name=\"valueOfB\"/></MapOuter>" +
+                    "</MapContainer></ListContainer>",
+            serialized
+        )
+
+        assertEquals(value, xml.decodeFromString(serializer, serialized))
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    @Test
+    fun testSerializeNotEludingList() {
+        val xml = baseXmlFormat.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+                    if (serializerParent.elementSerialDescriptor.kind == StructureKind.MAP) return false
+                    return super.isListEluded(serializerParent, tagParent)
+                }
+            }
+        }
+
+        val serialized = xml.encodeToString(serializer, value)
+        assertXmlEquals(
+            "<ListContainer><MapContainer id=\"myId\"><MapOuter>" +
+                    "<MapElement key=\"a\" name=\"valueOfA\"/>" +
+                    "<MapElement key=\"b\" name=\"valueOfB\"/>" +
+                    "</MapOuter></MapContainer></ListContainer>",
+            serialized
+        )
+
+        assertEquals(value, xml.decodeFromString(serializer, serialized))
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
+    @Test
+    fun testSerializeMaxChildMap() {
+        val xml = baseXmlFormat.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+                    if (serializerParent.elementSerialDescriptor.kind == StructureKind.MAP) return false
+                    return super.isListEluded(serializerParent, tagParent)
+                }
+
+                override fun effectiveOutputKind(
+                    serializerParent: SafeParentInfo,
+                    tagParent: SafeParentInfo,
+                    canBeAttribute: Boolean
+                ): OutputKind = when {
+                    serializerParent.elementUseNameInfo.serialName == "key" -> OutputKind.Element
+                    else -> super.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
+                }
+            }
+        }
+
+        val serialized = xml.encodeToString(serializer, value)
+        assertXmlEquals(
+            "<ListContainer><MapContainer id=\"myId\"><MapOuter>" +
+                    "<entry><key>a</key><MapElement name=\"valueOfA\"/></entry>" +
+                    "<entry><key>b</key><MapElement name=\"valueOfB\"/></entry>" +
+                    "</MapOuter></MapContainer></ListContainer>",
+            serialized
+        )
+
+        assertEquals(value, xml.decodeFromString(serializer, serialized))
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    @Test
+    fun testSerializeWithConflictingKeyName() {
+        val xml = baseXmlFormat.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun mapKeyName(serializerParent: SafeParentInfo): XmlSerializationPolicy.DeclaredNameInfo {
+                    return XmlSerializationPolicy.DeclaredNameInfo("name", null)
+                }
+            }
+        }
+
+        val serialized = xml.encodeToString(serializer, value)
+        assertXmlEquals(
+            "<ListContainer><MapContainer id=\"myId\">" +
+                    "<MapOuter name=\"a\"><MapElement name=\"valueOfA\"/></MapOuter>" +
+                    "<MapOuter name=\"b\"><MapElement name=\"valueOfB\"/></MapOuter>" +
+                    "</MapContainer></ListContainer>",
+            serialized
+        )
+
+        assertEquals(value, xml.decodeFromString(serializer, serialized))
+    }
 
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
@@ -49,6 +162,7 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
     data class MapContainer(
         val id: String,
         @XmlElement(true)
+        @XmlSerialName("MapOuter", "", "")
         val map: Map<String, MapElement> = mapOf(),
     )
 

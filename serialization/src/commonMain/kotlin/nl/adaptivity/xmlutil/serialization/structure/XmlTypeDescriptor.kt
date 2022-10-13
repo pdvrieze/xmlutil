@@ -42,10 +42,14 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     public val elementsCount: Int
         get() = serialDescriptor.elementsCount
 
+    public operator fun get(index: Int): XmlTypeDescriptor {
+        return children[index]
+    }
+
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
-        Array(serialDescriptor.elementsCount) {
-            XmlTypeDescriptor(serialDescriptor, typeQname?.toNamespace() ?: parentNamespace)
+        Array(serialDescriptor.elementsCount) { idx ->
+            XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx), typeQname?.toNamespace() ?: parentNamespace)
         }
     }
 }

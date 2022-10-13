@@ -46,6 +46,7 @@ public interface XmlSerializationPolicy {
         when (serialKind) {
             SerialKind.ENUM,
             StructureKind.OBJECT -> defaultObjectOutputKind
+
             is PrimitiveKind -> defaultPrimitiveOutputKind
             PolymorphicKind.OPEN -> OutputKind.Element
             else -> OutputKind.Element
@@ -186,18 +187,23 @@ public interface XmlSerializationPolicy {
     }
 
     /** Determine the name of map keys for a given map type */
-    public fun mapKeyName(tagParent: SafeParentInfo): String
+    public fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo
 
     /**
      * Determine the name of the values for a given map type
      */
-    public fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo
+    public fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo
+
+    /**
+     * Determine the name to use for the map element (only used when a map entry is wrapped)
+     */
+    public fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName
 
     /**
      * Determine whether the key attribute should be collapsed into the value tag rather
      * than the value being nested in a container for the element.
      */
-    public fun isMapValueCollapsed(mapDescriptor: XmlMapDescriptor): Boolean
+    public fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean
 
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
@@ -268,6 +274,20 @@ public open class DefaultXmlSerializationPolicy
         autoPolymorphic: Boolean = false,
         unknownChildHandler: NonRecoveryUnknownChildHandler
     ) : this(pedantic, autoPolymorphic, XmlEncodeDefault.ANNOTATED, unknownChildHandler)
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    public constructor(original: XmlSerializationPolicy?) : this(
+        pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
+        autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
+        encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
+        unknownChildHandler = original?.let { orig -> // If there is an original, get from it
+            (orig as? DefaultXmlSerializationPolicy)?.unknownChildHandler // take the existing one if present
+                ?: UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+                    orig.handleUnknownContentRecovering(input, inputKind, descriptor, name, candidates)
+                }
+        } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
+        typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
+    )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
         return typeDiscriminatorName
@@ -341,6 +361,7 @@ public open class DefaultXmlSerializationPolicy
                         ?: defaultOutputKind(serialDescriptor.kind)
                 }
             }
+
             OutputKind.Mixed -> {
                 if (serializerParent.descriptor is XmlListDescriptor) {
                     if (tagParent.elementSerialDescriptor.kind == StructureKind.CLASS) {
@@ -359,6 +380,7 @@ public open class DefaultXmlSerializationPolicy
                     }
                 }
             }
+
             else -> overrideOutputKind
 
         }
@@ -382,6 +404,7 @@ public open class DefaultXmlSerializationPolicy
             "kotlin.ULong" -> QName(XMLConstants.XSD_NS_URI, "unsignedLong", XMLConstants.XSD_PREFIX)
             "kotlin.Float",
             "kotlin.Double" -> QName(XMLConstants.XSD_NS_URI, "double", XMLConstants.XSD_PREFIX)
+
             "kotlin.String" -> QName(XMLConstants.XSD_NS_URI, "string", XMLConstants.XSD_PREFIX)
 
             else -> serialName.substringAfterLast('.').toQname(parentNamespace)
@@ -463,6 +486,7 @@ public open class DefaultXmlSerializationPolicy
         when (serializerParent.elementSerialDescriptor.serialName) {
             "javax.xml.namespace.QName?",
             "javax.xml.namespace.QName" -> XmlQNameSerializer
+
             else -> null
         }
 
@@ -552,24 +576,38 @@ public open class DefaultXmlSerializationPolicy
     @ExperimentalXmlUtilApi
     override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
         serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
-        return ! (serializerParent.elementSerialDescriptor.annotations
+        return !(serializerParent.elementSerialDescriptor.annotations
             .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
     }
 
-    override fun mapKeyName(tagParent: SafeParentInfo): String {
-        return "key"
+    override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {
+        return DeclaredNameInfo("key", null)
     }
 
-    override fun mapValueName(tagParent: SafeParentInfo): DeclaredNameInfo {
-        val childrenName = tagParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
+    override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
+        val childrenName = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
         return DeclaredNameInfo("value", childrenName)
     }
 
-    override fun isMapValueCollapsed(mapDescriptor: XmlMapDescriptor): Boolean {
-        val keyDescriptor = mapDescriptor.getElementDescriptor(0)
-        if (! keyDescriptor.effectiveOutputKind.isTextual) return false
-        val keyName = keyDescriptor.tagName
-        val valueDescriptor = mapDescriptor.getElementDescriptor(1)
+    override fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName {
+        if (isListEluded) { // If we don't have list tags, use the list name, otherwise use the default
+            serializerParent.elementUseNameInfo.annotatedName?.let { return it }
+        }
+        return QName(serializerParent.namespace.namespaceURI, "entry")
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+        val keyDescriptor = mapParent.elementSerialDescriptor.getElementDescriptor(0)
+        val keyUseName = mapKeyName(mapParent)
+
+        val pseudoKeyParent =
+            InjectedParentTag(0, XmlTypeDescriptor(keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
+        val keyEffectiveOutputKind = effectiveOutputKind(pseudoKeyParent, pseudoKeyParent, true)
+        if (!keyEffectiveOutputKind.isTextual) return false
+
+        val keyName = effectiveName(pseudoKeyParent, pseudoKeyParent, keyEffectiveOutputKind, keyUseName)
+
         (0 until valueDescriptor.elementsCount)
             .map { valueDescriptor.getElementDescriptor(it) }
             .forEach { elem ->

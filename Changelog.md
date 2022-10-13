@@ -1,3 +1,15 @@
+# 0.84.4-SNAPSHOT
+*(?? ??, 2022)<br />*
+Features:
+- Implement serialization of maps. The outer container will be eluded as with
+  lists. If the key type can be an attribute (and doesn't overlap with an
+  attribute in the value) it will be written on the value, otherwise an entry
+  will be written with the key written on it (as attribute or tag). Note that
+  as this point keys must precede values due to the implementation of map
+  serialization. The behaviour can be customized through the policy.
+Fixes:
+- Make actual serialization of maps (that are not attributes) work
+
 # 0.84.3
 *(Sep 25, 2022)<br />*
 Features:

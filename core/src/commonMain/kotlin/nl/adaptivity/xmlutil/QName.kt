@@ -38,7 +38,7 @@ public expect class QName {
     public fun getNamespaceURI(): String
 }
 
-public fun QName.isEquivalent(other: QName): Boolean {
+public infix fun QName.isEquivalent(other: QName): Boolean {
     return getLocalPart() == other.getLocalPart() &&
             getNamespaceURI() == other.getNamespaceURI()
 }
