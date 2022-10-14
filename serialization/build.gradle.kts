@@ -142,7 +142,6 @@ kotlin {
         }
 
         val commonTest by getting {
-            dependsOn(commonMain)
             dependencies {
                 implementation(project(":serialutil"))
                 implementation(project(":testutil"))
