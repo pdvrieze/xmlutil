@@ -187,23 +187,26 @@ public interface XmlSerializationPolicy {
     }
 
     /** Determine the name of map keys for a given map type */
-    public fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo
+    public fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo =
+        DeclaredNameInfo("key", null) // minimal default for implementations.
 
     /**
      * Determine the name of the values for a given map type
      */
-    public fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo
+    public fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo =
+        DeclaredNameInfo("value", null) // minimal default for implementations.
 
     /**
      * Determine the name to use for the map element (only used when a map entry is wrapped)
      */
-    public fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName
+    public fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName =
+        QName(serializerParent.namespace.namespaceURI, "entry") // minimal default for implementations.
 
     /**
      * Determine whether the key attribute should be collapsed into the value tag rather
      * than the value being nested in a container for the element.
      */
-    public fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean
+    public fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean = false
 
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
