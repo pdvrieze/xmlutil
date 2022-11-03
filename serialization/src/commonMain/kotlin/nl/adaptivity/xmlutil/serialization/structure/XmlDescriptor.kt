@@ -120,6 +120,10 @@ public sealed class XmlDescriptor(
 
     public open val isUnsigned: Boolean get() = false
 
+    @ExperimentalXmlUtilApi
+    public val namespaceDecls: List<Namespace> =
+        policy.elementNamespaceDecls(serializerParent)
+
     override val tagName: QName by lazy {
         policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
@@ -984,7 +988,7 @@ public class XmlMapDescriptor internal constructor(
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.append(tagName.toString())
-            .append(if(isListEluded) ": TransparentMap<" else ": ExplicitMap<")
+            .append(if (isListEluded) ": TransparentMap<" else ": ExplicitMap<")
         getElementDescriptor(0).appendTo(builder, indent + 4, seen)
         builder.append(", ")
         getElementDescriptor(1).appendTo(builder, indent + 4, seen)

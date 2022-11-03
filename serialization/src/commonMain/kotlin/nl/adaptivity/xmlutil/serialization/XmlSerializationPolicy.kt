@@ -208,6 +208,12 @@ public interface XmlSerializationPolicy {
      */
     public fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean = false
 
+    /**
+     * Determine namespace prefixes to make sure are set upon the tag.
+     */
+    @ExperimentalXmlUtilApi
+    public fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> = emptyList()
+
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }

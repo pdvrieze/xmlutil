@@ -336,7 +336,13 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun beginStructure(descriptor: SerialDescriptor): TagEncoder<XmlDescriptor> {
             // Create the encoder, but call writeBegin on the wrapped encoder, not the original
-            return InlineTagEncoder(getCompositeEncoder(xmlDescriptor, elementIndex, discriminatorName)).apply { writeBegin() }
+            return InlineTagEncoder(
+                getCompositeEncoder(
+                    xmlDescriptor,
+                    elementIndex,
+                    discriminatorName
+                )
+            ).apply { writeBegin() }
         }
     }
 
@@ -414,7 +420,14 @@ internal open class XmlEncoderBase internal constructor(
 
         open fun writeBegin() {
             target.smartStartTag(serialName)
+            writeNamespaceDecls()
             writeDiscriminatorAttributeIfNeeded()
+        }
+
+        internal fun writeNamespaceDecls() {
+            for (namespace: Namespace in xmlDescriptor.namespaceDecls) {
+                ensureNamespace(namespace)
+            }
         }
 
         internal fun writeDiscriminatorAttributeIfNeeded() {
@@ -661,6 +674,17 @@ internal open class XmlEncoderBase internal constructor(
             prefix = "n$nextAutoPrefixNo"
         } while (getNamespaceURI(prefix) != null)
         return prefix
+    }
+
+    private fun ensureNamespace(namespace: Namespace) {
+        if (namespaceContext.getPrefix(namespace.namespaceURI) != null)
+            return
+
+        val effectivePrefix = when {
+            namespaceContext.getNamespaceURI(namespace.prefix) == null -> namespace.prefix
+            else -> namespaceContext.nextAutoPrefix()
+        }
+        target.namespaceAttr(effectivePrefix, namespace.namespaceURI)
     }
 
     /**
