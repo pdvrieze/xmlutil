@@ -23,6 +23,9 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialInfo
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.XmlEvent
 
 /**
  * Specify more detailed name information than can be provided by [kotlinx.serialization.SerialName].
@@ -37,6 +40,33 @@ public annotation class XmlSerialName(
     val namespace: String = UNSET_ANNOTATION_VALUE,
     val prefix: String = UNSET_ANNOTATION_VALUE
 )
+
+/**
+ * Annotation allowing to specify namespaces specifications to be generated upon the element.
+ * As multiple annotations are not supported by the plugin this uses a single string. The string
+ * separates the namespaces using a semicolon (`;`). Each declaration is of the form
+ * <prefix>==<namespace>. To specify the default namespace it is valid to omit the equals sign.
+ *
+ * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`
+ */
+@ExperimentalXmlUtilApi
+@SerialInfo
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@Repeatable
+public annotation class XmlNamespaceDeclSpec(
+    val value: String,
+)
+
+@ExperimentalXmlUtilApi
+public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
+    get() {
+        return value.split(';').map { decl ->
+            when (val eq = decl.indexOf('=')) {
+                -1 -> XmlEvent.NamespaceImpl("", decl)
+                else -> XmlEvent.NamespaceImpl(decl.substring(0, eq), decl.substring(eq + 1))
+            }
+        }
+    }
 
 /**
  * Indicate the valid poly children for this element

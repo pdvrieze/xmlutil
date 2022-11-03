@@ -625,6 +625,17 @@ public open class DefaultXmlSerializationPolicy
         return true
     }
 
+    @ExperimentalXmlUtilApi
+    override fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> {
+        val annotations = (serializerParent.elementUseAnnotations.asSequence() +
+                serializerParent.elementTypeDescriptor.serialDescriptor.annotations)
+        return annotations
+            .filterIsInstance<XmlNamespaceDeclSpec>()
+            .flatMap { decl ->
+                decl.namespaces
+            }.toList()
+    }
+
     override fun ignoredSerialInfo(message: String) {
         if (pedantic) throw XmlSerialException(message)
     }

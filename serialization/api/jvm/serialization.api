@@ -1,3 +1,7 @@
+public final class nl/adaptivity/xmlutil/serialization/AnnotationsKt {
+	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;)Ljava/util/List;
+}
+
 public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/CompactFragmentSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
@@ -36,6 +40,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun effectiveName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;)Ljavax/xml/namespace/QName;
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public fun enumEncoding (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public final fun getAutoPolymorphic ()Z
 	public fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -419,6 +424,19 @@ public final class nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace$Impl 
 	public final synthetic fun value ()Z
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
+	public fun <init> (Ljava/lang/String;)V
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes : java/lang/annotation/Annotation {
 }
 
@@ -463,6 +481,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/XmlSerializa
 	public abstract fun effectiveName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;)Ljavax/xml/namespace/QName;
 	public abstract fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public abstract fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public abstract fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public abstract fun enumEncoding (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public abstract fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public abstract fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -518,6 +537,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$De
 	public static fun defaultOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static synthetic fun effectiveName$default (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;ILjava/lang/Object;)Ljavax/xml/namespace/QName;
 	public static fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public static fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public static fun enumEncoding (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public static fun getDefaultObjectOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun getDefaultPrimitiveOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -525,6 +545,10 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$De
 	public static fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
 	public static fun initialChildReorderMap (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
 	public static fun invalidOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Ljava/lang/String;)V
+	public static fun isMapValueCollapsed (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
+	public static fun mapEntryName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Ljavax/xml/namespace/QName;
+	public static fun mapKeyName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
+	public static fun mapValueName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
 	public static fun overrideSerializerOrNull (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lkotlinx/serialization/KSerializer;
 	public static fun preserveSpace (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public static fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
@@ -641,6 +665,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getElementsCount ()I
 	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public final fun getNamespaceDecls ()Ljava/util/List;
 	public final fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
 	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
 	public fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
