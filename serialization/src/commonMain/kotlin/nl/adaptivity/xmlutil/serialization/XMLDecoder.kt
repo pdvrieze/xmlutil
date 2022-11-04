@@ -30,7 +30,6 @@ import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.internal.AbstractCollectionSerializer
-import kotlinx.serialization.internal.MapLikeSerializer
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
@@ -398,27 +397,34 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var decodeElementIndexCalled = false
 
+        private fun XmlDescriptor.toNonTransparentChild(): XmlDescriptor {
+            var result = this
+            while (result is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
+                (result is XmlListDescriptor && result.isListEluded)
+            ) { // Lists may or may not be eluded
+
+                result = result.getElementDescriptor(0)
+            }
+            if (result is XmlMapDescriptor && result.isListEluded && result.isValueCollapsed) { // some transparent tags
+                return result.getElementDescriptor(1).toNonTransparentChild()
+            }
+            return result
+        }
+
         init {
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
             val nameMap: MutableMap<QName, Int> = mutableMapOf()
 
             for (idx in 0 until xmlDescriptor.elementsCount) {
-                var child = xmlDescriptor.getElementDescriptor(idx)
-                while (child is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
-                    (child is XmlListDescriptor && child.isListEluded)
-                ) { // Lists may or may not be eluded
-
-                    child = child.getElementDescriptor(0)
-                }
-
-                if (child is XmlMapDescriptor && child.isListEluded && child.isValueCollapsed) { // some transparent tags
-//                    if (child.isValueCollapsed) { // The name(s) of the value types need to be added
-                    child = child.getElementDescriptor(1)
-//                    }
-                }
+                val child = xmlDescriptor.getElementDescriptor(idx).toNonTransparentChild()
 
                 if (child is XmlPolymorphicDescriptor && child.isTransparent) {
                     for ((_, childDescriptor) in child.polyInfo) {
+                        /*
+                         * For polymorphic value classes this cannot be a multi-value inline. Get
+                         * the tag name from the child (even if it is inline).
+                        */
+
                         val tagName = childDescriptor.tagName.normalize()
                         polyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
 //                        nameMap[tagName] = idx
