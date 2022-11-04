@@ -56,7 +56,7 @@ class InvertedPropertyOrder : PlatformTestBase<InvertedPropertyOrder.Inverted>(
     @Serializable
     data class Inverted(
         @Required
-        @XmlElement
+        @XmlElement(true)
         val elem: String = "value",
         @Required
         val arg: Short = 6

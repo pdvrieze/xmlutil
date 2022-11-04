@@ -92,7 +92,7 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address")
+    @XmlSerialName("address", "", "")
     data class Address(
         val houseNumber: String,
         val street: String,

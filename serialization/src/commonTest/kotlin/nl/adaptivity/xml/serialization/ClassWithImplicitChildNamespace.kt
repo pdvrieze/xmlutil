@@ -49,7 +49,7 @@ class ClassWithImplicitChildNamespace : PlatformTestBase<ClassWithImplicitChildN
     @Serializable
     @XmlSerialName("namespaced", "http://example.org", "xo")
     data class Namespaced(
-        @XmlElement
+        @XmlElement(true)
         val elem1: String,
         @XmlSerialName("Elem2", "urn:myurn", "p2")
         @XmlElement(true)
