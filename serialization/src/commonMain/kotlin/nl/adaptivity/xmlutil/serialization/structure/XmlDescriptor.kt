@@ -319,6 +319,24 @@ public class XmlRootDescriptor internal constructor(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlRootDescriptor
+
+        if (element != other.element) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + element.hashCode()
+        return result
+    }
+
 }
 
 public sealed class XmlValueDescriptor(

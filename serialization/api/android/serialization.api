@@ -752,12 +752,14 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDes
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlRootDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public fun equals (Ljava/lang/Object;)Z
 	public fun getDoInline ()Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getElementsCount ()I
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public fun getTagName ()Ljavax/xml/namespace/QName;
+	public fun hashCode ()I
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor {
