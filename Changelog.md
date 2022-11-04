@@ -7,8 +7,13 @@ Features:
   will be written with the key written on it (as attribute or tag). Note that
   as this point keys must precede values due to the implementation of map
   serialization. The behaviour can be customized through the policy.
+- Add the possibility to specify namespace declarations that are ensured on
+  tags (note that this does not yet participate in the namespace collating code)
+- Fix polymorphic usage of value classes as children of a sealed interface.
 Fixes:
 - Make actual serialization of maps (that are not attributes) work
+- Fix an infinite recursion bug in the namespace collection code that writes
+  namespace declarations on the top level.
 
 # 0.84.3
 *(Sep 25, 2022)<br />*
