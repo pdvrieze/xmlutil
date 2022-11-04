@@ -474,6 +474,12 @@ public class XmlInlineDescriptor internal constructor(
 
     override val outputKind: OutputKind get() = child.outputKind//OutputKind.Inline
 
+    /**
+     * Use the tag name of the child as the child tagName is already adapted upon this type
+     */
+    override val tagName: QName
+        get() = child.tagName
+
     @OptIn(ExperimentalSerializationApi::class)
     private val child: XmlDescriptor by lazy {
 
