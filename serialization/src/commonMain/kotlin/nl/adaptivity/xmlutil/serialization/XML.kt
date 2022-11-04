@@ -271,6 +271,7 @@ public class XML constructor(
         val namespaceToPrefixMap = HashMap<String, String>()
 
         val pendingNamespaces = HashSet<String>()
+        val seenDescriptors = HashSet<XmlDescriptor>()
 
         fun collect(prefix: String, namespaceUri: String) {
             if (namespaceUri !in namespaceToPrefixMap) {
@@ -296,7 +297,10 @@ public class XML constructor(
                 if (childDescriptor.overriddenSerializer == XmlQNameSerializer) {
                     throw QNamePresentException()
                 }
-                collect(childDescriptor)
+                if (childDescriptor !in seenDescriptors) {
+                    seenDescriptors.add(childDescriptor)
+                    collect(childDescriptor)
+                }
             }
 
             // TODO collect children
