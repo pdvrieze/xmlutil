@@ -47,6 +47,6 @@ class ValueContainerTest : PlatformTestBase<ValueContainerTest.ValueContainer>(
 
     @Serializable
     @XmlSerialName("valueContainer")
-    data class ValueContainer(@XmlValue val content:String)
+    data class ValueContainer(@XmlValue val content: String)
 
 }

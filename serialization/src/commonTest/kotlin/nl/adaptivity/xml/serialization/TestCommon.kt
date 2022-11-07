@@ -168,14 +168,15 @@ class TestCommon {
 
 //        val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
 
-        val actual = xml.decodeFromString(ElementSerializer,
+        val actual = xml.decodeFromString(
+            ElementSerializer,
             "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
                     "    <String>Chloroacetic acid, &gt;=99% &lt; 100%</String>\n" +
                     "</StringWithMarkup>"
         )
 
-        val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view","StringWithMarkup"))
-        val expected = doc.documentElement!!.also {stringWithMarkup ->
+        val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view", "StringWithMarkup"))
+        val expected = doc.documentElement!!.also { stringWithMarkup ->
             doc.createElement("String").also { string ->
                 stringWithMarkup.appendChild(string)
                 string.appendChild(doc.createTextNode("Chloroacetic acid, >=99% < 100%"))

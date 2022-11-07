@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 class ACompactFragment : PlatformTestBase<CompactFragment>(
     CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>"),
     CompactFragment.serializer()
-                                                  ) {
+) {
     override val expectedXML: String =
         "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
     override val expectedJson: String =

@@ -29,10 +29,10 @@ class NullableListTestWithElements : PlatformTestBase<NullableListTestWithElemen
         "A String", listOf(
             NullListElement("Another String1"),
             NullListElement("Another String2")
-                          )
-            ),
+        )
+    ),
     NullList.serializer()
-                                                                                    ) {
+) {
     override val expectedXML: String
         get() = "<Baz><Str>A String</Str><Bar><AnotherStr>Another String1</AnotherStr></Bar><Bar><AnotherStr>Another String2</AnotherStr></Bar></Baz>"
     override val expectedJson: String

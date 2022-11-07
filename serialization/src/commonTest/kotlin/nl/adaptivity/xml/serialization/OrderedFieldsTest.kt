@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 class OrderedFieldsTest : PlatformTestBase<OrderedFieldsTest.Employee>(
     Employee("John", "Doe", "1980-02-29", "New York", 12345, "Principal Engineer", 666),
     Employee.serializer()
-                                                              ) {
+) {
     override val expectedXML: String =
         "<Employee lineManagerId=\"666\" employeeStatus=\"active\">" +
                 "<birthPlace>New York</birthPlace>" +

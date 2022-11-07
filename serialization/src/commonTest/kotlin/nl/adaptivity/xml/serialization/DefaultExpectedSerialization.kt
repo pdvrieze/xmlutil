@@ -24,10 +24,10 @@ abstract class DefaultExpectedSerialization {
     open val classWithImplicitChildNamespaceXml: String get() = "<xo:namespaced xmlns:xo=\"http://example.org\" xmlns:p3=\"http://example.org/2\" p3:Elem3=\"bla\" elem4=\"lalala\" xmlns:n1=\"urn:foobar\" n1:Elem5=\"tada\"><xo:elem1>foo</xo:elem1><p2:Elem2 xmlns:p2=\"urn:myurn\">bar</p2:Elem2></xo:namespaced>"
 
     open val valueContainerWithSpacesXml: String get() = "<valueContainer>    \nfoobar\n  </valueContainer>"
-    open val valueContainerWithSpacesAlternativeXml: String get() ="<valueContainer><![CDATA[    \nfoo]]>bar\n  </valueContainer>"
+    open val valueContainerWithSpacesAlternativeXml: String get() = "<valueContainer><![CDATA[    \nfoo]]>bar\n  </valueContainer>"
     open val valueContainerWithSpacesJson: String get() = "{\"content\":\"    \\nfoobar\\n  \"}"
-    open val valueContainerWithSpacesObj get() =
-        ValueContainerTestWithSpaces.ValueContainer("    \nfoobar\n  ")
+    open val valueContainerWithSpacesObj
+        get() = ValueContainerTestWithSpaces.ValueContainer("    \nfoobar\n  ")
 }
 
-expect object ExpectedSerialization: DefaultExpectedSerialization
+expect object ExpectedSerialization : DefaultExpectedSerialization

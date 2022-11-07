@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class SimpleClassWithNullableValueNONNULL : PlatformTestBase<SimpleClassWithNullableValueNONNULL.NullableContainer>(
     NullableContainer("myBar"),
     NullableContainer.serializer()
-                                                                                                           ) {
+) {
     override val expectedXML: String = "<p:NullableContainer xmlns:p=\"urn:myurn\" bar=\"myBar\"/>"
     override val expectedJson: String = "{\"bar\":\"myBar\"}"
 

@@ -25,8 +25,9 @@ import kotlinx.serialization.Serializable
 class ClassWithNullableUDValueNONNULL : PlatformTestBase<ClassWithNullableUDValueNONNULL.ContainerOfUserNullable>(
     ContainerOfUserNullable(SimpleUserType("foobar")),
     ContainerOfUserNullable.serializer()
-                                                                                                         ) {
-    override val expectedXML: String = "<ContainerOfUserNullable><SimpleUserType data=\"foobar\"/></ContainerOfUserNullable>"
+) {
+    override val expectedXML: String =
+        "<ContainerOfUserNullable><SimpleUserType data=\"foobar\"/></ContainerOfUserNullable>"
     override val expectedJson: String = "{\"data\":{\"data\":\"foobar\"}}"
 
 
