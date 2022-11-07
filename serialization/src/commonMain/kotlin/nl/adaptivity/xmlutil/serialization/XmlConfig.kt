@@ -375,9 +375,7 @@ private constructor(
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
 @ExperimentalXmlUtilApi
-@OptIn(ExperimentalSerializationApi::class)
 internal inline fun NonRecoveryUnknownChildHandler.asRecoverable(): UnknownChildHandler {
     return UnknownChildHandler { input, inputKind, _, name, candidates ->
         this(input, inputKind, name, candidates)
@@ -390,13 +388,13 @@ public typealias NonRecoveryUnknownChildHandler = (input: XmlReader, inputKind: 
 
 @ExperimentalXmlUtilApi
 public fun interface UnknownChildHandler {
-    @Suppress("DirectUseOfResultType")
+
     public fun handleUnknownChildRecovering(
         input: XmlReader,
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<Any>
+        candidates: Collection<PolyInfo>
     ): List<XML.ParsedData<*>>
 }
 

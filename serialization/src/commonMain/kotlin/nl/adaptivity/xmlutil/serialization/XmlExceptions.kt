@@ -27,5 +27,21 @@ public open class XmlSerialException(message: String, cause: Throwable? = null) 
 public class XmlParsingException(locationInfo: String?, message: String, cause: Exception? = null) :
     XmlSerialException("Invalid XML value at position: $locationInfo: $message", cause)
 
-public class UnknownXmlFieldException(locationInfo: String?, xmlName: String, candidates: Collection<Any> = emptyList()) :
-    XmlSerialException("Could not find a field for name $xmlName${if (candidates.isNotEmpty()) candidates.joinToString(prefix = "\n  candidates: ") else ""}${locationInfo?.let { " at position $it" } ?: ""}")
+public class UnknownXmlFieldException(
+    locationInfo: String?,
+    xmlName: String,
+    candidates: Collection<Any> = emptyList()
+) :
+    XmlSerialException("Could not find a field for name $xmlName${candidateString(candidates)}${locationInfo?.let { " at position $it" } ?: ""}")
+
+private fun candidateString(candidates: Iterable<Any>) =
+    when (candidates.iterator().hasNext()) {
+        true -> candidates.joinToString(prefix = "\n  candidates: ") {
+            when (it) {
+                is PolyInfo -> "${it.tagName} (${it.descriptor.outputKind})"
+                else -> it.toString()
+            }
+        }
+
+        else -> ""
+    }

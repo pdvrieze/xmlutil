@@ -140,7 +140,7 @@ public interface XmlSerializationPolicy {
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<Any>
+        candidates: Collection<PolyInfo>
     ): List<XML.ParsedData<*>> {
         handleUnknownContent(input, inputKind, name, candidates)
         return emptyList()
@@ -292,7 +292,9 @@ public open class DefaultXmlSerializationPolicy
         unknownChildHandler = original?.let { orig -> // If there is an original, get from it
             (orig as? DefaultXmlSerializationPolicy)?.unknownChildHandler // take the existing one if present
                 ?: UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
-                    orig.handleUnknownContentRecovering(input, inputKind, descriptor, name, candidates)
+                    orig.handleUnknownContentRecovering(input, inputKind, descriptor, name,
+                        candidates as Collection<PolyInfo>
+                    )
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
@@ -472,7 +474,7 @@ public open class DefaultXmlSerializationPolicy
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<Any>
+        candidates: Collection<PolyInfo>
     ): List<XML.ParsedData<*>> {
         return unknownChildHandler.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
     }

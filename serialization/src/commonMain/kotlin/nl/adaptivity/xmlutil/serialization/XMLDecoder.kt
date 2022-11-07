@@ -629,7 +629,13 @@ internal open class XmlDecoderBase internal constructor(
                 inputType,
                 xmlDescriptor,
                 name,
-                (nameMap.keys + polyMap.keys)
+                (nameMap.map { (k, v) ->
+                    PolyInfo(
+                        k,
+                        v,
+                        xmlDescriptor.getElementDescriptor(v)
+                    )
+                } + polyMap.values)
             ).let { pendingRecovery.addAll(it) }
 
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
@@ -892,16 +898,6 @@ internal open class XmlDecoderBase internal constructor(
             ignoredAttributes.add(attrName)
         }
 
-
-    }
-
-    internal data class PolyInfo(
-        val tagName: QName,
-        val index: Int,
-        val descriptor: XmlDescriptor
-    ) {
-
-        val describedName get() = descriptor.serialDescriptor.serialName
 
     }
 
@@ -1424,3 +1420,22 @@ internal open class XmlDecoderBase internal constructor(
 }
 
 private inline fun Int.ifUnknown(body: () -> Int) = if (this != CompositeDecoder.UNKNOWN_NAME) this else body()
+
+
+/**
+ * Helper class that collates information used in matching tags with types.
+ *
+ * @property tagName The expected tag name to test for. Note that prefix is *not* significant.
+ * @property index The index of the element that would ultimately be parsed (but maybe indirectly)
+ * @property descriptor The descriptor of the actual element in the tag.
+ */
+@ExperimentalXmlUtilApi
+public data class PolyInfo(
+    val tagName: QName,
+    val index: Int,
+    val descriptor: XmlDescriptor
+) {
+
+    internal val describedName get() = descriptor.serialDescriptor.serialName
+
+}

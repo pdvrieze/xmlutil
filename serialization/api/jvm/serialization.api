@@ -124,6 +124,21 @@ public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
 }
 
+public final class nl/adaptivity/xmlutil/serialization/PolyInfo {
+	public fun <init> (Ljavax/xml/namespace/QName;ILnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)V
+	public final fun component1 ()Ljavax/xml/namespace/QName;
+	public final fun component2 ()I
+	public final fun component3 ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun copy (Ljavax/xml/namespace/QName;ILnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Lnl/adaptivity/xmlutil/serialization/PolyInfo;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/PolyInfo;Ljavax/xml/namespace/QName;ILnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/PolyInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun getIndex ()I
+	public final fun getTagName ()Ljavax/xml/namespace/QName;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class nl/adaptivity/xmlutil/serialization/UnknownChildHandler {
 	public abstract fun handleUnknownChildRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
 }
