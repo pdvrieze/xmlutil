@@ -54,7 +54,7 @@ class RecoveryTest {
                 assertEquals(QName("a"), descriptor.getElementDescriptor(0).tagName)
                 assertEquals(QName("b"), descriptor.getElementDescriptor(1).tagName)
                 assertEquals(
-                    setOf(
+                    listOf(
                         PolyInfo(QName("a"), 0, descriptor.getElementDescriptor(0)),
                         PolyInfo(QName("b"), 1, descriptor.getElementDescriptor(1))
                     ),
