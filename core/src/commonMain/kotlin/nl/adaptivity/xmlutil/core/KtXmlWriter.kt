@@ -117,47 +117,58 @@ public class KtXmlWriter(
         DTD
     }
 
-    private fun Appendable.appendXmlChar(ch: Char, mode: EscapeMode) {
+    private fun Appendable.appendXmlCodepoint(codepoint: UInt, mode: EscapeMode) {
 
-        fun appendNumCharRef(code: Int) {
+        fun appendNumCharRef(code: UInt) {
             append("&#x").append(code.toString(16)).append(';')
         }
 
-        fun throwInvalid(code: Int): Nothing {
+        fun throwInvalid(code: UInt): Nothing {
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
-        val c = ch.code
+        val c = codepoint
+        val ch = if (codepoint <= 0xD7ffu) Char(codepoint.toUShort()) else Char(0x0u)
         when {
-            c == 0x0 -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
+            c == 0u -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
             ch == '&' -> append("&amp;")
             ch == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
             ch == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
             ch == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
             ch == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
 
-            c in 0x1..0x8 ||
-                    c == 0xB || c == 0xC ||
-                    c in 0xE..0x1F -> when (xmlVersion) {
+            c in 0x1u..0x8u ||
+                    c == 0xBu || c == 0xCu ||
+                    c in 0xEu..0x1Fu -> when (xmlVersion) {
                 XmlVersion.XML10 -> throwInvalid(c)
                 XmlVersion.XML11 -> {
                     appendNumCharRef(c)
                 }
             }
 
-            c in 0x7f..0x84 || c in 0x86..0x9f -> when (xmlVersion) {
+            c in 0x7fu..0x84u || c in 0x86u..0x9fu -> when (xmlVersion) {
                 XmlVersion.XML10 -> append(ch)
                 XmlVersion.XML11 -> appendNumCharRef(c)
             }
-            c in 0xD800..0xDFFF || c == 0xFFFE || c == 0xFFFF -> throwInvalid(c)
+
+            c in 0xD800u..0xDFFFu || c == 0xFFFEu || c == 0xFFFFu -> throwInvalid(c)
+
+            c > 0xffffu -> {
+                val down = c - 0x10000u
+                val highSurogate = (down shr 10) + 0xd800u
+                val lowSurogate = (down and 0x3ffu) + 0xdc00u
+                append(Char(highSurogate.toUShort()))
+                append(Char(lowSurogate.toUShort()))
+            }
+
             else -> append(ch)
 
         }
     }
 
     private fun writeEscapedText(s: String, mode: EscapeMode) {
-        loop@ for (c in s) {
-            writer.appendXmlChar(c, mode)
+        loop@ for (c in s.asCodePoints()) {
+            writer.appendXmlCodepoint(c, mode)
         }
     }
 
@@ -170,6 +181,7 @@ public class KtXmlWriter(
                 }
                 state = WriteState.AfterXmlDecl
             }
+
             else -> {
             }
         }
@@ -223,6 +235,7 @@ public class KtXmlWriter(
             "1.0" -> {
                 xmlVersion = XmlVersion.XML10; version
             }
+
             else -> {
                 xmlVersion = XmlVersion.XML11; version
             }
@@ -333,9 +346,9 @@ public class KtXmlWriter(
         var lastWasHyphen = false
         // TODO escape comment end strings
         writer.append("<!--")
-        for (ch in text) {
-            when (ch) {
-                '-' -> {
+        for (cp in text.asCodePoints()) {
+            when (cp) {
+                '-'.code.toUInt() -> {
                     if (lastWasHyphen) {
                         lastWasHyphen = false
                         writer.append("&#x2d;")
@@ -344,7 +357,8 @@ public class KtXmlWriter(
                         writer.append('-')
                     }
                 }
-                else -> writer.appendXmlChar(ch, EscapeMode.MINIMAL)
+
+                else -> writer.appendXmlCodepoint(cp, EscapeMode.MINIMAL)
             }
         }
         writer.append("-->")
@@ -363,15 +377,17 @@ public class KtXmlWriter(
         // Handle cdata with close part as element
         var endPos = 0
         writer.append("<![CDATA[")
-        for (ch in text) {
+        for (cp in text.asCodePoints()) {
+            val ch = if (cp < 0x7ddfu) Char(cp.toUShort()) else Char(0x0u)
             when {
                 ch == ']' && (endPos == 0 || endPos == 1) -> {
                     ++endPos; writer.append(ch)
                 }
+
                 ch == '>' && endPos == 2 -> writer.append("&gt;")
                 ch == ']' && endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
                 else -> {
-                    endPos = 0; writer.appendXmlChar(ch, EscapeMode.MINIMAL)
+                    endPos = 0; writer.appendXmlCodepoint(cp, EscapeMode.MINIMAL)
                 }
             }
         }
@@ -547,3 +563,25 @@ private fun Iterable<XmlEvent.TextEvent>.joinRepeated(repeats: Int): List<XmlEve
     return result
 }
 
+internal fun CharSequence.asCodePoints(): Iterable<UInt> {
+    return object : Iterable<UInt> {
+        override fun iterator(): Iterator<UInt> {
+            return object : Iterator<UInt> {
+                private var nextPos = 0
+
+                override fun hasNext(): Boolean = nextPos < this@asCodePoints.length
+
+                override fun next(): UInt = when (get(nextPos).isHighSurrogate()) {
+                    true -> {
+                        val codePoint = 0x10000u + ((get(nextPos).code.toUInt() - 0xD800u) shl 10) +
+                                (get(nextPos + 1).code.toUInt() - 0xDC00u)
+                        nextPos += 2
+                        codePoint
+                    }
+
+                    else -> get(nextPos).code.toUInt().also { nextPos++ }
+                }
+            }
+        }
+    }
+}

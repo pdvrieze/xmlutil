@@ -14,6 +14,7 @@ Fixes:
 - Make actual serialization of maps (that are not attributes) work
 - Fix an infinite recursion bug in the namespace collection code that writes
   namespace declarations on the top level.
+- Fix writing codepoints > 0x10000 that require surrogate pairs.
 
 # 0.84.3
 *(Sep 25, 2022)<br />*

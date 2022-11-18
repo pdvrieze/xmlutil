@@ -30,7 +30,10 @@ import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom.documentElement
 import nl.adaptivity.xmlutil.serialization.*
@@ -191,6 +194,18 @@ class TestCommon {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
         assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun serializeEmojiIndependent() {
+        val data = StringHolder("\uD83D\uDE0A")
+        val expected = "<StringHolder>😊</StringHolder>"
+        val actual = StringWriter().also { sw ->
+            KtXmlWriter(sw).use { out ->
+                XML.encodeToWriter(out, data)
+            }
+        }.toString()
+        assertEquals(expected, actual)
     }
 
     @Test
