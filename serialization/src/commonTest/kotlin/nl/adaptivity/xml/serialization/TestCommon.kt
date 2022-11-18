@@ -186,6 +186,33 @@ class TestCommon {
         assertDomEquals(expected, actual)
     }
 
+    @Test
+    fun serializeEmoji() {
+        val data = StringHolder("\uD83D\uDE0A")
+        val expected = "<StringHolder>😊</StringHolder>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun serializeRawEmoji() {
+        val data = StringHolder("😊")
+        val expected = "<StringHolder>😊</StringHolder>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun deserializeEmoji() {
+        val xml = "<StringHolder>😊</StringHolder>"
+        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        assertEquals("\uD83D\uDE0A", deserialized.value)
+    }
+
+    @Test
+    fun deserializeEmojiEntity() {
+        val xml = "<StringHolder>&#x1F60A;</StringHolder>"
+        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        assertEquals("😊", deserialized.value)
+    }
 
     @Test
     fun serializeXmlWithEntity() {
@@ -226,6 +253,12 @@ class TestCommon {
         val anElement: String,
         @XmlElement(true)
         val aBlankElement: Unit? = Unit
+    )
+
+    @Serializable
+    internal data class StringHolder(
+        @XmlValue
+        val value: String
     )
 
     @Serializable
