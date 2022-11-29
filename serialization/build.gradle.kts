@@ -256,8 +256,8 @@ kotlin {
             }
             logger.lifecycle("Source set: ${this.name}")
             languageSettings.apply {
-                languageVersion = "1.6"
-                apiVersion = "1.6"
+                languageVersion = "1.7"
+                apiVersion = "1.7"
                 optIn("kotlin.RequiresOptIn")
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
