@@ -31,6 +31,7 @@ import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.InputKind
+import nl.adaptivity.xmlutil.serialization.PolyInfo
 import nl.adaptivity.xmlutil.serialization.XML
 
 /**
@@ -114,7 +115,10 @@ abstract class CommonContainerSerializer : KSerializer<Container> {
                                 InputKind.Element,
                                 elementXmlDescriptor,
                                 reader.name,
-                                listOf("Test_??")
+                                (0 until elementXmlDescriptor.elementsCount).map {
+                                    val e = elementXmlDescriptor.getElementDescriptor(it)
+                                    PolyInfo(e.tagName, it, e)
+                                }
                             )
                         }
                     }
