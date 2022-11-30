@@ -28,37 +28,36 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
-class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) {
-    fun check() {
-        for(element in elements) { element.check() }
+class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
+    override fun check() {
+        super.check()
+
+        for (rd in redefines) { rd.check() }
     }
 
-    fun type(typeName: QName): T_Type {
-        return types.first { it.qName == typeName }
-    }
+    val annotations: List<XSAnnotation> get() = rawPart.annotations
 
-    fun element(elementName: QName): ResolvedToplevelElement {
-        return elements.first { it.qName == elementName }
-    }
+    override val simpleTypes: List<ResolvedToplevelSimpleType> = DelegateList(rawPart.simpleTypes) { ResolvedToplevelSimpleType(it, this) }
+    override val complexTypes: List<ResolvedToplevelComplexType> = DelegateList(rawPart.complexTypes) { ResolvedToplevelComplexType(it, this) }
 
-    val annotations: List<XSAnnotation> get() = TODO("Resolve annotations if needed")
-    val types: List<ResolvedType> get() = TODO("Delegate list of resolved types")
-    val attributes: List<XSAttribute> get() = TODO("Delegate list of resolved attributes")
+    val types: List<ResolvedToplevelType> get() = CombiningList(simpleTypes, complexTypes)
+    override val attributes: List<ResolvedToplevelAttribute> get() = DelegateList(rawPart.attributes) { ResolvedToplevelAttribute(it, this) }
     val redefines: List<ResolvedRedefine> = DelegateList(rawPart.redefines) { ResolvedRedefine(it, this, resolver) }
 
-    val elements: List<ResolvedToplevelElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedToplevelElement(it, this) }
+    override val elements: List<ResolvedToplevelElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedToplevelElement(it, this) }
 
-    val attributeGroups: List<XSAttributeGroup> get() = TODO("Delegate list of attribute groups")
-    val modelGroups: List<XSGroup> get() = TODO("Delegate list of model groups")
-    val notations: List<XSNotation> get() = TODO("Delegate list of notation declarations")
+    override val attributeGroups: List<ResolvedDirectAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedDirectAttributeGroup(it, this) }
+    override val groups: List<ResolvedDirectGroup> get() = DelegateList(rawPart.groups) { ResolvedDirectGroup(it, this) }
+    val notations: List<XSNotation> get() = rawPart.notations
     val identityConstraints: List<G_IdentityConstraint.Types> get() = TODO("Delegate list of identity constraints")
 
     val attributeFormDefault: T_FormChoice
         get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED
 
-    val blockDefault: T_BlockSet get() = rawPart.blockDefault
+    override val blockDefault: T_BlockSet get() = rawPart.blockDefault
 
     val defaultAttributes: QName? get() = rawPart.defaultAttributes
 
@@ -68,11 +67,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) {
     val elementFormDefault: T_FormChoice
         get() = rawPart.elementFormDefault ?: T_FormChoice.UNQUALIFIED
 
-    val finalDefault : Set<T_TypeDerivationControl> get() = rawPart.finalDefault ?: emptySet()
+    override val finalDefault : Set<T_TypeDerivationControl> get() = rawPart.finalDefault ?: emptySet()
 
     val id: VID? get() = rawPart.id
 
-    val targetNamespace: VAnyURI? get() = rawPart.targetNamespace
+    override val targetNamespace: VAnyURI get() = rawPart.targetNamespace ?: VAnyURI("")
 
     val version: VToken? get() = rawPart.version
 
@@ -81,6 +80,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) {
 
     interface Resolver {
         fun readSchema(schemaLocation: VAnyURI): XSSchema
+
+        /**
+         * Create a delegate resolver for the schema
+         */
+        fun delegate(schemaLocation: VAnyURI): Resolver
     }
 }
 

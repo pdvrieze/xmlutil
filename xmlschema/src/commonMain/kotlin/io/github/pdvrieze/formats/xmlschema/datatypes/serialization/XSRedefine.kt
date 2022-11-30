@@ -21,6 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Redefine
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -30,14 +31,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("redefine", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSRedefine(
-    val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
-    val complexTypes: List<XSTopLevelComplexType> = emptyList(),
-    val groups: List<XSGroup> = emptyList(),
-    val attributeGroups: List<XSAttributeGroup> = emptyList(),
-    val schemaLocation: VAnyURI,
+    override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
+    override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
+    override val groups: List<XSGroup> = emptyList(),
+    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
+    override val schemaLocation: VAnyURI,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
-) : T_Annotated, G_Composition.Redefine {
+) : T_Redefine {
 }

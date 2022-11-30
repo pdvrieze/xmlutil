@@ -35,7 +35,7 @@ class XSAttributeGroupRef(
     override val id: VID? = null,
     override val ref: QName,
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+    override val attributeGroups: List<T_AttributeGroupRef> = emptyList(),
     override val attributes: List<T_LocalAttribute> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
     @XmlOtherAttributes

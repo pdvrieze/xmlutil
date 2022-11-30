@@ -23,31 +23,111 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSTopLevelComplexType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedType: NamedPart, T_Type {
+sealed interface ResolvedType: ResolvedPart, T_Type {
     abstract override val rawPart: T_Type
+}
+
+sealed interface ResolvedToplevelType: ResolvedType, NamedPart {
+}
+
+sealed interface ResolvedLocalType: ResolvedType {
+    override val rawPart: XSLocalType
+}
+
+sealed interface ResolvedSimpleType: ResolvedType, T_SimpleType
+
+sealed interface ResolvedComplexType: ResolvedType, T_ComplexType
+
+class ResolvedToplevelSimpleType(
+    override val rawPart: XSToplevelSimpleType,
+    override val schema: ResolvedSchemaLike
+): ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType {
+    override val annotations: List<XSAnnotation>
+        get() = rawPart.annotations
+
+    override val id: VID?
+        get() = rawPart.id
+
+    override val otherAttrs: Map<QName, String>
+        get() = rawPart.otherAttrs
+
+    override val name: VNCName
+        get() = rawPart.name
+
+    override val targetNamespace: VAnyURI?
+        get() = schema.targetNamespace
+
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = when (val raw = rawPart.simpleDerivation) {
+            is XSSimpleUnion -> ResolvedSimpleUnionDerivation(raw, schema)
+            is XSSimpleList -> ResolvedSimpleListDerivation(raw, schema)
+            is XSSimpleRestriction -> ResolvedSimpleRestrictionDerivation(raw, schema)
+        }
+
+    override val final: Set<T_SimpleDerivationSetElem>
+        get() = rawPart.final
+}
+
+class ResolvedLocalSimpleType(
+    override val rawPart: XSLocalSimpleType,
+    override val schema: ResolvedSchemaLike
+): ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
+    override val annotations: List<XSAnnotation>
+        get() = rawPart.annotations
+
+    override val id: VID?
+        get() = rawPart.id
+
+    override val otherAttrs: Map<QName, String>
+        get() = rawPart.otherAttrs
+
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = when (val raw = rawPart.simpleDerivation) {
+            is XSSimpleUnion -> ResolvedSimpleUnionDerivation(raw, schema)
+            is XSSimpleList -> ResolvedSimpleListDerivation(raw, schema)
+            is XSSimpleRestriction -> ResolvedSimpleRestrictionDerivation(raw, schema)
+        }
 }
 
 class ResolvedToplevelComplexType(
     override val rawPart: XSTopLevelComplexType,
-    override val schema: ResolvedSchema
-): ResolvedType() {
+    override val schema: ResolvedSchemaLike
+): ResolvedToplevelType, ResolvedComplexType, T_TopLevelComplexType_Base {
     override val name: VNCName
-        get() = TODO("not implemented")
+        get() = rawPart.name
 
     override val annotations: List<XSAnnotation>
-        get() = TODO("not implemented")
+        get() = rawPart.annotations
 
     override val id: VID?
-        get() = TODO("not implemented")
+        get() = rawPart.id
 
     override val otherAttrs: Map<QName, String>
-        get() = TODO("not implemented")
+        get() = rawPart.otherAttrs
 
     override val targetNamespace: VAnyURI?
-        get() = TODO("not implemented")
+        get() = schema.targetNamespace
+
+    override val mixed: Boolean?
+        get() = rawPart.mixed
+
+    override val defaultAttributesApply: Boolean?
+        get() = rawPart.defaultAttributesApply
+
+    override val content: G_ComplexTypeModel.Base
+        get() = TODO("Resolve from raw")
+
+    override val abstract: Boolean
+        get() = rawPart.abstract
+
+    override val final: T_DerivationSet
+        get() = rawPart.final
+
+    override val block: T_DerivationSet
+        get() = rawPart.block
 }

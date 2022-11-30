@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 
-sealed interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
+interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
     /**
      * May not have simpleContent child
      */

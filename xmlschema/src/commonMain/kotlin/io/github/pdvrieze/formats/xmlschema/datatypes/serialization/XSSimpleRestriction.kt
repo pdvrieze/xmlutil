@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 @XmlIgnoreWhitespace(true)
 @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-internal class XSSimpleRestriction(
+class XSSimpleRestriction(
     @XmlElement(false)
     @Serializable(QNameSerializer::class)
     val base: QName? = null, // Rrequiers an embedded restriction

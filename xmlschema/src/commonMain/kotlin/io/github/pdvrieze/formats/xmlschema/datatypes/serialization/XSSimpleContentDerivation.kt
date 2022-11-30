@@ -20,6 +20,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -30,7 +31,7 @@ sealed class XSSimpleContentDerivation(
     val base: @Serializable(QNameSerializer::class) QName?,
     override val id: VID?,
     override val attributes: List<XSLocalAttribute>,
-    override val attributeGroups: List<XSAttributeGroupRef>,
+    override val attributeGroups: List<T_AttributeGroupRef>,
     override val anyAttribute: XSAnyAttribute?,
     override val asserts: List<XSAssert>,
     override val annotations: List<XSAnnotation>,
