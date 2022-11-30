@@ -22,6 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedAttributeGroup
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
