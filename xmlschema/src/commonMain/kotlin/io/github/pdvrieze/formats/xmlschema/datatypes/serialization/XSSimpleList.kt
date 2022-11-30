@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("list", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-internal class XSSimpleList(
+class XSSimpleList(
     @XmlElement(false)
     val itemType: @Serializable(QNameSerializer::class) QName? = null,
     val simpleType: XSLocalSimpleType? = null,

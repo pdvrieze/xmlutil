@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2022.
  *
  * This file is part of xmlutil.
  *
@@ -20,10 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-interface ResolvedPart {
-    val rawPart: Any
-    val schema: ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 
-    fun check() {}
+class ResolvedAnnotation(rawPart: XSAnnotation, schema: ResolvedSchema) {
+
 }
-

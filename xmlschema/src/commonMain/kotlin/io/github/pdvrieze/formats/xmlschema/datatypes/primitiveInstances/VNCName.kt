@@ -22,11 +22,17 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
 @Serializable(VNCName.Serializer::class)
 interface VNCName: VName {
+
+    fun toQname(targetNamespace: VAnyURI?): QName {
+        return QName(targetNamespace?.value ?: "", xmlString)
+    }
+
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VNCName
