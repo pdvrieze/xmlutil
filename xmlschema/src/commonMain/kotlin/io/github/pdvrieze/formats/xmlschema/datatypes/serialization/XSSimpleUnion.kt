@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("union", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-internal class XSSimpleUnion(
+class XSSimpleUnion(
     val simpleTypes: List<XSLocalSimpleType> = emptyList(),
     @XmlElement(false)
     val memberTypes: List<@Serializable(QNameSerializer::class) QName>? = null,

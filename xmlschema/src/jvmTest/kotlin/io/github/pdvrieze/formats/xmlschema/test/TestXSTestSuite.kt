@@ -105,13 +105,16 @@ class TestXSTestSuite {
             }
             dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
                 val e = assertFails(documentation) {
-                    val schema = resolver.readSchema(VAnyURI(schemaDoc.href))
-                    val resolvedSchema = schema.resolve(resolver)
+                    val schemaLocation = VAnyURI(schemaDoc.href)
+                    val schema = resolver.readSchema(schemaLocation)
+                    val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
                     resolvedSchema.check()
                 }
                 if (e is NotImplementedError) throw e
                 System.err.println("Expected error: \n")
-                System.err.println(documentation.prependIndent("    "))
+                System.err.println(documentation.prependIndent("        "))
+                System.err.println("    Exception thrown:")
+                System.err.println(e.message?.prependIndent("        "))
             }
         } else {
             dynamicTest("Schema document ${schemaDoc.href} parses") {

@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
 
 /**
@@ -26,6 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Loca
 interface G_AttrDecls {
     val attributes: List<T_LocalAttribute>
     /** Name elements AttributeGroup */
-    val attributeGroups: List<XSAttributeGroupRef>
+    val attributeGroups: List<T_AttributeGroupRef>
     val anyAttribute: XSAnyAttribute?
 }

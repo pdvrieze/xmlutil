@@ -33,7 +33,10 @@ internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver
         return baseURI.resolve(schemaLocation.value).withXmlReader { reader ->
             return XML { autoPolymorphic = true }.decodeFromReader<XSSchema>(reader)
         }
+    }
 
+    override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
+        return SimpleResolver(baseURI.resolve(schemaLocation.value))
     }
 }
 

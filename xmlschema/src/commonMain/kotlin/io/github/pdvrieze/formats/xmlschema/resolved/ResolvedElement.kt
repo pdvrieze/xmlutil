@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.toQname
 
 sealed class ResolvedElement : NamedPart, T_Element {
     abstract override val rawPart: T_Element
@@ -38,9 +39,9 @@ sealed class ResolvedElement : NamedPart, T_Element {
 
 class ResolvedToplevelElement(
     override val rawPart: XSElement,
-    override val schema: ResolvedSchema
-) : ResolvedElement() {
-    fun check() {
+    override val schema: ResolvedSchemaLike
+) : ResolvedElement(), T_TopLevelElement {
+    override fun check() {
         println("typedef: $typeDef")
         //TODO("not implemented")
     }
@@ -49,8 +50,7 @@ class ResolvedToplevelElement(
 
     override val name: VNCName get() = rawPart.name
 
-    override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.rawPart.targetNamespace
+    override val targetNamespace: Nothing? get() = null
 
     val typeDef: T_Type = rawPart.localType
         ?: type?.let {
@@ -117,28 +117,32 @@ class ResolvedToplevelElement(
 
     override val abstract: Boolean get() = rawPart.abstract ?: false
 
-    override val ref: QName?
-        get() = TODO("not implemented")
-    override val minOccurs: VNonNegativeInteger?
-        get() = TODO("not implemented")
-    override val maxOccurs: T_AllNNI?
-        get() = TODO("not implemented")
-    override val id: VID?
-        get() = TODO("not implemented")
+    override val ref: Nothing?
+        get() = rawPart.ref
+
+    override val minOccurs: Nothing?
+        get() = rawPart.minOccurs
+
+    override val maxOccurs: Nothing? get() = null
+
+    override val id: VID? get() = rawPart.id
+
     override val localType: T_Element.Type?
-        get() = TODO("not implemented")
-    override val alternatives: List<T_AltType>
-        get() = TODO("not implemented")
+        get() = rawPart.localType
+
+    override val alternatives: List<T_AltType> get() = rawPart.alternatives
+
     override val type: QName?
-        get() = TODO("not implemented")
-    override val default: String?
-        get() = TODO("not implemented")
-    override val fixed: String?
-        get() = TODO("not implemented")
-    override val form: T_FormChoice?
-        get() = TODO("not implemented")
+        get() = rawPart.type
+
+    override val default: String? get() = rawPart.default
+
+    override val fixed: String? get() = rawPart.fixed
+
+    override val form: Nothing? get() = null
+
     override val otherAttrs: Map<QName, String>
-        get() = TODO("not implemented")
+        get() = rawPart.otherAttrs
 }
 
 class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)
