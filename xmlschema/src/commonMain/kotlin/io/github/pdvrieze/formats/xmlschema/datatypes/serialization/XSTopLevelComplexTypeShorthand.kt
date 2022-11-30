@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Shorthand
 import kotlinx.serialization.Serializable
