@@ -19,7 +19,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleListType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -31,10 +33,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("list", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSSimpleList(
     @XmlElement(false)
-    val itemType: @Serializable(QNameSerializer::class) QName? = null,
-    val simpleType: XSLocalSimpleType? = null,
+    @SerialName("itemType")
+    override val itemTypeName: @Serializable(QNameSerializer::class) QName? = null,
+    override val simpleType: XSLocalSimpleType? = null,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSSimpleDerivation(), G_SimpleDerivation.List, XSI_Annotated
+) : XSSimpleDerivation(), T_SimpleListType
