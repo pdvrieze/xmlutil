@@ -79,7 +79,7 @@ class XSSchema(
     override val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : T_OpenAttrs, GX_Compositions, GX_SchemaTop {
+) : XSI_OpenAttrs, GX_Compositions, GX_SchemaTop {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

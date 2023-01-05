@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.QName
 interface T_LocalAttribute: T_AttributeBase, AG_DefRef {
 }
 
-interface T_AttributeBase: T_Annotated {
+interface T_AttributeBase: XSI_Annotated {
     val default: String?
     val fixed: String?
     val form: T_FormChoice?

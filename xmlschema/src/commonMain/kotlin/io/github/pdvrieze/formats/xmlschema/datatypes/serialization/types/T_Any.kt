@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 
-interface T_Any: T_Annotated, AG_Occurs {
+interface T_Any: XSI_Annotated, AG_Occurs {
     val namespace: T_NamespaceList
     val notNamespace: T_NotNamespaceList
     val notQName: T_QNameList

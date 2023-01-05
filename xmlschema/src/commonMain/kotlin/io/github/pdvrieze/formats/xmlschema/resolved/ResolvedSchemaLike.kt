@@ -20,11 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.namespaceURI
 
 abstract sealed class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI
@@ -44,8 +46,12 @@ abstract sealed class ResolvedSchemaLike {
     abstract val finalDefault : Set<T_TypeDerivationControl>
 
     fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
-        return simpleTypes.firstOrNull { it.qName == typeName }
-            ?: throw NoSuchElementException("No type with name $typeName found")
+        if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
+            TODO("Implement - rebase compilation failure")
+        } else {
+            return simpleTypes.firstOrNull { it.qName == typeName }
+                ?: throw NoSuchElementException("No type with name $typeName found")
+        }
     }
 
     fun type(typeName: QName): ResolvedToplevelType {

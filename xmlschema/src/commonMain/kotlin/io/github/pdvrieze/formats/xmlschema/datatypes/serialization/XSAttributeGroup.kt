@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedAttributeGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -42,7 +43,7 @@ class XSAttributeGroup(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : G_Redefinable.AttributeGroup, T_NamedAttributeGroup {
+) : G_Redefinable.AttributeGroup, T_NamedAttributeGroup, XSI_Annotated {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

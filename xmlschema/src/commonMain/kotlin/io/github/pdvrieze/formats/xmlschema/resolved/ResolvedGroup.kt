@@ -57,6 +57,9 @@ class ResolvedDirectGroup(
     override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
 ): ResolvedGroup(schema), NamedPart, T_NamedGroup {
+    fun check() {
+    }
+
     override val annotations: List<XSAnnotation>
         get() = rawPart.annotations
 
