@@ -20,17 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_SimpleUnionType : G_SimpleDerivation.Union, T_SimpleDerivation {
+interface T_SimpleUnionType : G_SimpleDerivation.Union, T_SimpleDerivationBase {
 
     val simpleTypes: List<T_LocalSimpleType>
 
     val memberTypes: List<@Serializable(with = QNameSerializer::class) QName>?
 }
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+interface T_LocalType: T_Type
 
-interface T_Type: XSI_Annotated {
-    val name: VNCName?
-
-}
-
-/** Type that can be the base of a simple type, this includes AnyType */
-interface T_SimpleBaseType: T_Type
+interface T_TopLevelType: T_Type

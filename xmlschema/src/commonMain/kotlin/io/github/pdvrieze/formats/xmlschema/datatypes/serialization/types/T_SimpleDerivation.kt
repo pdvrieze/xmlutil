@@ -22,6 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
-interface T_SimpleDerivation: XSI_Annotated, G_SimpleDerivation.Types {
+interface T_SimpleDerivation : XSI_Annotated, G_SimpleDerivation.Types {
 
 }
+
+sealed interface T_SimpleDerivationBase: T_SimpleDerivation
