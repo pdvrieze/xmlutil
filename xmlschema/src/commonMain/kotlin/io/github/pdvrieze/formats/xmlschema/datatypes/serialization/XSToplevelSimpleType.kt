@@ -43,4 +43,4 @@ class XSToplevelSimpleType(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : T_TopLevelSimpleType, G_Redefinable.SimpleType
+) : T_TopLevelSimpleType, G_Redefinable.SimpleType, XSI_Annotated

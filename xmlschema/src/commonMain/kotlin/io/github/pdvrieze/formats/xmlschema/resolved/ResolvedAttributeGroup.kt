@@ -31,18 +31,19 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Red
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedAttributeGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, G_Redefinable.AttributeGroup {
+) : ResolvedPart, G_Redefinable.AttributeGroup, XSI_Annotated {
     abstract override val rawPart: G_Redefinable.AttributeGroup
 }
 
 class ResolvedAttributeGroupRef(
     override val rawPart: XSAttributeGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeGroupRef {
+) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
     val resolvedGroup: ResolvedDirectAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
 
     override val attributes: List<T_LocalAttribute>
@@ -66,7 +67,7 @@ class ResolvedAttributeGroupRef(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override fun check() {
+    fun check() {
         checkNotNull(resolvedGroup) // force resolve
     }
 }
@@ -74,7 +75,7 @@ class ResolvedAttributeGroupRef(
 class ResolvedDirectAttributeGroup(
     override val rawPart: XSAttributeGroup,
     override val schema: ResolvedSchemaLike
-) : NamedPart, T_NamedAttributeGroup {
+) : NamedPart, T_NamedAttributeGroup, XSI_Annotated {
 
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(it, schema)
@@ -101,7 +102,7 @@ class ResolvedDirectAttributeGroup(
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
-    override fun check() {
+    fun check() {
         for (a in attributes) { a.check() }
         for (ag in attributeGroups) { ag.check() }
     }

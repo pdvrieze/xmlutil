@@ -22,7 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Ass
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import nl.adaptivity.xmlutil.QName
 
-interface T_ExtensionType: T_Annotated, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
+interface T_ExtensionType: XSI_Annotated, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
     val openContents: List<XSOpenContent>
     val base: QName
 }

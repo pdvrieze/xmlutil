@@ -40,7 +40,7 @@ class XSComplexContent(
     override val annotations: List<XSAnnotation> = emptyList(),
     val derivation: RestrictionExtensionChoice
 
-) : T_Annotated, G_ComplexTypeModel.ComplexContent {
+) : XSI_Annotated, G_ComplexTypeModel.ComplexContent {
     @Serializable
     sealed class RestrictionExtensionChoice
 

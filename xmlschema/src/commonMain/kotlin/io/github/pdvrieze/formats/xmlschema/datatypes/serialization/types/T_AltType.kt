@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import nl.adaptivity.xmlutil.QName
 
-interface T_AltType: T_Annotated {
+interface T_AltType: XSI_Annotated {
     val simpleTypes: List<T_LocalSimpleType>
 
     val complexTypes: List<T_ComplexType>

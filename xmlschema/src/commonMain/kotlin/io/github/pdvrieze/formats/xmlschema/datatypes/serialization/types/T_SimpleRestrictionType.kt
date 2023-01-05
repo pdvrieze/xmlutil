@@ -16,6 +16,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_SimpleRestrictionType: T_RestrictionType {
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
+
+/**
+ * Datatype restricted only in the facets specified upon it.
+ */
+interface T_SimpleRestrictionType: T_RestrictionType, T_SimpleDerivation, G_SimpleDerivation.Restriction {
 
 }
