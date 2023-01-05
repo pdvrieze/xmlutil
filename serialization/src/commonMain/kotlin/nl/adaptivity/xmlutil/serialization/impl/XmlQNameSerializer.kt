@@ -34,8 +34,6 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializer(forClass = QName::class)
 internal object XmlQNameSerializer : KSerializer<QName> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING)
 
