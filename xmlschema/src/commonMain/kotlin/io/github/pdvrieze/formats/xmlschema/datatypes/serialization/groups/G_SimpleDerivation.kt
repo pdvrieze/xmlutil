@@ -25,7 +25,8 @@ interface G_SimpleDerivation {
     val simpleDerivation: Types
 
     interface Types
-    interface Restriction: Types
-    interface List: Types
-    interface Union: Types
+    sealed interface SimpleDerivationBase: Types
+    interface Restriction: SimpleDerivationBase
+    interface List: SimpleDerivationBase
+    interface Union: SimpleDerivationBase
 }

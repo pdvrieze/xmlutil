@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_LocalComplexType_Base: T_ComplexType {
+interface T_LocalComplexType_Base: T_ComplexType, T_LocalType {
 
 }
 

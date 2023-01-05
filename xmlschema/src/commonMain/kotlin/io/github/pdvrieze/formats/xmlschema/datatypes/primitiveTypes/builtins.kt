@@ -21,10 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.ConstructedListDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.Datatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleDerivation
 
 fun builtinType(localName: String, targetNamespace: String): Datatype? {
     if (targetNamespace != XmlSchemaConstants.XS_NAMESPACE) return null
@@ -83,12 +85,21 @@ fun builtinType(localName: String, targetNamespace: String): Datatype? {
     }
 }
 
-sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace)
+sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace),
+    ResolvedBuiltinSimpleType
 
-sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace)
+sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
+    abstract override val baseType: ResolvedBuiltinType
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = SimpleBuiltinRestriction(baseType)
+}
 
 class RestrictedAtomicDatatype(name: String, targetNamespace: String, override val baseType: AtomicDatatype) :
     AtomicDatatype(name, targetNamespace) {
+    override val final: Set<T_SimpleDerivationSetElem>
+        get() = TODO("not implemented")
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = TODO("not implemented")
 
     init {
         if (baseType == AnyAtomicType)
@@ -99,6 +110,8 @@ class RestrictedAtomicDatatype(name: String, targetNamespace: String, override v
 
 object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnySimpleType get() = AnySimpleType
+    override val simpleDerivation: ResolvedSimpleDerivation =
+        SimpleBuiltinRestriction(AnySimpleType)
 }
 
 object AnyURIType : PrimitiveDatatype("anyURI", XmlSchemaConstants.XS_NAMESPACE) {
@@ -235,6 +248,8 @@ object QNameType : PrimitiveDatatype("QName", XmlSchemaConstants.XS_NAMESPACE) {
 
 object StringType : PrimitiveDatatype("string", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = SimpleBuiltinRestriction(baseType, listOf(XSWhiteSpace(XSWhiteSpace.Values.PRESERVE, fixed = false)))
 }
 
 object NormalizedStringType : PrimitiveDatatype("normalizedString", XmlSchemaConstants.XS_NAMESPACE) {
@@ -284,5 +299,5 @@ object IDRefsType: ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMES
 object NMTokensType: ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
 object PrecisionDecimalType: PrimitiveDatatype("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
-    override val baseType: Datatype get() = AnyAtomicType
+    override val baseType: AnyAtomicType get() = AnyAtomicType
 }
