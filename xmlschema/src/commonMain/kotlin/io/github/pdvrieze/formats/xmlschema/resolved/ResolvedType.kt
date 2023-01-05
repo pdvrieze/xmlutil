@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
@@ -29,27 +30,29 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Com
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType: ResolvedPart, T_Type {
+sealed interface ResolvedType : ResolvedPart, T_Type {
     abstract override val rawPart: T_Type
 
     fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
 }
 
-interface ResolvedBuiltinType: ResolvedType {
+interface ResolvedBuiltinType : ResolvedToplevelType, T_SimpleBaseType {
     override val rawPart: T_Type get() = this
-    override fun check(seenTypes: SingleLinkedList<QName>) {}
-    override val schema: ResolvedSchemaLike
-        get() = TODO("Placeholder to allow for compilation - from rebase")
+    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+    override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
+    override val annotations: List<XSAnnotation> get() = emptyList()
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, String> get() = emptyMap()
 }
 
-sealed interface ResolvedToplevelType: ResolvedType, NamedPart {
+sealed interface ResolvedToplevelType : ResolvedType, NamedPart {
 }
 
-sealed interface ResolvedLocalType: ResolvedType {
-    override val rawPart: XSLocalType
+sealed interface ResolvedLocalType : ResolvedType, T_LocalType {
+    override val rawPart: T_LocalType
 }
 
-sealed interface ResolvedSimpleType: ResolvedType, T_SimpleType, XSI_Annotated {
+sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, XSI_Annotated {
     override val simpleDerivation: ResolvedSimpleDerivation
 
     override fun check(seenTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
@@ -62,16 +65,24 @@ sealed interface ResolvedSimpleType: ResolvedType, T_SimpleType, XSI_Annotated {
     }
 }
 
-interface ResolvedBuiltinSimpleType: ResolvedSimpleType, ResolvedBuiltinType {
-    override fun check(seenTypes: SingleLinkedList<QName>) {}
+interface ResolvedBuiltinSimpleType : ResolvedToplevelSimpleType, ResolvedBuiltinType {
+    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+    override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
+
 }
 
-sealed interface ResolvedComplexType: ResolvedType, T_ComplexType, XSI_Annotated
+sealed interface ResolvedComplexType : ResolvedType, T_ComplexType, XSI_Annotated
 
-class ResolvedToplevelSimpleType(
+interface ResolvedToplevelSimpleType : ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType
+
+fun ResolvedToplevelSimpleType(rawPart: XSToplevelSimpleType, schema: ResolvedSchemaLike): ResolvedToplevelSimpleType {
+    return ResolvedToplevelSimpleTypeImpl(rawPart, schema)
+}
+
+class ResolvedToplevelSimpleTypeImpl(
     override val rawPart: XSToplevelSimpleType,
     override val schema: ResolvedSchemaLike
-): ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType {
+) : ResolvedToplevelSimpleType {
     override val annotations: List<XSAnnotation>
         get() = rawPart.annotations
 
@@ -104,9 +115,9 @@ class ResolvedToplevelSimpleType(
 }
 
 class ResolvedLocalSimpleType(
-    override val rawPart: XSLocalSimpleType,
+    override val rawPart: T_LocalSimpleType,
     override val schema: ResolvedSchemaLike
-): ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
+) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
 
     override val annotations: List<XSAnnotation>
         get() = rawPart.annotations
@@ -119,16 +130,17 @@ class ResolvedLocalSimpleType(
 
     override val simpleDerivation: ResolvedSimpleDerivation
         get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedSimpleUnionDerivation(raw, schema)
-            is XSSimpleList -> ResolvedSimpleListDerivation(raw, schema)
-            is XSSimpleRestriction -> ResolvedSimpleRestrictionDerivation(raw, schema)
+            is T_SimpleUnionType -> ResolvedSimpleUnionDerivation(raw, schema)
+            is T_SimpleListType -> ResolvedSimpleListDerivation(raw, schema)
+            is T_SimpleRestrictionType -> ResolvedSimpleRestrictionDerivation(raw, schema)
+            else -> error("Derivations must be union, list or restriction")
         }
 }
 
 class ResolvedToplevelComplexType(
     override val rawPart: XSTopLevelComplexType,
     override val schema: ResolvedSchemaLike
-): ResolvedToplevelType, ResolvedComplexType, T_TopLevelComplexType_Base {
+) : ResolvedToplevelType, ResolvedComplexType, T_TopLevelComplexType_Base {
     override val name: VNCName
         get() = rawPart.name
 

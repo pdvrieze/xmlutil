@@ -20,14 +20,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
-interface T_LocalSimpleType: T_SimpleType, T_Element.Simple {
+interface T_LocalSimpleType: T_SimpleType, T_LocalType, T_Element.Simple {
     override val name: Nothing? get() = null
+    override val simpleDerivation: T_SimpleDerivation
 }
 
-interface T_TopLevelSimpleType: T_SimpleType {
+interface T_TopLevelSimpleType: T_SimpleType, T_TopLevelType {
     val final: Set<T_SimpleDerivationSetElem>
     override val name: VNCName
 }
 
-interface T_SimpleType: T_Type, G_SimpleDerivation
+interface T_SimpleType: T_SimpleBaseType, G_SimpleDerivation
 

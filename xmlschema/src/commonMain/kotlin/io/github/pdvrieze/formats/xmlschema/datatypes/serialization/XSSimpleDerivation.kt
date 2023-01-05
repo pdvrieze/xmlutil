@@ -17,7 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivation
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class XSSimpleDerivation: G_SimpleDerivation.Types
+sealed class XSSimpleDerivation : T_SimpleDerivation

@@ -22,6 +22,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Sim
 /**
  * Datatype restricted only in the facets specified upon it.
  */
-interface T_SimpleRestrictionType: T_RestrictionType, T_SimpleDerivation, G_SimpleDerivation.Restriction {
+interface T_SimpleRestrictionType: T_RestrictionType, T_SimpleDerivationBase, G_SimpleDerivation.Restriction {
 
 }
