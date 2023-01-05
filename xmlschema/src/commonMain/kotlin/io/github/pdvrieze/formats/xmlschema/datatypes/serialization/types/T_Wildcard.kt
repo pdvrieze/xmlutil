@@ -18,5 +18,5 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_AnyAttrGroup
 
-interface T_Wildcard: T_Annotated, AG_AnyAttrGroup {
+interface T_Wildcard: XSI_Annotated, AG_AnyAttrGroup {
 }

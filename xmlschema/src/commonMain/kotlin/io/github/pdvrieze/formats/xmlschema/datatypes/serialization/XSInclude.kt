@@ -21,8 +21,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Include
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
