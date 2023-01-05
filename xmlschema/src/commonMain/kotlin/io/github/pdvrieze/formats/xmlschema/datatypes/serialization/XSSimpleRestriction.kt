@@ -18,8 +18,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleRestrictionModels
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -33,7 +31,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 class XSSimpleRestriction(
     @XmlElement(false)
     @Serializable(QNameSerializer::class)
-    val base: QName? = null, // Rrequiers an embedded restriction
+    override val base: QName? = null, // Rrequiers an embedded restriction
     @XmlElement(false)
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
@@ -43,6 +41,4 @@ class XSSimpleRestriction(
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
-) : XSSimpleDerivation(), T_Annotated,
-    G_SimpleRestrictionModels,
-    G_SimpleDerivation.Restriction
+) : XSSimpleDerivation(), XSI_Annotated, T_SimpleRestrictionType

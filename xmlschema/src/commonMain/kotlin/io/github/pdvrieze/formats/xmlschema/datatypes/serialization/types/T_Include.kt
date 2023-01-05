@@ -23,6 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 
-interface T_Include : T_Annotated, G_Composition.Include {
+interface T_Include : XSI_Annotated, G_Composition.Include {
     val schemaLocation: VAnyURI
 }

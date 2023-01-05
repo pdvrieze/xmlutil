@@ -27,7 +27,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleDerivation
 import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
@@ -36,7 +38,7 @@ abstract class Datatype(
 ) {
     abstract val baseType: Datatype
 
-    constructor(name: String, targetNamespace: String): this(VNCName(name), targetNamespace)
+    constructor(name: String, targetNamespace: String) : this(VNCName(name), targetNamespace)
 
     val dtFunctions: List<DataFunction> get() = emptyList()
     val identityFunction: DataFunction get() = TODO()
@@ -56,10 +58,10 @@ class ExtensionComplexDatatype(name: String, targetNamespace: String, override v
     init {
         when (baseType) {
             is ErrorType -> throw IllegalArgumentException("The error type can not be a base type")
-/*
-            is ListDatatype -> throw IllegalArgumentException("The list type can not be a base type")
-            is UnionDatatype -> throw IllegalArgumentException("The union type can not be a base type")
-*/
+            /*
+                        is ListDatatype -> throw IllegalArgumentException("The list type can not be a base type")
+                        is UnionDatatype -> throw IllegalArgumentException("The union type can not be a base type")
+            */
             else -> {} // no errors needed
         }
     }
@@ -157,15 +159,19 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: Datatype get() = ErrorType
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), T_Type {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType {
+
     override val baseType: AnyType get() = AnyType // No actual base type
-    override val annotations: List<XSAnnotation> get() = emptyList()
-    override val id: Nothing? get() = null
-    override val otherAttrs: Map<QName, String> get() = emptyMap()
 }
 
-object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE) {
+object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
+    override val annotations: List<XSAnnotation> get() = emptyList()
+    override val id: VID? get() = null
+    override val otherAttrs: Map<QName, String> get() = emptyMap()
+
     override val baseType: AnyType get() = AnyType
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = TODO("Omitted to allow compilation in rebase")//object : G_SimpleDerivation.Restriction {}
 }
 
 

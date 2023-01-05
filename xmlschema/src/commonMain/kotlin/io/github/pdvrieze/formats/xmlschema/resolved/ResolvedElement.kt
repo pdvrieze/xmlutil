@@ -41,7 +41,7 @@ class ResolvedToplevelElement(
     override val rawPart: XSElement,
     override val schema: ResolvedSchemaLike
 ) : ResolvedElement(), T_TopLevelElement {
-    override fun check() {
+    fun check() {
         println("typedef: $typeDef")
         //TODO("not implemented")
     }

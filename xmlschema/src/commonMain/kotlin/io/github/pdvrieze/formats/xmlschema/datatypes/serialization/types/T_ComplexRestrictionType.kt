@@ -16,5 +16,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_ComplexRestrictionType: T_RestrictionType {
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_TypeDefParticles
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
+
+interface T_ComplexRestrictionType: T_RestrictionType, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
+    val openContents: List<XSOpenContent>
+
 }

@@ -20,22 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Redefine : XSI_Annotated, G_Composition.Redefine {
-    val simpleTypes: List<T_TopLevelSimpleType>
-    val complexTypes: List<T_TopLevelComplexType_Base>
-    val groups: List<T_NamedGroup>
-    val attributeGroups: List<T_NamedAttributeGroup>
-    val schemaLocation: VAnyURI
-    override val id: VID?
-    override val annotations: List<XSAnnotation>
+interface T_SimpleUnionType : G_SimpleDerivation.Union, T_SimpleDerivation {
 
-    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String>
+    val simpleTypes: List<T_LocalSimpleType>
+
+    val memberTypes: List<@Serializable(with = QNameSerializer::class) QName>?
 }

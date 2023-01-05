@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 
-interface T_Assertion: T_Annotated {
+interface T_Assertion: XSI_Annotated {
     val test: XPathExpression?
     val xPathDefaultNamespace: T_XPathDefaultNamespace?
 }

@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_AnyAttrGroup
 
-interface T_AnyAttribute: T_Annotated, AG_AnyAttrGroup {
+interface T_AnyAttribute: XSI_Annotated, AG_AnyAttrGroup {
     val notQName: T_QNameListA?
 
     override val namespace: T_NamespaceList?

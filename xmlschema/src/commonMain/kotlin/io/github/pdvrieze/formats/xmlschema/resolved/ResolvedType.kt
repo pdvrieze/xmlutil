@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
@@ -30,6 +31,15 @@ import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType: ResolvedPart, T_Type {
     abstract override val rawPart: T_Type
+
+    fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
+}
+
+interface ResolvedBuiltinType: ResolvedType {
+    override val rawPart: T_Type get() = this
+    override fun check(seenTypes: SingleLinkedList<QName>) {}
+    override val schema: ResolvedSchemaLike
+        get() = TODO("Placeholder to allow for compilation - from rebase")
 }
 
 sealed interface ResolvedToplevelType: ResolvedType, NamedPart {
@@ -39,9 +49,24 @@ sealed interface ResolvedLocalType: ResolvedType {
     override val rawPart: XSLocalType
 }
 
-sealed interface ResolvedSimpleType: ResolvedType, T_SimpleType
+sealed interface ResolvedSimpleType: ResolvedType, T_SimpleType, XSI_Annotated {
+    override val simpleDerivation: ResolvedSimpleDerivation
 
-sealed interface ResolvedComplexType: ResolvedType, T_ComplexType
+    override fun check(seenTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
+        val n = name
+        if (n != null) {
+            simpleDerivation.check(this, SingleLinkedList(n.toQname(schema.targetNamespace)))
+        } else {
+            simpleDerivation.check(this, SingleLinkedList())
+        }
+    }
+}
+
+interface ResolvedBuiltinSimpleType: ResolvedSimpleType, ResolvedBuiltinType {
+    override fun check(seenTypes: SingleLinkedList<QName>) {}
+}
+
+sealed interface ResolvedComplexType: ResolvedType, T_ComplexType, XSI_Annotated
 
 class ResolvedToplevelSimpleType(
     override val rawPart: XSToplevelSimpleType,
@@ -59,7 +84,7 @@ class ResolvedToplevelSimpleType(
     override val name: VNCName
         get() = rawPart.name
 
-    override val targetNamespace: VAnyURI?
+    override val targetNamespace: VAnyURI
         get() = schema.targetNamespace
 
     override val simpleDerivation: ResolvedSimpleDerivation
@@ -71,12 +96,18 @@ class ResolvedToplevelSimpleType(
 
     override val final: Set<T_SimpleDerivationSetElem>
         get() = rawPart.final
+
+    override fun check(seenTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes)
+        require(name.isNotEmpty())
+    }
 }
 
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike
 ): ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
+
     override val annotations: List<XSAnnotation>
         get() = rawPart.annotations
 
@@ -130,4 +161,8 @@ class ResolvedToplevelComplexType(
 
     override val block: T_DerivationSet
         get() = rawPart.block
+
+    override fun check(seenTypes: SingleLinkedList<QName>) {
+        TODO()
+    }
 }

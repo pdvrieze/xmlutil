@@ -22,7 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 /**
  * This type is extended by all types which allow annotation other than &lt;schema> itself
  */
-interface T_Annotated: T_OpenAttrs {
+interface XSI_Annotated: XSI_OpenAttrs {
     val annotations: List<XSAnnotation>
     val id: VID?
 }
