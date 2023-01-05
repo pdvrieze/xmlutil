@@ -140,7 +140,7 @@ public interface XmlSerializationPolicy {
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<PolyInfo>
+        candidates: Collection<Any>
     ): List<XML.ParsedData<*>> {
         handleUnknownContent(input, inputKind, name, candidates)
         return emptyList()
@@ -474,7 +474,7 @@ public open class DefaultXmlSerializationPolicy
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<PolyInfo>
+        candidates: Collection<Any>
     ): List<XML.ParsedData<*>> {
         return unknownChildHandler.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
     }

@@ -394,7 +394,7 @@ public fun interface UnknownChildHandler {
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
-        candidates: Collection<PolyInfo>
+        candidates: Collection<Any>
     ): List<XML.ParsedData<*>>
 }
 
