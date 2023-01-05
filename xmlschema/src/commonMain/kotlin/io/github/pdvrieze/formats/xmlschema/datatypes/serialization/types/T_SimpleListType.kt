@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 
-interface T_Type: XSI_Annotated {
-    val name: VNCName?
-
+interface T_SimpleListType : G_SimpleDerivation.List, T_SimpleDerivationBase {
+    val itemTypeName: @Serializable(with = QNameSerializer::class) QName?
+    val simpleType: T_LocalSimpleType?
 }
-
-/** Type that can be the base of a simple type, this includes AnyType */
-interface T_SimpleBaseType: T_Type

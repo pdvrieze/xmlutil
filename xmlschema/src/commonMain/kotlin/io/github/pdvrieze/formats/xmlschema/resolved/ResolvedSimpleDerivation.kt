@@ -24,36 +24,56 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleUnionType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 sealed class ResolvedSimpleDerivation(
-    override val schema: ResolvedSchemaLike
-) : ResolvedPart, G_SimpleDerivation.Types {
-    abstract override val rawPart: XSSimpleDerivation
+    final override val schema: ResolvedSchemaLike
+) : ResolvedPart, T_SimpleDerivation {
+    abstract override val rawPart: T_SimpleDerivation
 
-    abstract val baseType: T_SimpleType
+    abstract val baseType: T_SimpleBaseType
+
+    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+
+    override val id: VID? get() = rawPart.id
+
+    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     abstract fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>)
 }
 
 class ResolvedSimpleListDerivation(
-    override val rawPart: XSSimpleList,
+    override val rawPart: T_SimpleListType,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleDerivation(schema), G_SimpleDerivation.List {
-    override val baseType: T_SimpleType get() = AnySimpleType
+) : ResolvedSimpleDerivation(schema), T_SimpleListType {
+
+    override val itemTypeName: QName? get() = rawPart.itemTypeName
+    override val simpleType: ResolvedLocalSimpleType? by lazy {
+        rawPart.simpleType?.let { st ->
+            ResolvedLocalSimpleType(st, schema)
+        }
+    }
+
+    val itemType: ResolvedSimpleType by lazy {
+        val itemTypeName = rawPart.itemTypeName
+        when {
+            itemTypeName != null -> schema.simpleType(itemTypeName)
+            else -> {
+                simpleType ?: error("Item type is not specified, either by name or member")
+            }
+        }
+    }
+
+    override val baseType: ResolvedSimpleType get() = AnySimpleType
 
     override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) {
-        TODO("not implemented")
     }
 }
 
 class ResolvedSimpleUnionDerivation(
-    override val rawPart: XSSimpleUnion,
+    override val rawPart: T_SimpleUnionType,
     schema: ResolvedSchemaLike
 ) : ResolvedSimpleDerivation(schema), T_SimpleUnionType {
     override val baseType: T_SimpleType get() = AnySimpleType
@@ -88,15 +108,23 @@ class ResolvedSimpleUnionDerivation(
     override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
-            (m as? ResolvedToplevelType)?.let { require(it.qName !in seenTypes) { "Recursive presence of ${it.qName}"} }
+            (m as? ResolvedToplevelType)?.let { require(it.qName !in seenTypes) { "Recursive presence of ${it.qName}" } }
         }
     }
 }
 
-class ResolvedSimpleRestrictionDerivation(
-    override val rawPart: XSSimpleRestriction,
+abstract class ResolvedSimpleRestrictionDerivation(schema: ResolvedSchemaLike) : ResolvedSimpleDerivation(schema),
+    T_SimpleRestrictionType
+
+fun ResolvedSimpleRestrictionDerivation(
+    rawPart: T_SimpleRestrictionType,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleDerivation(schema), T_SimpleRestrictionType {
+): ResolvedSimpleRestrictionDerivation = ResolvedSimpleRestrictionDerivationImpl(rawPart, schema)
+
+class ResolvedSimpleRestrictionDerivationImpl(
+    override val rawPart: T_SimpleRestrictionType,
+    schema: ResolvedSchemaLike
+) : ResolvedSimpleRestrictionDerivation(schema), T_SimpleRestrictionType {
     override val simpleTypes: List<ResolvedLocalSimpleType> = DelegateList(rawPart.simpleTypes) {
         ResolvedLocalSimpleType(it, schema)
     }

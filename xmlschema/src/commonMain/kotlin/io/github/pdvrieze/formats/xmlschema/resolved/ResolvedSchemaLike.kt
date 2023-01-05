@@ -43,21 +43,20 @@ abstract sealed class ResolvedSchemaLike {
 
     abstract val attributeGroups: List<ResolvedDirectAttributeGroup>
     abstract val blockDefault: T_BlockSet
-    abstract val finalDefault : Set<T_TypeDerivationControl>
+    abstract val finalDefault: Set<T_TypeDerivationControl>
 
-    fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
-        if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            TODO("Implement - rebase compilation failure")
+    open fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
+        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
+            BuiltinXmlSchema.simpleType(typeName)
         } else {
-            return simpleTypes.firstOrNull { it.qName == typeName }
+            simpleTypes.firstOrNull { it.qName == typeName }
                 ?: throw NoSuchElementException("No type with name $typeName found")
         }
     }
 
-    fun type(typeName: QName): ResolvedToplevelType {
-        return simpleTypes.firstOrNull { it.qName == typeName } ?:
-            complexTypes.firstOrNull { it.qName == typeName }
-            ?: throw NoSuchElementException("No type with name $typeName found")
+    open fun type(typeName: QName): ResolvedToplevelType {
+        return simpleTypes.firstOrNull { it.qName == typeName } ?: complexTypes.firstOrNull { it.qName == typeName }
+        ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
     fun attributeGroup(attributeGroupName: QName): ResolvedDirectAttributeGroup {
@@ -81,11 +80,23 @@ abstract sealed class ResolvedSchemaLike {
     }
 
     open fun check() {
-        for (s in elements) { s.check() }
-        for (a in attributes) { a.check() }
-        for (t in simpleTypes) { t.check() }
-        for (t in complexTypes) { t.check() }
-        for (g in groups) { g.check() }
-        for (ag in attributeGroups) { ag.check() }
+        for (s in elements) {
+            s.check()
+        }
+        for (a in attributes) {
+            a.check()
+        }
+        for (t in simpleTypes) {
+            t.check()
+        }
+        for (t in complexTypes) {
+            t.check()
+        }
+        for (g in groups) {
+            g.check()
+        }
+        for (ag in attributeGroups) {
+            ag.check()
+        }
     }
 }

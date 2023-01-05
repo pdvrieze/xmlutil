@@ -21,24 +21,25 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinType
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
     val name: VNCName,
-    val targetNamespace: String,
+    val targetNamespace: VAnyURI,
 ) {
-    abstract val baseType: Datatype
+    abstract val baseType: ResolvedType
 
-    constructor(name: String, targetNamespace: String) : this(VNCName(name), targetNamespace)
+    constructor(name: String, targetNamespace: String) : this(VNCName(name), VAnyURI(targetNamespace))
 
     val dtFunctions: List<DataFunction> get() = emptyList()
     val identityFunction: DataFunction get() = TODO()
@@ -53,7 +54,7 @@ class DataFunction()
 
 sealed class ComplexDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace)
 
-class ExtensionComplexDatatype(name: String, targetNamespace: String, override val baseType: Datatype) :
+class ExtensionComplexDatatype(name: String, targetNamespace: String, override val baseType: ResolvedType) :
     ComplexDatatype(name, targetNamespace) {
     init {
         when (baseType) {
@@ -67,7 +68,7 @@ class ExtensionComplexDatatype(name: String, targetNamespace: String, override v
     }
 }
 
-class RestrictionComplexDatatype(name: String, targetNamespace: String, override val baseType: ComplexDatatype) :
+class RestrictionComplexDatatype(name: String, targetNamespace: String, override val baseType: ResolvedComplexType) :
     ComplexDatatype(name, targetNamespace)
 
 /**
@@ -86,10 +87,14 @@ sealed class ListDatatype protected constructor(
     name: String,
     targetNamespace: String,
     val itemType: Datatype,
-) : Datatype(name, targetNamespace) {
-    abstract override val baseType: Datatype
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedToplevelSimpleType, T_SimpleListType {
+    abstract override val baseType: ResolvedType
 
     val whiteSpace: XSWhiteSpace.Values get() = XSWhiteSpace.Values.COLLAPSE
+
+    override fun check(seenTypes: SingleLinkedList<QName>) {
+        baseType.check(seenTypes)
+    }
 }
 
 open class ConstructedListDatatype : ListDatatype {
@@ -108,8 +113,19 @@ open class ConstructedListDatatype : ListDatatype {
         }
     }
 
-    override val baseType: Datatype
+    override val baseType: ResolvedType
         get() = AnySimpleType
+
+    override val itemTypeName: QName?
+        get() = itemType.name.toQname(VAnyURI(XmlSchemaConstants.XS_NAMESPACE))
+
+    override val simpleType: Nothing? get() = null
+
+    override val final: Set<T_SimpleDerivationSetElem>
+        get() = emptySet()
+
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = ResolvedSimpleListDerivation(this, BuiltinXmlSchema)
 }
 
 class RestrictedListDatatype(
@@ -123,6 +139,17 @@ class RestrictedListDatatype(
     val pattern: String? = null,
     val assertions: List<XPathExpression> = emptyList()
 ) : ListDatatype(name, targetNamespace, baseType.itemType) {
+
+    override val itemTypeName: QName?
+        get() = itemType.name.toQname(VAnyURI(XmlSchemaConstants.XS_NAMESPACE))
+
+    override val simpleType: Nothing? get() = null
+
+    override val final: Set<T_SimpleDerivationSetElem>
+        get() = emptySet()
+
+    override val simpleDerivation: ResolvedSimpleDerivation
+        get() = ResolvedSimpleListDerivation(this, BuiltinXmlSchema)
 
 }
 
@@ -150,30 +177,62 @@ class ConstructedUnionDatatype(name: String, targetNamespace: String) : UnionDat
  * - pattern
  * - assertions
  */
-class RestrictedUnionDatatype(name: String, targetNamespace: String, override val baseType: Datatype) :
+class RestrictedUnionDatatype(name: String, targetNamespace: String, override val baseType: ResolvedType) :
     UnionDatatype(name, targetNamespace)
 
 interface SpecialDatatype
 
-object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE) {
-    override val baseType: Datatype get() = ErrorType
+object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedToplevelSimpleType {
+    override val baseType: ResolvedType get() = ErrorType
+    override val rawPart: ErrorType get() = this
+    override val final: Set<Nothing> get() = emptySet()
+    override val annotations: List<Nothing> get() = emptyList()
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
+    override val simpleDerivation: ResolvedSimpleDerivation get() = ERRORDERIVATION
+
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
+        override val rawPart: T_SimpleDerivation get() = this
+        override val simpleTypes: List<Nothing>
+            get() = emptyList()
+        override val facets: List<XSFacet> get() = emptyList()
+        override val otherContents: List<Nothing> get() = emptyList()
+        override val base: QName get() = ErrorType.qName
+        override val baseType: T_SimpleBaseType get() = ErrorType
+
+        override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) = Unit
+    }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType {
-
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType {
     override val baseType: AnyType get() = AnyType // No actual base type
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
-    override val annotations: List<XSAnnotation> get() = emptyList()
-    override val id: VID? get() = null
-    override val otherAttrs: Map<QName, String> get() = emptyMap()
-
     override val baseType: AnyType get() = AnyType
+
     override val simpleDerivation: ResolvedSimpleDerivation
-        get() = TODO("Omitted to allow compilation in rebase")//object : G_SimpleDerivation.Restriction {}
+        get() = SimpleBuiltinRestriction(baseType)
+
+    override val final: Set<Nothing> get() = emptySet()
+}
+
+internal open class SimpleBuiltinRestriction(
+    override val baseType: ResolvedBuiltinType,
+    override val facets: List<XSFacet> = listOf(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true))
+) : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
+    override val rawPart: T_SimpleDerivation get() = this
+    override val base: QName get() = baseType.qName
+
+    override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) = Unit
+
+    override val simpleTypes: List<Nothing> get() = emptyList()
+    override val otherContents: List<Nothing> get() = emptyList()
+    override val annotations: List<Nothing> get() = emptyList()
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 }
 
 
-typealias VAnySimpleType = io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
-typealias Token = io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+typealias Token = VToken
