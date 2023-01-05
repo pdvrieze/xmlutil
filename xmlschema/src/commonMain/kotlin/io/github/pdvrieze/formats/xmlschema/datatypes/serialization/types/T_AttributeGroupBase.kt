@@ -18,5 +18,5 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 
-interface T_AttributeGroupBase: T_Annotated, G_AttrDecls {
+interface T_AttributeGroupBase: G_AttrDecls {
 }

@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -40,4 +40,4 @@ class XSDefaultOpenContent(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
-): T_Annotated
+): XSI_Annotated

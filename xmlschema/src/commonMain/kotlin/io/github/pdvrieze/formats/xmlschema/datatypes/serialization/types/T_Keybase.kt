@@ -21,7 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import nl.adaptivity.xmlutil.QName
 
-interface T_Keybase: T_Annotated {
+interface T_Keybase: XSI_Annotated {
     val selector: XSSelector?
 
     /**

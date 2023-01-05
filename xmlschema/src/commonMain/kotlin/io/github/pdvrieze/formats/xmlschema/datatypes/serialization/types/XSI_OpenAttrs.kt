@@ -23,7 +23,7 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
  * This type is extended by almost all schema types to allow attributes from other namespaces to be
  * added to user schemas.
  */
-interface T_OpenAttrs {
+interface XSI_OpenAttrs {
     @XmlOtherAttributes
     val otherAttrs: Map<QName, String>
 }

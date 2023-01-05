@@ -22,8 +22,66 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ConstructedListDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.Datatype
+
+fun builtinType(localName: String, targetNamespace: String): Datatype? {
+    if (targetNamespace != XmlSchemaConstants.XS_NAMESPACE) return null
+    return when (localName) {
+        "anyType" -> AnyType
+        "anySimpleType" -> AnySimpleType
+        "anyAtomicType" -> AnyAtomicType
+        "anyURI" -> AnyURIType
+        "base64Binary" -> Base64BinaryType
+        "boolean" -> BooleanType
+        "date" -> DateType
+        "dateTime" -> DateTimeType
+        "dateTimeStamp" -> DateTimeStampType
+        "decimal" -> DecimalType
+        "integer" -> IntegerType
+        "long" -> LongType
+        "int" -> IntType
+        "short" -> ShortType
+        "byte" -> ByteType
+        "nonNegativeInteger" -> NonNegativeIntegerType
+        "positiveInteger" -> PositiveIntegerType
+        "unsignedLong" -> UnsignedLongType
+        "unsignedInt" -> UnsignedIntType
+        "unsignedShort" -> UnsignedShortType
+        "unsignedByte" -> UnsignedByteType
+        "nonPositiveInteger" -> NonPositiveIntegerType
+        "negativeInteger" -> NegativeIntegerType
+        "double" -> DoubleType
+        "duration" -> DurationType
+        "dayTimeDuration" -> DayTimeDurationType
+        "yearMonthDuration" -> YearMonthDurationType
+        "float" -> FloatType
+        "gDay" -> GDayType
+        "gMonth" -> GMonthType
+        "gMonthDay" -> GMonthDayType
+        "gYear" -> GYearType
+        "gYearMonth" -> GYearMonthType
+        "hexBinary" -> HexBinaryType
+        "NOTATION" -> NotationType
+        "QName" -> QNameType
+        "string" -> StringType
+        "normalizedString" -> NormalizedStringType
+        "token" -> TokenType
+        "language" -> LanguageType
+        "Name" -> NameType
+        "NCName" -> NCNameType
+        "ENTITY" -> EntityType
+        "ID" -> IDType
+        "IDREF" -> IDRefType
+        "NMTOKEN" -> NMTokenType
+        "time" -> TimeType
+        "ENTITIES" -> EntitiesType
+        "IDREFS" -> IDRefsType
+        "NMTOKENS" -> NMTokensType
+        else -> null
+    }
+}
 
 sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace)
 
@@ -223,7 +281,7 @@ object EntitiesType: ConstructedListDatatype("ENTITIES", XmlSchemaConstants.XS_N
 
 object IDRefsType: ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
-object NMTokens: ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
+object NMTokensType: ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
 object PrecisionDecimalType: PrimitiveDatatype("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: Datatype get() = AnyAtomicType

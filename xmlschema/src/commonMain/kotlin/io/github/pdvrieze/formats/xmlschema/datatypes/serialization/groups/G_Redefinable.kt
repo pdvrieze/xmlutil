@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupBase
 
 /**
@@ -34,6 +34,6 @@ interface G_Redefinable: G_SchemaTop {
 
     interface SimpleType: Base
     interface ComplexType: Base
-    interface Group: Base, T_Annotated, AG_DefRef, AG_Occurs
+    interface Group: Base, XSI_Annotated, AG_DefRef, AG_Occurs
     interface AttributeGroup: Base, T_AttributeGroupBase
 }

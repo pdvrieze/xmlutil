@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_Type: T_Annotated {
+interface T_Type {
     val name: VNCName?
 
 }

@@ -18,8 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleUnionType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -30,11 +29,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("union", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSSimpleUnion(
-    val simpleTypes: List<XSLocalSimpleType> = emptyList(),
+    override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
     @XmlElement(false)
-    val memberTypes: List<@Serializable(QNameSerializer::class) QName>? = null,
+    override val memberTypes: List<@Serializable(QNameSerializer::class) QName>? = null,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
-) : XSSimpleDerivation(), G_SimpleDerivation.Union, T_Annotated
+) : XSSimpleDerivation(), T_SimpleUnionType

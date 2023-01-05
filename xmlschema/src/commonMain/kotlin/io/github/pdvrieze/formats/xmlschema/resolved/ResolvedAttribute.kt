@@ -44,8 +44,8 @@ sealed class ResolvedAttributeBase(
             ?: error("Missing type")
     }
 
-    override fun check() {
-        checkNotNull(resolvedType)
+    open fun check() {
+        resolvedType.check()
     }
 }
 

@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_Facet: T_Annotated {
+interface T_Facet: XSI_Annotated {
     val value: Any
 
     val fixed: Boolean?

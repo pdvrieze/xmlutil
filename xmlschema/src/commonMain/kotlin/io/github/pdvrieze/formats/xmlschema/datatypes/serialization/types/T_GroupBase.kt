@@ -16,4 +16,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_GroupBase: T_Annotated
+interface T_GroupBase: XSI_Annotated

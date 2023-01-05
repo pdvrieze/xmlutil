@@ -23,6 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Com
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -48,7 +49,7 @@ abstract class XSTopLevelComplexType(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType {
+) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
     abstract override val content: G_ComplexTypeModel.Base
 
     protected abstract fun toSerialDelegate(): SerialDelegate
