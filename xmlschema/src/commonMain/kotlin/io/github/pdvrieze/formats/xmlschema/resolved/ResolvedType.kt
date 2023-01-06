@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
@@ -162,8 +161,14 @@ class ResolvedToplevelComplexType(
     override val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 
-    override val content: G_ComplexTypeModel.Base
-        get() = TODO("Resolve from raw")
+    override val content: ResolvedComplexContent
+        by lazy {
+            when (val c = rawPart.content) {
+                is T_ComplexTypeComplexContent -> ResolvedComplexComplexContent(c, schema)
+                is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(c, schema)
+                is T_ComplexTypeSimpleContent -> ResolvedComplexSimpleContent(c, schema)
+            }
+        }
 
     override val abstract: Boolean
         get() = rawPart.abstract
@@ -175,6 +180,7 @@ class ResolvedToplevelComplexType(
         get() = rawPart.block
 
     override fun check(seenTypes: SingleLinkedList<QName>) {
-        TODO()
+        content.check(seenTypes + qName)
     }
 }
+

@@ -28,17 +28,29 @@ interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
     val defaultAttributesApply: Boolean? // default true
 
     /** Either this or shorthand content */
-    override val content: G_ComplexTypeModel.Base
+    override val content: T_ComplexTypeContent
 }
 
 interface T_ComplexType_Simple: T_ComplexType {
-    override val content: G_ComplexTypeModel.SimpleContent
+    override val content: T_ComplexTypeSimpleContent
 }
 
 interface T_ComplexType_Complex: T_ComplexType {
-    override val content: G_ComplexTypeModel.ComplexContent
+    override val content: T_ComplexTypeComplexContent
 }
 
-interface T_ComplexType_Shorthand: T_ComplexType, G_ComplexTypeModel.Shorthand {
-    override val content: G_ComplexTypeModel.Shorthand get() = this
+interface T_ComplexType_Shorthand: T_ComplexType, T_ComplexTypeShorthandContent {
+    override val content: T_ComplexTypeShorthandContent get() = this
 }
+
+interface T_ComplexTypeContent : G_ComplexTypeModel.Base
+
+sealed interface T_ComplexTypeContentSealed: T_ComplexTypeContent
+
+interface T_ComplexTypeSimpleContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.SimpleContent
+
+interface T_ComplexTypeComplexContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.ComplexContent {
+    val derivation: T_ComplexDerivation
+}
+
+interface T_ComplexTypeShorthandContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.Shorthand

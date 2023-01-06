@@ -1600,13 +1600,14 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
+public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Companion;
-	public synthetic fun <init> (ILjava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAnnotations ()Ljava/util/List;
-	public final fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice;
+	public fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase;
+	public synthetic fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
@@ -1627,7 +1628,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Extension : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExtensionType {
+public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Extension : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Extension$Companion;
 	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1663,7 +1664,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Restriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType {
+public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Restriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$Restriction$Companion;
 	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1702,13 +1703,13 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice {
-	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice$Companion;
+public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation {
+	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase$Companion;
 	public synthetic fun <init> (ILkotlinx/serialization/internal/SerializationConstructorMarker;)V
-	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$RestrictionExtensionChoice$Companion {
+public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -2334,7 +2335,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/serializati
 	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getAnnotations ()Ljava/util/List;
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public fun getDefaultAttributesApply ()Ljava/lang/Boolean;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public fun getMixed ()Ljava/lang/Boolean;
@@ -2398,7 +2399,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public fun hashCode ()I
 }
 
@@ -2413,7 +2415,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getAttributes ()Ljava/util/List;
 	public fun getChoices ()Ljava/util/List;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 	public fun getGroups ()Ljava/util/List;
 	public fun getOpenContents ()Ljava/util/List;
 	public fun getSequences ()Ljava/util/List;
@@ -2426,7 +2429,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;
 	public fun hashCode ()I
 }
 
@@ -2971,7 +2975,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
+public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent$Companion;
 	public synthetic fun <init> (ILio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentDerivation;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentDerivation;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -3170,7 +3174,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/serializati
 	public fun getAbstract ()Z
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBlock ()Ljava/util/Set;
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed;
 	public fun getDefaultAttributesApply ()Ljava/lang/Boolean;
 	public fun getFinal ()Ljava/util/Set;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
@@ -3238,7 +3242,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Ljava/lang/Boolean;ZLjava/util/Set;Ljava/util/Set;Ljava/lang/Boolean;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSTopLevelComplexTypeShorthand : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSTopLevelComplexType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Shorthand {
@@ -3251,7 +3257,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getAttributes ()Ljava/util/List;
 	public fun getChoices ()Ljava/util/List;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed;
+	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 	public fun getGroups ()Ljava/util/List;
 	public fun getOpenContents ()Ljava/util/List;
 	public fun getSequences ()Ljava/util/List;
@@ -3262,7 +3270,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Ljava/lang/Boolean;ZLjava/util/Set;Ljava/util/Set;Ljava/lang/Boolean;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContent;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
-	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSToplevelSimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SimpleType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelSimpleType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
@@ -3868,30 +3878,55 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_TypeDefParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Assertions, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RestrictionType {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_TypeDefParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Assertions, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Derivation {
 	public abstract fun getOpenContents ()Ljava/util/List;
 }
 
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExtensionType {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RestrictionType {
+}
+
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Element$Complex, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type {
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public abstract fun getDefaultAttributesApply ()Ljava/lang/Boolean;
 	public abstract fun getMixed ()Ljava/lang/Boolean;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Complex : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType {
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent;
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed {
+	public abstract fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Shorthand : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType {
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContentSealed {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Complex : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType {
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Shorthand : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent {
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Shorthand$DefaultImpls {
-	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Simple : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType {
-	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent;
+	public abstract fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ContentMode : java/lang/Enum {
@@ -3899,6 +3934,10 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static final field SUFFIx Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ContentMode;
 	public static fun valueOf (Ljava/lang/String;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ContentMode;
 	public static fun values ()[Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ContentMode;
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Derivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
+	public abstract fun getBase ()Ljavax/xml/namespace/QName;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationControl : java/lang/Enum {
@@ -3909,6 +3948,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static final field UNION Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationControl;
 	public static fun valueOf (Ljava/lang/String;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationControl;
 	public static fun values ()[Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationControl;
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationSealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Derivation {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_DefRef, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_Occurs, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_IdentityConstraints, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
@@ -3938,9 +3980,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExplicitGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_Occurs, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_NestedParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExtensionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_TypeDefParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Assertions, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
-	public abstract fun getBase ()Ljavax/xml/namespace/QName;
-	public abstract fun getOpenContents ()Ljava/util/List;
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExtensionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationSealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Facet : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
@@ -4041,7 +4081,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Shorthand$DefaultImpls {
-	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Simple : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Simple, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Base {
@@ -4474,8 +4514,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RestrictionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleRestrictionModels, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
-	public abstract fun getBase ()Ljavax/xml/namespace/QName;
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RestrictionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleRestrictionModels, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_DerivationSealedBase {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Scope : java/lang/Enum {
@@ -4511,7 +4550,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleExplicitGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_NestedParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleExtensionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExtensionType {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleExtensionType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleListType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$List, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivationBase {
@@ -4559,7 +4598,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Shorthand$DefaultImpls {
-	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand;
+	public static fun getContent (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Shorthand;)Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Simple : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType_Simple, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Base {
@@ -4780,7 +4819,88 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltin
 	public static fun getSchema (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;)Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
 }
 
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexComplexContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public synthetic fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation;
+	public fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;
+	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public synthetic fun getRawPart ()Ljava/lang/Object;
+}
+
+public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
+	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
+}
+
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexExtension : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType;
+	public synthetic fun getRawPart ()Ljava/lang/Object;
+}
+
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexRestriction : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun getFacets ()Ljava/util/List;
+	public fun getOtherContents ()Ljava/util/List;
+	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType;
+	public synthetic fun getRawPart ()Ljava/lang/Object;
+	public fun getSimpleTypes ()Ljava/util/List;
+}
+
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexShorthandContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun getAlls ()Ljava/util/List;
+	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
+	public fun getAsserts ()Ljava/util/List;
+	public fun getAttributeGroups ()Ljava/util/List;
+	public fun getAttributes ()Ljava/util/List;
+	public fun getChoices ()Ljava/util/List;
+	public fun getGroups ()Ljava/util/List;
+	public fun getOpenContents ()Ljava/util/List;
+	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent;
+	public synthetic fun getRawPart ()Ljava/lang/Object;
+	public fun getSequences ()Ljava/util/List;
+}
+
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexSimpleContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;
+	public synthetic fun getRawPart ()Ljava/lang/Object;
+}
+
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedType {
+}
+
+public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
+	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun getAlls ()Ljava/util/List;
+	public fun getAnnotations ()Ljava/util/List;
+	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
+	public fun getAsserts ()Ljava/util/List;
+	public fun getAttributeGroups ()Ljava/util/List;
+	public fun getAttributes ()Ljava/util/List;
+	public fun getBase ()Ljavax/xml/namespace/QName;
+	public fun getChoices ()Ljava/util/List;
+	public fun getGroups ()Ljava/util/List;
+	public fun getId-O6WucO4 ()Ljava/lang/String;
+	public fun getOpenContents ()Ljava/util/List;
+	public fun getOtherAttrs ()Ljava/util/Map;
+	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
+	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
+	public fun getSequences ()Ljava/util/List;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDirectAttributeGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_NamedAttributeGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated, io/github/pdvrieze/formats/xmlschema/resolved/NamedPart {
@@ -4802,7 +4922,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDirectA
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDirectGroup : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_NamedGroup, io/github/pdvrieze/formats/xmlschema/resolved/NamedPart {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSGroup;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public final fun check ()V
+	public fun check ()V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getMaxOccurs ()Ljava/lang/Void;
 	public fun getMinOccurs ()Ljava/lang/Void;
@@ -4826,19 +4946,26 @@ public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedElem
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Group, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun check ()V
 	public final fun getId-O6WucO4 ()Ljava/lang/String;
 	public final fun getOtherAttrs ()Ljava/util/Map;
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Group;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroupRef : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Group {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSGroupRef;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchema;)V
+public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroupRef : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check ()V
 	public fun getAnnotations ()Ljava/util/List;
+	public fun getMaxOccurs ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AllNNI;
+	public fun getMinOccurs ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNonNegativeInteger;
+	public fun getName ()Ljava/lang/Void;
+	public fun getParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RealGroup$RG_Particle;
 	public fun getParticles ()Ljava/util/List;
-	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSGroupRef;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Group;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
+	public fun getRef ()Ljavax/xml/namespace/QName;
 	public final fun getReferencedGroup ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedDirectGroup;
 }
 
@@ -5091,7 +5218,9 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 	public fun getAbstract ()Z
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBlock ()Ljava/util/Set;
-	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
+	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
+	public fun getContent ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent;
 	public fun getDefaultAttributesApply ()Ljava/lang/Boolean;
 	public fun getFinal ()Ljava/util/Set;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
