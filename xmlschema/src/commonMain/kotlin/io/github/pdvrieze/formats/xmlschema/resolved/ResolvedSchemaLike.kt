@@ -55,8 +55,13 @@ abstract sealed class ResolvedSchemaLike {
     }
 
     open fun type(typeName: QName): ResolvedToplevelType {
-        return simpleTypes.firstOrNull { it.qName == typeName } ?: complexTypes.firstOrNull { it.qName == typeName }
-        ?: throw NoSuchElementException("No type with name $typeName found")
+        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
+            BuiltinXmlSchema.simpleType(typeName)
+        } else {
+            simpleTypes.firstOrNull { it.qName == typeName }
+                ?: complexTypes.firstOrNull { it.qName == typeName }
+                ?: throw NoSuchElementException("No type with name $typeName found")
+        }
     }
 
     fun attributeGroup(attributeGroupName: QName): ResolvedDirectAttributeGroup {

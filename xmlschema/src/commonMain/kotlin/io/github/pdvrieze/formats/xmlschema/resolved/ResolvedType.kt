@@ -34,7 +34,7 @@ sealed interface ResolvedType : ResolvedPart, T_Type {
     fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
 }
 
-interface ResolvedBuiltinType : ResolvedToplevelType, T_SimpleBaseType {
+interface ResolvedBuiltinType : ResolvedToplevelType, T_SimpleBaseType, NamedPart {
     override val rawPart: T_Type get() = this
     override fun check(seenTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
