@@ -25,12 +25,13 @@ interface G_ComplexTypeModel {
 
     val content: Base
 
-    sealed interface Base
+    interface Base
+    sealed interface SealedBase: Base
 
-    interface SimpleContent: Base
-    interface ComplexContent: Base
+    interface SimpleContent: SealedBase
+    interface ComplexContent: SealedBase
 
-    interface Shorthand: Base, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
+    interface Shorthand: SealedBase, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
         val openContents: List<XSOpenContent>
     }
 }

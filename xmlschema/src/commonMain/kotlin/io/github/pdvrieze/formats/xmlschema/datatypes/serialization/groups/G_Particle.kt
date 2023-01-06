@@ -24,15 +24,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Loca
  */
 interface G_Particle {
 
-    val particle: Types
+    val particle: Base
 
-    sealed interface Types
+    interface Base
+    sealed interface SealedBase : Base
 
-    interface Element: Types, T_LocalElement
-    interface Group: Types, T_GroupRef
-    interface All: Types
-    interface Choice: Types
-    interface Sequence: Types
-    interface Any: Types
+    interface Element : SealedBase, T_LocalElement
+    interface Group : SealedBase, T_GroupRef
+    interface All : SealedBase
+    interface Choice : SealedBase
+    interface Sequence : SealedBase
+    interface Any : SealedBase
 }
 

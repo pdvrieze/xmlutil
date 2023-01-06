@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
 class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
@@ -52,7 +51,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     override val attributeGroups: List<ResolvedDirectAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedDirectAttributeGroup(it, this) }
     override val groups: List<ResolvedDirectGroup> get() = DelegateList(rawPart.groups) { ResolvedDirectGroup(it, this) }
     val notations: List<XSNotation> get() = rawPart.notations
-    val identityConstraints: List<G_IdentityConstraint.Types> get() = TODO("Delegate list of identity constraints")
+    val identityConstraints: List<G_IdentityConstraint.Base> get() = TODO("Delegate list of identity constraints")
 
     val attributeFormDefault: T_FormChoice
         get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED

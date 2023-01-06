@@ -16,17 +16,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
-
 /**
  * Choice: (XS_Restriction | XS_List | XS_Union)
  */
 interface G_SimpleDerivation {
-    val simpleDerivation: Types
+    val simpleDerivation: Base
 
-    interface Types
-    sealed interface SimpleDerivationBase: Types
-    interface Restriction: SimpleDerivationBase
-    interface List: SimpleDerivationBase
-    interface Union: SimpleDerivationBase
+    interface Base
+    sealed interface SealedBase: Base
+    interface Restriction: SealedBase
+    interface List: SealedBase
+    interface Union: SealedBase
 }

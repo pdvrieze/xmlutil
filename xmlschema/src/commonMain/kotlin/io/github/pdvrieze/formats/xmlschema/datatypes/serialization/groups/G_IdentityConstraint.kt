@@ -23,11 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
  */
 interface G_IdentityConstraint {
 
-    val identityConstraint: Types
+    val identityConstraint: Base
 
-    sealed interface Types
-    interface Unique: Types
-    interface Key: Types
-    interface Keyref: Types
+    interface Base
+
+    sealed interface SealedBase : Base
+    interface Unique: SealedBase
+    interface Key: SealedBase
+    interface Keyref: SealedBase
 }
 
