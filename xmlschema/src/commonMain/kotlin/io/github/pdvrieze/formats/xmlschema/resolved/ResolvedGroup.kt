@@ -23,14 +23,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Group
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, ResolvedPart {
+    abstract fun check()
+
     abstract override val rawPart: T_Group
     final override val id: VID?
         get() = rawPart.id
@@ -41,23 +43,32 @@ sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, Re
 
 
 class ResolvedGroupRef(
-    override val rawPart: XSGroupRef,
-    schema: ResolvedSchema
-): ResolvedGroup(schema), T_Group {
+    override val rawPart: T_GroupRef,
+    schema: ResolvedSchemaLike
+): ResolvedGroup(schema), T_GroupRef {
     val referencedGroup: ResolvedDirectGroup by lazy { schema.modelGroup(rawPart.ref) }
+
+    override val ref: QName get() = rawPart.ref
+    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
+    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
     override val annotations: List<XSAnnotation>
         get() = referencedGroup.annotations
 
-    override val particles: List<T_Group.Particle>
+    override val particles: List<T_RealGroup.RG_Particle>
         get() = referencedGroup.particles
+
+    override fun check() {
+//        TODO("not implemented")
+    }
 }
 
 class ResolvedDirectGroup(
     override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
 ): ResolvedGroup(schema), NamedPart, T_NamedGroup {
-    fun check() {
+    override fun check() {
+//        TODO("not implemented")
     }
 
     override val annotations: List<XSAnnotation>

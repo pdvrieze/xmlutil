@@ -42,7 +42,7 @@ sealed class XSLocalComplexType(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSLocalType(), T_LocalComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
-    abstract override val content: G_ComplexTypeModel.Base
+    abstract override val content: T_ComplexTypeContent
 
     protected abstract fun toSerialDelegate(): SerialDelegate
 
@@ -263,7 +263,7 @@ class XSLocalComplexTypeShorthand(
     annotations,
     otherAttrs
 ), T_LocalComplexType_Shorthand {
-    override val content: G_ComplexTypeModel.Shorthand get() = this
+    override val content: T_ComplexTypeShorthandContent get() = this
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(

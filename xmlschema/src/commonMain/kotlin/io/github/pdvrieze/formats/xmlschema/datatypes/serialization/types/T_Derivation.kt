@@ -16,9 +16,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_TypeDefParticles
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
+import nl.adaptivity.xmlutil.QName
 
-interface T_ComplexRestrictionType: T_ComplexDerivationSealedBase, T_RestrictionType
+interface T_Derivation : XSI_Annotated {
+    val base: QName?
+}
+
+sealed interface T_DerivationSealedBase : T_Derivation
+
