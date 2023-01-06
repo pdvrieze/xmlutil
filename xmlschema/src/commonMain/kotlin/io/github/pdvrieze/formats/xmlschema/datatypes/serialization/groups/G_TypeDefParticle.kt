@@ -25,13 +25,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Grou
  */
 interface G_TypeDefParticle {
 
-    val typeDefParticle: Types
+    val typeDefParticle: Base
 
-    sealed interface Types
+    interface Base
+    sealed interface SealedBase : Base
 
-    interface Group: Types, T_GroupRef
-    interface All: Types
-    interface Choice: Types
-    interface Sequence: Types
+    interface Group : SealedBase, T_GroupRef
+    interface All : SealedBase
+    interface Choice : SealedBase
+    interface Sequence : SealedBase
 }
 
