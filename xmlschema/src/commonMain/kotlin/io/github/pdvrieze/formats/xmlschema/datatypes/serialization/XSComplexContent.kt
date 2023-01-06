@@ -20,7 +20,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -38,11 +37,10 @@ class XSComplexContent(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
     override val annotations: List<XSAnnotation> = emptyList(),
-    val derivation: RestrictionExtensionChoice
-
-) : XSI_Annotated, G_ComplexTypeModel.ComplexContent {
+    override val derivation: XSDerivationBase
+) : XSI_Annotated, T_ComplexTypeComplexContent {
     @Serializable
-    sealed class RestrictionExtensionChoice
+    sealed class XSDerivationBase: T_ComplexDerivation
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -64,8 +62,7 @@ class XSComplexContent(
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-
-    ) : RestrictionExtensionChoice(), T_ComplexRestrictionType
+    ) : XSDerivationBase(), T_ComplexRestrictionType
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -84,9 +81,7 @@ class XSComplexContent(
         override val openContents: List<XSOpenContent> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-
-    ) : RestrictionExtensionChoice(), T_ExtensionType
-
+    ) : XSDerivationBase(), T_ComplexExtensionType
 
 }
 
