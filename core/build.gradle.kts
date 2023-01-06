@@ -67,13 +67,14 @@ kotlin {
             }
             cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
             tasks.named<Jar>("jvmJar") {
-                manifest {
-                    attributes("Automatic-Module-Name" to autoModuleName)
+                duplicatesStrategy = DuplicatesStrategy.WARN
+                    manifest {
+                        attributes("Automatic-Module-Name" to autoModuleName)
+                    }
                 }
             }
-        }
-        tasks.withType<Jar>().named(artifactsTaskName) {
-            from(project.file("src/jvmMain/proguard.pro")) {
+            tasks.withType<Jar>().named(artifactsTaskName) {
+                from(project.file("src/jvmMain/proguard.pro")) {
                 rename { "xmlutil-proguard.pro" }
                 into("META-INF/proguard")
             }
@@ -81,9 +82,6 @@ kotlin {
 
     }
     jvm("android") {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-        }
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs += "-Xjvm-default=all"
@@ -91,7 +89,7 @@ kotlin {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
+            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
         }
 
         tasks.withType<Jar>().named(artifactsTaskName) {
