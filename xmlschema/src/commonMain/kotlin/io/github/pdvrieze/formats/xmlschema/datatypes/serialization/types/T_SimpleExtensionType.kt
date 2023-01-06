@@ -16,5 +16,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_SimpleExtensionType: T_ExtensionType {
+interface T_SimpleExtensionType: T_ComplexExtensionType {
 }

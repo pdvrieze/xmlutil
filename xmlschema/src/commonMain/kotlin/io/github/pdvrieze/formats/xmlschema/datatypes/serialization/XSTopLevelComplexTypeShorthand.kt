@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexTypeShorthandContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Shorthand
 import kotlinx.serialization.Serializable
@@ -60,7 +61,7 @@ class XSTopLevelComplexTypeShorthand(
     annotations,
     otherAttrs
 ), T_TopLevelComplexType_Shorthand {
-    override val content: G_ComplexTypeModel.Shorthand get() = this
+    override val content: T_ComplexTypeShorthandContent get() = this
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(

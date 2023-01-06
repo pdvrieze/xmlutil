@@ -21,4 +21,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Ty
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 
-interface T_ComplexRestrictionType: T_ComplexDerivationSealedBase, T_RestrictionType
+interface T_ComplexDerivation : GX_TypeDefParticles, G_AttrDecls, G_Assertions, T_Derivation {
+    val openContents: List<XSOpenContent>
+}
+
+sealed interface T_ComplexDerivationSealedBase : T_ComplexDerivation
