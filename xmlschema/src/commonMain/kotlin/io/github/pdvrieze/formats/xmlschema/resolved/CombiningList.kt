@@ -50,4 +50,73 @@ class CombiningList<T>(private vararg val parts: List<T>): AbstractList<T>() {
     override fun lastIndexOf(element: T): Int {
         return super.lastIndexOf(element)
     }
+
+    override fun iterator(): Iterator<T> {
+        return listIterator(0)
+    }
+
+    override fun listIterator(index: Int): ListIterator<T> {
+        return CombiningListIterator(index)
+    }
+
+    private inner class CombiningListIterator(
+        startIndex: Int
+    ) : ListIterator<T> {
+        private var currentListIdx: Int = 0
+        private var currentEntryIdx: Int = 0
+        private var currentListStart: Int = 0
+
+        init {
+            while (currentListIdx<parts.size && (currentListStart+parts[currentListIdx].size) <= startIndex) {
+                currentListStart+=parts[currentListIdx].size
+                ++currentListIdx
+            }
+            currentEntryIdx = startIndex - currentListStart
+        }
+
+        override fun hasNext(): Boolean {
+            if (currentEntryIdx + 1 < parts[currentListIdx].size) return true
+            var nextListIdx = currentListIdx + 1
+            while (nextListIdx < parts.size && parts[nextListIdx].isEmpty()) {
+                ++nextListIdx
+            }
+            return nextListIdx < parts.size
+        }
+
+        override fun hasPrevious(): Boolean {
+            return (currentListStart + currentEntryIdx) > 0
+        }
+
+        override fun nextIndex(): Int {
+            return currentListStart + currentEntryIdx + 1
+        }
+
+        override fun previousIndex(): Int {
+            return currentListStart + currentEntryIdx - 1
+        }
+
+        override fun next(): T {
+            ++currentEntryIdx
+            while (currentEntryIdx >= parts[currentListIdx].size) {
+                currentEntryIdx = 0
+                currentListStart += parts[currentListIdx].size
+                ++currentListIdx
+                if (currentListIdx>=parts.size) throw NoSuchElementException("Iterating beyond end of combining list")
+            }
+            return parts[currentListIdx][currentEntryIdx]
+        }
+
+        override fun previous(): T {
+            --currentEntryIdx
+            while (currentEntryIdx<0) {
+                --currentListIdx
+                if (currentListIdx<0) throw NoSuchElementException("Iterating before start of combining list")
+
+                val listSize = parts[currentListIdx].size
+                currentListStart-= listSize
+                currentEntryIdx = listSize -1
+            }
+            return parts[currentListIdx][currentEntryIdx]
+        }
+    }
 }
