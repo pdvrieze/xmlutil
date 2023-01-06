@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -73,7 +73,14 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
     override val base: QName? get() = rawPart.base
     override val openContents: List<XSOpenContent> get() = rawPart.openContents
 
-    abstract fun check(seenTypes: SingleLinkedList<QName>)
+    val baseType: ResolvedToplevelType by lazy {
+        schema.type(base ?: AnyType.qName)
+    }
+
+    open fun check(seenTypes: SingleLinkedList<QName>) {
+        require(base !in seenTypes) { "Recursive type use in complex content: $base" }
+        baseType.check(seenTypes)
+    }
 }
 
 class ResolvedComplexExtension(
@@ -81,6 +88,7 @@ class ResolvedComplexExtension(
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(schema), T_ComplexExtensionType {
     override fun check(seenTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes)
 //        TODO("not implemented")
     }
 }
@@ -99,6 +107,7 @@ class ResolvedComplexRestriction(
         get() = rawPart.otherContents
 
     override fun check(seenTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes)
 //        TODO("not implemented")
     }
 }
