@@ -30,10 +30,11 @@ interface G_Redefinable: G_SchemaTop {
 
     val redefinable: Base
 
-    sealed interface Base: G_SchemaTop.Base
+    interface Base : G_SchemaTop.Base
+    sealed interface SealedBase : Base
 
-    interface SimpleType: Base
-    interface ComplexType: Base
-    interface Group: Base, XSI_Annotated, AG_DefRef, AG_Occurs
-    interface AttributeGroup: Base, T_AttributeGroupBase
+    interface SimpleType: SealedBase
+    interface ComplexType: SealedBase
+    interface Group: SealedBase, XSI_Annotated, AG_DefRef, AG_Occurs
+    interface AttributeGroup: SealedBase, T_AttributeGroupBase
 }

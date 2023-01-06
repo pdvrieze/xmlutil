@@ -34,7 +34,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/AnySimpleType 
 	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 	public synthetic fun getTargetNamespace-b9CPfBA ()Ljava/lang/String;
 }
@@ -65,7 +65,7 @@ public class io/github/pdvrieze/formats/xmlschema/datatypes/ConstructedListDatat
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
 	public fun getFinal ()Ljava/util/Set;
 	public fun getItemTypeName ()Ljavax/xml/namespace/QName;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 	public fun getSimpleType ()Ljava/lang/Void;
@@ -107,7 +107,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/ErrorType : io
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 	public synthetic fun getTargetNamespace-b9CPfBA ()Ljava/lang/String;
 }
@@ -151,7 +151,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/RestrictedList
 	public final fun getMaxLength ()Ljava/lang/Long;
 	public final fun getMinLength ()Ljava/lang/Long;
 	public final fun getPattern ()Ljava/lang/String;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 	public fun getSimpleType ()Ljava/lang/Void;
@@ -727,7 +727,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes
 	public static final field INSTANCE Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/AnyAtomicType;
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/AnySimpleType;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
 
@@ -1010,7 +1010,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes
 public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/PrimitiveDatatype : io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/AtomicDatatype {
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
 
@@ -1026,7 +1026,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/AtomicDatatype;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
 	public fun getFinal ()Ljava/util/Set;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
 
@@ -1042,7 +1042,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/AnyAtomicType;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
 
@@ -2491,7 +2491,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getName ()Ljava/lang/Void;
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleDerivation;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivation;
 	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
@@ -3276,7 +3276,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getName ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleDerivation;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSToplevelSimpleType;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
@@ -3527,65 +3527,77 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$ComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_TypeDefParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Assertions, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Shorthand : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/GX_TypeDefParticles, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Assertions, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SealedBase {
 	public abstract fun getOpenContents ()Ljava/util/List;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SimpleContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition {
 	public abstract fun getComposition ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Annotation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Annotation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Import : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Import : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Include : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Include : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Override : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Override : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Redefine : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Redefine : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Composition$Base {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint {
-	public abstract fun getIdentityConstraint ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Types;
+	public abstract fun getIdentityConstraint ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Key : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Keyref : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Key : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Keyref : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Unique : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Base {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Unique : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle {
-	public abstract fun getNestedParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types;
+	public abstract fun getNestedParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Any : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Any : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalElement {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalElement {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Element$DefaultImpls {
@@ -3594,7 +3606,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getSubstitutionGroup (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Element;)Ljava/lang/Void;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Group$DefaultImpls {
@@ -3603,26 +3615,29 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getParticles (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Group;)Ljava/util/List;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_NestedParticle$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle {
-	public abstract fun getParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types;
+	public abstract fun getParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$All : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$All : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Any : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Any : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalElement {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalElement {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Element$DefaultImpls {
@@ -3631,7 +3646,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getSubstitutionGroup (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Element;)Ljava/lang/Void;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Group$DefaultImpls {
@@ -3640,36 +3655,39 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getParticles (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Group;)Ljava/util/List;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Particle$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop {
 	public abstract fun getRedefinable ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$AttributeGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AttributeGroupBase {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$AttributeGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AttributeGroupBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$ComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$ComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_DefRef, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_Occurs, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_DefRef, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/attrGroups/AG_Occurs, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$Base {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop {
 	public abstract fun getSchemaTop ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Attribute : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelAttribute {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Attribute : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelAttribute {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Attribute$DefaultImpls {
@@ -3682,7 +3700,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelElement {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Element : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelElement {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Element$DefaultImpls {
@@ -3693,26 +3711,29 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getTargetNamespace (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Element;)Ljava/lang/Void;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Notation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Notation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$SealedBase {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SchemaTop$Base {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation {
-	public abstract fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public abstract fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$List : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SimpleDerivationBase {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Restriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SimpleDerivationBase {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$List : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SimpleDerivationBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Restriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Union : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SimpleDerivationBase {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Union : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleRestrictionModels {
@@ -3722,16 +3743,19 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle {
-	public abstract fun getTypeDefParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types;
+	public abstract fun getTypeDefParticle ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Base;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$All : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$All : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$SealedBase {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Choice : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$SealedBase {
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Group : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$SealedBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_GroupRef {
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Group$DefaultImpls {
@@ -3740,10 +3764,10 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public static fun getParticles (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Group;)Ljava/util/List;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$SealedBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Base {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Types {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$Sequence : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle$SealedBase {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_All : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AllModel, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExplicitGroup {
@@ -4464,7 +4488,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleBaseType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type {
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated {
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivationBase : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivation {
@@ -4874,7 +4898,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSi
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleDerivation;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
@@ -5145,7 +5169,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
-	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Types;
+	public synthetic fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Base;
 	public fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 	public synthetic fun getTargetNamespace-b9CPfBA ()Ljava/lang/String;
 	public fun getTargetNamespace-mELQIic ()Ljava/lang/String;
