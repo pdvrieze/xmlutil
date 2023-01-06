@@ -20,6 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_ExtensionType: T_DerivationSealedBase {
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 
-}
+interface T_ComplexExtensionType: T_ComplexDerivationSealedBase, T_ExtensionType
