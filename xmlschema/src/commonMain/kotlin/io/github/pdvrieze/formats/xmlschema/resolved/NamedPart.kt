@@ -24,8 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
 
-interface NamedPart: ResolvedPart {
+interface NamedPart : ResolvedPart {
     val name: VNCName
     val targetNamespace: VAnyURI?
-    val qName: QName get() = QName(targetNamespace?.value ?: "", name.xmlString)
+    val qName: QName get() = QName(targetNamespace?.value ?: schema.targetNamespace.value, name.xmlString)
 }
