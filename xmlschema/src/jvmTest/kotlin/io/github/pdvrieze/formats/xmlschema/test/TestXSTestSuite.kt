@@ -33,6 +33,7 @@ import org.w3.xml.xmschematestsuite.*
 import java.net.URI
 import java.net.URL
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -99,7 +100,8 @@ class TestXSTestSuite {
     ) {
         val resolver = SimpleResolver(setBaseUrl)
 
-        if (schemaTest.expected?.validity == TSValidityOutcome.INVALID) {
+        val expected = schemaTest.expected
+        if (expected?.validity == TSValidityOutcome.INVALID) {
             dynamicTest("Schema document ${schemaDoc.href} exists") {
                 assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
             }
@@ -110,11 +112,33 @@ class TestXSTestSuite {
                     val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
                     resolvedSchema.check()
                 }
-                if (e is NotImplementedError) throw e
-                System.err.println("Expected error: \n")
-                System.err.println(documentation.prependIndent("        "))
-                System.err.println("    Exception thrown:")
-                System.err.println(e.message?.prependIndent("        "))
+                val exName = expected.exception
+                if (exName != null) {
+                    if (exName.contains('.')) {
+                        assertEquals(exName, e.javaClass.name)
+                    } else {
+                        assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
+                    }
+                } else if (e is NotImplementedError) {
+                    throw e
+                }
+
+                val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES))}
+                if (exMsg!=null) {
+                    if (! exMsg.containsMatchIn(e.message ?: "")) {
+                        val match = exMsg.find(e.message ?: "")?.value
+                        if (match != null) {
+                            assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
+                        } else {
+                            assertEquals(exMsg.pattern, e.message)
+                        }
+                    }
+                } else {
+                    System.err.println("Expected error: \n")
+                    System.err.println(documentation.prependIndent("        "))
+                    System.err.println("    Exception thrown:")
+                    System.err.println(e.message?.prependIndent("        "))
+                }
             }
         } else {
             dynamicTest("Schema document ${schemaDoc.href} parses") {
