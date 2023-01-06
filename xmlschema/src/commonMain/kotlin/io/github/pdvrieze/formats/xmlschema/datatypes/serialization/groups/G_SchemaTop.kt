@@ -29,10 +29,11 @@ interface G_SchemaTop {
 
     val schemaTop: Base
 
-    sealed interface Base
+    interface Base
+    sealed interface SealedBase : Base
 
-    interface Element: Base, T_TopLevelElement
-    interface Attribute: Base, T_TopLevelAttribute
-    interface Notation: Base
+    interface Element : SealedBase, T_TopLevelElement
+    interface Attribute : SealedBase, T_TopLevelAttribute
+    interface Notation : SealedBase
 }
 

@@ -20,11 +20,12 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 interface G_Composition {
     val composition: Base
 
-    sealed interface Base
+    interface Base
+    sealed interface SealedBase : Base
 
-    interface Include: Base
-    interface Import: Base
-    interface Redefine: Base
-    interface Override: Base
-    interface Annotation: Base
+    interface Include : SealedBase
+    interface Import : SealedBase
+    interface Redefine : SealedBase
+    interface Override : SealedBase
+    interface Annotation : SealedBase
 }
