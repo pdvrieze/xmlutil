@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,11 +21,16 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleBaseType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedPart, T_Type {
-    abstract override val rawPart: T_Type
-
-    fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
+interface ResolvedBuiltinType : ResolvedToplevelType, T_SimpleBaseType, NamedPart {
+    override val rawPart: T_Type get() = this
+    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+    override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
+    override val annotations: List<XSAnnotation> get() = emptyList()
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, String> get() = emptyMap()
 }

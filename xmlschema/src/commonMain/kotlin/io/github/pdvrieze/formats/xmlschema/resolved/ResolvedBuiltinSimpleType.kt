@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,11 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedPart, T_Type {
-    abstract override val rawPart: T_Type
+interface ResolvedBuiltinSimpleType : ResolvedToplevelSimpleType, ResolvedBuiltinType {
+    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+    override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
 
-    fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
 }
