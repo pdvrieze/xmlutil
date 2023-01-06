@@ -28,7 +28,7 @@ class CombiningList<T>(private vararg val parts: List<T>): AbstractList<T>() {
     override fun get(index: Int): T {
         var start = 0
         var listIdx = 0
-        while (listIdx<parts.size && start+parts[listIdx].size> index) {
+        while (listIdx<parts.size && (start+parts[listIdx].size) <= index) {
             start+=parts[listIdx].size
             ++listIdx
         }
