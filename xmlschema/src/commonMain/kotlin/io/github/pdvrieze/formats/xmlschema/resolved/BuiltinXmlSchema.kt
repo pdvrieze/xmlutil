@@ -35,7 +35,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
 
     override fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
-        require(typeName.namespaceURI != XmlSchemaConstants.XS_NAMESPACE) {
+        require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
 
@@ -44,7 +44,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
     }
 
     override fun type(typeName: QName): ResolvedToplevelType {
-        require(typeName.namespaceURI != XmlSchemaConstants.XS_NAMESPACE) {
+        require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
         if (typeName.localPart == AnyType.name.xmlString) return AnyType
