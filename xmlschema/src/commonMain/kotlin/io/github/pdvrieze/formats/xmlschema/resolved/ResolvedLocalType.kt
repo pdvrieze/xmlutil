@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalType
 
-sealed interface ResolvedType : ResolvedPart, T_Type {
-    abstract override val rawPart: T_Type
-
-    fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList())
+fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike): ResolvedLocalType {
+    return when (rawPart) {
+        is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema)
+        is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema)
+        is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema)
+        is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema)
+    }
 }
+
+sealed interface ResolvedLocalType : ResolvedType, T_LocalType {
+    override val rawPart: T_LocalType
+}
+

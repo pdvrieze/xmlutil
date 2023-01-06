@@ -40,10 +40,7 @@ class ResolvedToplevelElement(
     override val schema: ResolvedSchemaLike
 ) : ResolvedElement(), T_TopLevelElement {
     fun check() {
-        println("typedef: $typeDef")
-
-        val seenElements = SingleLinkedList<QName>(qName)
-        checkSubstitutionGroupChain(seenElements)
+        checkSubstitutionGroupChain(SingleLinkedList(qName))
 
         //TODO("not implemented")
     }
@@ -66,7 +63,9 @@ class ResolvedToplevelElement(
         get() = super.qName
     override val targetNamespace: Nothing? get() = null
 
-    val typeDef: T_Type = rawPart.localType
+
+
+    val typeDef: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema) }
         ?: type?.let {
             schema.type(it)
         }
