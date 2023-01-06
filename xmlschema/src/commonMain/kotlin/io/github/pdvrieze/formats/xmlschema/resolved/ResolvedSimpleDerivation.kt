@@ -155,7 +155,7 @@ class ResolvedSimpleRestrictionDerivationImpl(
         } else {
             require(simpleTypes.isEmpty())
         }
-
+        require(b !in seenTypes) { "(In)direct recursion in type derivation" }
         baseType.check(seenTypes)
     }
 }
