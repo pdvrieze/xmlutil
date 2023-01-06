@@ -5262,6 +5262,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 	public fun getName ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
 	public fun getNillable ()Ljava/lang/Boolean;
 	public fun getOtherAttrs ()Ljava/util/Map;
+	public fun getQName ()Ljavax/xml/namespace/QName;
 	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSElement;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Element;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
@@ -5270,6 +5271,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
 	public fun getScope ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Scope;
 	public fun getSubstitutionGroup ()Ljava/util/List;
+	public final fun getSubstitutionGroups ()Ljava/util/List;
 	public fun getTargetNamespace ()Ljava/lang/Void;
 	public synthetic fun getTargetNamespace-b9CPfBA ()Ljava/lang/String;
 	public fun getType ()Ljavax/xml/namespace/QName;

@@ -21,16 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.toQname
 
 sealed class ResolvedElement : NamedPart, T_Element {
     abstract override val rawPart: T_Element
@@ -43,13 +41,29 @@ class ResolvedToplevelElement(
 ) : ResolvedElement(), T_TopLevelElement {
     fun check() {
         println("typedef: $typeDef")
+
+        val seenElements = SingleLinkedList<QName>(qName)
+        checkSubstitutionGroupChain(seenElements)
+
         //TODO("not implemented")
+    }
+
+    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
+        for (substitutionGroupHead in substitutionGroups) {
+            require(qName !in seenElements) { "Recursive subsitution group: $qName" }
+            substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
+        }
+    }
+
+    val substitutionGroups: List<ResolvedToplevelElement> = DelegateList(rawPart.substitutionGroup ?: emptyList<QName>() ) {
+        schema.element(it)
     }
 
     override val annotations: List<XSAnnotation> get() = rawPart.annotations
 
     override val name: VNCName get() = rawPart.name
-
+    override val qName: QName
+        get() = super.qName
     override val targetNamespace: Nothing? get() = null
 
     val typeDef: T_Type = rawPart.localType
