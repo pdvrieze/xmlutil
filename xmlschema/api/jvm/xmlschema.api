@@ -4760,6 +4760,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAttr
 	public fun check ()V
 	public final fun getResolvedType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
+	public fun getType ()Ljavax/xml/namespace/QName;
 }
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAttributeGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_Redefinable$AttributeGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
@@ -4800,7 +4801,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltin
 	public static fun getSchema (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;)Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
 }
 
-public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleBaseType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType {
+public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleBaseType, io/github/pdvrieze/formats/xmlschema/resolved/NamedPart, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType {
 	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getAnnotations ()Ljava/util/List;
 	public abstract fun getId ()Ljava/lang/Void;

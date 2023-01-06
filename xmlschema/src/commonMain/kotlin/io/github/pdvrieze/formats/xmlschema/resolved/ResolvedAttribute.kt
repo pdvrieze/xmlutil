@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
@@ -30,18 +31,21 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Loca
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelAttribute
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedAttribute: ResolvedPart, T_AttributeBase {
+sealed interface ResolvedAttribute : ResolvedPart, T_AttributeBase {
     override val rawPart: XSAttributeBase
 }
 
 sealed class ResolvedAttributeBase(
     override val schema: ResolvedSchemaLike
-): ResolvedAttribute, T_AttributeBase {
+) : ResolvedAttribute, T_AttributeBase {
+
+    override val type: QName?
+        get() = (resolvedType as? ResolvedToplevelSimpleType)?.qName
 
     val resolvedType: ResolvedSimpleType by lazy {
-        this.type?.let { schema.simpleType(it) }
-            ?: this.simpleType?.let { ResolvedLocalSimpleType(it, schema) }
-            ?: error("Missing type")
+        rawPart.type?.let { schema.simpleType(it) }
+            ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema) }
+            ?: AnySimpleType
     }
 
     open fun check() {
