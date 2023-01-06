@@ -112,6 +112,8 @@ class TestXSTestSuite {
                     val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
                     resolvedSchema.check()
                 }
+                if (e is Error) throw e
+
                 val exName = expected.exception
                 if (exName != null) {
                     if (exName.contains('.')) {
@@ -119,8 +121,6 @@ class TestXSTestSuite {
                     } else {
                         assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
                     }
-                } else if (e is NotImplementedError) {
-                    throw e
                 }
 
                 val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES))}
