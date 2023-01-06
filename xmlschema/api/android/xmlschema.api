@@ -4885,7 +4885,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/Re
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAlls ()Ljava/util/List;
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
@@ -4893,6 +4893,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDeri
 	public fun getAttributeGroups ()Ljava/util/List;
 	public fun getAttributes ()Ljava/util/List;
 	public fun getBase ()Ljavax/xml/namespace/QName;
+	public final fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType;
 	public fun getChoices ()Ljava/util/List;
 	public fun getGroups ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
