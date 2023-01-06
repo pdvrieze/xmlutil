@@ -62,7 +62,7 @@ class TestXSTestSuite {
 
                 buildDynamicContainer("Test set $tsName") {
                     for (group in testSet.testGroups) {
-                        if (true || group.name.contains("xsd003b.e")) {
+                        if (true || group.name.contains("xsd020-3.e")) {
                             dynamicContainer("Group ${group.name}") {
                                 addSchemaTests(setBaseUrl, group)
                             }
