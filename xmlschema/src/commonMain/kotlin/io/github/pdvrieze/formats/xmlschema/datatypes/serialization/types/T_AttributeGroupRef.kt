@@ -18,6 +18,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import nl.adaptivity.xmlutil.QName
 
-interface T_AttributeGroupRef: T_AttributeGroupBase {
+interface T_AttributeGroupRef: T_AttributeGroupBase, XSI_Annotated {
     val ref: QName
 }

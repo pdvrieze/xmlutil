@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
@@ -49,6 +50,8 @@ abstract class XSTopLevelComplexType(
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
     abstract override val content: T_ComplexTypeContentSealed
+
+    override val targetNamespace: Nothing? get() = null
 
     protected abstract fun toSerialDelegate(): SerialDelegate
 
@@ -95,6 +98,7 @@ abstract class XSTopLevelComplexType(
                     annotations = annotations,
                     otherAttrs = otherAttrs,
                 )
+
                 complexContent != null -> XSTopLevelComplexTypeComplex(
                     name = name,
                     mixed = mixed,
@@ -107,6 +111,7 @@ abstract class XSTopLevelComplexType(
                     annotations = annotations,
                     otherAttrs = otherAttrs,
                 )
+
                 else -> XSTopLevelComplexTypeShorthand(
                     name = name,
                     mixed = mixed,

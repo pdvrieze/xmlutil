@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalType
 
@@ -34,5 +35,6 @@ fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike): Resolve
 
 sealed interface ResolvedLocalType : ResolvedType, T_LocalType {
     override val rawPart: T_LocalType
+    override val name: Nothing? get() = null
 }
 

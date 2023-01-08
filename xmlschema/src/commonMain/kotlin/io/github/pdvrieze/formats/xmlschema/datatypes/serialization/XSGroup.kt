@@ -19,6 +19,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
@@ -43,6 +44,7 @@ class XSGroup(
 ) : G_Redefinable.Group, T_NamedGroup {
     override val minOccurs: Nothing? get() = null
     override val maxOccurs: Nothing? get() = null
+    override val targetNamespace: Nothing? get() = null
 
     @Serializable
     sealed class Particle : T_NamedGroup.NG_Particle
@@ -54,9 +56,9 @@ class XSGroup(
         override val elements: List<XSLocalElement> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
         override val groups: List<XSGroupRef> = emptyList(),
+        override val id: VID? = null,
         @XmlOtherAttributes
-        override val otherAttributes: Map<QName, String> = emptyMap()
-
+        override val otherAttrs: Map<QName, String> = emptyMap()
     ): Particle(), T_NamedGroup.All
 
     @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)

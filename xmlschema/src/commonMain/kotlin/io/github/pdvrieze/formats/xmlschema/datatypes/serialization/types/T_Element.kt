@@ -23,7 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Id
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated {
+interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated, I_OptNamed {
     val localType: Type?
 //    val simpleTypes: List<T_LocalSimpleType>
 //
@@ -51,8 +51,6 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated
     val block: T_BlockSet?
 
     val form: T_FormChoice?
-
-    val targetNamespace: VAnyURI?
 
     interface Type: T_Type
 

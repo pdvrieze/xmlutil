@@ -25,10 +25,9 @@ interface T_RealGroup: T_Group {
         get() = listOfNotNull(particle)
 
     sealed interface RG_Particle: T_Group.Particle
-    interface All: T_Group.All, G_AllModel {
+    interface All: T_Group.All, G_AllModel, XSI_OpenAttrs {
         val minOccurs: Nothing? get() = null
         val maxOccurs: Nothing? get() = null
-        val otherAttributes: Map<QName, String>
     }
     interface Choice: T_Group.Choice, T_SimpleExplicitGroup
     interface Sequence: T_Group.Sequence, T_SimpleExplicitGroup

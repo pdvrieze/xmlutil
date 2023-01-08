@@ -19,11 +19,14 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_All
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Choice
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Sequence
 
 interface GX_TypeDefParticles {
     val groups: List<T_GroupRef>
-    val alls: List<XSAll>
-    val choices: List<XSChoice>
-    val sequences: List<XSSequence>
+    val alls: List<T_All>
+    val choices: List<T_Choice>
+    val sequences: List<T_Sequence>
 }

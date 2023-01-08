@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
 import kotlinx.serialization.Serializable
@@ -43,6 +44,6 @@ class XSLocalSimpleType(
 ) : XSLocalType(), T_LocalSimpleType {
 
     override val name: Nothing? get() = null
-
+    override val targetNamespace: Nothing? get() = null
 }
 

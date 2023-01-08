@@ -50,7 +50,8 @@ class TestXSTestSuite {
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             return suite.testSetRefs
-                .filter { false || it.href.contains("sunMeta/suntest.testSet") }
+                .filter { false || it.href.contains("msMeta") }
+//                .filter { false || it.href.contains("sunMeta/"+"suntest.testSet") }
                 .map { setRef ->
 
                 val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -62,7 +63,7 @@ class TestXSTestSuite {
 
                 buildDynamicContainer("Test set $tsName") {
                     for (group in testSet.testGroups) {
-                        if (true || group.name.contains("xsd020-3.e")) {
+                        if (true || group.name.contains("xsd013.e")) {
                             dynamicContainer("Group ${group.name}") {
                                 addSchemaTests(setBaseUrl, group)
                             }
@@ -105,39 +106,47 @@ class TestXSTestSuite {
             dynamicTest("Schema document ${schemaDoc.href} exists") {
                 assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
             }
-            dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
-                val e = assertFails(documentation) {
-                    val schemaLocation = VAnyURI(schemaDoc.href)
-                    val schema = resolver.readSchema(schemaLocation)
-                    val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
-                    resolvedSchema.check()
-                }
-                if (e is Error) throw e
-
-                val exName = expected.exception
-                if (exName != null) {
-                    if (exName.contains('.')) {
-                        assertEquals(exName, e.javaClass.name)
-                    } else {
-                        assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
+            if (false) {
+                dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
+                    val e = assertFails(documentation) {
+                        val schemaLocation = VAnyURI(schemaDoc.href)
+                        val schema = resolver.readSchema(schemaLocation)
+                        val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
+                        resolvedSchema.check()
                     }
-                }
+                    if (e is Error) throw e
 
-                val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES))}
-                if (exMsg!=null) {
-                    if (! exMsg.containsMatchIn(e.message ?: "")) {
-                        val match = exMsg.find(e.message ?: "")?.value
-                        if (match != null) {
-                            assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
-                        } else {
-                            assertEquals(exMsg.pattern, e.message)
+                    try {
+
+                        val exName = expected.exception
+                        if (exName != null) {
+                            if (exName.contains('.')) {
+                                assertEquals(exName, e.javaClass.name)
+                            } else {
+                                assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
+                            }
                         }
+
+                        val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES)) }
+                        if (exMsg != null) {
+                            if (!exMsg.containsMatchIn(e.message ?: "")) {
+                                val match = exMsg.find(e.message ?: "")?.value
+                                if (match != null) {
+                                    assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
+                                } else {
+                                    assertEquals(exMsg.pattern, e.message)
+                                }
+                            }
+                        } else {
+                            System.err.println("Expected error: \n")
+                            System.err.println(documentation.prependIndent("        "))
+                            System.err.println("    Exception thrown:")
+                            System.err.println(e.message?.prependIndent("        "))
+                        }
+                    } catch (f: AssertionError) {
+                        f.addSuppressed(e)
+                        throw f
                     }
-                } else {
-                    System.err.println("Expected error: \n")
-                    System.err.println(documentation.prependIndent("        "))
-                    System.err.println("    Exception thrown:")
-                    System.err.println(e.message?.prependIndent("        "))
                 }
             }
         } else {

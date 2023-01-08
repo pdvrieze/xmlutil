@@ -32,7 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopL
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedAttribute : ResolvedPart, T_AttributeBase {
-    override val rawPart: XSAttributeBase
+    override val rawPart: T_AttributeBase
 }
 
 sealed class ResolvedAttributeBase(
@@ -55,7 +55,7 @@ sealed class ResolvedAttributeBase(
 
 
 class ResolvedLocalAttribute(
-    override val rawPart: XSLocalAttribute,
+    override val rawPart: T_LocalAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttributeBase(schema), T_LocalAttribute {
     private val referenced: ResolvedAttribute? by lazy { rawPart.ref?.let { schema.attribute(it) } }
@@ -106,7 +106,7 @@ class ResolvedLocalAttribute(
 }
 
 class ResolvedToplevelAttribute(
-    override val rawPart: XSAttribute,
+    override val rawPart: T_TopLevelAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttributeBase(schema), ResolvedAttribute, T_TopLevelAttribute, NamedPart {
 
@@ -134,8 +134,8 @@ class ResolvedToplevelAttribute(
     override val simpleType: XSLocalSimpleType?
         get() = rawPart.simpleType
 
-    override val targetNamespace: Nothing?
-        get() = null
+    override val targetNamespace: VAnyURI
+        get() = schema.targetNamespace
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs

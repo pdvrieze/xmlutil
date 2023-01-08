@@ -17,18 +17,13 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 
-interface G_AllModel {
-    val annotations: List<XSAnnotation>
-    val elements: List<XSLocalElement>
-    val anys: List<XSAny>
-    val groups: List<XSGroupRef>
+interface G_AllModel : XSI_Annotated {
+    val elements: List<T_LocalElement>
+    val anys: List<T_Wildcard>
+    val groups: List<T_GroupRef>
 
     interface E_Group: T_GroupRef {
         override val annotations: List<XSAnnotation>

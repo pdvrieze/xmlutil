@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Simp
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, XSI_Annotated {
+sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
     override val simpleDerivation: ResolvedSimpleDerivation
 
     override fun check(seenTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel

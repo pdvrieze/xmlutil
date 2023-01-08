@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedLocalComplexType(
     override val rawPart: T_LocalComplexType_Base,
@@ -34,7 +33,6 @@ class ResolvedLocalComplexType(
 ) : ResolvedLocalType, ResolvedComplexType, T_LocalComplexType_Base {
     override val mixed: Boolean? get() = rawPart.mixed
     override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
-    override val name: VNCName? get() = rawPart.name
     override val annotations: List<XSAnnotation> get() = rawPart.annotations
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
@@ -42,13 +40,13 @@ class ResolvedLocalComplexType(
     override val content: ResolvedComplexContent by lazy {
         when (val c = rawPart.content as T_ComplexTypeContentSealed) {
             is T_ComplexTypeComplexContent -> ResolvedComplexComplexContent(c, schema)
-            is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(c, schema)
+            is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(this, c, schema)
             is T_ComplexTypeSimpleContent -> ResolvedComplexSimpleContent(c, schema)
         }
     }
 
     override fun check(seenTypes: SingleLinkedList<QName>) {
-        content.check(name?.let { seenTypes + it.toQname(schema.targetNamespace) } ?: seenTypes)
+        content.check(seenTypes) // there is no name here
     }
 }
 

@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Nes
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Choice
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ExplicitGroup
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -46,4 +47,4 @@ class XSChoice(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_ExplicitGroup, G_TypeDefParticle.Choice, G_NestedParticle.Choice, G_Particle.All
+) : T_Choice

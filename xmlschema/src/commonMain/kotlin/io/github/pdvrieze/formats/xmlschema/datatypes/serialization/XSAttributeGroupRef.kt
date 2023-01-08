@@ -42,7 +42,7 @@ class XSAttributeGroupRef(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 
-): T_AttributeGroupRef, XSI_Annotated {
+): T_AttributeGroupRef {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

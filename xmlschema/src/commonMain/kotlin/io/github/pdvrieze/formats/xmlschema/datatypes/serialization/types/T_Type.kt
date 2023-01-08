@@ -22,9 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_Type: XSI_Annotated {
-    val name: VNCName?
+interface T_Type: XSI_Annotated, I_OptNamed {
+    override val name: VNCName?
+}
 
+interface T_NamedType: T_Type, I_Named {
+    override val name: VNCName
 }
 
 /** Type that can be the base of a simple type, this includes AnyType */

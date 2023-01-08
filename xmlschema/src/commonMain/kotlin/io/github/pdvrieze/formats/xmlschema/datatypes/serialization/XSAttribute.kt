@@ -86,6 +86,8 @@ class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
     @XmlBefore("type")
     override val name: VNCName
 
+    override val targetNamespace: Nothing? get() = null
+
     constructor(
         default: String? = null,
         fixed: String? = null,
