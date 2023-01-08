@@ -63,16 +63,20 @@ interface VNonNegativeInteger : VInteger {
     companion object {
         operator fun invoke(rawValue: String): VNonNegativeInteger = when {
             rawValue.length > MAXLONG.length -> Inst(rawValue)
+
             rawValue.length == MAXLONG.length && (rawValue[0] == '0' || rawValue[0] == '1')
                     && rawValue.substring(1).toLong() <= MAXNONSIGNDIGITS ->
                 invoke(rawValue.toULong())
+
             rawValue.toLong() <= MAXUINT -> invoke(rawValue.toUInt())
+
             else -> invoke(rawValue.toULong())
         }
 
         operator fun invoke(value: ULong): VUnsignedLong = VUnsignedLong(value)
         operator fun invoke(value: UInt): VUnsignedInt = VUnsignedInt(value)
-
+        operator fun invoke(value: Long): VUnsignedLong = run { require(value >= 0); VUnsignedLong(value.toULong()) }
+        operator fun invoke(value: Int): VUnsignedInt = run { require(value >= 0); VUnsignedInt(value.toUInt()) }
 
         private val MAXLONG = ULong.MAX_VALUE.toString()
         private val MAXNONSIGNDIGITS = MAXLONG.substring(1).toLong()

@@ -45,7 +45,7 @@ class ResolvedToplevelComplexType(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val targetNamespace: VAnyURI?
+    override val targetNamespace: VAnyURI
         get() = schema.targetNamespace
 
     override val mixed: Boolean?
@@ -58,7 +58,7 @@ class ResolvedToplevelComplexType(
         by lazy {
             when (val c = rawPart.content) {
                 is T_ComplexTypeComplexContent -> ResolvedComplexComplexContent(c, schema)
-                is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(c, schema)
+                is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(this, c, schema)
                 is T_ComplexTypeSimpleContent -> ResolvedComplexSimpleContent(c, schema)
             }
         }

@@ -18,9 +18,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_NamedGroup: T_RealGroup {
+interface T_NamedGroup: T_RealGroup, I_Named {
     override val particle: NG_Particle
-    val name: VNCName
 
     val minOccurs: Nothing? get() = null
     val maxOccurs: Nothing? get() = null
