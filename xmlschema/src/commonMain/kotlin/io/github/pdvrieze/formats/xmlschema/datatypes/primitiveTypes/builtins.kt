@@ -22,6 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
@@ -86,7 +88,12 @@ fun builtinType(localName: String, targetNamespace: String): Datatype? {
 }
 
 sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace),
-    ResolvedBuiltinSimpleType
+    ResolvedBuiltinSimpleType {
+
+    override val name: VNCName get() = super<Datatype>.name
+    override val targetNamespace: VAnyURI
+        get() = super<Datatype>.targetNamespace
+}
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
     abstract override val baseType: ResolvedBuiltinType
@@ -292,12 +299,12 @@ object TimeType : PrimitiveDatatype("time", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 }
 
-object EntitiesType: ConstructedListDatatype("ENTITIES", XmlSchemaConstants.XS_NAMESPACE, EntityType)
+object EntitiesType : ConstructedListDatatype("ENTITIES", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
-object IDRefsType: ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
+object IDRefsType : ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
-object NMTokensType: ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
+object NMTokensType : ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType)
 
-object PrecisionDecimalType: PrimitiveDatatype("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
+object PrecisionDecimalType : PrimitiveDatatype("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 }

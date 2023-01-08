@@ -31,11 +31,25 @@ sealed class T_AllNNI {
         override fun toString(): String = "unbounded"
     }
 
+    @Serializable(Value.Serializer::class)
     class Value(val value: VNonNegativeInteger): T_AllNNI(), VNonNegativeInteger by value {
         constructor(value: ULong): this(VNonNegativeInteger(value))
         constructor(value: UInt): this(VNonNegativeInteger(value))
 
         override fun toString(): String = value.toString()
+
+        companion object Serializer : KSerializer<Value> {
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI.Value", PrimitiveKind.STRING)
+
+            override fun deserialize(decoder: Decoder): Value {
+                return Value(VNonNegativeInteger(decoder.decodeString()))
+            }
+
+            override fun serialize(encoder: Encoder, value: Value) {
+                encoder.encodeString(value.toString())
+            }
+
+        }
     }
 
     companion object Serializer: KSerializer<T_AllNNI> {

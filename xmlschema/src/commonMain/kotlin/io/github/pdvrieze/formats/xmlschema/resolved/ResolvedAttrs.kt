@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-interface ResolvedPart {
-    val rawPart: Any
-    val schema: ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_OpenAttrs
+import nl.adaptivity.xmlutil.QName
+
+interface ResolvedAttrs: ResolvedPart, XSI_OpenAttrs {
+    override val rawPart: XSI_OpenAttrs
+
+    override val otherAttrs: Map<QName, String>
+        get() = rawPart.otherAttrs
 }

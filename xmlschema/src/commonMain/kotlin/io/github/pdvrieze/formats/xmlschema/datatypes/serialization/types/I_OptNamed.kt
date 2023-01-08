@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,9 +18,12 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface ResolvedPart {
-    val rawPart: Any
-    val schema: ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+
+interface I_OptNamed {
+    val name: VNCName?
+    val targetNamespace: VAnyURI?
 }

@@ -16,8 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
@@ -26,13 +24,11 @@ import nl.adaptivity.xmlutil.QName
 interface T_LocalAttribute: T_AttributeBase, AG_DefRef {
 }
 
-interface T_AttributeBase: XSI_Annotated {
+interface T_AttributeBase: XSI_Annotated, I_OptNamed {
     val default: String?
     val fixed: String?
     val form: T_FormChoice?
-    val name: VNCName?
     val ref: QName?
-    val targetNamespace: VAnyURI?
     val type: QName?
     val use: XSAttrUse?
     val inheritable: Boolean?

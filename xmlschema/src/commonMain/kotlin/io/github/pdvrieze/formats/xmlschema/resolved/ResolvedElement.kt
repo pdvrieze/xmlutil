@@ -22,27 +22,95 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement : NamedPart, T_Element {
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element {
     abstract override val rawPart: T_Element
     abstract val scope: T_Scope
+
+    override val type: QName?
+        get() = rawPart.type
+    override val nillable: Boolean get() = rawPart.nillable ?: false
+
+    override val default: String? get() = rawPart.default
+    override val fixed: String? get() = rawPart.fixed
+    val valueConstraint: ValueConstraint? by lazy {
+        val rawDefault = rawPart.default
+        val rawFixed = rawPart.fixed
+        when {
+            rawDefault != null && rawFixed != null ->
+                throw IllegalArgumentException("An element ${rawPart.name} cannot have default and fixed attributes both")
+
+            rawDefault != null -> ValueConstraint.Default(rawDefault)
+            rawFixed != null -> ValueConstraint.Fixed(rawFixed)
+            else -> null
+        }
+    }
+    override val uniques: List<G_IdentityConstraint.Unique>
+        get() = TODO("not implemented")
+    override val keys: List<G_IdentityConstraint.Key>
+        get() = TODO("not implemented")
+    override val keyref: List<G_IdentityConstraint.Keyref>
+        get() = TODO("not implemented")
+
+    override val id: VID? get() = rawPart.id
+
+    override val localType: T_Element.Type?
+        get() = rawPart.localType
+
+    override val name: VNCName get() = rawPart.name ?: error("Missing name")
+
+    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+
+    override val alternatives: List<T_AltType> get() = rawPart.alternatives
+
+    /**
+     * disallowed substitutions
+     */
+    override val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
+
+    override val otherAttrs: Map<QName, String>
+        get() = rawPart.otherAttrs
+
+}
+
+class ResolvedLocalElement(
+    val parent: ResolvedComplexType,
+    override val rawPart: T_LocalElement,
+    schema: ResolvedSchemaLike
+) : ResolvedElement(schema), T_LocalElement {
+    override val scope: T_Scope get() = T_Scope.LOCAL
+
+    override val ref: QName? get() = rawPart.ref
+
+    override val minOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
+
+    override val maxOccurs: T_AllNNI
+        get() = rawPart.maxOccurs ?: T_AllNNI(1)
+
+    override val form: T_FormChoice?
+        get() = rawPart.form
+
+    override val targetNamespace: VAnyURI
+        get() = rawPart.targetNamespace ?: schema.targetNamespace
 }
 
 class ResolvedToplevelElement(
     override val rawPart: XSElement,
-    override val schema: ResolvedSchemaLike
-) : ResolvedElement(), T_TopLevelElement {
+    schema: ResolvedSchemaLike
+) : ResolvedElement(schema), T_TopLevelElement {
     fun check() {
         checkSubstitutionGroupChain(SingleLinkedList(qName))
-
-        //TODO("not implemented")
+        typeDef.check(SingleLinkedList.empty())
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
@@ -56,14 +124,15 @@ class ResolvedToplevelElement(
         schema.element(it)
     }
 
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    /** Substitution group exclusions */
+    override val final: T_DerivationSet
+        get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
+
+    override val targetNamespace: VAnyURI get() = schema.targetNamespace
 
     override val name: VNCName get() = rawPart.name
     override val qName: QName
-        get() = super.qName
-    override val targetNamespace: Nothing? get() = null
-
-
+        get() = name.toQname(targetNamespace)
 
     val typeDef: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema) }
         ?: type?.let {
@@ -87,75 +156,27 @@ class ResolvedToplevelElement(
 
     override val scope: T_Scope get() = T_Scope.GLOBAL
 
-    val valueConstraint: ValueConstraint? by lazy {
-        when {
-            rawPart.default != null && rawPart.fixed != null ->
-                throw IllegalArgumentException("An element ${rawPart.name} cannot have default and fixed attributes both")
-            rawPart.default != null -> ValueConstraint.Default(rawPart.default)
-            rawPart.fixed != null -> ValueConstraint.Fixed(rawPart.fixed)
-            else -> null
-        }
-    }
-
-    override val nillable: Boolean get() = rawPart.nillable ?: false
+    val affiliatedSubstitutionGroups: List<ResolvedElement> = rawPart.substitutionGroup?.let {
+        DelegateList(it) { schema.element(it) }
+    } ?: emptyList()
 
     val identityConstraints: List<T_Keybase> by lazy {
         rawPart.keys + rawPart.uniques + rawPart.keyref // TODO make resolved versions
     }
 
-    override val uniques: List<G_IdentityConstraint.Unique>
-        get() = TODO("not implemented")
-    override val keys: List<G_IdentityConstraint.Key>
-        get() = TODO("not implemented")
-    override val keyref: List<G_IdentityConstraint.Keyref>
-        get() = TODO("not implemented")
-
-    val affiliatedSubstitutionGroups: List<ResolvedElement> by lazy {
-        rawPart.substitutionGroup?.let { sg ->
-            TODO("Resolve element group")
-        } ?: emptyList<ResolvedElement>()
-    }
-
     override val substitutionGroup: List<QName>?
-        get() = TODO("not implemented")
-
-    /**
-     * disallowed substitutions
-     */
-    override val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
-
-    /** Substitution group exclusions */
-    override val final: T_DerivationSet
-        get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
+        get() = rawPart.substitutionGroup
 
     override val abstract: Boolean get() = rawPart.abstract ?: false
 
     override val ref: Nothing?
         get() = rawPart.ref
 
-    override val minOccurs: Nothing?
-        get() = rawPart.minOccurs
+    override val minOccurs: Nothing? get() = null
 
     override val maxOccurs: Nothing? get() = null
 
-    override val id: VID? get() = rawPart.id
-
-    override val localType: T_Element.Type?
-        get() = rawPart.localType
-
-    override val alternatives: List<T_AltType> get() = rawPart.alternatives
-
-    override val type: QName?
-        get() = rawPart.type
-
-    override val default: String? get() = rawPart.default
-
-    override val fixed: String? get() = rawPart.fixed
-
     override val form: Nothing? get() = null
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
 }
 
 class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)

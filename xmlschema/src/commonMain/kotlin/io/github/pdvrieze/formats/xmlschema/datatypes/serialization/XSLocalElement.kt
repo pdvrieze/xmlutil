@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalElement(
     @XmlBefore("type")
-    override val name: VNCName? = null,
+    override val name: VNCName? = null, // can be determined from ref
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,
     override val default: String? = null,

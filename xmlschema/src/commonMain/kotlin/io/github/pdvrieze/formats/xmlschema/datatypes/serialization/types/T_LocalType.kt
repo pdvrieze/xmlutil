@@ -22,4 +22,4 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 interface T_LocalType: T_Type
 
-interface T_TopLevelType: T_Type
+interface T_TopLevelType: T_NamedType

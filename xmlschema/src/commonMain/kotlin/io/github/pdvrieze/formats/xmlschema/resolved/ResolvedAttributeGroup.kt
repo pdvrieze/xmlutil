@@ -25,13 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
@@ -41,7 +37,7 @@ sealed class ResolvedAttributeGroup(
 }
 
 class ResolvedAttributeGroupRef(
-    override val rawPart: XSAttributeGroupRef,
+    override val rawPart: T_AttributeGroupRef,
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
     val resolvedGroup: ResolvedDirectAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
@@ -73,7 +69,7 @@ class ResolvedAttributeGroupRef(
 }
 
 class ResolvedDirectAttributeGroup(
-    override val rawPart: XSAttributeGroup,
+    override val rawPart: T_NamedAttributeGroup,
     override val schema: ResolvedSchemaLike
 ) : NamedPart, T_NamedAttributeGroup, XSI_Annotated {
 
@@ -99,8 +95,8 @@ class ResolvedDirectAttributeGroup(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
+    override val targetNamespace: VAnyURI
+        get() = super<NamedPart>.targetNamespace
 
     fun check() {
         for (a in attributes) { a.check() }

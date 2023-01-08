@@ -17,8 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 
 /**
  * Choice: T_LocalElement, T_GroupRef, E_Choice, E_Sequence, E_Any
@@ -37,9 +36,9 @@ interface G_NestedParticle {
 }
 
 interface GX_NestedParticles {
-    val elements: List<XSLocalElement>
-    val groups: List<XSGroupRef>
-    val choices: List<XSChoice>
-    val sequences: List<XSSequence>
-    val anys: List<XSAny>
+    val elements: List<T_LocalElement>
+    val groups: List<T_GroupRef>
+    val choices: List<T_Choice>
+    val sequences: List<T_Sequence>
+    val anys: List<T_Wildcard>
 }

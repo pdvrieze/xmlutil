@@ -40,11 +40,19 @@ class XSComplexContent(
     override val derivation: XSDerivationBase
 ) : XSI_Annotated, T_ComplexTypeComplexContent {
     @Serializable
-    sealed class XSDerivationBase: T_ComplexDerivation
+    sealed class XSDerivationBase: T_ComplexDerivation {
+        abstract override val groups: List<XSGroupRef>
+        abstract override val alls: List<XSAll>
+        abstract override val choices: List<XSChoice>
+        abstract override val sequences: List<XSSequence>
+        abstract override val asserts: List<XSAssertionFacet>
+        abstract override val attributes: List<XSLocalAttribute>
+        abstract override val attributeGroups: List<XSAttributeGroupRef>
+    }
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
-    class Restriction(
+    class XSRestriction(
         override val base: QName,
         override val id: VID? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
@@ -53,9 +61,9 @@ class XSComplexContent(
         override val alls: List<XSAll> = emptyList(),
         override val choices: List<XSChoice> = emptyList(),
         override val sequences: List<XSSequence> = emptyList(),
-        override val asserts: List<T_Assertion> = emptyList(),
+        override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
-        override val attributeGroups: List<T_AttributeGroupRef> = emptyList(),
+        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
         override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
         override val facets: List<XSFacet> = emptyList(),
@@ -66,16 +74,16 @@ class XSComplexContent(
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
-    class Extension(
+    class XSExtension(
         override val base: QName,
         override val id: VID? = null,
         override val groups: List<XSGroupRef> = emptyList(),
         override val alls: List<XSAll> = emptyList(),
         override val choices: List<XSChoice> = emptyList(),
         override val sequences: List<XSSequence> = emptyList(),
-        override val asserts: List<XSAssert> = emptyList(),
+        override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
-        override val attributeGroups: List<T_AttributeGroupRef> = emptyList(),
+        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
         override val annotations: List<XSAnnotation> = emptyList(),
         override val openContents: List<XSOpenContent> = emptyList(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-interface ResolvedPart {
-    val rawPart: Any
-    val schema: ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+
+interface ResolvedAnnotated: ResolvedAttrs, XSI_Annotated {
+    override val rawPart: XSI_Annotated
+
+    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+
+    override val id: VID? get() = rawPart.id
 }

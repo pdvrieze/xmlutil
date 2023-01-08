@@ -64,7 +64,7 @@ class ResolvedGroupRef(
 }
 
 class ResolvedDirectGroup(
-    override val rawPart: XSGroup,
+    override val rawPart: T_NamedGroup,
     schema: ResolvedSchemaLike
 ): ResolvedGroup(schema), NamedPart, T_NamedGroup {
     override fun check() {
