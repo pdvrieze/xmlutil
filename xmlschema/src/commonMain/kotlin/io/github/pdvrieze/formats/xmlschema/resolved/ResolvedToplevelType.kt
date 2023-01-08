@@ -20,5 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-sealed interface ResolvedToplevelType : ResolvedType, NamedPart
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedType
+
+sealed interface ResolvedToplevelType : ResolvedType, NamedPart, T_NamedType {
+    override val rawPart: T_NamedType
+
+    override val name: VNCName get() = super<NamedPart>.name
+}
 

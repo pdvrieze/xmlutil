@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,9 +18,14 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-interface ResolvedPart {
-    val rawPart: Any
-    val schema: ResolvedSchemaLike
-}
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+
+@Serializable
+@XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+class XSLocalAll(): G_TypeDefParticle.All, G_Particle.All

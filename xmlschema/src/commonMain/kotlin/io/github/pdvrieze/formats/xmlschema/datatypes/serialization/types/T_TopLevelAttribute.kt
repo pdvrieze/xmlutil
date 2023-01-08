@@ -18,10 +18,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_TopLevelAttribute: T_AttributeBase {
+interface T_TopLevelAttribute: T_AttributeBase, I_Named {
     override val name: VNCName
     override val ref: Nothing? get() = null
     override val form: Nothing? get() = null
     override val use: Nothing? get() = null
-    override val targetNamespace: Nothing? get() = null
 }
