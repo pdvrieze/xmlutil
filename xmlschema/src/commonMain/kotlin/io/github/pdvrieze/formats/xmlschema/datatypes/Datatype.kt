@@ -29,14 +29,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
-    val name: VNCName,
-    val targetNamespace: VAnyURI,
-) {
+    override val name: VNCName,
+    override val targetNamespace: VAnyURI,
+) : I_Named {
     abstract val baseType: ResolvedType
 
     constructor(name: String, targetNamespace: String) : this(VNCName(name), VAnyURI(targetNamespace))
@@ -46,7 +47,6 @@ abstract class Datatype(
     val equalityFunction: DataFunction get() = TODO()
     val orderFunction: DataFunction? get() = null
 }
-
 
 class ValueSpace()
 class LexicalSpace()
@@ -91,6 +91,12 @@ sealed class ListDatatype protected constructor(
     abstract override val baseType: ResolvedType
 
     val whiteSpace: XSWhiteSpace.Values get() = XSWhiteSpace.Values.COLLAPSE
+
+    override val name: VNCName
+        get() = super<Datatype>.name
+
+    override val targetNamespace: VAnyURI
+        get() = super<Datatype>.targetNamespace
 
     override fun check(seenTypes: SingleLinkedList<QName>) {
         baseType.check(seenTypes)
@@ -192,6 +198,10 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
     override val simpleDerivation: ResolvedSimpleDerivation get() = ERRORDERIVATION
 
+    override val name: VNCName get() = super<Datatype>.name
+    override val targetNamespace: VAnyURI
+        get() = super<Datatype>.targetNamespace
+
     private object ERRORDERIVATION : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
         override val rawPart: T_SimpleDerivation get() = this
         override val simpleTypes: List<Nothing>
@@ -207,10 +217,23 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
 
 object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType {
     override val baseType: AnyType get() = AnyType // No actual base type
+
+    override val name: VNCName get() = super<Datatype>.name
+    override val targetNamespace: VAnyURI
+        get() = super<Datatype>.targetNamespace
+
+    override val simpleDerivation: G_SimpleDerivation.Base
+        get() = SimpleBuiltinRestriction(AnyType)
+
+    override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
     override val baseType: AnyType get() = AnyType
+
+    override val name: VNCName get() = super<Datatype>.name
+    override val targetNamespace: VAnyURI
+        get() = super<Datatype>.targetNamespace
 
     override val simpleDerivation: ResolvedSimpleDerivation
         get() = SimpleBuiltinRestriction(baseType)

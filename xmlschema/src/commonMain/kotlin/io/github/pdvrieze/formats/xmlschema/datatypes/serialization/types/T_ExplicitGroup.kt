@@ -21,4 +21,5 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Ne
 
 interface T_ExplicitGroup: T_GroupBase, GX_NestedParticles, AG_Occurs {
 // G_TypeDefParticle.Sequence, G_NestedParticle.Sequence, G_Particle.Sequence
+
 }

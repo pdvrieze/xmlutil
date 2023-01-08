@@ -60,9 +60,9 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
 
     override val groups: List<T_GroupRef> get() = rawPart.groups
 
-    override val alls: List<XSAll> get() = rawPart.alls
-    override val choices: List<XSChoice> get() = rawPart.choices
-    override val sequences: List<XSSequence> get() = rawPart.sequences
+    override val alls: List<T_All> get() = rawPart.alls
+    override val choices: List<T_Choice> get() = rawPart.choices
+    override val sequences: List<T_Sequence> get() = rawPart.sequences
     override val asserts: List<T_Assertion> get() = rawPart.asserts
     override val attributes: List<T_LocalAttribute> get() = rawPart.attributes
     override val attributeGroups: List<T_AttributeGroupRef> get() = rawPart.attributeGroups
@@ -113,15 +113,16 @@ class ResolvedComplexRestriction(
 }
 
 class ResolvedComplexShorthandContent(
+    parent: ResolvedComplexType,
     override val rawPart: T_ComplexTypeShorthandContent,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexContent(schema),
     T_ComplexTypeShorthandContent {
 
-    override val groups: List<ResolvedGroupRef> get() = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema)}
-    override val alls: List<XSAll> get() = rawPart.alls
-    override val choices: List<XSChoice> get() = rawPart.choices
-    override val sequences: List<XSSequence> get() = rawPart.sequences
+    override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema)}
+    override val alls: List<T_All> = DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema) }
+    override val choices: List<T_Choice> get() = rawPart.choices
+    override val sequences: List<T_Sequence> get() = rawPart.sequences
     override val asserts: List<T_Assertion> get() = rawPart.asserts
     override val attributes: List<T_LocalAttribute> get() = rawPart.attributes
     override val attributeGroups: List<T_AttributeGroupRef> get() = rawPart.attributeGroups

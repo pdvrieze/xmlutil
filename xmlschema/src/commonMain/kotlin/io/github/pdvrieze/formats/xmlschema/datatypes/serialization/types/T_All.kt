@@ -16,12 +16,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AllModel
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
 
 /**
  * minOccurs is 0 or 1
  * maxOccurs is 0 or 1
  */
-interface T_All: T_ExplicitGroup, G_AllModel {
+interface T_All: T_ExplicitGroup, G_AllModel, G_TypeDefParticle.All, G_Particle.All {
+    override val minOccurs: VNonNegativeInteger? // 0 or 1
+    override val maxOccurs: T_AllNNI.Value? // 0 or 1
 
+    override val choices: List<Nothing> get() = emptyList()
+    override val sequences: List<Nothing> get() = emptyList()
 }

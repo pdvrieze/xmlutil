@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
 
@@ -28,7 +29,7 @@ interface T_TopLevelElement: T_Element {
 
     override val ref: Nothing? get() = null
     override val form: Nothing? get() = null
-    override val targetNamespace: Nothing? get() = null
+    override val targetNamespace: VAnyURI? get() = null
     override val minOccurs: Nothing? get() = null
     override val maxOccurs: Nothing? get() = null
 
