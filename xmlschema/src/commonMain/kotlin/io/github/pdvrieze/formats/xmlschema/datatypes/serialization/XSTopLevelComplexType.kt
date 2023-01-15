@@ -56,6 +56,7 @@ abstract class XSTopLevelComplexType(
     protected abstract fun toSerialDelegate(): SerialDelegate
 
     @Serializable
+    @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     class SerialDelegate(
         val name: VNCName,
         val mixed: Boolean? = null,
@@ -143,7 +144,7 @@ abstract class XSTopLevelComplexType(
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            SerialDescriptor("complexType", delegateSerializer.descriptor)
+            SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSTopLevelComplexType", delegateSerializer.descriptor)
 
         override fun serialize(encoder: Encoder, value: XSTopLevelComplexType) {
             delegateSerializer.serialize(encoder, value.toSerialDelegate())
