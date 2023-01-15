@@ -139,7 +139,7 @@ sealed class XSLocalComplexType(
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            SerialDescriptor("complexType", delegateSerializer.descriptor)
+            SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalComplexType", delegateSerializer.descriptor)
 
         override fun serialize(encoder: Encoder, value: XSLocalComplexType) {
             delegateSerializer.serialize(encoder, value.toSerialDelegate())
