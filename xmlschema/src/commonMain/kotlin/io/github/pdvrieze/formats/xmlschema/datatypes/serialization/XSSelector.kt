@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSSelector(
     val xpath: VToken,
     @XmlElement(false)
-    val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+    val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes

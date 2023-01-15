@@ -263,12 +263,18 @@ class AttributeViewer(
         }
 
         @ExperimentalSerializationApi
+        override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean {
+            return false
+        }
+
+        @ExperimentalSerializationApi
         override fun <T : Any> encodeNullableSerializableElement(
             descriptor: SerialDescriptor,
             index: Int,
             serializer: SerializationStrategy<T>,
             value: T?
         ) {
+
             if (value == null) {
                 val elementInfo = structInfo[index]
                 val childDescriptor = xmlDescriptor.getElementDescriptor(index)

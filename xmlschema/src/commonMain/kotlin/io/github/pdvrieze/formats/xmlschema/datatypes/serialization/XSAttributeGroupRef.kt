@@ -36,13 +36,15 @@ class XSAttributeGroupRef(
     override val id: VID? = null,
     override val ref: QName,
     override val annotations: List<XSAnnotation> = emptyList(),
-    override val attributeGroups: List<T_AttributeGroupRef> = emptyList(),
-    override val attributes: List<T_LocalAttribute> = emptyList(),
-    override val anyAttribute: XSAnyAttribute? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 
 ): T_AttributeGroupRef {
+
+    override val attributes: List<Nothing> get() = emptyList()
+    override val attributeGroups: List<Nothing> get() = emptyList()
+    override val anyAttribute: Nothing? get() = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

@@ -1580,12 +1580,13 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAttributeGroupRef : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AttributeGroupRef {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAttributeGroupRef$Companion;
-	public synthetic fun <init> (ILjava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getAnnotations ()Ljava/util/List;
-	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
+	public synthetic fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
+	public fun getAnyAttribute ()Ljava/lang/Void;
 	public fun getAttributeGroups ()Ljava/util/List;
 	public fun getAttributes ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
@@ -2985,8 +2986,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public fun getOtherAttrs ()Ljava/util/Map;
-	public final fun getXPathDefaultNamespace ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_XPathDefaultNamespace;
 	public final fun getXpath ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VToken;
+	public final fun getXpathDefaultNamespace ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_XPathDefaultNamespace;
 	public static final fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
@@ -3403,9 +3404,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSUnique : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_IdentityConstraint$Unique, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Keybase {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSUnique$Companion;
-	public synthetic fun <init> (ILio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSelector;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getFields ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;

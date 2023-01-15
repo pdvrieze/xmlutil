@@ -23,6 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Keybase
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -33,9 +34,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("unique", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSUnique(
+    override val name: VNCName,
     override val selector: XSSelector? = null,
+    @Required
     override val fields: List<XSField> = emptyList(),
-    override val name: VNCName? = null,
     override val ref: QName? = null,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
