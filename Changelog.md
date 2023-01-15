@@ -162,6 +162,10 @@ Features:
 - Support custom delimiters by allowing a list of delimiters to be specified
   the policy.
 
+Changes:
+- The tagname for value children is used for the use, not for the type of the
+  value child (often compactFragment). 
+
 Fixes:
 - Make actual serialization of maps (that are not attributes) work
 - Fix an infinite recursion bug in the namespace collection code that writes
