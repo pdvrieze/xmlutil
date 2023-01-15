@@ -38,12 +38,14 @@ sealed class XSLocalType: T_LocalType, T_Element.Type, XSI_Annotated {
 
     companion object Serializer: KSerializer<XSLocalType> {
         @OptIn(InternalSerializationApi::class)
-        private val delegate: KSerializer<XSLocalType> = SealedClassSerializer(
-            "XSLocalType",
-            XSLocalType::class,
-            arrayOf(XSLocalSimpleType::class, XSLocalComplexType::class),
-            arrayOf(XSLocalSimpleType.serializer(), XSLocalComplexType.Serializer)
-        )
+        private val delegate: KSerializer<XSLocalType> by lazy {
+            SealedClassSerializer(
+                "io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType",
+                XSLocalType::class,
+                arrayOf(XSLocalSimpleType::class, XSLocalComplexType::class),
+                arrayOf(XSLocalSimpleType.serializer(), XSLocalComplexType.serializer())
+            )
+        }
 
         override val descriptor: SerialDescriptor get() = delegate.descriptor
 
