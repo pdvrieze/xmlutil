@@ -209,7 +209,7 @@ private constructor(
         public var repairNamespaces: Boolean = true,
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
-        public var autoPolymorphic: Boolean? = null,
+        autoPolymorphic: Boolean? = null,
         @ExperimentalXmlUtilApi
         public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @ExperimentalXmlUtilApi
@@ -298,6 +298,17 @@ private constructor(
             autoPolymorphic: Boolean = false,
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
         ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
+
+        public var autoPolymorphic: Boolean? = autoPolymorphic
+            get() = field ?: (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
+            set(value) {
+                field = value
+                if (value != null) {
+                    (policy as? DefaultXmlSerializationPolicy)?.also { p ->
+                        policy = p.copy(autoPolymorphic = value)
+                    }
+                }
+            }
 
         /**
          * Determines which default values are encoded.
