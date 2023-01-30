@@ -68,7 +68,7 @@ kotlin {
                 attribute(androidAttribute, false)
             }
             compilations.all {
-                compileKotlinTaskProvider.configure {
+                compileTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
 //                        freeCompilerArgs += argJvmDefault
@@ -85,6 +85,13 @@ kotlin {
                     }
                 }
             }
+            tasks.withType<Jar>().named(artifactsTaskName) {
+                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                    rename { "xmlutil-proguard.pro" }
+                    into("META-INF/proguard")
+                }
+            }
+
         }
         jvm("android") {
             attributes {
@@ -98,6 +105,21 @@ kotlin {
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+            }
+
+            tasks.withType<Jar>().named(artifactsTaskName) {
+                from(project.file("src/r8-workaround.pro")) {
+                    rename { "xmlutil-r8-workaround.pro" }
+                    into("META-INF/com.android.tools/r8")
+                }
+                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                    rename { "xmlutil-proguard.pro" }
+                    into("META-INF/com.android.tools/r8")
+                }
+                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                    rename { "xmlutil-proguard.pro" }
+                    into("META-INF/com.android.tools/proguard")
+                }
             }
         }
         js(BOTH) {
