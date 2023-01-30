@@ -187,22 +187,40 @@ class TestXSTestSuite {
     }
 
     private val expectedNonTested: Map<KSerializer<out XSI_OpenAttrs>, Map<String, NON_TESTED>> = mapOf(
-        XSSchema.serializer() to mapOf(
-            "defaultAttributes" to SEEN,
-            "xpathDefaultNamespace" to SEEN,
-            "overrides" to SEEN,
-            "defaultOpenContent" to SEEN,
-        ),
-        XSDocumentation.serializer() to mapOf("content" to ABSENT),
-        XSAppInfo.serializer() to mapOf("content" to ABSENT),
-        XSSimpleRestriction.serializer() to mapOf("otherContents" to SEEN),
-        XSAssertionFacet.serializer() to TAG_ABSENT,
-        XSExplicitTimezone.serializer() to TAG_ABSENT,
-        XSFractionDigits.serializer() to mapOf(
+        XSGroup.All.serializer() to mapOf(
             "annotations" to SEEN,
-        ),
-        XSLength.serializer() to mapOf(
+            "anys" to SEEN,
+            "groups" to SEEN,
             "id" to SEEN,
+            "otherAttrs" to SEEN,
+        ),
+        XSAll.serializer() to mapOf(
+            "groups" to SEEN,
+            "anys" to SEEN,
+        ),
+        XSAny.serializer() to mapOf(
+            "processContents" to SEEN,
+            "notQName" to SEEN,
+            "notNamespace" to SEEN,
+        ),
+        XSAnyAttribute.serializer() to mapOf(
+            "notQName" to SEEN,
+            "notNamespace" to SEEN,
+//            "processContents" to ABSENT,
+        ),
+        XSAppInfo.serializer() to mapOf("content" to ABSENT),
+//        XSAssert.serializer() to TAG_ABSENT,
+        XSAssert.serializer() to mapOf(
+            "id" to SEEN,
+            "asserts" to SEEN,
+            "openContents" to SEEN,
+        ),
+        XSAssertionFacet.serializer() to TAG_ABSENT,
+        XSDefaultOpenContent.serializer() to TAG_ABSENT,
+        XSDocumentation.serializer() to mapOf("content" to ABSENT),
+        XSExplicitTimezone.serializer() to TAG_ABSENT,
+        XSField.serializer() to mapOf("xpathDefaultNamespace" to SEEN),
+        XSFractionDigits.serializer() to mapOf(
             "annotations" to SEEN,
         ),
         XSMaxExclusive.serializer() to mapOf(
@@ -228,28 +246,7 @@ class TestXSTestSuite {
             "annotations" to SEEN,
         ),
         XSMinLength.serializer() to mapOf("annotations" to SEEN),
-        XSTotalDigits.serializer() to mapOf(
-            "fixed" to SEEN,
-            "id" to SEEN,
-            "annotations" to SEEN,
-        ),
         XSWhiteSpace.serializer() to mapOf("annotations" to SEEN),
-        XSTopLevelComplexType.serializer() to mapOf(
-            "abstract" to ABSENT,
-            "asserts" to SEEN,
-            "defaultAttributesApply" to SEEN,
-            "openContents" to SEEN,
-        ),
-        XSAnyAttribute.serializer() to mapOf(
-            "notQName" to SEEN,
-            "notNamespace" to SEEN,
-            "processContents" to ABSENT,
-        ),
-        XSAssert.serializer() to mapOf(
-            "id" to SEEN,
-            "asserts" to SEEN,
-            "openContents" to SEEN,
-        ),
         XSComplexContent.XSExtension.serializer() to mapOf(
             "openContents" to SEEN,
         ),
@@ -276,9 +273,9 @@ class TestXSTestSuite {
             "id" to SEEN,
             "annotations" to SEEN,
         ),
-        XSAll.serializer() to mapOf(
-            "groups" to SEEN,
-            "anys" to SEEN,
+        XSLength.serializer() to mapOf(
+            "id" to SEEN,
+            "annotations" to SEEN,
         ),
         XSLocalElement.serializer() to mapOf(
             // nillable particlesIc06
@@ -290,39 +287,49 @@ class TestXSTestSuite {
             "openContents" to SEEN,
             "defaultAttributesApply" to SEEN,
         ),
-        XSAny.serializer() to mapOf(
-            "processContents" to SEEN,
-            "notQName" to SEEN,
-            "notNamespace" to SEEN,
-        ),
-        XSAssert.serializer() to TAG_ABSENT,
-        XSLocalAttribute.serializer() to mapOf(
-            "inheritable" to SEEN,
-            "name" to ABSENT,
-            "targetNamespace" to SEEN,
-        ),
-        XSUnique.serializer() to mapOf(
-            "selector" to ABSENT,
-//            "fields" to ABSENT,
-            "ref" to SEEN,
-        ),
-        XSSelector.serializer() to mapOf("xpathDefaultNamespace" to SEEN),
-        XSField.serializer() to mapOf("xpathDefaultNamespace" to SEEN),
         XSKey.serializer() to mapOf(
-            "selector" to ABSENT,
+//            "selector" to ABSENT,
 //            "fields" to ABSENT,
-            "name" to ABSENT,
+//            "name" to ABSENT,
             "ref" to SEEN,
         ),
         XSKeyref.serializer() to mapOf(
-            "selector" to ABSENT,
+//            "selector" to ABSENT,
 //            "fields" to ABSENT,
-            "name" to ABSENT,
+//            "name" to ABSENT,
             "ref" to SEEN,
             "refer" to SEEN,
         ),
+        XSLocalAttribute.serializer() to mapOf(
+            "inheritable" to SEEN,
+//            "name" to ABSENT,
+            "targetNamespace" to SEEN,
+        ),
         XSOverride.serializer() to TAG_ABSENT,
-        XSDefaultOpenContent.serializer() to TAG_ABSENT,
+        XSSchema.serializer() to mapOf(
+            "defaultAttributes" to SEEN,
+            "xpathDefaultNamespace" to SEEN,
+            "overrides" to SEEN,
+            "defaultOpenContent" to SEEN,
+        ),
+        XSSelector.serializer() to mapOf("xpathDefaultNamespace" to SEEN),
+        XSSimpleRestriction.serializer() to mapOf("otherContents" to SEEN),
+        XSTopLevelComplexType.serializer() to mapOf(
+//            "abstract" to ABSENT,
+            "asserts" to SEEN,
+            "defaultAttributesApply" to SEEN,
+            "openContents" to SEEN,
+        ),
+        XSTotalDigits.serializer() to mapOf(
+            "fixed" to SEEN,
+            "id" to SEEN,
+            "annotations" to SEEN,
+        ),
+        XSUnique.serializer() to mapOf(
+//            "selector" to ABSENT,
+//            "fields" to ABSENT,
+            "ref" to SEEN,
+        ),
     )
 
     private suspend fun SequenceScope<DynamicNode>.testPropertyPresences(schemas: Sequence<XSSchema>) {
