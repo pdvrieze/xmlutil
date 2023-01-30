@@ -47,6 +47,8 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getPedantic ()Z
+	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
+	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 	public fun handleAttributeOrderConflict (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun handleUnknownContent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
 	public fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
@@ -67,6 +69,21 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
 	public fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
+}
+
+public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder {
+	public fun <init> ()V
+	public final fun build ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
+	public final fun getAutoPolymorphic ()Z
+	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getPedantic ()Z
+	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
+	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public final fun setAutoPolymorphic (Z)V
+	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
+	public final fun setPedantic (Z)V
+	public final fun setTypeDiscriminatorName (Ljavax/xml/namespace/QName;)V
+	public final fun setUnknownChildHandler (Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;)V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : kotlinx/serialization/KSerializer {
@@ -378,6 +395,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun defaultPolicy (Lkotlin/jvm/functions/Function1;)V
 	public final fun getAutoPolymorphic ()Ljava/lang/Boolean;
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getIndent ()I
@@ -391,6 +409,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
+	public final fun policyBuilder ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;
 	public final fun recommended ()V
 	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
 	public final fun setCollectingNSAttributes (Z)V

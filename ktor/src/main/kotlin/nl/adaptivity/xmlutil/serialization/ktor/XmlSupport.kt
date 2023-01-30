@@ -42,11 +42,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
  * See [Json] for more details.
  */
 public val DefaultXml: XML = XML {
-    policy = DefaultXmlSerializationPolicy(
-        pedantic = false,
-        autoPolymorphic = true,
+    defaultPolicy {
+        pedantic = false
+        autoPolymorphic = true
         encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-    )
+    }
 }
 
 /**

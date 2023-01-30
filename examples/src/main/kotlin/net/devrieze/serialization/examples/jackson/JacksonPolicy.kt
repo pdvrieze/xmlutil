@@ -20,11 +20,9 @@
 
 package net.devrieze.serialization.examples.jackson
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
-import nl.adaptivity.xmlutil.serialization.OutputKind
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 
 /**
@@ -70,4 +68,10 @@ object JacksonPolicy :
             ?: serialUseNameToQName(useName, tagParent.namespace)
     }
 
+}
+
+/** Extension function for elegant configuration */
+fun XmlConfig.Builder.jacksonPolicy() {
+    @OptIn(ExperimentalXmlUtilApi::class)
+    policy = JacksonPolicy
 }

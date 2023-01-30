@@ -237,8 +237,8 @@ public open class DefaultXmlSerializationPolicy
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean = false,
     public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-    private val unknownChildHandler: UnknownChildHandler,
-    private val typeDiscriminatorName: QName? = null,
+    public val unknownChildHandler: UnknownChildHandler,
+    public val typeDiscriminatorName: QName? = null,
 ) : XmlSerializationPolicy {
 
     @ExperimentalXmlUtilApi
@@ -298,6 +298,14 @@ public open class DefaultXmlSerializationPolicy
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
+    )
+
+    internal constructor(builder: Builder): this(
+        pedantic=builder.pedantic,
+        autoPolymorphic=builder.autoPolymorphic,
+        encodeDefault=builder.encodeDefault,
+        unknownChildHandler=builder.unknownChildHandler,
+        typeDiscriminatorName=builder.typeDiscriminatorName,
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -673,5 +681,23 @@ public open class DefaultXmlSerializationPolicy
             unknownChildHandler,
             typeDiscriminatorName
         )
+    }
+
+    public open class Builder internal constructor(
+        public var pedantic: Boolean = false,
+        public var autoPolymorphic: Boolean = false,
+        public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+        public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+        public var typeDiscriminatorName: QName? = null,
+    ) {
+        internal constructor(policy: DefaultXmlSerializationPolicy) : this (
+            pedantic = policy.pedantic,
+            autoPolymorphic = policy.autoPolymorphic,
+            encodeDefault = policy.encodeDefault,
+            unknownChildHandler = policy.unknownChildHandler,
+            typeDiscriminatorName = policy.typeDiscriminatorName,
+        )
+
+        public fun build(): XmlSerializationPolicy = DefaultXmlSerializationPolicy(this)
     }
 }

@@ -10,6 +10,11 @@ Features:
 - Add the possibility to specify namespace declarations that are ensured on
   tags (note that this does not yet participate in the namespace collating code)
 - Fix polymorphic usage of value classes as children of a sealed interface.
+- Add a `defaultPolicy` configurator to `XmlConfig.Builder` that allows more elegant
+  configuration of the default policy. Some of the properties that can
+  be specified on the `XmlConfig.Builder` have been deprecated in place of this
+  new (more robust) mechanism.
+
 Fixes:
 - Make actual serialization of maps (that are not attributes) work
 - Fix an infinite recursion bug in the namespace collection code that writes
@@ -23,6 +28,7 @@ Features:
   a non-transparent approach it is strongly advised to explicitly
   provide the tagname polymorphic types do not support annotations on
   the type. 
+
 Fixes:
 - Fix reading of entity references. #88
 - Fix NamedNodeMap iterator (an issue for dom based apis)
@@ -40,6 +46,7 @@ Fixes:
 Features:
 - Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
   an `@XmlValue` field of type `List<CompactFragment>`
+
 Fixes:
 - Fix storing comment events
 - Don't defer serializing inline values as that is not valid. This

@@ -205,17 +205,44 @@ private constructor(
      *                     but the function can silently ignore it as well.
      */
     @OptIn(ExperimentalSerializationApi::class)
-    public class Builder @ExperimentalXmlUtilApi constructor(
+    public class Builder
+    @ExperimentalXmlUtilApi
+    @Deprecated("This constructor has properties from the policy")
+    constructor(
         public var repairNamespaces: Boolean = true,
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
         autoPolymorphic: Boolean? = null,
-        @ExperimentalXmlUtilApi
-        public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @ExperimentalXmlUtilApi
         public var policy: XmlSerializationPolicy? = null
     ) {
 
+        @ExperimentalXmlUtilApi
+        @Deprecated("Use the policy instead")
+        public var unknownChildHandler: UnknownChildHandler? = unknownChildHandler
+
+        /**
+         * Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+         * [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
+         * become the default in the future although XmlPolyChildren will retain precedence (when present).
+         *
+         * This is a shortcut to the policy. If the policy has been set that value will be used.
+         * Note that if the policy has been set to a default policy and this property is set
+         * *afterwards*, the policy will automatically be updated.
+         */
+        public var autoPolymorphic: Boolean? = autoPolymorphic
+            get() = field ?: (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
+            set(value) {
+                field = value
+                if (value != null) {
+                    (policy as? DefaultXmlSerializationPolicy)?.also { p ->
+                        policy = p.copy(autoPolymorphic = value)
+                    }
+                }
+            }
+
+        @Deprecated("This constructor has properties from the policy")
         @ExperimentalXmlUtilApi
         public constructor(
             repairNamespaces: Boolean = true,
@@ -233,6 +260,7 @@ private constructor(
             policy
         )
 
+        @Suppress("DEPRECATION")
         @OptIn(ExperimentalXmlUtilApi::class)
         public constructor(config: XmlConfig) : this(
             config.repairNamespaces,
@@ -291,6 +319,7 @@ private constructor(
 
         @ExperimentalXmlUtilApi
         @OptIn(ExperimentalSerializationApi::class)
+        @Deprecated("This constructor has properties from the policy")
         public constructor(
             repairNamespaces: Boolean = true,
             xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
@@ -299,20 +328,10 @@ private constructor(
             unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
         ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
 
-        public var autoPolymorphic: Boolean? = autoPolymorphic
-            get() = field ?: (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
-            set(value) {
-                field = value
-                if (value != null) {
-                    (policy as? DefaultXmlSerializationPolicy)?.also { p ->
-                        policy = p.copy(autoPolymorphic = value)
-                    }
-                }
-            }
-
         /**
-         * Determines which default values are encoded.
+         * Determines which default values are encoded. This property gets forwarded to the policy
          */
+        @Deprecated("Use the policy instead")
         public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED
 
         /**
@@ -356,12 +375,21 @@ private constructor(
             autoPolymorphic = true
             isInlineCollapsed = true
             indent = 4
-            policy = DefaultXmlSerializationPolicy(
-                false,
-                QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX),
-                XmlEncodeDefault.ANNOTATED,
-                DEFAULT_UNKNOWN_CHILD_HANDLER
-            )
+            defaultPolicy {
+                pedantic = false
+                typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+                encodeDefault = XmlEncodeDefault.ANNOTATED
+            }
+        }
+
+        public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            policy = policyBuilder().apply(configure).build()
+        }
+
+        @PublishedApi
+        internal fun policyBuilder(): DefaultXmlSerializationPolicy.Builder = when (val p = policy){
+            is DefaultXmlSerializationPolicy -> DefaultXmlSerializationPolicy.Builder(p)
+            else -> DefaultXmlSerializationPolicy.Builder()
         }
     }
 

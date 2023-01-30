@@ -81,7 +81,7 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
 @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
 public class XML constructor(
     public val config: XmlConfig,
-    serializersModule: SerializersModule = EmptySerializersModule
+    serializersModule: SerializersModule = EmptySerializersModule()
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
@@ -109,22 +109,28 @@ public class XML constructor(
         repairNamespaces: Boolean = true,
         omitXmlDecl: Boolean = true,
         indent: Int = 0,
-        serializersModule: SerializersModule = EmptySerializersModule
+        serializersModule: SerializersModule = EmptySerializersModule()
     ) : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), serializersModule)
 
-    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule) :
+    @Deprecated("This version of the constructor has limits in future compatibility. Use the version that takes a configuration lambda")
+    @ExperimentalXmlUtilApi
+    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule()) :
             this(XmlConfig(config), serializersModule)
 
+    @Suppress("DEPRECATION")
     public constructor(
-        serializersModule: SerializersModule = EmptySerializersModule,
+        serializersModule: SerializersModule = EmptySerializersModule(),
         configure: XmlConfig.Builder.() -> Unit = {}
     ) : this(XmlConfig.Builder().apply(configure), serializersModule)
 
+    @Deprecated("This version of the copy function has limits in future compatibility. Use the version that takes a configuration lambda")
+    @ExperimentalXmlUtilApi
     public fun copy(
         config: XmlConfig = this.config,
         serializersModule: SerializersModule = this.serializersModule
     ): XML = XML(config, serializersModule)
 
+    @Suppress("DEPRECATION")
     public fun copy(
         serializersModule: SerializersModule = this.serializersModule,
         configure: XmlConfig.Builder.() -> Unit,
