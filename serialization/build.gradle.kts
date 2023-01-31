@@ -244,7 +244,7 @@ kotlin {
         }
 
         all {
-            if (name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
+            if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
                 languageSettings.enableLanguageFeature("InlineClasses")
                 dependencies {
                     implementation(kotlin("test-common"))
