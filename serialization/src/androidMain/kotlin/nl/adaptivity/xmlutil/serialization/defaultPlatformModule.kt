@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
-@OptIn(ExperimentalSerializationApi::class)
 @ExperimentalXmlUtilApi
 public actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
     contextual(Element::class, ElementSerializer)

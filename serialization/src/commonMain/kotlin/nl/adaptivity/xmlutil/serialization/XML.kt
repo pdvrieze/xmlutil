@@ -1114,7 +1114,6 @@ internal fun XmlDescriptor.getValueChild(): Int {
     return -1
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getAttrMap(): Int {
 
     for (i in 0 until elementsCount) {

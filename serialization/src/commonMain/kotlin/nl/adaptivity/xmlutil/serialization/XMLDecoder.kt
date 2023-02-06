@@ -81,25 +81,21 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeBoolean(): Boolean = decodeStringImpl().toBoolean()
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeByte(): Byte = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
             else -> decodeStringImpl().toByte()
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeShort(): Short = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUShort().toShort()
             else -> decodeStringImpl().toShort()
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeInt(): Int = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUInt().toInt()
             else -> decodeStringImpl().toInt()
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun decodeLong(): Long = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toULong().toLong()
             else -> decodeStringImpl().toLong()
@@ -126,7 +122,8 @@ internal open class XmlDecoderBase internal constructor(
      * @property attrIndex If this was instantiated to deserialize an attribute this parameter determines which
      *                     attribute it deserialize (index into the attribute list of the containing tag)
      */
-    internal open inner class XmlDecoder(
+    internal open inner class
+    XmlDecoder @OptIn(ExperimentalXmlUtilApi::class) constructor(
         xmlDescriptor: XmlDescriptor,
         protected val polyInfo: PolyInfo? = null,
         val attrIndex: Int = -1
@@ -145,7 +142,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         @ExperimentalSerializationApi
-        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        override fun decodeInline(descriptor: SerialDescriptor): Decoder {
             triggerInline = true
             return this
         }
@@ -182,6 +179,7 @@ internal open class XmlDecoderBase internal constructor(
             throw AssertionError("This should not happen as decodeSerializableValue should be called first")
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             val deser: DeserializationStrategy<T> = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
             /*
@@ -211,7 +209,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeNotNullMark(): Boolean = true
 
         @ExperimentalSerializationApi
-        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        override fun decodeInline(descriptor: SerialDescriptor): Decoder {
             return StringDecoder(xmlDescriptor.getElementDescriptor(0), stringValue)
         }
 
@@ -228,6 +226,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private open inner class SerialValueDecoder(
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?/* = null*/,
@@ -364,6 +363,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     internal open inner class TagDecoder<D : XmlDescriptor>(
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
@@ -541,7 +541,6 @@ internal open class XmlDecoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder {
-            @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return DummyDecoder(it) }
 
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
@@ -978,7 +977,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeFloat(): Float = throw UnsupportedOperationException("Expect map structure")
 
         @ExperimentalSerializationApi
-        override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+        override fun decodeInline(descriptor: SerialDescriptor): Decoder {
             return this
         }
 
@@ -997,7 +996,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeString(): String = throw UnsupportedOperationException("Expect map structure")
     }
 
-    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, val attrIndex: Int) :
+    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, attrIndex: Int) :
         TagDecoder<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
         private val attrValues = input.getAttributeValue(attrIndex)
@@ -1029,6 +1028,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private inner class AnonymousListDecoder(
         xmlDescriptor: XmlListDescriptor,
         private val polyInfo: PolyInfo?,
@@ -1123,6 +1123,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private inner abstract class MapDecoderBase(
         xmlDescriptor: XmlMapDescriptor,
         private val polyInfo: PolyInfo?,
@@ -1164,6 +1165,7 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private inner class AnonymousMapDecoder(
         xmlDescriptor: XmlMapDescriptor,
         polyInfo: PolyInfo?,
@@ -1213,6 +1215,7 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private inner class NamedMapDecoder(
         xmlDescriptor: XmlMapDescriptor,
         polyInfo: PolyInfo?,
@@ -1220,7 +1223,6 @@ internal open class XmlDecoderBase internal constructor(
     ) : MapDecoderBase(xmlDescriptor, polyInfo, typeDiscriminatorName) {
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            val rawIndex: Int
 
             if (!xmlDescriptor.isValueCollapsed) {
                 // TODO - This is broken
@@ -1245,7 +1247,6 @@ internal open class XmlDecoderBase internal constructor(
             return lastIndex
         }
 
-        @OptIn(InternalSerializationApi::class)
         override fun <T> decodeSerializableElement(
             descriptor: SerialDescriptor,
             index: Int,
@@ -1268,6 +1269,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = -1
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class)
     private inner class PolymorphicDecoder(
         xmlDescriptor: XmlPolymorphicDescriptor,
         private val polyInfo: PolyInfo?
@@ -1436,6 +1438,7 @@ public data class PolyInfo(
     val descriptor: XmlDescriptor
 ) {
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal val describedName get() = descriptor.serialDescriptor.serialName
 
 }

@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.util.ICompactFragment
 @Suppress("NOTHING_TO_INLINE")
 public inline fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> = CompactFragmentSerializer
 
-@OptIn(WillBePrivate::class, kotlinx.serialization.ExperimentalSerializationApi::class)
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializer(forClass = CompactFragment::class)
 public object CompactFragmentSerializer : KSerializer<CompactFragment> {
     private val namespacesSerializer = ListSerializer(Namespace)

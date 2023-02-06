@@ -157,7 +157,6 @@ internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNa
     }
 
     @Suppress("OverridingDeprecatedMember")
-    @OptIn(ExperimentalStdlibApi::class)
     override fun getPrefixes(namespaceURI: String): Iterator<String?> {
         return buildSet {
             localNamespaces.asSequence()

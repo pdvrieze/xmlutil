@@ -466,7 +466,6 @@ public class XmlInlineDescriptor internal constructor(
         get() = child.preserveSpace
 
     init {
-        @OptIn(ExperimentalSerializationApi::class)
         if (!serializerParent.elementSerialDescriptor.isInline) {
             throw AssertionError("InlineDescriptors are only valid for inline classes")
         }
@@ -546,7 +545,6 @@ public class XmlInlineDescriptor internal constructor(
     }
 
     private companion object {
-        @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
         val UNSIGNED_SERIALIZER_DESCRIPTORS: Array<SerialDescriptor> = arrayOf(
             UByte.serializer().descriptor,
             UShort.serializer().descriptor,
@@ -840,6 +838,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     public val parentSerialName: String? =
         tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.serialName
 
+    @OptIn(WillBePrivate::class) // the type ParentInfo should become internal
     private val children by lazy {
         List(elementsCount) { index ->
             val canBeAttribute = index == 0
@@ -945,6 +944,7 @@ public sealed class XmlListLikeDescriptor constructor(
     @ExperimentalXmlUtilApi
     override final val preserveSpace: Boolean get() = false
 
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -959,6 +959,7 @@ public sealed class XmlListLikeDescriptor constructor(
         return true
     }
 
+    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + isListEluded.hashCode()
@@ -1247,7 +1248,6 @@ private class DetachedParent(
 
     override val descriptor: SafeXmlDescriptor? get() = null
 
-    @OptIn(ExperimentalSerializationApi::class)
     override val parentIsInline: Boolean get() = serialDescriptor.isInline
 
     override val elementTypeDescriptor

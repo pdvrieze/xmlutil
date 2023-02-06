@@ -92,7 +92,6 @@ data class XmlFruit(
     /**
      * Simple serializer that serializes a [FruitType] as the string in its property [FruitType.serialName].
      */
-    @OptIn(ExperimentalSerializationApi::class)
     class FruitTypeSerializer: KSerializer<FruitType> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(FruitTypeSerializer::class.name, PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): FruitType = FruitType.values().first { decoder.decodeString() == it.serialName }
