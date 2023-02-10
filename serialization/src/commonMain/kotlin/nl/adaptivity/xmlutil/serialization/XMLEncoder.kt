@@ -122,6 +122,12 @@ internal open class XmlEncoderBase internal constructor(
                             val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
                             smartWriteAttribute(discriminatorName, typeRef.toCName())
                         }
+                        // Write the xml preserve attribute if the values starts or ends with whitespace
+                        if (! xmlDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                            // this uses attribute directly as no namespace declaration is valid/needed
+                            target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
+                        }
+
                         if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
@@ -617,14 +623,27 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Inline, // Treat inline as if it was element if it occurs (shouldn't happen)
                 OutputKind.Element -> defer(index) {
                     target.smartStartTag(elementDescriptor.tagName) {
+                        // Write the xml preserve attribute if the values starts or ends with whitespace
+                        if (! elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                            // this uses attribute directly as no namespace declaration is valid/needed
+                            target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
+                        }
+
                         if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
                     }
                 }
 
                 OutputKind.Attribute -> doWriteAttribute(index, elementDescriptor.tagName, value)
                 OutputKind.Mixed,
-                OutputKind.Text -> defer(index) {
-                    if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
+                OutputKind.Text -> {
+                    // Write the xml preserve attribute if the values starts or ends with whitespace
+                    if (! elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                        // this uses attribute directly as no namespace declaration is valid/needed
+                        target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
+                    }
+                    defer(index) {
+                        if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
+                    }
                 }
             }
         }

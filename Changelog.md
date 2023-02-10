@@ -14,12 +14,17 @@ Features:
   configuration of the default policy. Some of the properties that can
   be specified on the `XmlConfig.Builder` have been deprecated in place of this
   new (more robust) mechanism.
+- Now when a tag is marked to not preserve space (preserving is the default),
+  but when the value starts or ends with whitespace this will result the
+  xml:space="preserve" attribute to be emitted. The decoder will also honour
+  this attribute over default behaviour for that type.
 
 Fixes:
 - Make actual serialization of maps (that are not attributes) work
 - Fix an infinite recursion bug in the namespace collection code that writes
   namespace declarations on the top level.
 - Fix writing codepoints > 0x10000 that require surrogate pairs.
+- Fix whitespace handling #120
 
 # 0.84.3
 *(Sep 25, 2022)<br />*

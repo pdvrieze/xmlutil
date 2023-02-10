@@ -34,6 +34,7 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.impl.DummyDecoder
@@ -166,7 +167,11 @@ internal open class XmlDecoderBase internal constructor(
 
                     OutputKind.Inline -> throw SerializationException("Inline classes can not be decoded directly")
                     OutputKind.Mixed -> input.allConsecutiveTextContent()//.also { input.next() } // Move to the next element
-                    OutputKind.Text -> input.allText()
+                    OutputKind.Text -> if (xmlDescriptor.preserveSpace) {
+                        input.allConsecutiveTextContent()
+                    } else {
+                        input.allText()
+                    }
                 }
             }
             return when {
@@ -372,6 +377,8 @@ internal open class XmlDecoderBase internal constructor(
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
+
+        private var preserveWhitespace = xmlDescriptor.preserveSpace
 
         protected val attrCount: Int = if (input.eventType == EventType.START_ELEMENT) input.attributeCount else 0
         private val tagDepth: Int = input.depth
@@ -691,6 +698,13 @@ internal open class XmlDecoderBase internal constructor(
                 ) {
                     // Ignore namespace decls, just recursively call the function itself
                     return decodeElementIndex(descriptor)
+                } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
+                    when (input.getAttributeValue(lastAttrIndex)) {
+                        "preserve" -> preserveWhitespace = true
+                        "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
+                    }
+                    // Use the value of the attribute, then just go the next attribute
+                    return decodeElementIndex(descriptor)
                 }
 
                 // The ifNegative function will recursively call this function if we didn't find it (and the handler
@@ -718,10 +732,13 @@ internal open class XmlDecoderBase internal constructor(
                         val valueChild = descriptor.getValueChild()
                         if (input.isWhitespace()) {
                             if (valueChild != CompositeDecoder.UNKNOWN_NAME &&
-                                xmlDescriptor.getElementDescriptor(valueChild).kind == StructureKind.LIST &&
-                                xmlDescriptor.preserveSpace
+                                preserveWhitespace
                             ) {
-                                return valueChild // We can handle whitespace
+                                val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
+                                if (valueKind == StructureKind.LIST || valueKind == PrimitiveKind.STRING
+                                ) {
+                                    return valueChild // We can handle whitespace
+                                }
                             }
                         } else if (!input.isWhitespace()) {
                             return valueChild.ifUnknown {
