@@ -21,6 +21,7 @@
 package nl.adaptivity.xml.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -59,6 +60,17 @@ class WhitespaceTest : PlatformTestBase<WhitespaceTest.WhitespaceContainers>(
         assertContains(encoded, "xml:space")
     }
 
+    @Test
+    fun testIssue120Example2() {
+        val data = A(listOf(
+            B(Text("Cc. ")),
+            B(Text("     ")),
+            B(Text("  hello"))
+            ))
+        val actual = baseXmlFormat.encodeToString(data)
+        assertEquals("", actual)
+    }
+
     @Serializable
     data class WhitespaceContainers(val elements: List<WhitespaceContainer>) {
         constructor(vararg elements: WhitespaceContainer): this(listOf(*elements))
@@ -76,6 +88,26 @@ class WhitespaceTest : PlatformTestBase<WhitespaceTest.WhitespaceContainers>(
         @XmlValue(true)
         @XmlIgnoreWhitespace(true)
         val text: String
+    )
+
+    @Serializable
+    data class A(
+        @SerialName("B")
+        val b: List<B>
+    )
+    @Serializable
+    data class B(
+        @XmlElement(true)
+        @XmlSerialName("text", "", "")
+        val text: Text
+    ){
+
+    }
+    @Serializable
+    data class Text(
+        @XmlValue(true)
+        @XmlIgnoreWhitespace(false)
+        var value:String,
     )
 
 }
