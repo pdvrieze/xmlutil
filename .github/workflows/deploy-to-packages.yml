@@ -14,7 +14,7 @@ jobs:
             repository_id: ${{ steps.create.outputs.repository_id }}
         steps:
             -   id: create
-                uses: nexus-actions/create-nexus-staging-repo@v1.1
+                uses: nexus-actions/create-nexus-staging-repo@v1.2
                 with:
                     username: ${{ secrets.OSSRH_USERNAME }}
                     password: ${{ secrets.OSSRH_PASSWORD }}
@@ -34,21 +34,21 @@ jobs:
                 os: [ macOs-latest, windows-latest, ubuntu-latest ]
         steps:
             -   name: Checkout
-                uses: actions/checkout@v3
+                uses: actions/checkout@v3.3.0
             -   name: Cached konan
-                uses: actions/cache@v2
+                uses: actions/cache@v3.2.5
                 with:
                     path: ~/.konan
                     key: ${{ runner.os }}-konan-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
                     restore-keys: ${{ runner.os }}-konan-
             -   name: Set up JDK 11
-                uses: actions/setup-java@v3
+                uses: actions/setup-java@v3.10.0
                 with:
                     java-version: '11'
                     distribution: 'adopt'
             -   id: cache-gradle-windows
                 name: Set up gradle
-                uses: gradle/gradle-build-action@v2
+                uses: gradle/gradle-build-action@v2.3.3
             -   name: Check (macos / windows)
                 if: matrix.os != 'ubuntu-latest'
                 run: ./gradlew nativeTest --stacktrace
