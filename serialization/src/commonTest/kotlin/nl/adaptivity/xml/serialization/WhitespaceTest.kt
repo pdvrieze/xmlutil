@@ -68,7 +68,7 @@ class WhitespaceTest : PlatformTestBase<WhitespaceTest.WhitespaceContainers>(
             B(Text("  hello"))
             ))
         val actual = baseXmlFormat.encodeToString(data)
-        assertEquals("", actual)
+        assertEquals("<A><B><text>Cc. </text></B><B><text>     </text></B><B><text>  hello</text></B></A>", actual)
     }
 
     @Serializable
