@@ -14,6 +14,10 @@ Features:
   configuration of the default policy. Some of the properties that can
   be specified on the `XmlConfig.Builder` have been deprecated in place of this
   new (more robust) mechanism.
+- Within the default policy builder add support for configuring the unknown
+  child handling with some defaults: `ignoreUnknownChildren` and
+  `ignoreUnknownNamespace`. Note that these are shortcuts to setting an explicit
+  handler.
 - Now when a tag is marked to not preserve space (preserving is the default),
   but when the value starts or ends with whitespace this will result the
   xml:space="preserve" attribute to be emitted. The decoder will also honour
@@ -25,6 +29,7 @@ Fixes:
   namespace declarations on the top level.
 - Fix writing codepoints > 0x10000 that require surrogate pairs.
 - Fix whitespace handling #120
+- Remove stale logging code: #119
 
 # 0.84.3
 *(Sep 25, 2022)<br />*

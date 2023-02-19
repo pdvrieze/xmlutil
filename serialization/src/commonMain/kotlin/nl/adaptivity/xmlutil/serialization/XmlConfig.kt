@@ -211,14 +211,13 @@ private constructor(
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
         autoPolymorphic: Boolean? = null,
-        unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
+        @ExperimentalXmlUtilApi
+        @Deprecated("Use the policy instead")
+        public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         @ExperimentalXmlUtilApi
         public var policy: XmlSerializationPolicy? = null
     ) {
 
-        @ExperimentalXmlUtilApi
-        @Deprecated("Use the policy instead")
-        public var unknownChildHandler: UnknownChildHandler? = unknownChildHandler
 
         /**
          * Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
@@ -229,6 +228,7 @@ private constructor(
          * Note that if the policy has been set to a default policy and this property is set
          * *afterwards*, the policy will automatically be updated.
          */
+        @OptIn(ExperimentalXmlUtilApi::class)
         public var autoPolymorphic: Boolean? = autoPolymorphic
             get() = field ?: (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
             set(value) {
@@ -240,6 +240,7 @@ private constructor(
                 }
             }
 
+        @Suppress("DEPRECATION")
         @Deprecated("This constructor has properties from the policy")
         @ExperimentalXmlUtilApi
         public constructor(
@@ -379,10 +380,17 @@ private constructor(
             }
         }
 
+        public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            recommended()
+            policyBuilder().apply(configurePolicy)
+        }
+
+        @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             policy = policyBuilder().apply(configure).build()
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         @PublishedApi
         internal fun policyBuilder(): DefaultXmlSerializationPolicy.Builder = when (val p = policy) {
             is DefaultXmlSerializationPolicy -> DefaultXmlSerializationPolicy.Builder(p)
@@ -391,7 +399,6 @@ private constructor(
     }
 
     public companion object {
-        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         public val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
@@ -406,8 +413,32 @@ private constructor(
                 }
             }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
+        public val IGNORING_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
+            UnknownChildHandler { _, _, descriptor, _, _ ->
+                emptyList()
+            }
+
+        @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
+        public val IGNORING_UNKNOWN_NAMESPACE_HANDLER: UnknownChildHandler =
+            UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+                val inputNs = input.namespaceURI
+                val contextNs = descriptor.tagName.namespaceURI
+
+                if (inputNs != contextNs || (inputKind == InputKind.Attribute && name?.namespaceURI == XMLConstants.XSI_NS_URI)) {
+                    emptyList()
+                } else {
+                    throw UnknownXmlFieldException(
+                        input.locationInfo,
+                        "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)",
+                        candidates
+                    )
+                }
+            }
+
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         @OptIn(ExperimentalXmlUtilApi::class)
+        @Deprecated("Use UnknownChildHander instead that supports recovering from unknown children")
         public val DEFAULT_NONRECOVERABLE_CHILD_HANDLER: NonRecoveryUnknownChildHandler =
             { input, inputKind, name, candidates ->
                 throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)

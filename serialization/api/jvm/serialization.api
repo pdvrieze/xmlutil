@@ -79,6 +79,8 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun getPedantic ()Z
 	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
 	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public final fun ignoreNamespaces ()V
+	public final fun ignoreUnknownChildren ()V
 	public final fun setAutoPolymorphic (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setPedantic (Z)V
@@ -411,6 +413,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun isInlineCollapsed ()Z
 	public final fun policyBuilder ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;
 	public final fun recommended ()V
+	public final fun recommended (Lkotlin/jvm/functions/Function1;)V
 	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
 	public final fun setCollectingNSAttributes (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
@@ -429,6 +432,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Companion {
 	public final fun getDEFAULT_NONRECOVERABLE_CHILD_HANDLER ()Lkotlin/jvm/functions/Function4;
 	public final fun getDEFAULT_UNKNOWN_CHILD_HANDLER ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public final fun getIGNORING_UNKNOWN_CHILD_HANDLER ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public final fun getIGNORING_UNKNOWN_NAMESPACE_HANDLER ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 }
 
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlDefault : java/lang/annotation/Annotation {

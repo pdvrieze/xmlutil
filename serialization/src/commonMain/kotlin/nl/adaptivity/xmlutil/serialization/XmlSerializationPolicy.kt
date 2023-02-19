@@ -292,20 +292,19 @@ public open class DefaultXmlSerializationPolicy
         unknownChildHandler = original?.let { orig -> // If there is an original, get from it
             (orig as? DefaultXmlSerializationPolicy)?.unknownChildHandler // take the existing one if present
                 ?: UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
-                    orig.handleUnknownContentRecovering(input, inputKind, descriptor, name,
-                        candidates as Collection<PolyInfo>
-                    )
+                    orig.handleUnknownContentRecovering(input, inputKind, descriptor, name, candidates)
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
     )
 
-    internal constructor(builder: Builder): this(
-        pedantic=builder.pedantic,
-        autoPolymorphic=builder.autoPolymorphic,
-        encodeDefault=builder.encodeDefault,
-        unknownChildHandler=builder.unknownChildHandler,
-        typeDiscriminatorName=builder.typeDiscriminatorName,
+    @OptIn(ExperimentalXmlUtilApi::class)
+    internal constructor(builder: Builder) : this(
+        pedantic = builder.pedantic,
+        autoPolymorphic = builder.autoPolymorphic,
+        encodeDefault = builder.encodeDefault,
+        unknownChildHandler = builder.unknownChildHandler,
+        typeDiscriminatorName = builder.typeDiscriminatorName,
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -635,6 +634,7 @@ public open class DefaultXmlSerializationPolicy
         return true
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> {
         val annotations = (serializerParent.elementUseAnnotations.asSequence() +
@@ -683,20 +683,30 @@ public open class DefaultXmlSerializationPolicy
         )
     }
 
-    public open class Builder internal constructor(
+    @OptIn(ExperimentalXmlUtilApi::class)
+    public open class Builder
+    internal constructor(
         public var pedantic: Boolean = false,
         public var autoPolymorphic: Boolean = false,
         public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
         public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
         public var typeDiscriminatorName: QName? = null,
     ) {
-        internal constructor(policy: DefaultXmlSerializationPolicy) : this (
+        internal constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,
             autoPolymorphic = policy.autoPolymorphic,
             encodeDefault = policy.encodeDefault,
             unknownChildHandler = policy.unknownChildHandler,
             typeDiscriminatorName = policy.typeDiscriminatorName,
         )
+
+        public fun ignoreUnknownChildren() {
+            unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_CHILD_HANDLER
+        }
+
+        public fun ignoreNamespaces() {
+            unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
+        }
 
         public fun build(): XmlSerializationPolicy = DefaultXmlSerializationPolicy(this)
     }
