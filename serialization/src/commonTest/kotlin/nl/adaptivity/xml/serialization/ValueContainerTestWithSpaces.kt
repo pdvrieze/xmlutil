@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class ValueContainerTestWithSpaces : PlatformTestBase<ValueContainerTestWithSpaces.ValueContainer>(
     ExpectedSerialization.valueContainerWithSpacesObj,
     ValueContainer.serializer()
-                                                                                          ) {
+) {
     override val expectedXML: String = ExpectedSerialization.valueContainerWithSpacesXml
     override val expectedJson: String = ExpectedSerialization.valueContainerWithSpacesJson
 
@@ -41,6 +41,6 @@ class ValueContainerTestWithSpaces : PlatformTestBase<ValueContainerTestWithSpac
 
     @Serializable
     @XmlSerialName("valueContainer")
-    data class ValueContainer(@XmlValue val content:String)
+    data class ValueContainer(@XmlValue val content: String)
 
 }

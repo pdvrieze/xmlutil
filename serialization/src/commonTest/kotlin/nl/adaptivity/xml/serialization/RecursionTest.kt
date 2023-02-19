@@ -31,10 +31,10 @@ class RecursionTest : PlatformTestBase<RecursionTest.RecursiveContainer>(
         listOf(
             RecursiveContainer(listOf(RecursiveContainer(), RecursiveContainer())),
             RecursiveContainer()
-              )
-                      ),
+        )
+    ),
     RecursiveContainer.serializer()
-                                                                ) {
+) {
     override val expectedXML: String = "<rec><rec><rec/><rec/></rec><rec/></rec>"
     override val expectedJson: String = "{\"values\":[{\"values\":[{\"values\":[]},{\"values\":[]}]},{\"values\":[]}]}"
 

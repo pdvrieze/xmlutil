@@ -19,22 +19,27 @@
  */
 
 @file:UseSerializers(QNameSerializer::class)
+@file:OptIn(ExperimentalXmlUtilApi::class)
 
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.json.Json
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
+
 import kotlin.test.Test
+import kotlin.test.assertContains
 
 class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Container>(
     Container(Child1(Child2(QName("urn:foo", "bar", "baz")))),
-    Container.serializer(),baseXmlFormat = XML { isCollectingNSAttributes = true }
-                                                                           ) {
+    Container.serializer(),
+    baseXmlFormat = XML { isCollectingNSAttributes = true },
+    baseJsonFormat = Json { encodeDefaults = false }
+) {
     override val expectedXML: String =
         "<container xmlns=\"urn:example.org\" xmlns:prefix2=\"urn:example.org/3\" xmlns:prefix3=\"urn:example.org/4\" xmlns:baz=\"urn:foo\"><prefix2:child1><prefix3:child2><prefix3:child>baz:bar</prefix3:child></prefix3:child2></prefix2:child1></container>"
     override val expectedJson: String =
@@ -45,18 +50,28 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
         super.testGenericSerializeXml()
     }
 
+    @Test
+    fun testNamespaceDecls() {
+        val xml = XML { isCollectingNSAttributes = false }
+        val serialized = xml.encodeToString(serializer, value)
+        assertContains(serialized, "xmlns:prefix5=\"urn:example.org/5\"")
+        assertContains(serialized, "xmlns:prefix6=\"urn:example.org/6\"")
+    }
+
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
     @XmlSerialName("child1", namespace = "urn:example.org/3", prefix = "prefix2")
-    data class Child1(val child: Child2)
+    @XmlNamespaceDeclSpec("prefix2=urn:example.org/5")
+    data class Child1(val child: Child2, val otherChild: Child1? = null)
 
     @Serializable
     @XmlSerialName("child2", namespace = "urn:example.org/4", prefix = "prefix3")
-    data class Child2(@XmlElement(true) val child: QName)
+    data class Child2(@XmlElement(true) val child: QName, val nestedContainer: Container? = null)
 
 
     @Serializable
+    @XmlNamespaceDeclSpec("prefix5=urn:example.org/5;prefix6=urn:example.org/6")
     @XmlSerialName("container", namespace = "urn:example.org", prefix = "")
     data class Container(val child: Child1)
 

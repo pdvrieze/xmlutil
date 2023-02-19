@@ -31,8 +31,6 @@ import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import nl.adaptivity.xmlutil.dom.Element
-import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
@@ -83,7 +81,7 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
 @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
 public class XML constructor(
     public val config: XmlConfig,
-    serializersModule: SerializersModule = EmptySerializersModule
+    serializersModule: SerializersModule = EmptySerializersModule()
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
@@ -111,22 +109,28 @@ public class XML constructor(
         repairNamespaces: Boolean = true,
         omitXmlDecl: Boolean = true,
         indent: Int = 0,
-        serializersModule: SerializersModule = EmptySerializersModule
+        serializersModule: SerializersModule = EmptySerializersModule()
     ) : this(XmlConfig(repairNamespaces, omitXmlDecl, indent), serializersModule)
 
-    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule) :
+    @Deprecated("This version of the constructor has limits in future compatibility. Use the version that takes a configuration lambda")
+    @ExperimentalXmlUtilApi
+    public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule()) :
             this(XmlConfig(config), serializersModule)
 
+    @Suppress("DEPRECATION")
     public constructor(
-        serializersModule: SerializersModule = EmptySerializersModule,
+        serializersModule: SerializersModule = EmptySerializersModule(),
         configure: XmlConfig.Builder.() -> Unit = {}
     ) : this(XmlConfig.Builder().apply(configure), serializersModule)
 
+    @Deprecated("This version of the copy function has limits in future compatibility. Use the version that takes a configuration lambda")
+    @ExperimentalXmlUtilApi
     public fun copy(
         config: XmlConfig = this.config,
         serializersModule: SerializersModule = this.serializersModule
     ): XML = XML(config, serializersModule)
 
+    @Suppress("DEPRECATION")
     public fun copy(
         serializersModule: SerializersModule = this.serializersModule,
         configure: XmlConfig.Builder.() -> Unit,
@@ -271,6 +275,7 @@ public class XML constructor(
         val namespaceToPrefixMap = HashMap<String, String>()
 
         val pendingNamespaces = HashSet<String>()
+        val seenDescriptors = HashSet<XmlDescriptor>()
 
         fun collect(prefix: String, namespaceUri: String) {
             if (namespaceUri !in namespaceToPrefixMap) {
@@ -296,7 +301,10 @@ public class XML constructor(
                 if (childDescriptor.overriddenSerializer == XmlQNameSerializer) {
                     throw QNamePresentException()
                 }
-                collect(childDescriptor)
+                if (childDescriptor !in seenDescriptors) {
+                    seenDescriptors.add(childDescriptor)
+                    collect(childDescriptor)
+                }
             }
 
             // TODO collect children
@@ -403,7 +411,7 @@ public class XML constructor(
             val tagName = reader.name
             polyInfo.values.singleOrNull {
                 tagName.isEquivalent(it.tagName)
-            }?.let { XmlDecoderBase.PolyInfo(tagName, 0, it) }
+            }?.let { PolyInfo(tagName, 0, it) }
         }
 
         val decoder = xmlDecoderBase.XmlDecoder(
@@ -1106,7 +1114,6 @@ internal fun XmlDescriptor.getValueChild(): Int {
     return -1
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getAttrMap(): Int {
 
     for (i in 0 until elementsCount) {

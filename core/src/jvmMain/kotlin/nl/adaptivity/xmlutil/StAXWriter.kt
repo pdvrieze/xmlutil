@@ -209,9 +209,9 @@ public class StAXWriter(
     @Throws(XmlException::class)
     override fun endDocument() {
         assert(state == State.StartDocWritten)
-        state = State.EndDocWritten
         assert(pendingWrites.isEmpty()) // no pending start tags allowed here
         assert(depth == 0) // Don't write this until really the end of the document
+        state = State.EndDocWritten
         try {
             delegate.writeEndDocument()
         } catch (e: XMLStreamException) {

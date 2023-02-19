@@ -33,8 +33,10 @@ val fruits: List<Fruit> = listOf(
 
 fun main() {
     val xml = XML {
-        @OptIn(ExperimentalXmlUtilApi::class)
-        policy = DefaultXmlSerializationPolicy(pedantic = true, autoPolymorphic = false)
+        defaultPolicy {
+            pedantic = true
+            autoPolymorphic = false
+        }
     }
 
     println("Example fruits as XML:")
@@ -58,6 +60,7 @@ fun main() {
                 val a: Apple = fruit
                 xml.encodeToString(a)
             }
+
             is Tomato -> {
                 s = Tomato.serializer()
                 val t: Tomato = fruit

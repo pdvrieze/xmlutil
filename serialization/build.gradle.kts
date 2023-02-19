@@ -152,6 +152,10 @@ kotlin {
             }
         }
 
+        val inlineSupportTest by creating {
+            dependsOn(commonMain)
+        }
+
         val javaShared by creating {
             dependsOn(commonMain)
         }
@@ -159,6 +163,7 @@ kotlin {
         val javaSharedTest by creating {
             languageSettings.enableLanguageFeature("InlineClasses")
 
+            dependsOn(inlineSupportTest)
             dependsOn(javaShared)
             dependsOn(commonTest)
         }
@@ -239,9 +244,20 @@ kotlin {
         }
 
         all {
+            if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
+                languageSettings.enableLanguageFeature("InlineClasses")
+                dependencies {
+                    implementation(kotlin("test-common"))
+                    implementation(kotlin("test-annotations-common"))
+                }
+
+                dependsOn(this@sourceSets.get("nativeMain"))
+                dependsOn(inlineSupportTest)
+            }
+            logger.lifecycle("Source set: ${this.name}")
             languageSettings.apply {
-                languageVersion = "1.6"
-                apiVersion = "1.6"
+                languageVersion = "1.7"
+                apiVersion = "1.7"
                 optIn("kotlin.RequiresOptIn")
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }

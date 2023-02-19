@@ -35,6 +35,7 @@ private val Node.isCharacterData: Boolean
         NodeConsts.TEXT_NODE,
         NodeConsts.CDATA_SECTION_NODE,
         NodeConsts.COMMENT_NODE -> true
+
         else -> false
     }
 
@@ -57,8 +58,10 @@ private fun NodeList.asSequence(): Sequence<Node> {
 fun assertDomEquals(expected: Node, actual: Node): Unit = when {
     expected.nodeType != actual.nodeType
     -> throw AssertionError("Node types for $expected and $actual are not the same")
+
     expected.nodeType == NodeConsts.DOCUMENT_NODE
     -> assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
+
     expected.isElement -> assertElementEquals(expected as Element, actual as Element)
     expected.isCharacterData -> assertEquals(expected.textContent, actual.textContent)
 
@@ -79,7 +82,11 @@ private fun assertElementEquals(expected: Element, actual: Element) {
 //    val actualString = actual.outerHTML
 
 //    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: ${expectedString} & ${actualString}")
-    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: $expectedAttrsSorted != $actualAttrsSorted")
+    assertEquals(
+        expectedAttrsSorted.size,
+        actualAttrsSorted.size,
+        "Sorted attribute counts should match: $expectedAttrsSorted != $actualAttrsSorted"
+    )
     for ((idx, expectedAttr) in expectedAttrsSorted.withIndex()) {
         val actualAttr = actualAttrsSorted[idx]
         assertEquals(expectedAttr.namespaceURI ?: "", actualAttr.namespaceURI ?: "")
@@ -114,6 +121,7 @@ private fun Sequence<Node>.mergeText(): Sequence<Node> {
                     pendingString.append((n as Text).data)
                     document = n.ownerDocument
                 }
+
                 else -> {
                     if (pendingString.isNotEmpty()) {
                         yield(document!!.createTextNode(pendingString.toString()))

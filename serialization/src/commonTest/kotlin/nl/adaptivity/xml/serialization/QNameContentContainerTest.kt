@@ -35,9 +35,9 @@ class QNameContentContainerTest : PlatformTestBase<QNameContentContainerTest.Con
         "ABC Corp",
         QName("urn:foo", "bar", "baz"),
         QName("urn:example.org/2", "MyValue", "ns1"),
-             ),
+    ),
     Container.serializer()
-                                                                               ) {
+) {
     override val expectedXML: String =
         "<container xmlns=\"urn:example.org\" xmlns:baz=\"urn:foo\" xmlns:ns1=\"urn:example.org/2\" param=\"ABC Corp\" name=\"baz:bar\"><value>ns1:MyValue</value></container>"
     override val expectedJson: String =

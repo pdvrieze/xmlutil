@@ -26,7 +26,7 @@ import nl.adaptivity.xml.serialization.PlatformTestBase
 class AContainerWithSealedChild : PlatformTestBase<AContainerWithSealedChild.SealedSingle>(
     SealedSingle("mySealed", SealedA("a-data")),
     SealedSingle.serializer()
-                                                                                  ) {
+) {
     override val expectedXML: String
         get() = "<SealedSingle name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/></SealedSingle>"
     override val expectedJson: String

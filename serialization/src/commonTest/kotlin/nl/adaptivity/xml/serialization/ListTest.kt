@@ -30,13 +30,13 @@ import kotlin.test.assertEquals
 class ListTest : PlatformTestBase<ListTest.SimpleList>(
     SimpleList("1", "2", "3"),
     SimpleList.serializer()
-                                              ) {
+) {
     override val expectedXML: String = "<l><value>1</value><value>2</value><value>3</value></l>"
     override val expectedJson: String = "{\"values\":[\"1\",\"2\",\"3\"]}"
 
     @Serializable
     @SerialName("l")
-    data class SimpleList(@XmlSerialName("value","","") val values: List<String>) {
+    data class SimpleList(@XmlSerialName("value", "", "") val values: List<String>) {
         constructor(vararg values: String) : this(values.toList())
     }
 

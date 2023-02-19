@@ -21,7 +21,6 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -33,7 +32,7 @@ import kotlin.test.assertEquals
 class TestCompactFragmentSerializer {
     @Test
     fun testSerializeCompactFragment() {
-        val f = FragmentContainer(CompactFragment("""<a><b>"hello"</b></a>"""),"bar")
+        val f = FragmentContainer(CompactFragment("""<a><b>"hello"</b></a>"""), "bar")
         val expected = "<FragmentContainer c=\"bar\">${f.fragment.contentString}</FragmentContainer>"
         val actual = XML.Companion.encodeToString(f)
         assertEquals(expected, actual)

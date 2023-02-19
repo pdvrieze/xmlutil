@@ -53,7 +53,7 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
         }
         try {
             assertEquals(
-                "Could not find a field for name (nl.adaptivity.xml.serialization.OptionalBooleanTest.Location) Location/unexpected (Element)\n  candidates: address, temperature",
+                "Could not find a field for name (nl.adaptivity.xml.serialization.OptionalBooleanTest.Location) Location/unexpected (Element)\n  candidates: address (Element), temperature (Attribute)",
                 e.message?.substringBeforeLast(" at position")
             )
         } catch (f: AssertionError) {
@@ -86,13 +86,16 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
         assertEquals(QName("Location"), ignoredDescriptor?.tagName)
         assertEquals(QName("address"), ignoredDescriptor?.getElementDescriptor(0)?.tagName)
         assertEquals(QName("temperature"), ignoredDescriptor?.getElementDescriptor(1)?.tagName)
-        assertEquals(setOf(QName("address"), QName("temperature")), ignoredCandidates?.toSet())
+        assertEquals(
+            setOf(QName("address"), QName("temperature")),
+            ignoredCandidates?.map { (it as PolyInfo).tagName }?.toSet()
+        )
     }
 
     enum class AddresStatus { VALID, INVALID, TEMPORARY }
 
     @Serializable
-    @XmlSerialName("address")
+    @XmlSerialName("address", "", "")
     data class Address(
         val houseNumber: String,
         val street: String,

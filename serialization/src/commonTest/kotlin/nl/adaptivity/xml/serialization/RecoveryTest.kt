@@ -28,6 +28,7 @@ import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.InputKind
+import nl.adaptivity.xmlutil.serialization.PolyInfo
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.test.Test
@@ -52,7 +53,13 @@ class RecoveryTest {
                 assertEquals(StructureKind.CLASS, descriptor.kind)
                 assertEquals(QName("a"), descriptor.getElementDescriptor(0).tagName)
                 assertEquals(QName("b"), descriptor.getElementDescriptor(1).tagName)
-                assertEquals(setOf(QName("a"), QName("b")), candidates)
+                assertEquals(
+                    listOf(
+                        PolyInfo(QName("a"), 0, descriptor.getElementDescriptor(0)),
+                        PolyInfo(QName("b"), 1, descriptor.getElementDescriptor(1))
+                    ),
+                    candidates
+                )
 
                 listOf(XML.ParsedData(1, input.getAttributeValue(name!!)))
             }

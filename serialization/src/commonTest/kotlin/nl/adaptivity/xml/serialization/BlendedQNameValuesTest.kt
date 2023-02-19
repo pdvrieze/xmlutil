@@ -122,6 +122,7 @@ class BlendedQNameValuesTest : PlatformXmlTestBase<BlendedQNameValuesTest.Contai
                                     ?: throw SerializationException("Could not find namespace for prefix $prefix")
                                 QName(ns, localName, prefix)
                             }
+
                             else -> it
                         }
                     }

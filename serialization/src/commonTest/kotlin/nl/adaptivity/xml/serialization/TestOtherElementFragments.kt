@@ -34,7 +34,7 @@ import kotlin.test.assertEquals
 class TestOtherElementFragments {
     @Test
     fun testSerializeCompactFragment() {
-        val f = Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")),"bar")
+        val f = Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
         val expected = "<Container>${f.children[0].contentString}${f.children[1].contentString}<c>bar</c></Container>"
         val actual = XML { autoPolymorphic = true }.encodeToString(f)
         assertEquals(expected, actual)
@@ -42,15 +42,17 @@ class TestOtherElementFragments {
 
     @Test
     fun testDeserializeCompactFragment() {
-        val expected = Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
-        val input = "<Container>${expected.children[0].contentString}<c>bar</c>${expected.children[1].contentString}</Container>"
-        val actual = XML{ autoPolymorphic = true }.decodeFromString<Container>(input)
+        val expected =
+            Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
+        val input =
+            "<Container>${expected.children[0].contentString}<c>bar</c>${expected.children[1].contentString}</Container>"
+        val actual = XML { autoPolymorphic = true }.decodeFromString<Container>(input)
         assertEquals(expected, actual)
     }
 
     @Serializable
     data class Container(
-        @XmlValue(true) val children: List<@Serializable(CompactFragmentSerializer::class)CompactFragment>,
+        @XmlValue(true) val children: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
         @XmlElement(true)
         val c: String
     )

@@ -30,7 +30,10 @@ import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom.documentElement
 import nl.adaptivity.xmlutil.serialization.*
@@ -168,14 +171,15 @@ class TestCommon {
 
 //        val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
 
-        val actual = xml.decodeFromString(ElementSerializer,
+        val actual = xml.decodeFromString(
+            ElementSerializer,
             "<StringWithMarkup xmlns=\"https://pubchem.ncbi.nlm.nih.gov/pug_view\">\n" +
                     "    <String>Chloroacetic acid, &gt;=99% &lt; 100%</String>\n" +
                     "</StringWithMarkup>"
         )
 
-        val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view","StringWithMarkup"))
-        val expected = doc.documentElement!!.also {stringWithMarkup ->
+        val doc = createDocument(QName("https://pubchem.ncbi.nlm.nih.gov/pug_view", "StringWithMarkup"))
+        val expected = doc.documentElement!!.also { stringWithMarkup ->
             doc.createElement("String").also { string ->
                 stringWithMarkup.appendChild(string)
                 string.appendChild(doc.createTextNode("Chloroacetic acid, >=99% < 100%"))
@@ -185,6 +189,45 @@ class TestCommon {
         assertDomEquals(expected, actual)
     }
 
+    @Test
+    fun serializeEmoji() {
+        val data = StringHolder("\uD83D\uDE0A")
+        val expected = "<StringHolder>😊</StringHolder>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun serializeEmojiIndependent() {
+        val data = StringHolder("\uD83D\uDE0A")
+        val expected = "<StringHolder>😊</StringHolder>"
+        val actual = StringWriter().also { sw ->
+            KtXmlWriter(sw).use { out ->
+                XML.encodeToWriter(out, data)
+            }
+        }.toString()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun serializeRawEmoji() {
+        val data = StringHolder("😊")
+        val expected = "<StringHolder>😊</StringHolder>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun deserializeEmoji() {
+        val xml = "<StringHolder>😊</StringHolder>"
+        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        assertEquals("\uD83D\uDE0A", deserialized.value)
+    }
+
+    @Test
+    fun deserializeEmojiEntity() {
+        val xml = "<StringHolder>&#x1F60A;</StringHolder>"
+        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        assertEquals("😊", deserialized.value)
+    }
 
     @Test
     fun serializeXmlWithEntity() {
@@ -225,6 +268,12 @@ class TestCommon {
         val anElement: String,
         @XmlElement(true)
         val aBlankElement: Unit? = Unit
+    )
+
+    @Serializable
+    internal data class StringHolder(
+        @XmlValue
+        val value: String
     )
 
     @Serializable

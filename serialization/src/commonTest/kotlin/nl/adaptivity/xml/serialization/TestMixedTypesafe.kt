@@ -36,7 +36,6 @@ import kotlin.test.assertEquals
 
 class TestMixedTypesafe {
 
-//    @Ignore
     @Test
     fun serialize_a_typesafe_mixed_collection_to_xml() {
         val expected = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
@@ -55,7 +54,6 @@ class TestMixedTypesafe {
         assertEquals(expected, actual)
     }
 
-//    @Ignore
     @Test
     fun deserialize_a_typesafe_mixed_collection_from_xml() {
         val data = "<mixed>a<b/>c<d/><e>f<g/></e></mixed>"
@@ -74,10 +72,10 @@ class TestMixedTypesafe {
         assertEquals(expected, actual)
     }
 
-//    @Ignore
     @Test
     fun serialize_a_typesafe_mixed_collection_to_json() {
-        val expected = """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
+        val expected =
+            """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
         val data = TypedMixed {
             text("a")
             elem(TypedMixed.B())
@@ -96,10 +94,11 @@ class TestMixedTypesafe {
         assertEquals(expected, actual)
     }
 
-//    @Ignore
+    //    @Ignore
     @Test
     fun deserialize_a_typesafe_mixed_collection_from_json() {
-        val data = """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
+        val data =
+            """{"data":[["kotlin.String","a"],["b",{}],["kotlin.String","c"],["d",{}],["e",{"data":[["kotlin.String","f"],["g",{}]]}]]}"""
         val expected = TypedMixed {
             text("a")
             elem(TypedMixed.B())

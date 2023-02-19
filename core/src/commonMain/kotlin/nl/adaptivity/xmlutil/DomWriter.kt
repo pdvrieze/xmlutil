@@ -123,7 +123,6 @@ public class DomWriter constructor(
         private set
 
     override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
-        println("DEBUG - namespaceAttribute - {$namespacePrefix}=$namespaceUri")
         val cur = requireCurrent("Namespace attribute")
         when {
 
@@ -242,7 +241,6 @@ public class DomWriter constructor(
     }
 
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
-        println("DEBUG - attribute - {$namespace}$prefix:$name=$value")
         val cur = requireCurrent("attribute")
         when {
             prefix.isNullOrEmpty() -> cur.setAttribute(name, value)

@@ -53,7 +53,7 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
         val expectedMsgStart = "Could not find a field for name " +
                 "(nl.adaptivity.xml.serialization.SimpleDataTest.Address) address/" +
                 "{http://www.w3.org/XML/1998/namespace}lang (Attribute)\n" +
-                "  candidates: houseNumber, street, city, status at position "
+                "  candidates: houseNumber (Attribute), street (Attribute), city (Attribute), status (Attribute) at position "
         val msgSubstring = e.message?.let { it.substring(0, minOf(it.length, expectedMsgStart.length)) }
 
         assertEquals(expectedMsgStart, msgSubstring)

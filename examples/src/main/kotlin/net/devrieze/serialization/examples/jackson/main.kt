@@ -29,8 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 fun main() {
     val t = Team(listOf(Person("Joe", 15)))
     val xml = XML {
-        @OptIn(ExperimentalXmlUtilApi::class)
-        policy = JacksonPolicy
+        jacksonPolicy()
     }
 
     val encodedString = xml.encodeToString(t) // both versions are available

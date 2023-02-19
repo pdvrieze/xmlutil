@@ -25,10 +25,10 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.jvm.JvmInline
 
-class InlineStructTest: PlatformTestBase<InlineStructTest.InlineStructParent>(
+class InlineStructTest : PlatformTestBase<InlineStructTest.InlineStructParent>(
     InlineStructParent(InlineStruct(Address("10", "Downing Street", "London"))),
     InlineStructParent.serializer()
-                                                                     ) {
+) {
     override val expectedXML: String
         get() = "<InlineStructParent><InlineStruct houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/></InlineStructParent>"
     override val expectedJson: String
@@ -52,6 +52,6 @@ class InlineStructTest: PlatformTestBase<InlineStructTest.InlineStructParent>(
         val street: String,
         val city: String,
         @XmlElement(false) val status: AddresStatus = AddresStatus.VALID
-                      )
+    )
 
 }

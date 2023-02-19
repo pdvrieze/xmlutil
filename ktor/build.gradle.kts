@@ -66,8 +66,8 @@ kotlin {
 
     sourceSets.all {
         languageSettings.apply {
-            languageVersion = "1.6"
-            apiVersion = "1.6"
+            languageVersion = "1.7"
+            apiVersion = "1.7"
             optIn("kotlin.RequiresOptIn")
         }
     }

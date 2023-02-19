@@ -52,8 +52,12 @@ private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
 
     } while (expected.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
 
-    while (expected.hasNext() && expected.isIgnorable()) { expected.next() }
-    while (actual.hasNext() && actual.isIgnorable()) { actual.next() }
+    while (expected.hasNext() && expected.isIgnorable()) {
+        expected.next()
+    }
+    while (actual.hasNext() && actual.isIgnorable()) {
+        actual.next()
+    }
 
     assertEquals(expected.hasNext(), actual.hasNext())
 }
@@ -61,13 +65,20 @@ private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
 private fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent) {
     assertEquals(expectedEvent.eventType, actualEvent.eventType, "Different event found")
     when (expectedEvent) {
-        is XmlEvent.StartElementEvent -> assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent)
+        is XmlEvent.StartElementEvent ->
+            assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent)
+
         is XmlEvent.EndElementEvent -> assertEquals(expectedEvent.name, (actualEvent as XmlEvent.EndElementEvent).name)
+
         is XmlEvent.TextEvent -> assertEquals(expectedEvent.text, (actualEvent as XmlEvent.TextEvent).text)
+        else -> {} // ignore
     }
 }
 
-private fun assertStartElementEquals(expectedEvent: XmlEvent.StartElementEvent, actualEvent: XmlEvent.StartElementEvent) {
+private fun assertStartElementEquals(
+    expectedEvent: XmlEvent.StartElementEvent,
+    actualEvent: XmlEvent.StartElementEvent
+) {
     assertEquals(expectedEvent.name, actualEvent.name)
     assertEquals(expectedEvent.attributes.size, actualEvent.attributes.size)
 
@@ -228,7 +239,7 @@ abstract class TestPolymorphicBase<T>(
             policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
         }
         val serialized = xml.encodeToString(serializer, value)
-                .normalizeXml()
+            .normalizeXml()
         assertXmlEquals(expectedXSIPolymorphicXML, serialized)
     }
 
@@ -247,7 +258,10 @@ abstract class TestPolymorphicBase<T>(
         val modifiedXml = expectedXSIPolymorphicXML.replace(XMLConstants.XSI_NS_URI, "urn:notquitexsi")
         val actualValue = XML(serializersModule = serializersModule) {
             autoPolymorphic = false
-            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi"))
+            policy = DefaultXmlSerializationPolicy(
+                false,
+                typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi")
+            )
         }.decodeFromString(serializer, modifiedXml)
 
         assertEquals(value, actualValue)

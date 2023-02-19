@@ -1,3 +1,38 @@
+# 0.85.0 – Tying things up
+*(Feb 19, 2023)<br />*
+Features:
+- Implement serialization of maps. The outer container will be eluded as with
+  lists. If the key type can be an attribute (and doesn't overlap with an
+  attribute in the value) it will be written on the value, otherwise an entry
+  will be written with the key written on it (as attribute or tag). Note that
+  as this point keys must precede values due to the implementation of map
+  serialization. The behaviour can be customized through the policy.
+- Add the possibility to specify namespace declarations that are ensured on
+  tags (note that this does not yet participate in the namespace collating code)
+- Fix polymorphic usage of value classes as children of a sealed interface.
+- Add a `defaultPolicy` configurator to `XmlConfig.Builder` that allows more elegant
+  configuration of the default policy. Some of the properties that can
+  be specified on the `XmlConfig.Builder` have been deprecated in place of this
+  new (more robust) mechanism.
+- Within the default policy builder add support for configuring the unknown
+  child handling with some defaults: `ignoreUnknownChildren` and
+  `ignoreUnknownNamespace`. Note that these are shortcuts to setting an explicit
+  handler.
+- Now when a tag is marked to not preserve space (preserving is the default),
+  but when the value starts or ends with whitespace this will result the
+  xml:space="preserve" attribute to be emitted. The decoder will also honour
+  this attribute over default behaviour for that type.
+- Support custom delimiters by allowing a list of delimiters to be specified
+  the policy.
+
+Fixes:
+- Make actual serialization of maps (that are not attributes) work
+- Fix an infinite recursion bug in the namespace collection code that writes
+  namespace declarations on the top level.
+- Fix writing codepoints > 0x10000 that require surrogate pairs.
+- Fix whitespace handling #120
+- Remove stale logging code: #119
+
 # 0.84.3
 *(Sep 25, 2022)<br />*
 Features:
@@ -5,6 +40,7 @@ Features:
   a non-transparent approach it is strongly advised to explicitly
   provide the tagname polymorphic types do not support annotations on
   the type. 
+
 Fixes:
 - Fix reading of entity references. #88
 - Fix NamedNodeMap iterator (an issue for dom based apis)
@@ -22,6 +58,7 @@ Fixes:
 Features:
 - Add `@XmlIgnoreWhitespace` annotation to allow not retaining whitespace with
   an `@XmlValue` field of type `List<CompactFragment>`
+
 Fixes:
 - Fix storing comment events
 - Don't defer serializing inline values as that is not valid. This

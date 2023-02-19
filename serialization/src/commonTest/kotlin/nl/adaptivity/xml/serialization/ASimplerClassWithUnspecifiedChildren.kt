@@ -28,11 +28,12 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-class ASimplerClassWithUnspecifiedChildren : PlatformTestPolymorphicBase<ASimplerClassWithUnspecifiedChildren.Container3>(
-    Container3("name2", listOf(ChildA("data"), ChildB(4, 5, 6, "xxx"), ChildA("yyy"))),
-    Container3.serializer(),
-    baseModule
-                                                                            ) {
+class ASimplerClassWithUnspecifiedChildren :
+    PlatformTestPolymorphicBase<ASimplerClassWithUnspecifiedChildren.Container3>(
+        Container3("name2", listOf(ChildA("data"), ChildB(4, 5, 6, "xxx"), ChildA("yyy"))),
+        Container3.serializer(),
+        baseModule
+    ) {
     override val expectedXML: String
         get() = "<container-3 xxx=\"name2\"><childA valueA=\"data\"/><childB a=\"4\" b=\"5\" c=\"6\" valueB=\"xxx\"/><childA valueA=\"yyy\"/></container-3>"
     override val expectedJson: String
