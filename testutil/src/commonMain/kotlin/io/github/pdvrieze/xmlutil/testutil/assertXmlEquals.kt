@@ -32,8 +32,8 @@ import kotlin.test.fail
 @OptIn(ExperimentalXmlUtilApi::class)
 fun assertXmlEquals(expected: String, actual: String) {
     if (expected != actual) {
-        val expectedReader = KtXmlReader(StringReader(expected)).apply { skipPreamble() }
-        val actualReader = KtXmlReader(StringReader(actual)).apply { skipPreamble() }
+        val expectedReader = KtXmlReader(StringReader(expected))
+        val actualReader = KtXmlReader(StringReader(actual))
 
         try {
             assertXmlEquals(expectedReader, actualReader)
