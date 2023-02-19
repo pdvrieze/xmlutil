@@ -1029,22 +1029,39 @@ public class XmlListDescriptor internal constructor(
     tagParent: SafeParentInfo = serializerParent,
 ) : XmlListLikeDescriptor(xmlCodecBase, serializerParent, tagParent) {
 
-    @OptIn(ExperimentalSerializationApi::class)
-    override val outputKind: OutputKind = when {
-        tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false -> {
-            OutputKind.Attribute
+    override val outputKind: OutputKind
+
+    public val delimiters: Array<String>
+
+    init {
+        @OptIn(ExperimentalSerializationApi::class)
+        outputKind = when {
+            tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false -> {
+                OutputKind.Attribute
+            }
+
+            !isListEluded -> OutputKind.Element
+
+            tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
+                    xmlCodecBase.config.policy.isTransparentPolymorphic(
+                        DetachedParent(serialDescriptor.getElementDescriptor(0), null, false),
+                        tagParent
+                    )
+            -> OutputKind.Mixed
+
+            else -> OutputKind.Element
         }
 
-        !isListEluded -> OutputKind.Element
-
-        tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
-                xmlCodecBase.config.policy.isTransparentPolymorphic(
-                    DetachedParent(serialDescriptor.getElementDescriptor(0), null, false),
+        @OptIn(ExperimentalXmlUtilApi::class)
+        delimiters = when (outputKind) {
+            OutputKind.Attribute ->
+                xmlCodecBase.config.policy.attributeListDelimiters(
+                    ParentInfo(this, 0, useNameInfo, outputKind),
                     tagParent
                 )
-        -> OutputKind.Mixed
 
-        else -> OutputKind.Element
+            else -> emptyArray()
+        }
     }
 
     private val childDescriptor: XmlDescriptor by lazy {

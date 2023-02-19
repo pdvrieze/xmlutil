@@ -32,6 +32,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public synthetic fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;)V
 	public synthetic fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun attributeListDelimiters (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public final fun copy (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun copy (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
@@ -516,6 +517,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerialName$Impl : nl/a
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy {
+	public abstract fun attributeListDelimiters (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public abstract fun defaultOutputKind (Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public abstract fun effectiveName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;)Ljavax/xml/namespace/QName;
 	public abstract fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -573,6 +575,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$De
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DefaultImpls {
+	public static fun attributeListDelimiters (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public static fun defaultOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lkotlinx/serialization/descriptors/SerialKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static synthetic fun effectiveName$default (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;ILjava/lang/Object;)Ljavax/xml/namespace/QName;
 	public static fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -734,6 +737,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlInlineDescri
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlListDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor {
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelimiters ()[Ljava/lang/String;
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun hashCode ()I

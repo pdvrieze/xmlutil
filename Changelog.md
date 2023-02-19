@@ -22,6 +22,8 @@ Features:
   but when the value starts or ends with whitespace this will result the
   xml:space="preserve" attribute to be emitted. The decoder will also honour
   this attribute over default behaviour for that type.
+- Support custom delimiters by allowing a list of delimiters to be specified
+  the policy.
 
 Fixes:
 - Make actual serialization of maps (that are not attributes) work

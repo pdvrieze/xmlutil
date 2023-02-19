@@ -64,28 +64,24 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeBoolean(value: Boolean) =
             encodeString(value.toString())
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeByte(value: Byte) =
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeString(value.toUByte().toString())
                 else -> encodeString(value.toString())
             }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeShort(value: Short) =
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeString(value.toUShort().toString())
                 else -> encodeString(value.toString())
             }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeInt(value: Int) =
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeString(value.toUInt().toString())
                 else -> encodeString(value.toString())
             }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         override fun encodeLong(value: Long) =
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeString(value.toULong().toString())
@@ -107,6 +103,7 @@ internal open class XmlEncoderBase internal constructor(
             XmlQNameSerializer.serialize(this, effectiveQName)
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         override fun encodeString(value: String) {
             // string doesn't need parsing so take a shortcut
             val defaultValue =
@@ -123,7 +120,9 @@ internal open class XmlEncoderBase internal constructor(
                             smartWriteAttribute(discriminatorName, typeRef.toCName())
                         }
                         // Write the xml preserve attribute if the values starts or ends with whitespace
-                        if (! xmlDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                        if (!xmlDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
+                                .isWhitespace())
+                        ) {
                             // this uses attribute directly as no namespace declaration is valid/needed
                             target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                         }
@@ -172,20 +171,19 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
         ) {
-            val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)
 
-            when (effectiveSerializer) {
+            when (val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
                 XmlQNameSerializer -> encodeQName(value as QName)
                 else -> effectiveSerializer.serialize(this, value)
             }
         }
 
         @ExperimentalSerializationApi
-        override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        override fun encodeInline(descriptor: SerialDescriptor): Encoder {
             return XmlEncoder(xmlDescriptor.getElementDescriptor(0), elementIndex, discriminatorName)
         }
 
-        override fun beginStructure(descriptor: SerialDescriptor): TagEncoder<out XmlDescriptor> {
+        override fun beginStructure(descriptor: SerialDescriptor): TagEncoder<XmlDescriptor> {
             return getCompositeEncoder(xmlDescriptor, elementIndex, discriminatorName).apply { writeBegin() }
         }
     }
@@ -211,7 +209,7 @@ internal open class XmlEncoderBase internal constructor(
 
     internal inner class PrimitiveEncoder(
         override val serializersModule: SerializersModule,
-        val xmlDescriptor: XmlDescriptor,
+        private val xmlDescriptor: XmlDescriptor,
     ) : Encoder, XML.XmlOutput {
         val output = StringBuilder()
         override val config: XmlConfig get() = this@XmlEncoderBase.config
@@ -246,7 +244,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeFloat(value: Float) = encodeString(value.toString())
 
         @ExperimentalSerializationApi
-        override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder = this
+        override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
         override fun encodeInt(value: Int) = encodeString(value.toString())
 
@@ -262,8 +260,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-            val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)
-            when (effectiveSerializer) {
+            when (xmlDescriptor.effectiveSerializationStrategy(serializer)) {
                 XmlQNameSerializer -> XmlQNameSerializer.serialize(this, ensureNamespace(value as QName))
                 else -> super.encodeSerializableValue(serializer, value)
             }
@@ -336,7 +333,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         @ExperimentalSerializationApi
-        override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        override fun encodeInline(descriptor: SerialDescriptor): Encoder {
             return this
         }
 
@@ -355,13 +352,6 @@ internal open class XmlEncoderBase internal constructor(
     private inner class InlineTagEncoder(
         private val delegate: TagEncoder<XmlDescriptor>,
     ) : TagEncoder<XmlDescriptor>(delegate.xmlDescriptor, null) {
-
-        constructor(
-            parent: TagEncoder<XmlDescriptor>,
-            childIndex: Int
-        ) : this(
-            TagEncoder<XmlDescriptor>(parent.xmlDescriptor.getElementDescriptor(childIndex), null)
-        )
 
         override fun writeBegin() {
             // Don't write any tag as we're inline. We also can't write a discriminator inline.
@@ -430,13 +420,14 @@ internal open class XmlEncoderBase internal constructor(
             writeDiscriminatorAttributeIfNeeded()
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         internal fun writeNamespaceDecls() {
             for (namespace: Namespace in xmlDescriptor.namespaceDecls) {
                 ensureNamespace(namespace)
             }
         }
 
-        internal fun writeDiscriminatorAttributeIfNeeded() {
+        private fun writeDiscriminatorAttributeIfNeeded() {
             if (discriminatorName != null) {
                 val typeName = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
                 smartWriteAttribute(discriminatorName, typeName.toCName())
@@ -516,7 +507,6 @@ internal open class XmlEncoderBase internal constructor(
             encodeStringElement(descriptor, index, value.toString())
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeByteElement(
             descriptor: SerialDescriptor,
             index: Int,
@@ -529,7 +519,6 @@ internal open class XmlEncoderBase internal constructor(
         }
 
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toUShort().toString())
@@ -539,7 +528,6 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeIntElement(descriptor: SerialDescriptor, index: Int, value: Int) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toUInt().toString())
@@ -547,7 +535,6 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        @OptIn(ExperimentalUnsignedTypes::class)
         final override fun encodeLongElement(descriptor: SerialDescriptor, index: Int, value: Long) {
             when (xmlDescriptor.isUnsigned) {
                 true -> encodeStringElement(descriptor, index, value.toULong().toString())
@@ -613,6 +600,7 @@ internal open class XmlEncoderBase internal constructor(
             encodeStringElement(elementDescriptor, index, value)
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         internal open fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             val defaultValue = (elementDescriptor as? XmlValueDescriptor)?.default
 
@@ -624,7 +612,9 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Element -> defer(index) {
                     target.smartStartTag(elementDescriptor.tagName) {
                         // Write the xml preserve attribute if the values starts or ends with whitespace
-                        if (! elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                        if (!elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
+                                .isWhitespace())
+                        ) {
                             // this uses attribute directly as no namespace declaration is valid/needed
                             target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                         }
@@ -637,7 +627,9 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Mixed,
                 OutputKind.Text -> {
                     // Write the xml preserve attribute if the values starts or ends with whitespace
-                    if (! elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last().isWhitespace())) {
+                    if (!elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
+                            .isWhitespace())
+                    ) {
                         // this uses attribute directly as no namespace declaration is valid/needed
                         target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                     }
@@ -736,7 +728,7 @@ internal open class XmlEncoderBase internal constructor(
             // There is a prefix to reuse, just reuse that (TODO make configurable)
             registeredPrefix != null -> qName.copy(prefix = registeredPrefix)
 
-            // If there is a namespace for this prefix and it doesn't match, create a new prefix
+            // If there is a namespace for this prefix, and it doesn't match, create a new prefix
             registeredNamespace != null -> { // prefix no longer valid
                 val prefix = qName.prefix
                 var lastDigitIdx = prefix.length
@@ -895,7 +887,7 @@ internal open class XmlEncoderBase internal constructor(
     internal inner class AttributeMapEncoder(xmlDescriptor: XmlDescriptor) :
         TagEncoder<XmlDescriptor>(xmlDescriptor, null) {
 
-        lateinit var entryKey: QName
+        private lateinit var entryKey: QName
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()
         }
@@ -941,6 +933,7 @@ internal open class XmlEncoderBase internal constructor(
     internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :
         TagEncoder<XmlListDescriptor>(xmlDescriptor, null) {
         private val valueBuilder = StringBuilder()
+        private val delimiter = xmlDescriptor.delimiters.first()
 
         init {
             var d: XmlDescriptor = xmlDescriptor
@@ -971,7 +964,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
-            if (valueBuilder.isNotEmpty()) valueBuilder.append(' ')
+            if (valueBuilder.isNotEmpty()) valueBuilder.append(delimiter)
 
             valueBuilder.append(value)
         }
@@ -1030,11 +1023,7 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
 
-            @Suppress("UNCHECKED_CAST")
-            val effectiveSerializer: SerializationStrategy<T> =
-                elementDescriptor.effectiveSerializationStrategy(serializer)
-
-            when (effectiveSerializer) {
+            when (elementDescriptor.effectiveSerializationStrategy(serializer)) {
                 CompactFragmentSerializer -> if (parentXmlDescriptor.getValueChild() == listChildIdx) {
                     CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
                 } else {
@@ -1064,8 +1053,8 @@ internal open class XmlEncoderBase internal constructor(
 
         private val mapDescriptor get() = xmlDescriptor as XmlMapDescriptor
 
-        lateinit var keySerializer: SerializationStrategy<*>
-        var keyValue: Any? = null
+        private lateinit var keySerializer: SerializationStrategy<*>
+        private var keyValue: Any? = null
 
         override fun defer(index: Int, deferred: CompositeEncoder.() -> Unit) {
             deferred()

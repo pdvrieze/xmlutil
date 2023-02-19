@@ -260,9 +260,8 @@ private constructor(
         )
 
         @Suppress("DEPRECATION")
-        public
         @OptIn(ExperimentalXmlUtilApi::class)
-        constructor(config: XmlConfig) : this(
+        public constructor(config: XmlConfig) : this(
             config.repairNamespaces,
             config.xmlDeclMode,
             config.indentString,
@@ -415,7 +414,7 @@ private constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         public val IGNORING_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
-            UnknownChildHandler { _, _, descriptor, _, _ ->
+            UnknownChildHandler { _, _, _, _, _ ->
                 emptyList()
             }
 

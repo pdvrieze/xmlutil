@@ -148,6 +148,7 @@ internal open class XmlDecoderBase internal constructor(
             return this
         }
 
+        @OptIn(ExperimentalXmlUtilApi::class)
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
             val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
             val descOutputKind = xmlDescriptor.outputKind
@@ -1017,7 +1018,7 @@ internal open class XmlDecoderBase internal constructor(
         TagDecoder<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
         private val attrValues = input.getAttributeValue(attrIndex)
-            .split(' ', '\t', '\n', '\r')
+            .split(*xmlDescriptor.delimiters)
 
         @ExperimentalSerializationApi
         override fun decodeSequentially(): Boolean = true
@@ -1120,7 +1121,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        @OptIn(InternalSerializationApi::class)
+        @OptIn(InternalSerializationApi::class, ExperimentalXmlUtilApi::class)
         override fun <T> decodeSerializableElement(
             descriptor: SerialDescriptor,
             index: Int,
@@ -1141,7 +1142,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     @OptIn(ExperimentalXmlUtilApi::class)
-    private inner abstract class MapDecoderBase(
+    private abstract inner class MapDecoderBase(
         xmlDescriptor: XmlMapDescriptor,
         private val polyInfo: PolyInfo?,
         typeDiscriminatorName: QName?,

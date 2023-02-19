@@ -214,6 +214,14 @@ public interface XmlSerializationPolicy {
     @ExperimentalXmlUtilApi
     public fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> = emptyList()
 
+
+    /**
+     * Determine the delimiters to use to separate attributes. When writing will always write the
+     * first element.
+     */
+    @ExperimentalXmlUtilApi
+    public fun attributeListDelimiters(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Array<String> = arrayOf(" ", "\n", "\t", "\r")
+
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
     }
