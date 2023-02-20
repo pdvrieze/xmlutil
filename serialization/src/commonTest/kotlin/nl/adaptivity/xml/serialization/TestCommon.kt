@@ -190,6 +190,25 @@ class TestCommon {
     }
 
     @Test
+    fun serialize_issue121() {
+        val data = StringHolder("\u26a0\ufe0f")
+        val expected = "<StringHolder>⚠️</StringHolder>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
+
+    @Test
+    fun serializeIndependent_issue121() {
+        val data = StringHolder("⚠️"/*"\u26a0\ufe0f"*/)
+        val expected = "<StringHolder>⚠️</StringHolder>"
+        val actual = StringWriter().also { sw ->
+            KtXmlWriter(sw).use { out ->
+                XML.encodeToWriter(out, data)
+            }
+        }.toString()
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun serializeEmoji() {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
