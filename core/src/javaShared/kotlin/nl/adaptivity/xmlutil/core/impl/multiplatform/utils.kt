@@ -41,3 +41,5 @@ public actual typealias StringWriter = java.io.StringWriter
 
 public actual typealias Reader = java.io.Reader
 public actual typealias StringReader = java.io.StringReader
+
+public actual typealias Language = org.intellij.lang.annotations.Language

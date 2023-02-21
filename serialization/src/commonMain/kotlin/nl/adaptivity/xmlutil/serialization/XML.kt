@@ -29,6 +29,7 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
@@ -353,7 +354,7 @@ public class XML constructor(
      * @param deserializer The deserializer to use.
      * @param string The string input
      */
-    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String): T {
         return decodeFromReader(deserializer, XmlStreaming.newReader(string))
     }
 
@@ -364,7 +365,7 @@ public class XML constructor(
      * @param rootName The QName to use for the root tag
      * @param string The string input
      */
-    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String, rootName: QName?): T {
+    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String, rootName: QName?): T {
         return decodeFromReader(deserializer, XmlStreaming.newReader(string), rootName)
     }
 
