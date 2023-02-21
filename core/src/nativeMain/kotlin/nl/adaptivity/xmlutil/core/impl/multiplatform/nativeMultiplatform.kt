@@ -132,6 +132,19 @@ public actual open class StringReader(private val source: CharSequence): Reader(
     }
 }
 
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public actual annotation class Language(
+    actual val value: String,
+    actual val prefix: String,
+    actual val suffix: String
+)
 
 public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
     try {

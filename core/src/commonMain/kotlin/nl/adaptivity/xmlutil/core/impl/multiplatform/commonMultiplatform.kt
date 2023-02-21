@@ -61,3 +61,5 @@ public expect abstract class Reader {
 }
 
 public expect open class StringReader(source: String): Reader
+
+public expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
