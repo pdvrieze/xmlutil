@@ -27,6 +27,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.internal.AbstractCollectionSerializer
@@ -37,8 +38,10 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import nl.adaptivity.xmlutil.serialization.impl.DummyDecoder
+import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
+import nl.adaptivity.xmlutil.serialization.impl.consumeChunksFromString
+import nl.adaptivity.xmlutil.serialization.impl.readSimpleElementChunked
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.collections.set
@@ -128,7 +131,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         protected val polyInfo: PolyInfo? = null,
         val attrIndex: Int = -1
-    ) : DecodeCommons(xmlDescriptor), Decoder, XML.XmlInput {
+    ) : DecodeCommons(xmlDescriptor), Decoder, XML.XmlInput, ChunkedDecoder {
 
         private var triggerInline = false
 
@@ -178,6 +181,37 @@ internal open class XmlDecoderBase internal constructor(
             return when {
                 defaultOverEmpty && stringValue.isEmpty() && defaultString != null -> defaultString
                 else -> stringValue
+            }
+        }
+
+
+        @ExperimentalSerializationApi
+        override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
+
+            if (attrIndex >= 0) {
+                consumeChunksFromString(input.getAttributeValue(attrIndex), consumeChunk)
+                return
+            } else {
+                when (val descOutputKind = xmlDescriptor.outputKind) {
+                    OutputKind.Element -> {
+                        input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                        input.readSimpleElementChunked(consumeChunk)
+                        return
+                    }
+
+                    OutputKind.Attribute -> throw SerializationException(
+                        "Attribute parsing without a concrete index is unsupported"
+                    )
+
+                    OutputKind.Inline -> throw SerializationException("Inline classes can not be decoded directly")
+                    OutputKind.Mixed -> return input.allConsecutiveTextContentChunked(consumeChunk)
+                    OutputKind.Text -> return if (xmlDescriptor.preserveSpace) {
+                        input.allConsecutiveTextContentChunked(consumeChunk)
+                    } else {
+                        input.allTextChunked(consumeChunk)
+                    }
+
+                }
             }
         }
 
