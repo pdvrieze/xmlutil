@@ -704,8 +704,9 @@ internal open class XmlDecoderBase internal constructor(
                         "preserve" -> preserveWhitespace = true
                         "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
                     }
-                    // Use the value of the attribute, then just go the next attribute
-                    return decodeElementIndex(descriptor)
+                    // If this was explicitly declared as attribute use that as index, otherwise
+                    // just skip the attribute.
+                    return nameToMembers[name] ?: decodeElementIndex(descriptor)
                 }
 
                 // The ifNegative function will recursively call this function if we didn't find it (and the handler
