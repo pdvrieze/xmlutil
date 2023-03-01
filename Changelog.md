@@ -2,10 +2,15 @@
 Features:
 - Preliminary (partial) support for chunked decoding/Chunked Decoder ()
 - Use kotlinx.serialization 1.5.0
-
+- The default policy now ignores all attributes in the xml namespace when
+  found missing (it will not throw an exception). If explicitly declared
+  they will still be handled.
+  
 Fixes:
 - Various high range unicode characters (and modifiers) were incorrectly seen
   as invalid values (relevant for emoji's)
+- Still allow for explicit xml:space properties (while also handling them
+  automatically).
 - Update `ChildCollector` to use the correct/updated signature for
   `polymorhpicDefaultDeserializer`. "Fixes" #126 (the underlying issues are
   [KT-55318](https://youtrack.jetbrains.com/issue/KT-55318)
