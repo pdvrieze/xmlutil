@@ -1,3 +1,16 @@
+# 0.85.1-SNAPSHOT – Go in chunks
+Features:
+- Preliminary (partial) support for chunked decoding/Chunked Decoder ()
+- Use kotlinx.serialization 1.5.0
+
+Fixes:
+- Various high range unicode characters (and modifiers) were incorrectly seen
+  as invalid values (relevant for emoji's)
+- Update `ChildCollector` to use the correct/updated signature for
+  `polymorhpicDefaultDeserializer`. "Fixes" #126 (the underlying issues are
+  [KT-55318](https://youtrack.jetbrains.com/issue/KT-55318)
+  and [KT-56602](https://youtrack.jetbrains.com/issue/KT-56602))
+
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*
 Features:
