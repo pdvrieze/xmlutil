@@ -34,7 +34,7 @@ internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>
     @ExperimentalSerializationApi
     override fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
     ) {
         // ignore
     }
