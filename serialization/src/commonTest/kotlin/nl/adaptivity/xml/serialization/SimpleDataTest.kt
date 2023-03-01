@@ -42,7 +42,7 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
 
     private val unknownValues: String
         get() =
-            "<address xml:lang=\"en\" houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\"/>"
+            "<address xml:lang=\"en\" houseNumber=\"10\" street=\"Downing Street\" city=\"London\" status=\"VALID\" unknown=\"something\"/>"
 
     @Test
     fun deserialize_with_unused_attributes() {
