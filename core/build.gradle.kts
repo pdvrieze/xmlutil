@@ -226,6 +226,12 @@ kotlin {
             dependsOn(commonDom)
         }
 
+        val nativeTest by creating {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
 /*
         val linuxX64Main by getting {
             dependsOn(nativeMain)

@@ -20,6 +20,10 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlinx.cinterop.toKString
+import platform.posix.posix_errno
+import platform.posix.strerror
+
 public actual open class IOException : Exception {
     public actual constructor() : super()
 
@@ -28,4 +32,11 @@ public actual open class IOException : Exception {
     public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
 
     public actual constructor(cause: Throwable?) : super(cause)
+
+    public companion object {
+        public fun fromErrno(errno: Int = posix_errno()): IOException {
+            val errMsg = strerror(errno)?.toKString()
+            return IOException("Error ($errno): $errMsg")
+        }
+    }
 }
