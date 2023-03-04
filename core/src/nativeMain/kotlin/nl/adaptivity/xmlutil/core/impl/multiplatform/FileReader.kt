@@ -20,12 +20,26 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlinx.cinterop.CPointer
+import nl.adaptivity.xmlutil.core.impl.multiplatform.FileInputStream.Mode
+import platform.posix.FILE
+import platform.posix.fdopen
+import platform.posix.fopen
+
 @OptIn(ExperimentalUnsignedTypes::class)
 public class FileReader(public val inputStream: FileInputStream) : Reader() {
     private val inputBuffer = UByteArray(INPUT_BYTE_BUFFER_SIZE)
     private var inputBufferOffset = 0
     private var inputBufferEnd = 0
     private var pendingLowSurrogate: Char = '\u0000'
+
+    public constructor(filePtr: CPointer<FILE>) : this(FileInputStream(filePtr))
+
+    public constructor(pathName: String, mode: FileMode = Mode.READ) :
+            this(FileInputStream(pathName, mode))
+
+    public constructor(fileHandle: Int, mode: FileMode = Mode.READ) :
+            this(FileInputStream(fileHandle, mode))
 
     private fun reloadBuffer() {
         if (!inputStream.eof) {
@@ -37,7 +51,7 @@ public class FileReader(public val inputStream: FileInputStream) : Reader() {
         }
     }
 
-    private fun nextByte(): Int = peekByte().also { inputBufferOffset++ }
+    private fun nextByte(): Int = peekByte().also { if (it >= 0) inputBufferOffset++ }
 
     private fun peekByte(): Int {
         if (inputBufferOffset == inputBufferEnd) reloadBuffer()
@@ -59,10 +73,12 @@ public class FileReader(public val inputStream: FileInputStream) : Reader() {
                 code < 0 -> if (builder.isEmpty()) return null else return builder.toString()
                 code == 0x0D -> {
                     if (peekByte() == 0x0A) inputBufferOffset++ // Skip multi line endings
+                    return builder.toString().also { builder.clear() }
                 }
 
                 code == 0x0A -> {
                     if (peekByte() == 0x0D) inputBufferOffset++ // Skip multi line endings
+                    return builder.toString().also { builder.clear() }
                 }
 
                 code < 0x80 -> builder.append(Char(code))
@@ -75,6 +91,10 @@ public class FileReader(public val inputStream: FileInputStream) : Reader() {
                 }
             }
         }
+    }
+
+    public fun lines(): Sequence<String> {
+        return generateSequence { readLine() }
     }
 
     override fun read(buf: CharArray, offset: Int, len: Int): Int {
@@ -145,6 +165,7 @@ public class FileReader(public val inputStream: FileInputStream) : Reader() {
         ) throw IOException("Invalid codepoint ${codePoint.toString(16)}")
         return codePoint
     }
+
 }
 
 private const val INPUT_BYTE_BUFFER_SIZE = 0x2000

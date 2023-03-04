@@ -23,9 +23,8 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.*
 import platform.posix.*
 import kotlin.test.*
-import kotlin.test.DefaultAsserter.fail
 
-class FileWriterTest {
+class FileIOTest {
 
     lateinit var testFile: CPointer<FILE>
     lateinit var writer: FileWriter
@@ -56,32 +55,34 @@ class FileWriterTest {
     @Test
     fun write() {
         val text = "Hello world!\uD83D\uDE00 Tada!!"
-        writer.write(text)
+        writer.apply {
+            write(text)
+            flush()
+        }
 
-        fflush(testFile)
         rewind(testFile)
 
-        val utf8Text = text.encodeToByteArray()
-        memScoped {
-            val BUFFERSIZE = 30
-            val readBuffer = allocArray<UByteVar>(BUFFERSIZE)
-            var bytesRead = fread(readBuffer, 1u, BUFFERSIZE.toULong(), testFile)
-            if (bytesRead == 0UL) {
-                val e = ferror(testFile)
-                when {
-                    e != 0 -> {
-                        throw IOException.fromErrno(e)
-                    }
 
-                    feof(testFile) != 0 -> fail("End of file")
+        val actualLines = FileReader(FileInputStream(testFile)).lines().toList()
 
-                    else -> bytesRead = fread(readBuffer, 1u, 10, testFile)
-                }
-            }
-            assertEquals(utf8Text.size.toULong(), bytesRead)
-            val readArray = readBuffer.readBytes(bytesRead.toInt())
-            assertContentEquals(utf8Text, readArray)
+        assertEquals(1, actualLines.size)
+        assertEquals(text, actualLines.single())
+    }
+
+    @Test
+    fun testMultiLine() {
+        val lines = listOf(
+            "Some text on \uD83D\uDE1C",
+            "Yet another line!! "
+        )
+        writer.apply {
+            lines.forEach(::appendLine)
+            flush()
         }
+        rewind(testFile)
+
+        val actualLines = FileReader(FileInputStream(testFile)).lines().toList()
+        assertContentEquals(lines, actualLines)
     }
 }
 

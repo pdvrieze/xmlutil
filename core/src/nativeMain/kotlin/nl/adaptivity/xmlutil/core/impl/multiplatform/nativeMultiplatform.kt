@@ -79,6 +79,9 @@ public actual abstract class Writer : Appendable {
     override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
+
+    /** Write buffers to the underlying file (where valid). */
+    public open fun flush() {}
 }
 
 public actual open class StringWriter : Writer() {
