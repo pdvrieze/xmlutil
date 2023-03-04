@@ -26,13 +26,13 @@ import platform.posix.*
 @OptIn(ExperimentalUnsignedTypes::class)
 public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
 
-    public constructor(pathName: String, mode: FileOutputStream.Mode = FileOutputStream.Mode.TRUNCATED) : this(
-        fopen(pathName, mode.modeString) ?: kotlin.run {
+    public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
+        fdopen(fileHandle, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
         })
 
-    public constructor(fileHandle: Int, mode: FileOutputStream.Mode = FileOutputStream.Mode.TRUNCATED) : this(
-        fdopen(fileHandle, mode.modeString) ?: kotlin.run {
+    public constructor(pathName: String, mode: FileMode = Mode.READ) : this(
+        fopen(pathName, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
         })
 
@@ -80,4 +80,13 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
+    public enum class Mode(public override val modeString: String): FileMode {
+        READ("r"),
+        READWRITE("r+");
+    }
+
+}
+
+public interface FileMode {
+    public val modeString: String
 }

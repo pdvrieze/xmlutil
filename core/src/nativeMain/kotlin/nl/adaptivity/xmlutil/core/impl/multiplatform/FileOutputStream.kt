@@ -28,12 +28,12 @@ import platform.posix.*
 @ExperimentalXmlUtilApi
 public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
 
-    public constructor(pathName: String, mode: Mode = Mode.TRUNCATED) : this(
+    public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) : this(
         fopen(pathName, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
         })
 
-    public constructor(fileHandle: Int, mode: Mode = Mode.TRUNCATED) : this(
+    public constructor(fileHandle: Int, mode: FileMode = Mode.TRUNCATED) : this(
         fdopen(fileHandle, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
         })
@@ -61,6 +61,13 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
                 loopBegin += written.toInt()
                 remaining -= written
             }
+        }
+    }
+
+    /** Write buffers to the underlying file (where valid). */
+    public fun flush() {
+        if(fflush(filePtr) != 0) {
+            throw IOException.fromErrno()
         }
     }
 
@@ -110,7 +117,7 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
-    public enum class Mode(public val modeString: String) {
+    public enum class Mode(public override val modeString: String): FileMode {
         TRUNCATED("w"),
         APPEND("a");
     }

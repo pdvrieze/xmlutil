@@ -21,9 +21,20 @@
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlinx.cinterop.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
+import platform.posix.FILE
 import platform.posix.size_t
 
 public class FileWriter(public val outStream: FileOutputStream) : Writer(), Closeable {
+
+    public constructor(filePtr: CPointer<FILE>) : this(FileOutputStream(filePtr))
+
+    public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) :
+            this(FileOutputStream (pathName, mode))
+
+    public constructor(fileHandle: Int, mode: FileMode = Mode.TRUNCATED) :
+            this(FileOutputStream(fileHandle, mode))
+
 
     public fun appendCodePoint(codepoint: Int): FileWriter {
         memScoped {
