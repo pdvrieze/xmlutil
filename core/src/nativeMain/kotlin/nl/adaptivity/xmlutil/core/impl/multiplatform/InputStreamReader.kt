@@ -20,14 +20,12 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileInputStream.Mode
 import platform.posix.FILE
-import platform.posix.fdopen
-import platform.posix.fopen
 
 @OptIn(ExperimentalUnsignedTypes::class)
-public class FileReader(public val inputStream: FileInputStream) : Reader() {
+public class InputStreamReader(public val inputStream: InputStream) : Reader() {
     private val inputBuffer = UByteArray(INPUT_BYTE_BUFFER_SIZE)
     private var inputBufferOffset = 0
     private var inputBufferEnd = 0
@@ -47,7 +45,10 @@ public class FileReader(public val inputStream: FileInputStream) : Reader() {
                 inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
                 inputBufferOffset = inputBufferEnd - inputBufferOffset
             }
-            inputBufferEnd = inputStream.read(inputBuffer, inputBufferOffset) + inputBufferOffset
+            inputBufferEnd = inputBuffer.usePinned { b ->
+                inputStream.read(b.addressOf(inputBufferOffset), 1u, (inputBuffer.size - inputBufferOffset).convert())
+                    .toInt() + inputBufferOffset
+            }
         }
     }
 

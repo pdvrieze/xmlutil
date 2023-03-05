@@ -26,7 +26,7 @@ import platform.posix.*
 
 @OptIn(ExperimentalUnsignedTypes::class)
 @ExperimentalXmlUtilApi
-public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
+public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream() {
 
     public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) : this(
         fopen(pathName, mode.modeString) ?: kotlin.run {
@@ -51,7 +51,11 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
-    public fun write(buffer: ByteArray, begin: Int = 0, end: Int = buffer.size - begin): Unit {
+    override fun write(b: Int) {
+        write(byteArrayOf(b.toByte()))
+    }
+
+    public override fun write(buffer: ByteArray, begin: Int, end: Int): Unit {
         var loopBegin: Int = begin
         var remaining: size_t = end.toULong() - loopBegin.toULong()
         buffer.usePinned { buf ->
@@ -71,15 +75,7 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
-    public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: size_t): size_t {
-        return writePtr(buffer, (sizeOf<T>().toULong()), count)
-    }
-
-    public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: Int): size_t {
-        return writePtr(buffer, sizeOf<T>().toULong(), count.toULong())
-    }
-
-    public fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: size_t, count: size_t): size_t {
+    public override fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: size_t, count: size_t): size_t {
         clearerr(filePtr)
         val elemsWritten = fwrite(buffer, size, count, filePtr)
         if (elemsWritten == 0UL && count != 0UL) {
@@ -89,12 +85,7 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : Closeable {
         return elemsWritten
     }
 
-    public inline fun <reified T : CVariable> writeAllPtr(buffer: CArrayPointer<T>, count: Int) {
-        writeAllPtr(buffer, sizeOf<T>().toULong(), count.toULong())
-    }
-
-
-    public fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: size_t, count: size_t) {
+    public override fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: size_t, count: size_t) {
 
         clearerr(filePtr)
         var elemsRemaining = count

@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.Throws
 import kotlin.reflect.KClass
 
 @Target(
@@ -28,7 +29,7 @@ import kotlin.reflect.KClass
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR
-       )
+)
 public expect annotation class Throws(vararg val exceptionClasses: KClass<out Throwable>)
 
 @XmlUtilInternal
@@ -46,20 +47,35 @@ public expect interface AutoCloseable {
 
 public expect interface Closeable : AutoCloseable
 
-public expect inline fun <T: Closeable?, R> T.use(block: (T) -> R): R
+public expect inline fun <T : Closeable?, R> T.use(block: (T) -> R): R
 
 @XmlUtilInternal
 public expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 
-public expect abstract class Writer: Appendable
-public expect open class StringWriter(): Writer
+public expect abstract class Writer : Appendable
+public expect open class StringWriter() : Writer
+
+public expect abstract class OutputStream : Closeable {
+    public abstract fun write(b: Int)
+
+    public open fun write(b: ByteArray)
+
+    public open fun write(b: ByteArray, off: Int, len: Int)
+}
 
 public expect abstract class Reader {
     public open fun read(): Int
     public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
-public expect open class StringReader(source: String): Reader
+public expect abstract class InputStream : Closeable {
+    public open fun read(b: ByteArray, off: Int, len: Int): Int
+
+    public fun read(b: ByteArray): Int
+    public abstract fun read(): Int
+}
+
+public expect open class StringReader(source: String) : Reader
 
 public expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
