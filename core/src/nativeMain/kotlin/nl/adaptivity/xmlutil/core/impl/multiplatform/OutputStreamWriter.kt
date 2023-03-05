@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
 import platform.posix.FILE
 import platform.posix.size_t
 
-public class FileWriter(public val outStream: FileOutputStream) : Writer(), Closeable {
+public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), Closeable {
 
     public constructor(filePtr: CPointer<FILE>) : this(FileOutputStream(filePtr))
 
@@ -36,7 +36,7 @@ public class FileWriter(public val outStream: FileOutputStream) : Writer(), Clos
             this(FileOutputStream(fileHandle, mode))
 
 
-    public fun appendCodePoint(codepoint: Int): FileWriter {
+    public fun appendCodePoint(codepoint: Int): OutputStreamWriter {
         memScoped {
             val buffer = allocArray<UByteVar>(4)
 
@@ -83,11 +83,11 @@ public class FileWriter(public val outStream: FileOutputStream) : Writer(), Clos
     }
 
 
-    override fun append(value: Char): FileWriter {
+    override fun append(value: Char): OutputStreamWriter {
         return appendCodePoint(value.code)
     }
 
-    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): FileWriter {
+    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): OutputStreamWriter {
         if (value == null) {
             return append("null", 0, 4)
         }

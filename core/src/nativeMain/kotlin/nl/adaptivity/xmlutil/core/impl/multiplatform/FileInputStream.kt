@@ -24,7 +24,7 @@ import kotlinx.cinterop.*
 import platform.posix.*
 
 @OptIn(ExperimentalUnsignedTypes::class)
-public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
+public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream() {
 
     public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
         fdopen(fileHandle, mode.modeString) ?: kotlin.run {
@@ -42,10 +42,10 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
-    public val eof: Boolean
+    public override val eof: Boolean
         get() = feof(filePtr) != 0
 
-    public fun <T : CPointed> read(buffer: CArrayPointer<T>, size: size_t, bufferSize: size_t): size_t {
+    public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: size_t, bufferSize: size_t): size_t {
         clearerr(filePtr)
         val itemsRead = fread(buffer, size, bufferSize, filePtr)
         if (itemsRead == 0UL) {
@@ -57,7 +57,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
         return itemsRead
     }
 
-    public fun <T : CPointed> read(): Int {
+    public override fun read(): Int {
         clearerr(filePtr)
         memScoped {
             val bytePtr = alloc<UByteVar>()
@@ -74,13 +74,22 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : Closeable {
         }
     }
 
-    public fun read(buffer: UByteArray, offset: Int = 0, len: Int = buffer.size - offset): Int {
-        buffer.usePinned { buf ->
-            return read(buf.addressOf(offset),1UL, len.toULong()).toInt()
+    override fun read(b: ByteArray, off: Int, len: Int): Int {
+        val endIdx = off + len
+        require(off in 0 until b.size) { "Offset before start of array" }
+        require(endIdx <= b.size) { "Range size beyond buffer size" }
+        return b.usePinned { buf ->
+            read(buf.addressOf(off), sizeOf<ByteVar>().convert(), len.convert()).convert()
         }
     }
 
-    public enum class Mode(public override val modeString: String): FileMode {
+    public fun read(buffer: UByteArray, offset: Int = 0, len: Int = buffer.size - offset): Int {
+        buffer.usePinned { buf ->
+            return read(buf.addressOf(offset), 1UL, len.toULong()).toInt()
+        }
+    }
+
+    public enum class Mode(public override val modeString: String) : FileMode {
         READ("r"),
         READWRITE("r+");
     }

@@ -5,6 +5,8 @@ Features:
 - The default policy now ignores all attributes in the xml namespace when
   found missing (it will not throw an exception). If explicitly declared
   they will still be handled.
+- Implement a FileReader and FileWriter (and streams) for native to allow
+  native writing of files.
   
 Fixes:
 - Various high range unicode characters (and modifiers) were incorrectly seen

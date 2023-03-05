@@ -27,12 +27,13 @@ import kotlin.test.*
 class FileIOTest {
 
     lateinit var testFile: CPointer<FILE>
-    lateinit var writer: FileWriter
+    lateinit var writer: OutputStreamWriter
 
     @BeforeTest
     fun createTestTmpFile() {
-        testFile = tmpfile() ?: throw IOException.fromErrno()
-        writer = FileWriter(FileOutputStream(testFile))
+//        testFile = tmpfile() ?: throw IOException.fromErrno()
+        testFile = fopen("/tmp/test.txt", "w+") ?: throw IOException.fromErrno()
+        writer = OutputStreamWriter(FileOutputStream(testFile))
     }
 
     @AfterTest
@@ -63,7 +64,7 @@ class FileIOTest {
         rewind(testFile)
 
 
-        val actualLines = FileReader(FileInputStream(testFile)).lines().toList()
+        val actualLines = InputStreamReader(FileInputStream(testFile)).lines().toList()
 
         assertEquals(1, actualLines.size)
         assertEquals(text, actualLines.single())
@@ -81,7 +82,7 @@ class FileIOTest {
         }
         rewind(testFile)
 
-        val actualLines = FileReader(FileInputStream(testFile)).lines().toList()
+        val actualLines = InputStreamReader(FileInputStream(testFile)).lines().toList()
         assertContentEquals(lines, actualLines)
     }
 }
