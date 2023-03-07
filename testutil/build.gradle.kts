@@ -28,7 +28,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
+    signing
+    id(libs.plugins.dokka.get().pluginId)
     idea
+    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_serial_version: String by project
@@ -37,15 +41,15 @@ val xmlutil_util_version: String by project
 val xmlutil_versiondesc: String by project
 
 base {
-    archivesName.set("serialutil")
-    version = xmlutil_util_version
+    archivesName.set("xmltestutil")
+    version = xmlutil_core_version
 }
 
 val kotlin_version: String get() = libs.versions.kotlin.get()
 
 val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
-val moduleName = "net.devrieze.serialutil"
+val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
     targets {
@@ -55,22 +59,15 @@ kotlin {
                 attribute(androidAttribute, false)
             }
             compilations.all {
-                compileKotlinTaskProvider.configure {
+                compileTaskProvider.configure {
                     kotlinOptions {
                         jvmTarget = "1.8"
                     }
                 }
             }
-        }
-        jvm("android") {
-            attributes {
-                attribute(androidAttribute, true)
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
+            project.idea {
+                module {
+                    logger.lifecycle("The module name is: $moduleName")
                 }
             }
         }
@@ -103,14 +100,11 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-jdk8", kotlin_version))
-            }
-        }
         all {
             languageSettings.apply {
                 optIn("kotlin.RequiresOptIn")
+                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
+                optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
             }
         }
     }
@@ -118,6 +112,10 @@ kotlin {
 }
 
 addNativeTargets()
+
+doPublish()
+
+configureDokka(xmlutil_core_version)
 
 idea {
     module {

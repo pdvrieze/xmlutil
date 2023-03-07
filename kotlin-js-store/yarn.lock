@@ -1137,9 +1137,9 @@ log-symbols@4.1.0:
     is-unicode-supported "^0.1.0"
 
 log4js@^6.4.1:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/log4js/-/log4js-6.8.0.tgz#f0fe9b2b82725aaf97f20692e23381a5c5722448"
-  integrity sha512-g+V8gZyurIexrOvWQ+AcZsIvuK/lBnx2argejZxL4gVZ4Hq02kUYH6WZOnqxgBml+zzQZYdaEoTN84B6Hzm8Fg==
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/log4js/-/log4js-6.9.0.tgz#2687c08b330f610054e79c492b35c677c9b183eb"
+  integrity sha512-sAGxJKqxXFlK+05OlMH6SIDAdvgQHj95EfSDOfkHW6BQUlkz+fZw8PWhydfRHq+0UuWYWR55mVnR+KTnWE2JDA==
   dependencies:
     date-format "^4.0.14"
     debug "^4.3.4"
