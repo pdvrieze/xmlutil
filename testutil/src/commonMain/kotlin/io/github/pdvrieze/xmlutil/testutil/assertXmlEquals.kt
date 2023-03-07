@@ -24,10 +24,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import kotlin.jvm.JvmOverloads
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlin.test.*
 
 @JvmOverloads
 fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> String? = { null }) {
@@ -50,8 +47,11 @@ fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> Str
 
 internal fun XmlReader.nextNotIgnored(): XmlEvent? {
     while (hasNext()) {
-        val ev = next()
-        if (!ev.isIgnorable) return toEvent()
+        val et = next()
+        if (!et.isIgnorable) {
+            val ev = toEvent()
+            if (! ev.isIgnorable) return toEvent()
+        }
     }
     return null
 }
@@ -69,7 +69,7 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () 
                 return
             }
 
-            actEv == null -> fail("${messageProvider()?.let{ "$it. "}}Expected $expEv, but found nothing")
+            actEv == null -> fail("${messageProvider()?.let { "$it. " }}Expected $expEv, but found nothing")
             else -> assertXmlEquals(expEv, actEv, messageProvider)
         }
     } while (actual.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
@@ -92,7 +92,7 @@ fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent, messageProvi
             assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent, messageProvider)
 
         is XmlEvent.EndElementEvent ->
-            assertEquals(expectedEvent.name, (actualEvent as XmlEvent.EndElementEvent).name, messageProvider())
+            assertQNameEquivalent(expectedEvent.name, (actualEvent as XmlEvent.EndElementEvent).name, messageProvider)
 
         is XmlEvent.TextEvent ->
             if (!(expectedEvent.isIgnorable && actualEvent.isIgnorable)) {
@@ -105,18 +105,27 @@ fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent, messageProvi
     }
 }
 
+@JvmOverloads
+fun assertQNameEquivalent(expected: QName, actual: QName, messageProvider: () -> String? = { null }) {
+    asserter.assertTrue(
+        { (messageProvider() ?: "") + "Expected <$expected>, actual <$actual>" },
+        expected.isEquivalent(actual)
+    )
+}
+
 internal fun assertStartElementEquals(
     expectedEvent: XmlEvent.StartElementEvent,
     actualEvent: XmlEvent.StartElementEvent,
     messageProvider: () -> String? = { null }
 ) {
-    assertEquals(expectedEvent.name, actualEvent.name, messageProvider())
-    assertEquals(expectedEvent.attributes.size, actualEvent.attributes.size, messageProvider())
+    assertQNameEquivalent(expectedEvent.name, actualEvent.name, messageProvider)
 
-    val expectedAttrs = expectedEvent.attributes.map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
+    val expectedAttributes = expectedEvent.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
         .sortedBy { "{${it.namespaceUri}}${it.localName}" }
-    val actualAttrs = actualEvent.attributes.map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
+    val actualAttributes = actualEvent.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }
         .sortedBy { "{${it.namespaceUri}}${it.localName}" }
 
-    assertContentEquals(expectedAttrs, actualAttrs, messageProvider())
+    assertContentEquals(expectedAttributes, actualAttributes, messageProvider())
 }
