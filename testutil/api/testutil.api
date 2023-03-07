@@ -1,0 +1,12 @@
+public final class io/github/pdvrieze/xmlutil/testutil/AssertXmlEqualsKt {
+	public static final fun assertXmlEquals (Ljava/lang/String;Ljava/lang/String;)V
+	public static final fun assertXmlEquals (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static final fun assertXmlEquals (Lnl/adaptivity/xmlutil/XmlEvent;Lnl/adaptivity/xmlutil/XmlEvent;)V
+	public static final fun assertXmlEquals (Lnl/adaptivity/xmlutil/XmlEvent;Lnl/adaptivity/xmlutil/XmlEvent;Lkotlin/jvm/functions/Function0;)V
+	public static final fun assertXmlEquals (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun assertXmlEquals (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun assertXmlEquals$default (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun assertXmlEquals$default (Lnl/adaptivity/xmlutil/XmlEvent;Lnl/adaptivity/xmlutil/XmlEvent;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun assertXmlEquals$default (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+}
+
