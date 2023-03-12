@@ -90,6 +90,11 @@ public final class nl/adaptivity/serialutil/MixedContent$Text$Companion : kotlin
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class nl/adaptivity/serialutil/NonNullSerializerKt {
+	public static final fun nonNullSerializer (Lkotlinx/serialization/DeserializationStrategy;)Lkotlinx/serialization/DeserializationStrategy;
+	public static final fun nonNullSerializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
 public final class nl/adaptivity/serialutil/SimpleSerialClassDesc : kotlinx/serialization/descriptors/SerialDescriptor {
 	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;Ljava/util/List;[Lkotlin/Pair;)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialKind;Ljava/util/List;[Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
