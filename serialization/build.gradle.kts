@@ -65,7 +65,6 @@ kotlin {
         jvm {
             attributes {
                 attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
             }
 
             compilations.all {
@@ -96,7 +95,6 @@ kotlin {
         }
         jvm("android") {
             attributes {
-                attribute(androidAttribute, true)
                 attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
