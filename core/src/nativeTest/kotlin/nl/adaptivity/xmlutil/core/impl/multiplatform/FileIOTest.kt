@@ -31,9 +31,14 @@ class FileIOTest {
 
     @BeforeTest
     fun createTestTmpFile() {
-//        testFile = tmpfile() ?: throw IOException.fromErrno()
-        testFile = fopen("/tmp/test.txt", "w+") ?: throw IOException.fromErrno()
-        writer = OutputStreamWriter(FileOutputStream(testFile))
+        memScoped {
+            val fileName: CPointer<ByteVar> = "FILEIOTEST.XXXXXX".cstr.ptr
+            val fileDescriptor = mkstemp(fileName).takeIf { it>=0 } ?: throw IOException.fromErrno()
+            unlink(fileName.toKString())
+            testFile = fdopen(fileDescriptor, "w+") ?: throw IOException.fromErrno()
+            writer = OutputStreamWriter(FileOutputStream(testFile))
+
+        }
     }
 
     @AfterTest
