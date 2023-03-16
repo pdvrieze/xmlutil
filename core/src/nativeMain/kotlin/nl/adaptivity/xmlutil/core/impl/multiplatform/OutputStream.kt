@@ -28,7 +28,7 @@ public actual abstract class OutputStream : Closeable {
      * Write the buffer with the given amount of elements. It gets the element size from the type parameter.
      */
     public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: size_t): size_t {
-        return writePtr(buffer, (sizeOf<T>().toULong()), count)
+        return writePtr(buffer, sizeOf<T>().convert(), count)
     }
 
     /**
@@ -37,7 +37,7 @@ public actual abstract class OutputStream : Closeable {
     public abstract fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: size_t, count: size_t): size_t
 
     public inline fun <reified T : CVariable> writeAllPtr(buffer: CArrayPointer<T>, count: Int) {
-        writeAllPtr(buffer, sizeOf<T>().toULong(), count.toULong())
+        writeAllPtr(buffer, sizeOf<T>().convert(), count.convert())
     }
 
 
