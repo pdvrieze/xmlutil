@@ -47,8 +47,6 @@ val kxml2Version: String by project
 
 val argJvmDefault: String by project
 
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
-
 val autoModuleName = "net.devrieze.xmlutil.core"
 
 kotlin {
@@ -65,17 +63,9 @@ kotlin {
         jvm {
             attributes {
                 attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
             }
             compilations.all {
-                compileTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-//                        freeCompilerArgs += argJvmDefault
-                    }
-                }
                 tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -94,14 +84,8 @@ kotlin {
 
         }
         jvm("android") {
-            attributes {
-                attribute(androidAttribute, true)
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
             compilations.all {
                 tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -136,13 +120,6 @@ kotlin {
                 }
             }
         }
-/*
-        linuxX64 {
-            binaries {
-                sharedLib()
-            }
-        }
-*/
     }
 
     targets.forEach { target ->
@@ -231,23 +208,10 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-
-/*
-        val linuxX64Main by getting {
-            dependsOn(nativeMain)
-        }
-*/
-
     }
     sourceSets.all {
         languageSettings.apply {
-            progressiveMode = true
-            apiVersion = "1.7"
-            languageVersion = "1.8"
-
-            optIn("kotlin.RequiresOptIn")
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-            optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         }
     }
 
@@ -267,9 +231,3 @@ apiValidation {
 doPublish()
 
 configureDokka(myModuleVersion = xmlutil_core_version)
-
-idea {
-    module {
-        name = "xmlutil-core"
-    }
-}
