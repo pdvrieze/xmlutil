@@ -45,32 +45,11 @@ base {
     version = xmlutil_core_version
 }
 
-val kotlin_version: String get() = libs.versions.kotlin.get()
-
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
-
 val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
     targets {
-        jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
-            }
-            compilations.all {
-                compileTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-                    }
-                }
-            }
-            project.idea {
-                module {
-                    logger.lifecycle("The module name is: $moduleName")
-                }
-            }
-        }
+        jvm()
         js(BOTH) {
             browser()
             nodejs()
@@ -102,8 +81,6 @@ kotlin {
 
         all {
             languageSettings.apply {
-                optIn("kotlin.RequiresOptIn")
-                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
                 optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
             }
         }

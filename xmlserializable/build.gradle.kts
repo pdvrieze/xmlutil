@@ -47,11 +47,6 @@ base {
 
 val serializationVersion: String get() = libs.versions.kotlinx.serialization.get()
 
-val argJvmDefault: String by project
-
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
-val environmentAttr = TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-
 val autoModuleName = "net.devrieze.xmlutil.xmlserializable"
 
 val testTask = tasks.create("test") {
@@ -63,21 +58,9 @@ val cleanTestTask = tasks.create("cleanTest") {
 
 kotlin {
     targets {
-
         jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
-            }
             compilations.all {
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-//                        freeCompilerArgs += argJvmDefault
-                    }
-                }
                 tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -89,14 +72,8 @@ kotlin {
             }
         }
         jvm("android") {
-            attributes {
-                attribute(androidAttribute, true)
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
             compilations.all {
                 tasks.named<Test>("${target.name}Test") {
-                    useJUnitPlatform()
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
@@ -128,7 +105,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":core")) // Don't add a runtime dep here
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation(libs.serialization.core)
             }
         }
 
@@ -145,9 +122,6 @@ kotlin {
 
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
-            }
         }
 
         val jvmTest by getting {
@@ -194,11 +168,7 @@ kotlin {
 
     }
     sourceSets.all {
-        languageSettings.apply {
-            progressiveMode = true
-            apiVersion="1.7"
-            languageVersion="1.7"
-            optIn("kotlin.RequiresOptIn")
+        languageSettings {
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
         }
     }

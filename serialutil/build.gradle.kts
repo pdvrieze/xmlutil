@@ -35,42 +35,19 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_serial_version: String by project
-val xmlutil_core_version: String by project
 val xmlutil_util_version: String by project
-val xmlutil_versiondesc: String by project
 
 base {
     archivesName.set("serialutil")
     version = xmlutil_util_version
 }
 
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
-
 val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
-        jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
-            }
-            compilations.all {
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-                    }
-                }
-            }
-        }
-        jvm("android") {
-            attributes {
-                attribute(androidAttribute, true)
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-        }
+        jvm()
+        jvm("android")
         js(BOTH) {
             browser()
             nodejs()
@@ -89,13 +66,6 @@ kotlin {
 
     }
     targets.all {
-        if (this is org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget) {
-            testRuns.all {
-                executionTask.configure {
-                    useJUnitPlatform()
-                }
-            }
-        }
         mavenPublication {
             version = xmlutil_util_version
         }
@@ -121,9 +91,6 @@ kotlin {
 
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk8", libs.versions.kotlin.get()))
-            }
         }
         val jvmTest by getting {
             dependencies {
@@ -150,14 +117,7 @@ kotlin {
                 implementation(kotlin("test-js"))
             }
         }
-
-        all {
-            languageSettings.apply {
-                optIn("kotlin.RequiresOptIn")
-            }
-        }
     }
-
 }
 
 addNativeTargets()
