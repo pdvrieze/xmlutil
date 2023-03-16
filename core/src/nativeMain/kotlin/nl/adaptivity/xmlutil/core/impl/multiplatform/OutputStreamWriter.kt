@@ -71,7 +71,6 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
             }
 
             else -> {
-                println("Codepoint: $codepoint")
                 buffer[0] = (0xF0 or (codepoint shr 18)).toUByte()
                 buffer[1] = (0x80 or ((codepoint shr 12) and 0x3f)).toUByte()
                 buffer[2] = (0x80 or ((codepoint shr 6) and 0x3f)).toUByte()
