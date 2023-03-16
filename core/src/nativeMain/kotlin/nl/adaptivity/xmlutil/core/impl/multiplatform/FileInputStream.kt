@@ -47,8 +47,8 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
 
     public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: size_t, bufferSize: size_t): size_t {
         clearerr(filePtr)
-        val itemsRead = fread(buffer, size, bufferSize, filePtr)
-        if (itemsRead == 0UL) {
+        val itemsRead: size_t = fread(buffer, size, bufferSize, filePtr).convert()
+        if (itemsRead == SIZE0) {
             val error = ferror(filePtr)
             if (error != 0) {
                 throw IOException.fromErrno(error)
@@ -61,8 +61,8 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         clearerr(filePtr)
         memScoped {
             val bytePtr = alloc<UByteVar>()
-            val itemsRead = fread(bytePtr.ptr, 1, 1, filePtr)
-            if (itemsRead == 0UL) {
+            val itemsRead: size_t = fread(bytePtr.ptr, 1, 1, filePtr)
+            if (itemsRead == SIZE0) {
                 val error = ferror(filePtr)
                 if (error != 0) {
                     throw IOException.fromErrno(error)
@@ -85,7 +85,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
 
     public fun read(buffer: UByteArray, offset: Int = 0, len: Int = buffer.size - offset): Int {
         buffer.usePinned { buf ->
-            return read(buf.addressOf(offset), 1UL, len.toULong()).toInt()
+            return read(buf.addressOf(offset), 1.convert(), len.convert()).toInt()
         }
     }
 

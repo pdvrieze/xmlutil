@@ -40,9 +40,9 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
 
     public fun write(buffer: UByteArray, begin: Int = 0, end: Int = buffer.size - begin): Unit {
         var loopBegin: Int = begin
-        var remaining: size_t = (end - loopBegin).toULong()
-        buffer.usePinned {buf ->
-            while (remaining > 0UL) {
+        var remaining: size_t = (end - loopBegin).convert()
+        buffer.usePinned { buf ->
+            while (remaining > SIZE0) {
                 val bufferPtr = buf.addressOf(loopBegin)
                 val written = writePtr(bufferPtr, remaining)
                 loopBegin += written.toInt()
@@ -57,9 +57,9 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
 
     public override fun write(buffer: ByteArray, begin: Int, end: Int): Unit {
         var loopBegin: Int = begin
-        var remaining: size_t = end.toULong() - loopBegin.toULong()
+        var remaining: size_t = end.convert<size_t>() - loopBegin.convert<size_t>()
         buffer.usePinned { buf ->
-            while (remaining > 0UL) {
+            while (remaining > SIZE0) {
                 val bufStart = buf.addressOf(loopBegin)
                 val written = writePtr(bufStart, remaining)
                 loopBegin += written.toInt()
@@ -70,15 +70,15 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
 
     /** Write buffers to the underlying file (where valid). */
     public fun flush() {
-        if(fflush(filePtr) != 0) {
+        if (fflush(filePtr) != 0) {
             throw IOException.fromErrno()
         }
     }
 
     public override fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: size_t, count: size_t): size_t {
         clearerr(filePtr)
-        val elemsWritten = fwrite(buffer, size, count, filePtr)
-        if (elemsWritten == 0UL && count != 0UL) {
+        val elemsWritten: size_t = fwrite(buffer, size, count, filePtr)
+        if (elemsWritten == SIZE0 && count != SIZE0) {
             val e = ferror(filePtr)
             throw IOException.fromErrno(e)
         }
@@ -88,11 +88,11 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
     public override fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: size_t, count: size_t) {
 
         clearerr(filePtr)
-        var elemsRemaining = count
+        var elemsRemaining: size_t = count
         var currentBufferPointer = buffer
-        while (elemsRemaining>0u) {
-            val elemsWritten = fwrite(currentBufferPointer, size, count, filePtr)
-            if (elemsWritten == 0UL) {
+        while (elemsRemaining > SIZE0) {
+            val elemsWritten : size_t = fwrite(currentBufferPointer, size, count, filePtr)
+            if (elemsWritten == SIZE0) {
                 val e = ferror(filePtr)
                 throw IOException.fromErrno(e)
             }
@@ -108,8 +108,10 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
         }
     }
 
-    public enum class Mode(public override val modeString: String): FileMode {
+    public enum class Mode(public override val modeString: String) : FileMode {
         TRUNCATED("w"),
         APPEND("a");
     }
 }
+
+internal val SIZE0: size_t = 0.convert<size_t>()
