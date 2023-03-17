@@ -144,4 +144,23 @@ abstract class TestCommonReader {
         }
     }
 
+    protected fun testIgnorableWhitespace(createReader: (String) -> XmlReader) {
+        val reader = createReader(
+            """
+            <root xmlns="foo">
+                <ns2:bar xmlns:ns2="bar"/>
+            </root>
+            """.trimIndent()
+        )
+
+        run {
+            var event = reader.next()
+            if (event == EventType.START_DOCUMENT) event = reader.next()
+            assertEquals(EventType.START_ELEMENT, event)
+        }
+
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+    }
+
+
 }

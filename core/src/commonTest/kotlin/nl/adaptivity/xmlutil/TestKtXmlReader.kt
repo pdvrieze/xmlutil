@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -54,6 +55,12 @@ class TestKtXmlReader : TestCommonReader() {
     @Test
     fun testReadUnknownEntity() {
         testReadUnknownEntity(XmlStreaming::newGenericReader)
+    }
+
+    @Ignore
+    @Test
+    fun testIgnorableWhitespace() {
+        testIgnorableWhitespace(XmlStreaming::newGenericReader)
     }
 
 }
