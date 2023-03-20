@@ -17,6 +17,7 @@ Fixes:
   `polymorhpicDefaultDeserializer`. "Fixes" #126 (the underlying issues are
   [KT-55318](https://youtrack.jetbrains.com/issue/KT-55318)
   and [KT-56602](https://youtrack.jetbrains.com/issue/KT-56602))
+- Support document fragments in DomReader
 
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*

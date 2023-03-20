@@ -276,12 +276,13 @@ private fun Short.toEventType(endOfElement: Boolean): EventType {
         NodeConsts.COMMENT_NODE -> EventType.COMMENT
         NodeConsts.DOCUMENT_TYPE_NODE -> EventType.DOCDECL
         NodeConsts.ENTITY_REFERENCE_NODE -> EventType.ENTITY_REF
+        NodeConsts.DOCUMENT_FRAGMENT_NODE,
         NodeConsts.DOCUMENT_NODE -> if (endOfElement) EventType.START_DOCUMENT else EventType.END_DOCUMENT
 //    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
         NodeConsts.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
         NodeConsts.TEXT_NODE -> EventType.TEXT
         NodeConsts.ELEMENT_NODE -> if (endOfElement) EventType.END_ELEMENT else EventType.START_ELEMENT
 //    Node.ELEMENT_NODE -> EventType.END_ELEMENT
-        else -> throw XmlException("Unsupported event type")
+        else -> throw XmlException("Unsupported event type ($this)")
     }
 }
