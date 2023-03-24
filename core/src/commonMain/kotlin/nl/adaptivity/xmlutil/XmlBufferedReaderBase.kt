@@ -60,7 +60,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.START_ELEMENT -> (current as StartElementEvent).localName
             EventType.END_ELEMENT -> (current as EndElementEvent).localName
             else -> throw XmlException(
-                "Attribute not defined here: namespaceUri"
+                "Attribute not defined here: localName"
             )
         }
 
@@ -69,7 +69,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.ATTRIBUTE -> (current as Attribute).prefix
             EventType.START_ELEMENT -> (current as StartElementEvent).prefix
             EventType.END_ELEMENT -> (current as EndElementEvent).prefix
-            else -> throw XmlException("Attribute not defined here: namespaceUri")
+            else -> throw XmlException("Attribute not defined here: prefix")
         }
 
     override val depth: Int
