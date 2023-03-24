@@ -57,7 +57,6 @@ class TestBufferedXmlReader : TestCommonReader() {
         testReadEntity(::createReader)
     }
 
-    @Ignore // broken
     @Test
     fun testReadUnknownEntity() {
         testReadUnknownEntity { XmlBufferedReader(KtXmlReader(StringReader(it))) }

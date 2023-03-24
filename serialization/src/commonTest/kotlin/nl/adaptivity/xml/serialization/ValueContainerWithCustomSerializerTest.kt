@@ -20,12 +20,19 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
+import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
-import kotlin.test.Ignore
-import kotlin.test.Test
 
 class ValueContainerWithCustomSerializerTest : PlatformXmlTestBase<ValueContainerWithCustomSerializerTest.ValueContainer>(
     ValueContainer(InnerValueContainer("<foo&bar>")),
@@ -42,27 +49,87 @@ class ValueContainerWithCustomSerializerTest : PlatformXmlTestBase<ValueContaine
     @XmlSerialName("innerValueContainer")
     data class InnerValueContainer(@XmlValue(true) val content: String)
 
-    @Test
-    @Ignore
-    override fun testSerializeXml() {
-        super.testSerializeXml()
+    object CompatValueContainerSerializer : ValueContainerSerializer() {
+        override fun delegateFormat(decoder: Decoder) = (decoder as XML.XmlInput).delegateFormat()
+        override fun delegateFormat(encoder: Encoder) = (encoder as XML.XmlOutput).delegateFormat()
     }
 
-    @Test
-    @Ignore
-    override fun testGenericSerializeXml() {
-        super.testGenericSerializeXml()
-    }
+    abstract class ValueContainerSerializer : KSerializer<ValueContainer> {
 
-    @Test
-    @Ignore
-    override fun testDeserializeXml() {
-        super.testDeserializeXml()
-    }
+        private val elementSerializer = serializer<InnerValueContainer>()
 
-    @Test
-    @Ignore
-    override fun testGenericDeserializeXml() {
-        super.testGenericDeserializeXml()
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("valueContainer") {
+            element("innerValueContainer", elementSerializer.descriptor)
+        }
+
+        override fun deserialize(decoder: Decoder): ValueContainer {
+            return if (decoder is XML.XmlInput) {
+                deserializeContainer(decoder, decoder.input)
+            } else {
+                val data = decoder.decodeStructure(descriptor) {
+                    decodeSerializableElement(descriptor, 0, elementSerializer)
+                }
+                ValueContainer(data)
+            }
+        }
+
+        private fun deserializeContainer(
+            decoder: Decoder,
+            reader: XmlReader
+        ): ValueContainer {
+            val xml = delegateFormat(decoder)
+
+            var innerValueContainer: InnerValueContainer =
+                InnerValueContainer("")
+
+            decoder.decodeStructure(descriptor) {
+
+                while (reader.next() != EventType.END_ELEMENT) {
+                    when (reader.eventType) {
+                        EventType.COMMENT,
+                        EventType.IGNORABLE_WHITESPACE,
+                        EventType.ENTITY_REF,
+                        EventType.TEXT -> {
+                        }
+                        EventType.START_ELEMENT -> {
+                            if (reader.localName != "innerValueContainer") {
+                                reader.skipElement()
+                            } else {
+                                innerValueContainer = xml.decodeFromReader(serializer(), reader)
+                            }
+                        }
+                        else ->
+                            throw XmlException("Unexpected tag content")
+                    }
+                }
+            }
+
+            return ValueContainer(innerValueContainer)
+        }
+
+        override fun serialize(encoder: Encoder, value: ValueContainer) {
+            if (encoder is XML.XmlOutput) {
+                return serializeContainer(encoder, encoder.target, value.inner)
+            } else {
+                encoder.encodeStructure(descriptor) {
+                    encodeSerializableElement(descriptor, 0, elementSerializer, value.inner)
+                }
+            }
+        }
+
+        private fun serializeContainer(
+            encoder: Encoder,
+            target: XmlWriter,
+            data: InnerValueContainer
+        ) {
+            val xml = delegateFormat(encoder)
+            encoder.encodeStructure(descriptor) {
+                xml.encodeToWriter(target, elementSerializer, data)
+            }
+        }
+
+        abstract fun delegateFormat(decoder: Decoder): XML
+        abstract fun delegateFormat(encoder: Encoder): XML
+
     }
 }

@@ -58,6 +58,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
 
     override val localName: String
         get() = when (current?.eventType) {
+            EventType.ENTITY_REF -> (current as EntityRefEvent).localName
             EventType.ATTRIBUTE -> (current as Attribute).localName
             EventType.START_ELEMENT -> (current as StartElementEvent).localName
             EventType.END_ELEMENT -> (current as EndElementEvent).localName
