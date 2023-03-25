@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class TestXmlReader : TestCommonReader() {
@@ -51,7 +50,6 @@ class TestXmlReader : TestCommonReader() {
         testReadEntity(XmlStreaming::newReader)
     }
 
-    @Ignore
     @Test
     fun testIgnorableWhitespace() {
         testIgnorableWhitespace(XmlStreaming::newReader)

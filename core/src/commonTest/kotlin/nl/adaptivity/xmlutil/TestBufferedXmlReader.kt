@@ -62,7 +62,6 @@ class TestBufferedXmlReader : TestCommonReader() {
         testReadUnknownEntity { XmlBufferedReader(KtXmlReader(StringReader(it))) }
     }
 
-    @Ignore
     @Test
     fun testIgnorableWhitespace() {
         testIgnorableWhitespace(::createReader)

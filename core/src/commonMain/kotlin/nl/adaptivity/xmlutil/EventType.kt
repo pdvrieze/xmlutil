@@ -167,6 +167,7 @@ public enum class EventType {
     },
     IGNORABLE_WHITESPACE {
         override val isIgnorable: Boolean get() = true
+        override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
             TextEvent(locationInfo, IGNORABLE_WHITESPACE, text)

@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

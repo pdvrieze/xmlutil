@@ -20,6 +20,7 @@ Fixes:
 - Support document fragments in DomReader
 - Make the StAXReader not skip the StartDocument event initially.
 - Make XmlBufferedReader.nextTagEvent process/ignore StartDocument.
+- Made ignorable whitespace more consistent. #128
 
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*

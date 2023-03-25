@@ -22,15 +22,6 @@ package nl.adaptivity.xmlutil.core.impl
 
 import nl.adaptivity.xmlutil.*
 
-internal val CharSequence.isIgnorableWhitespace: Boolean
-    get() = all(Char::isIgnorableWhitespace)
-
-internal val Char.isIgnorableWhitespace: Boolean
-    get() = when (this) {
-        ' ', '\t', '\r', '\n' -> true
-        else -> false
-    }
-
 /**
  * Base class for platform xml writers. It contains common code. */
 @XmlUtilInternal
@@ -73,7 +64,7 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
             fun sbToTextEvent() {
                 if (sb.isNotEmpty()) {
                     val text = sb.toString()
-                    if (!text.isIgnorableWhitespace) {
+                    if (!text.isXmlWhitespace()) {
                         throw XmlException("Indents can only be whitespace or comments: ${text}")
                     }
                     result.add(XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, text))

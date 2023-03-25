@@ -23,8 +23,10 @@ package nl.adaptivity.xmlutil.core
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
+import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmStatic
 
 @ExperimentalXmlUtilApi
 public class KtXmlReader internal constructor(
@@ -273,12 +275,14 @@ public class KtXmlReader internal constructor(
                 END_DOCUMENT -> return
                 TEXT -> {
                     pushText('<'.code, !token)
+                    if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
+/*
                     if (depth == 0) {
-                        if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
                         // make exception switchable for instances.chg... !!!!
                         //	else
                         //    exception ("text '"+getText ()+"' not allowed outside root element");
                     }
+*/
                     return
                 }
                 else -> {
@@ -453,7 +457,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun push(c: Int) {
-        isWhitespace = isWhitespace and (c <= ' '.code)
+        isWhitespace = isWhitespace and c.isXmlWhitespace()
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
         }
@@ -600,7 +604,7 @@ public class KtXmlReader internal constructor(
         var next = peek(0)
         var cbrCount = 0
         while (next != -1 && next != delimiter) { // covers eof, '<', '"'
-            if (delimiter == ' '.code) if (next <= ' '.code || next == '>'.code) break
+            if (delimiter == ' '.code) if (next.isXmlWhitespace() || next == '>'.code) break
             if (next == '&'.code) {
                 if (!resolveEntities) break
                 pushEntity()
@@ -965,4 +969,6 @@ public class KtXmlReader internal constructor(
         set(value) {
             attributes.data[index * 4 + 3] = value
         }
+
+
 }

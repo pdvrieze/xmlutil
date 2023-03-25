@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.XmlException
-import nl.adaptivity.xmlutil.core.impl.isIgnorableWhitespace
+import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.InputStreamReader
@@ -51,27 +51,33 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                     0x00000FEFF -> {
                         enc = "UTF-32BE"
                     }
+
                     -0x20000 -> {
                         enc = "UTF-32LE"
                     }
+
                     0x03c -> {
                         enc = "UTF-32BE"
                         srcBuf[0] = '<'
                     }
+
                     0x03c000000 -> {
                         enc = "UTF-32LE"
                         srcBuf[0] = '<'
                     }
+
                     0x0003c003f -> {
                         enc = "UTF-16BE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
                     }
+
                     0x03c003f00 -> {
                         enc = "UTF-16LE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
                     }
+
                     0x03c3f786d -> {
                         while (true) {
                             val i: Int = bufferedInput.read()
@@ -81,21 +87,23 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                 val xmlDeclContent = String(srcBuf, 0, srcBufCount)
                                 var encAttrOffset = -1
                                 do {
-                                    encAttrOffset = xmlDeclContent.indexOf("encoding", encAttrOffset +1)
+                                    encAttrOffset = xmlDeclContent.indexOf("encoding", encAttrOffset + 1)
                                     // TODO handle xml 1.1 whitespace
-                                } while (!(encAttrOffset == 0 || xmlDeclContent[encAttrOffset - 1].isIgnorableWhitespace))
+                                } while (!(encAttrOffset == 0 || xmlDeclContent[encAttrOffset - 1].isXmlWhitespace()))
 
                                 if (encAttrOffset >= 0) {
-                                    var eqPos = encAttrOffset+8
+                                    var eqPos = encAttrOffset + 8
                                     if (relaxed) {
-                                        while (eqPos<xmlDeclContent.length && xmlDeclContent[eqPos].isIgnorableWhitespace) { eqPos++ }
+                                        while (eqPos < xmlDeclContent.length && xmlDeclContent[eqPos].isXmlWhitespace()) {
+                                            eqPos++
+                                        }
                                     }
                                     if (eqPos >= xmlDeclContent.length || xmlDeclContent[eqPos] != '=') {
                                         error("Missing equality character in encoding attribute")
                                     }
-                                    var openQuotPos=eqPos+1
+                                    var openQuotPos = eqPos + 1
                                     if (relaxed) {
-                                        while (openQuotPos < xmlDeclContent.length && xmlDeclContent[openQuotPos].isIgnorableWhitespace) {
+                                        while (openQuotPos < xmlDeclContent.length && xmlDeclContent[openQuotPos].isXmlWhitespace()) {
                                             openQuotPos++
                                         }
 
@@ -105,13 +113,13 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                     }
                                     val delim = xmlDeclContent[openQuotPos]
                                     if (delim == '"' || delim == '\'') {
-                                        var endQuotPos = openQuotPos+1
+                                        var endQuotPos = openQuotPos + 1
                                         while (endQuotPos < xmlDeclContent.length && xmlDeclContent[endQuotPos] != delim) {
                                             endQuotPos++
                                         }
-                                        if (endQuotPos<xmlDeclContent.length) {
-                                            enc = xmlDeclContent.substring(openQuotPos+1, endQuotPos)
-                                        } else  {
+                                        if (endQuotPos < xmlDeclContent.length) {
+                                            enc = xmlDeclContent.substring(openQuotPos + 1, endQuotPos)
+                                        } else {
                                             error("Missing closing quote in encoding")
                                         }
                                     } else {
@@ -132,6 +140,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                             srcBuf[0] = srcBuf[3]
                         }
                     }
+
                     else -> if (chk and -0x10000 == -0x1010000) {
                         enc = "UTF-16BE"
                         srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
