@@ -277,7 +277,7 @@ private fun Short.toEventType(endOfElement: Boolean): EventType {
         NodeConsts.DOCUMENT_TYPE_NODE -> EventType.DOCDECL
         NodeConsts.ENTITY_REFERENCE_NODE -> EventType.ENTITY_REF
         NodeConsts.DOCUMENT_FRAGMENT_NODE,
-        NodeConsts.DOCUMENT_NODE -> if (endOfElement) EventType.START_DOCUMENT else EventType.END_DOCUMENT
+        NodeConsts.DOCUMENT_NODE -> if (endOfElement) EventType.END_DOCUMENT else EventType.START_DOCUMENT
 //    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
         NodeConsts.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
         NodeConsts.TEXT_NODE -> EventType.TEXT
