@@ -242,6 +242,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
                     throw XmlException("Unexpected element found when looking for tags: $current")
                 }
             }
+            EventType.START_DOCUMENT,
             EventType.COMMENT, EventType.IGNORABLE_WHITESPACE,
             EventType.PROCESSING_INSTRUCTION -> nextTagEvent()
             EventType.START_ELEMENT, EventType.END_ELEMENT -> current
