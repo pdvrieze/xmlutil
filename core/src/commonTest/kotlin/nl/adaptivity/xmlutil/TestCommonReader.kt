@@ -129,4 +129,18 @@ abstract class TestCommonReader {
         }
     }
 
+    protected fun testReadUnknownEntity(createReader: (String) -> XmlReader) {
+        val xml = """<tag>&unknown;</tag>"""
+        createReader(xml).use { reader ->
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals(QName("tag"), reader.name)
+
+            assertEquals(EventType.ENTITY_REF, reader.next())
+            assertEquals("unknown", reader.localName)
+
+            assertEquals(EventType.END_ELEMENT, reader.next())
+            assertEquals(QName("tag"), reader.name)
+        }
+    }
+
 }

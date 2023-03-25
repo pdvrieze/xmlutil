@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
@@ -47,6 +49,11 @@ class TestKtXmlReader : TestCommonReader() {
     @Test
     fun testGenericReadEntity() {
         testReadEntity(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testReadUnknownEntity() {
+        testReadUnknownEntity(XmlStreaming::newGenericReader)
     }
 
 }

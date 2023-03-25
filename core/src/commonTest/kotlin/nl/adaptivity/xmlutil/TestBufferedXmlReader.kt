@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 class TestBufferedXmlReader : TestCommonReader() {
@@ -52,6 +55,12 @@ class TestBufferedXmlReader : TestCommonReader() {
     @Test
     fun testReadEntity() {
         testReadEntity(::createReader)
+    }
+
+    @Ignore // broken
+    @Test
+    fun testReadUnknownEntity() {
+        testReadUnknownEntity { XmlBufferedReader(KtXmlReader(StringReader(it))) }
     }
 
 }
