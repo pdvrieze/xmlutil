@@ -94,7 +94,8 @@ abstract class TestCommonReader {
             assertTrue(reader.hasNext())
             assertEquals(EventType.START_ELEMENT, reader.next())
             assertEquals(QName("MixedAttributeContainer"), reader.name)
-            assertEquals(4, reader.attributeCount)
+            val attributes = reader.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+            assertEquals(4, attributes.size)
 
             assertTrue(reader.hasNext())
             assertEquals(EventType.END_ELEMENT, reader.next())

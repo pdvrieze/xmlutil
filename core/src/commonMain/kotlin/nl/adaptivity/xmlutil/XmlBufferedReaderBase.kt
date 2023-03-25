@@ -29,8 +29,10 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element
-        for(ns in delegate.namespaceContext) {
-            namespaceHolder.addPrefixToContext(ns)
+        if (delegate.isStarted) {
+            for (ns in delegate.namespaceContext) {
+                namespaceHolder.addPrefixToContext(ns)
+            }
         }
     }
 
@@ -38,7 +40,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     protected abstract val hasPeekItems: Boolean
 
     @XmlUtilInternal
-    protected var current: XmlEvent? = XmlEvent.from(delegate)
+    protected var current: XmlEvent? = if (delegate.isStarted) XmlEvent.from(delegate) else null
         private set
 
     private val currentElement: StartElementEvent
