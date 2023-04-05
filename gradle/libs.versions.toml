@@ -2,7 +2,7 @@
 ktor = "1.6.8"
 junit5-jupiter = "5.9.2"
 kotlinx-serialization = "1.5.0"
-kotlin = "1.8.10"
+kotlin = "1.8.20"
 dokka = "1.7.20"
 binaryValidator = "0.13.0"
 woodstox = "6.2.6"

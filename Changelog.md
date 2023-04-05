@@ -7,6 +7,7 @@ Features:
   they will still be handled.
 - Implement a FileReader and FileWriter (and streams) for native to allow
   native writing of files.
+- Update to Kotlin 1.8.20
   
 Fixes:
 - Various high range unicode characters (and modifiers) were incorrectly seen
