@@ -337,7 +337,7 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             previousValue: T?
         ): T {
-            val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(deserializer) ?: previousValue
+            val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, deserializer) ?: previousValue
             @Suppress("UNCHECKED_CAST")
             return default as T
         }

@@ -126,6 +126,11 @@ kotlin {
 
         val inlineSupportTest by creating {
             dependsOn(commonMain)
+            dependsOn(commonTest)
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
         }
 
         val javaShared by creating {

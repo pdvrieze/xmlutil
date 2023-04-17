@@ -24,8 +24,6 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -203,8 +201,7 @@ public class XML constructor(
         target.indentString = config.indentString
 
         if (prefix != null) {
-            val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
-            val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, null)
+            val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, null)
 
             val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
 
@@ -233,7 +230,6 @@ public class XML constructor(
         target.indentString = config.indentString
 
         if (target.depth == 0) {
-            @Suppress("NON_EXHAUSTIVE_WHEN")
             when (config.xmlDeclMode) {
                 XmlDeclMode.Minimal -> {
                     target.startDocument(config.xmlVersion.versionString)
@@ -249,11 +245,11 @@ public class XML constructor(
             }
         }
 
-        val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
-        val root = XmlRootDescriptor(xmlEncoderBase, serializer.descriptor, rootName)
+        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootName)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
+        val xmlEncoderBase = XmlEncoderBase(serializersModule, config, target)
         val encoder = when {
             config.isCollectingNSAttributes -> {
                 val collectedNamespaces = collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
@@ -263,11 +259,11 @@ public class XML constructor(
                 })
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
                 val newRootName = rootName?.remapPrefix(prefixMap)
-                val newRoot = XmlRootDescriptor(remappedEncoderBase, serializer.descriptor, newRootName)
+                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
 
-                xmlEncoderBase.NSAttrXmlEncoder(
+                remappedEncoderBase.NSAttrXmlEncoder(
                     newDescriptor,
                     collectedNamespaces,
                     -1
@@ -446,7 +442,7 @@ public class XML constructor(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
-        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, serialName)
+        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, serialName)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
         val polyInfo = (elementDescriptor as? XmlPolymorphicDescriptor)?.run {
@@ -486,8 +482,7 @@ public class XML constructor(
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
             )
 
-        val codecBase = XmlEncoderBase(serializersModule, config, XmlStreaming.newWriter(StringWriter(), true))
-        return XmlRootDescriptor(codecBase, serialDescriptor, serialName)
+        return XmlRootDescriptor(config, serializersModule, serialDescriptor, serialName)
     }
 
     /**
@@ -657,10 +652,6 @@ public class XML constructor(
 
         public fun xmlDescriptor(serializer: KSerializer<*>): XmlDescriptor {
             return defaultInstance.xmlDescriptor(serializer)
-        }
-
-        private fun xmlDescriptor(serialDescriptor: SerialDescriptor): XmlRootDescriptor {
-            return defaultInstance.xmlDescriptor(serialDescriptor)
         }
 
         /**
