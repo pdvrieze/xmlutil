@@ -22,6 +22,12 @@ Fixes:
 - Make the StAXReader not skip the StartDocument event initially.
 - Make XmlBufferedReader.nextTagEvent process/ignore StartDocument.
 - Made ignorable whitespace more consistent. #128
+- Fix handling of `isCollectingNSAttributes` (#135). This will now properly
+  handle sealed polymorphism as well as deal properly with the default
+  namespace: properties without prefix will not register the null namespace.
+  If the default namespace is used anywhere, this ensures that prefixes are
+  used otherwise. This will avoid all occurences of `xmlns=""` (and
+  `xmlns:prefix=""`)
 
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*

@@ -24,6 +24,8 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -33,8 +35,10 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
+import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
+import nl.adaptivity.xmlutil.serialization.impl.PrefixWrappingPolicy
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.XmlAttributeMapDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
@@ -251,12 +255,24 @@ public class XML constructor(
         val xmlDescriptor = root.getElementDescriptor(0)
 
         val encoder = when {
-            config.isCollectingNSAttributes ->
+            config.isCollectingNSAttributes -> {
+                val collectedNamespaces = collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
+                val prefixMap = collectedNamespaces.associate { it.namespaceURI to it.prefix }
+                val newConfig = XmlConfig(XmlConfig.Builder(config).apply {
+                    policy = PrefixWrappingPolicy(policy ?: policyBuilder().build(), prefixMap)
+                })
+                val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
+                val newRootName = rootName?.remapPrefix(prefixMap)
+                val newRoot = XmlRootDescriptor(remappedEncoderBase, serializer.descriptor, newRootName)
+                val newDescriptor = newRoot.getElementDescriptor(0)
+
+
                 xmlEncoderBase.NSAttrXmlEncoder(
-                    xmlDescriptor,
-                    collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value),
+                    newDescriptor,
+                    collectedNamespaces,
                     -1
                 )
+            }
 
             else -> xmlEncoderBase.XmlEncoder(xmlDescriptor, -1)
         }
@@ -281,7 +297,18 @@ public class XML constructor(
         fun collect(prefix: String, namespaceUri: String) {
             if (namespaceUri !in namespaceToPrefixMap) {
                 if (prefix in prefixToNamespaceMap) { // prefix with different usage
-                    pendingNamespaces.add(namespaceUri)
+                    // For the default namespace, always force this to be the empty prefix (remap
+                    // all other namespaces)
+                    if (namespaceUri.isEmpty()) {
+                        prefixToNamespaceMap[""]?.let { oldDefaultNamespace ->
+                            pendingNamespaces.add(oldDefaultNamespace)
+                            namespaceToPrefixMap.remove(oldDefaultNamespace)
+                        }
+                        prefixToNamespaceMap[""] = ""
+                        namespaceToPrefixMap[""] = ""
+                    } else {
+                        pendingNamespaces.add(namespaceUri)
+                    }
                 } else { // Prefix has not been seen before
                     if (namespaceUri in pendingNamespaces) { // If it matches a pending namespace use that
                         pendingNamespaces.remove(namespaceUri)
@@ -295,10 +322,23 @@ public class XML constructor(
         fun collect(descriptor: XmlDescriptor) {
             val prefix = descriptor.tagName.prefix
             val namespaceUri = descriptor.tagName.namespaceURI
-            collect(prefix, namespaceUri)
+            /* Don't register attributes without prefix in the default namespace (that doesn't
+             * require namespace declarations). #135
+             */
+            if (descriptor.effectiveOutputKind != OutputKind.Attribute || namespaceUri.isNotEmpty() || prefix.isNotEmpty()) {
+                collect(prefix, namespaceUri)
+            }
 
-            for (childIdx in 0 until descriptor.elementsCount) {
-                val childDescriptor = descriptor.getElementDescriptor(childIdx)
+            val childrenToCollect = mutableListOf<XmlDescriptor>()
+            if (descriptor is XmlPolymorphicDescriptor) {
+                childrenToCollect.addAll(descriptor.polyInfo.values)
+            }
+            for (elementIndex in 0 until descriptor.elementsCount) {
+                childrenToCollect.add(descriptor.getElementDescriptor(elementIndex))
+            }
+
+            for (childDescriptor in childrenToCollect) {
+
                 if (childDescriptor.overriddenSerializer == XmlQNameSerializer) {
                     throw QNamePresentException()
                 }
@@ -343,6 +383,7 @@ public class XML constructor(
         }
 
         return prefixToNamespaceMap.asSequence()
+            .filterNot { (prefix, ns) -> prefix.isEmpty() && ns.isEmpty() } // skip empy namespace
             .map { XmlEvent.NamespaceImpl(it.key, it.value) }
             .sortedBy { it.prefix }
             .toList()
