@@ -28,8 +28,8 @@ import nl.adaptivity.xmlutil.XmlWriter
 internal class NamespaceCollectingXmlWriter(
     private val prefixToUriMap: MutableMap<String, String>,
     private val uriToPrefixMap: MutableMap<String, String>,
-    private val plainUriMap: MutableSet<String>
-                                           ): XmlWriter {
+    private val pendingNamespaces: MutableSet<String>
+) : XmlWriter {
 
     override var depth: Int = 0
 
@@ -37,11 +37,19 @@ internal class NamespaceCollectingXmlWriter(
 
     private fun recordNamespace(prefix: String, namespaceUri: String) {
         if (namespaceUri !in uriToPrefixMap) {
-            if (prefix in prefixToUriMap) {
-                plainUriMap.add(namespaceUri)
+            if (namespaceUri.isEmpty()) { // always special case the default namespace
+                val existingDefaultNamespace = prefixToUriMap[""]
+                if (existingDefaultNamespace!=null) {
+                    uriToPrefixMap.remove(existingDefaultNamespace)
+                    pendingNamespaces.add(existingDefaultNamespace)
+                }
+                uriToPrefixMap[""] = ""
+                prefixToUriMap[""] = ""
+            } else if (prefix in prefixToUriMap) {
+                pendingNamespaces.add(namespaceUri)
             } else {
-                if (namespaceUri in plainUriMap) {
-                    plainUriMap.remove(namespaceUri)
+                if (namespaceUri in pendingNamespaces) {
+                    pendingNamespaces.remove(namespaceUri)
                 }
                 prefixToUriMap[prefix] = namespaceUri
                 uriToPrefixMap[namespaceUri] = prefix
@@ -63,9 +71,9 @@ internal class NamespaceCollectingXmlWriter(
 
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
         if (namespace == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
-            if (prefix==XMLConstants.XMLNS_ATTRIBUTE) {
+            if (prefix == XMLConstants.XMLNS_ATTRIBUTE) {
                 namespaceAttr(prefix, value)
-            } else if (prefix=="") {
+            } else if (prefix == "") {
                 namespaceAttr(name, value)
             }
         }

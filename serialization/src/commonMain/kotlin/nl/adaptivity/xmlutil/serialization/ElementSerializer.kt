@@ -290,8 +290,16 @@ public object NodeSerializer : KSerializer<Node> {
     }
 
     override fun serialize(encoder: Encoder, value: Node) {
+        // Note that only for elements
         encoder.encodeStructure(descriptor) {
             when (value.nodeType) {
+                NodeConsts.DOCUMENT_NODE,
+                NodeConsts.DOCUMENT_FRAGMENT_NODE -> {
+                    val type = if (value.nodeType == NodeConsts.DOCUMENT_FRAGMENT_NODE) "fragment" else "document"
+                    encodeStringElement(descriptor, 0, type)
+                    val children = value.childNodes.iterator().asSequence().toList()
+                    encodeSerializableElement(descriptor, 1, ListSerializer(NodeSerializer), children)
+                }
                 NodeConsts.ELEMENT_NODE -> {
                     encodeStringElement(descriptor, 0, "element")
                     encodeSerializableElement(descriptor, 1, ElementSerializer, value as Element)
