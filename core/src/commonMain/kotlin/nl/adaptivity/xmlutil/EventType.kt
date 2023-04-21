@@ -51,7 +51,8 @@ public enum class EventType {
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
             writer.startTag(reader.namespaceURI, reader.localName, reader.prefix)
-
+            // Note that some readers expose namespace attributes as attributes (DOM!!), others don't.
+            // Both need to be handled
             for (attr in reader.namespaceDecls) {
                 writer.namespaceAttr(attr.prefix, attr.namespaceURI)
             }

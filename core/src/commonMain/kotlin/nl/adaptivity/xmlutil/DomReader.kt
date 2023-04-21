@@ -74,14 +74,16 @@ public class DomReader(public val delegate: Node) : XmlReader {
         }
 
     private var _namespaceAttrs: List<Attr>? = null
-    internal val namespaceAttrs: List<Attr>
+    private val namespaceAttrs: List<Attr>
         get() {
-
             return _namespaceAttrs ?: (
-                    requireCurrentElem.attributes.filterTyped { it.prefix == "xmlns" || (it.prefix.isNullOrEmpty() && it.localName == "xmlns") }
-                        .also {
-                            _namespaceAttrs = it
-                        })
+                    requireCurrentElem.attributes.filterTyped {
+                        (it.namespaceURI == null || it.namespaceURI== XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
+                        (it.prefix == "xmlns" || (it.prefix.isNullOrEmpty() && it.localName == "xmlns")) &&
+                                it.value!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+                    }.also {
+                        _namespaceAttrs = it
+                    })
 
         }
 
@@ -158,23 +160,22 @@ public class DomReader(public val delegate: Node) : XmlReader {
 
     override val namespaceDecls: List<Namespace>
         get() {
-            return sequence<Namespace> {
-                for (attr in attributes) {
-                    when {
-                        attr.prefix == "xmlns" ->
-                            yield(XmlEvent.NamespaceImpl(attr.localName, attr.value))
+            return namespaceAttrs.map { attr ->
+                when {
+                    attr.prefix == "xmlns" ->
+                        XmlEvent.NamespaceImpl(attr.localName!!, attr.value)
 
-                        attr.prefix.isEmpty() && attr.localName == "xmlns" ->
-                            yield(XmlEvent.NamespaceImpl("", attr.value))
-                    }
+                    else ->
+                        XmlEvent.NamespaceImpl("", attr.value)
                 }
-            }.toList()
+            }
         }
 
     override val encoding: String?
         get() {
             val d = delegate
-            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNCHECKED_CAST")
+            // Note that unchecked cast is thrown for javascript
+            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION", "UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
             return when (d.nodeType) {
                 NodeConsts.DOCUMENT_NODE -> (d as Document).inputEncoding
                 else -> d.ownerDocument!!.inputEncoding
