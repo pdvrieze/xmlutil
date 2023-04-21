@@ -247,7 +247,7 @@ public fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence
  */
 @JvmOverloads
 public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? = null) {
-    if (nsUri == null) {
+    if (nsUri == null || nsUri == XMLConstants.XML_NS_URI || nsUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
         val namespace = namespaceContext.getNamespaceURI(prefix ?: DEFAULT_NS_PREFIX) ?: NULL_NS_URI
         startTag(namespace, localName, prefix)
     } else {
