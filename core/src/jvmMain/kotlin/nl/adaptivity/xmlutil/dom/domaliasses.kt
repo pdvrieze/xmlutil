@@ -79,7 +79,7 @@ public actual inline fun Document.getInputEncoding(): String? = inputEncoding
 
 public actual fun Element.getNamespaceURI(): String? = namespaceURI
 public actual fun Element.getPrefix(): String? = prefix
-public actual fun Element.getLocalName(): String = localName
+public actual fun Element.getLocalName(): String? = localName
 public actual fun Element.getTagName(): String = tagName
 public actual fun Element.getAttributes(): NamedNodeMap = attributes
 

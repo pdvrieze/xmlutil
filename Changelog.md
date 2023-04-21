@@ -28,6 +28,8 @@ Fixes:
   If the default namespace is used anywhere, this ensures that prefixes are
   used otherwise. This will avoid all occurences of `xmlns=""` (and
   `xmlns:prefix=""`)
+- Fix DomReader's handling of non-namespace aware elements/nodes that return 
+  `null` as localName.
 
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*

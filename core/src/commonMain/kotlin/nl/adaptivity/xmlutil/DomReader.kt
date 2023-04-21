@@ -35,7 +35,8 @@ public class DomReader(public val delegate: Node) : XmlReader {
             ?: throw XmlException("Only elements have a namespace uri")
 
     override val localName: String
-        get() = currentElement?.localName
+        // allow localName to be null for non-namespace aware nodes
+        get() = currentElement?.let { it.localName ?: it.tagName }
             ?: throw XmlException("Only elements have a local name")
 
     override val prefix: String
