@@ -71,7 +71,7 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
         }
-        js(BOTH) {
+        js(IR) {
             browser()
             nodejs()
             compilations.all {

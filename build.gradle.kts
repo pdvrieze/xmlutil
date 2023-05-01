@@ -35,9 +35,10 @@ plugins {
 
 description = "The overall project for cross-platform xml access"
 
-ext {
-    set("myJavaVersion",JavaVersion.VERSION_1_8)
-}
+// not used
+//ext {
+//    set("myJavaVersion",JavaVersion.VERSION_1_8)
+//}
 
 tasks {
     (findByName("wrapper") as? Wrapper)?.run {

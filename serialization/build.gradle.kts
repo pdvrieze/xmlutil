@@ -101,7 +101,7 @@ kotlin {
                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
             }
         }
-        js(BOTH) {
+        js(IR) {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -288,7 +288,7 @@ tasks.register("cleanTest") {
     dependsOn(tasks.named("cleanAllTests"))
 }
 
-tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
+tasks.named<KotlinJsTest>("jsBrowserTest") {
     filter.excludeTestsMatching("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 //    exclude("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 }
@@ -296,7 +296,7 @@ tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
 tasks.withType<Test> {
     logger.lifecycle("Enabling xml reports on task ${project.name}:${name}")
     reports {
-        junitXml.isEnabled = true
+        junitXml
     }
 }
 

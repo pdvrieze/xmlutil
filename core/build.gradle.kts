@@ -122,7 +122,7 @@ kotlin {
                 }
             }
         }
-        js(BOTH) {
+        js(IR) {
             browser()
             compilations.all {
                 kotlinOptions {
