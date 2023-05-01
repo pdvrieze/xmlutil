@@ -51,10 +51,8 @@ pluginManagement {
 }
 
 plugins {
-    id "com.gradle.enterprise" version "3.1.1"
+    id "com.gradle.enterprise" version "3.13"
 }
-
-enableFeaturePreview("VERSION_CATALOGS")
 
 rootProject.name = "xmlutil"
 
