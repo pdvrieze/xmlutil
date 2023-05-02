@@ -1,4 +1,5 @@
 # 0.86.0 – Go in chunks
+*(May 2, 2023)<br />*
 Features:
 - Preliminary (partial) support for chunked decoding/Chunked Decoder ()
 - Use kotlinx.serialization 1.5.0
