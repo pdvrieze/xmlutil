@@ -11,8 +11,6 @@ pool:
 
 strategy:
   matrix:
-    jdk8:
-      jdk_version: "1.8"
     jdk11:
       jdk_version: "1.11"
   maxParallel: 2
