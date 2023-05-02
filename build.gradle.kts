@@ -150,47 +150,20 @@ allprojects {
     }
 }
 
-/*
-rootProject.plugins.withType(YarnPlugin::class.java) {
-    rootProject.the<YarnRootExtension>().disableGranularWorkspaces()
+afterEvaluate {
+    rootProject.plugins.withType(YarnPlugin::class.java) {
+        rootProject.the<YarnRootExtension>().apply {
+            resolution("minimist", "1.2.6")
+            resolution("webpack", "5.76.0")
+            resolution("qs", "6.11.0")
+            resolution("follow-redirects", "1.14.8")
+        }
+    }
 }
+/*
 */
 
 project.configureDokka()
-
-/*
-tasks.register("backupYarnLock") {
-    dependsOn("kotlinNpmInstall")
-
-    doLast {
-        copy {
-            from("$rootDir/build/js/yarn.lock")
-            rename { "yarn.lock.bak" }
-            into(rootDir)
-        }
-    }
-
-    inputs.file("$rootDir/build/js/yarn.lock").withPropertyName("inputFile")
-    outputs.file("$rootDir/yarn.lock.bak").withPropertyName("outputFile")
-}
-
-val restoreYarnLock = tasks.register("restoreYarnLock") {
-    doLast {
-        copy {
-            from("$rootDir/yarn.lock.bak")
-            rename { "yarn.lock" }
-            into("$rootDir/build/js")
-        }
-    }
-
-    inputs.file("$rootDir/yarn.lock.bak").withPropertyName("inputFile")
-    outputs.file("$rootDir/build/js/yarn.lock").withPropertyName("outputFile")
-}
-*/
-
-//tasks.named("kotlinNpmInstall").configure {
-//    dependsOn(restoreYarnLock)
-//}
 
 configurations.all {
     resolutionStrategy {
