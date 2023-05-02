@@ -4,11 +4,11 @@ junit5-jupiter = "5.9.2"
 kotlinx-serialization = "1.5.0"
 kotlin = "1.8.21"
 dokka = "1.7.20"
-binaryValidator = "0.13.0"
-woodstox = "6.2.6"
+binaryValidator = "0.13.1"
+woodstox = "6.5.1"
 
 [libraries]
-logback-classic = "ch.qos.logback:logback-classic:1.2.10"
+logback-classic = "ch.qos.logback:logback-classic:1.4.7"
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
 kxml2 = "net.sf.kxml:kxml2:2.3.0"
 

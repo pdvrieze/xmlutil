@@ -79,36 +79,36 @@ repositories {
 ### Core
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:core:0.86.0")
 ```
 #### JVM -- uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.0")
 ```
 #### Android -- Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.86.0")
 ```
 #### JS -- Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.86.0")
 ```
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.86.0")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.0")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.86.0")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.85.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.86.0")
 ```
 
 ### Ktor

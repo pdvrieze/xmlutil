@@ -1,4 +1,4 @@
-# 0.85.1-SNAPSHOT – Go in chunks
+# 0.86.0 – Go in chunks
 Features:
 - Preliminary (partial) support for chunked decoding/Chunked Decoder ()
 - Use kotlinx.serialization 1.5.0
@@ -7,7 +7,7 @@ Features:
   they will still be handled.
 - Implement a FileReader and FileWriter (and streams) for native to allow
   native writing of files.
-- Update to Kotlin 1.8.20
+- Update to Kotlin 1.8.21
 - Deprecate the ktor module (in favour of ktor's own xml integration module).
   Note that that module still uses xmlutil, it just provides its own xml access
   code.
