@@ -226,7 +226,11 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
-        override fun encodeByte(value: Byte) = encodeString(value.toString())
+        override fun encodeByte(value: Byte) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUByte().toString())
+            else -> encodeString(value.toString())
+        }
+
 
         override fun encodeChar(value: Char) = encodeString(value.toString())
 
@@ -246,14 +250,26 @@ internal open class XmlEncoderBase internal constructor(
         @ExperimentalSerializationApi
         override fun encodeInline(descriptor: SerialDescriptor): Encoder = this
 
-        override fun encodeInt(value: Int) = encodeString(value.toString())
+        override fun encodeInt(value: Int) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUInt().toString())
+            else -> encodeString(value.toString())
+        }
 
-        override fun encodeLong(value: Long) = encodeString(value.toString())
+
+        override fun encodeLong(value: Long) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toULong().toString())
+            else -> encodeString(value.toString())
+        }
+
 
         @ExperimentalSerializationApi
         override fun encodeNull() = Unit
 
-        override fun encodeShort(value: Short) = encodeString(value.toString())
+        override fun encodeShort(value: Short) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUShort().toString())
+            else -> encodeString(value.toString())
+        }
+
 
         override fun encodeString(value: String) {
             output.append(value)

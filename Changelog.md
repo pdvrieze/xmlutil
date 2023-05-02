@@ -32,6 +32,7 @@ Fixes:
   `null` as localName.
 - In DomReader handle the fact that JVM's xpath creates xmlns declarations for
   xmlns.
+- Fix unsigned serialization of value classes.
 
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*

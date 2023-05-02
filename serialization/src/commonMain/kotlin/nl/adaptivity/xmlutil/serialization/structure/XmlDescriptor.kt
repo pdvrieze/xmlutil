@@ -520,6 +520,8 @@ public class XmlInlineDescriptor internal constructor(
     override val tagName: QName
         get() = child.tagName
 
+
+
     @OptIn(ExperimentalSerializationApi::class)
     private val child: XmlDescriptor by lazy {
 
@@ -555,8 +557,9 @@ public class XmlInlineDescriptor internal constructor(
         return child
     }
 
-    override val isUnsigned: Boolean =
-        serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS
+    override val isUnsigned: Boolean by lazy {
+        serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS || child.isUnsigned
+    }
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.apply {
