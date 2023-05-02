@@ -8,6 +8,9 @@ Features:
 - Implement a FileReader and FileWriter (and streams) for native to allow
   native writing of files.
 - Update to Kotlin 1.8.20
+- Deprecate the ktor module (in favour of ktor's own xml integration module).
+  Note that that module still uses xmlutil, it just provides its own xml access
+  code.
   
 Fixes:
 - Various high range unicode characters (and modifiers) were incorrectly seen

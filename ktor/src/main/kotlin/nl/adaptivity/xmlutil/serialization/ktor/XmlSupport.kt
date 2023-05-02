@@ -41,6 +41,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
  *
  * See [Json] for more details.
  */
+@Deprecated("Ktor 2.0 contains its own implementation of xml support. Please use that feature rather than this module")
 public val DefaultXml: XML = XML {
     defaultPolicy {
         pedantic = false
@@ -57,6 +58,7 @@ public val DefaultXml: XML = XML {
  * @param contentType to register with, application/json by default
  */
 @OptIn(ExperimentalSerializationApi::class)
+@Deprecated("Ktor 2.0 contains its own implementation of xml support. Please use that feature rather than this module")
 public fun ContentNegotiation.Configuration.xml(
     xml: XML = DefaultXml,
     contentType: ContentType = ContentType.Application.Xml
