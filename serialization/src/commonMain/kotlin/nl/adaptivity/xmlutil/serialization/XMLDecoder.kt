@@ -1197,7 +1197,7 @@ internal open class XmlDecoderBase internal constructor(
                 if (keyDescriptor.effectiveOutputKind == OutputKind.Attribute) {
                     // When the key is an attribute it is always on the outer tag (either an entry tag or collapsed)
                     val key = input.getAttributeValue(keyDescriptor.tagName)
-                        ?: throw XmlSerialException("Missing key attribute on ${input.name}@${input.locationInfo}")
+                        ?: throw XmlSerialException("Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.locationInfo}")
                     return deserializer.deserialize(StringDecoder(keyDescriptor, key))
                 } else { // Only attributes collapse, so not collapsed, tag instead. doIndex should handle that
                     assert(!xmlDescriptor.isValueCollapsed)
