@@ -46,8 +46,8 @@ internal class AttrImpl(
     }
 
     override val name: String
-        get() = when (prefix) {
-            null -> localName
+        get() = when {
+            prefix.isNullOrEmpty() -> localName
             else -> "$prefix:$localName"
         }
 
