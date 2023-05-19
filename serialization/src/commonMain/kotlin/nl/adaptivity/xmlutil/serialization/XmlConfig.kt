@@ -376,6 +376,7 @@ private constructor(
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
                 encodeDefault = XmlEncodeDefault.ANNOTATED
+                throwOnRepeatedElement = true
             }
         }
 

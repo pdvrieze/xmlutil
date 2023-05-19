@@ -146,6 +146,8 @@ public interface XmlSerializationPolicy {
         return emptyList()
     }
 
+    public fun onElementRepeated(parentDescriptor: XmlDescriptor, childIndex: Int) {}
+
     @Deprecated("Use the recoverable version that allows returning a value")
     public fun handleUnknownContent(
         input: XmlReader,
@@ -245,8 +247,9 @@ public open class DefaultXmlSerializationPolicy
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean = false,
     public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-    public val unknownChildHandler: UnknownChildHandler,
+    public val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
     public val typeDiscriminatorName: QName? = null,
+    public val throwOnRepeatedElement: Boolean = false,
 ) : XmlSerializationPolicy {
 
     @ExperimentalXmlUtilApi
@@ -254,7 +257,8 @@ public open class DefaultXmlSerializationPolicy
         pedantic: Boolean,
         typeDiscriminatorName: QName,
         encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER
+        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+        throwOnRepeatedElement: Boolean = false
     ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
 
     /**
@@ -304,6 +308,7 @@ public open class DefaultXmlSerializationPolicy
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
+        throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -313,6 +318,7 @@ public open class DefaultXmlSerializationPolicy
         encodeDefault = builder.encodeDefault,
         unknownChildHandler = builder.unknownChildHandler,
         typeDiscriminatorName = builder.typeDiscriminatorName,
+        throwOnRepeatedElement = builder.throwOnRepeatedElement
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -502,6 +508,12 @@ public open class DefaultXmlSerializationPolicy
         candidates: Collection<Any>
     ) {
         throw UnsupportedOperationException("this function should not be called")
+    }
+
+    override fun onElementRepeated(parentDescriptor: XmlDescriptor, childIndex: Int) {
+        if (throwOnRepeatedElement) {
+            throw XmlSerialException("Duplicate child (${parentDescriptor.getElementDescriptor(childIndex)} found in ${parentDescriptor} outside of eluded list context")
+        }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -699,6 +711,7 @@ public open class DefaultXmlSerializationPolicy
         public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
         public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
         public var typeDiscriminatorName: QName? = null,
+        public var throwOnRepeatedElement: Boolean = false,
     ) {
         internal constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,
@@ -706,6 +719,7 @@ public open class DefaultXmlSerializationPolicy
             encodeDefault = policy.encodeDefault,
             unknownChildHandler = policy.unknownChildHandler,
             typeDiscriminatorName = policy.typeDiscriminatorName,
+            throwOnRepeatedElement = policy.throwOnRepeatedElement
         )
 
         public fun ignoreUnknownChildren() {

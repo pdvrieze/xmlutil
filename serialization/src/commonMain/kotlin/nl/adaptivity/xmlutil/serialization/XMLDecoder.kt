@@ -612,11 +612,12 @@ internal open class XmlDecoderBase internal constructor(
             val nameMap = nameToMembers
 
             val normalizedName = name.normalize()
-            nameMap[normalizedName]?.checkInputType()?.let { return it }
+            nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeat() }
 
             polyMap[normalizedName]?.checkInputType()?.let {
-                currentPolyInfo = it
-                return it.index
+                return it.index.checkRepeat().apply {
+                    currentPolyInfo = it
+                }
             }
 
             val containingNamespaceUri = serialName.namespaceURI
@@ -624,10 +625,10 @@ internal open class XmlDecoderBase internal constructor(
             if (isNameOfAttr) {
                 if (name.namespaceURI.isEmpty()) {
                     val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
-                    nameMap[attrName]?.checkInputType()?.let { return it }
+                    nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
                     polyMap[attrName]?.checkInputType()?.let {
                         currentPolyInfo = it
-                        return it.index
+                        return it.index.checkRepeat()
                     }
                 }
 
@@ -635,8 +636,8 @@ internal open class XmlDecoderBase internal constructor(
                     val emptyNsPrefix = input.getNamespaceURI("")
                     if (emptyNsPrefix != null) {
                         val attrName = normalizedName.copy(namespaceURI = emptyNsPrefix)
-                        nameMap[attrName]?.checkInputType()?.let { return it }
-                        polyMap[attrName]?.checkInputType()?.let { return it.index }
+                        nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
+                        polyMap[attrName]?.checkInputType()?.let { return it.index.checkRepeat() }
                     }
                 }
             }
@@ -644,7 +645,7 @@ internal open class XmlDecoderBase internal constructor(
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
             if (containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
-                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it }
+                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeat() }
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
@@ -659,7 +660,7 @@ internal open class XmlDecoderBase internal constructor(
                     }
 
                     if (valChildDesc.serialDescriptor == CompactFragmentSerializer.descriptor) {
-                        return valueChildIdx
+                        return valueChildIdx.checkRepeat()
                     }
                 }
             }
@@ -681,6 +682,27 @@ internal open class XmlDecoderBase internal constructor(
 
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
+
+        open protected fun Int.checkRepeat(): Int = also { idx ->
+            if (idx >=0 && seenItems[idx]) {
+                val desc = xmlDescriptor.getElementDescriptor(idx)
+                if (desc !is XmlListLikeDescriptor || !desc.isListEluded) {
+                    config.policy.onElementRepeated(xmlDescriptor, idx)
+                    return idx
+                }
+            }
+        }
+
+        private inline fun Int.markSeenOrHandleUnknown(body: () -> Int): Int {
+            return when(this) {
+                CompositeDecoder.UNKNOWN_NAME -> body()
+                else -> {
+                    seenItems[this] = true
+                    this
+                }
+            }
+        }
+
 
         @OptIn(ExperimentalXmlUtilApi::class)
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -740,12 +762,12 @@ internal open class XmlDecoderBase internal constructor(
                     }
                     // If this was explicitly declared as attribute use that as index, otherwise
                     // just skip the attribute.
-                    return nameToMembers[name] ?: decodeElementIndex(descriptor)
+                    return nameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex(descriptor)
                 }
 
                 // The ifNegative function will recursively call this function if we didn't find it (and the handler
                 // didn't throw an exception). This allows for ignoring unknown elements.
-                return indexOf(name, InputKind.Attribute).ifUnknown { decodeElementIndex(descriptor) }
+                return indexOf(name, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex(descriptor) }
 
             }
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
@@ -773,11 +795,12 @@ internal open class XmlDecoderBase internal constructor(
                                 val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
                                 if (valueKind == StructureKind.LIST || valueKind == PrimitiveKind.STRING
                                 ) {
+                                    seenItems[valueChild] = true
                                     return valueChild // We can handle whitespace
                                 }
                             }
                         } else if (!input.isWhitespace()) {
-                            return valueChild.ifUnknown {
+                            return valueChild.markSeenOrHandleUnknown {
                                 config.policy.handleUnknownContentRecovering(
                                     input,
                                     InputKind.Text,
@@ -793,13 +816,13 @@ internal open class XmlDecoderBase internal constructor(
                     EventType.ATTRIBUTE -> return indexOf(
                         input.name,
                         InputKind.Attribute
-                    ).ifUnknown { decodeElementIndex(descriptor) }
+                    ).markSeenOrHandleUnknown { decodeElementIndex(descriptor) }
 
                     EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
                         // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
                         // as a shortcut.
                         CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
-                        else -> return i
+                        else -> return i.also { seenItems[i] = true }
                     }
 
                     EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
@@ -1274,6 +1297,7 @@ internal open class XmlDecoderBase internal constructor(
         polyInfo: PolyInfo?,
         typeDiscriminatorName: QName?
     ) : MapDecoderBase(xmlDescriptor, polyInfo, typeDiscriminatorName) {
+        override fun Int.checkRepeat(): Int = this
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
 
@@ -1473,8 +1497,6 @@ internal open class XmlDecoderBase internal constructor(
     }
 
 }
-
-private inline fun Int.ifUnknown(body: () -> Int) = if (this != CompositeDecoder.UNKNOWN_NAME) this else body()
 
 
 /**
