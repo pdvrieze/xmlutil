@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization.regressions
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -84,7 +85,7 @@ class SingleElementListWithCustomItem148 {
 
         val x = XML{}
         val res = x.encodeToString(Wrapper.serializer(), data)
-        assertEquals("<Wrapper testAttr=\"500\"><CustomInner test=\"test1\"/><CustomInner test=\"test2\"/></Wrapper>", res)
+        assertXmlEquals("<Wrapper testAttr=\"500\"><CustomInner test=\"test1\"/><CustomInner test=\"test2\"/></Wrapper>", res)
 
         val des = x.decodeFromString<Wrapper>(res)
         println(des)
