@@ -1,7 +1,15 @@
 # 0.86.1-SNAPSHOT
+Features:
+- Support detecting duplicate elements outside of list context #145. This
+  is not default behaviour as it is somewhat up to the serializer to deal
+  with duplicate values, rather than the format.
+
 Fixes:
 - Fix accidental immediate emission of xsi:nil elements (rather than deferring
   as expected #152).
+- Add expected key name to the error message when it couldn't be found for a
+  map. #140
+- Fix attribute name for empty prefix in Attr (native DOM). This should fix #142.
 
 # 0.86.0 – Go in chunks
 *(May 2, 2023)<br />*
