@@ -1,4 +1,7 @@
 # 0.86.1-SNAPSHOT
+Fixes:
+- Fix accidental immediate emission of xsi:nil elements (rather than deferring
+  as expected #152).
 
 # 0.86.0 – Go in chunks
 *(May 2, 2023)<br />*

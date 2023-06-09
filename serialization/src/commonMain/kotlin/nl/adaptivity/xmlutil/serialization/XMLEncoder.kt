@@ -595,8 +595,10 @@ internal open class XmlEncoderBase internal constructor(
                     (serializer as SerializationStrategy<T?>).serialize(encoder, null)
                 }
             } else if (nilAttr != null && elemDescriptor.effectiveOutputKind == OutputKind.Element) {
-                target.smartStartTag(elemDescriptor.tagName) {
-                    smartWriteAttribute(nilAttr.first, nilAttr.second)
+                defer(index) {
+                    target.smartStartTag(elemDescriptor.tagName) {
+                        smartWriteAttribute(nilAttr.first, nilAttr.second)
+                    }
                 }
             }
 
