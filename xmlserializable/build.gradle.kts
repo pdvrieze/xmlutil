@@ -18,6 +18,7 @@
  * under the License.
  */
 
+import java9modules.Java9Modularity.configureJava9ModuleInfo
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.envAndroid
@@ -47,8 +48,6 @@ base {
 
 val serializationVersion: String get() = libs.versions.kotlinx.serialization.get()
 
-val autoModuleName = "net.devrieze.xmlutil.xmlserializable"
-
 val testTask = tasks.create("test") {
     group = "verification"
 }
@@ -64,11 +63,6 @@ kotlin {
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
-                }
             }
         }
         jvm("android") {
@@ -178,6 +172,8 @@ kotlin {
 doPublish()
 
 configureDokka(myModuleVersion = xmlutil_version)
+
+configureJava9ModuleInfo()
 
 idea {
     module {

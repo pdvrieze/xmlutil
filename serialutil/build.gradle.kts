@@ -20,6 +20,7 @@
 
 @file:Suppress("PropertyName")
 
+import java9modules.Java9Modularity.configureJava9ModuleInfo
 import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -41,8 +42,6 @@ base {
     archivesName.set("serialutil")
     version = xmlutil_util_version
 }
-
-val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     targets {
@@ -132,6 +131,8 @@ apiValidation {
 doPublish()
 
 configureDokka(myModuleVersion = xmlutil_util_version)
+
+configureJava9ModuleInfo()
 
 idea {
     module {

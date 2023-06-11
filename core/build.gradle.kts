@@ -18,11 +18,12 @@
  * under the License.
  */
 
-import net.devrieze.gradle.ext.*
+import java9modules.Java9Modularity.configureJava9ModuleInfo
+import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -47,8 +48,6 @@ val kxml2Version: String by project
 
 val argJvmDefault: String by project
 
-val autoModuleName = "net.devrieze.xmlutil.core"
-
 kotlin {
     explicitApi()
 
@@ -69,11 +68,6 @@ kotlin {
                     testTask.dependsOn(this)
                 }
                 cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
-                }
             }
             tasks.withType<Jar>().named(artifactsTaskName) {
                 from(project.file("src/$defaultConfigurationName/proguard.pro")) {
@@ -231,3 +225,5 @@ apiValidation {
 doPublish()
 
 configureDokka(myModuleVersion = xmlutil_core_version)
+
+configureJava9ModuleInfo()

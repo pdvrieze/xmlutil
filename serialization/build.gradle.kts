@@ -21,6 +21,7 @@
 
 @file:Suppress("PropertyName")
 
+import java9modules.Java9Modularity.configureJava9ModuleInfo
 import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -45,20 +46,10 @@ base {
     version = xmlutil_serial_version
 }
 
-val autoModuleName = "net.devrieze.xmlutil.serialization"
-
-
 kotlin {
     explicitApi()
     targets {
         jvm {
-            compilations.all {
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
-                }
-            }
 
             val woodstoxCompilation = compilations.register("woodstoxTest")
             val woodstoxTestRun = testRuns.create("woodstoxTest") {
@@ -69,7 +60,6 @@ kotlin {
                     )
                 )
             }
-
 
         }
         jvm("android")
@@ -260,6 +250,10 @@ tasks.withType<Test> {
         junitXml.required.set(true)
     }
 }
+
+
+configureJava9ModuleInfo()
+
 
 idea {
     this.module.name = "xmlutil-serialization"
