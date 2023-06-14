@@ -29,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -123,7 +122,7 @@ class ResolvedToplevelElement(
 ) : ResolvedElement(schema), T_TopLevelElement {
     fun check() {
         checkSubstitutionGroupChain(SingleLinkedList(qName))
-        typeDef.check(SingleLinkedList.empty())
+        typeDef.check(SingleLinkedList(), SingleLinkedList())
         commonElementCheck()
     }
 

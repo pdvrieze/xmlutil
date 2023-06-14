@@ -156,7 +156,8 @@ class ResolvedSimpleRestrictionDerivationImpl(
             require(simpleTypes.isEmpty())
         }
         if (b !in seenTypes) {
-            baseType.check(seenTypes)
+            val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+            baseType.check(seenTypes, inherited)
             // Recursion is allowed
         }
     }

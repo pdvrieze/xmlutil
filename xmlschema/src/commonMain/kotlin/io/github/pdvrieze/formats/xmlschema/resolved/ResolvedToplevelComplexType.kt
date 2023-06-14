@@ -71,7 +71,7 @@ class ResolvedToplevelComplexType(
     override val block: T_DerivationSet
         get() = rawPart.block
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        content.check(seenTypes + qName)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        content.check(seenTypes + qName, inheritedTypes + qName)
     }
 }

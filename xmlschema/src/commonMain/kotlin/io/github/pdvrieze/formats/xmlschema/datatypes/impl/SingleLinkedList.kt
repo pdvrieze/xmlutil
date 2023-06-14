@@ -27,6 +27,9 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
 
     abstract operator fun plus(other: T): SingleLinkedList<T>
 
+    abstract fun dropLast(n: Int = 1): SingleLinkedList<T>
+    abstract fun dropLastOrEmpty(n: Int = 1): SingleLinkedList<T>
+
     sealed class Empty<T> : SingleLinkedList<T>() {
         override val size: Int get() = 0
 
@@ -37,6 +40,15 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
         override fun get(index: Int): Nothing {
             throw IndexOutOfBoundsException("Empty list has no elements: $index")
         }
+
+        override fun dropLast(n: Int): SingleLinkedList<T> {
+            if (n > 0) {
+                throw IndexOutOfBoundsException("Empty list cannot be shortened")
+            }
+            return this
+        }
+
+        override fun dropLastOrEmpty(n: Int): SingleLinkedList<T> = this
 
         override fun indexOf(element: T): Int = -1
 
@@ -85,6 +97,17 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
 
         override fun indexOf(element: T): Int {
             return if (elem == element) 0 else -1
+        }
+
+        override fun dropLast(n: Int): SingleLinkedList<T> = when (n) {
+            0 -> this
+            1 -> empty()
+            else -> throw IndexOutOfBoundsException("requested to drop more elements than present")
+        }
+
+        override fun dropLastOrEmpty(n: Int): SingleLinkedList<T> = when (n) {
+            0 -> this
+            else -> empty()
         }
 
         override fun iterator(): Iterator<T> {
@@ -154,6 +177,26 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
 
         override fun lastIndexOf(element: T): Int {
             return if (elem == element) size-1 else pred.indexOf(element)
+        }
+
+        override fun dropLast(n: Int): SingleLinkedList<T> = when(n) {
+            0 -> this
+            1 -> pred
+            size -> empty()
+            else -> when {
+                n > size -> throw IndexOutOfBoundsException("Attempting to drop more than the amount of elements")
+                else -> pred.dropLast(n - 1)
+            }
+        }
+
+        override fun dropLastOrEmpty(n: Int): SingleLinkedList<T> = when(n) {
+            0 -> this
+            1 -> pred
+            size -> empty()
+            else -> when {
+                n > size -> empty()
+                else -> pred.dropLast(n - 1)
+            }
         }
 
         private fun regularList(): List<T> {

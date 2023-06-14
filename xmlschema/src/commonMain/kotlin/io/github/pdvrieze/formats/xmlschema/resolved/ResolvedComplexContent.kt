@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 sealed class ResolvedComplexContent(
     override val schema: ResolvedSchemaLike
 ) : T_ComplexTypeContent, ResolvedPart {
-    abstract fun check(seenTypes: SingleLinkedList<QName>)
+    abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
     override abstract val rawPart: T_ComplexTypeContent
 }
@@ -50,8 +50,8 @@ class ResolvedComplexComplexContent(
     }
 
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        derivation.check(seenTypes)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        derivation.check(seenTypes, inheritedTypes)
     }
 }
 
@@ -77,9 +77,10 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
         schema.type(base ?: AnyType.qName)
     }
 
-    open fun check(seenTypes: SingleLinkedList<QName>) {
-        if (base !in seenTypes) { // Recursion is allowed, but must be managed
-            baseType.check(seenTypes)
+    open fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        val b = base
+        if (b!=null && b !in seenTypes) { // Recursion is allowed, but must be managed
+            baseType.check(seenTypes, inheritedTypes)
         }
     }
 }
@@ -88,8 +89,9 @@ class ResolvedComplexExtension(
     override val rawPart: T_ComplexExtensionType,
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(schema), T_ComplexExtensionType {
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes, inheritedTypes)
+        require(base !in inheritedTypes.dropLastOrEmpty(1)) { "Recursive type use in complex content: $base" }
 //        TODO("not implemented")
     }
 }
@@ -107,8 +109,8 @@ class ResolvedComplexRestriction(
     override val otherContents: List<CompactFragment>
         get() = rawPart.otherContents
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes, inheritedTypes)
 //        TODO("not implemented")
     }
 }
@@ -120,7 +122,7 @@ class ResolvedComplexShorthandContent(
 ) : ResolvedComplexContent(schema),
     T_ComplexTypeShorthandContent {
 
-    override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema)}
+    override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
     override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema) }
     override val choices: List<ResolvedChoice> = DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
     override val sequences: List<ResolvedSequence> = DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
@@ -130,7 +132,7 @@ class ResolvedComplexShorthandContent(
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     override val openContents: List<XSOpenContent> get() = rawPart.openContents
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         for (group in groups) { group.check() }
     }
 }
@@ -142,7 +144,7 @@ class ResolvedComplexSimpleContent(
     T_ComplexTypeSimpleContent {
 
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        TODO("not implemented")
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        //TODO("not implemented")
     }
 }
