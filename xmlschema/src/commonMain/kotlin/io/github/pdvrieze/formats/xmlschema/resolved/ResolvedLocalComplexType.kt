@@ -38,9 +38,9 @@ class ResolvedLocalComplexType(
 
     override val content: ResolvedComplexContent by lazy {
         when (val c = rawPart.content) {
-            is XSComplexContent -> ResolvedComplexComplexContent(c, schema)
+            is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
             is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
-            is XSSimpleContent -> ResolvedComplexSimpleContent(c, schema)
+            is XSSimpleContent -> ResolvedComplexSimpleContent(this, c, schema)
         }
     }
 
