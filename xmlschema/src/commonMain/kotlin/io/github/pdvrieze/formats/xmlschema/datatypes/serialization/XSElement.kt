@@ -54,7 +54,7 @@ class XSElement(
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
     override val keys: List<XSKey> = emptyList(),
-    override val keyref: List<XSKeyref> = emptyList(),
+    override val keyrefs: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): G_SchemaTop.Element {
@@ -80,7 +80,7 @@ class XSElement(
         if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
         if (keys != other.keys) return false
-        if (keyref != other.keyref) return false
+        if (keyrefs != other.keyrefs) return false
         if (otherAttrs != other.otherAttrs) return false
 
         return true
@@ -102,7 +102,7 @@ class XSElement(
         result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()
         result = 31 * result + keys.hashCode()
-        result = 31 * result + keyref.hashCode()
+        result = 31 * result + keyrefs.hashCode()
         result = 31 * result + otherAttrs.hashCode()
         return result
     }

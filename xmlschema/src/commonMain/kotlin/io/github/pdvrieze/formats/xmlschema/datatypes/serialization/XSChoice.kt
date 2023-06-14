@@ -47,4 +47,4 @@ class XSChoice(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_Choice
+) : XSExplicitGroup, T_Choice
