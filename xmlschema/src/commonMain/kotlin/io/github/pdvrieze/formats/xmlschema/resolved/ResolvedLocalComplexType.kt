@@ -44,8 +44,8 @@ class ResolvedLocalComplexType(
         }
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        content.check(seenTypes) // there is no name here
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        content.check(seenTypes, inheritedTypes) // there is no name here
     }
 }
 

@@ -22,13 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
     override val simpleDerivation: ResolvedSimpleDerivation
 
-    override fun check(seenTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
 
         when (val n = name) {
             null -> simpleDerivation.check(this, SingleLinkedList())
