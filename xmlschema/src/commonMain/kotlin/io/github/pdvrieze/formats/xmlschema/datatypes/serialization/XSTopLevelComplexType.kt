@@ -49,7 +49,7 @@ abstract class XSTopLevelComplexType(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
-    abstract override val content: T_ComplexTypeContentSealed
+    abstract override val content: IXSComplexContent
 
     override val targetNamespace: Nothing? get() = null
 

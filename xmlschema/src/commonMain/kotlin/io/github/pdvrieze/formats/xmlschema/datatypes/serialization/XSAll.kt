@@ -19,8 +19,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_All
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -41,6 +40,20 @@ class XSAll(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): T_All {
+): XSExplicitGroup, T_All {
+    override val choices: List<Nothing> get() = emptyList()
+    override val sequences: List<Nothing> get() = emptyList()
 }
 
+interface XSExplicitGroup: T_ExplicitGroup {
+    override val elements: List<XSLocalElement>
+
+    override val groups: List<XSGroupRef>
+
+    override val choices: List<XSChoice>
+
+    override val sequences: List<XSSequence>
+
+    override val anys: List<XSAny>
+
+}

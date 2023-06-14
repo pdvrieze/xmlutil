@@ -20,7 +20,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexExtensionType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexRestrictionType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexTypeComplexContent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -38,7 +41,7 @@ class XSComplexContent(
     override val otherAttrs: Map<QName, String> = emptyMap(),
     override val annotations: List<XSAnnotation> = emptyList(),
     override val derivation: XSDerivationBase
-) : XSI_Annotated, T_ComplexTypeComplexContent {
+) : IXSComplexContent, T_ComplexTypeComplexContent {
     @Serializable
     sealed class XSDerivationBase: T_ComplexDerivation {
         abstract override val groups: List<XSGroupRef>

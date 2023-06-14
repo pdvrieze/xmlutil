@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
@@ -54,13 +55,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             else -> null
         }
     }
-    override val uniques: List<G_IdentityConstraint.Unique>
-        get() = TODO("not implemented")
-    override val keys: List<G_IdentityConstraint.Key>
-        get() = TODO("not implemented")
-    override val keyref: List<G_IdentityConstraint.Keyref>
-        get() = TODO("not implemented")
-
     override val id: VID? get() = rawPart.id
 
     override val localType: T_Element.Type?
@@ -72,6 +66,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     override val alternatives: List<T_AltType> get() = rawPart.alternatives
 
+    abstract override val uniques: List<ResolvedUnique>
+
+    abstract override val keys: List<ResolvedKey>
+
+    abstract override val keyrefs: List<ResolvedKeyRef>
+
     /**
      * disallowed substitutions
      */
@@ -80,11 +80,18 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
+    fun commonElementCheck() {
+        for (keyref in keyrefs) {
+            keyref.check()
+            checkNotNull(keyref.referenced)
+        }
+    }
+
 }
 
 class ResolvedLocalElement(
     val parent: ResolvedComplexType,
-    override val rawPart: T_LocalElement,
+    override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema), T_LocalElement {
     override val scope: T_Scope get() = T_Scope.LOCAL
@@ -102,6 +109,12 @@ class ResolvedLocalElement(
 
     override val targetNamespace: VAnyURI
         get() = rawPart.targetNamespace ?: schema.targetNamespace
+
+
+    override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
+    override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
+    override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
+
 }
 
 class ResolvedToplevelElement(
@@ -111,6 +124,7 @@ class ResolvedToplevelElement(
     fun check() {
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(SingleLinkedList.empty())
+        commonElementCheck()
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
@@ -160,9 +174,17 @@ class ResolvedToplevelElement(
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
 
-    val identityConstraints: List<T_Keybase> by lazy {
-        rawPart.keys + rawPart.uniques + rawPart.keyref // TODO make resolved versions
+
+
+    val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
+        keys + uniques + keyrefs // TODO make resolved versions
     }
+
+    override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
+
+    override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
+
+    override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
 
     override val substitutionGroup: List<QName>?
         get() = rawPart.substitutionGroup

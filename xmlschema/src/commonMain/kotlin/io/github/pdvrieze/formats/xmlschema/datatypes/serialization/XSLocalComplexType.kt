@@ -17,11 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -44,7 +40,7 @@ sealed class XSLocalComplexType(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSLocalType(), T_LocalComplexType_Base {
-    abstract override val content: T_ComplexTypeContent
+    abstract override val content: IXSComplexContent
 
     protected abstract fun toSerialDelegate(): SerialDelegate
 
@@ -272,12 +268,12 @@ class XSLocalComplexTypeShorthand(
     id,
     annotations,
     otherAttrs
-), T_LocalComplexType_Shorthand {
+), IXSComplexTypeShorthand, T_LocalComplexType_Shorthand {
 
     override val name: Nothing? get() = null
     override val targetNamespace: Nothing? get() = null
 
-    override val content: T_ComplexTypeShorthandContent get() = this
+    override val content: IXSComplexTypeShorthand get() = this
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
