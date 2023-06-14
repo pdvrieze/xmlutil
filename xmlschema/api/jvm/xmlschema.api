@@ -22,7 +22,7 @@ public final class io/github/pdvrieze/formats/xmlschema/XmlSchemaConstants {
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/AnySimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/Datatype, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType {
 	public static final field INSTANCE Lio/github/pdvrieze/formats/xmlschema/datatypes/AnySimpleType;
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/AnyType;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
@@ -48,7 +48,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/AnySimpleType 
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/AnyType : io/github/pdvrieze/formats/xmlschema/datatypes/Datatype, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleBaseType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType {
 	public static final field INSTANCE Lio/github/pdvrieze/formats/xmlschema/datatypes/AnyType;
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/AnyType;
 	public synthetic fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
@@ -112,7 +112,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/Datatype : 
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/ErrorType : io/github/pdvrieze/formats/xmlschema/datatypes/Datatype, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType {
 	public static final field INSTANCE Lio/github/pdvrieze/formats/xmlschema/datatypes/ErrorType;
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
 	public fun getFinal ()Ljava/util/Set;
@@ -147,7 +147,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/LexicalSpace {
 
 public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/ListDatatype : io/github/pdvrieze/formats/xmlschema/datatypes/Datatype, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleListType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType {
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/Datatype;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public abstract fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;
 	public fun getId ()Ljava/lang/Void;
@@ -219,6 +219,10 @@ public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/impl/Single
 	public fun addAll (ILjava/util/Collection;)Z
 	public fun addAll (Ljava/util/Collection;)Z
 	public fun clear ()V
+	public abstract fun dropLast (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public static synthetic fun dropLast$default (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;IILjava/lang/Object;)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public abstract fun dropLastOrEmpty (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public static synthetic fun dropLastOrEmpty$default (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;IILjava/lang/Object;)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
 	public abstract fun getSize ()I
 	public final fun isEmpty ()Z
 	public fun listIterator ()Ljava/util/ListIterator;
@@ -244,6 +248,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLin
 public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList$Empty : io/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList {
 	public fun contains (Ljava/lang/Object;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
+	public fun dropLast (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public fun dropLastOrEmpty (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
 	public synthetic fun get (I)Ljava/lang/Object;
 	public fun get (I)Ljava/lang/Void;
 	public fun getSize ()I
@@ -260,6 +266,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLin
 	public fun <init> (Ljava/lang/Object;)V
 	public fun contains (Ljava/lang/Object;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
+	public fun dropLast (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public fun dropLastOrEmpty (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
 	public fun get (I)Ljava/lang/Object;
 	public fun getSize ()I
 	public fun indexOf (Ljava/lang/Object;)I
@@ -274,6 +282,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLin
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList$ValuedElement;Ljava/lang/Object;)V
 	public fun contains (Ljava/lang/Object;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
+	public fun dropLast (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
+	public fun dropLastOrEmpty (I)Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;
 	public fun get (I)Ljava/lang/Object;
 	public final fun getPred ()Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList$ValuedElement;
 	public fun getSize ()I
@@ -773,7 +783,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes
 
 public abstract class io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/AtomicDatatype : io/github/pdvrieze/formats/xmlschema/datatypes/Datatype, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType {
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getFinal ()Ljava/util/Set;
 	public fun getId ()Ljava/lang/Void;
@@ -4930,10 +4940,6 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAnnotat
 	public static fun getOtherAttrs (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedAnnotated;)Ljava/util/Map;
 }
 
-public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAnnotation {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchema;)V
-}
-
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAttribute : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AttributeBase, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_AttributeBase;
 }
@@ -4978,12 +4984,12 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAttrs$D
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType {
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getFinal ()Ljava/util/Set;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType$DefaultImpls {
-	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public static fun getAnnotations (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;)Ljava/util/List;
 	public static fun getFinal (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;)Ljava/util/Set;
 	public static fun getId (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinSimpleType;)Ljava/lang/Void;
@@ -4996,7 +5002,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltin
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelSimpleType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType {
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getAnnotations ()Ljava/util/List;
 	public abstract fun getId ()Ljava/lang/Void;
 	public abstract fun getOtherAttrs ()Ljava/util/Map;
@@ -5005,7 +5011,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/Re
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType$DefaultImpls {
-	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public static fun getAnnotations (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;)Ljava/util/List;
 	public static fun getId (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;)Ljava/lang/Void;
 	public static fun getName (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedBuiltinType;)Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
@@ -5031,44 +5037,54 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedChoice 
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexComplexContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public synthetic fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation;
 	public fun getDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation;
-	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeComplexContent;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 }
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexExtension : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSExtension;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun getAlls ()Ljava/util/List;
+	public fun getAttributeGroups ()Ljava/util/List;
+	public fun getAttributes ()Ljava/util/List;
+	public fun getChoices ()Ljava/util/List;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSExtension;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
-	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexExtensionType;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
+	public fun getSequences ()Ljava/util/List;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexRestriction : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSRestriction;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun getAlls ()Ljava/util/List;
+	public fun getAttributeGroups ()Ljava/util/List;
+	public fun getAttributes ()Ljava/util/List;
+	public fun getChoices ()Ljava/util/List;
 	public fun getFacets ()Ljava/util/List;
 	public fun getOtherContents ()Ljava/util/List;
+	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSRestriction;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
-	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
+	public fun getSequences ()Ljava/util/List;
 	public fun getSimpleTypes ()Ljava/util/List;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexShorthandContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeShorthandContent {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/IXSComplexTypeShorthand;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAlls ()Ljava/util/List;
 	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
 	public fun getAsserts ()Ljava/util/List;
@@ -5084,8 +5100,8 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplex
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexSimpleContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent {
-	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
 	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeSimpleContent;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
@@ -5105,23 +5121,23 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplex
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDerivation : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivation, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
-	public fun getAlls ()Ljava/util/List;
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun getAlls ()Ljava/util/List;
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
 	public fun getAsserts ()Ljava/util/List;
-	public fun getAttributeGroups ()Ljava/util/List;
-	public fun getAttributes ()Ljava/util/List;
+	public abstract fun getAttributeGroups ()Ljava/util/List;
+	public abstract fun getAttributes ()Ljava/util/List;
 	public fun getBase ()Ljavax/xml/namespace/QName;
 	public final fun getBaseType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType;
-	public fun getChoices ()Ljava/util/List;
+	public abstract fun getChoices ()Ljava/util/List;
 	public fun getGroups ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public fun getOpenContents ()Ljava/util/List;
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
 	public fun getSchema ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;
-	public fun getSequences ()Ljava/util/List;
+	public abstract fun getSequences ()Ljava/util/List;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedDirectAttributeGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_NamedAttributeGroup, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_Annotated, io/github/pdvrieze/formats/xmlschema/resolved/NamedPart {
@@ -5192,6 +5208,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedElem
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedExplicitGroup : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ExplicitGroup, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAnnotated, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun check ()V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getAnys ()Ljava/util/List;
 	public fun getElements ()Ljava/util/List;
@@ -5317,7 +5334,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalAt
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalComplexType_Base, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalType {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalComplexType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_ComplexTypeModel$Base;
 	public synthetic fun getContent ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexTypeContent;
@@ -5367,7 +5384,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalEl
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public synthetic fun getName ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
@@ -5551,12 +5568,12 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleR
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedType {
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getSimpleDerivation ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivation;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType$DefaultImpls {
-	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public static fun getAnnotations (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;)Ljava/util/List;
 	public static fun getId-O6WucO4 (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;)Ljava/lang/String;
 	public static fun getName (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType;)Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
@@ -5610,7 +5627,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelComplexType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_TopLevelComplexType_Base, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelType {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSTopLevelComplexType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAbstract ()Z
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getBlock ()Ljava/util/Set;
@@ -5674,7 +5691,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/Re
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType$DefaultImpls {
-	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public static fun check (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public static fun getAnnotations (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType;)Ljava/util/List;
 	public static fun getId-O6WucO4 (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType;)Ljava/lang/String;
 	public static fun getName (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType;)Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
@@ -5685,7 +5702,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleTypeImpl : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedToplevelSimpleType {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSToplevelSimpleType;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
-	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public fun getAnnotations ()Ljava/util/List;
 	public fun getFinal ()Ljava/util/Set;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
@@ -5726,13 +5743,13 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedTopleve
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type, io/github/pdvrieze/formats/xmlschema/resolved/OptNamedPart, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedAnnotated {
-	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
+	public abstract fun check (Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;)V
 	public abstract fun getName ()Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Type;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedType$DefaultImpls {
-	public static synthetic fun check$default (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;ILjava/lang/Object;)V
+	public static synthetic fun check$default (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;Lio/github/pdvrieze/formats/xmlschema/datatypes/impl/SingleLinkedList;ILjava/lang/Object;)V
 	public static fun getAnnotations (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;)Ljava/util/List;
 	public static fun getId-O6WucO4 (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;)Ljava/lang/String;
 	public static fun getName (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedType;)Lio/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/VNCName;

@@ -22,6 +22,4 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 
-class ResolvedAnnotation(rawPart: XSAnnotation, schema: ResolvedSchema) {
-
-}
+typealias ResolvedAnnotation = XSAnnotation
