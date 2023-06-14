@@ -24,8 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSTopLevelComplexType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -57,9 +56,9 @@ class ResolvedToplevelComplexType(
     override val content: ResolvedComplexContent
         by lazy {
             when (val c = rawPart.content) {
-                is T_ComplexTypeComplexContent -> ResolvedComplexComplexContent(c, schema)
-                is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(this, c, schema)
-                is T_ComplexTypeSimpleContent -> ResolvedComplexSimpleContent(c, schema)
+                is XSComplexContent -> ResolvedComplexComplexContent(c, schema)
+                is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
+                is XSSimpleContent -> ResolvedComplexSimpleContent(c, schema)
             }
         }
 

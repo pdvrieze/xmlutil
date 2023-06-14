@@ -104,4 +104,10 @@ abstract sealed class ResolvedSchemaLike {
             ag.check()
         }
     }
+
+    fun identityConstraint(constraintName: QName): ResolvedIdentityConstraint {
+        return elements.asSequence().mapNotNull {
+            it.identityConstraints.firstOrNull { it.qName?.isEquivalent(constraintName) == true }
+        }.first()
+    }
 }

@@ -44,4 +44,4 @@ class XSSequence(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): T_Sequence
+): XSExplicitGroup, T_Sequence
