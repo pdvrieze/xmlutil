@@ -64,8 +64,8 @@ class ResolvedToplevelSimpleTypeImpl(
     override val final: Set<T_SimpleDerivationSetElem>
         get() = rawPart.final
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes, inheritedTypes)
         require(name.isNotEmpty())
     }
 }

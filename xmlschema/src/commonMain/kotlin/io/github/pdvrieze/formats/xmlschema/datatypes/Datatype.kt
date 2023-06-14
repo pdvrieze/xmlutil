@@ -98,8 +98,8 @@ sealed class ListDatatype protected constructor(
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
-        baseType.check(seenTypes)
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        baseType.check(seenTypes, inheritedTypes)
     }
 }
 
