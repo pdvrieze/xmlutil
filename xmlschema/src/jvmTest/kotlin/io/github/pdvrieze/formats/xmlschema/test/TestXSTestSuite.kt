@@ -393,19 +393,50 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
     setBaseUrl: URI,
     group: TSTestGroup
 ) {
+    var targetSchemaDoc: TSSchemaDocument? = null
     group.schemaTest?.let { schemaTest ->
         val documentation = group.documentationString()
         if (schemaTest.schemaDocuments.size == 1) {
             val schemaDoc = schemaTest.schemaDocuments.single()
             addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
+            targetSchemaDoc = schemaDoc
         } else {
             dynamicContainer("Schema documents") {
                 for (schemaDoc in schemaTest.schemaDocuments) {
                     addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
+                    targetSchemaDoc = schemaDoc
                 }
             }
         }
     }
+    if(false && targetSchemaDoc!=null && group.instanceTests.isNotEmpty()) {
+
+        for (instanceTest in group.instanceTests) {
+            addInstanceTest(setBaseUrl, instanceTest, targetSchemaDoc!!, group.documentationString())
+        }
+    }
+}
+
+private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
+    setBaseUrl: URI,
+    instanceTest: TSInstanceTest,
+    schemaDoc: TSSchemaDocument,
+    documentation: String
+) {
+    val instanceDoc = instanceTest.instanceDocument
+    val resolver = SimpleResolver(setBaseUrl)
+    dynamicTest("Instance document ${instanceDoc.href} exists") {
+        setBaseUrl.resolve(instanceDoc.href).toURL().openStream().use { stream ->
+            assertNotNull(stream)
+        }
+    }
+    if (instanceTest.expected?.validity == TSValidityOutcome.VALID) {
+        val schemaLocation = VAnyURI(schemaDoc.href)
+        val schema = resolver.readSchema(schemaLocation).resolve(resolver)
+
+    }
+
+//    assertNotNull()
 }
 
 private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
@@ -419,7 +450,9 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     val expected = schemaTest.expected
     if (expected?.validity == TSValidityOutcome.INVALID) {
         dynamicTest("Schema document ${schemaDoc.href} exists") {
-            assertNotNull(setBaseUrl.resolve(schemaDoc.href).toURL().openStream())
+            setBaseUrl.resolve(schemaDoc.href).toURL().openStream().use { stream ->
+                assertNotNull(stream)
+            }
         }
         if (false) {
             dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
@@ -465,9 +498,15 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
             }
         }
     } else {
+        val schemaLocation = VAnyURI(schemaDoc.href)
         dynamicTest("Schema document ${schemaDoc.href} parses") {
-            val schema = resolver.readSchema(VAnyURI(schemaDoc.href))
+            val schema = resolver.readSchema(schemaLocation)
             assertNotNull(schema)
+        }
+        dynamicTest("Schema document ${schemaDoc.href} resolves and checks") {
+            val resolvedSchema = resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation))
+            resolvedSchema.check()
+            assertNotNull(resolvedSchema)
         }
     }
 }
