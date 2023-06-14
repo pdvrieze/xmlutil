@@ -129,14 +129,15 @@ class ResolvedToplevelElement(
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
         for (substitutionGroupHead in substitutionGroups) {
-            require(qName !in seenElements) { "Recursive subsitution group: $qName" }
+            require(substitutionGroupHead.qName !in seenElements) {
+                "Recursive subsitution group: $qName"
+            }
             substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
         }
     }
 
-    val substitutionGroups: List<ResolvedToplevelElement> = DelegateList(rawPart.substitutionGroup ?: emptyList<QName>() ) {
-        schema.element(it)
-    }
+    val substitutionGroups: List<ResolvedToplevelElement> =
+        DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
     override val final: T_DerivationSet
@@ -173,7 +174,6 @@ class ResolvedToplevelElement(
     val affiliatedSubstitutionGroups: List<ResolvedElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
-
 
 
     val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
