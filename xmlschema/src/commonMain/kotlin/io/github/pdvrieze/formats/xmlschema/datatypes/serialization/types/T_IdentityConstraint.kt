@@ -19,9 +19,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import nl.adaptivity.xmlutil.QName
 
-interface T_Keybase: XSI_Annotated {
+interface T_IdentityConstraint: XSI_Annotated, I_OptNamed, G_IdentityConstraint.Base {
     val selector: XSSelector?
 
     /**
@@ -29,6 +30,9 @@ interface T_Keybase: XSI_Annotated {
      */
     val fields: List<XSField>
 
-    val name: VNCName?
+    override val name: VNCName?
     val ref: QName?
 }
+
+interface T_Key: T_IdentityConstraint, G_IdentityConstraint.Key
+interface T_Unique: T_IdentityConstraint, G_IdentityConstraint.Unique

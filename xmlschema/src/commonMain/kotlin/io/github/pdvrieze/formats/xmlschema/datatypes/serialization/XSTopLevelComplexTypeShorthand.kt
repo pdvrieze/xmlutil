@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexTypeShorthandContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Shorthand
@@ -60,8 +58,8 @@ class XSTopLevelComplexTypeShorthand(
     id,
     annotations,
     otherAttrs
-), T_TopLevelComplexType_Shorthand {
-    override val content: T_ComplexTypeShorthandContent get() = this
+), IXSComplexTypeShorthand, T_TopLevelComplexType_Shorthand {
+    override val content: IXSComplexTypeShorthand get() = this
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(

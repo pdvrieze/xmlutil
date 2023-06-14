@@ -35,4 +35,4 @@ class XSSimpleContent(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): XSI_Annotated, T_ComplexTypeSimpleContent
+): IXSComplexContent, T_ComplexTypeSimpleContent

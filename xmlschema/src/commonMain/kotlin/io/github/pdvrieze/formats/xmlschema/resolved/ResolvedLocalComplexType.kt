@@ -22,13 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalComplexType(
-    override val rawPart: T_LocalComplexType_Base,
+    override val rawPart: XSLocalComplexType,
     override val schema: ResolvedSchemaLike
 ) : ResolvedLocalType, ResolvedComplexType, T_LocalComplexType_Base {
     override val mixed: Boolean? get() = rawPart.mixed
@@ -38,10 +37,10 @@ class ResolvedLocalComplexType(
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     override val content: ResolvedComplexContent by lazy {
-        when (val c = rawPart.content as T_ComplexTypeContentSealed) {
-            is T_ComplexTypeComplexContent -> ResolvedComplexComplexContent(c, schema)
-            is T_ComplexTypeShorthandContent -> ResolvedComplexShorthandContent(this, c, schema)
-            is T_ComplexTypeSimpleContent -> ResolvedComplexSimpleContent(c, schema)
+        when (val c = rawPart.content) {
+            is XSComplexContent -> ResolvedComplexComplexContent(c, schema)
+            is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
+            is XSSimpleContent -> ResolvedComplexSimpleContent(c, schema)
         }
     }
 

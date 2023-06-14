@@ -20,6 +20,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_IdentityConstraints
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
@@ -51,6 +52,8 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated
     val block: T_BlockSet?
 
     val form: T_FormChoice?
+    
+    override val keyrefs: List<T_KeyRef>
 
     interface Type: T_Type
 

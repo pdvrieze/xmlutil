@@ -22,7 +22,8 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Keybase
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_IdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Unique
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -43,4 +44,6 @@ class XSUnique(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): G_IdentityConstraint.Unique, T_Keybase
+): T_Unique {
+    override val targetNamespace: Nothing? get() = null
+}

@@ -21,7 +21,8 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Keybase
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_IdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Key
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -40,4 +41,6 @@ class XSKey(
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): G_IdentityConstraint.Key, T_Keybase
+): T_Key {
+    override val targetNamespace: Nothing? get() = null
+}

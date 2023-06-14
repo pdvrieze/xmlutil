@@ -21,8 +21,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Keybase
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_KeyRef
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -37,10 +36,12 @@ class XSKeyref(
     override val fields: List<XSField> = emptyList(),
     override val name: VNCName? = null,
     override val ref: QName? = null,
-    val refer: QName? = null,
+    override val refer: QName/*? = null*/,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation>,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String>
 
-): G_IdentityConstraint.Keyref, T_Keybase
+): T_KeyRef {
+    override val targetNamespace: Nothing? get() = null
+}
