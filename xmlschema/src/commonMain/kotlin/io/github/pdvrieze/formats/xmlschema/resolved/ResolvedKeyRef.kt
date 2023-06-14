@@ -48,7 +48,7 @@ class ResolvedKeyRef(
 
     override val refer: QName get() = rawPart.refer
 
-    val referenced: ResolvedIdentityConstraint = schema.identityConstraint(refer)
+    val referenced: ResolvedIdentityConstraint get() = schema.identityConstraint(refer)
 
     override val selector: XSSelector? get() = rawPart.selector
 
