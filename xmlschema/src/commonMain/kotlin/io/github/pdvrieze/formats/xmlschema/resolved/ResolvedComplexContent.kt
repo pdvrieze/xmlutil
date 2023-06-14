@@ -78,8 +78,9 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
     }
 
     open fun check(seenTypes: SingleLinkedList<QName>) {
-        require(base !in seenTypes) { "Recursive type use in complex content: $base" }
-        baseType.check(seenTypes)
+        if (base !in seenTypes) { // Recursion is allowed, but must be managed
+            baseType.check(seenTypes)
+        }
     }
 }
 
