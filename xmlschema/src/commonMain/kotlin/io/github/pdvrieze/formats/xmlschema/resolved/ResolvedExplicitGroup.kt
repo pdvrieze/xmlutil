@@ -33,16 +33,24 @@ sealed class ResolvedExplicitGroup(
 ) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroup {
     abstract override val rawPart: XSExplicitGroup
 
-    override val elements: List<ResolvedLocalElement> =
+    override val elements: List<ResolvedLocalElement> by lazy {
         DelegateList(rawPart.elements) { ResolvedLocalElement(parent, it, schema) }
+    }
 
-    override val groups: List<ResolvedGroupRef> =
+    override val groups: List<ResolvedGroupRef> by lazy {
         DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
+    }
 
     override val anys: List<T_Wildcard>
         get() = TODO("not implemented")
 
-
+    fun check() {
+        for (element in elements) {
+            element.ref?.let { r ->
+                checkNotNull(schema.element(r))
+            }
+        }
+    }
 }
 
 class ResolvedAll(
