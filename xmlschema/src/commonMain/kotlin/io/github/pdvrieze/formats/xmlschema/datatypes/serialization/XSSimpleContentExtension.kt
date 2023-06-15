@@ -18,13 +18,15 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleContentExtension: XSSimpleContentDerivation {
+class XSSimpleContentExtension: XSSimpleContentDerivation, T_SimpleExtensionType {
 
     constructor(
         base: QName,
@@ -35,5 +37,9 @@ class XSSimpleContentExtension: XSSimpleContentDerivation {
         assertions: List<XSAssert> = emptyList(),
         annotations: List<XSAnnotation> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(base, id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs)
+    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs) {
+        this.base = base
+    }
+
+    override val base: @Serializable(QNameSerializer::class) QName
 }

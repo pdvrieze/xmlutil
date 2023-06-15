@@ -41,7 +41,7 @@ sealed class ResolvedSimpleDerivation(
 
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    abstract fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>)
+    abstract fun check(seenTypes: SingleLinkedList<QName>)
 }
 
 class ResolvedSimpleListDerivation(
@@ -68,7 +68,7 @@ class ResolvedSimpleListDerivation(
 
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>) {
     }
 }
 
@@ -105,7 +105,7 @@ class ResolvedSimpleUnionDerivation(
 
     }
 
-    override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
             (m as? ResolvedToplevelType)?.let { require(it.qName !in seenTypes) { "Recursive presence of ${it.qName}" } }
@@ -116,10 +116,18 @@ class ResolvedSimpleUnionDerivation(
 abstract class ResolvedSimpleRestrictionDerivation(schema: ResolvedSchemaLike) : ResolvedSimpleDerivation(schema),
     T_SimpleRestrictionType
 
+abstract class ResolvedSimpleExtensionDerivation(schema: ResolvedSchemaLike) : ResolvedSimpleDerivation(schema),
+    T_SimpleExtensionType
+
 fun ResolvedSimpleRestrictionDerivation(
     rawPart: T_SimpleRestrictionType,
     schema: ResolvedSchemaLike
 ): ResolvedSimpleRestrictionDerivation = ResolvedSimpleRestrictionDerivationImpl(rawPart, schema)
+
+fun ResolvedSimpleExtensionDerivation(
+    rawPart: XSSimpleContentExtension,
+    schema: ResolvedSchemaLike
+): ResolvedSimpleExtensionDerivation = ResolvedSimpleExtensionDerivationImpl(rawPart, schema)
 
 class ResolvedSimpleRestrictionDerivationImpl(
     override val rawPart: T_SimpleRestrictionType,
@@ -148,13 +156,44 @@ class ResolvedSimpleRestrictionDerivationImpl(
         }
     }
 
-    override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
             require(simpleTypes.size == 1)
         } else {
             require(simpleTypes.isEmpty())
         }
+        if (b !in seenTypes) {
+            val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+            baseType.check(seenTypes, inherited)
+            // Recursion is allowed
+        }
+    }
+}
+
+class ResolvedSimpleExtensionDerivationImpl(
+    override val rawPart: T_SimpleExtensionType,
+    schema: ResolvedSchemaLike
+) : ResolvedSimpleExtensionDerivation(schema), T_SimpleExtensionType {
+    override val asserts: List<T_Assertion> get() = rawPart.asserts
+    override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema) }
+    override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
+    override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
+    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+
+    override val id: VID? get() = rawPart.id
+
+    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+
+    override val base: QName get() = rawPart.base
+
+    override val baseType: ResolvedSimpleType by lazy {
+        schema.simpleType(base)
+    }
+
+    override fun check(seenTypes: SingleLinkedList<QName>) {
+        val b = base
+
         if (b !in seenTypes) {
             val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
             baseType.check(seenTypes, inherited)

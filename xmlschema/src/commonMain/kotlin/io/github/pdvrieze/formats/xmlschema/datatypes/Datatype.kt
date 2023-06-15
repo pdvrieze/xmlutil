@@ -204,14 +204,14 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
 
     private object ERRORDERIVATION : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
         override val rawPart: T_SimpleDerivation get() = this
-        override val simpleTypes: List<Nothing>
-            get() = emptyList()
+
+        override val simpleTypes: List<Nothing> get() = emptyList()
         override val facets: List<XSFacet> get() = emptyList()
         override val otherContents: List<Nothing> get() = emptyList()
         override val base: QName get() = ErrorType.qName
         override val baseType: T_SimpleBaseType get() = ErrorType
 
-        override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) = Unit
+        override fun check(seenTypes: SingleLinkedList<QName>) = Unit
     }
 }
 
@@ -248,8 +248,7 @@ internal open class SimpleBuiltinRestriction(
     override val rawPart: T_SimpleDerivation get() = this
     override val base: QName get() = baseType.qName
 
-    override fun check(owner: ResolvedSimpleType, seenTypes: SingleLinkedList<QName>) = Unit
-
+    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
     override val simpleTypes: List<Nothing> get() = emptyList()
     override val otherContents: List<Nothing> get() = emptyList()
     override val annotations: List<Nothing> get() = emptyList()

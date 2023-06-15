@@ -30,8 +30,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
 
         when (val n = name) {
-            null -> simpleDerivation.check(this, SingleLinkedList())
-            else -> simpleDerivation.check(this, SingleLinkedList(n.toQname(schema.targetNamespace)))
+            null -> simpleDerivation.check(SingleLinkedList())
+            else -> simpleDerivation.check(SingleLinkedList(n.toQname(schema.targetNamespace)))
         }
     }
 }

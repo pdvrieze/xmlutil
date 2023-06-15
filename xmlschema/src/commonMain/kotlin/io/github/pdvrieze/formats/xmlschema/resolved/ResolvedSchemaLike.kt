@@ -50,7 +50,7 @@ abstract sealed class ResolvedSchemaLike {
             BuiltinXmlSchema.simpleType(typeName)
         } else {
             simpleTypes.firstOrNull { it.qName == typeName }
-                ?: throw NoSuchElementException("No type with name $typeName found")
+                ?: throw NoSuchElementException("No simple type with name $typeName found")
         }
     }
 
