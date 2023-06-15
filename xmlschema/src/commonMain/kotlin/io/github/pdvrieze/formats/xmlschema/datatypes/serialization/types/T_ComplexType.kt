@@ -16,6 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 
 interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
@@ -47,7 +49,9 @@ interface T_ComplexTypeContent : G_ComplexTypeModel.Base
 
 sealed interface T_ComplexTypeContentSealed: T_ComplexTypeContent
 
-interface T_ComplexTypeSimpleContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.SimpleContent
+interface T_ComplexTypeSimpleContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.SimpleContent {
+    val derivation: T_SimpleDerivation
+}
 
 interface T_ComplexTypeComplexContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.ComplexContent {
     val derivation: T_ComplexDerivation

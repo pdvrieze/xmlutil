@@ -193,14 +193,23 @@ class ResolvedComplexShorthandContent(
 }
 
 class ResolvedComplexSimpleContent(
-    parent: ResolvedComplexType,
-    override val rawPart: T_ComplexTypeSimpleContent,
+    private val parent: ResolvedComplexType,
+    override val rawPart: XSSimpleContent,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexContent(schema),
     T_ComplexTypeSimpleContent {
 
+    override val derivation: ResolvedSimpleDerivation by lazy {
+        when (val d = rawPart.derivation) {
+            is XSSimpleContentExtension -> ResolvedSimpleExtensionDerivation(d, schema)
+            is XSSimpleContentRestriction -> ResolvedSimpleRestrictionDerivation(d, schema)
+            else -> error("unsupported derivation")
+        }
+    }
+
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        derivation.check(seenTypes)
         //TODO("not implemented")
     }
 }

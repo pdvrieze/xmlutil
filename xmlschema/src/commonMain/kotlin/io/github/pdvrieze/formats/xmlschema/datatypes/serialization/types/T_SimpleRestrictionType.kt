@@ -16,6 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
@@ -23,5 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Sim
  * Datatype restricted only in the facets specified upon it.
  */
 interface T_SimpleRestrictionType: T_RestrictionType, T_SimpleDerivationBase, G_SimpleDerivation.Restriction {
-
+    override val facets: List<XSFacet>
+    override val simpleTypes: List<T_LocalSimpleType>
 }
+

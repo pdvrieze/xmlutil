@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("simpleContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSSimpleContent(
-    val derivation: XSSimpleContentDerivation,
+    override val derivation: XSSimpleContentDerivation,
     override val id: VID? = null,
     override val annotations: List<XSAnnotation> = emptyList(),
     @XmlOtherAttributes
