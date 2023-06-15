@@ -25,6 +25,7 @@ interface G_SimpleDerivation {
     interface Base
     sealed interface SealedBase: Base
     interface Restriction: SealedBase
+    interface Extension: SealedBase
     interface List: SealedBase
     interface Union: SealedBase
 }

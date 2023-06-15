@@ -41,6 +41,7 @@ class ResolvedLocalComplexType(
             is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
             is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
             is XSSimpleContent -> ResolvedComplexSimpleContent(this, c, schema)
+            else -> error("unsupported content")
         }
     }
 
