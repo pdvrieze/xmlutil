@@ -17,6 +17,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 internal interface SimpleRestrictionModel {
-    val simpleType: XSLocalSimpleType?
+    val simpleTypes: List<XSLocalSimpleType>
     val facets: List<XSFacet>
 }

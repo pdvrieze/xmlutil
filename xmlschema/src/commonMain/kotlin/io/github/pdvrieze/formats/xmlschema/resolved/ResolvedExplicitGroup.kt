@@ -28,13 +28,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 
 sealed class ResolvedExplicitGroup(
-    parent: ResolvedComplexType,
+    parent: ResolvedType,
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroup {
     abstract override val rawPart: XSExplicitGroup
 
     override val elements: List<ResolvedLocalElement> by lazy {
-        DelegateList(rawPart.elements) { ResolvedLocalElement(parent, it, schema) }
+        DelegateList(rawPart.elements) { ResolvedLocalElement(parent as ResolvedComplexType, it, schema) }
     }
 
     override val groups: List<ResolvedGroupRef> by lazy {
@@ -54,7 +54,7 @@ sealed class ResolvedExplicitGroup(
 }
 
 class ResolvedAll(
-    parent: ResolvedComplexType,
+    parent: ResolvedType,
     override val rawPart: XSAll,
     override val schema: ResolvedSchemaLike
 ) : ResolvedExplicitGroup(parent, schema), T_All {
@@ -71,7 +71,7 @@ class ResolvedAll(
 }
 
 class ResolvedChoice(
-    parent: ResolvedComplexType,
+    parent: ResolvedType,
     override val rawPart: XSChoice,
     override val schema: ResolvedSchemaLike
 ) : ResolvedExplicitGroup(parent, schema), T_Choice {
@@ -96,7 +96,7 @@ class ResolvedChoice(
 }
 
 class ResolvedSequence(
-    parent: ResolvedComplexType,
+    parent: ResolvedType,
     override val rawPart: XSSequence,
     override val schema: ResolvedSchemaLike
 ) : ResolvedExplicitGroup(parent, schema), T_Sequence {

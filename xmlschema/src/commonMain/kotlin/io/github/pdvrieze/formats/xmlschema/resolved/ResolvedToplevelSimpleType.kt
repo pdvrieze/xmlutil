@@ -59,6 +59,7 @@ class ResolvedToplevelSimpleTypeImpl(
             is XSSimpleUnion -> ResolvedSimpleUnionDerivation(raw, schema)
             is XSSimpleList -> ResolvedSimpleListDerivation(raw, schema)
             is XSSimpleRestriction -> ResolvedSimpleRestrictionDerivation(raw, schema)
+            else -> error("unsupported derivation")
         }
 
     override val final: Set<T_SimpleDerivationSetElem>

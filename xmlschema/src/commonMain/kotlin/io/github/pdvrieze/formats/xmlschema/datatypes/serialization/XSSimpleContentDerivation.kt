@@ -21,6 +21,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Ass
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -28,7 +30,6 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 sealed class XSSimpleContentDerivation(
-    val base: @Serializable(QNameSerializer::class) QName?,
     override val id: VID?,
     override val attributes: List<XSLocalAttribute>,
     override val attributeGroups: List<XSAttributeGroupRef>,
@@ -37,4 +38,6 @@ sealed class XSSimpleContentDerivation(
     override val annotations: List<XSAnnotation>,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : XSI_Annotated, G_Assertions, G_AttrDecls
+) : T_SimpleDerivation, G_Assertions, G_AttrDecls {
+    abstract val base: QName?
+}

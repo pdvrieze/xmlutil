@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 
 interface T_SimpleDerivation : XSI_Annotated, G_SimpleDerivation.Base {
