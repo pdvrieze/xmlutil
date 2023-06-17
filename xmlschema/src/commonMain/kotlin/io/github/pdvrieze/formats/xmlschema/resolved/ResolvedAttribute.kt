@@ -101,7 +101,9 @@ class ResolvedLocalAttribute(
 
     override fun check() {
         super.check()
-        if (rawPart.ref == null && rawPart.name == null) error("Attributes must either have a reference or a name")
+        if (rawPart.ref != null) {
+            require(referenced != null) { "If an attribute has a ref, it must also be resolvable" }
+        } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
     }
 }
 
