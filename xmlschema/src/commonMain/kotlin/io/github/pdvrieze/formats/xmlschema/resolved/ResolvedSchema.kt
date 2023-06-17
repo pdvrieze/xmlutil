@@ -37,7 +37,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         for (rd in redefines) { rd.check() }
     }
 
-    val annotations: List<XSAnnotation> get() = rawPart.annotations
+    val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val simpleTypes: List<ResolvedToplevelSimpleType> = DelegateList(rawPart.simpleTypes) { ResolvedToplevelSimpleType(it, this) }
     override val complexTypes: List<ResolvedToplevelComplexType> = DelegateList(rawPart.complexTypes) { ResolvedToplevelComplexType(it, this) }

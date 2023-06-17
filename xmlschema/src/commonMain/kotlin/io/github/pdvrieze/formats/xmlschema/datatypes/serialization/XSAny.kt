@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("any", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAny(
     override val processContents: T_ProcessContents? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlElement(false)
     val notQName: T_QNameList? = null,
     @XmlElement(false)

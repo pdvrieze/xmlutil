@@ -39,8 +39,8 @@ class ResolvedToplevelSimpleTypeImpl(
     override val rawPart: XSToplevelSimpleType,
     override val schema: ResolvedSchemaLike
 ) : ResolvedToplevelSimpleType {
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

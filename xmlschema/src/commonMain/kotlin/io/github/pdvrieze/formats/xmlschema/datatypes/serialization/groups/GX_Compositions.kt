@@ -19,7 +19,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 interface GX_Compositions {
-    val annotations: List<XSAnnotation>
+    val annotation: XSAnnotation?
     val includes: List<XSInclude>
     val imports: List<XSImport>
     val redefines: List<XSRedefine>

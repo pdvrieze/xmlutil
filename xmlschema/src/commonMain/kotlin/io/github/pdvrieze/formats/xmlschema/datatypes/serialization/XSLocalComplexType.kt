@@ -36,7 +36,7 @@ sealed class XSLocalComplexType(
     override val mixed: Boolean? = null,
     override val defaultAttributesApply: Boolean? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSLocalType(), T_LocalComplexType_Base {
@@ -53,7 +53,7 @@ sealed class XSLocalComplexType(
         if (mixed != other.mixed) return false
         if (defaultAttributesApply != other.defaultAttributesApply) return false
         if (id != other.id) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (otherAttrs != other.otherAttrs) return false
 
         return true
@@ -63,7 +63,7 @@ sealed class XSLocalComplexType(
         var result = mixed?.hashCode() ?: 0
         result = 31 * result + (defaultAttributesApply?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + otherAttrs.hashCode()
         return result
     }
@@ -85,7 +85,7 @@ sealed class XSLocalComplexType(
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
         val id: VID? = null,
-        val annotations: List<XSAnnotation> = emptyList(),
+        val annotation: XSAnnotation? = null,
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
     ) {
@@ -97,7 +97,7 @@ sealed class XSLocalComplexType(
                     defaultAttributesApply = defaultAttributesApply,
                     content = simpleContent,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
                 complexContent != null -> XSLocalComplexTypeComplex(
@@ -105,7 +105,7 @@ sealed class XSLocalComplexType(
                     defaultAttributesApply = defaultAttributesApply,
                     content = complexContent,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
                 else -> XSLocalComplexTypeShorthand(
@@ -121,7 +121,7 @@ sealed class XSLocalComplexType(
                     anyAttribute = anyAttribute,
                     openContents = openContents,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
             }
@@ -153,13 +153,13 @@ class XSLocalComplexTypeComplex(
     defaultAttributesApply: Boolean? = null,
     override val content: XSComplexContent,
     id: VID? = null,
-    annotations: List<XSAnnotation> = emptyList(),
+    annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
     mixed,
     defaultAttributesApply,
     id,
-    annotations,
+    annotation,
     otherAttrs
 ), T_LocalComplexType_Complex {
 
@@ -172,7 +172,7 @@ class XSLocalComplexTypeComplex(
             defaultAttributesApply = defaultAttributesApply,
             complexContent = content,
             id = id,
-            annotations = annotations,
+            annotation = annotation,
             otherAttrs = otherAttrs
         )
     }
@@ -202,13 +202,13 @@ class XSLocalComplexTypeSimple(
     defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
     id: VID? = null,
-    annotations: List<XSAnnotation>,
+    annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSLocalComplexType(
     mixed,
     defaultAttributesApply,
     id,
-    annotations,
+    annotation,
     otherAttrs
 ), T_LocalComplexType_Simple  {
 
@@ -221,7 +221,7 @@ class XSLocalComplexTypeSimple(
             defaultAttributesApply = defaultAttributesApply,
             simpleContent = content,
             id = id,
-            annotations = annotations,
+            annotation = annotation,
             otherAttrs = otherAttrs
         )
     }
@@ -260,13 +260,13 @@ class XSLocalComplexTypeShorthand(
     override val anyAttribute: XSAnyAttribute? = null,
     override val openContents: List<XSOpenContent> = emptyList(),
     id: VID? = null,
-    annotations: List<XSAnnotation> = emptyList(),
+    annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
     mixed,
     defaultAttributesApply,
     id,
-    annotations,
+    annotation,
     otherAttrs
 ), IXSComplexTypeShorthand, T_LocalComplexType_Shorthand {
 
@@ -289,7 +289,7 @@ class XSLocalComplexTypeShorthand(
             anyAttribute = anyAttribute,
             openContents = openContents,
             id = id,
-            annotations = annotations,
+            annotation = annotation,
             otherAttrs = otherAttrs,
         )
     }
