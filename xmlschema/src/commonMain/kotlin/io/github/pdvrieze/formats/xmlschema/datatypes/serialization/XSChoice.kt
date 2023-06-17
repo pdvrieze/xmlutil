@@ -43,7 +43,7 @@ class XSChoice(
     override val choices: List<XSChoice> = emptyList(),
     override val sequences: List<XSSequence> = emptyList(),
     override val anys: List<XSAny> = emptyList(),
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()

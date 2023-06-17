@@ -34,8 +34,8 @@ class ResolvedLocalSimpleType(
 ) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
     override val name: Nothing? get() = null
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

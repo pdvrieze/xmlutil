@@ -58,7 +58,7 @@ class ResolvedKeyRef(
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName?
         get() = rawPart.ref
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     fun check() {
@@ -82,7 +82,7 @@ class ResolvedKey(
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName?
         get() = rawPart.ref
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     fun check() {
@@ -104,7 +104,7 @@ class ResolvedUnique(
 
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName? get() = rawPart.ref
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     fun check() {

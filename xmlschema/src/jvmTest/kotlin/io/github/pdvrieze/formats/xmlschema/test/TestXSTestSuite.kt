@@ -57,7 +57,7 @@ class TestXSTestSuite {
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
 //                .filter { false || it.href.contains("msMeta") }
-                .filter { true || it.href.contains("sunMeta/" + "suntest.testSet") }
+                .filter { false || it.href.contains("sunMeta/") }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()

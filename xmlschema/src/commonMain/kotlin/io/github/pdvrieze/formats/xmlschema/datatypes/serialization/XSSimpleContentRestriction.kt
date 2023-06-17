@@ -42,10 +42,10 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
         assertions: List<XSAssert> = emptyList(),
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs) {
+    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
         this.base = base
         this.simpleTypes = listOfNotNull(simpleType)
         this.facets = facets
@@ -61,10 +61,10 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
         assertions: List<XSAssert> = emptyList(),
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs) {
+    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
         this.base = base
         this.simpleTypes = simpleTypes
         this.facets = facets

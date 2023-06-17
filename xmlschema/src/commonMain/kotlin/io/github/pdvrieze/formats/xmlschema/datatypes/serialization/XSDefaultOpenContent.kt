@@ -36,7 +36,7 @@ class XSDefaultOpenContent(
     val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
     @XmlValue(true)
     val content: List<@Serializable(CompactFragmentSerializer::class) CompactFragment> = emptyList(),
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()

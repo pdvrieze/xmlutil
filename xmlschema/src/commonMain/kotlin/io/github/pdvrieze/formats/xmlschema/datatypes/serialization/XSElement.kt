@@ -49,7 +49,7 @@ class XSElement(
     @XmlElement(false)
     @Serializable(SchemaEnumSetSerializer::class)
     override val final: T_DerivationSet? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
@@ -75,7 +75,7 @@ class XSElement(
         if (abstract != other.abstract) return false
         if (substitutionGroup != other.substitutionGroup) return false
         if (final != other.final) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (localType != other.localType) return false
         if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
@@ -97,7 +97,7 @@ class XSElement(
         result = 31 * result + abstract.hashCode()
         result = 31 * result + substitutionGroup.hashCode()
         result = 31 * result + final.hashCode()
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (localType?.hashCode() ?: 0)
         result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()

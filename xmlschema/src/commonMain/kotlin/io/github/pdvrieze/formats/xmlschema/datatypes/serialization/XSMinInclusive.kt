@@ -32,7 +32,8 @@ class XSMinInclusive(
     override val value: VAnySimpleType,
     override val fixed: Boolean? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSFacet(), T_Facet

@@ -26,7 +26,7 @@ interface G_AllModel : XSI_Annotated {
     val groups: List<T_GroupRef>
 
     interface E_Group: T_GroupRef {
-        override val annotations: List<XSAnnotation>
+        override val annotation: XSAnnotation?
         override val minOccurs: VNonNegativeInteger?
         override val maxOccurs: T_AllNNI.Value
     }
