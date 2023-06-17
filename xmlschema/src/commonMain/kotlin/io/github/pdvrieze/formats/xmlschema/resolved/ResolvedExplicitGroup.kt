@@ -46,9 +46,7 @@ sealed class ResolvedExplicitGroup(
 
     fun check() {
         for (element in elements) {
-            element.ref?.let { r ->
-                checkNotNull(schema.element(r))
-            }
+            element.check()
         }
     }
 }
