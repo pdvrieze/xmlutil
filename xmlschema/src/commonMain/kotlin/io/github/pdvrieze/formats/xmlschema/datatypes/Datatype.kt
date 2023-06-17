@@ -211,7 +211,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
         override val base: QName get() = ErrorType.qName
         override val baseType: T_SimpleBaseType get() = ErrorType
 
-        override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+        override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
 }
 
@@ -248,7 +248,7 @@ internal open class SimpleBuiltinRestriction(
     override val rawPart: T_SimpleDerivation get() = this
     override val base: QName get() = baseType.qName
 
-    override fun check(seenTypes: SingleLinkedList<QName>) = Unit
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val simpleTypes: List<Nothing> get() = emptyList()
     override val otherContents: List<Nothing> get() = emptyList()
     override val annotations: List<Nothing> get() = emptyList()
