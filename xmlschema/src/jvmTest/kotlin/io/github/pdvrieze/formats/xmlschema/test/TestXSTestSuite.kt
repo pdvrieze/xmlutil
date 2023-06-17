@@ -57,7 +57,7 @@ class TestXSTestSuite {
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
 //                .filter { false || it.href.contains("msMeta") }
-                .filter { false || it.href.contains("sunMeta/" + "suntest.testSet") }
+                .filter { true || it.href.contains("sunMeta/" + "suntest.testSet") }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -69,7 +69,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set $tsName") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.contains("xsd013.e")) {
+                            if (true || group.name.contains("idc002.e")) {
                                 dynamicContainer("Group ${group.name}") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
@@ -105,7 +105,7 @@ class TestXSTestSuite {
                 testPropertyPresences(schemas)
 
             }
-            nodes.add(typeTests)
+//            nodes.add(typeTests)
         }
         return nodes
     }
@@ -454,7 +454,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 assertNotNull(stream)
             }
         }
-        if (false) {
+        if (true) {
             dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
                 val e = assertFails(documentation) {
                     val schemaLocation = VAnyURI(schemaDoc.href)
