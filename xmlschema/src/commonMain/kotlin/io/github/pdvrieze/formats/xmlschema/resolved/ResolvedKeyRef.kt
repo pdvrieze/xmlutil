@@ -48,7 +48,10 @@ class ResolvedKeyRef(
 
     override val refer: QName get() = rawPart.refer
 
-    val referenced: ResolvedIdentityConstraint get() = schema.identityConstraint(refer)
+    val referenced: ResolvedKey by lazy {
+        schema.identityConstraint(refer) as? ResolvedKey ?: error("A keyref must reference a key")
+    }
+
 
     override val selector: XSSelector? get() = rawPart.selector
 
@@ -60,6 +63,7 @@ class ResolvedKeyRef(
 
     fun check() {
         checkNotNull(rawPart.name)
+        check (referenced.fields.size == fields.size) { "Key(${referenced.qName}) and keyrefs(${qName}) must have equal field counts" }
     }
 
 }

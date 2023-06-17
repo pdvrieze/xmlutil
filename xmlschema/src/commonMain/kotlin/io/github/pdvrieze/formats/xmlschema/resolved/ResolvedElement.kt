@@ -97,6 +97,10 @@ class ResolvedLocalElement(
 
     override val ref: QName? get() = rawPart.ref
 
+    val refererenced: ResolvedElement by lazy {
+        ref?.let { schema.element(it) } ?: this
+    }
+
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 
@@ -113,6 +117,16 @@ class ResolvedLocalElement(
     override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
     override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
     override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
+
+    fun check() {
+        commonElementCheck()
+        if (rawPart.ref!= null) {
+            refererenced// Don't check as that would already be done at top level
+        }
+        keyrefs.forEach { it.check() }
+        uniques.forEach { it.check() }
+        keys.forEach { it.check() }
+    }
 
 }
 
