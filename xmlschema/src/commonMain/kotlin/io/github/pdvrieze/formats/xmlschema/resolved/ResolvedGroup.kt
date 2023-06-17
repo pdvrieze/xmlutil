@@ -59,7 +59,7 @@ class ResolvedGroupRef(
         get() = referencedGroup.particles
 
     override fun check() {
-//        TODO("not implemented")
+        referencedGroup.check()
     }
 }
 
