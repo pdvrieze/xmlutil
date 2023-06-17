@@ -5392,6 +5392,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalCo
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalElement : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedElement, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalElement {
 	public fun <init> (Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexType;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalElement;Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedSchemaLike;)V
+	public final fun check ()V
 	public fun getAbstract ()Ljava/lang/Boolean;
 	public fun getFinal ()Ljava/lang/Void;
 	public synthetic fun getFinal ()Ljava/util/Set;
@@ -5406,6 +5407,7 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalEl
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Element;
 	public synthetic fun getRawPart ()Ljava/lang/Object;
 	public fun getRef ()Ljavax/xml/namespace/QName;
+	public final fun getRefererenced ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedElement;
 	public fun getScope ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_Scope;
 	public fun getSubstitutionGroup ()Ljava/lang/Void;
 	public synthetic fun getSubstitutionGroup ()Ljava/util/List;

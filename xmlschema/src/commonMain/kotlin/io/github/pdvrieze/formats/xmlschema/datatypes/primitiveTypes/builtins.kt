@@ -291,7 +291,7 @@ object IDRefType : PrimitiveDatatype("IDREF", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: NCNameType get() = NCNameType
 }
 
-object NMTokenType : PrimitiveDatatype("NMToken", XmlSchemaConstants.XS_NAMESPACE) {
+object NMTokenType : PrimitiveDatatype("NMTOKEN", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: TokenType get() = TokenType
 }
 
