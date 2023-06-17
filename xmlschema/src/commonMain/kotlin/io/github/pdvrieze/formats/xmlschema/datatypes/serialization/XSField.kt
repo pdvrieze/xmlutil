@@ -33,7 +33,7 @@ class XSField(
     val xpath: VToken,
     val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSI_Annotated

@@ -36,7 +36,7 @@ class XSAssert(
     override val test: XPathExpression,
     override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
     override val id: VID?,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_Assertion

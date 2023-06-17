@@ -35,7 +35,7 @@ sealed class ResolvedSimpleDerivation(
 
     abstract val baseType: T_SimpleBaseType
 
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val id: VID? get() = rawPart.id
 
@@ -88,7 +88,7 @@ class ResolvedSimpleUnionDerivation(
 
     val resolvedMembers: List<ResolvedSimpleType>
 
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val id: VID? get() = rawPart.id
 
@@ -148,7 +148,7 @@ class ResolvedSimpleRestrictionDerivationImpl(
 
     override val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val id: VID? get() = rawPart.id
 
@@ -187,7 +187,7 @@ class ResolvedSimpleExtensionDerivationImpl(
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val id: VID? get() = rawPart.id
 

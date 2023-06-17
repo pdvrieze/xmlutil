@@ -33,7 +33,7 @@ class XSAssertionFacet(
     override val test: XPathExpression? = null,
     override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSFacet(), T_Assertion
@@ -45,7 +45,7 @@ class XSAssertionFacet(
         test: XPathExpression,
         id: ID? = null,
         xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
     ) : super(id,annotations, otherAttrs) {
         this.test = test

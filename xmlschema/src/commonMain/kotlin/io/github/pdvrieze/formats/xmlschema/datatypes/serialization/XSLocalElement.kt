@@ -55,7 +55,7 @@ class XSLocalElement(
     @XmlElement(false)
     override val type: QName? = null,
 
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
@@ -82,7 +82,7 @@ class XSLocalElement(
         if (ref != other.ref) return false
         if (targetNamespace != other.targetNamespace) return false
         if (type != other.type) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (localType != other.localType) return false
         if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
@@ -106,7 +106,7 @@ class XSLocalElement(
         result = 31 * result + (ref?.hashCode() ?: 0)
         result = 31 * result + (targetNamespace?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (localType?.hashCode() ?: 0)
         result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()

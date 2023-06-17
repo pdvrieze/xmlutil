@@ -68,7 +68,7 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
     abstract override val attributes: List<ResolvedLocalAttribute>
     abstract override val attributeGroups: List<ResolvedAttributeGroupRef>
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
     override val base: QName? get() = rawPart.base

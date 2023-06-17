@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAttributeGroupRef(
     override val id: VID? = null,
     override val ref: QName,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 
@@ -53,7 +53,7 @@ class XSAttributeGroupRef(
 
         if (id != other.id) return false
         if (ref != other.ref) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (attributeGroups != other.attributeGroups) return false
         if (attributes != other.attributes) return false
         if (anyAttribute != other.anyAttribute) return false
@@ -65,7 +65,7 @@ class XSAttributeGroupRef(
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
         result = 31 * result + ref.hashCode()
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + attributeGroups.hashCode()
         result = 31 * result + attributes.hashCode()
         result = 31 * result + (anyAttribute?.hashCode() ?: 0)

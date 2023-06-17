@@ -60,8 +60,8 @@ class ResolvedLocalAttribute(
 ) : ResolvedAttributeBase(schema), T_LocalAttribute {
     private val referenced: ResolvedAttribute? by lazy { rawPart.ref?.let { schema.attribute(it) } }
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id
@@ -112,8 +112,8 @@ class ResolvedToplevelAttribute(
     schema: ResolvedSchemaLike
 ) : ResolvedAttributeBase(schema), ResolvedAttribute, T_TopLevelAttribute, NamedPart {
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

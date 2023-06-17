@@ -35,9 +35,9 @@ class XSSimpleContentExtension: XSSimpleContentDerivation, T_SimpleExtensionType
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
         assertions: List<XSAssert> = emptyList(),
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotations, otherAttrs) {
+    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
         this.base = base
     }
 

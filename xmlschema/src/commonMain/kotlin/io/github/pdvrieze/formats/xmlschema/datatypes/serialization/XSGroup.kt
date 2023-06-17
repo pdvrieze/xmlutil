@@ -38,7 +38,7 @@ class XSGroup(
     override val id: VID? = null,
     override val ref: QName? = null,
     override val particle: Particle,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : G_Redefinable.Group, T_NamedGroup {
@@ -52,10 +52,10 @@ class XSGroup(
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
     class All(
-        override val annotations: List<XSAnnotation> = emptyList(),
         override val elements: List<XSLocalElement> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
         override val groups: List<XSGroupRef> = emptyList(),
+        override val annotation: XSAnnotation? = null,
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
@@ -69,7 +69,7 @@ class XSGroup(
         override val choices: List<XSChoice> = emptyList(),
         override val sequences: List<XSSequence> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
-        override val annotations: List<XSAnnotation> = emptyList(),
+        override val annotation: XSAnnotation? = null,
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
@@ -83,7 +83,7 @@ class XSGroup(
         override val choices: List<XSChoice> = emptyList(),
         override val sequences: List<XSSequence> = emptyList(),
         override val anys: List<XSAny> = emptyList(),
-        override val annotations: List<XSAnnotation> = emptyList(),
+        override val annotation: XSAnnotation? = null,
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()

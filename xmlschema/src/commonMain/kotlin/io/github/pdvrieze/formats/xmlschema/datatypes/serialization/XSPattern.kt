@@ -30,7 +30,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSPattern(
     override val value: String,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSFacet(), T_NoFixedFacet

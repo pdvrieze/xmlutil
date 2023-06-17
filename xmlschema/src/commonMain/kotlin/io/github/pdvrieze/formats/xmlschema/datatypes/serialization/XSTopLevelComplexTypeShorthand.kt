@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexTypeShorthandContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Shorthand
 import kotlinx.serialization.Serializable
@@ -46,7 +45,7 @@ class XSTopLevelComplexTypeShorthand(
     override val anyAttribute: XSAnyAttribute?,
     override val openContents: List<XSOpenContent>,
     id: VID? = null,
-    annotations: List<XSAnnotation>,
+    annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSTopLevelComplexType(
     name,
@@ -56,7 +55,7 @@ class XSTopLevelComplexTypeShorthand(
     block,
     defaultAttributesApply,
     id,
-    annotations,
+    annotation,
     otherAttrs
 ), IXSComplexTypeShorthand, T_TopLevelComplexType_Shorthand {
     override val content: IXSComplexTypeShorthand get() = this
@@ -79,7 +78,7 @@ class XSTopLevelComplexTypeShorthand(
             anyAttribute = anyAttribute,
             openContents = openContents,
             id = id,
-            annotations = annotations,
+            annotation = annotation,
             otherAttrs = otherAttrs
         )
     }

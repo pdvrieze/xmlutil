@@ -64,7 +64,8 @@ class XSSchema(
     override val imports: List<XSImport> = emptyList(),
     override val redefines: List<XSRedefine> = emptyList(),
     override val overrides: List<XSOverride> = emptyList(),
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
 
     @XmlAfter("includes", "imports", "redefines", "overrides")
     @XmlBefore("simpleTypes", "complexTypes", "groups", "attributeGroups", "elements", "attributes", "notations")
@@ -101,7 +102,7 @@ class XSSchema(
         if (imports != other.imports) return false
         if (redefines != other.redefines) return false
         if (overrides != other.overrides) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (defaultOpenContent != other.defaultOpenContent) return false
         if (simpleTypes != other.simpleTypes) return false
         if (complexTypes != other.complexTypes) return false
@@ -130,7 +131,7 @@ class XSSchema(
         result = 31 * result + imports.hashCode()
         result = 31 * result + redefines.hashCode()
         result = 31 * result + overrides.hashCode()
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + defaultOpenContent.hashCode()
         result = 31 * result + simpleTypes.hashCode()
         result = 31 * result + complexTypes.hashCode()
