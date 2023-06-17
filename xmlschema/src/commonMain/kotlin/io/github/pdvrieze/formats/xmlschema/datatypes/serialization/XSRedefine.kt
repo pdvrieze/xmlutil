@@ -35,7 +35,8 @@ class XSRedefine(
     override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val schemaLocation: VAnyURI,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
 ) : T_Redefine {

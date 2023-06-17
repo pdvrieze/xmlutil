@@ -43,7 +43,7 @@ abstract class XSAttributeBase(
     final override val id: VID? = null,
     final override val type: QName? = null,
     final override val inheritable: Boolean? = null,
-    final override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     final override val simpleType: XSLocalSimpleType? = null,
     @XmlOtherAttributes
     final override val otherAttrs: Map<QName, String> = emptyMap(),
@@ -59,7 +59,7 @@ abstract class XSAttributeBase(
         if (id != other.id) return false
         if (type != other.type) return false
         if (inheritable != other.inheritable) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (simpleType != other.simpleType) return false
         if (otherAttrs != other.otherAttrs) return false
 
@@ -72,7 +72,7 @@ abstract class XSAttributeBase(
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
         result = 31 * result + (inheritable?.hashCode() ?: 0)
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (simpleType?.hashCode() ?: 0)
         result = 31 * result + otherAttrs.hashCode()
         return result
@@ -95,10 +95,10 @@ class XSAttribute : XSAttributeBase, G_SchemaTop.Attribute {
         name: VNCName,
         type: QName? = null,
         inheritable: Boolean? = null,
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         simpleType: XSLocalSimpleType? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, type, inheritable, annotations, simpleType, otherAttrs) {
+    ) : super(default, fixed, id, type, inheritable, annotation, simpleType, otherAttrs) {
         this.name = name
     }
 
@@ -151,10 +151,10 @@ class XSLocalAttribute : XSAttributeBase, T_LocalAttribute {
         use: XSAttrUse? = null,
         inheritable: Boolean? = null,
         targetNamespace: VAnyURI? = null,
-        annotations: List<XSAnnotation> = emptyList(),
+        annotation: XSAnnotation? = null,
         simpleType: XSLocalSimpleType? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, type, inheritable, annotations, simpleType, otherAttrs) {
+    ) : super(default, fixed, id, type, inheritable, annotation, simpleType, otherAttrs) {
         this.name = name
         this.form = form
         this.ref = ref

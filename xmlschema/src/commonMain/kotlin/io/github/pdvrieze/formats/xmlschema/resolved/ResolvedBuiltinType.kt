@@ -30,7 +30,7 @@ interface ResolvedBuiltinType : ResolvedToplevelType, T_TopLevelSimpleType {
     override val rawPart: T_NamedType get() = this
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
-    override val annotations: List<XSAnnotation> get() = emptyList()
+    override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, String> get() = emptyMap()
 }

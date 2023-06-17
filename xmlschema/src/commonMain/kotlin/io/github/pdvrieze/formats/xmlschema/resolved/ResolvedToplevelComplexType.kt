@@ -35,8 +35,8 @@ class ResolvedToplevelComplexType(
     override val name: VNCName
         get() = rawPart.name
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

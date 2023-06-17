@@ -90,8 +90,8 @@ class ResolvedInclude(
     override val id: VID?
         get() = rawPart.id
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
@@ -162,8 +162,8 @@ class ResolvedRedefine(
     override val id: VID?
         get() = rawPart.id
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs

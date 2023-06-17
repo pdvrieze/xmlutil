@@ -37,7 +37,7 @@ class XSGroupRef(
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
     override val ref: @Serializable(QNameSerializer::class) QName,
-    override val annotations: List<XSAnnotation>,
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ): T_GroupRef, G_TypeDefParticle.Group, G_NestedParticle.Group, G_Particle.Group

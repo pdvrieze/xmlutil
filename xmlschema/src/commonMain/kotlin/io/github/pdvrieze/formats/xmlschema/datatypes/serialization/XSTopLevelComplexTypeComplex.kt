@@ -37,7 +37,7 @@ class XSTopLevelComplexTypeComplex(
     defaultAttributesApply: Boolean?,
     override val content: XSComplexContent,
     id: VID? = null,
-    annotations: List<XSAnnotation>,
+    annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSTopLevelComplexType(
     name,
@@ -47,7 +47,7 @@ class XSTopLevelComplexTypeComplex(
     block,
     defaultAttributesApply,
     id,
-    annotations,
+    annotation,
     otherAttrs
 ), T_TopLevelComplexType_Complex {
     override fun toSerialDelegate(): SerialDelegate {
@@ -60,7 +60,7 @@ class XSTopLevelComplexTypeComplex(
             defaultAttributesApply = defaultAttributesApply,
             complexContent = content,
             id = id,
-            annotations = annotations,
+            annotation = annotation,
             otherAttrs = otherAttrs
         )
     }

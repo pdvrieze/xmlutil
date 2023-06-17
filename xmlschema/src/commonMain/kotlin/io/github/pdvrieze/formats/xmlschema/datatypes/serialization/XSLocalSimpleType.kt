@@ -31,12 +31,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("simpleType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalSimpleType(
     override val id: VID? = null,
-
-
-
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     /** restriction or list or union */
-    @XmlAfter("annotations")
+    @XmlAfter("annotation")
     override val simpleDerivation: XSSimpleDerivation,
 
     @XmlOtherAttributes

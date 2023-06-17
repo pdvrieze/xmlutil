@@ -38,7 +38,7 @@ class XSKey(
     override val name: VNCName? = null,
     override val ref: QName? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ): T_Key {

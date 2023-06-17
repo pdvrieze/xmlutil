@@ -38,7 +38,7 @@ class XSKeyref(
     override val ref: QName? = null,
     override val refer: QName/*? = null*/,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation>,
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String>
 

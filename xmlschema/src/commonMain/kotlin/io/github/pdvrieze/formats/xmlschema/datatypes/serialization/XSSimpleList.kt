@@ -37,7 +37,8 @@ class XSSimpleList(
     override val itemTypeName: @Serializable(QNameSerializer::class) QName? = null,
     override val simpleType: XSLocalSimpleType? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSSimpleDerivation(), T_SimpleListType

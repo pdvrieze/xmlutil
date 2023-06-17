@@ -51,8 +51,8 @@ class ResolvedAttributeGroupRef(
     override val anyAttribute: XSAnyAttribute?
         get() = rawPart.anyAttribute
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id
@@ -83,8 +83,8 @@ class ResolvedDirectAttributeGroup(
     override val anyAttribute: XSAnyAttribute?
         get() = rawPart.anyAttribute
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

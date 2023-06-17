@@ -52,8 +52,8 @@ class ResolvedGroupRef(
     override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
     override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
-    override val annotations: List<XSAnnotation>
-        get() = referencedGroup.annotations
+    override val annotation: XSAnnotation?
+        get() = referencedGroup.annotation
 
     override val particles: List<T_RealGroup.RG_Particle>
         get() = referencedGroup.particles
@@ -71,8 +71,8 @@ class ResolvedDirectGroup(
 //        TODO("not implemented")
     }
 
-    override val annotations: List<XSAnnotation>
-        get() = rawPart.annotations
+    override val annotation: XSAnnotation?
+        get() = rawPart.annotation
 
     override val particle: T_NamedGroup.NG_Particle
         get() = rawPart.particle

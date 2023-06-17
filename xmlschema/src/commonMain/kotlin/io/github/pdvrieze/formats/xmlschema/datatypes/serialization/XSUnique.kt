@@ -41,7 +41,8 @@ class XSUnique(
     override val fields: List<XSField> = emptyList(),
     override val ref: QName? = null,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ): T_Unique {

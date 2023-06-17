@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("anyAttribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnyAttribute(
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     override val notQName: T_QNameListA? = null,
 
@@ -51,19 +51,17 @@ class XSAnyAttribute(
 
         other as XSAnyAttribute
 
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (id != other.id) return false
         if (notQName != other.notQName) return false
         if (namespace != other.namespace) return false
         if (notNamespace != other.notNamespace) return false
         if (processContents != other.processContents) return false
-        if (otherAttrs != other.otherAttrs) return false
-
-        return true
+        return otherAttrs == other.otherAttrs
     }
 
     override fun hashCode(): Int {
-        var result = annotations.hashCode()
+        var result = annotation?.hashCode() ?: 0
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (notQName?.hashCode() ?: 0)
         result = 31 * result + (namespace?.hashCode() ?: 0)
@@ -72,4 +70,5 @@ class XSAnyAttribute(
         result = 31 * result + otherAttrs.hashCode()
         return result
     }
+
 }

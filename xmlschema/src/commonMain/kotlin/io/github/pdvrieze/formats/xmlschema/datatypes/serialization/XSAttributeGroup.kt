@@ -41,7 +41,7 @@ class XSAttributeGroup(
     override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_NamedAttributeGroup, G_Redefinable.AttributeGroup {
@@ -59,7 +59,7 @@ class XSAttributeGroup(
         if (attributes != other.attributes) return false
         if (attributeGroups != other.attributeGroups) return false
         if (anyAttribute != other.anyAttribute) return false
-        if (annotations != other.annotations) return false
+        if (annotation != other.annotation) return false
         if (otherAttrs != other.otherAttrs) return false
 
         return true
@@ -71,7 +71,7 @@ class XSAttributeGroup(
         result = 31 * result + attributes.hashCode()
         result = 31 * result + attributeGroups.hashCode()
         result = 31 * result + (anyAttribute?.hashCode() ?: 0)
-        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + otherAttrs.hashCode()
         return result
     }

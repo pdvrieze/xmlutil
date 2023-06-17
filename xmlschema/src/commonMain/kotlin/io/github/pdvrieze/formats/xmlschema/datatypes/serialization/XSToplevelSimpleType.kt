@@ -35,13 +35,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSToplevelSimpleType(
     @XmlElement(false)
     override val name: VNCName,
-    @XmlAfter("annotations")
+    @XmlAfter("annotation")
     override val simpleDerivation: XSSimpleDerivation,
     @XmlElement(false)
     @Serializable(SchemaEnumSetSerializer::class)
     override val final: T_SimpleDerivationSet = emptySet(),
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : T_TopLevelSimpleType, G_Redefinable.SimpleType, XSI_Annotated {

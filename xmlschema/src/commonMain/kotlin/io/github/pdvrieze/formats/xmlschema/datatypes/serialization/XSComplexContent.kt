@@ -39,7 +39,7 @@ class XSComplexContent(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     override val derivation: XSDerivationBase
 ) : IXSComplexContent, T_ComplexTypeComplexContent {
     @Serializable
@@ -58,7 +58,8 @@ class XSComplexContent(
     class XSRestriction(
         override val base: QName,
         override val id: VID? = null,
-        override val annotations: List<XSAnnotation> = emptyList(),
+        override val annotation: XSAnnotation? = null,
+
         override val openContents: List<XSOpenContent> = emptyList(),
         override val groups: List<XSGroupRef> = emptyList(), // TODO shouldn't be lists
         override val alls: List<XSAll> = emptyList(),
@@ -88,7 +89,8 @@ class XSComplexContent(
         override val attributes: List<XSLocalAttribute> = emptyList(),
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
-        override val annotations: List<XSAnnotation> = emptyList(),
+        override val annotation: XSAnnotation? = null,
+
         override val openContents: List<XSOpenContent> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()

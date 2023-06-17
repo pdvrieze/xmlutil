@@ -32,7 +32,7 @@ class ResolvedLocalComplexType(
 ) : ResolvedLocalType, ResolvedComplexType, T_LocalComplexType_Base {
     override val mixed: Boolean? get() = rawPart.mixed
     override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
-    override val annotations: List<XSAnnotation> get() = rawPart.annotations
+    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
