@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -156,10 +157,22 @@ abstract class TestCommonReader {
             var event = reader.next()
             if (event == EventType.START_DOCUMENT) event = reader.next()
             assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
         }
 
         assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
     }
 
+
+    /** Test to reproduce #155, failing to parse with BOM */
+    protected fun testReaderWithBOM(createReader: (String) -> XmlReader) {
+        val reader = createReader("\ufeff<root>bar</root>")
+        run {
+            var event = reader.next()
+            if (event == EventType.START_DOCUMENT) event = reader.next()
+            assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
+        }
+    }
 
 }

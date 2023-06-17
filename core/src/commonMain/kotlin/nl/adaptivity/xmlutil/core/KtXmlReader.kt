@@ -132,6 +132,11 @@ public class KtXmlReader internal constructor(
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
+    init {
+        val firstChar = peek(0)
+        if (firstChar == 0x0feff) { /* drop BOM */ peekCount=0; }
+    }
+
     override fun close() {
         //NO-Op
     }

@@ -59,4 +59,9 @@ class TestKtXmlReader : TestCommonReader() {
         testIgnorableWhitespace(XmlStreaming::newGenericReader)
     }
 
+    @Test
+    fun testReaderWithBOM() {
+        testReaderWithBOM(XmlStreaming::newGenericReader)
+    }
+
 }
