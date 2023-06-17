@@ -35,7 +35,7 @@ sealed class XSSimpleContentDerivation(
     override val attributeGroups: List<XSAttributeGroupRef>,
     override val anyAttribute: XSAnyAttribute?,
     override val asserts: List<XSAssert>,
-    override val annotations: List<XSAnnotation>,
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : T_SimpleDerivation, G_Assertions, G_AttrDecls {

@@ -33,7 +33,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSOverride(
     val schemaLocation: VAnyURI,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
     override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
     override val groups: List<XSGroup> = emptyList(),

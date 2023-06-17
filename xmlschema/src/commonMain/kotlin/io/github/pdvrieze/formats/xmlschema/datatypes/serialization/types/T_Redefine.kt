@@ -34,8 +34,4 @@ interface T_Redefine : XSI_Annotated, G_Composition.Redefine {
     val groups: List<T_NamedGroup>
     val attributeGroups: List<T_NamedAttributeGroup>
     val schemaLocation: VAnyURI
-    override val id: VID?
-    override val annotations: List<XSAnnotation>
-
-    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String>
 }

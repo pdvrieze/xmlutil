@@ -45,7 +45,8 @@ abstract class XSTopLevelComplexType(
     override val block: T_DerivationSet,
     override val defaultAttributesApply: Boolean?,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
+
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
@@ -80,7 +81,7 @@ abstract class XSTopLevelComplexType(
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
         val id: VID? = null,
-        val annotations: List<XSAnnotation> = emptyList(),
+        val annotation: XSAnnotation? = null,
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) {
@@ -96,7 +97,7 @@ abstract class XSTopLevelComplexType(
                     defaultAttributesApply = defaultAttributesApply,
                     content = simpleContent,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
 
@@ -109,7 +110,7 @@ abstract class XSTopLevelComplexType(
                     defaultAttributesApply = defaultAttributesApply,
                     content = complexContent,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
 
@@ -130,7 +131,7 @@ abstract class XSTopLevelComplexType(
                     anyAttribute = anyAttribute,
                     openContents = openContents,
                     id = id,
-                    annotations = annotations,
+                    annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
             }

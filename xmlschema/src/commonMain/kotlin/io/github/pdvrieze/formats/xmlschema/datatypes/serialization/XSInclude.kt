@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSInclude(
     override val schemaLocation: VAnyURI,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ): T_Include

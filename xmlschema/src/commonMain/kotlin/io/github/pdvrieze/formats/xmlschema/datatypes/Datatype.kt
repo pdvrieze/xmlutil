@@ -192,7 +192,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
     override val baseType: ResolvedType get() = ErrorType
     override val rawPart: ErrorType get() = this
     override val final: Set<Nothing> get() = emptySet()
-    override val annotations: List<Nothing> get() = emptyList()
+    override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
@@ -251,7 +251,7 @@ internal open class SimpleBuiltinRestriction(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val simpleTypes: List<Nothing> get() = emptyList()
     override val otherContents: List<Nothing> get() = emptyList()
-    override val annotations: List<Nothing> get() = emptyList()
+    override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 }

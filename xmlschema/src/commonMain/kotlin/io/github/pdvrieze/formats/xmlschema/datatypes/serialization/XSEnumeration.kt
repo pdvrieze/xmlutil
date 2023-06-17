@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSEnumeration(
     override val value: VAnySimpleType,
     override val id: VID? = null,
-    override val annotations: List<XSAnnotation> = emptyList(),
+    override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSFacet(), T_NoFixedFacet
