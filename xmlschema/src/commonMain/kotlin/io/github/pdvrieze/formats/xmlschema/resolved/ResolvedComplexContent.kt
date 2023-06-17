@@ -209,7 +209,7 @@ class ResolvedComplexSimpleContent(
 
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        derivation.check(seenTypes)
+        derivation.check(seenTypes, inheritedTypes)
         //TODO("not implemented")
     }
 }
