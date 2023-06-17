@@ -41,7 +41,7 @@ sealed class ResolvedSimpleDerivation(
 
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    abstract fun check(seenTypes: SingleLinkedList<QName>)
+    abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 }
 
 class ResolvedSimpleListDerivation(
@@ -68,7 +68,9 @@ class ResolvedSimpleListDerivation(
 
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        simpleType?.check(seenTypes, inheritedTypes)
+        itemType.check(seenTypes, inheritedTypes)
     }
 }
 
@@ -105,10 +107,15 @@ class ResolvedSimpleUnionDerivation(
 
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
-            (m as? ResolvedToplevelType)?.let { require(it.qName !in seenTypes) { "Recursive presence of ${it.qName}" } }
+            (m as? ResolvedToplevelType)?.let {
+                require(it.qName !in inheritedTypes) { "Recursive presence of ${it.qName}" }
+                if (it.qName !in seenTypes) {
+                    m.check(seenTypes, inheritedTypes)
+                }
+            }
         }
     }
 }
@@ -156,13 +163,14 @@ class ResolvedSimpleRestrictionDerivationImpl(
         }
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
             require(simpleTypes.size == 1)
         } else {
             require(simpleTypes.isEmpty())
         }
+        check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in seenTypes) {
             val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
             baseType.check(seenTypes, inherited)
@@ -191,7 +199,7 @@ class ResolvedSimpleExtensionDerivationImpl(
         schema.simpleType(base)
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>) {
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
 
         if (b !in seenTypes) {
