@@ -45,7 +45,12 @@ import kotlin.test.assertTrue
 
 class TestXSTestSuite {
 
-    val xml = XML { autoPolymorphic = true }
+    val xml = XML {
+        defaultPolicy {
+            autoPolymorphic = true
+            throwOnRepeatedElement = true
+        }
+    }
 
     @DisplayName("Test suites: suite.xml")
     @TestFactory
