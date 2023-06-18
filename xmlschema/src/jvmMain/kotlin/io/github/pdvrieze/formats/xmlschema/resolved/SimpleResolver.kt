@@ -31,7 +31,7 @@ import java.net.URL
 internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver {
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
         return baseURI.resolve(schemaLocation.value).withXmlReader { reader ->
-            return XML { autoPolymorphic = true }.decodeFromReader<XSSchema>(reader)
+            return XML { defaultPolicy { autoPolymorphic = true; throwOnRepeatedElement = true } }.decodeFromReader<XSSchema>(reader)
         }
     }
 
