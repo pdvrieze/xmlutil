@@ -46,7 +46,6 @@ abstract class XSTopLevelComplexType(
     override val block: T_DerivationSet,
     override val defaultAttributesApply: Boolean?,
     override val id: VID? = null,
-    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     @XmlOtherAttributes
@@ -83,6 +82,7 @@ abstract class XSTopLevelComplexType(
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
         val id: VID? = null,
+        @XmlBefore("*")
         val annotation: XSAnnotation? = null,
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
