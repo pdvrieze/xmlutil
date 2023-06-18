@@ -30,6 +30,12 @@ sealed interface ResolvedType : ResolvedAnnotated, OptNamedPart, T_Type {
 
     override val name: VNCName? get() = super.name
 
-    fun check(seenTypes: SingleLinkedList<QName> = SingleLinkedList(), inheritedTypes: SingleLinkedList<QName> = SingleLinkedList())
+
+    override fun check() {
+        super<ResolvedAnnotated>.check()
+        check(SingleLinkedList(), SingleLinkedList())
+    }
+
+    fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
 }
