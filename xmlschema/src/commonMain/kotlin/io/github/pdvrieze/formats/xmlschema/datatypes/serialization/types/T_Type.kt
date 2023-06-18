@@ -22,11 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_Type: XSI_Annotated, I_OptNamed {
+interface T_Type: XSI_Annotated, I_OptNamedAttrs {
     override val name: VNCName?
 }
 
-interface T_NamedType: T_Type, I_Named {
+interface T_NamedType: T_Type, I_NamedAttrs {
     override val name: VNCName
 }
 

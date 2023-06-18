@@ -61,7 +61,8 @@ class ResolvedKeyRef(
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    fun check() {
+    override fun check() {
+        super<ResolvedIdentityConstraint>.check()
         checkNotNull(rawPart.name)
         check (referenced.fields.size == fields.size) { "Key(${referenced.qName}) and keyrefs(${qName}) must have equal field counts" }
     }
@@ -85,7 +86,8 @@ class ResolvedKey(
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    fun check() {
+    override fun check() {
+        super<ResolvedIdentityConstraint>.check()
         checkNotNull(rawPart.name)
     }
 
@@ -107,7 +109,8 @@ class ResolvedUnique(
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    fun check() {
+    override fun check() {
+        super<ResolvedIdentityConstraint>.check()
         checkNotNull(rawPart.name)
     }
 

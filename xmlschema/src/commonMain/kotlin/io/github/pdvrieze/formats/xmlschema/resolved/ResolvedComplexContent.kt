@@ -33,7 +33,7 @@ sealed class ResolvedComplexContent(
 ) : T_ComplexTypeContent, ResolvedPart {
     abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
-    override abstract val rawPart: T_ComplexTypeContent
+    override abstract val rawPart: IXSComplexContent
 }
 
 class ResolvedComplexComplexContent(
@@ -80,7 +80,7 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
 
     open fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
-        if (b!=null && b !in seenTypes) { // Recursion is allowed, but must be managed
+        if (b != null && b !in seenTypes) { // Recursion is allowed, but must be managed
             baseType.check(seenTypes, inheritedTypes)
         }
 
@@ -114,7 +114,7 @@ class ResolvedComplexExtension(
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes, inheritedTypes)
+        super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
         require(base !in inheritedTypes.dropLastOrEmpty(1)) { "Recursive type use in complex content: $base" }
 
         alls.forEach(ResolvedAll::check)
@@ -155,7 +155,7 @@ class ResolvedComplexRestriction(
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes, inheritedTypes)
+        super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
         alls.forEach(ResolvedAll::check)
         choices.forEach(ResolvedChoice::check)
         sequences.forEach(ResolvedSequence::check)

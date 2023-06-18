@@ -23,11 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.I_Named
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.I_NamedAttrs
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.I_OptNamed
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.I_OptNamedAttrs
 import nl.adaptivity.xmlutil.QName
 
 interface OptNamedPart : ResolvedPart, I_OptNamed {
-    override val rawPart: I_OptNamed
+    override val rawPart: I_OptNamedAttrs
 
     override val name: VNCName? get() = rawPart.name
 
@@ -39,7 +41,7 @@ interface OptNamedPart : ResolvedPart, I_OptNamed {
 }
 
 interface NamedPart : OptNamedPart, I_Named {
-    override val rawPart: I_Named
+    override val rawPart: I_NamedAttrs
 
     override val name: VNCName get() = rawPart.name
 

@@ -17,6 +17,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 /**
@@ -26,4 +29,9 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 interface XSI_OpenAttrs {
     @XmlOtherAttributes
     val otherAttrs: Map<QName, String>
+
+    fun check() {
+        val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI==XMLConstants.XSD_NS_URI }
+        check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
+    }
 }
