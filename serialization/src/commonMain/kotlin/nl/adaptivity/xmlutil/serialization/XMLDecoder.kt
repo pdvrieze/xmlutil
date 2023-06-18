@@ -1038,6 +1038,7 @@ internal open class XmlDecoderBase internal constructor(
             checkRepeat()
             if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
                 if (xmlDescriptor is XmlCompositeDescriptor) {
+                    // TODO optimize by caching ordering.
                     val constraints = xmlDescriptor.childConstraints
                     if (constraints != null) {
                         for (childIdx in seenItems.indices) {
