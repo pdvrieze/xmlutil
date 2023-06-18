@@ -16,4 +16,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-interface T_NamedAttributeGroup: T_AttributeGroupBase, I_Named, XSI_Annotated
+interface T_NamedAttributeGroup: T_AttributeGroupBase, I_NamedAttrs, XSI_Annotated

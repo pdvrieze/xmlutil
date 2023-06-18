@@ -44,7 +44,8 @@ sealed class ResolvedExplicitGroup(
     override val anys: List<T_Wildcard>
         get() = TODO("not implemented")
 
-    fun check() {
+    override fun check() {
+        super<ResolvedAnnotated>.check()
         for (element in elements) {
             element.check()
         }

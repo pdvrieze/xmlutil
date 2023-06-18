@@ -22,7 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import nl.adaptivity.xmlutil.QName
 
-interface T_IdentityConstraint: XSI_Annotated, I_OptNamed, G_IdentityConstraint.Base {
+interface T_IdentityConstraint: XSI_Annotated, I_OptNamedAttrs, G_IdentityConstraint.Base {
     val selector: XSSelector?
 
     /**
