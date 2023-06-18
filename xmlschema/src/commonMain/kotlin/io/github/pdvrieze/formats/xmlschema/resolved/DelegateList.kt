@@ -20,22 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-class DelegateList<T : Any, V : ResolvedPart>(private val delegate: List<T>, private val transform: (T) -> V) :
+class DelegateList<T, V : ResolvedPart>(private val delegate: List<T>, private val transform: (T) -> V) :
     AbstractList<V>() {
     private val lazyStore: MutableList<V?> = MutableList(delegate.size) { null }
 
     override val size: Int get() = delegate.size
 
     override fun contains(element: V): Boolean {
-        return delegate.contains(element.rawPart)
+        return delegate.contains(element.rawPart as T)
     }
 
     override fun containsAll(elements: Collection<V>): Boolean {
-        return delegate.containsAll(elements.map { it.rawPart })
+        return delegate.containsAll(elements.map { it.rawPart as T })
     }
 
     override fun indexOf(element: V): Int {
-        return delegate.indexOf(element.rawPart)
+        return delegate.indexOf(element.rawPart as T)
     }
 
     override fun get(index: Int): V {

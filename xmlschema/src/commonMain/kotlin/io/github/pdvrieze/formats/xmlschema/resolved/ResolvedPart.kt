@@ -20,7 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-interface ResolvedPart {
-    val rawPart: Any
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_OpenAttrs
+import nl.adaptivity.xmlutil.QName
+
+interface ResolvedPart : XSI_OpenAttrs {
+    val rawPart: XSI_OpenAttrs
     val schema: ResolvedSchemaLike
+    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 }

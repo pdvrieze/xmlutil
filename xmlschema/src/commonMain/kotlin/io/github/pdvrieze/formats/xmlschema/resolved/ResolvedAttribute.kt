@@ -48,8 +48,13 @@ sealed class ResolvedAttributeBase(
             ?: AnySimpleType
     }
 
-    open fun check() {
+    override fun check() {
+        super<ResolvedAttribute>.check()
         resolvedType.check()
+        check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
+        check (default == null || use == null || use == XSAttrUse.OPTIONAL) {
+            "For attributes with default and use must have optional as use value"
+        }
     }
 }
 
@@ -100,7 +105,7 @@ class ResolvedLocalAttribute(
         get() = rawPart.otherAttrs
 
     override fun check() {
-        super.check()
+        super<ResolvedAttributeBase>.check()
         if (rawPart.ref != null) {
             require(referenced != null) { "If an attribute has a ref, it must also be resolvable" }
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
@@ -141,4 +146,8 @@ class ResolvedToplevelAttribute(
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
+
+    override fun check() {
+        super<ResolvedAttributeBase>.check()
+    }
 }

@@ -31,8 +31,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, ResolvedPart {
-    abstract fun check()
-
     abstract override val rawPart: T_Group
     final override val id: VID?
         get() = rawPart.id
@@ -64,7 +62,7 @@ class ResolvedGroupRef(
 }
 
 class ResolvedDirectGroup(
-    override val rawPart: T_NamedGroup,
+    override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
 ): ResolvedGroup(schema), NamedPart, T_NamedGroup {
     override fun check() {

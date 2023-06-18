@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -33,7 +34,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedAttributeGroup(
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, G_Redefinable.AttributeGroup, XSI_Annotated {
-    abstract override val rawPart: G_Redefinable.AttributeGroup
+    abstract override val rawPart: XSAttributeGroup
 }
 
 class ResolvedAttributeGroupRef(
@@ -63,13 +64,14 @@ class ResolvedAttributeGroupRef(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    fun check() {
+    override fun check() {
+        super<ResolvedPart>.check()
         checkNotNull(resolvedGroup) // force resolve
     }
 }
 
 class ResolvedDirectAttributeGroup(
-    override val rawPart: T_NamedAttributeGroup,
+    override val rawPart: XSAttributeGroup,
     override val schema: ResolvedSchemaLike
 ) : NamedPart, T_NamedAttributeGroup, XSI_Annotated {
 
@@ -98,7 +100,8 @@ class ResolvedDirectAttributeGroup(
     override val targetNamespace: VAnyURI
         get() = super<NamedPart>.targetNamespace
 
-    fun check() {
+    override fun check() {
+        super<NamedPart>.check()
         for (a in attributes) { a.check() }
         for (ag in attributeGroups) { ag.check() }
     }

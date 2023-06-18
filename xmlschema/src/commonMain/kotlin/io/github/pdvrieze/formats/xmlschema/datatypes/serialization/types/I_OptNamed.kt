@@ -27,3 +27,7 @@ interface I_OptNamed {
     val name: VNCName?
     val targetNamespace: VAnyURI?
 }
+
+interface I_OptNamedAttrs: I_OptNamed, XSI_OpenAttrs
+
+interface I_NamedAttrs: I_OptNamedAttrs, I_Named

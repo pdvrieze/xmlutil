@@ -79,13 +79,13 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    fun commonElementCheck() {
+    override fun check() {
+        super<OptNamedPart>.check()
         for (keyref in keyrefs) {
             keyref.check()
             checkNotNull(keyref.referenced)
         }
     }
-
 }
 
 class ResolvedLocalElement(
@@ -118,8 +118,8 @@ class ResolvedLocalElement(
     override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
     override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
 
-    fun check() {
-        commonElementCheck()
+    override fun check() {
+        super<ResolvedElement>.check()
         if (rawPart.ref!= null) {
             refererenced// Don't check as that would already be done at top level
         }
@@ -134,10 +134,10 @@ class ResolvedToplevelElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema), T_TopLevelElement {
-    fun check() {
+    override fun check() {
+        super<ResolvedElement>.check()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(SingleLinkedList(), SingleLinkedList())
-        commonElementCheck()
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
