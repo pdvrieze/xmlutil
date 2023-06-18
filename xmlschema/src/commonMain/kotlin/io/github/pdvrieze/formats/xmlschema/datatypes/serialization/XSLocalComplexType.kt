@@ -87,6 +87,7 @@ sealed class XSLocalComplexType(
         val openContents: List<XSOpenContent> = emptyList(),
         val defaultAttributesApply: Boolean? = null,
         val id: VID? = null,
+        @XmlBefore("*")
         val annotation: XSAnnotation? = null,
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
