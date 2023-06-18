@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Ide
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated, I_OptNamed {
+interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated, I_OptNamedAttrs {
     val localType: Type?
 //    val simpleTypes: List<T_LocalSimpleType>
 //
