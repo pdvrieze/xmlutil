@@ -79,6 +79,7 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
     }
 
     open fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedPart>.check()
         val b = base
         if (b != null && b !in seenTypes) { // Recursion is allowed, but must be managed
             baseType.check(seenTypes, inheritedTypes)
@@ -183,6 +184,7 @@ class ResolvedComplexShorthandContent(
     override val openContents: List<XSOpenContent> get() = rawPart.openContents
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check()
         groups.forEach(ResolvedGroupRef::check)
         alls.forEach(ResolvedAll::check)
         choices.forEach(ResolvedChoice::check)
@@ -209,6 +211,7 @@ class ResolvedComplexSimpleContent(
 
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check()
         derivation.check(seenTypes, inheritedTypes)
         //TODO("not implemented")
     }
