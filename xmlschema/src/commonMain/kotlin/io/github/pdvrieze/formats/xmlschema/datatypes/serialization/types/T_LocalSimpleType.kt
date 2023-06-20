@@ -44,7 +44,7 @@ interface T_SimpleType: T_SimpleBaseType, G_SimpleDerivation {
 
     interface T_Restriction: T_RestrictionType, DerivationBase, G_SimpleDerivation.Restriction {
         override val facets: List<XSFacet>
-        override val simpleTypes: List<T_LocalSimpleType>
+        override val simpleType: T_LocalSimpleType?
     }
 
     interface T_List: DerivationBase, G_SimpleDerivation.List {
