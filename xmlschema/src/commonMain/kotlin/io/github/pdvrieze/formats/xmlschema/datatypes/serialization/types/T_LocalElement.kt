@@ -16,9 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
-
-interface T_LocalElement: T_Element, AG_Occurs {
+interface T_LocalElement: T_Element, T_Particle {
     override val substitutionGroup: Nothing? get() = null
     override val abstract: Boolean get() = false
     override val final: Nothing? get() = null

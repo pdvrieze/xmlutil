@@ -55,9 +55,9 @@ class ResolvedInclude(
 
     override val complexTypes: List<ResolvedToplevelComplexType>
 
-    override val groups: List<ResolvedDirectGroup>
+    override val groups: List<ResolvedToplevelGroup>
 
-    override val attributeGroups: List<ResolvedDirectAttributeGroup>
+    override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
     override val targetNamespace: VAnyURI
         get() = schema.targetNamespace
@@ -79,10 +79,10 @@ class ResolvedInclude(
             ResolvedToplevelComplexType(it, this)
         }
         groups = DelegateList(collatedSchema.groups.values.toList()) {
-            ResolvedDirectGroup(it, this)
+            ResolvedToplevelGroup(it, this)
         }
         attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) {
-            ResolvedDirectAttributeGroup(it, this)
+            ResolvedToplevelAttributeGroup(it, this)
         }
 
     }
@@ -126,9 +126,9 @@ class ResolvedRedefine(
 
     override val complexTypes: List<ResolvedToplevelComplexType>
 
-    override val groups: List<ResolvedDirectGroup>
+    override val groups: List<ResolvedToplevelGroup>
 
-    override val attributeGroups: List<ResolvedDirectAttributeGroup>
+    override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
     override val targetNamespace: VAnyURI
         get() = schema.targetNamespace
@@ -151,10 +151,10 @@ class ResolvedRedefine(
             ResolvedToplevelComplexType(it, this)
         }
         groups = DelegateList(collatedSchema.groups.values.toList()) {
-            ResolvedDirectGroup(it, this)
+            ResolvedToplevelGroup(it, this)
         }
         attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) {
-            ResolvedDirectAttributeGroup(it, this)
+            ResolvedToplevelAttributeGroup(it, this)
         }
 
     }
