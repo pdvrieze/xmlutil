@@ -19,7 +19,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexRestrictionType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -36,7 +37,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
     constructor(
         simpleType: XSLocalSimpleType? = null,
         facets: List<XSFacet> = emptyList(),
-        base: QName? = null,
+        base: QName,
         id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -55,7 +56,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
     constructor(
         simpleTypes: List<XSLocalSimpleType>,
         facets: List<XSFacet> = emptyList(),
-        base: QName? = null,
+        base: QName,
         id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -71,7 +72,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
         this.otherContents = otherContents
     }
 
-    override val base: @Serializable(QNameSerializer::class) QName?
+    override val base: @Serializable(QNameSerializer::class) QName
 
     override val simpleTypes: List<XSLocalSimpleType>
 

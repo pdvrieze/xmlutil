@@ -21,15 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleListType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleUnionType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalSimpleType(
-    override val rawPart: T_LocalSimpleType,
+    override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike
 ) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
     override val name: Nothing? get() = null
@@ -43,11 +41,20 @@ class ResolvedLocalSimpleType(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val simpleDerivation: ResolvedSimpleDerivation
+    override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
-            is T_SimpleUnionType -> ResolvedSimpleUnionDerivation(raw, schema)
-            is T_SimpleListType -> ResolvedSimpleListDerivation(raw, schema)
-            is T_SimpleRestrictionType -> ResolvedSimpleRestrictionDerivation(raw, schema)
+            is XSSimpleUnion -> ResolvedUnionDerivation(
+                raw,
+                schema
+            )
+            is XSSimpleList -> ResolvedListDerivation(
+                raw,
+                schema
+            )
+            is XSSimpleRestriction -> ResolvedSimpleRestriction(
+                raw,
+                schema
+            )
             else -> error("Derivations must be union, list or restriction")
         }
 }

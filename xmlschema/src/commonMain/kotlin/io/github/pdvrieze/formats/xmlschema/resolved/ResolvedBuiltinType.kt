@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Name
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelSimpleType
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinType : ResolvedToplevelType, T_TopLevelSimpleType {
+interface ResolvedBuiltinType : ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType {
     override val rawPart: T_NamedType get() = this
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,10 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 
-interface T_SimpleDerivation : XSI_Annotated, G_SimpleDerivation.Base {
-
-}
-
-sealed interface T_SimpleDerivationBase: T_SimpleDerivation
+interface XSI_SimpleRestriction: XSI_Annotated,
+    T_SimpleType.T_Restriction
