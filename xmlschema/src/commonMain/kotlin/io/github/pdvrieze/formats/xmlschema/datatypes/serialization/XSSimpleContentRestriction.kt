@@ -19,8 +19,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexRestrictionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleRestrictionType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -48,33 +46,14 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, Simple
         otherAttrs: Map<QName, String> = emptyMap()
     ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
         this.base = base
-        this.simpleTypes = listOfNotNull(simpleType)
-        this.facets = facets
-        this.otherContents = otherContents
-    }
-
-    constructor(
-        simpleTypes: List<XSLocalSimpleType>,
-        facets: List<XSFacet> = emptyList(),
-        base: QName,
-        id: VID? = null,
-        attributes: List<XSLocalAttribute> = emptyList(),
-        attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-        anyAttribute: XSAnyAttribute? = null,
-        assertions: List<XSAssert> = emptyList(),
-        annotation: XSAnnotation? = null,
-        otherContents: List<CompactFragment> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
-    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
-        this.base = base
-        this.simpleTypes = simpleTypes
+        this.simpleType = simpleType
         this.facets = facets
         this.otherContents = otherContents
     }
 
     override val base: @Serializable(QNameSerializer::class) QName
 
-    override val simpleTypes: List<XSLocalSimpleType>
+    override val simpleType: XSLocalSimpleType?
 
     override val facets: List<XSFacet>
 

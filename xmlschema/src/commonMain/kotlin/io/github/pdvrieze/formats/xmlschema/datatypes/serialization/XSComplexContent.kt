@@ -20,10 +20,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexDerivation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexExtensionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexRestrictionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -71,7 +68,7 @@ class XSComplexContent(
         override val attributes: List<XSLocalAttribute> = emptyList(),
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
-        override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
+        override val simpleType: XSLocalSimpleType? = null,
         override val facets: List<XSFacet> = emptyList(),
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes

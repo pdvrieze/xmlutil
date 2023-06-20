@@ -17,13 +17,12 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 interface G_SimpleRestrictionModels {
-    val simpleTypes: List<T_LocalSimpleType>
+    val simpleType: T_LocalSimpleType?
     val facets: List<XSFacet>
 
     @XmlValue(true)
