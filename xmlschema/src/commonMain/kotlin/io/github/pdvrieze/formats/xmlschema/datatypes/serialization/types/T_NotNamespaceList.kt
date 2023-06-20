@@ -28,6 +28,8 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(T_NotNamespaceList.Serializer::class)
 class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : List<T_NotNamespaceList.Elem> by values {
 
+    constructor() : this(emptyList())
+
     sealed class Elem {
         companion object {
             fun fromString(string: String) = when (string) {

@@ -48,8 +48,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     override val elements: List<ResolvedToplevelElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedToplevelElement(it, this) }
 
-    override val attributeGroups: List<ResolvedDirectAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedDirectAttributeGroup(it, this) }
-    override val groups: List<ResolvedDirectGroup> get() = DelegateList(rawPart.groups) { ResolvedDirectGroup(it, this) }
+    override val attributeGroups: List<ResolvedToplevelAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedToplevelAttributeGroup(it, this) }
+    override val groups: List<ResolvedToplevelGroup> get() = DelegateList(rawPart.groups) { ResolvedToplevelGroup(it, this) }
     val notations: List<XSNotation> get() = rawPart.notations
     val identityConstraints: List<G_IdentityConstraint.Base> get() = TODO("Delegate list of identity constraints")
 

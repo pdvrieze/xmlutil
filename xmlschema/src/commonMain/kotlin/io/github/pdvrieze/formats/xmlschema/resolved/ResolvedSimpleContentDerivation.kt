@@ -31,7 +31,7 @@ sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchema
     T_ComplexType.SimpleDerivation {
     abstract override val rawPart: T_ComplexType.SimpleDerivation
 
-    abstract val baseType: T_Type
+    abstract val baseType: ResolvedType
 
     override val annotation: XSAnnotation? get() = rawPart.annotation
 
