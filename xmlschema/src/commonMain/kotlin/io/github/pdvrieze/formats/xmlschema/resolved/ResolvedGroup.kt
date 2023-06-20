@@ -41,14 +41,12 @@ sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, Re
 
 
 class ResolvedGroupRef(
-    override val rawPart: T_GroupRef,
+    override val rawPart: XSGroupRef,
     schema: ResolvedSchemaLike
-): ResolvedGroup(schema), T_GroupRef {
-    val referencedGroup: ResolvedDirectGroup by lazy { schema.modelGroup(rawPart.ref) }
+): ResolvedGroup(schema), ResolvedParticle, T_GroupRef {
+    val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref
-    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
-    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
     override val annotation: XSAnnotation?
         get() = referencedGroup.annotation
@@ -61,7 +59,7 @@ class ResolvedGroupRef(
     }
 }
 
-class ResolvedDirectGroup(
+class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
 ): ResolvedGroup(schema), NamedPart, T_NamedGroup {

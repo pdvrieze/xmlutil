@@ -19,7 +19,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
@@ -38,7 +37,7 @@ class XSGroup(
     override val name: VNCName,
     override val id: VID? = null,
     override val ref: QName? = null,
-    override val particle: Particle,
+    override val particle: XSGroupParticle,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
@@ -49,7 +48,7 @@ class XSGroup(
     override val targetNamespace: Nothing? get() = null
 
     @Serializable
-    sealed class Particle : T_NamedGroup.NG_Particle
+    sealed class XSGroupParticle : T_NamedGroup.NG_Particle
 
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -62,7 +61,7 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ): Particle(), T_NamedGroup.All
+    ): XSGroupParticle(), T_NamedGroup.All
 
     @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -77,7 +76,7 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : Particle(), T_NamedGroup.Choice
+    ) : XSGroupParticle(), T_NamedGroup.Choice
 
     @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -92,6 +91,6 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ): Particle(), T_NamedGroup.Sequence
+    ): XSGroupParticle(), T_NamedGroup.Sequence
 
 }

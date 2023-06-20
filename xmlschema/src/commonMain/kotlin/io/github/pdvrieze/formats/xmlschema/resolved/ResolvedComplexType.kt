@@ -20,7 +20,54 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
 
-sealed interface ResolvedComplexType : ResolvedType, T_ComplexType, XSI_Annotated
+sealed class ResolvedComplexType(
+    final override val schema: ResolvedSchemaLike
+) : ResolvedType, T_ComplexType, XSI_Annotated {
+    abstract override val rawPart: XSComplexType
+
+    abstract override val content: ResolvedComplexTypeContent
+
+    val contentType: ResolvedType? by lazy {
+        when (val c = content) {
+            is ResolvedSimpleContent -> {
+
+                val derivation = c.derivation
+                val baseType = derivation.baseType
+                when {
+                    baseType is ResolvedSimpleType  -> {
+                        check(derivation is ResolvedSimpleContentExtension)
+                        baseType
+                    }
+                    baseType !is ResolvedComplexType -> error("Unexpected type: ${baseType}")
+                    derivation is ResolvedSimpleContentExtension -> baseType
+                    baseType.contentType is ResolvedSimpleType -> {
+                        check(derivation is ResolvedSimpleContentRestriction)
+                        val derivedType = baseType.contentType
+                        if (derivedType is ResolvedSimpleType) {
+                            derivation.simpleType ?: baseType.contentType
+                        } else if (derivedType is ResolvedComplexType && derivedType.mixed == true /*&& derivedType.isEmptiable*/) {
+                            null
+                        }
+
+                    }
+                }
+
+
+            }
+            is ResolvedComplexContent -> {
+                TODO()
+            }
+            is ResolvedComplexShorthandContent -> {
+                TODO()
+            }
+        }
+
+        TODO()
+    }
+
+
+}

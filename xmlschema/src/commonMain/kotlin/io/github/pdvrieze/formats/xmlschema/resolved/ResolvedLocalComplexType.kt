@@ -28,17 +28,17 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
-    override val schema: ResolvedSchemaLike
-) : ResolvedLocalType, ResolvedComplexType, T_LocalComplexType_Base {
+    schema: ResolvedSchemaLike
+) : ResolvedComplexType(schema), ResolvedLocalType, T_LocalComplexType_Base {
     override val mixed: Boolean? get() = rawPart.mixed
     override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    override val content: ResolvedComplexContent by lazy {
+    override val content: ResolvedComplexTypeContent by lazy {
         when (val c = rawPart.content) {
-            is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
+            is XSComplexContent -> ResolvedComplexContent(this, c, schema)
             is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
             is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
             else -> error("unsupported content")

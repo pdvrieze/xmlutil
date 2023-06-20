@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
@@ -41,7 +40,7 @@ class ResolvedAttributeGroupRef(
     override val rawPart: T_AttributeGroupRef,
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
-    val resolvedGroup: ResolvedDirectAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
+    val resolvedGroup: ResolvedToplevelAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
 
     override val attributes: List<T_LocalAttribute>
         get() = resolvedGroup.attributes
@@ -70,7 +69,7 @@ class ResolvedAttributeGroupRef(
     }
 }
 
-class ResolvedDirectAttributeGroup(
+class ResolvedToplevelAttributeGroup(
     override val rawPart: XSAttributeGroup,
     override val schema: ResolvedSchemaLike
 ) : NamedPart, T_NamedAttributeGroup, XSI_Annotated {

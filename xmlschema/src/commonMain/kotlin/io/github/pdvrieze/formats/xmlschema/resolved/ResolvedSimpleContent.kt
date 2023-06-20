@@ -31,7 +31,7 @@ class ResolvedSimpleContent(
     private val parent: ResolvedComplexType,
     override val rawPart: XSSimpleContent,
     schema: ResolvedSchemaLike
-) : ResolvedComplexContent(schema),
+) : ResolvedComplexTypeContent(schema),
     T_ComplexType.SimpleContent {
 
     override val derivation: ResolvedSimpleContentDerivation by lazy {
@@ -40,15 +40,6 @@ class ResolvedSimpleContent(
             is XSSimpleContentRestriction -> ResolvedSimpleContentRestriction(d, schema)
             else -> error("unsupported derivation")
         }
-    }
-
-    val contentType: ResolvedType by lazy {
-        var resolved: ResolvedType
-        if (derivation is ResolvedSimpleContentRestriction && derivation.baseType is ResolvedToplevelComplexType) {
-
-        }
-        derivation.baseType
-        TODO()
     }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {

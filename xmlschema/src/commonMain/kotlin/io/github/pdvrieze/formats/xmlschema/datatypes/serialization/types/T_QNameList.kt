@@ -32,6 +32,9 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(T_QNameList.Serializer::class)
 class T_QNameList(val values: List<T_QNameList.Elem>): List<T_QNameList.Elem> by values {
+
+    constructor() : this(listOf())
+
     sealed class Elem
     object DEFINED: Elem()
     object DEFINEDSIBLING: Elem()
