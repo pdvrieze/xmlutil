@@ -132,8 +132,7 @@ class ResolvedComplexRestriction(
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(schema), T_ComplexRestrictionType {
 
-    override val simpleTypes: List<ResolvedLocalSimpleType> =
-        DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema) }
+    override val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema) } }
 
     override val facets: List<XSFacet> get() = rawPart.facets
 
@@ -162,7 +161,7 @@ class ResolvedComplexRestriction(
         sequences.forEach(ResolvedSequence::check)
         attributes.forEach(ResolvedLocalAttribute::check)
         attributeGroups.forEach(ResolvedAttributeGroupRef::check)
-        simpleTypes.forEach { it.check(seenTypes, inheritedTypes) }
+        simpleType?.check(seenTypes, inheritedTypes)
     }
 }
 

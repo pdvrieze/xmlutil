@@ -1780,9 +1780,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSRestriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSDerivationBase, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexRestrictionType {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSRestriction$Companion;
-	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAlls ()Ljava/util/List;
 	public fun getAnnotation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;
 	public fun getAnyAttribute ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;
@@ -1798,7 +1798,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public fun getOtherContents ()Ljava/util/List;
 	public fun getSequences ()Ljava/util/List;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 	public static final synthetic fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSComplexContent$XSRestriction;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
@@ -3232,11 +3233,9 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentRestriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/SimpleRestrictionModel, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_AttrDecls, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleRestrictionType {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentRestriction$Companion;
-	public synthetic fun <init> (ILjava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/Map;Ljavax/xml/namespace/QName;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/Map;Ljavax/xml/namespace/QName;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljavax/xml/namespace/QName;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnyAttribute;Ljava/util/List;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAlls ()Ljava/util/List;
 	public fun getBase ()Ljavax/xml/namespace/QName;
 	public fun getChoices ()Ljava/util/List;
@@ -3245,7 +3244,8 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 	public fun getOpenContents ()Ljava/util/List;
 	public fun getOtherContents ()Ljava/util/List;
 	public fun getSequences ()Ljava/util/List;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 	public static final synthetic fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentRestriction;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
@@ -3306,16 +3306,17 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleRestriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleDerivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction {
 	public static final field Companion Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleRestriction$Companion;
-	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILjavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlinx/serialization/internal/SerializationConstructorMarker;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Ljava/lang/String;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getAnnotation ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSAnnotation;
 	public fun getBase ()Ljavax/xml/namespace/QName;
 	public fun getFacets ()Ljava/util/List;
 	public fun getId-O6WucO4 ()Ljava/lang/String;
 	public fun getOtherAttrs ()Ljava/util/Map;
 	public fun getOtherContents ()Ljava/util/List;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSLocalSimpleType;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 	public static final synthetic fun write$Self (Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleRestriction;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
@@ -3973,7 +3974,7 @@ public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/s
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleRestrictionModels {
 	public abstract fun getFacets ()Ljava/util/List;
 	public abstract fun getOtherContents ()Ljava/util/List;
-	public abstract fun getSimpleTypes ()Ljava/util/List;
+	public abstract fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_TypeDefParticle {
@@ -5111,7 +5112,7 @@ public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/groups/G_SimpleDerivation$Restriction, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_RestrictionType, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$DerivationBase {
 	public abstract fun getFacets ()Ljava/util/List;
-	public abstract fun getSimpleTypes ()Ljava/util/List;
+	public abstract fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction$DefaultImpls {
@@ -5557,7 +5558,8 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplex
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexDerivationSealedBase;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_OpenAttrs;
 	public fun getSequences ()Ljava/util/List;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSimpleType;
 }
 
 public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexShorthandContent : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedComplexContent, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType$ShorthandContent {
@@ -6076,7 +6078,8 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleC
 	public fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/XSSimpleContentRestriction;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_ComplexType$SimpleDerivation;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_OpenAttrs;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSimpleType;
 }
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleDerivationBase : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType$Derivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$Derivation, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedPart {
@@ -6092,7 +6095,8 @@ public final class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleR
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$Derivation;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction;
 	public synthetic fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/XSI_OpenAttrs;
-	public fun getSimpleTypes ()Ljava/util/List;
+	public synthetic fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_LocalSimpleType;
+	public fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSimpleType;
 }
 
 public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleRestrictionBase : io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType$Derivation, io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction {
@@ -6103,7 +6107,7 @@ public abstract class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimp
 	public fun getFacets ()Ljava/util/List;
 	public fun getOtherContents ()Ljava/util/List;
 	public abstract fun getRawPart ()Lio/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType$T_Restriction;
-	public abstract fun getSimpleTypes ()Ljava/util/List;
+	public abstract fun getSimpleType ()Lio/github/pdvrieze/formats/xmlschema/resolved/ResolvedLocalSimpleType;
 }
 
 public abstract interface class io/github/pdvrieze/formats/xmlschema/resolved/ResolvedSimpleType : io/github/pdvrieze/formats/xmlschema/datatypes/serialization/types/T_SimpleType, io/github/pdvrieze/formats/xmlschema/resolved/ResolvedType {

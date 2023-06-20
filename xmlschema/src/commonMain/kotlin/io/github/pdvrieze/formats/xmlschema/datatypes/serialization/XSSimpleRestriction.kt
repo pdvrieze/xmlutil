@@ -18,6 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -37,7 +38,7 @@ class XSSimpleRestriction(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
-    override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
+    override val simpleType: XSLocalSimpleType? = null,
     override val facets: List<XSFacet> = emptyList(),
     @XmlValue(true)
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
