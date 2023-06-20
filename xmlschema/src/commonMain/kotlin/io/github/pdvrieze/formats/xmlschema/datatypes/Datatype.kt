@@ -24,13 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
@@ -190,7 +187,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
         override val rawPart: T_SimpleType.T_Restriction get() = this
 
-        override val simpleTypes: List<Nothing> get() = emptyList()
+        override val simpleType: Nothing? get() = null
         override val facets: List<XSFacet> get() = emptyList()
         override val otherContents: List<Nothing> get() = emptyList()
         override val base: QName get() = ErrorType.qName
@@ -234,7 +231,7 @@ internal open class SimpleBuiltinRestriction(
     override val base: QName get() = baseType.qName
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
-    override val simpleTypes: List<Nothing> get() = emptyList()
+    override val simpleType: Nothing? get() = null
     override val otherContents: List<Nothing> get() = emptyList()
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 }

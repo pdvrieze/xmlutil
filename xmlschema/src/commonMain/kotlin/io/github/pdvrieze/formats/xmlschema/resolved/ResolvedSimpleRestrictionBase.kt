@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -37,16 +38,18 @@ abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : Resol
 
     override val facets: List<XSFacet> get() = rawPart.facets
 
-    abstract override val simpleTypes: List<ResolvedLocalSimpleType>
+    abstract override val simpleType: ResolvedLocalSimpleType?
 
-    override val baseType: ResolvedSimpleType by lazy { base?.let{ schema.simpleType(it) } ?: simpleTypes.first() }
+    override val baseType: ResolvedSimpleType by lazy {
+        base?.let{ schema.simpleType(it) } ?: checkNotNull(simpleType)
+    }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
-            require(simpleTypes.size == 1)
+            requireNotNull(simpleType)
         } else {
-            require(simpleTypes.isEmpty())
+            require(simpleType == null)
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in seenTypes) {
