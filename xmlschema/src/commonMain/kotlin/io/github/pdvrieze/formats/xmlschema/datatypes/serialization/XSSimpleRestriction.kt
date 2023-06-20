@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -43,4 +43,5 @@ class XSSimpleRestriction(
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
-) : XSSimpleDerivation(), XSI_Annotated, T_SimpleRestrictionType
+) : XSSimpleDerivation(), T_SimpleType.T_Restriction
+

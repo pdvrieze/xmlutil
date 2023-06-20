@@ -22,8 +22,11 @@ interface T_LocalComplexType_Base: T_ComplexType, T_LocalType, G_Redefinable.Com
 
 sealed interface T_LocalComplexType_SealedBase: T_LocalComplexType_Base
 
-interface T_LocalComplexType_Simple: T_LocalComplexType_SealedBase, T_ComplexType_Simple
+interface T_LocalComplexType_Simple: T_LocalComplexType_SealedBase,
+    T_ComplexType.Simple
 
-interface T_LocalComplexType_Complex: T_LocalComplexType_SealedBase, T_ComplexType_Complex
+interface T_LocalComplexType_Complex: T_LocalComplexType_SealedBase,
+    T_ComplexType.Complex
 
-interface T_LocalComplexType_Shorthand: T_LocalComplexType_SealedBase, T_ComplexType_Shorthand
+interface T_LocalComplexType_Shorthand: T_LocalComplexType_SealedBase,
+    T_ComplexType.Shorthand

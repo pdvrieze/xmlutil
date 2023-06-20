@@ -19,7 +19,26 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import nl.adaptivity.xmlutil.QName
 
-interface T_SimpleExtensionType: T_ExtensionType, T_SimpleDerivationBase, G_SimpleDerivation.Extension, T_ComplexExtensionType {
+interface T_SimpleExtensionType : T_ExtensionType,
+    T_ComplexType.SimpleDerivationBase,
+    G_SimpleDerivation.Extension,
+    T_ComplexExtensionType {
+    // TODO remove inheritance of complexExtension
+
+    override val base: QName
+
+    override val groups: List<Nothing> get() = emptyList()
+    override val alls: List<Nothing> get() = emptyList()
+    override val choices: List<Nothing> get() = emptyList()
+    override val sequences: List<Nothing> get() = emptyList()
+    override val openContents: List<Nothing> get() = emptyList()
+
+}
+
+interface T_SimpleRestrictionType : T_ExtensionType,
+    T_ComplexType.SimpleDerivationBase,
+    G_SimpleDerivation.Restriction,
+    T_ComplexRestrictionType {
     // TODO remove inheritance of complexExtension
 
     override val base: QName

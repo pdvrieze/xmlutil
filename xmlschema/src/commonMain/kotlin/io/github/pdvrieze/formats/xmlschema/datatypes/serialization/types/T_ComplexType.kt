@@ -16,8 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Assertions
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 
 interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
@@ -30,31 +28,40 @@ interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
     val defaultAttributesApply: Boolean? // default true
 
     /** Either this or shorthand content */
-    override val content: T_ComplexTypeContent
+    override val content: Content
+
+    interface Content : G_ComplexTypeModel.Base
+
+    sealed interface ContentSealed: Content
+    interface SimpleContent : ContentSealed, G_ComplexTypeModel.SimpleContent {
+        val derivation: SimpleDerivation
+    }
+
+    interface SimpleDerivation : XSI_Annotated {
+
+    }
+
+    sealed interface SimpleDerivationBase: SimpleDerivation
+
+    interface ComplexContent : ContentSealed, G_ComplexTypeModel.ComplexContent {
+        val derivation: T_ComplexDerivation
+    }
+
+    interface ShorthandContent :
+        ContentSealed,
+        G_ComplexTypeModel.Shorthand
+
+    interface Simple: T_ComplexType {
+        override val content: SimpleContent
+    }
+
+    interface Complex: T_ComplexType {
+        override val content: ComplexContent
+    }
+
+    interface Shorthand: T_ComplexType, ShorthandContent {
+        override val content: ShorthandContent get() = this
+    }
+
 }
 
-interface T_ComplexType_Simple: T_ComplexType {
-    override val content: T_ComplexTypeSimpleContent
-}
-
-interface T_ComplexType_Complex: T_ComplexType {
-    override val content: T_ComplexTypeComplexContent
-}
-
-interface T_ComplexType_Shorthand: T_ComplexType, T_ComplexTypeShorthandContent {
-    override val content: T_ComplexTypeShorthandContent get() = this
-}
-
-interface T_ComplexTypeContent : G_ComplexTypeModel.Base
-
-sealed interface T_ComplexTypeContentSealed: T_ComplexTypeContent
-
-interface T_ComplexTypeSimpleContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.SimpleContent {
-    val derivation: T_SimpleDerivation
-}
-
-interface T_ComplexTypeComplexContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.ComplexContent {
-    val derivation: T_ComplexDerivation
-}
-
-interface T_ComplexTypeShorthandContent : T_ComplexTypeContentSealed, G_ComplexTypeModel.Shorthand
