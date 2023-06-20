@@ -42,9 +42,9 @@ class ResolvedSimpleRestriction(
     override val rawPart: XSSimpleRestriction,
     schema: ResolvedSchemaLike
 ) : ResolvedSimpleRestrictionBase(schema) {
-    override val simpleTypes: List<ResolvedLocalSimpleType> = DelegateList(rawPart.simpleTypes) {
+    override val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let{
         ResolvedLocalSimpleType(it, schema)
-    }
+    }}
 }
 
 

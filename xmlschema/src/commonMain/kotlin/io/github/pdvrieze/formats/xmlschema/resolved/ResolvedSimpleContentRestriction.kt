@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentRestriction
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -40,17 +41,18 @@ class ResolvedSimpleContentRestriction(
 
     override val facets: List<XSFacet> get() = rawPart.facets
 
-    override val simpleTypes: List<ResolvedLocalSimpleType> =
-        DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema) }
+    override val simpleType: ResolvedLocalSimpleType? by lazy {
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema) }
+    }
 
-    override val baseType: ResolvedType by lazy { base?.let{ schema.type(it) } ?: simpleTypes.first() }
+    override val baseType: ResolvedType by lazy { base?.let{ schema.type(it) } ?: checkNotNull(simpleType) }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
-            require(simpleTypes.size == 1)
+            requireNotNull(simpleType)
         } else {
-            require(simpleTypes.isEmpty())
+            require(simpleType == null)
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in seenTypes) {
