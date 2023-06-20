@@ -30,8 +30,11 @@ interface T_TopLevelComplexType_Base: T_ComplexType, T_TopLevelType {
 
 }
 
-interface T_TopLevelComplexType_Simple: T_TopLevelComplexType_Base, T_ComplexType_Simple
+interface T_TopLevelComplexType_Simple: T_TopLevelComplexType_Base,
+    T_ComplexType.Simple
 
-interface T_TopLevelComplexType_Complex: T_TopLevelComplexType_Base, T_ComplexType_Complex
+interface T_TopLevelComplexType_Complex: T_TopLevelComplexType_Base,
+    T_ComplexType.Complex
 
-interface T_TopLevelComplexType_Shorthand: T_TopLevelComplexType_Base, T_ComplexType_Shorthand
+interface T_TopLevelComplexType_Shorthand: T_TopLevelComplexType_Base,
+    T_ComplexType.Shorthand

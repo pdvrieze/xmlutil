@@ -21,13 +21,18 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
-    override val simpleDerivation: ResolvedSimpleDerivation
+    override val simpleDerivation: Derivation
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) { // TODO maybe move to toplevel
+    override fun check(
+        seenTypes: SingleLinkedList<QName>,
+        inheritedTypes: SingleLinkedList<QName>
+    ) { // TODO maybe move to toplevel
 
         when (val n = name) {
             null -> simpleDerivation.check(SingleLinkedList(), inheritedTypes)
@@ -36,5 +41,14 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
                 simpleDerivation.check(SingleLinkedList(qName), inheritedTypes + qName)
             }
         }
+    }
+
+    sealed class Derivation(final override val schema: ResolvedSchemaLike) : T_SimpleType.Derivation, ResolvedPart {
+        final override val annotation: XSAnnotation? get() = rawPart.annotation
+        final override val id: VID? get() = rawPart.id
+
+        abstract override val rawPart: T_SimpleType.Derivation
+        abstract val baseType: ResolvedSimpleType
+        abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
 }

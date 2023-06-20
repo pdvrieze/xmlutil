@@ -58,7 +58,7 @@ class ResolvedToplevelComplexType(
             when (val c = rawPart.content) {
                 is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
                 is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
-                is XSSimpleContent -> ResolvedComplexSimpleContent(this, c, schema)
+                is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
                 else -> error("unsupported content")
             }
         }

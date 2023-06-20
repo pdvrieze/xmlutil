@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -87,7 +88,8 @@ sealed class ListDatatype protected constructor(
     name: String,
     targetNamespace: String,
     val itemType: Datatype,
-) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedToplevelSimpleType, T_SimpleListType {
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedToplevelSimpleType,
+    T_SimpleType.T_List {
     abstract override val baseType: ResolvedType
 
     val whiteSpace: XSWhiteSpace.Values get() = XSWhiteSpace.Values.COLLAPSE
@@ -130,8 +132,8 @@ open class ConstructedListDatatype : ListDatatype {
     override val final: Set<T_SimpleDerivationSetElem>
         get() = emptySet()
 
-    override val simpleDerivation: ResolvedSimpleDerivation
-        get() = ResolvedSimpleListDerivation(this, BuiltinXmlSchema)
+    override val simpleDerivation: BuiltinListDerivation
+        get() = BuiltinListDerivation(this, BuiltinXmlSchema)
 }
 
 class RestrictedListDatatype(
@@ -154,8 +156,8 @@ class RestrictedListDatatype(
     override val final: Set<T_SimpleDerivationSetElem>
         get() = emptySet()
 
-    override val simpleDerivation: ResolvedSimpleDerivation
-        get() = ResolvedSimpleListDerivation(this, BuiltinXmlSchema)
+    override val simpleDerivation: ResolvedListDerivation
+        get() =  TODO("Doesn't work")// ResolvedListDerivation(this, BuiltinXmlSchema)
 
 }
 
@@ -171,23 +173,6 @@ sealed class UnionDatatype(name: String, targetNamespace: String) : Datatype(nam
     val members: List<Datatype> get() = TODO()
 }
 
-class ConstructedUnionDatatype(name: String, targetNamespace: String) : UnionDatatype(name, targetNamespace) {
-    override val baseType get() = AnySimpleType
-}
-
-/**
- * Defined by construction or restriction
- *
- * Can be derived using:
- * - enumeration
- * - pattern
- * - assertions
- */
-class RestrictedUnionDatatype(name: String, targetNamespace: String, override val baseType: ResolvedType) :
-    UnionDatatype(name, targetNamespace)
-
-interface SpecialDatatype
-
 object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedToplevelSimpleType {
     override val baseType: ResolvedType get() = ErrorType
     override val rawPart: ErrorType get() = this
@@ -196,20 +181,20 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
-    override val simpleDerivation: ResolvedSimpleDerivation get() = ERRORDERIVATION
+    override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
 
     override val name: VNCName get() = super<Datatype>.name
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
-        override val rawPart: T_SimpleDerivation get() = this
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
+        override val rawPart: T_SimpleType.T_Restriction get() = this
 
         override val simpleTypes: List<Nothing> get() = emptyList()
         override val facets: List<XSFacet> get() = emptyList()
         override val otherContents: List<Nothing> get() = emptyList()
         override val base: QName get() = ErrorType.qName
-        override val baseType: T_SimpleBaseType get() = ErrorType
+        override val baseType: ErrorType get() = ErrorType
 
         override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
@@ -222,7 +207,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override val simpleDerivation: G_SimpleDerivation.Base
+    override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
 
     override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
@@ -235,7 +220,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override val simpleDerivation: ResolvedSimpleDerivation
+    override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = SimpleBuiltinRestriction(baseType)
 
     override val final: Set<Nothing> get() = emptySet()
@@ -244,17 +229,12 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 internal open class SimpleBuiltinRestriction(
     override val baseType: ResolvedBuiltinType,
     override val facets: List<XSFacet> = listOf(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true))
-) : ResolvedSimpleRestrictionDerivation(BuiltinXmlSchema) {
-    override val rawPart: T_SimpleDerivation get() = this
+) : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
+    override val rawPart: T_SimpleType.T_Restriction get() = this
     override val base: QName get() = baseType.qName
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val simpleTypes: List<Nothing> get() = emptyList()
     override val otherContents: List<Nothing> get() = emptyList()
-    override val annotation: Nothing? get() = null
-    override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 }
-
-
-typealias Token = VToken

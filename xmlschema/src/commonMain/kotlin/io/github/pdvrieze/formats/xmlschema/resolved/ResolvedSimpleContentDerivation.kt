@@ -22,31 +22,23 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedLocalComplexType(
-    override val rawPart: XSLocalComplexType,
-    override val schema: ResolvedSchemaLike
-) : ResolvedLocalType, ResolvedComplexType, T_LocalComplexType_Base {
-    override val mixed: Boolean? get() = rawPart.mixed
-    override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
+sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchemaLike) : ResolvedPart,
+    T_ComplexType.SimpleDerivation {
+    abstract override val rawPart: T_ComplexType.SimpleDerivation
+
+    abstract val baseType: T_Type
+
     override val annotation: XSAnnotation? get() = rawPart.annotation
+
     override val id: VID? get() = rawPart.id
+
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    override val content: ResolvedComplexContent by lazy {
-        when (val c = rawPart.content) {
-            is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
-            is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
-            is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
-            else -> error("unsupported content")
-        }
-    }
+    abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        content.check(seenTypes, inheritedTypes) // there is no name here
-    }
 }
-

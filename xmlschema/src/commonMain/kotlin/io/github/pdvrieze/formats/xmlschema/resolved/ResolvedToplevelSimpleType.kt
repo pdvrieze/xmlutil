@@ -54,11 +54,11 @@ class ResolvedToplevelSimpleTypeImpl(
     override val targetNamespace: VAnyURI
         get() = schema.targetNamespace
 
-    override val simpleDerivation: ResolvedSimpleDerivation
+    override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedSimpleUnionDerivation(raw, schema)
-            is XSSimpleList -> ResolvedSimpleListDerivation(raw, schema)
-            is XSSimpleRestriction -> ResolvedSimpleRestrictionDerivation(raw, schema)
+            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema)
+            is XSSimpleList -> ResolvedListDerivation(raw, schema)
+            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema)
             else -> error("unsupported derivation")
         }
 

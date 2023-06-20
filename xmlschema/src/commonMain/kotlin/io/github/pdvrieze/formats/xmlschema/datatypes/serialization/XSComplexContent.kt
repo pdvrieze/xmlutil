@@ -23,7 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexDerivation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexExtensionType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexRestrictionType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexTypeComplexContent
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -43,7 +43,7 @@ class XSComplexContent(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val derivation: XSDerivationBase
-) : IXSComplexContent, T_ComplexTypeComplexContent {
+) : IXSComplexContent, T_ComplexType.ComplexContent {
     @Serializable
     sealed class XSDerivationBase: T_ComplexDerivation {
         abstract override val groups: List<XSGroupRef>

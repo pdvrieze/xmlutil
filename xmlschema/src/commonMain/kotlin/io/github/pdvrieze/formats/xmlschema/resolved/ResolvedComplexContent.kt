@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 
 sealed class ResolvedComplexContent(
     override val schema: ResolvedSchemaLike
-) : T_ComplexTypeContent, ResolvedPart {
+) : T_ComplexType.Content, ResolvedPart {
     abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
     override abstract val rawPart: IXSComplexContent
@@ -41,7 +41,7 @@ class ResolvedComplexComplexContent(
     override val rawPart: XSComplexContent,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexContent(schema),
-    T_ComplexTypeComplexContent {
+    T_ComplexType.ComplexContent {
 
     override val derivation: ResolvedDerivation by lazy {
         when (val d = rawPart.derivation) {
@@ -171,7 +171,7 @@ class ResolvedComplexShorthandContent(
     override val rawPart: IXSComplexTypeShorthand,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexContent(schema),
-    T_ComplexTypeShorthandContent {
+    T_ComplexType.ShorthandContent {
 
     override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
     override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema) }
@@ -194,25 +194,3 @@ class ResolvedComplexShorthandContent(
     }
 }
 
-class ResolvedComplexSimpleContent(
-    private val parent: ResolvedComplexType,
-    override val rawPart: XSSimpleContent,
-    schema: ResolvedSchemaLike
-) : ResolvedComplexContent(schema),
-    T_ComplexTypeSimpleContent {
-
-    override val derivation: ResolvedSimpleDerivation by lazy {
-        when (val d = rawPart.derivation) {
-            is XSSimpleContentExtension -> ResolvedSimpleExtensionDerivation(d, schema)
-            is XSSimpleContentRestriction -> ResolvedSimpleRestrictionDerivation(d, schema)
-            else -> error("unsupported derivation")
-        }
-    }
-
-
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check()
-        derivation.check(seenTypes, inheritedTypes)
-        //TODO("not implemented")
-    }
-}
