@@ -30,8 +30,8 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedToplevelComplexType(
     override val rawPart: XSTopLevelComplexType,
-    override val schema: ResolvedSchemaLike
-) : ResolvedToplevelType, ResolvedComplexType, T_TopLevelComplexType_Base {
+    schema: ResolvedSchemaLike
+) : ResolvedToplevelType, ResolvedComplexType(schema), T_TopLevelComplexType_Base {
     override val name: VNCName
         get() = rawPart.name
 
@@ -53,10 +53,10 @@ class ResolvedToplevelComplexType(
     override val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 
-    override val content: ResolvedComplexContent
+    override val content: ResolvedComplexTypeContent
         by lazy {
             when (val c = rawPart.content) {
-                is XSComplexContent -> ResolvedComplexComplexContent(this, c, schema)
+                is XSComplexContent -> ResolvedComplexContent(this, c, schema)
                 is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
                 is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
                 else -> error("unsupported content")

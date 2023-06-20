@@ -36,6 +36,8 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
+sealed interface XSComplexType: T_ComplexType, G_Redefinable.ComplexType
+
 @Serializable(XSTopLevelComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 abstract class XSTopLevelComplexType(
@@ -50,7 +52,7 @@ abstract class XSTopLevelComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_TopLevelComplexType_Base, G_Redefinable.ComplexType, XSI_Annotated {
+) : XSComplexType, T_TopLevelComplexType_Base, G_Redefinable.ComplexType {
     abstract override val content: IXSComplexContent
 
     override val targetNamespace: Nothing? get() = null

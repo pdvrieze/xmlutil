@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-sealed class ResolvedComplexContent(
+sealed class ResolvedComplexTypeContent(
     override val schema: ResolvedSchemaLike
 ) : T_ComplexType.Content, ResolvedPart {
     abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
@@ -36,11 +36,11 @@ sealed class ResolvedComplexContent(
     override abstract val rawPart: IXSComplexContent
 }
 
-class ResolvedComplexComplexContent(
+class ResolvedComplexContent(
     parent: ResolvedComplexType,
     override val rawPart: XSComplexContent,
     schema: ResolvedSchemaLike
-) : ResolvedComplexContent(schema),
+) : ResolvedComplexTypeContent(schema),
     T_ComplexType.ComplexContent {
 
     override val derivation: ResolvedDerivation by lazy {
@@ -169,7 +169,7 @@ class ResolvedComplexShorthandContent(
     parent: ResolvedComplexType,
     override val rawPart: IXSComplexTypeShorthand,
     schema: ResolvedSchemaLike
-) : ResolvedComplexContent(schema),
+) : ResolvedComplexTypeContent(schema),
     T_ComplexType.ShorthandContent {
 
     override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
