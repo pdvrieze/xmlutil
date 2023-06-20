@@ -29,3 +29,4 @@ interface AG_Occurs {
     val maxOccurs: T_AllNNI?
 //        get() = T_AllNNI(1)
 }
+

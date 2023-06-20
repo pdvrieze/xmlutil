@@ -39,9 +39,9 @@ abstract sealed class ResolvedSchemaLike {
 
     abstract val complexTypes: List<ResolvedToplevelComplexType>
 
-    abstract val groups: List<ResolvedDirectGroup>
+    abstract val groups: List<ResolvedToplevelGroup>
 
-    abstract val attributeGroups: List<ResolvedDirectAttributeGroup>
+    abstract val attributeGroups: List<ResolvedToplevelAttributeGroup>
     abstract val blockDefault: T_BlockSet
     abstract val finalDefault: Set<T_TypeDerivationControl>
 
@@ -64,12 +64,12 @@ abstract sealed class ResolvedSchemaLike {
         }
     }
 
-    fun attributeGroup(attributeGroupName: QName): ResolvedDirectAttributeGroup {
+    fun attributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup {
         return attributeGroups.firstOrNull { it.qName.isEquivalent(attributeGroupName) }
             ?: throw NoSuchElementException("No attribute group with name $attributeGroupName found")
     }
 
-    fun modelGroup(groupName: QName): ResolvedDirectGroup {
+    fun modelGroup(groupName: QName): ResolvedToplevelGroup {
         return groups.firstOrNull { it.qName.isEquivalent(groupName) }
             ?: throw NoSuchElementException("No group with name $groupName found")
     }

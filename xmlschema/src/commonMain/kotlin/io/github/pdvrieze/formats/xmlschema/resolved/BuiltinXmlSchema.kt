@@ -75,10 +75,10 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val complexTypes: List<ResolvedToplevelComplexType>
         get() = emptyList()
 
-    override val groups: List<ResolvedDirectGroup>
+    override val groups: List<ResolvedToplevelGroup>
         get() = emptyList()
 
-    override val attributeGroups: List<ResolvedDirectAttributeGroup>
+    override val attributeGroups: List<ResolvedToplevelAttributeGroup>
         get() = emptyList()
 
     override val blockDefault: T_BlockSet
