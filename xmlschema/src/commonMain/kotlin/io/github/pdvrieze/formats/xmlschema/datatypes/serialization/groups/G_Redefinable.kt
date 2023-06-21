@@ -16,10 +16,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupBase
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Particle
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import nl.adaptivity.xmlutil.QName
 
 /**
  * This group is for the elements which can self-redefine (see &lt;redefine> below).
@@ -35,6 +36,10 @@ interface G_Redefinable: G_SchemaTop {
 
     interface SimpleType: SealedBase
     interface ComplexType: SealedBase
-    interface Group: SealedBase, XSI_Annotated, AG_DefRef, AG_Occurs
+    interface Group: SealedBase, XSI_Annotated, T_Particle {
+        val name: VNCName?
+        val ref: QName?
+    }
+
     interface AttributeGroup: SealedBase, T_AttributeGroupBase
 }

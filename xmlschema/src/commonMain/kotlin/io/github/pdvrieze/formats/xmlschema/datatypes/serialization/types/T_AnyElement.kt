@@ -14,19 +14,12 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
+interface T_AnyElement: XSI_Annotated, T_Wildcard, T_Particle {
+    override val namespace: T_NamespaceList?
+    override val notNamespace: T_NotNamespaceList?
+    val notQName: T_QNameList?
+    override val processContents: T_ProcessContents?
 
-/** for all particles */
-interface AG_Occurs {
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
-//        get() = 1.toULong()
-
-    /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
-//        get() = T_AllNNI(1)
 }
-

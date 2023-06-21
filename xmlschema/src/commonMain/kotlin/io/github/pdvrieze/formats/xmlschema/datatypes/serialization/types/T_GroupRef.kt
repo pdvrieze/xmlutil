@@ -16,7 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import nl.adaptivity.xmlutil.QName
 
 interface T_GroupRef : T_RealGroup, XSI_Annotated, T_Particle {

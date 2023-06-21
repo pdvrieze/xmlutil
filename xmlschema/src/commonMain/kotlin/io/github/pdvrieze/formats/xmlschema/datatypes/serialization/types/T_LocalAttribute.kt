@@ -18,11 +18,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
 import nl.adaptivity.xmlutil.QName
 
-interface T_LocalAttribute: T_AttributeBase, AG_DefRef {
-}
+interface T_LocalAttribute: T_AttributeBase
 
 interface T_AttributeBase: XSI_Annotated, I_OptNamed {
     val default: String?
