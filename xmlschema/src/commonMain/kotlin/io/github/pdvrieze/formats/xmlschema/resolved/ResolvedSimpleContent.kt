@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Comp
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedSimpleContent(
-    private val parent: ResolvedComplexType,
+    private val scope: ResolvedComplexType,
     override val rawPart: XSSimpleContent,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexTypeContent(schema),
@@ -36,7 +36,7 @@ class ResolvedSimpleContent(
 
     override val derivation: ResolvedSimpleContentDerivation by lazy {
         when (val d = rawPart.derivation) {
-            is XSSimpleContentExtension -> ResolvedSimpleContentExtension(d, schema)
+            is XSSimpleContentExtension -> ResolvedSimpleContentExtension(scope, d, schema)
             is XSSimpleContentRestriction -> ResolvedSimpleContentRestriction(d, schema)
             else -> error("unsupported derivation")
         }

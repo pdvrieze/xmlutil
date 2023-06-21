@@ -20,7 +20,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
 
-interface T_TopLevelElement: T_Element {
+interface T_GlobalElement: T_Element {
     override val name: VNCName
 
     override val substitutionGroup: List<QName>?

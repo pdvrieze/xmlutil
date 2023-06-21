@@ -37,12 +37,12 @@ class XSOverride(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
-    override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
-    override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
+    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
     override val groups: List<XSGroup> = emptyList(),
     override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val elements: List<XSElement> = emptyList(),
-    override val attributes: List<XSAttribute> = emptyList(),
+    override val attributes: List<XSGlobalAttribute> = emptyList(),
     override val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),

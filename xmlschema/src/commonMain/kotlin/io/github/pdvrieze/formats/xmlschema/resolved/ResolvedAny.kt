@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
@@ -29,7 +30,7 @@ class ResolvedAny(
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, ResolvedAnnotated, ResolvedParticle, T_Any {
     override val annotation: XSAnnotation?
-        get() = super<ResolvedAnnotated>.annotation
+        get() = rawPart.annotation
 
     override val namespace: T_NamespaceList
         get() = rawPart.namespace ?: T_NamespaceList.ANY

@@ -47,19 +47,19 @@ class ResolvedInclude(
     override val finalDefault: Set<T_TypeDerivationControl>
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
-    override val elements: List<ResolvedToplevelElement>
+    override val elements: List<ResolvedGlobalElement>
 
-    override val attributes: List<ResolvedToplevelAttribute>
+    override val attributes: List<ResolvedGlobalAttribute>
 
-    override val simpleTypes: List<ResolvedToplevelSimpleType>
+    override val simpleTypes: List<ResolvedGlobalSimpleType>
 
-    override val complexTypes: List<ResolvedToplevelComplexType>
+    override val complexTypes: List<ResolvedGlobalComplexType>
 
     override val groups: List<ResolvedToplevelGroup>
 
     override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
     init {
@@ -67,16 +67,16 @@ class ResolvedInclude(
         val collatedSchema = CollatedSchema(nestedSchema, resolver.delegate(rawPart.schemaLocation))
 
         elements = DelegateList(collatedSchema.elements.values.toList()) {
-            ResolvedToplevelElement(it, this)
+            ResolvedGlobalElement(it, this)
         }
         attributes = DelegateList(collatedSchema.attributes.values.toList()) {
-            ResolvedToplevelAttribute(it, this)
+            ResolvedGlobalAttribute(it, this)
         }
         simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) {
-            ResolvedToplevelSimpleType(it, this)
+            ResolvedGlobalSimpleType(it, this)
         }
         complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) {
-            ResolvedToplevelComplexType(it, this)
+            ResolvedGlobalComplexType(it, this)
         }
         groups = DelegateList(collatedSchema.groups.values.toList()) {
             ResolvedToplevelGroup(it, this)
@@ -118,19 +118,19 @@ class ResolvedRedefine(
     override val finalDefault: Set<T_TypeDerivationControl>
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
-    override val elements: List<ResolvedToplevelElement>
+    override val elements: List<ResolvedGlobalElement>
 
-    override val attributes: List<ResolvedToplevelAttribute>
+    override val attributes: List<ResolvedGlobalAttribute>
 
-    override val simpleTypes: List<ResolvedToplevelSimpleType>
+    override val simpleTypes: List<ResolvedGlobalSimpleType>
 
-    override val complexTypes: List<ResolvedToplevelComplexType>
+    override val complexTypes: List<ResolvedGlobalComplexType>
 
     override val groups: List<ResolvedToplevelGroup>
 
     override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
     init {
@@ -139,16 +139,16 @@ class ResolvedRedefine(
         collatedSchema.applyRedefines(rawPart, targetNamespace)
 
         elements = DelegateList(collatedSchema.elements.values.toList()) {
-            ResolvedToplevelElement(it, this)
+            ResolvedGlobalElement(it, this)
         }
         attributes = DelegateList(collatedSchema.attributes.values.toList()) {
-            ResolvedToplevelAttribute(it, this)
+            ResolvedGlobalAttribute(it, this)
         }
         simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) {
-            ResolvedToplevelSimpleType(it, this)
+            ResolvedGlobalSimpleType(it, this)
         }
         complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) {
-            ResolvedToplevelComplexType(it, this)
+            ResolvedGlobalComplexType(it, this)
         }
         groups = DelegateList(collatedSchema.groups.values.toList()) {
             ResolvedToplevelGroup(it, this)
@@ -175,9 +175,9 @@ class ResolvedRedefine(
 
 private class CollatedSchema(baseSchema: XSSchema, resolver: ResolvedSchema.Resolver) {
     val elements: MutableMap<QName, XSElement> = mutableMapOf()
-    val attributes: MutableMap<QName, XSAttribute> = mutableMapOf()
-    val simpleTypes: MutableMap<QName, XSToplevelSimpleType> = mutableMapOf()
-    val complexTypes: MutableMap<QName, XSTopLevelComplexType> = mutableMapOf()
+    val attributes: MutableMap<QName, XSGlobalAttribute> = mutableMapOf()
+    val simpleTypes: MutableMap<QName, XSGlobalSimpleType> = mutableMapOf()
+    val complexTypes: MutableMap<QName, XSGlobalComplexType> = mutableMapOf()
     val groups: MutableMap<QName, XSGroup> = mutableMapOf()
     val attributeGroups: MutableMap<QName, XSAttributeGroup> = mutableMapOf()
 

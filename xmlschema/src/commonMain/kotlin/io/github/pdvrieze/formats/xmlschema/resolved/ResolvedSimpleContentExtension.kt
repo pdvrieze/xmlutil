@@ -30,12 +30,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Simp
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedSimpleContentExtension(
+    scope: ResolvedComplexType,
     override val rawPart: XSSimpleContentExtension,
     schema: ResolvedSchemaLike
 ) : ResolvedSimpleContentDerivation(schema), T_SimpleExtensionType {
     override val asserts: List<T_Assertion> get() = rawPart.asserts
     override val attributes: List<ResolvedLocalAttribute> =
-        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema) }
+        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
