@@ -26,19 +26,19 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedToplevelSimpleType : ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType
+interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType
 
-fun ResolvedToplevelSimpleType(rawPart: XSToplevelSimpleType, schema: ResolvedSchemaLike): ResolvedToplevelSimpleType {
-    return ResolvedToplevelSimpleTypeImpl(rawPart, schema)
+fun ResolvedGlobalSimpleType(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
+    return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
 }
 
-class ResolvedToplevelSimpleTypeImpl(
-    override val rawPart: XSToplevelSimpleType,
+class ResolvedGlobalSimpleTypeImpl(
+    override val rawPart: XSGlobalSimpleType,
     override val schema: ResolvedSchemaLike
-) : ResolvedToplevelSimpleType {
+) : ResolvedGlobalSimpleType {
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
@@ -51,7 +51,7 @@ class ResolvedToplevelSimpleTypeImpl(
     override val name: VNCName
         get() = rawPart.name
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
     override val simpleDerivation: ResolvedSimpleType.Derivation

@@ -29,8 +29,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("redefine", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSRedefine(
-    override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
-    override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
+    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
     override val groups: List<XSGroup> = emptyList(),
     override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val schemaLocation: VAnyURI,

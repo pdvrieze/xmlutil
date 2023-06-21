@@ -17,7 +17,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
@@ -29,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("simpleType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSToplevelSimpleType(
+class XSGlobalSimpleType(
     @XmlElement(false)
     override val name: VNCName,
     @XmlAfter("annotation")
@@ -43,6 +42,6 @@ class XSToplevelSimpleType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : T_TopLevelSimpleType, G_Redefinable.SimpleType, XSI_Annotated {
+) : T_GlobalSimpleType, G_Redefinable.SimpleType, XSI_Annotated {
     override val targetNamespace: Nothing? get() = null
 }

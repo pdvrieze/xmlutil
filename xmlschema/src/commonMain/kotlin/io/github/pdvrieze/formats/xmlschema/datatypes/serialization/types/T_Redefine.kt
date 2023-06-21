@@ -21,16 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 
 interface T_Redefine : XSI_Annotated, G_Composition.Redefine {
-    val simpleTypes: List<T_TopLevelSimpleType>
-    val complexTypes: List<T_TopLevelComplexType_Base>
+    val simpleTypes: List<T_GlobalSimpleType>
+    val complexTypes: List<T_GlobalComplexType_Base>
     val groups: List<T_NamedGroup>
     val attributeGroups: List<T_NamedAttributeGroup>
     val schemaLocation: VAnyURI
