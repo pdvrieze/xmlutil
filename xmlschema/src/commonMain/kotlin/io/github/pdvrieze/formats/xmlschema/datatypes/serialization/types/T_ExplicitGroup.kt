@@ -16,10 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_NestedParticles
 
-interface T_ExplicitGroup: T_GroupBase, GX_NestedParticles, AG_Occurs {
+interface T_ExplicitGroup: T_GroupBase, GX_NestedParticles, T_Particle {
 // G_TypeDefParticle.Sequence, G_NestedParticle.Sequence, G_Particle.Sequence
 
 }

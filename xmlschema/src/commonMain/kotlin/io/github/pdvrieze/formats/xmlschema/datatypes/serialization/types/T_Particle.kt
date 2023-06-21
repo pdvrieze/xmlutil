@@ -20,6 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 
-interface T_Particle : AG_Occurs
+interface T_Particle {
+    /** Optional, default 1 */
+    val minOccurs: VNonNegativeInteger?
+//        get() = 1.toULong()
+
+    /** Optional, default 1 */
+    val maxOccurs: T_AllNNI?
+//        get() = T_AllNNI(1)
+
+}

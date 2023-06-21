@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Op
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
