@@ -41,7 +41,7 @@ sealed class ResolvedExplicitGroup(
         DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
     }
 
-    override val anys: List<T_Wildcard>
+    override val anys: List<T_AnyElement>
         get() = TODO("not implemented")
 
     override fun check() {

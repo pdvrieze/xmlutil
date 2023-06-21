@@ -16,15 +16,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_DefRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_Occurs
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_IdentityConstraints
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated, I_OptNamedAttrs {
+interface T_Element: GX_IdentityConstraints, T_Particle, XSI_Annotated, I_OptNamedAttrs {
     val localType: Type?
 //    val simpleTypes: List<T_LocalSimpleType>
 //
@@ -54,6 +51,8 @@ interface T_Element: GX_IdentityConstraints, AG_DefRef, AG_Occurs, XSI_Annotated
     val form: T_FormChoice?
     
     override val keyrefs: List<T_KeyRef>
+    override val name: VNCName?
+    val ref: QName?
 
     interface Type: T_Type
 

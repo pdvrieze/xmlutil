@@ -16,7 +16,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.attrGroups.AG_AnyAttrGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamespaceList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NotNamespaceList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ProcessContents
 
-interface T_Wildcard: XSI_Annotated, AG_AnyAttrGroup, T_Particle {
+interface T_Wildcard {
+    /** Optional */
+    val namespace: T_NamespaceList?
+
+    /** Optional, Min length 1 */
+    val notNamespace: T_NotNamespaceList?
+
+    /** Optional, default strict */
+    val processContents: T_ProcessContents?
 }
