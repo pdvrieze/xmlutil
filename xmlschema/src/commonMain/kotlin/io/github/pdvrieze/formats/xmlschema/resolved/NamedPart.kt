@@ -33,11 +33,11 @@ interface OptNamedPart : ResolvedPart, I_OptNamed {
 
     override val name: VNCName? get() = rawPart.name
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
 
     val qName: QName?
-        get() = name?.let { QName(targetNamespace.value, it.xmlString) }
+        get() = name?.let { QName(targetNamespace?.value ?:"", it.xmlString) }
 }
 
 interface NamedPart : OptNamedPart, I_Named {
@@ -45,5 +45,5 @@ interface NamedPart : OptNamedPart, I_Named {
 
     override val name: VNCName get() = rawPart.name
 
-    override val qName: QName get() = QName(targetNamespace.value, name.xmlString)
+    override val qName: QName get() = QName(targetNamespace?.value ?: "", name.xmlString)
 }

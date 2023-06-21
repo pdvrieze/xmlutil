@@ -72,10 +72,10 @@ class ResolvedAttributeGroupRef(
 class ResolvedToplevelAttributeGroup(
     override val rawPart: XSAttributeGroup,
     override val schema: ResolvedSchemaLike
-) : NamedPart, T_NamedAttributeGroup, XSI_Annotated {
+) : NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
 
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
-        ResolvedLocalAttribute(it, schema)
+        ResolvedLocalAttribute(this, it, schema)
     }
 
     override val attributeGroups: List<ResolvedAttributeGroupRef>
@@ -96,7 +96,7 @@ class ResolvedToplevelAttributeGroup(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = super<NamedPart>.targetNamespace
 
     override fun check() {

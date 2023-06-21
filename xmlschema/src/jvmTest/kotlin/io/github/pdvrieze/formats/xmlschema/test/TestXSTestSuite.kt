@@ -319,7 +319,7 @@ class TestXSTestSuite {
         ),
         XSSelector.serializer() to mapOf("xpathDefaultNamespace" to SEEN),
         XSSimpleRestriction.serializer() to mapOf("otherContents" to SEEN),
-        XSTopLevelComplexType.serializer() to mapOf(
+        XSGlobalComplexType.serializer() to mapOf(
 //            "abstract" to ABSENT,
             "asserts" to SEEN,
             "defaultAttributesApply" to SEEN,

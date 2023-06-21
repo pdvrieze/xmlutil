@@ -21,12 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinType : ResolvedToplevelType, ResolvedSimpleType, T_TopLevelSimpleType {
+interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType {
     override val rawPart: T_NamedType get() = this
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema

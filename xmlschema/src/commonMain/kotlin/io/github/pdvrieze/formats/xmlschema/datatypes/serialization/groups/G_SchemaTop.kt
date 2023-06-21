@@ -16,8 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalElement
 
 /**
  * This group is for the elements which occur freely at the top level of schemas. All of their types
@@ -32,8 +32,8 @@ interface G_SchemaTop {
     interface Base
     sealed interface SealedBase : Base
 
-    interface Element : SealedBase, T_TopLevelElement
-    interface Attribute : SealedBase, T_TopLevelAttribute
+    interface Element : SealedBase, T_GlobalElement
+    interface Attribute : SealedBase, T_GlobalAttribute
     interface Notation : SealedBase
 }
 

@@ -29,6 +29,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatat
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
@@ -85,7 +88,7 @@ sealed class ListDatatype protected constructor(
     name: String,
     targetNamespace: String,
     val itemType: Datatype,
-) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedToplevelSimpleType,
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType,
     T_SimpleType.T_List {
     abstract override val baseType: ResolvedType
 
@@ -170,7 +173,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String) : Datatype(nam
     val members: List<Datatype> get() = TODO()
 }
 
-object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedToplevelSimpleType {
+object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedGlobalSimpleType {
     override val baseType: ResolvedType get() = ErrorType
     override val rawPart: ErrorType get() = this
     override val final: Set<Nothing> get() = emptySet()
@@ -197,7 +200,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedT
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType, TypeModel {
     override val baseType: AnyType get() = AnyType // No actual base type
 
     override val name: VNCName get() = super<Datatype>.name
@@ -208,6 +211,8 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
         get() = SimpleBuiltinRestriction(AnyType)
 
     override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
+
+    override val mdlAnnotations: List<Nothing> get() = emptyList()
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {

@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_An
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
-) : ResolvedType, T_ComplexType, XSI_Annotated {
+) : ResolvedType, T_ComplexType, XSI_Annotated, ResolvedLocalAttribute.Parent {
     abstract override val rawPart: XSComplexType
 
     abstract override val content: ResolvedComplexTypeContent

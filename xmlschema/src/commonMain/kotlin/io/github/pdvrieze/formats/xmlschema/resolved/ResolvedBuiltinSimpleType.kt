@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinSimpleType : ResolvedToplevelSimpleType, ResolvedBuiltinType {
+interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType {
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
 

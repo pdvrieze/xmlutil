@@ -17,10 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -36,11 +34,9 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-sealed interface XSComplexType: T_ComplexType, G_Redefinable.ComplexType
-
-@Serializable(XSTopLevelComplexType.Serializer::class)
+@Serializable(XSGlobalComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-abstract class XSTopLevelComplexType(
+abstract class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
     override val abstract: Boolean,
@@ -52,7 +48,7 @@ abstract class XSTopLevelComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSComplexType, T_TopLevelComplexType_Base, G_Redefinable.ComplexType {
+) : XSComplexType, T_GlobalComplexType_Base, G_Redefinable.ComplexType {
     abstract override val content: IXSComplexContent
 
     override val targetNamespace: Nothing? get() = null
@@ -89,10 +85,10 @@ abstract class XSTopLevelComplexType(
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) {
-        fun toTopLevelComplexType(): XSTopLevelComplexType {
+        fun toTopLevelComplexType(): XSGlobalComplexType {
             // TODO verify
             return when {
-                simpleContent != null -> XSTopLevelComplexTypeSimple(
+                simpleContent != null -> XSGlobalComplexTypeSimple(
                     name = name,
                     mixed = mixed,
                     abstract = abstract,
@@ -105,7 +101,7 @@ abstract class XSTopLevelComplexType(
                     otherAttrs = otherAttrs,
                 )
 
-                complexContent != null -> XSTopLevelComplexTypeComplex(
+                complexContent != null -> XSGlobalComplexTypeComplex(
                     name = name,
                     mixed = mixed,
                     abstract = abstract,
@@ -118,7 +114,7 @@ abstract class XSTopLevelComplexType(
                     otherAttrs = otherAttrs,
                 )
 
-                else -> XSTopLevelComplexTypeShorthand(
+                else -> XSGlobalComplexTypeShorthand(
                     name = name,
                     mixed = mixed,
                     abstract = abstract,
@@ -144,18 +140,18 @@ abstract class XSTopLevelComplexType(
 
     }
 
-    companion object Serializer : KSerializer<XSTopLevelComplexType> {
+    companion object Serializer : KSerializer<XSGlobalComplexType> {
         private val delegateSerializer = SerialDelegate.serializer()
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
             SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSTopLevelComplexType", delegateSerializer.descriptor)
 
-        override fun serialize(encoder: Encoder, value: XSTopLevelComplexType) {
+        override fun serialize(encoder: Encoder, value: XSGlobalComplexType) {
             delegateSerializer.serialize(encoder, value.toSerialDelegate())
         }
 
-        override fun deserialize(decoder: Decoder): XSTopLevelComplexType {
+        override fun deserialize(decoder: Decoder): XSGlobalComplexType {
             return delegateSerializer.deserialize(decoder).toTopLevelComplexType()
         }
 

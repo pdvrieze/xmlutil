@@ -51,7 +51,7 @@ class ResolvedLocalElement(
     override val form: T_FormChoice?
         get() = rawPart.form
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
 
 

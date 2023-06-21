@@ -23,31 +23,23 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Shorthand
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Complex
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
-class XSTopLevelComplexTypeShorthand(
+class XSGlobalComplexTypeComplex(
     name: VNCName,
     mixed: Boolean?,
     abstract: Boolean,
     final: T_DerivationSet,
     block: T_DerivationSet,
     defaultAttributesApply: Boolean?,
-    override val groups: List<XSGroupRef>,
-    override val alls: List<XSAll>,
-    override val choices: List<XSChoice>,
-    override val sequences: List<XSSequence>,
-    override val asserts: List<XSAssert>,
-    override val attributes: List<XSLocalAttribute>,
-    override val attributeGroups: List<XSAttributeGroupRef>,
-    override val anyAttribute: XSAnyAttribute?,
-    override val openContents: List<XSOpenContent>,
+    override val content: XSComplexContent,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
+) : XSGlobalComplexType(
     name,
     mixed,
     abstract,
@@ -57,9 +49,7 @@ class XSTopLevelComplexTypeShorthand(
     id,
     annotation,
     otherAttrs
-), IXSComplexTypeShorthand, T_TopLevelComplexType_Shorthand {
-    override val content: IXSComplexTypeShorthand get() = this
-
+), T_TopLevelComplexType_Complex {
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             name = name,
@@ -68,19 +58,10 @@ class XSTopLevelComplexTypeShorthand(
             final = final,
             block = block,
             defaultAttributesApply = defaultAttributesApply,
-            groups = groups,
-            alls = alls,
-            choices = choices,
-            sequences = sequences,
-            asserts = asserts,
-            atributes = attributes,
-            atributeGroups = attributeGroups,
-            anyAttribute = anyAttribute,
-            openContents = openContents,
+            complexContent = content,
             id = id,
             annotation = annotation,
             otherAttrs = otherAttrs
         )
     }
-
 }

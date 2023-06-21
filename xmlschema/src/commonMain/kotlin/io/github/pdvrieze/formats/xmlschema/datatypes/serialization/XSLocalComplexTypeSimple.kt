@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,47 +21,57 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelComplexType_Complex
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalComplexType_Simple
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
-class XSTopLevelComplexTypeComplex(
-    name: VNCName,
+class XSLocalComplexTypeSimple(
     mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
     defaultAttributesApply: Boolean?,
-    override val content: XSComplexContent,
+    override val content: XSSimpleContent,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
-    name,
+) : XSLocalComplexType(
     mixed,
-    abstract,
-    final,
-    block,
     defaultAttributesApply,
     id,
     annotation,
     otherAttrs
-), T_TopLevelComplexType_Complex {
+), T_LocalComplexType_Simple {
+
+    override val name: Nothing? get() = null
+    override val targetNamespace: Nothing? get() = null
+
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
-            name = name,
             mixed = mixed,
-            abstract = abstract,
-            final = final,
-            block = block,
             defaultAttributesApply = defaultAttributesApply,
-            complexContent = content,
+            simpleContent = content,
             id = id,
             annotation = annotation,
             otherAttrs = otherAttrs
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalComplexTypeSimple
+
+        if (content != other.content) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + content.hashCode()
+        return result
+    }
+
+
 }

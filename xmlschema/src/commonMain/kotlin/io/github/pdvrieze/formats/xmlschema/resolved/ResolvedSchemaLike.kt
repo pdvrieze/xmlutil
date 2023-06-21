@@ -29,15 +29,15 @@ import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract sealed class ResolvedSchemaLike {
-    abstract val targetNamespace: VAnyURI
+    abstract val targetNamespace: VAnyURI?
 
-    abstract val elements: List<ResolvedToplevelElement>
+    abstract val elements: List<ResolvedGlobalElement>
 
-    abstract val attributes: List<ResolvedToplevelAttribute>
+    abstract val attributes: List<ResolvedGlobalAttribute>
 
-    abstract val simpleTypes: List<ResolvedToplevelSimpleType>
+    abstract val simpleTypes: List<ResolvedGlobalSimpleType>
 
-    abstract val complexTypes: List<ResolvedToplevelComplexType>
+    abstract val complexTypes: List<ResolvedGlobalComplexType>
 
     abstract val groups: List<ResolvedToplevelGroup>
 
@@ -45,7 +45,7 @@ abstract sealed class ResolvedSchemaLike {
     abstract val blockDefault: T_BlockSet
     abstract val finalDefault: Set<T_TypeDerivationControl>
 
-    open fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
+    open fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             BuiltinXmlSchema.simpleType(typeName)
         } else {
@@ -54,7 +54,7 @@ abstract sealed class ResolvedSchemaLike {
         }
     }
 
-    open fun type(typeName: QName): ResolvedToplevelType {
+    open fun type(typeName: QName): ResolvedGlobalType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             BuiltinXmlSchema.simpleType(typeName)
         } else {
@@ -74,12 +74,12 @@ abstract sealed class ResolvedSchemaLike {
             ?: throw NoSuchElementException("No group with name $groupName found")
     }
 
-    fun element(elementName: QName): ResolvedToplevelElement {
+    fun element(elementName: QName): ResolvedGlobalElement {
         return elements.firstOrNull { it.qName.isEquivalent(elementName) }
             ?: throw NoSuchElementException("No element with name $elementName found")
     }
 
-    fun attribute(attributeName: QName): ResolvedToplevelAttribute {
+    fun attribute(attributeName: QName): ResolvedGlobalAttribute {
         return attributes.firstOrNull { it.qName.isEquivalent(attributeName) }
             ?: throw NoSuchElementException("No attribute with name $attributeName found")
     }

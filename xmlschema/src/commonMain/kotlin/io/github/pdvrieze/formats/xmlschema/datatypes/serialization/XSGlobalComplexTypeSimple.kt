@@ -28,7 +28,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
-class XSTopLevelComplexTypeSimple(
+class XSGlobalComplexTypeSimple(
     name: VNCName,
     mixed: Boolean?,
     abstract: Boolean,
@@ -39,7 +39,7 @@ class XSTopLevelComplexTypeSimple(
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSTopLevelComplexType(
+) : XSGlobalComplexType(
     name,
     mixed,
     abstract,

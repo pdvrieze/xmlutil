@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AltType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Element
@@ -90,4 +91,14 @@ class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)
 sealed class ValueConstraint(val value: String) {
     class Default(value: String) : ValueConstraint(value)
     class Fixed(value: String) : ValueConstraint(value)
+
+    companion object {
+        operator fun invoke(attr: XSAttribute): ValueConstraint? {
+            return when {
+                attr.default != null -> { check(attr.use!=null); Default(attr.default) }
+                attr.fixed != null -> Fixed(attr.fixed)
+                else -> null
+            }
+        }
+    }
 }

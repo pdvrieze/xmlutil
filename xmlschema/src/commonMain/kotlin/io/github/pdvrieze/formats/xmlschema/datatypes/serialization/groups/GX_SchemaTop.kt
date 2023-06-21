@@ -19,11 +19,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 interface GX_SchemaTop {
-    val simpleTypes: List<XSToplevelSimpleType>
-    val complexTypes: List<XSTopLevelComplexType>
+    val simpleTypes: List<XSGlobalSimpleType>
+    val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
     val attributeGroups: List<XSAttributeGroup>
     val elements: List<XSElement>
-    val attributes: List<XSAttribute>
+    val attributes: List<XSGlobalAttribute>
     val notations: List<XSNotation>
 }

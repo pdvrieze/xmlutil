@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.namespaceURI
 object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
 
-    override fun simpleType(typeName: QName): ResolvedToplevelSimpleType {
+    override fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
@@ -43,7 +43,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
-    override fun type(typeName: QName): ResolvedToplevelType {
+    override fun type(typeName: QName): ResolvedGlobalType {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
@@ -52,13 +52,13 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
-    override val elements: List<ResolvedToplevelElement>
+    override val elements: List<ResolvedGlobalElement>
         get() = emptyList()
 
-    override val attributes: List<ResolvedToplevelAttribute>
+    override val attributes: List<ResolvedGlobalAttribute>
         get() = emptyList()
 
-    override val simpleTypes: List<ResolvedToplevelSimpleType>
+    override val simpleTypes: List<ResolvedGlobalSimpleType>
         get() = listOf(
             AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
             DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
@@ -72,7 +72,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             NMTokensType
         )
 
-    override val complexTypes: List<ResolvedToplevelComplexType>
+    override val complexTypes: List<ResolvedGlobalComplexType>
         get() = emptyList()
 
     override val groups: List<ResolvedToplevelGroup>

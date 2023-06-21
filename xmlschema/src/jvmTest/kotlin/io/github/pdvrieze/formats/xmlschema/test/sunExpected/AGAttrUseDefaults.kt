@@ -60,7 +60,7 @@ object AGAttrUseDefaults {
             )
         ),
         attributes = listOf(
-            XSAttribute(
+            XSGlobalAttribute(
                 name = VNCName("number"),
                 type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd")
             )
