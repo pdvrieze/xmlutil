@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 class ResolvedAny(
     override val rawPart: XSAny,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated, ResolvedParticle, T_Any {
+) : ResolvedPart, ResolvedAnnotated, ResolvedParticle, T_AnyElement {
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
