@@ -37,7 +37,7 @@ class XSAny(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlElement(false)
-    val notQName: T_QNameList? = null,
+    override val notQName: T_QNameList? = null,
     @XmlElement(false)
     override val namespace: T_NamespaceList? = null,
     @XmlElement(false)
@@ -48,4 +48,4 @@ class XSAny(
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 
-): G_NestedParticle.Any, G_Particle.Any, T_Wildcard
+): G_NestedParticle.Any, G_Particle.Any, T_AnyElement
