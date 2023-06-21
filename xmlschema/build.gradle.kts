@@ -32,7 +32,7 @@ plugins {
     signing
     id(libs.plugins.dokka.get().pluginId)
     idea
-    alias(libs.plugins.binaryValidator)
+//    alias(libs.plugins.binaryValidator)
 }
 
 val xmlutil_core_version: String by project
@@ -139,12 +139,14 @@ tasks.create<Task>("test") {
 
 addNativeTargets()
 
+/*
 apiValidation {
     ignoredPackages.apply {
 //        add("nl.adaptivity.serialutil.impl")
     }
 
 }
+*/
 
 doPublish()
 

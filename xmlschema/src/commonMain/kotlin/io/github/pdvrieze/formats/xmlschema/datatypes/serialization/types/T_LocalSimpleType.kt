@@ -29,7 +29,7 @@ interface T_LocalSimpleType: T_SimpleType, T_LocalType, T_Element.Simple {
 
 }
 
-interface T_TopLevelSimpleType: T_SimpleType, T_TopLevelType {
+interface T_GlobalSimpleType: T_SimpleType, T_TopLevelType {
     val final: Set<T_SimpleDerivationSetElem>
 }
 

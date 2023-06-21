@@ -21,26 +21,18 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeBase
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelAttribute
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedAttribute : ResolvedPart, T_AttributeBase {
-    override val rawPart: T_AttributeBase
-}
-
-sealed class ResolvedAttributeBase(
+sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedAttribute, T_AttributeBase {
+) : ResolvedPart, T_AttributeBase {
+    abstract override val rawPart: XSAttribute
 
     override val type: QName?
-        get() = (resolvedType as? ResolvedToplevelSimpleType)?.qName
+        get() = (resolvedType as? ResolvedGlobalSimpleType)?.qName
 
     val resolvedType: ResolvedSimpleType by lazy {
         rawPart.type?.let { schema.simpleType(it) }
@@ -48,106 +40,17 @@ sealed class ResolvedAttributeBase(
             ?: AnySimpleType
     }
 
+    val valueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
+
     override fun check() {
-        super<ResolvedAttribute>.check()
+        super<ResolvedPart>.check()
         resolvedType.check()
         check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
         check (default == null || use == null || use == XSAttrUse.OPTIONAL) {
             "For attributes with default and use must have optional as use value"
         }
     }
+
+    interface Use
 }
 
-
-class ResolvedLocalAttribute(
-    override val rawPart: T_LocalAttribute,
-    schema: ResolvedSchemaLike
-) : ResolvedAttributeBase(schema), T_LocalAttribute {
-    private val referenced: ResolvedAttribute? by lazy { rawPart.ref?.let { schema.attribute(it) } }
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val default: String?
-        get() = rawPart.default ?: referenced?.default
-
-    override val fixed: String?
-        get() = rawPart.fixed ?: referenced?.fixed
-
-    override val form: T_FormChoice?
-        get() = rawPart.form ?: referenced?.form
-
-    override val name: VNCName
-        get() = rawPart.name ?: referenced?.name ?: error("An attribute requires a name, either direct or referenced")
-
-    override val ref: QName?
-        get() = rawPart.ref
-
-    override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-    override val type: QName?
-        get() = rawPart.type ?: referenced?.type
-
-    override val use: XSAttrUse?
-        get() = rawPart.use ?: referenced?.use
-
-    override val inheritable: Boolean?
-        get() = rawPart.inheritable ?: referenced?.inheritable
-
-    override val simpleType: XSLocalSimpleType?
-        get() = rawPart.simpleType ?: referenced?.simpleType
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    override fun check() {
-        super<ResolvedAttributeBase>.check()
-        if (rawPart.ref != null) {
-            require(referenced != null) { "If an attribute has a ref, it must also be resolvable" }
-        } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
-    }
-}
-
-class ResolvedToplevelAttribute(
-    override val rawPart: T_TopLevelAttribute,
-    schema: ResolvedSchemaLike
-) : ResolvedAttributeBase(schema), ResolvedAttribute, T_TopLevelAttribute, NamedPart {
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val default: String?
-        get() = rawPart.default
-
-    override val fixed: String?
-        get() = rawPart.fixed
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val type: QName?
-        get() = rawPart.type
-
-    override val inheritable: Boolean?
-        get() = rawPart.inheritable
-
-    override val simpleType: XSLocalSimpleType?
-        get() = rawPart.simpleType
-
-    override val targetNamespace: VAnyURI
-        get() = schema.targetNamespace
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    override fun check() {
-        super<ResolvedAttributeBase>.check()
-    }
-}

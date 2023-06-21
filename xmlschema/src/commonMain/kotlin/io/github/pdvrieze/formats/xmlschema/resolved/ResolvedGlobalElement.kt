@@ -27,14 +27,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Scope
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TopLevelElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedToplevelElement(
+class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), T_TopLevelElement {
+) : ResolvedElement(schema), T_GlobalElement {
     override fun check() {
         super<ResolvedElement>.check()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
@@ -50,14 +50,14 @@ class ResolvedToplevelElement(
         }
     }
 
-    val substitutionGroups: List<ResolvedToplevelElement> =
+    val substitutionGroups: List<ResolvedGlobalElement> =
         DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
     override val final: T_DerivationSet
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
-    override val targetNamespace: VAnyURI get() = schema.targetNamespace
+    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     override val name: VNCName get() = rawPart.name
     override val qName: QName

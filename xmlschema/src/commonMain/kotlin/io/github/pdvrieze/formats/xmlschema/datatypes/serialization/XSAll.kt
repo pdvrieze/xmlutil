@@ -47,15 +47,3 @@ class XSAll(
     override val sequences: List<Nothing> get() = emptyList()
 }
 
-interface XSExplicitGroup: T_ExplicitGroup {
-    override val elements: List<XSLocalElement>
-
-    override val groups: List<XSGroupRef>
-
-    override val choices: List<XSChoice>
-
-    override val sequences: List<XSSequence>
-
-    override val anys: List<XSAny>
-
-}

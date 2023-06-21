@@ -39,14 +39,14 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     val annotation: XSAnnotation? get() = rawPart.annotation
 
-    override val simpleTypes: List<ResolvedToplevelSimpleType> = DelegateList(rawPart.simpleTypes) { ResolvedToplevelSimpleType(it, this) }
-    override val complexTypes: List<ResolvedToplevelComplexType> = DelegateList(rawPart.complexTypes) { ResolvedToplevelComplexType(it, this) }
+    override val simpleTypes: List<ResolvedGlobalSimpleType> = DelegateList(rawPart.simpleTypes) { ResolvedGlobalSimpleType(it, this) }
+    override val complexTypes: List<ResolvedGlobalComplexType> = DelegateList(rawPart.complexTypes) { ResolvedGlobalComplexType(it, this) }
 
-    val types: List<ResolvedToplevelType> get() = CombiningList(simpleTypes, complexTypes)
-    override val attributes: List<ResolvedToplevelAttribute> get() = DelegateList(rawPart.attributes) { ResolvedToplevelAttribute(it, this) }
+    val types: List<ResolvedGlobalType> get() = CombiningList(simpleTypes, complexTypes)
+    override val attributes: List<ResolvedGlobalAttribute> get() = DelegateList(rawPart.attributes) { ResolvedGlobalAttribute(it, this) }
     val redefines: List<ResolvedRedefine> = DelegateList(rawPart.redefines) { ResolvedRedefine(it, this, resolver) }
 
-    override val elements: List<ResolvedToplevelElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedToplevelElement(it, this) }
+    override val elements: List<ResolvedGlobalElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedGlobalElement(it, this) }
 
     override val attributeGroups: List<ResolvedToplevelAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedToplevelAttributeGroup(it, this) }
     override val groups: List<ResolvedToplevelGroup> get() = DelegateList(rawPart.groups) { ResolvedToplevelGroup(it, this) }

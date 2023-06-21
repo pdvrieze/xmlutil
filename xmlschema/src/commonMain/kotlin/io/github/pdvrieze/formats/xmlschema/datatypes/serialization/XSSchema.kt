@@ -71,11 +71,11 @@ class XSSchema(
     @XmlBefore("simpleTypes", "complexTypes", "groups", "attributeGroups", "elements", "attributes", "notations")
     val defaultOpenContent: List<XSDefaultOpenContent> = emptyList(),
 
-    override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),
-    override val complexTypes: List<XSTopLevelComplexType> = emptyList(),
+    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
     override val groups: List<XSGroup> = emptyList(),
     override val elements: List<XSElement> = emptyList(),
-    override val attributes: List<XSAttribute> = emptyList(),
+    override val attributes: List<XSGlobalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes

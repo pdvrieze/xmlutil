@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
@@ -61,7 +59,7 @@ class ResolvedUnionDerivation(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
-            (m as? ResolvedToplevelType)?.let {
+            (m as? ResolvedGlobalType)?.let {
                 require(it.qName !in inheritedTypes) { "Recursive presence of ${it.qName}" }
                 if (it.qName !in seenTypes) {
                     m.check(seenTypes, inheritedTypes)
