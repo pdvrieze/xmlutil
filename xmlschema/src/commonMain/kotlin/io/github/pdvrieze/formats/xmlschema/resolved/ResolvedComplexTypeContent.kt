@@ -74,7 +74,7 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
     override val base: QName? get() = rawPart.base
     override val openContents: List<XSOpenContent> get() = rawPart.openContents
 
-    val baseType: ResolvedToplevelType by lazy {
+    val baseType: ResolvedGlobalType by lazy {
         schema.type(base ?: AnyType.qName)
     }
 
@@ -96,20 +96,20 @@ sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_Comp
 
 class ResolvedComplexExtension(
     override val rawPart: XSComplexContent.XSExtension,
-    parent: ResolvedComplexType,
+    scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(schema), T_ComplexExtensionType {
     override val alls: List<ResolvedAll> =
-        DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema)}
+        DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema)}
 
     override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
+        DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
 
     override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
+        DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
 
     override val attributes: List<ResolvedLocalAttribute> =
-        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema)}
+        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema)}
 
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
@@ -128,7 +128,7 @@ class ResolvedComplexExtension(
 
 class ResolvedComplexRestriction(
     override val rawPart: XSComplexContent.XSRestriction,
-    parent: ResolvedComplexType,
+    scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(schema), T_ComplexRestrictionType {
 
@@ -140,16 +140,16 @@ class ResolvedComplexRestriction(
         get() = rawPart.otherContents
 
     override val alls: List<ResolvedAll> =
-        DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema)}
+        DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema)}
 
     override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
+        DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
 
     override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
+        DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
 
     override val attributes: List<ResolvedLocalAttribute> =
-        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema)}
+        DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema)}
 
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
@@ -166,18 +166,18 @@ class ResolvedComplexRestriction(
 }
 
 class ResolvedComplexShorthandContent(
-    parent: ResolvedComplexType,
+    scope: ResolvedComplexType,
     override val rawPart: IXSComplexTypeShorthand,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexTypeContent(schema),
     T_ComplexType.ShorthandContent {
 
     override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
-    override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(parent, it, schema) }
-    override val choices: List<ResolvedChoice> = DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
-    override val sequences: List<ResolvedSequence> = DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
+    override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema) }
+    override val choices: List<ResolvedChoice> = DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
+    override val sequences: List<ResolvedSequence> = DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
     override val asserts: List<T_Assertion> get() = rawPart.asserts
-    override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(it, schema) }
+    override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     override val openContents: List<XSOpenContent> get() = rawPart.openContents

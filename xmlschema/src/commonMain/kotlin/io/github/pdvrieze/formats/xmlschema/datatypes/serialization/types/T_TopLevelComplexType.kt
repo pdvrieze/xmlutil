@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_TopLevelComplexType_Base: T_ComplexType, T_TopLevelType {
+interface T_GlobalComplexType_Base: T_ComplexType, T_TopLevelType {
     override val name: VNCName
 
     /**
@@ -30,11 +30,11 @@ interface T_TopLevelComplexType_Base: T_ComplexType, T_TopLevelType {
 
 }
 
-interface T_TopLevelComplexType_Simple: T_TopLevelComplexType_Base,
+interface T_TopLevelComplexType_Simple: T_GlobalComplexType_Base,
     T_ComplexType.Simple
 
-interface T_TopLevelComplexType_Complex: T_TopLevelComplexType_Base,
+interface T_TopLevelComplexType_Complex: T_GlobalComplexType_Base,
     T_ComplexType.Complex
 
-interface T_TopLevelComplexType_Shorthand: T_TopLevelComplexType_Base,
+interface T_TopLevelComplexType_Shorthand: T_GlobalComplexType_Base,
     T_ComplexType.Shorthand

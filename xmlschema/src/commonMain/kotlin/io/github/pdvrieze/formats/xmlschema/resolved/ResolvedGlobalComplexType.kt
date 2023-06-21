@@ -28,10 +28,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedToplevelComplexType(
-    override val rawPart: XSTopLevelComplexType,
+class ResolvedGlobalComplexType(
+    override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedToplevelType, ResolvedComplexType(schema), T_TopLevelComplexType_Base {
+) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalComplexType_Base {
     override val name: VNCName
         get() = rawPart.name
 
@@ -44,7 +44,7 @@ class ResolvedToplevelComplexType(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
     override val mixed: Boolean?

@@ -76,6 +76,6 @@ class ResolvedToplevelGroup(
     override val name: VNCName
         get() = rawPart.name
 
-    override val targetNamespace: VAnyURI
+    override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 }
