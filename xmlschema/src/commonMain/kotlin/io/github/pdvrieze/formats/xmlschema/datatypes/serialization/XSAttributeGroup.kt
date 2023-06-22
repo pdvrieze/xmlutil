@@ -19,13 +19,10 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
-import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupBase
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -46,7 +43,7 @@ class XSAttributeGroup(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_NamedAttributeGroup, G_Redefinable.AttributeGroup {
+) : T_NamedAttributeGroup, T_AttributeGroupBase {
 
     override val targetNamespace: Nothing? get() = null
 

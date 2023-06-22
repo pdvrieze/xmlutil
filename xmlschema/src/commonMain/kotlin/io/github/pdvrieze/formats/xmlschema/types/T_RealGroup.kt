@@ -16,12 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_RealGroup: T_Group {
-    val particle: RG_Particle?
-    override val particles: List<RG_Particle>
-        get() = listOfNotNull(particle)
+interface T_RealGroup : XSI_Annotated {
 
-    sealed interface RG_Particle: T_Group.Particle
+    interface Particle
     interface All: T_Group.All, XSI_OpenAttrs {
         val minOccurs: Nothing? get() = null
         val maxOccurs: Nothing? get() = null

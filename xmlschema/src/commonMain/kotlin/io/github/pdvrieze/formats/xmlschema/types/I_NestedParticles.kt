@@ -20,16 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+interface I_NestedParticles : I_NestedAllParticles {
+    val choices: List<T_Choice>
+    val sequences: List<T_Sequence>
+}
 
-interface T_Particle {
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
-//        get() = 1.toULong()
+interface I_NestedAllParticles {
+    val elements: List<T_LocalElement>
+    val groups: List<T_GroupRef>
+    val anys: List<T_AnyElement>
+}
 
-    /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
-//        get() = T_AllNNI(1)
-
-    interface Group: T_Particle
+interface I_GroupParticles {
+    val choices: List<T_Choice>
+    val sequences: List<T_Sequence>
+    val alls: List<T_All>
 }

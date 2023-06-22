@@ -14,14 +14,18 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
+package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.types.T_Key
-import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
-import io.github.pdvrieze.formats.xmlschema.types.T_Unique
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
 
-interface GX_IdentityConstraints {
-    val uniques: List<T_Unique>
-    val keys: List<T_Key>
-    val keyrefs: List<T_KeyRef>
+/**
+ * (attribute | attributeGroup)* anyAttribute*
+ */
+interface I_AttributeContainer {
+    val attributes: List<T_LocalAttribute>
+    /** Name elements AttributeGroup */
+    val attributeGroups: List<T_AttributeGroupRef>
+    val anyAttribute: XSAnyAttribute?
 }

@@ -26,13 +26,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, G_Redefinable.AttributeGroup, XSI_Annotated {
+) : ResolvedPart, T_AttributeGroupBase, XSI_Annotated {
     abstract override val rawPart: XSAttributeGroup
 }
 

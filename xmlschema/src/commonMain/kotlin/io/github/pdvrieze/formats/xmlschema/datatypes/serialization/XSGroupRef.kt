@@ -19,11 +19,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_GroupRefParticle
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -35,6 +34,17 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroupRef(
     override val id: VID?,
+    override val ref: @Serializable(QNameSerializer::class) QName,
+    @XmlBefore("*")
+    override val annotation: XSAnnotation? = null,
+    @XmlOtherAttributes
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+) : T_GroupRef, XSI_Annotated
+
+@Serializable
+@XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+class XSGroupRefParticle(
+    override val id: VID?,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
     override val ref: @Serializable(QNameSerializer::class) QName,
@@ -42,4 +52,4 @@ class XSGroupRef(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-): T_GroupRef, G_TypeDefParticle.Group, G_NestedParticle.Group, G_Particle.Group
+) : T_GroupRefParticle

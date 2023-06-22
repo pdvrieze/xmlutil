@@ -22,8 +22,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -63,7 +61,7 @@ class XSLocalElement(
     override val keyrefs: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-) : T_LocalElement, G_NestedParticle.Element, G_Particle.Element {
+) : T_LocalElement {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

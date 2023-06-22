@@ -20,9 +20,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
-
-interface T_Choice : T_ExplicitGroup, G_TypeDefParticle.Choice, G_NestedParticle.Choice, G_Particle.All
+interface T_Choice : T_ExplicitGroup
 

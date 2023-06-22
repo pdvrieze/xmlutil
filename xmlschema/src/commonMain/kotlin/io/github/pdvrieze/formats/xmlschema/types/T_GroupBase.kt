@@ -16,4 +16,3 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_GroupBase: XSI_Annotated

@@ -14,25 +14,27 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-/**
- * `complexType` uses this.
- *
- * Choice: T_GroupRef, E_All, E_Choice, E_Sequence
- */
-interface G_TypeDefParticle {
+@Suppress("unused")
+@Serializable
+enum class XSAttrUse {
+    @SerialName("optional")
+    @XmlSerialName("optional", "", "")
+    OPTIONAL,
 
-    val typeDefParticle: Base
+    @SerialName("prohibited")
+    @XmlSerialName("optional", "", "")
+    PROHIBITED,
 
-    interface Base
-    sealed interface SealedBase : Base
-
-    interface Group : SealedBase, T_GroupRef
-    interface All : SealedBase
-    interface Choice : SealedBase
-    interface Sequence : SealedBase
+    @SerialName("required")
+    @XmlSerialName("optional", "", "")
+    REQUIRED
 }
 

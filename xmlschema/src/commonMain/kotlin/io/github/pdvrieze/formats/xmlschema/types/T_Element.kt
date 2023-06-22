@@ -17,15 +17,11 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_IdentityConstraints
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element: GX_IdentityConstraints, T_Particle, XSI_Annotated, I_OptNamedAttrs {
-    val localType: Type?
-//    val simpleTypes: List<T_LocalSimpleType>
-//
-//    val complexTypes: List<T_ComplexType_Base>
+interface T_Element : T_Particle, XSI_Annotated, I_OptNamedAttrs {
+    val localType: T_Type?
 
     val alternatives: List<T_AltType>
 
@@ -49,13 +45,15 @@ interface T_Element: GX_IdentityConstraints, T_Particle, XSI_Annotated, I_OptNam
     val block: T_BlockSet?
 
     val form: T_FormChoice?
-    
-    override val keyrefs: List<T_KeyRef>
+
+    val keyrefs: List<T_KeyRef>
+
     override val name: VNCName?
+
     val ref: QName?
 
-    interface Type: T_Type
+    val uniques: List<T_Unique>
 
-    interface Complex: Type
-    interface Simple: Type
+    val keys: List<T_Key>
+
 }

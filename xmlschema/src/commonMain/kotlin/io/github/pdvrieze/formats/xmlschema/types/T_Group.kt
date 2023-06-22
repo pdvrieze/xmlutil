@@ -19,23 +19,19 @@ package io.github.pdvrieze.formats.xmlschema.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 
 /** Base for XS_Group */
-interface T_Group: T_GroupBase {
-    val particles: List<Particle>
+interface T_Group: XSI_Annotated {
 
-    sealed interface Particle
-    interface All: Particle, G_Particle.All {
+    interface All {
         val elements: List<XSLocalElement>
         val anys: List<XSAny>
         val groups: List<XSGroupRef>
 
     }
-    interface Group: Particle, G_Particle.Group
-    interface Choice: Particle, G_Particle.Choice
-    interface Sequence: Particle, G_Particle.Sequence
-    interface Any: Particle, G_Particle.Any
-    interface Element: Particle, G_Particle.Element
+    interface Group: T_GroupRef
+    interface Choice
+    interface Sequence
+    interface Element: T_LocalElement
 
 }
