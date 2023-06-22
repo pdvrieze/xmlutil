@@ -3,6 +3,7 @@ Features:
 - Support detecting duplicate elements outside of list context #145. This
   is not default behaviour as it is somewhat up to the serializer to deal
   with duplicate values, rather than the format.
+- Update to Kotlinx.serialization 1.5.1
 
 Fixes:
 - Fix decoding of nil elements in certain cases (lists) where the end of the tag
