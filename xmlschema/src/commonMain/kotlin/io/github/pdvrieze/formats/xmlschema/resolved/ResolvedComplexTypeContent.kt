@@ -180,7 +180,7 @@ class ResolvedComplexShorthandContent(
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    override val openContents: List<XSOpenContent> get() = rawPart.openContents
+    val openContents: List<XSOpenContent> get() = rawPart.openContents
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super.check()

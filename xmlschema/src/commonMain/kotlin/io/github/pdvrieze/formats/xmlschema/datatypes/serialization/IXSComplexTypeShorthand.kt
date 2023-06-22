@@ -37,4 +37,6 @@ sealed interface IXSComplexTypeShorthand:
     override val attributes: List<XSLocalAttribute>
 
     override val attributeGroups: List<XSAttributeGroupRef>
+
+    val openContents: List<XSOpenContent>
 }

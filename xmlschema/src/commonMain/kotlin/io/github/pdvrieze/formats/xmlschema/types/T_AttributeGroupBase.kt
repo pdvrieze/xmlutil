@@ -16,7 +16,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
-
-interface T_AttributeGroupBase: G_AttrDecls {
+interface T_AttributeGroupBase: I_AttributeContainer {
 }

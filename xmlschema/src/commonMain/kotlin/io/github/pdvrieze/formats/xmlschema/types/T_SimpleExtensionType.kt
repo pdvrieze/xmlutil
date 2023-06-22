@@ -16,12 +16,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import nl.adaptivity.xmlutil.QName
 
 interface T_SimpleExtensionType : T_ExtensionType,
     T_ComplexType.SimpleDerivationBase,
-    G_SimpleDerivation.Extension,
     T_ComplexExtensionType {
     // TODO remove inheritance of complexExtension
 
@@ -37,7 +35,6 @@ interface T_SimpleExtensionType : T_ExtensionType,
 
 interface T_SimpleRestrictionType : T_ExtensionType,
     T_ComplexType.SimpleDerivationBase,
-    G_SimpleDerivation.Restriction,
     T_ComplexRestrictionType {
     // TODO remove inheritance of complexExtension
 

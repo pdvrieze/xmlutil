@@ -24,10 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.types.T_AltType
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
-import io.github.pdvrieze.formats.xmlschema.types.T_Element
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element {
@@ -54,7 +51,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     }
     override val id: VID? get() = rawPart.id
 
-    override val localType: T_Element.Type?
+    override val localType: T_Type?
         get() = rawPart.localType
 
     override val name: VNCName get() = rawPart.name ?: error("Missing name")
