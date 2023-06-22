@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ProcessContents
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_QNameListA
+import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
 
 interface WildcardModel : IAnnotated {
     val mdlNamespaceConstraint: Set<NamespaceConstraint>

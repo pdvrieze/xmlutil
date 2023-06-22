@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, ResolvedPart {

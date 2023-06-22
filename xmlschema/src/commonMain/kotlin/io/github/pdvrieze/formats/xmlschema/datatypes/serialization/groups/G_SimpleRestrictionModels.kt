@@ -17,7 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 

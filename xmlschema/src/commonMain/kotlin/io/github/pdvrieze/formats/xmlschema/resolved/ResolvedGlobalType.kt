@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedType
+import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 
 sealed interface ResolvedGlobalType : ResolvedType, NamedPart, T_NamedType {
     override val rawPart: T_NamedType

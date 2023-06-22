@@ -21,8 +21,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SchemaTop
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Public
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.T_Public
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer

@@ -16,9 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Key
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_KeyRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Unique
+import io.github.pdvrieze.formats.xmlschema.types.T_Key
+import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
+import io.github.pdvrieze.formats.xmlschema.types.T_Unique
 
 interface GX_IdentityConstraints {
     val uniques: List<T_Unique>
