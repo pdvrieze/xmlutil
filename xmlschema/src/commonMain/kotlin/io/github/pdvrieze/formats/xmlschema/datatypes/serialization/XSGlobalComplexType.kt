@@ -19,7 +19,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -48,7 +47,7 @@ abstract class XSGlobalComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSComplexType, T_GlobalComplexType_Base, G_Redefinable.ComplexType {
+) : XSComplexType, T_GlobalComplexType_Base {
     abstract override val content: IXSComplexContent
 
     override val targetNamespace: Nothing? get() = null

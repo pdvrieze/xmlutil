@@ -20,7 +20,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -57,7 +56,7 @@ class XSElement(
     override val keyrefs: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-): G_SchemaTop.Element {
+): T_GlobalElement {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

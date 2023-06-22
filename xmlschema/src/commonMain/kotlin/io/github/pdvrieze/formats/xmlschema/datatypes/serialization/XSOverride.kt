@@ -19,8 +19,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -37,13 +35,13 @@ class XSOverride(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
-    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
-    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
-    override val groups: List<XSGroup> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
-    override val elements: List<XSElement> = emptyList(),
-    override val attributes: List<XSGlobalAttribute> = emptyList(),
-    override val notations: List<XSNotation> = emptyList(),
+    val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+    val complexTypes: List<XSGlobalComplexType> = emptyList(),
+    val groups: List<XSGroup> = emptyList(),
+    val attributeGroups: List<XSAttributeGroup> = emptyList(),
+    val elements: List<XSElement> = emptyList(),
+    val attributes: List<XSGlobalAttribute> = emptyList(),
+    val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
-): XSI_Annotated, GX_SchemaTop, G_Composition.Override
+): XSI_Annotated

@@ -20,16 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import nl.adaptivity.xmlutil.QName
 
-interface T_Particle {
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
-//        get() = 1.toULong()
+interface T_GroupRefParticle : T_RealGroup, XSI_Annotated, T_Particle {
+    val ref: QName // required
 
-    /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
-//        get() = T_AllNNI(1)
+    val name: Nothing? get() = null
 
-    interface Group: T_Particle
+    val particles: List<T_RealGroup.Particle> get() = emptyList()
 }

@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 
-sealed interface XSComplexType: T_ComplexType, G_Redefinable.ComplexType
+sealed interface XSComplexType: T_ComplexType

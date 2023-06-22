@@ -34,7 +34,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 
 @Serializable(XSLocalType.Serializer::class)
-sealed class XSLocalType: T_LocalType, T_Element.Type, XSI_Annotated {
+sealed class XSLocalType: T_LocalType, XSI_Annotated {
 
     companion object Serializer: KSerializer<XSLocalType> {
         @OptIn(InternalSerializationApi::class)

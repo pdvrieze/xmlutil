@@ -20,9 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import nl.adaptivity.xmlutil.QName
 
-interface T_KeyRef : T_IdentityConstraint, G_IdentityConstraint.Keyref {
+interface T_KeyRef : T_IdentityConstraint {
     val refer: QName
 }

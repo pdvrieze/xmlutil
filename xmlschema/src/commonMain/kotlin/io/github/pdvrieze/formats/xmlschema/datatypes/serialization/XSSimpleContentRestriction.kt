@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
+import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleRestrictionType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleContentRestriction: XSSimpleContentDerivation, G_AttrDecls, SimpleRestrictionModel,
+class XSSimpleContentRestriction: XSSimpleContentDerivation, I_AttributeContainer, SimpleRestrictionModel,
     T_SimpleRestrictionType {
 
     constructor(

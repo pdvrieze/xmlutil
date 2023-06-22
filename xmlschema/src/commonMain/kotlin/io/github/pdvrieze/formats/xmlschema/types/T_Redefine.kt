@@ -21,9 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Composition
 
-interface T_Redefine : XSI_Annotated, G_Composition.Redefine {
+interface T_Redefine : XSI_Annotated {
     val simpleTypes: List<T_GlobalSimpleType>
     val complexTypes: List<T_GlobalComplexType_Base>
     val groups: List<T_NamedGroup>

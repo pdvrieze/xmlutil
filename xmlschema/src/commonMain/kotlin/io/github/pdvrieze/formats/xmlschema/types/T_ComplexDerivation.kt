@@ -17,11 +17,10 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_TypeDefParticles
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_AttrDecls
 
-interface T_ComplexDerivation : GX_TypeDefParticles, G_AttrDecls, I_Assertions, T_Derivation {
+interface T_ComplexDerivation : T_ComplexType.ParticleProperties,
+    I_AttributeContainer, I_Assertions, T_Derivation {
     val openContents: List<XSOpenContent>
 }
 

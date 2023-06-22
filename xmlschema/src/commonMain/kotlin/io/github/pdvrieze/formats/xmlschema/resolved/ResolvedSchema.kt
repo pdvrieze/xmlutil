@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -51,7 +50,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     override val attributeGroups: List<ResolvedToplevelAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedToplevelAttributeGroup(it, this) }
     override val groups: List<ResolvedToplevelGroup> get() = DelegateList(rawPart.groups) { ResolvedToplevelGroup(it, this) }
     val notations: List<XSNotation> get() = rawPart.notations
-    val identityConstraints: List<G_IdentityConstraint.Base> get() = TODO("Delegate list of identity constraints")
+    val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
 
     val attributeFormDefault: T_FormChoice
         get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED

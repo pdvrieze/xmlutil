@@ -23,15 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRefParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, ResolvedPart {
-    abstract override val rawPart: T_Group
+sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealGroup, ResolvedPart {
+    abstract override val rawPart: XSI_Annotated
     final override val id: VID?
         get() = rawPart.id
     final override val otherAttrs: Map<QName, String>
@@ -43,7 +43,7 @@ sealed class ResolvedGroup(override val schema: ResolvedSchemaLike): T_Group, Re
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     schema: ResolvedSchemaLike
-): ResolvedGroup(schema), ResolvedParticle, T_GroupRef {
+): ResolvedGroupBase(schema), T_GroupRef {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref
@@ -51,8 +51,27 @@ class ResolvedGroupRef(
     override val annotation: XSAnnotation?
         get() = referencedGroup.annotation
 
-    override val particles: List<T_RealGroup.RG_Particle>
-        get() = referencedGroup.particles
+    override val particle: T_RealGroup.Particle
+        get() = referencedGroup.particle
+
+    override fun check() {
+        referencedGroup.check()
+    }
+}
+
+class ResolvedGroupRefParticle(
+    override val rawPart: XSGroupRefParticle,
+    schema: ResolvedSchemaLike
+): ResolvedGroupBase(schema), ResolvedParticle, T_GroupRef {
+    val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
+
+    override val ref: QName get() = rawPart.ref
+
+    override val annotation: XSAnnotation?
+        get() = referencedGroup.annotation
+
+    override val particle: T_RealGroup.Particle
+        get() = referencedGroup.particle
 
     override fun check() {
         referencedGroup.check()
@@ -62,7 +81,7 @@ class ResolvedGroupRef(
 class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
-): ResolvedGroup(schema), NamedPart, T_NamedGroup {
+): ResolvedGroupBase(schema), NamedPart, T_NamedGroup {
     override fun check() {
 //        TODO("not implemented")
     }
@@ -70,7 +89,7 @@ class ResolvedToplevelGroup(
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
-    override val particle: T_NamedGroup.NG_Particle
+    override val particle: T_NamedGroup.Particle
         get() = rawPart.particle
 
     override val name: VNCName

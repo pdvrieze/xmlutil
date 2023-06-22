@@ -17,12 +17,11 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleDerivation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
-interface T_LocalSimpleType: T_SimpleType, T_LocalType, T_Element.Simple {
+interface T_LocalSimpleType: T_SimpleType, T_LocalType {
     override val name: Nothing?
     override val simpleDerivation: T_SimpleType.Derivation
 
@@ -33,26 +32,26 @@ interface T_GlobalSimpleType: T_SimpleType, T_TopLevelType {
     val final: Set<T_SimpleDerivationSetElem>
 }
 
-interface T_SimpleType: T_SimpleBaseType, G_SimpleDerivation {
-    override val simpleDerivation: Derivation
+interface T_SimpleType: T_SimpleBaseType {
+    val simpleDerivation: Derivation
 
-    interface Derivation : XSI_Annotated, G_SimpleDerivation.Base {
+    interface Derivation : XSI_Annotated {
 
     }
 
     sealed interface DerivationBase: Derivation
 
-    interface T_Restriction: T_RestrictionType, DerivationBase, G_SimpleDerivation.Restriction {
+    interface T_Restriction: T_RestrictionType, DerivationBase {
         override val facets: List<XSFacet>
         override val simpleType: T_LocalSimpleType?
     }
 
-    interface T_List: DerivationBase, G_SimpleDerivation.List {
+    interface T_List: DerivationBase {
         val itemTypeName: @Serializable(with = QNameSerializer::class) QName?
         val simpleType: T_LocalSimpleType?
     }
 
-    interface T_Union: DerivationBase, G_SimpleDerivation.Union {
+    interface T_Union: DerivationBase {
         val simpleTypes: List<T_LocalSimpleType>
 
         val memberTypes: List<@Serializable(with = QNameSerializer::class) QName>?

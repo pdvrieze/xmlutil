@@ -20,8 +20,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_IdentityConstraint
-import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.T_Key
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

@@ -21,8 +21,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Compositions
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import kotlinx.serialization.Serializable
@@ -60,27 +58,27 @@ class XSSchema(
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
     val lang: VLanguage? = null,
 
-    override val includes: List<XSInclude> = emptyList(),
-    override val imports: List<XSImport> = emptyList(),
-    override val redefines: List<XSRedefine> = emptyList(),
-    override val overrides: List<XSOverride> = emptyList(),
-    override val annotation: XSAnnotation? = null,
+    val includes: List<XSInclude> = emptyList(),
+    val imports: List<XSImport> = emptyList(),
+    val redefines: List<XSRedefine> = emptyList(),
+    val overrides: List<XSOverride> = emptyList(),
+    val annotation: XSAnnotation? = null,
 
 
     @XmlAfter("includes", "imports", "redefines", "overrides")
     @XmlBefore("simpleTypes", "complexTypes", "groups", "attributeGroups", "elements", "attributes", "notations")
     val defaultOpenContent: List<XSDefaultOpenContent> = emptyList(),
 
-    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
-    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
-    override val groups: List<XSGroup> = emptyList(),
-    override val elements: List<XSElement> = emptyList(),
-    override val attributes: List<XSGlobalAttribute> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
-    override val notations: List<XSNotation> = emptyList(),
+    val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+    val complexTypes: List<XSGlobalComplexType> = emptyList(),
+    val groups: List<XSGroup> = emptyList(),
+    val elements: List<XSElement> = emptyList(),
+    val attributes: List<XSGlobalAttribute> = emptyList(),
+    val attributeGroups: List<XSAttributeGroup> = emptyList(),
+    val notations: List<XSNotation> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_OpenAttrs, GX_Compositions, GX_SchemaTop {
+) : XSI_OpenAttrs {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
