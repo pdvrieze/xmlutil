@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
+import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 
 /**
  * XS_SimpleContent | XS_ComplexContent | (XS_OpenContent* G_TypeDefParticle* G_AttrDecls G_Assertions )
@@ -31,7 +32,7 @@ interface G_ComplexTypeModel {
     interface SimpleContent: SealedBase
     interface ComplexContent: SealedBase
 
-    interface Shorthand: SealedBase, GX_TypeDefParticles, G_AttrDecls, G_Assertions {
+    interface Shorthand: SealedBase, GX_TypeDefParticles, G_AttrDecls, I_Assertions {
         val openContents: List<XSOpenContent>
     }
 }

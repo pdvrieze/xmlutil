@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleDerivationSetElem
+import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 
 fun builtinType(localName: String, targetNamespace: String): Datatype? {

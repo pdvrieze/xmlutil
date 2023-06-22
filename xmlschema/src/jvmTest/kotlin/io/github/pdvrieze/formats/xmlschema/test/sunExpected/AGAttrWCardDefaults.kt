@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
 import nl.adaptivity.xmlutil.QName
 
 object AGAttrWCardDefaults {

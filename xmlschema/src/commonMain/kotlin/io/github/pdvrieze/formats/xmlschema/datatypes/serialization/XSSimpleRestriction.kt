@@ -18,8 +18,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer

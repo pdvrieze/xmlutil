@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel

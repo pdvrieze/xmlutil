@@ -16,8 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalElement
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
 
 /**
  * This group is for the elements which occur freely at the top level of schemas. All of their types

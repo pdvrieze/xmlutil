@@ -23,10 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Scope
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalElement
+import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(

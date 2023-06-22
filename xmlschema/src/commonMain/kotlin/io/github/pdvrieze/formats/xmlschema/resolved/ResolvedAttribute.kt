@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeBase
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(

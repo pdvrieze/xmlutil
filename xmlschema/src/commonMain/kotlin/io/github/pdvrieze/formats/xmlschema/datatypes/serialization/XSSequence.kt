@@ -20,9 +20,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ExplicitGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Sequence
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroup
+import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName

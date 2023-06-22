@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
 interface ParticleModel: IAnnotated {
     val mdlMinOccurs: VNonNegativeInteger
