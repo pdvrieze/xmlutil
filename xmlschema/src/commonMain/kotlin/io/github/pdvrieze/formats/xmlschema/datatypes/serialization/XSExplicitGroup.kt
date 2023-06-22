@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ExplicitGroup
+import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroup
 
 interface XSExplicitGroup: T_ExplicitGroup {
     override val elements: List<XSLocalElement>

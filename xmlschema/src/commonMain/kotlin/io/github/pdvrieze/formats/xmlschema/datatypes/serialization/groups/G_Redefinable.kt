@@ -17,9 +17,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupBase
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Particle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupBase
+import io.github.pdvrieze.formats.xmlschema.types.T_Particle
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 /**

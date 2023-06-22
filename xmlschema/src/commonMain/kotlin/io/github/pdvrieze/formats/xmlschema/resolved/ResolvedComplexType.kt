@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
