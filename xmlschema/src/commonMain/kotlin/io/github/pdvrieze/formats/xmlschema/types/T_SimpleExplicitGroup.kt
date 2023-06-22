@@ -16,8 +16,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_NestedParticles
-
-interface T_SimpleExplicitGroup: T_GroupBase, GX_NestedParticles {
+interface T_SimpleExplicitGroup: XSI_Annotated, I_NestedParticles {
 
 }

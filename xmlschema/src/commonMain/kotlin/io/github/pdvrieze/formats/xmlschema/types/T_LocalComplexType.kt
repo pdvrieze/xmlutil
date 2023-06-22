@@ -16,9 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
-
-interface T_LocalComplexType_Base: T_ComplexType, T_LocalType, G_Redefinable.ComplexType
+interface T_LocalComplexType_Base: T_ComplexType, T_LocalType
 
 sealed interface T_LocalComplexType_SealedBase: T_LocalComplexType_Base
 

@@ -18,18 +18,17 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-interface T_Particle {
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
-//        get() = 1.toULong()
+@Suppress("unused")
+@Serializable
+enum class XSScopeVariety {
+    @SerialName("global")
+    GLOBAL,
 
-    /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
-//        get() = T_AllNNI(1)
-
-    interface Group: T_Particle
+    @SerialName("local")
+    LOCAL
 }

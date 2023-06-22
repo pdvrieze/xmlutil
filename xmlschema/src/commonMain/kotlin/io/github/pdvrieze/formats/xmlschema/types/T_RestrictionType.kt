@@ -20,8 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SimpleRestrictionModels
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.util.CompactFragment
 
-interface T_RestrictionType : T_DerivationSealedBase, G_SimpleRestrictionModels {
+interface T_RestrictionType : T_DerivationSealedBase {
+    val simpleType: T_LocalSimpleType?
+    val facets: List<XSFacet>
 
+    @XmlValue(true)
+    val otherContents: List<CompactFragment>
 }

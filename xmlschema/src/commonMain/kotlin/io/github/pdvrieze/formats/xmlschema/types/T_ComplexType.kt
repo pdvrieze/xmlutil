@@ -16,9 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 
-interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
+interface T_ComplexType : T_Type {
     /**
      * May not have simpleContent child
      */
@@ -28,12 +28,13 @@ interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
     val defaultAttributesApply: Boolean? // default true
 
     /** Either this or shorthand content */
-    override val content: Content
+    val content: Content
 
-    interface Content : G_ComplexTypeModel.Base
+    interface Content
 
-    sealed interface ContentSealed: Content
-    interface SimpleContent : ContentSealed, G_ComplexTypeModel.SimpleContent {
+    sealed interface ContentSealed : Content
+
+    interface SimpleContent : ContentSealed {
         val derivation: SimpleDerivation
     }
 
@@ -41,27 +42,32 @@ interface T_ComplexType: T_Type, G_ComplexTypeModel, T_Element.Complex {
 
     }
 
-    sealed interface SimpleDerivationBase: SimpleDerivation
+    sealed interface SimpleDerivationBase : SimpleDerivation
 
-    interface ComplexContent : ContentSealed, G_ComplexTypeModel.ComplexContent {
+    interface ComplexContent : ContentSealed {
         val derivation: T_ComplexDerivation
     }
 
-    interface ShorthandContent :
-        ContentSealed,
-        G_ComplexTypeModel.Shorthand
+    interface ShorthandContent : ContentSealed,
+        ParticleProperties, I_AttributeContainer, I_Assertions
 
-    interface Simple: T_ComplexType {
+    interface Simple : T_ComplexType {
         override val content: SimpleContent
     }
 
-    interface Complex: T_ComplexType {
+    interface Complex : T_ComplexType {
         override val content: ComplexContent
     }
 
-    interface Shorthand: T_ComplexType, ShorthandContent {
+    interface Shorthand : T_ComplexType, ShorthandContent {
         override val content: ShorthandContent get() = this
     }
 
+    interface ParticleProperties {
+        val groups: List<T_GroupRef>
+        val alls: List<T_All>
+        val choices: List<T_Choice>
+        val sequences: List<T_Sequence>
+    }
 }
 

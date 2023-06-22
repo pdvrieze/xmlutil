@@ -18,11 +18,11 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import nl.adaptivity.xmlutil.QName
 
-interface T_GroupRef : T_RealGroup, XSI_Annotated, T_Particle {
+interface T_GroupRef : T_RealGroup, XSI_Annotated {
     val ref: QName // required
 
     val name: Nothing? get() = null
 
-    override val particle: T_RealGroup.RG_Particle? get() = null
-    override val particles: List<T_RealGroup.RG_Particle> get() = emptyList()
+    val particle: T_RealGroup.Particle? get() = null
 }
+
