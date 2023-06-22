@@ -5,6 +5,8 @@ Features:
   with duplicate values, rather than the format.
 
 Fixes:
+- Fix decoding of nil elements in certain cases (lists) where the end of the tag
+  wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.
 - Fix accidental immediate emission of xsi:nil elements (rather than deferring
   as expected #152).
 - Add expected key name to the error message when it couldn't be found for a

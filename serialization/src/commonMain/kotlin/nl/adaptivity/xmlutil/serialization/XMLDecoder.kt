@@ -145,6 +145,15 @@ internal open class XmlDecoderBase internal constructor(
             return input.eventType != EventType.END_DOCUMENT
         }
 
+        override fun decodeNull(): Nothing? {
+            if (hasNullMark()) { // we have a nullable element marked nil using a nil attribute
+                input.nextTag()
+                input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                return null
+            }
+            return super.decodeNull()
+        }
+
         @ExperimentalSerializationApi
         override fun decodeInline(descriptor: SerialDescriptor): Decoder {
             triggerInline = true
@@ -559,7 +568,7 @@ internal open class XmlDecoderBase internal constructor(
 
             if (hasNullMark()) { // process the element
                 if (input.nextTag() != EventType.END_ELEMENT)
-                    throw SerializationException("Elements with nill tags may not have content")
+                    throw SerializationException("Elements with nil tags may not have content")
                 return null
             }
 
