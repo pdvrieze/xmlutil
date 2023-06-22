@@ -22,8 +22,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_NestedParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer

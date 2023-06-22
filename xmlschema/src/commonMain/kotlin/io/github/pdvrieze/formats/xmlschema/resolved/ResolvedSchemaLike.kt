@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI

@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute(

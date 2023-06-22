@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.types.*
 
 /**
  * Choice: T_LocalElement, T_GroupRef, E_Choice, E_Sequence, E_Any

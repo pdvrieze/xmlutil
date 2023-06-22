@@ -21,9 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Element
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.T_Element
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SealedClassSerializer

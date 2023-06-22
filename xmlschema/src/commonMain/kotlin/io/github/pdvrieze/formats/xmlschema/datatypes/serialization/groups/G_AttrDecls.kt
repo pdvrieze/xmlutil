@@ -17,8 +17,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalAttribute
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
 
 /**
  * (attribute | attributeGroup)* anyAttribute*

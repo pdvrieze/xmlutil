@@ -23,7 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLangua
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_Compositions
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.GX_SchemaTop
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
