@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_NamedType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType {

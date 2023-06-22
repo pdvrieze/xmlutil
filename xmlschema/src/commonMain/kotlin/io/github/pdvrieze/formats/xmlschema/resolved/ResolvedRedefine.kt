@@ -24,10 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Include
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Redefine
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Include
+import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedInclude(

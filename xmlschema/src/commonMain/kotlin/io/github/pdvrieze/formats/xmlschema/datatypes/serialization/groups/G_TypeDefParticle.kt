@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GroupRef
+import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
 
 /**
  * `complexType` uses this.

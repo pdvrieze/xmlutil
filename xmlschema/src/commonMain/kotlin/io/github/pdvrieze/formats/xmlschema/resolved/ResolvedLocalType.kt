@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_LocalType
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 
 fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike): ResolvedLocalType {
     return when (rawPart) {

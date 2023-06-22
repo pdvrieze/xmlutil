@@ -25,10 +25,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Scope
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_GlobalElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.toDerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Scope
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
+import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalElement(

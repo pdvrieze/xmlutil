@@ -23,10 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_KeyRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_IdentityConstraint
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Key
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Unique
+import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
+import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.types.T_Key
+import io.github.pdvrieze.formats.xmlschema.types.T_Unique
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedIdentityConstraint(

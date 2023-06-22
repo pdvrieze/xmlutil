@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSScopeVariety
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 
 interface ElementModel : IAnnotated, INamed {
 

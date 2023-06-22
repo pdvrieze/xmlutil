@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSExplicitGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
+import io.github.pdvrieze.formats.xmlschema.types.*
 
 sealed class ResolvedExplicitGroup(
     parent: ResolvedType,

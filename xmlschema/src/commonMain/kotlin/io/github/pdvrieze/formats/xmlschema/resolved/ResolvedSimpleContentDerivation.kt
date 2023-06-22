@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Type
+import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.types.T_Type
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchemaLike) : ResolvedPart,

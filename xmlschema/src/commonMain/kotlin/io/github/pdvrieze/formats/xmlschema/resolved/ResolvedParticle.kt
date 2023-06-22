@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.T_Particle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_Particle
 
 interface ResolvedParticle : T_Particle {
     val rawPart: T_Particle
