@@ -21,11 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Particle
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_TypeDefParticle
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-@XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSLocalAll(): G_TypeDefParticle.All, G_Particle.All
+@XmlSerialName("valueConstraint", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+class XSValueConstraint private constructor(
+    val variety: XSValueConstraintVariety,
+    val value: String,
+    val lexicalForm: String
+)

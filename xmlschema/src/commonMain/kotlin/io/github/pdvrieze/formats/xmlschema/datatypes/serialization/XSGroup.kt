@@ -21,8 +21,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_Redefinable
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
+import io.github.pdvrieze.formats.xmlschema.types.T_Particle
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -37,19 +37,18 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSGroup(
     override val name: VNCName,
     override val id: VID? = null,
-    override val ref: QName? = null,
     override val particle: XSGroupParticle,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : G_Redefinable.Group, T_NamedGroup {
+) : T_Particle, T_NamedGroup {
     override val minOccurs: Nothing? get() = null
     override val maxOccurs: Nothing? get() = null
     override val targetNamespace: Nothing? get() = null
 
     @Serializable
-    sealed class XSGroupParticle : T_NamedGroup.NG_Particle
+    sealed class XSGroupParticle : T_NamedGroup.Particle
 
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable

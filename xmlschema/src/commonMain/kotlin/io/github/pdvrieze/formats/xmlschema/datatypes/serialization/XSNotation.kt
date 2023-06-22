@@ -20,7 +20,6 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.groups.G_SchemaTop
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.types.T_Public
 import kotlinx.serialization.Serializable
@@ -42,4 +41,4 @@ class XSNotation(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : G_SchemaTop.Notation, XSI_Annotated
+) : XSI_Annotated

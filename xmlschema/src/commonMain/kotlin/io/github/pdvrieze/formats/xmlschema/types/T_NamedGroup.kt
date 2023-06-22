@@ -16,21 +16,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-
 interface T_NamedGroup: T_RealGroup, I_NamedAttrs {
-    override val particle: NG_Particle
+    val particle: Particle
 
     val minOccurs: Nothing? get() = null
     val maxOccurs: Nothing? get() = null
 
-    interface NG_Particle : T_RealGroup.RG_Particle
+    interface Particle : T_RealGroup.Particle
     interface All : T_RealGroup.All {
     }
     interface Choice : T_RealGroup.Choice
