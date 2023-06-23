@@ -21,5 +21,5 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 interface ChoiceModel: ModelGroupModel, ModelGroupModel.InclContent {
-    override val term: ModelGroupModel.InclContent
+    override val mdlTerm: ModelGroupModel.InclContent
 }

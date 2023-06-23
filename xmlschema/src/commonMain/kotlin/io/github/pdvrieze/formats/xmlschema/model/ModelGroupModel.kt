@@ -22,8 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 interface ModelGroupModel: IAnnotated, ParticleModel {
     val mdlCompositor: Compositor
-    val particles: List<ParticleModel.Term>
-    val term: ParticleModel.Term
+    val mdlParticles: List<ParticleModel.Term>
 
     enum class Compositor { ALL, CHOICE, SEQUENCE }
 

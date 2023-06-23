@@ -21,5 +21,5 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 interface AllModel: ModelGroupModel {
-    override val term: ModelGroupModel.AllContent
+    override val mdlTerm: ModelGroupModel.AllContent
 }
