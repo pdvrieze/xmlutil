@@ -20,9 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
 import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.T_Key
@@ -32,16 +36,27 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedIdentityConstraint(
     override val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
-) : OptNamedPart, T_IdentityConstraint {
+) : OptNamedPart, T_IdentityConstraint, IdentityConstraintModel {
     abstract override val rawPart: T_IdentityConstraint
     override val name: VNCName? get() = rawPart.name
+
+    override val mdlName: VNCName
+        get() = checkNotNull(rawPart.name)
+    override val mdlTargetNamespace: VAnyURI?
+        get() = schema.targetNamespace
+    override val mdlAnnotations: List<AnnotationModel>
+        get() = rawPart.annotation.models()
+    override val mdlSelector: XPathExpression
+        get() = XPathExpression(rawPart.selector.xpath.xmlString)
+    override val mdlFields: List<XPathExpression>
+        get() = rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
 }
 
 class ResolvedKeyRef(
     override val rawPart: T_KeyRef,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIdentityConstraint(schema, owner), OptNamedPart, T_KeyRef {
+): ResolvedIdentityConstraint(schema, owner), OptNamedPart, T_KeyRef, IdentityConstraintModel.KeyRef {
     override val id: VID? get() = rawPart.id
 
     override val name: VNCName get() = checkNotNull(rawPart.name)
@@ -53,13 +68,24 @@ class ResolvedKeyRef(
     }
 
 
-    override val selector: XSSelector? get() = rawPart.selector
+    override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName?
         get() = rawPart.ref
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+
+    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
+        get() = IdentityConstraintModel.Category.KEYREF
+
+    override val mdlReferencedKey: IdentityConstraintModel.ReferenceableConstraint
+        get() = schema.identityConstraint(refer).let {
+            check (it is IdentityConstraintModel.ReferenceableConstraint) {
+                "keyref can only refer to key or unique elements, not to other keyrefs"
+            }
+            it
+        }
 
     override fun check() {
         super<ResolvedIdentityConstraint>.check()
@@ -78,13 +104,15 @@ class ResolvedKey(
 
     override val name: VNCName get() = checkNotNull(rawPart.name)
 
-    override val selector: XSSelector? get() = rawPart.selector
+    override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName?
         get() = rawPart.ref
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
+        get() = IdentityConstraintModel.Category.KEY
 
     override fun check() {
         super<ResolvedIdentityConstraint>.check()
@@ -102,12 +130,15 @@ class ResolvedUnique(
 
     override val name: VNCName get() = checkNotNull(rawPart.name)
 
-    override val selector: XSSelector? get() = rawPart.selector
+    override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
     override val ref: QName? get() = rawPart.ref
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+
+    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
+        get() = IdentityConstraintModel.Category.UNIQUE
 
     override fun check() {
         super<ResolvedIdentityConstraint>.check()

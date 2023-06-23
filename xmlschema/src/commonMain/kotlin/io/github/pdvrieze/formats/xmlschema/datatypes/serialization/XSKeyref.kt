@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("keyref", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSKeyref(
-    override val selector: XSSelector? = null,
+    override val selector: XSSelector,
     override val fields: List<XSField> = emptyList(),
     override val name: VNCName? = null,
     override val ref: QName? = null,
