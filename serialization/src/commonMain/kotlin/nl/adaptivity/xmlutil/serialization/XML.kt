@@ -1052,7 +1052,7 @@ public class XML constructor(
 
 
     @ExperimentalXmlUtilApi
-    public data class ParsedData<T>(public val elementIndex: Int, public val value: T)
+    public data class ParsedData<T>(public val elementIndex: Int, public val value: T, val unParsed: Boolean=false)
 
 }
 

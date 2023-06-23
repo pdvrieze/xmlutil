@@ -5,8 +5,12 @@ Features:
   with duplicate values, rather than the format.
 - Update to Kotlinx.serialization 1.5.1
 - Add SerializableQName as an alias that links is to the serializer.
+- Add a helper function `XmlSerializationPolicy.recoverNullNamespaceUse` that
+  can be used to support recovering in case of null namespaces (and them
+  effectively functioning as wildcard)
 
 Fixes:
+- Fix recovery of element children (#160).
 - Fix decoding of nil elements in certain cases (lists) where the end of the tag
   wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.
 - Fix accidental immediate emission of xsi:nil elements (rather than deferring

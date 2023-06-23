@@ -71,15 +71,7 @@ class RecoveryTest {
                     name: QName?,
                     candidates: Collection<Any>
                 ): List<XML.ParsedData<*>> {
-                    for (idx in 0 until descriptor.elementsCount) {
-                        val candidate = descriptor.getElementDescriptor(idx)
-                        if (inputKind.mapsTo(candidate.effectiveOutputKind) && name!=null) {
-                            if (candidate.tagName.copy(namespaceURI="", prefix = "") == name &&
-                                QName("Stat").isEquivalent(name)) {
-                                return listOf(XML.ParsedData(idx, XML.decodeFromReader(Stat.serializer(), input, name)))
-                            }
-                        }
-                    }
+                    XmlSerializationPolicy.recoverNullNamespaceUse(inputKind, descriptor, name)?.let { return it }
                     return super.handleUnknownContentRecovering(input, inputKind, descriptor, name, candidates)
                 }
             }

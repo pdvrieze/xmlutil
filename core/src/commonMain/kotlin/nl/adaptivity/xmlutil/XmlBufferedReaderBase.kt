@@ -52,7 +52,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.ATTRIBUTE -> (current as Attribute).namespaceUri
             EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
             EventType.END_ELEMENT -> (current as EndElementEvent).namespaceUri
-            else -> throw XmlException("Attribute not defined here: namespaceUri")
+            else -> throw XmlException("Attribute not defined here: namespaceUri (current event: ${current?.eventType})")
         }
 
 

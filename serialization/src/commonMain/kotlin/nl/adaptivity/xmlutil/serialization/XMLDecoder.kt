@@ -412,8 +412,25 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    internal inner class TagDecoder<D: XmlDescriptor>(
+        xmlDescriptor: D,
+        typeDiscriminatorName: QName?
+    ) : TagDecoderBase<D>(xmlDescriptor, typeDiscriminatorName) {
+
+        private val readTagName = input.name
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            if (!decodeElementIndexCalled) {
+                val index = decodeElementIndex(descriptor)
+                if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
+            }
+            input.require(EventType.END_ELEMENT, readTagName)
+        }
+
+    }
+
     @OptIn(ExperimentalXmlUtilApi::class)
-    internal open inner class TagDecoder<D : XmlDescriptor>(
+    internal abstract inner class TagDecoderBase<D : XmlDescriptor>(
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput {
@@ -687,7 +704,13 @@ internal open class XmlDecoderBase internal constructor(
                         xmlDescriptor.getElementDescriptor(v)
                     )
                 } + polyMap.values)
-            ).let { pendingRecovery.addAll(it) }
+            ).let {
+                val singleParsed = it.singleOrNull()
+                if (singleParsed?.unParsed == true) { // Support index only returns
+                    return singleParsed.elementIndex
+                }
+                pendingRecovery.addAll(it)
+            }
 
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
@@ -991,7 +1014,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     internal inner class AttributeMapDecoder(xmlDescriptor: XmlAttributeMapDescriptor, val attrIndex: Int) :
-        TagDecoder<XmlAttributeMapDescriptor>(xmlDescriptor, null), Decoder {
+        TagDecoderBase<XmlAttributeMapDescriptor>(xmlDescriptor, null), Decoder {
 
         var correctStartIndex = -1
         var nextIndex: Int = 0
@@ -1087,7 +1110,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, attrIndex: Int) :
-        TagDecoder<XmlListDescriptor>(xmlDescriptor, null) {
+        TagDecoderBase<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
         private val attrValues = input.getAttributeValue(attrIndex)
             .split(*xmlDescriptor.delimiters)
@@ -1123,7 +1146,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlListDescriptor,
         private val polyInfo: PolyInfo?,
         typeDiscriminatorName: QName?,
-    ) : TagDecoder<XmlListDescriptor>(xmlDescriptor, typeDiscriminatorName) {
+    ) : TagDecoderBase<XmlListDescriptor>(xmlDescriptor, typeDiscriminatorName) {
 
         private val parentXmlDescriptor: XmlDescriptor get() = xmlDescriptor.tagParent.descriptor as XmlDescriptor
         private val listChildIdx: Int = (0 until parentXmlDescriptor.elementsCount)
@@ -1181,7 +1204,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     internal inner class NamedListDecoder(xmlDescriptor: XmlListDescriptor, typeDiscriminatorName: QName?) :
-        TagDecoder<XmlListDescriptor>(xmlDescriptor, typeDiscriminatorName) {
+        TagDecoderBase<XmlListDescriptor>(xmlDescriptor, typeDiscriminatorName) {
 
         private var childCount = 0
 
@@ -1218,7 +1241,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlMapDescriptor,
         private val polyInfo: PolyInfo?,
         typeDiscriminatorName: QName?,
-    ) : TagDecoder<XmlMapDescriptor>(xmlDescriptor, typeDiscriminatorName) {
+    ) : TagDecoderBase<XmlMapDescriptor>(xmlDescriptor, typeDiscriminatorName) {
 
         protected var lastIndex: Int = -1
 
@@ -1364,7 +1387,7 @@ internal open class XmlDecoderBase internal constructor(
     private inner class PolymorphicDecoder(
         xmlDescriptor: XmlPolymorphicDescriptor,
         private val polyInfo: PolyInfo?
-    ) : TagDecoder<XmlPolymorphicDescriptor>(xmlDescriptor, null) {
+    ) : TagDecoderBase<XmlPolymorphicDescriptor>(xmlDescriptor, null) {
 
         private var nextIndex = 0
         private var detectedPolyType: String? = null

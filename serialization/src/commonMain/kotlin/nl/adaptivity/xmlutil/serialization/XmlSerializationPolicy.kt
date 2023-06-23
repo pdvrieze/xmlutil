@@ -228,6 +228,39 @@ public interface XmlSerializationPolicy {
         ALWAYS, ANNOTATED, NEVER
     }
 
+    public companion object {
+
+        /**
+         * Helper function that allows more flexibility on null namespace use. If either the found
+         * name has the null namespace, or the candidate has null namespace, this will map (for the
+         * correct child).
+         */
+        @ExperimentalXmlUtilApi
+        public fun recoverNullNamespaceUse(inputKind: InputKind, descriptor: XmlDescriptor, name: QName?): List<XML.ParsedData<*>>? {
+            if (name != null) {
+                if (name.namespaceURI == "") {
+                    for (idx in 0 until descriptor.elementsCount) {
+                        val candidate = descriptor.getElementDescriptor(idx)
+                        if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
+                            candidate.tagName.localPart == name.getLocalPart()) {
+                            return listOf(XML.ParsedData(idx, Unit, true))
+                        }
+                    }
+                } else {
+                    for (idx in 0 until descriptor.elementsCount) {
+                        val candidate = descriptor.getElementDescriptor(idx)
+                        if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
+                            candidate.tagName.isEquivalent(QName(name.localPart))) {
+                            return listOf(XML.ParsedData(idx, Unit, true))
+                        }
+                    }
+                }
+            }
+            return null
+        }
+
+    }
+
 }
 
 public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName {
