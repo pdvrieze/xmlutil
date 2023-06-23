@@ -31,9 +31,9 @@ import nl.adaptivity.xmlutil.QNameSerializer
 class XSGlobalComplexTypeShorthand(
     name: VNCName,
     mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
+    abstract: Boolean?,
+    final: T_DerivationSet?,
+    block: T_DerivationSet?,
     defaultAttributesApply: Boolean?,
     override val groups: List<XSGroupRef>,
     override val alls: List<XSAll>,
