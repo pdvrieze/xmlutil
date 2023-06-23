@@ -25,6 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 
@@ -91,6 +93,8 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     override val name: VNCName get() = super<Datatype>.name
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
+
+    override val model: SimpleTypeModel get() = this
 }
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
@@ -105,6 +109,8 @@ class RestrictedAtomicDatatype(name: String, targetNamespace: String, override v
         get() = TODO("not implemented")
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = TODO("not implemented")
+    override val model: SimpleTypeModel
+        get() = this
 
     init {
         if (baseType == AnyAtomicType)

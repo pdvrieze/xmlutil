@@ -33,7 +33,7 @@ sealed class ResolvedComplexType(
 
     abstract override val content: ResolvedComplexTypeContent
 
-    protected abstract val model: ComplexTypeModel
+    protected abstract val model: Model
 
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlProhibitedSubstitutions: T_DerivationSet get() = model.mdlProhibitedSubstitutions
@@ -41,49 +41,16 @@ sealed class ResolvedComplexType(
     override val mdlContentType: ComplexTypeModel.ContentType get() = model.mdlContentType
     override val mdlAttributeUses: Set<AttributeModel.Use> get() = model.mdlAttributeUses
     override val mdlAttributeWildcard: WildcardModel get() = model.mdlAttributeWildcard
-    override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
+    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = model.mdlDerivationMethod
     override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
 
-    val contentType: ResolvedType? by lazy {
-        when (val c = content) {
-            is ResolvedSimpleContent -> {
 
-                val derivation = c.derivation
-                val baseType = derivation.baseType
-                when {
-                    baseType is ResolvedSimpleType  -> {
-                        check(derivation is ResolvedSimpleContentExtension)
-                        baseType
-                    }
-                    baseType !is ResolvedComplexType -> error("Unexpected type: ${baseType}")
-                    derivation is ResolvedSimpleContentExtension -> baseType
-                    baseType.contentType is ResolvedSimpleType -> {
-                        check(derivation is ResolvedSimpleContentRestriction)
-                        val derivedType = baseType.contentType
-                        if (derivedType is ResolvedSimpleType) {
-                            derivation.simpleType ?: baseType.contentType
-                        } else if (derivedType is ResolvedComplexType && derivedType.mixed == true /*&& derivedType.isEmptiable*/) {
-                            null
-                        }
-
-                    }
-                }
-
-
-            }
-            is ResolvedComplexContent -> {
-                TODO()
-            }
-            is ResolvedComplexShorthandContent -> {
-                TODO()
-            }
-        }
-
-        TODO()
+    interface Model: ComplexTypeModel {
+        override val mdlBaseTypeDefinition: ResolvedType
     }
 
-    protected abstract class ModelImpl(rawPart: XSComplexType, schema: ResolvedSchemaLike): ComplexTypeModel {
-        override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation?.models() ?: emptyList()
+    protected abstract class ModelImpl(rawPart: XSComplexType, schema: ResolvedSchemaLike): Model {
+        override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation.models()
     }
 }

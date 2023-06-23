@@ -21,9 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 
-sealed interface ResolvedGlobalType : ResolvedType, NamedPart, T_NamedType {
+sealed interface ResolvedGlobalType : ResolvedType, NamedPart, T_NamedType, TypeModel.Global {
     override val rawPart: T_NamedType
 
     override val name: VNCName get() = super<NamedPart>.name

@@ -24,7 +24,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
@@ -69,4 +75,34 @@ class ResolvedGlobalSimpleTypeImpl(
         super.check(seenTypes, inheritedTypes)
         require(name.isNotEmpty())
     }
+
+    override val model: SimpleTypeModel.Global by lazy { ModelImpl(rawPart, schema) }
+
+    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+
+    private class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : SimpleTypeModel.Global {
+        override val mdlTargetNamespace: VAnyURI?
+            get() = TODO("not implemented")
+        override val mdlFinal: T_DerivationSet
+            get() = TODO("not implemented")
+        override val mdlContext: TypeModel
+            get() = TODO("not implemented")
+        override val mdlBaseTypeDefinition: TypeModel
+            get() = TODO("not implemented")
+        override val mdlFacets: List<T_Facet>
+            get() = TODO("not implemented")
+        override val mdlFundamentalFacects: List<T_Facet>
+            get() = TODO("not implemented")
+        override val mdlVariety: SimpleTypeModel.Variety
+            get() = TODO("not implemented")
+        override val mdlPrimitiveTypeDefinition: PrimitiveDatatype
+            get() = TODO("not implemented")
+        override val mdlItemTypeDefinition: SimpleTypeModel
+            get() = TODO("not implemented")
+        override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
+            get() = TODO("not implemented")
+        override val mdlAnnotations: List<AnnotationModel>
+            get() = TODO("not implemented")
+    }
+
 }

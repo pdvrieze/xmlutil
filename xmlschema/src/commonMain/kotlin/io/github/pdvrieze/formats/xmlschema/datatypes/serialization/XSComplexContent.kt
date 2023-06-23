@@ -20,6 +20,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -50,6 +51,7 @@ class XSComplexContent(
         abstract override val asserts: List<XSAssertionFacet>
         abstract override val attributes: List<XSLocalAttribute>
         abstract override val attributeGroups: List<XSAttributeGroupRef>
+        abstract val derivationMethod: ComplexTypeModel.DerivationMethod
     }
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -73,7 +75,9 @@ class XSComplexContent(
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSDerivationBase(), T_ComplexRestrictionType
+    ) : XSDerivationBase(), T_ComplexRestrictionType {
+        override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
+    }
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -93,7 +97,9 @@ class XSComplexContent(
         override val openContents: List<XSOpenContent> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSDerivationBase(), T_ComplexExtensionType
+    ) : XSDerivationBase(), T_ComplexExtensionType {
+        override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.EXTENSION
+    }
 
 }
 
