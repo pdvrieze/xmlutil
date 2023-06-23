@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
@@ -34,7 +35,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), T_GlobalElement {
+) : ResolvedElement(schema), T_GlobalElement, ElementModel.Global {
     override fun check() {
         super<ResolvedElement>.check()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
@@ -63,7 +64,7 @@ class ResolvedGlobalElement(
     override val qName: QName
         get() = name.toQname(targetNamespace)
 
-    val typeDef: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema) }
+    val typeDef: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
         ?: type?.let {
             schema.type(it)
         }
@@ -113,4 +114,17 @@ class ResolvedGlobalElement(
     override val maxOccurs: Nothing? get() = null
 
     override val form: Nothing? get() = null
+
+    override val model: ElementModel.Global by lazy { ModelImpl(rawPart, schema) }
+
+    override val mdlScope: ElementModel.Scope.Global get() = model.mdlScope
+    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike) : ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Global {
+        override val mdlScope: ElementModel.Scope.Global
+            get() = TODO("not implemented")
+        override val mdlTargetNamespace: VAnyURI?
+            get() = TODO("not implemented")
+    }
+
 }

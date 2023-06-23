@@ -41,9 +41,6 @@ class XSLocalComplexTypeComplex(
     otherAttrs
 ), T_LocalComplexType_Complex {
 
-    override val name: Nothing? get() = null
-    override val targetNamespace: Nothing? get() = null
-
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             mixed = mixed,

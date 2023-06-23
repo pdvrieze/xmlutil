@@ -21,15 +21,29 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexType
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
-) : ResolvedType, T_ComplexType, XSI_Annotated, ResolvedLocalAttribute.Parent {
+) : ResolvedType, T_ComplexType, ResolvedLocalAttribute.Parent, ComplexTypeModel {
     abstract override val rawPart: XSComplexType
 
     abstract override val content: ResolvedComplexTypeContent
+
+    protected abstract val model: ComplexTypeModel
+
+    override val mdlAbstract: Boolean get() = model.mdlAbstract
+    override val mdlProhibitedSubstitutions: T_DerivationSet get() = model.mdlProhibitedSubstitutions
+    override val mdlFinal: T_DerivationSet get() = model.mdlFinal
+    override val mdlContentType: ComplexTypeModel.ContentType get() = model.mdlContentType
+    override val mdlAttributeUses: Set<AttributeModel.Use> get() = model.mdlAttributeUses
+    override val mdlAttributeWildcard: WildcardModel get() = model.mdlAttributeWildcard
+    override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
+    override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = model.mdlDerivationMethod
+    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
 
     val contentType: ResolvedType? by lazy {
         when (val c = content) {
@@ -69,5 +83,7 @@ sealed class ResolvedComplexType(
         TODO()
     }
 
-
+    protected abstract class ModelImpl(rawPart: XSComplexType, schema: ResolvedSchemaLike): ComplexTypeModel {
+        override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation?.models() ?: emptyList()
+    }
 }

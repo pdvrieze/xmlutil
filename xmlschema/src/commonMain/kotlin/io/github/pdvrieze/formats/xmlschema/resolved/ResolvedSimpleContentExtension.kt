@@ -56,7 +56,7 @@ class ResolvedSimpleContentExtension(
         val b = base
 
         if (b !in seenTypes) {
-            val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+            val inherited = (baseType as? OptNamedPart)?.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
             baseType.check(seenTypes, inherited)
             // Recursion is allowed
         }

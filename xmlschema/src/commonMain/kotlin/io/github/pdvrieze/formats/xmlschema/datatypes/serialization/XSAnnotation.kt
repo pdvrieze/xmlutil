@@ -20,6 +20,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -36,4 +37,14 @@ class XSAnnotation(
     val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSI_OpenAttrs
+) : XSI_OpenAttrs {
+
+
+    fun models(): List<AnnotationModel> {
+        TODO("not implemented")
+    }
+
+    private class ModelImpl(val rawPart: XSAnnotation) : AnnotationModel {
+
+    }
+}

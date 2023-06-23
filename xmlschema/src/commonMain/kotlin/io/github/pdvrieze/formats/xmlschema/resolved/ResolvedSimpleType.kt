@@ -34,7 +34,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
         inheritedTypes: SingleLinkedList<QName>
     ) { // TODO maybe move to toplevel
 
-        when (val n = name) {
+        when (val n = (this as? OptNamedPart)?.name) {
             null -> simpleDerivation.check(SingleLinkedList(), inheritedTypes)
             else -> {
                 val qName = n.toQname(schema.targetNamespace)

@@ -18,7 +18,8 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-interface T_LocalType: T_Type
+import io.github.pdvrieze.formats.xmlschema.types.T_Element
 
+interface XSIElement : T_Element

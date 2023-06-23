@@ -23,9 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader

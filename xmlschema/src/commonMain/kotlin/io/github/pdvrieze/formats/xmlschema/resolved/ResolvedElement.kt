@@ -24,11 +24,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element {
-    abstract override val rawPart: T_Element
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel {
+
+    abstract override val rawPart: XSIElement
     abstract val scope: T_Scope
 
     override val type: QName?
@@ -66,6 +70,20 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     abstract override val keyrefs: List<ResolvedKeyRef>
 
+    abstract val model: ElementModel
+
+    override val mdlTypeDefinition: TypeModel get() = model.mdlTypeDefinition
+    override val mdlTypeTable: ElementModel.TypeTable? get() = model.mdlTypeTable
+    override val mdlNillable: Boolean get() = model.mdlNillable
+    override val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
+    override val mdlIdentityConstraints: Set<IdentityConstraintModel> get() = model.mdlIdentityConstraints
+    override val mdlSubstitutionGroupAffiliations: Set<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
+    override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
+    override val mdlSubstitutionGroupExclusions: T_DerivationSet get() = model.mdlSubstitutionGroupExclusions
+    override val mdlAbstract: Boolean get() = model.mdlAbstract
+    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+    override val mdlName: VNCName get() = model.mdlName
+
     /**
      * disallowed substitutions
      */
@@ -81,6 +99,32 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             checkNotNull(keyref.referenced)
         }
     }
+
+    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike): ElementModel {
+        override val mdlTypeDefinition: TypeModel
+            get() = TODO("not implemented")
+        override val mdlTypeTable: ElementModel.TypeTable?
+            get() = TODO("not implemented")
+        override val mdlNillable: Boolean
+            get() = TODO("not implemented")
+        override val mdlValueConstraint: ValueConstraintModel?
+            get() = TODO("not implemented")
+        override val mdlIdentityConstraints: Set<IdentityConstraintModel>
+            get() = TODO("not implemented")
+        override val mdlSubstitutionGroupAffiliations: Set<ElementModel.Use>
+            get() = TODO("not implemented")
+        override val mdlDisallowedSubstitutions: T_BlockSet
+            get() = TODO("not implemented")
+        override val mdlSubstitutionGroupExclusions: T_DerivationSet
+            get() = TODO("not implemented")
+        override val mdlAbstract: Boolean
+            get() = TODO("not implemented")
+        override val mdlAnnotations: List<AnnotationModel>
+            get() = TODO("not implemented")
+        override val mdlName: VNCName
+            get() = TODO("not implemented")
+    }
+
 }
 
 class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)
