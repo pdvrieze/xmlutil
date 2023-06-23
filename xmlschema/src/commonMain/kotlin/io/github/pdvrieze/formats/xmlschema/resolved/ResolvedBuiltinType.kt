@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
@@ -32,4 +33,5 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_Global
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, String> get() = emptyMap()
+    override val mdlAnnotations: List<AnnotationModel> get() = emptyList()
 }

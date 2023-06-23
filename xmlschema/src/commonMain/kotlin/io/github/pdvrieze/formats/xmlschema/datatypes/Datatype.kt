@@ -103,6 +103,9 @@ sealed class ListDatatype protected constructor(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         baseType.check(seenTypes, inheritedTypes)
     }
+
+    override val model: SimpleTypeModel
+        get() = this
 }
 
 open class ConstructedListDatatype : ListDatatype {
@@ -173,7 +176,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String) : Datatype(nam
     val members: List<Datatype> get() = TODO()
 }
 
-object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedGlobalSimpleType {
+object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedGlobalSimpleType, ResolvedBuiltinType {
     override val baseType: ResolvedType get() = ErrorType
     override val rawPart: ErrorType get() = this
     override val final: Set<Nothing> get() = emptySet()
@@ -186,6 +189,8 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     override val name: VNCName get() = super<Datatype>.name
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
+
+    override val model: SimpleTypeModel get() = this
 
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
         override val rawPart: T_SimpleType.T_Restriction get() = this
@@ -211,8 +216,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
         get() = SimpleBuiltinRestriction(AnyType)
 
     override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
-
-    override val mdlAnnotations: List<Nothing> get() = emptyList()
+    override val model: SimpleTypeModel get() = this
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
@@ -226,6 +230,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
         get() = SimpleBuiltinRestriction(baseType)
 
     override val final: Set<Nothing> get() = emptySet()
+    override val model: SimpleTypeModel get() = this
 }
 
 internal open class SimpleBuiltinRestriction(

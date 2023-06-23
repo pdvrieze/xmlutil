@@ -25,4 +25,8 @@ interface TypeModel: IAnnotated {
 
     }
 
+    interface Global: TypeModel
+
+    interface Local: TypeModel
+
 }

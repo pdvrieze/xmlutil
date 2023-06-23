@@ -21,5 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 
 typealias ResolvedAnnotation = XSAnnotation
+
+fun ResolvedAnnotation?.models(): List<AnnotationModel> {
+    TODO("not implemented")
+}
+
+

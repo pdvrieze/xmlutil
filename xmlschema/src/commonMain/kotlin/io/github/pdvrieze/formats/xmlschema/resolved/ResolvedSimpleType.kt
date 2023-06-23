@@ -21,13 +21,45 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType {
+sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
     override val simpleDerivation: Derivation
+
+    val model: SimpleTypeModel
+
+    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+
+    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+    override val mdlFinal: T_DerivationSet get() = model.mdlFinal
+
+    override val mdlContext: TypeModel get() = model.mdlContext
+
+    override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
+
+    override val mdlFacets: List<T_Facet> get() = model.mdlFacets
+
+    override val mdlFundamentalFacects: List<T_Facet> get() = model.mdlFundamentalFacects
+
+    override val mdlVariety: SimpleTypeModel.Variety get() = model.mdlVariety
+
+    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype get() = model.mdlPrimitiveTypeDefinition
+
+    override val mdlItemTypeDefinition: SimpleTypeModel get() = model.mdlItemTypeDefinition
+
+    override val mdlMemberTypeDefinitions: List<SimpleTypeModel> get() = model.mdlMemberTypeDefinitions
+
 
     override fun check(
         seenTypes: SingleLinkedList<QName>,

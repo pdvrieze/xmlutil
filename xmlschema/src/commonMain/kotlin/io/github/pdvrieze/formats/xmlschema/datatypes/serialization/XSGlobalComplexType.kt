@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable(XSGlobalComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-abstract class XSGlobalComplexType(
+sealed class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
     override val abstract: Boolean?,
