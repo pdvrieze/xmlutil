@@ -16,7 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_LocalComplexType_Base: T_ComplexType, T_LocalType
+interface T_LocalComplexType_Base: T_ComplexType, T_LocalType {
+
+}
 
 sealed interface T_LocalComplexType_SealedBase: T_LocalComplexType_Base
 

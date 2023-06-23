@@ -20,8 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
@@ -29,7 +36,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike
-) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
+) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType, SimpleTypeModel.Local {
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -56,4 +63,30 @@ class ResolvedLocalSimpleType(
             )
             else -> error("Derivations must be union, list or restriction")
         }
+
+    override val model: SimpleTypeModel.Local by lazy { ModelImpl(rawPart, schema) }
+
+    private class ModelImpl(rawPart: XSLocalSimpleType, schema: ResolvedSchemaLike): SimpleTypeModel.Local {
+        override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation.models()
+        override val mdlTargetNamespace: VAnyURI?
+            get() = TODO("not implemented")
+        override val mdlFinal: T_DerivationSet
+            get() = TODO("not implemented")
+        override val mdlContext: TypeModel
+            get() = TODO("not implemented")
+        override val mdlBaseTypeDefinition: TypeModel
+            get() = TODO("not implemented")
+        override val mdlFacets: List<T_Facet>
+            get() = TODO("not implemented")
+        override val mdlFundamentalFacects: List<T_Facet>
+            get() = TODO("not implemented")
+        override val mdlVariety: SimpleTypeModel.Variety
+            get() = TODO("not implemented")
+        override val mdlPrimitiveTypeDefinition: PrimitiveDatatype
+            get() = TODO("not implemented")
+        override val mdlItemTypeDefinition: SimpleTypeModel
+            get() = TODO("not implemented")
+        override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
+            get() = TODO("not implemented")
+    }
 }
