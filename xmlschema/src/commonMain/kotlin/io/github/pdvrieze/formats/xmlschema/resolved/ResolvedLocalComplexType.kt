@@ -47,7 +47,7 @@ class ResolvedLocalComplexType(
         }
     }
 
-    override val model: ComplexTypeModel.Local by lazy { ModelImpl(rawPart, schema, context) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, context) }
 
     override val mdlContext: ElementModel get() = model.mdlContext
 
@@ -55,10 +55,12 @@ class ResolvedLocalComplexType(
         content.check(seenTypes, inheritedTypes) // there is no name here
     }
 
+    interface Model: ResolvedComplexType.Model, ComplexTypeModel.Local
+
     private class ModelImpl(
         rawPart: XSLocalComplexType, schema: ResolvedSchemaLike,
         override val mdlContext: ElementModel
-    ) : ResolvedComplexType.ModelImpl(rawPart, schema), ComplexTypeModel.Local {
+    ) : ResolvedComplexType.ModelImpl(rawPart, schema), Model {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<Nothing> get() = emptySet()
         override val mdlFinal: Set<Nothing> get() = emptySet()
@@ -66,7 +68,7 @@ class ResolvedLocalComplexType(
             get() = TODO("not implemented")
         override val mdlAttributeWildcard: WildcardModel
             get() = TODO("not implemented")
-        override val mdlBaseTypeDefinition: TypeModel
+        override val mdlBaseTypeDefinition: ResolvedType
             get() = TODO("not implemented")
         override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
             get() = TODO("not implemented")

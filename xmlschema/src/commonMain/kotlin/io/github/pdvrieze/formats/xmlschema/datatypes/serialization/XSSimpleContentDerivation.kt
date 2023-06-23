@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
@@ -37,4 +38,5 @@ sealed class XSSimpleContentDerivation(
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : T_ComplexType.SimpleDerivation, I_Assertions, I_AttributeContainer {
     abstract val base: QName?
+    abstract val derivationMethod: ComplexTypeModel.DerivationMethod
 }

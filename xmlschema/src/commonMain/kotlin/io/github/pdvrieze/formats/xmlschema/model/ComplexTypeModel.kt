@@ -34,9 +34,9 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
     val mdlBaseTypeDefinition: TypeModel
     val mdlDerivationMethod: DerivationMethod
 
-    interface Global : ComplexTypeModel, INamedDecl
+    interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global
 
-    interface Local : ComplexTypeModel {
+    interface Local : ComplexTypeModel, TypeModel.Local {
         val mdlContext: ElementModel
     }
 
