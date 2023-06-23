@@ -36,7 +36,7 @@ interface ElementModel : IAnnotated, INamed {
     val mdlSubstitutionGroupExclusions: T_DerivationSet
     val mdlAbstract: Boolean
 
-    interface Decl : ElementModel, INamedDecl {
+    interface Decl : ElementModel, INamedDecl, TypeContext {
         val mdlScope: Scope
     }
 

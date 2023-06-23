@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer

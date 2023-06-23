@@ -28,11 +28,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType
@@ -81,11 +79,11 @@ class ResolvedGlobalSimpleTypeImpl(
     override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
 
     private class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : SimpleTypeModel.Global {
-        override val mdlTargetNamespace: VAnyURI?
+        override val mdlName: VNCName = rawPart.name
+        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        override val mdlFinal: T_SimpleDerivationSet
             get() = TODO("not implemented")
-        override val mdlFinal: T_DerivationSet
-            get() = TODO("not implemented")
-        override val mdlContext: TypeModel
+        override val mdlContext: SimpleTypeContext
             get() = TODO("not implemented")
         override val mdlBaseTypeDefinition: TypeModel
             get() = TODO("not implemented")
