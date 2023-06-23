@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
@@ -42,9 +42,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    override val mdlFinal: T_DerivationSet get() = model.mdlFinal
-
-    override val mdlContext: TypeModel get() = model.mdlContext
+    override val mdlContext: SimpleTypeContext get() = model.mdlContext
 
     override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
 
