@@ -20,6 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface IdentityConstraintModel {
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 
+interface IdentityConstraintModel : IAnnotated, INamedDecl {
+    val mdlIdentityConstraintCategory: Category
+    val mdlSelector: XPathExpression
+    val mdlFields: List<XPathExpression>
+
+    enum class Category { KEY, KEYREF, UNIQUE }
+
+    interface ReferenceableConstraint : IdentityConstraintModel
+
+    interface KeyRef : IdentityConstraintModel {
+        val mdlReferencedKey: ReferenceableConstraint
+    }
+
+    interface Key : ReferenceableConstraint
+
+    interface Unique : ReferenceableConstraint
 }
