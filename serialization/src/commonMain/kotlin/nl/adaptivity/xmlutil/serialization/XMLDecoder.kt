@@ -830,7 +830,12 @@ internal open class XmlDecoderBase internal constructor(
                     EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
                         // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
                         // as a shortcut.
-                        CompositeDecoder.UNKNOWN_NAME -> input.elementContentToFragment()
+                        CompositeDecoder.UNKNOWN_NAME -> {
+                            if (pendingRecovery.isNotEmpty()) {
+                                return pendingRecovery.first().elementIndex
+                            }
+                            input.elementContentToFragment()
+                        }
                         else -> return i.also { seenItems[i] = true }
                     }
 

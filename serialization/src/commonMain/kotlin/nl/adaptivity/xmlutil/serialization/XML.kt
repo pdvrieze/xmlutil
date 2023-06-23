@@ -402,7 +402,7 @@ public class XML constructor(
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
         val polyInfo = (elementDescriptor as? XmlPolymorphicDescriptor)?.run {
-            val tagName = reader.name
+            val tagName = serialName ?: reader.name
             polyInfo.values.singleOrNull {
                 tagName.isEquivalent(it.tagName)
             }?.let { PolyInfo(tagName, 0, it) }
