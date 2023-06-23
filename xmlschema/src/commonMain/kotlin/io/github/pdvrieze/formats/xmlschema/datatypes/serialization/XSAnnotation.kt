@@ -40,10 +40,6 @@ class XSAnnotation(
 ) : XSI_OpenAttrs {
 
 
-    fun models(): List<AnnotationModel> {
-        TODO("not implemented")
-    }
-
     private class ModelImpl(val rawPart: XSAnnotation) : AnnotationModel {
 
     }

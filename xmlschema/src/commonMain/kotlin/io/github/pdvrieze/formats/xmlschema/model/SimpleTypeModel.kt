@@ -20,5 +20,28 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+
 interface SimpleTypeModel: TypeModel {
+    val mdlTargetNamespace: VAnyURI?
+    val mdlFinal: T_DerivationSet
+    val mdlContext: TypeModel
+    val mdlBaseTypeDefinition: TypeModel
+    val mdlFacets: List<T_Facet>
+    val mdlFundamentalFacects: List<T_Facet>
+    val mdlVariety: Variety
+    val mdlPrimitiveTypeDefinition: PrimitiveDatatype
+    val mdlItemTypeDefinition: SimpleTypeModel
+    val mdlMemberTypeDefinitions: List<SimpleTypeModel>
+
+    interface Local : SimpleTypeModel, TypeModel.Local
+
+    interface Global : SimpleTypeModel, TypeModel.Global
+    interface Variety {
+
+    }
 }
