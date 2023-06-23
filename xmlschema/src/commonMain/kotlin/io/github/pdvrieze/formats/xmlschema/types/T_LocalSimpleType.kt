@@ -22,13 +22,13 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 
 interface T_LocalSimpleType: T_SimpleType, T_LocalType {
-    override val name: Nothing?
+
     override val simpleDerivation: T_SimpleType.Derivation
 
 
 }
 
-interface T_GlobalSimpleType: T_SimpleType, T_TopLevelType {
+interface T_GlobalSimpleType: T_SimpleType, T_GlobalType {
     val final: Set<T_SimpleDerivationSetElem>
 }
 
