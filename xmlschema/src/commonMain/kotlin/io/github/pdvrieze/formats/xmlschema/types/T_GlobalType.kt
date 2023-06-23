@@ -20,5 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_LocalType: T_Type
-
+interface T_GlobalType: T_NamedType

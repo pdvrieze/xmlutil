@@ -56,7 +56,7 @@ class ResolvedSimpleContentRestriction(
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in seenTypes) {
-            val inherited = baseType.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+            val inherited = (baseType as? OptNamedPart)?.qName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
             baseType.check(seenTypes, inherited)
             // Recursion is allowed
         }

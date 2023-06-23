@@ -38,9 +38,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 abstract class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
-    override val abstract: Boolean,
-    override val final: T_DerivationSet,
-    override val block: T_DerivationSet,
+    override val abstract: Boolean?,
+    override val final: T_DerivationSet?,
+    override val block: T_DerivationSet?,
     override val defaultAttributesApply: Boolean?,
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
@@ -59,13 +59,13 @@ abstract class XSGlobalComplexType(
     class SerialDelegate(
         val name: VNCName,
         val mixed: Boolean? = null,
-        val abstract: Boolean = false,
+        val abstract: Boolean? = null,
         @XmlElement(false)
         @Serializable(SchemaEnumSetSerializer::class)
-        val final: T_DerivationSet = emptySet(),
+        val final: T_DerivationSet? = null,
         @XmlElement(false)
         @Serializable(SchemaEnumSetSerializer::class)
-        val block: T_DerivationSet = emptySet(),
+        val block: T_DerivationSet? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         val groups: List<XSGroupRef> = emptyList(),

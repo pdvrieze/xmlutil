@@ -20,21 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 
-fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike): ResolvedLocalType {
+fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedElement): ResolvedLocalType {
     return when (rawPart) {
-        is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema)
-        is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema)
-        is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema)
+        is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
+        is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)
+        is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, context)
         is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema)
     }
 }
 
 sealed interface ResolvedLocalType : ResolvedType, T_LocalType {
     override val rawPart: T_LocalType
-    override val name: Nothing? get() = null
 }
 

@@ -20,5 +20,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_LocalType: T_Type
-
+/** Type that can be the base of a simple type, this includes AnyType */
+interface T_SimpleBaseType: T_Type

@@ -30,7 +30,6 @@ class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike
 ) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType {
-    override val name: Nothing? get() = null
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation

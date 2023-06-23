@@ -42,7 +42,5 @@ class XSLocalSimpleType(
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : XSLocalType(), T_LocalSimpleType {
 
-    override val name: Nothing? get() = null
-    override val targetNamespace: Nothing? get() = null
 }
 

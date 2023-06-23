@@ -31,9 +31,9 @@ import nl.adaptivity.xmlutil.QNameSerializer
 class XSGlobalComplexTypeComplex(
     name: VNCName,
     mixed: Boolean?,
-    abstract: Boolean,
-    final: T_DerivationSet,
-    block: T_DerivationSet,
+    abstract: Boolean?,
+    final: T_DerivationSet?,
+    block: T_DerivationSet?,
     defaultAttributesApply: Boolean?,
     override val content: XSComplexContent,
     id: VID? = null,

@@ -23,13 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
-    schema: ResolvedSchemaLike
-) : ResolvedComplexType(schema), ResolvedLocalType, T_LocalComplexType_Base {
+    schema: ResolvedSchemaLike,
+    context: ResolvedElement,
+) : ResolvedComplexType(schema), ResolvedLocalType, T_LocalComplexType_Base, ComplexTypeModel.Local {
     override val mixed: Boolean? get() = rawPart.mixed
     override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
@@ -45,8 +47,31 @@ class ResolvedLocalComplexType(
         }
     }
 
+    override val model: ComplexTypeModel.Local by lazy { ModelImpl(rawPart, schema, context) }
+
+    override val mdlContext: ElementModel get() = model.mdlContext
+
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         content.check(seenTypes, inheritedTypes) // there is no name here
+    }
+
+    private class ModelImpl(
+        rawPart: XSLocalComplexType, schema: ResolvedSchemaLike,
+        override val mdlContext: ElementModel
+    ) : ResolvedComplexType.ModelImpl(rawPart, schema), ComplexTypeModel.Local {
+        override val mdlAbstract: Boolean get() = false
+        override val mdlProhibitedSubstitutions: Set<Nothing> get() = emptySet()
+        override val mdlFinal: Set<Nothing> get() = emptySet()
+        override val mdlAttributeUses: Set<AttributeModel.Use>
+            get() = TODO("not implemented")
+        override val mdlAttributeWildcard: WildcardModel
+            get() = TODO("not implemented")
+        override val mdlBaseTypeDefinition: TypeModel
+            get() = TODO("not implemented")
+        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
+            get() = TODO("not implemented")
+        override val mdlContentType: ComplexTypeModel.ContentType
+            get() = TODO("not implemented")
     }
 }
 
