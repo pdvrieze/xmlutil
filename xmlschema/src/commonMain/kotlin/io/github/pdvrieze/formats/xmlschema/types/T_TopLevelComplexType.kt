@@ -18,15 +18,15 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_GlobalComplexType_Base: T_ComplexType, T_TopLevelType {
+interface T_GlobalComplexType_Base: T_ComplexType, T_GlobalType {
     override val name: VNCName
 
     /**
      * Default: false
      */
-    val abstract: Boolean
-    val final: T_DerivationSet
-    val block: T_DerivationSet
+    val abstract: Boolean?
+    val final: T_DerivationSet?
+    val block: T_DerivationSet?
 
 }
 

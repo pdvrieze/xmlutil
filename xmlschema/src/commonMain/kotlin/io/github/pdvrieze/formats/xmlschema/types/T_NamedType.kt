@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,22 +18,10 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved
+package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
-import io.github.pdvrieze.formats.xmlschema.types.T_Type
-import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type {
-    abstract override val rawPart: T_Type
-
-    override fun check() {
-        super<ResolvedAnnotated>.check()
-        check(SingleLinkedList(), SingleLinkedList())
-    }
-
-    fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
-
+interface T_NamedType: T_Type, I_NamedAttrs {
+    override val name: VNCName
 }

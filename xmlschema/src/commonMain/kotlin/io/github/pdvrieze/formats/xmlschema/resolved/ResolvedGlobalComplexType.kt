@@ -25,13 +25,17 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.model.WildcardModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalComplexType_Base {
+) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalComplexType_Base, ComplexTypeModel.Global {
     override val name: VNCName
         get() = rawPart.name
 
@@ -63,16 +67,43 @@ class ResolvedGlobalComplexType(
             }
         }
 
-    override val abstract: Boolean
-        get() = rawPart.abstract
+    override val abstract: Boolean get() = model.mdlAbstract
 
-    override val final: T_DerivationSet
-        get() = rawPart.final
+    override val final: T_DerivationSet get() = model.mdlFinal
 
-    override val block: T_DerivationSet
-        get() = rawPart.block
+    override val block: T_DerivationSet get() = model.mdlProhibitedSubstitutions
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         content.check(seenTypes + qName, inheritedTypes + qName)
+    }
+
+    override val model: ComplexTypeModel.Global by lazy { ModelImpl(rawPart, schema) }
+
+    override val mdlName: VNCName get() = model.mdlName
+
+    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+    protected class ModelImpl(rawPart: XSGlobalComplexType, schema: ResolvedSchemaLike) :
+        ResolvedComplexType.ModelImpl(rawPart, schema), ComplexTypeModel.Global {
+        override val mdlName: VNCName = rawPart.name
+        override val mdlTargetNamespace: VAnyURI? = rawPart.targetNamespace?:schema.targetNamespace
+
+        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+
+        override val mdlProhibitedSubstitutions: T_DerivationSet = rawPart.block ?: schema.blockDefault.toDerivationSet()
+
+        override val mdlFinal: T_DerivationSet = rawPart.final ?: schema.finalDefault.toDerivationSet()
+
+        override val mdlContentType: ComplexTypeModel.ContentType
+            get() = TODO("not implemented")
+        override val mdlAttributeUses: Set<AttributeModel.Use>
+            get() = TODO("not implemented")
+        override val mdlAttributeWildcard: WildcardModel
+            get() = TODO("not implemented")
+        override val mdlBaseTypeDefinition: TypeModel
+            get() = TODO("not implemented")
+        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
+            get() = TODO("not implemented")
+
     }
 }

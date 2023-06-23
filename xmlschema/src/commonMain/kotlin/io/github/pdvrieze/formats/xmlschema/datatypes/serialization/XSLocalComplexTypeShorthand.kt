@@ -49,9 +49,6 @@ class XSLocalComplexTypeShorthand(
     otherAttrs
 ), IXSComplexTypeShorthand, T_LocalComplexType_Shorthand {
 
-    override val name: Nothing? get() = null
-    override val targetNamespace: Nothing? get() = null
-
     override val content: IXSComplexTypeShorthand get() = this
 
     override fun toSerialDelegate(): SerialDelegate {

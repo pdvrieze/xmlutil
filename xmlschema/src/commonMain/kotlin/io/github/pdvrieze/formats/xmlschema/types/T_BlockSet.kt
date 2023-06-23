@@ -32,3 +32,11 @@ enum class T_BlockSetValues {
     @SerialName("substitution")
     SUBSTITUTION
 }
+
+fun T_BlockSet.toDerivationSet(): T_DerivationSet {
+    return asSequence().mapNotNull { when (it) {
+        T_BlockSetValues.EXTENSION -> T_ReducedDerivationControl.EXTENSION
+        T_BlockSetValues.RESTRICTION -> T_ReducedDerivationControl.RESTRICTION
+        T_BlockSetValues.SUBSTITUTION -> null
+    } }.toSet()
+}
