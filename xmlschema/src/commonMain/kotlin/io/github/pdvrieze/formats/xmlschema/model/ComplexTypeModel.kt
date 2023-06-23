@@ -23,7 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.model
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 
-interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel.ParentModel {
+interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel.ParentModel,
+    SimpleTypeContext {
 
     val mdlAbstract: Boolean
     val mdlProhibitedSubstitutions: T_DerivationSet
@@ -31,13 +32,12 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<AttributeModel.Use>
     val mdlAttributeWildcard: WildcardModel
-    val mdlBaseTypeDefinition: TypeModel
     val mdlDerivationMethod: DerivationMethod
 
     interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global
 
     interface Local : ComplexTypeModel, TypeModel.Local {
-        val mdlContext: ElementModel
+        val mdlContext: ComplexTypeContext
     }
 
     interface SimpleContent : ComplexTypeModel {
@@ -91,3 +91,5 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 
 }
+
+interface ComplexTypeContext
