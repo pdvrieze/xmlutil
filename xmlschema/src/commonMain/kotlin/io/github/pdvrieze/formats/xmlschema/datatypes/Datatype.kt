@@ -106,6 +106,8 @@ sealed class ListDatatype protected constructor(
 
     override val model: SimpleTypeModel
         get() = this
+
+    override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.LIST
 }
 
 open class ConstructedListDatatype : ListDatatype {
@@ -231,6 +233,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
     override val final: Set<Nothing> get() = emptySet()
     override val model: SimpleTypeModel get() = this
+    override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.NIL
 }
 
 internal open class SimpleBuiltinRestriction(

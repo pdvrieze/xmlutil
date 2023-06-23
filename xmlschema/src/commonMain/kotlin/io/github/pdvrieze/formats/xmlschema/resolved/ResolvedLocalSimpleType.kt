@@ -26,11 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalSimpleType(
@@ -70,9 +69,7 @@ class ResolvedLocalSimpleType(
         override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation.models()
         override val mdlTargetNamespace: VAnyURI?
             get() = TODO("not implemented")
-        override val mdlFinal: T_DerivationSet
-            get() = TODO("not implemented")
-        override val mdlContext: TypeModel
+        override val mdlContext: SimpleTypeContext
             get() = TODO("not implemented")
         override val mdlBaseTypeDefinition: TypeModel
             get() = TODO("not implemented")

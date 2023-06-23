@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 interface TypeModel: IAnnotated {
+    val mdlBaseTypeDefinition: TypeModel
+
     interface Use {
 
     }

@@ -21,16 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSet
 
-interface SimpleTypeModel: TypeModel {
+interface SimpleTypeModel : TypeModel, SimpleTypeContext {
     val mdlTargetNamespace: VAnyURI?
-    val mdlFinal: T_DerivationSet
-    val mdlContext: TypeModel
-    val mdlBaseTypeDefinition: TypeModel
+    val mdlContext: SimpleTypeContext
     val mdlFacets: List<T_Facet>
     val mdlFundamentalFacects: List<T_Facet>
     val mdlVariety: Variety
@@ -40,8 +38,15 @@ interface SimpleTypeModel: TypeModel {
 
     interface Local : SimpleTypeModel, TypeModel.Local
 
-    interface Global : SimpleTypeModel, TypeModel.Global
-    interface Variety {
+    interface Global : SimpleTypeModel, TypeModel.Global {
+        val mdlName: VNCName
+        val mdlFinal: T_SimpleDerivationSet
 
     }
+
+    enum class Variety { ATOMIC, LIST, UNION, NIL }
 }
+
+interface TypeContext: SimpleTypeContext, ComplexTypeContext
+
+interface SimpleTypeContext

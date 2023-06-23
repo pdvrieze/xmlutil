@@ -123,12 +123,12 @@ class ResolvedGlobalComplexType(
     }
 
     private class SimpleModelImpl(rawPart: XSGlobalComplexTypeSimple, schema: ResolvedSchemaLike, context: ResolvedComplexType) :
-        ModelBase(rawPart, schema), ComplexTypeModel.ContentType.Simple {
+        ModelBase(rawPart, schema), ComplexTypeModel.GlobalSimpleContent, ComplexTypeModel.ContentType.Simple {
 
         override val mdlBaseTypeDefinition: ResolvedType =
             rawPart.content.derivation.base?.let { schema.type(it) } ?: AnyType
 
-        override val mdlContentType: ComplexTypeModel.ContentType get() = this
+        override val mdlContentType: ComplexTypeModel.ContentType.Simple get() = this
 
         override val mdlSimpleTypeDefinition: SimpleTypeModel = run {
             val baseType = mdlBaseTypeDefinition
@@ -166,12 +166,14 @@ class ResolvedGlobalComplexType(
         override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod = rawPart.content.derivation.derivationMethod
     }
 
-    private class ShorthandModelImpl(rawPart: XSGlobalComplexTypeShorthand, schema: ResolvedSchemaLike) : ComplexModelbase(rawPart, schema) {
+    private class ShorthandModelImpl(rawPart: XSGlobalComplexTypeShorthand, schema: ResolvedSchemaLike) :
+        ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalImplicitContent {
         override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
-        override val mdlBaseTypeDefinition: ResolvedType get() = AnyType
+        override val mdlBaseTypeDefinition: AnyType get() = AnyType
     }
 
-    private class ComplexModelImpl(rawPart: XSGlobalComplexTypeComplex, schema: ResolvedSchemaLike) : ComplexModelbase(rawPart, schema) {
+    private class ComplexModelImpl(rawPart: XSGlobalComplexTypeComplex, schema: ResolvedSchemaLike) :
+        ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalComplexContent {
         override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod =
             rawPart.content.derivation.derivationMethod
 
