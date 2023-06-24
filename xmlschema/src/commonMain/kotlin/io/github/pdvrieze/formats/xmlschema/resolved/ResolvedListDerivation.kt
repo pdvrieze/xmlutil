@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ConstructedListDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
@@ -56,11 +57,12 @@ abstract class ResolvedListDerivationBase(
 
 class ResolvedListDerivation(
     override val rawPart: XSSimpleList,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    context: ResolvedSimpleType,
 ) : ResolvedListDerivationBase(schema) {
     override val simpleType: ResolvedLocalSimpleType? by lazy {
         rawPart.simpleType?.let { st ->
-            ResolvedLocalSimpleType(st, schema)
+            ResolvedLocalSimpleType(st, schema, context)
         }
     }
 

@@ -29,7 +29,7 @@ fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike, context:
         is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
         is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)
         is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, context)
-        is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema)
+        is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema, context)
     }
 }
 

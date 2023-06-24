@@ -20,6 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface AnnotationModel {
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
+import nl.adaptivity.xmlutil.QName
 
+interface AnnotationModel {
+    val mdlApplicationInformation: List<XSAppInfo>
+    val mdlUserInformation: List<XSDocumentation>
+    val mdlAttributes: Map<QName, String>
 }

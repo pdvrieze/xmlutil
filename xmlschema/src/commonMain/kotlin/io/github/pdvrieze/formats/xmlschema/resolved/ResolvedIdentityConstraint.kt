@@ -44,7 +44,7 @@ sealed class ResolvedIdentityConstraint(
 
     final override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
-    final override val mdlAnnotations: List<AnnotationModel>
+    final override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
 }
 
