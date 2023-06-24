@@ -23,12 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeBase {
+) : ResolvedPart, T_AttributeBase, SimpleTypeContext {
     abstract override val rawPart: XSAttribute
 
     override val type: QName?
@@ -36,7 +37,7 @@ sealed class ResolvedAttribute(
 
     val resolvedType: ResolvedSimpleType by lazy {
         rawPart.type?.let { schema.simpleType(it) }
-            ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema) }
+            ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
             ?: AnySimpleType
     }
 

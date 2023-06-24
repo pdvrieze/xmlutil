@@ -28,13 +28,14 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedUnionDerivation(
     override val rawPart: XSSimpleUnion,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    context: ResolvedSimpleType
 ) : ResolvedSimpleDerivationBase(schema),
     T_SimpleType.T_Union {
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
     override val simpleTypes: List<ResolvedLocalSimpleType> =
-        DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema) }
+        DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema, context) }
 
     override val memberTypes: List<QName>?
         get() = rawPart.memberTypes

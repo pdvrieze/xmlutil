@@ -28,5 +28,7 @@ sealed interface ResolvedGlobalType : ResolvedType, NamedPart, T_NamedType, Type
     override val rawPart: T_NamedType
 
     override val name: VNCName get() = super<NamedPart>.name
+
+
 }
 

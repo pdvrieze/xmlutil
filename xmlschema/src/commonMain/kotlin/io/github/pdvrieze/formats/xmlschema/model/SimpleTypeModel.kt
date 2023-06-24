@@ -28,15 +28,16 @@ import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSet
 
 interface SimpleTypeModel : TypeModel, SimpleTypeContext {
     val mdlTargetNamespace: VAnyURI?
-    val mdlContext: SimpleTypeContext
     val mdlFacets: List<T_Facet>
-    val mdlFundamentalFacects: List<T_Facet>
+    val mdlFundamentalFacets: List<T_Facet>
     val mdlVariety: Variety
     val mdlPrimitiveTypeDefinition: PrimitiveDatatype
-    val mdlItemTypeDefinition: SimpleTypeModel
+    val mdlItemTypeDefinition: SimpleTypeModel?
     val mdlMemberTypeDefinitions: List<SimpleTypeModel>
 
-    interface Local : SimpleTypeModel, TypeModel.Local
+    interface Local : SimpleTypeModel, TypeModel.Local {
+        val mdlContext: SimpleTypeContext
+    }
 
     interface Global : SimpleTypeModel, TypeModel.Global {
         val mdlName: VNCName

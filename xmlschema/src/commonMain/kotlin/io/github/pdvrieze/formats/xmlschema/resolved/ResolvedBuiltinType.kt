@@ -33,7 +33,7 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_Global
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
-    override val otherAttrs: Map<QName, String> get() = emptyMap()
-    override val mdlAnnotations: List<AnnotationModel> get() = emptyList()
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val mdlAnnotations: Nothing? get() = null
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.ATOMIC
 }

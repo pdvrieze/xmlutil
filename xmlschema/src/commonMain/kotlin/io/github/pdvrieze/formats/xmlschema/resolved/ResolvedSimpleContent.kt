@@ -37,7 +37,7 @@ class ResolvedSimpleContent(
     override val derivation: ResolvedSimpleContentDerivation by lazy {
         when (val d = rawPart.derivation) {
             is XSSimpleContentExtension -> ResolvedSimpleContentExtension(scope, d, schema)
-            is XSSimpleContentRestriction -> ResolvedSimpleContentRestriction(d, schema)
+            is XSSimpleContentRestriction -> ResolvedSimpleContentRestriction(scope, d, schema)
             else -> error("unsupported derivation")
         }
     }

@@ -20,13 +20,28 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import nl.adaptivity.xmlutil.QName
 
-typealias ResolvedAnnotation = XSAnnotation
+class ResolvedAnnotation(val rawPart: XSAnnotation) : XSI_OpenAttrs, AnnotationModel {
+    val id: VID? = rawPart.id
 
-fun ResolvedAnnotation?.models(): List<AnnotationModel> {
-    TODO("not implemented")
+    override val otherAttrs: Map<QName, String>
+        get() = rawPart.otherAttrs
+    
+    override val mdlApplicationInformation: List<XSAppInfo> get() = rawPart.appInfos
+    override val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
+    override val mdlAttributes: Map<QName, String> get() = otherAttrs
+}
+
+fun XSAnnotation?.models(): ResolvedAnnotation? = when (this){
+    null -> null
+    else -> ResolvedAnnotation(this)
 }
 
 
