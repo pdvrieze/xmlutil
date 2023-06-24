@@ -25,9 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
@@ -38,25 +38,24 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     val model: SimpleTypeModel
 
-    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-
-    override val mdlContext: SimpleTypeContext get() = model.mdlContext
 
     override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
 
     override val mdlFacets: List<T_Facet> get() = model.mdlFacets
 
-    override val mdlFundamentalFacects: List<T_Facet> get() = model.mdlFundamentalFacects
+    override val mdlFundamentalFacets: List<T_Facet> get() = model.mdlFundamentalFacets
 
     override val mdlVariety: SimpleTypeModel.Variety get() = model.mdlVariety
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype get() = model.mdlPrimitiveTypeDefinition
 
-    override val mdlItemTypeDefinition: SimpleTypeModel get() = model.mdlItemTypeDefinition
+    override val mdlItemTypeDefinition: ResolvedSimpleType get() = model.mdlItemTypeDefinition as ResolvedSimpleType
 
-    override val mdlMemberTypeDefinitions: List<SimpleTypeModel> get() = model.mdlMemberTypeDefinitions
+    override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        get() = model.mdlMemberTypeDefinitions as List<ResolvedSimpleType>
 
 
     override fun check(
@@ -81,4 +80,17 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         abstract val baseType: ResolvedSimpleType
         abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
+
+    sealed class ModelBase(
+        rawPart: XSLocalSimpleType,
+        protected val schema: ResolvedSchemaLike,
+    ) : SimpleTypeModel {
+        override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
+        override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
+        override val mdlFundamentalFacets: List<T_Facet>
+            get() = TODO("not implemented")
+
+        abstract override val mdlItemTypeDefinition: ResolvedSimpleType?
+    }
+
 }
