@@ -33,12 +33,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSKey(
     override val selector: XSSelector,
     override val fields: List<XSField> = emptyList(),
-    override val name: VNCName,
-    override val ref: QName? = null,
+    val name: VNCName?,
+    val ref: QName? = null,
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): T_Key {
-    override val targetNamespace: Nothing? get() = null
-}
+): T_Key

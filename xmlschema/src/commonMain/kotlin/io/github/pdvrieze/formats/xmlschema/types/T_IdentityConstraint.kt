@@ -21,7 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import nl.adaptivity.xmlutil.QName
 
-interface T_IdentityConstraint: XSI_Annotated, I_OptNamedAttrs {
+interface T_IdentityConstraint: XSI_Annotated, XSI_OpenAttrs {
     val selector: XSSelector
 
     /**
@@ -29,7 +29,6 @@ interface T_IdentityConstraint: XSI_Annotated, I_OptNamedAttrs {
      */
     val fields: List<XSField>
 
-    override val name: VNCName?
-    val ref: QName?
+    interface Named: T_IdentityConstraint, I_Named
 }
 

@@ -34,14 +34,12 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSKeyref(
     override val selector: XSSelector,
     override val fields: List<XSField> = emptyList(),
-    override val name: VNCName? = null,
-    override val ref: QName? = null,
-    override val refer: QName/*? = null*/,
+    val name: VNCName? = null,
+    val ref: QName? = null,
+    override val refer: QName? = null,
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String>
 
-): T_KeyRef {
-    override val targetNamespace: Nothing? get() = null
-}
+): T_KeyRef
