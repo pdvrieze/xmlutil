@@ -96,7 +96,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         super<OptNamedPart>.check()
         for (keyref in keyrefs) {
             keyref.check()
-            checkNotNull(keyref.referenced)
+            checkNotNull(keyref.mdlReferencedKey)
         }
     }
 

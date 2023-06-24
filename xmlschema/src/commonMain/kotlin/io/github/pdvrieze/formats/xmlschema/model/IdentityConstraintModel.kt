@@ -33,9 +33,15 @@ interface IdentityConstraintModel : IAnnotated, INamedDecl {
 
     interface KeyRef : IdentityConstraintModel {
         val mdlReferencedKey: ReferenceableConstraint
+
+        override val mdlIdentityConstraintCategory: Category get() = Category.KEYREF
     }
 
-    interface Key : ReferenceableConstraint
+    interface Key : ReferenceableConstraint {
+        override val mdlIdentityConstraintCategory: Category get() = Category.KEY
+    }
 
-    interface Unique : ReferenceableConstraint
+    interface Unique : ReferenceableConstraint {
+        override val mdlIdentityConstraintCategory: Category get() = Category.UNIQUE
+    }
 }
