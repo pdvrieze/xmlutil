@@ -37,10 +37,4 @@ class XSAnnotation(
     val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSI_OpenAttrs {
-
-
-    private class ModelImpl(val rawPart: XSAnnotation) : AnnotationModel {
-
-    }
-}
+) : XSI_OpenAttrs

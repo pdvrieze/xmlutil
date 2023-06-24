@@ -38,8 +38,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     val annotation: XSAnnotation? get() = rawPart.annotation
 
-    override val simpleTypes: List<ResolvedGlobalSimpleType> = DelegateList(rawPart.simpleTypes) { ResolvedGlobalSimpleType(it, this) }
-    override val complexTypes: List<ResolvedGlobalComplexType> = DelegateList(rawPart.complexTypes) { ResolvedGlobalComplexType(it, this) }
+    override val simpleTypes: List<ResolvedGlobalSimpleType> =
+        DelegateList(rawPart.simpleTypes) { ResolvedGlobalSimpleType(it, this) }
+
+    override val complexTypes: List<ResolvedGlobalComplexType> =
+        DelegateList(rawPart.complexTypes) { ResolvedGlobalComplexType(it, this) }
 
     val types: List<ResolvedGlobalType> get() = CombiningList(simpleTypes, complexTypes)
     override val attributes: List<ResolvedGlobalAttribute> get() = DelegateList(rawPart.attributes) { ResolvedGlobalAttribute(it, this) }

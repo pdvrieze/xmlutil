@@ -40,11 +40,14 @@ abstract class ResolvedSimpleDerivationBase(
  */
 class ResolvedSimpleRestriction(
     override val rawPart: XSSimpleRestriction,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    context: ResolvedSimpleType
 ) : ResolvedSimpleRestrictionBase(schema) {
-    override val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let{
-        ResolvedLocalSimpleType(it, schema)
-    }}
+    override val simpleType: ResolvedLocalSimpleType? by lazy {
+        rawPart.simpleType?.let {
+            ResolvedLocalSimpleType(it, schema, context)
+        }
+    }
 }
 
 

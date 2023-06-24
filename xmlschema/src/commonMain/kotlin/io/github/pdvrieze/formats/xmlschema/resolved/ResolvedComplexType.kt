@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexTyp
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
@@ -43,7 +42,7 @@ sealed class ResolvedComplexType(
     override val mdlAttributeWildcard: WildcardModel get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = model.mdlDerivationMethod
-    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
 
     interface Model: ComplexTypeModel {
@@ -51,6 +50,6 @@ sealed class ResolvedComplexType(
     }
 
     protected abstract class ModelImpl(rawPart: XSComplexType, schema: ResolvedSchemaLike): Model {
-        override val mdlAnnotations: List<AnnotationModel> = rawPart.annotation.models()
+        override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
     }
 }

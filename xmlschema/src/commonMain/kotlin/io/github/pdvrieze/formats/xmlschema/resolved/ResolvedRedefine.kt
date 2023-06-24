@@ -145,7 +145,7 @@ class ResolvedRedefine(
             ResolvedGlobalAttribute(it, this)
         }
         simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) {
-            ResolvedGlobalSimpleType(it, this)
+            ResolvedGlobalSimpleType(it, this,)
         }
         complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) {
             ResolvedGlobalComplexType(it, this)

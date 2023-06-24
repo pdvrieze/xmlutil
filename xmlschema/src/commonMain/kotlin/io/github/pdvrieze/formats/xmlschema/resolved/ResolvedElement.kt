@@ -24,13 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel {
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel, SimpleTypeContext {
 
     abstract override val rawPart: XSIElement
     abstract val scope: T_Scope
@@ -81,7 +80,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
     override val mdlSubstitutionGroupExclusions: T_DerivationSet get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
-    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
     override val mdlName: VNCName get() = model.mdlName
 
     /**
@@ -119,7 +118,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             get() = TODO("not implemented")
         override val mdlAbstract: Boolean
             get() = TODO("not implemented")
-        override val mdlAnnotations: List<AnnotationModel>
+        override val mdlAnnotations: AnnotationModel?
             get() = TODO("not implemented")
         override val mdlName: VNCName
             get() = TODO("not implemented")

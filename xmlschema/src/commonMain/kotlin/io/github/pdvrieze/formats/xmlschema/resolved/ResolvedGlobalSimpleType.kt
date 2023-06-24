@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
@@ -28,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -41,7 +41,7 @@ fun ResolvedGlobalSimpleType(rawPart: XSGlobalSimpleType, schema: ResolvedSchema
 
 class ResolvedGlobalSimpleTypeImpl(
     override val rawPart: XSGlobalSimpleType,
-    override val schema: ResolvedSchemaLike
+    override val schema: ResolvedSchemaLike,
 ) : ResolvedGlobalSimpleType {
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -60,9 +60,9 @@ class ResolvedGlobalSimpleTypeImpl(
 
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema)
-            is XSSimpleList -> ResolvedListDerivation(raw, schema)
-            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema)
+            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
+            is XSSimpleList -> ResolvedListDerivation(raw, schema, this)
+            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this)
             else -> error("unsupported derivation")
         }
 
@@ -76,30 +76,33 @@ class ResolvedGlobalSimpleTypeImpl(
 
     override val model: SimpleTypeModel.Global by lazy { ModelImpl(rawPart, schema) }
 
-    override val mdlAnnotations: List<AnnotationModel> get() = model.mdlAnnotations
+    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    private class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : SimpleTypeModel.Global {
+    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : SimpleTypeModel.Global {
         override val mdlName: VNCName = rawPart.name
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        override val mdlBaseTypeDefinition: TypeModel = when (val d = rawPart.simpleDerivation) {
+            is XSSimpleRestriction -> d.base?.let { schema.simpleType(it) }
+                ?: ResolvedLocalSimpleType(d.simpleType!!, schema, this@ResolvedGlobalSimpleTypeImpl)
+            else ->  AnySimpleType
+        }
+
         override val mdlFinal: T_SimpleDerivationSet
             get() = TODO("not implemented")
-        override val mdlContext: SimpleTypeContext
-            get() = TODO("not implemented")
-        override val mdlBaseTypeDefinition: TypeModel
-            get() = TODO("not implemented")
+
         override val mdlFacets: List<T_Facet>
             get() = TODO("not implemented")
-        override val mdlFundamentalFacects: List<T_Facet>
+        override val mdlFundamentalFacets: List<T_Facet>
             get() = TODO("not implemented")
         override val mdlVariety: SimpleTypeModel.Variety
             get() = TODO("not implemented")
         override val mdlPrimitiveTypeDefinition: PrimitiveDatatype
             get() = TODO("not implemented")
-        override val mdlItemTypeDefinition: SimpleTypeModel
+        override val mdlItemTypeDefinition: SimpleTypeModel?
             get() = TODO("not implemented")
         override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
             get() = TODO("not implemented")
-        override val mdlAnnotations: List<AnnotationModel>
+        override val mdlAnnotations: AnnotationModel?
             get() = TODO("not implemented")
     }
 

@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentRestriction
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -32,8 +31,9 @@ import nl.adaptivity.xmlutil.util.CompactFragment
  * Restriction is used for simple types.
  */
 class ResolvedSimpleContentRestriction(
+    context: ResolvedComplexType,
     override val rawPart: XSSimpleContentRestriction,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
 ) : ResolvedSimpleContentDerivation(schema), T_SimpleType.T_Restriction {
     override val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
@@ -42,7 +42,7 @@ class ResolvedSimpleContentRestriction(
     override val facets: List<XSFacet> get() = rawPart.facets
 
     override val simpleType: ResolvedLocalSimpleType? by lazy {
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema) }
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) }
     }
 
     override val baseType: ResolvedType by lazy { base?.let{ schema.type(it) } ?: checkNotNull(simpleType) }
