@@ -23,5 +23,5 @@ package io.github.pdvrieze.formats.xmlschema.types
 import nl.adaptivity.xmlutil.QName
 
 interface T_KeyRef : T_IdentityConstraint {
-    val refer: QName
+    val refer: QName?
 }

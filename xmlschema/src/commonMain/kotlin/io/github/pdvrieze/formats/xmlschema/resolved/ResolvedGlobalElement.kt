@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
+import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
@@ -92,7 +92,8 @@ class ResolvedGlobalElement(
 
 
     val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
-        keys + uniques + keyrefs // TODO make resolved versions
+        @Suppress("UNCHECKED_CAST")
+        (keys + uniques + keyrefs) as List<ResolvedIdentityConstraint> // TODO make resolved versions
     }
 
     override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
