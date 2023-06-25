@@ -20,15 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+
 interface TypeModel: IAnnotated {
     val mdlBaseTypeDefinition: TypeModel
+    val mdlFinal: Set<Derivation>
 
     interface Use {
 
     }
 
-    interface Global: TypeModel
+    interface Global: TypeModel {
+        val mdlTargetNamespace: VAnyURI?
+    }
 
     interface Local: TypeModel
+
+    interface Derivation
 
 }

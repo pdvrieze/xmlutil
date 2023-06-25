@@ -28,7 +28,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
 
     val mdlAbstract: Boolean
     val mdlProhibitedSubstitutions: T_DerivationSet
-    val mdlFinal: T_DerivationSet
+    override val mdlFinal: Set<Derivation>
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<AttributeModel.Use>
     val mdlAttributeWildcard: WildcardModel
@@ -87,6 +87,8 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
             override val mdlVariety: Variety get() = Variety.EMPTY
         }
     }
+
+    interface Derivation: TypeModel.Derivation
 
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 

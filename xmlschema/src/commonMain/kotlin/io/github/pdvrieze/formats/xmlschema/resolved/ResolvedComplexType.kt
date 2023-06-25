@@ -45,11 +45,12 @@ sealed class ResolvedComplexType(
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
 
-    interface Model: ComplexTypeModel {
+    interface Model : ComplexTypeModel {
         override val mdlBaseTypeDefinition: ResolvedType
+        override val mdlFinal: T_DerivationSet
     }
 
-    protected abstract class ModelImpl(rawPart: XSComplexType, schema: ResolvedSchemaLike): Model {
+    protected abstract class ModelBase(rawPart: XSComplexType, schema: ResolvedSchemaLike) : Model {
         override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
     }
 }

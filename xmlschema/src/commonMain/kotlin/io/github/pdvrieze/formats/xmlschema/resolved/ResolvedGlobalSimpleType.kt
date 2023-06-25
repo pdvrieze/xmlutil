@@ -55,6 +55,9 @@ class ResolvedGlobalSimpleTypeImpl(
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
+    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
             is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
@@ -72,12 +75,16 @@ class ResolvedGlobalSimpleTypeImpl(
         requireNotNull(model)
     }
 
-    override val model: SimpleTypeModel.Global by lazy { ModelImpl(rawPart, schema) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema) }
 
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl), SimpleTypeModel.Global {
+    interface Model : ResolvedSimpleType.Model, SimpleTypeModel.Global
+
+    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) :
+        ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl), Model {
         override val mdlName: VNCName = rawPart.name
+        override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
         override val mdlFinal: T_FullDerivationSet = rawPart.final
 

@@ -16,11 +16,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class T_TypeDerivationControl {
+enum class T_TypeDerivationControl: SimpleTypeModel.Derivation {
     @SerialName("restriction")
     RESTRICTION,
 

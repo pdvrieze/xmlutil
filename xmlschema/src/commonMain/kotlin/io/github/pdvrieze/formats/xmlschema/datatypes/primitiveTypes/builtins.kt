@@ -95,7 +95,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override val model: SimpleTypeModel get() = this
+    override val model: AtomicDatatype get() = this
 }
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
@@ -110,7 +110,7 @@ class RestrictedAtomicDatatype(name: String, targetNamespace: String, override v
         get() = emptySet()
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = TODO("not implemented")
-    override val model: SimpleTypeModel
+    override val model: RestrictedAtomicDatatype
         get() = this
 
     init {
