@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -93,7 +92,7 @@ class ResolvedGlobalComplexType(
     interface Model: ResolvedComplexType.Model, ComplexTypeModel.Global
 
     private abstract class ModelBase(rawPart: XSGlobalComplexType, schema: ResolvedSchemaLike) :
-        ResolvedComplexType.ModelImpl(rawPart, schema), Model {
+        ResolvedComplexType.ModelBase(rawPart, schema), Model {
         final override val mdlName: VNCName = rawPart.name
         final override val mdlTargetNamespace: VAnyURI? = rawPart.targetNamespace?:schema.targetNamespace
 

@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
@@ -67,7 +68,7 @@ class ResolvedLocalComplexType(
     private abstract class ModelBase(
         rawPart: XSLocalComplexType, schema: ResolvedSchemaLike,
         override val mdlContext: ComplexTypeContext
-    ) : ResolvedComplexType.ModelImpl(rawPart, schema), Model {
+    ) : ResolvedComplexType.ModelBase(rawPart, schema), Model {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<Nothing> get() = emptySet()
         override val mdlFinal: Set<Nothing> get() = emptySet()
