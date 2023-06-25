@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -134,7 +135,7 @@ open class ConstructedListDatatype : ListDatatype {
 
     override val simpleType: Nothing? get() = null
 
-    override val final: Set<T_SimpleDerivationSetElem>
+    override val final: T_FullDerivationSet
         get() = emptySet()
 
     override val simpleDerivation: BuiltinListDerivation
@@ -158,11 +159,11 @@ class RestrictedListDatatype(
 
     override val simpleType: Nothing? get() = null
 
-    override val final: Set<T_SimpleDerivationSetElem>
+    override val final: T_FullDerivationSet
         get() = emptySet()
 
     override val simpleDerivation: ResolvedListDerivation
-        get() =  TODO("Doesn't work")// ResolvedListDerivation(this, BuiltinXmlSchema)
+        get() = TODO("Doesn't work")// ResolvedListDerivation(this, BuiltinXmlSchema)
 
 }
 
@@ -207,7 +208,8 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType, TypeModel {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType,
+    TypeModel {
     override val baseType: AnyType get() = AnyType // No actual base type
 
     override val name: VNCName get() = super<Datatype>.name
@@ -217,8 +219,19 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
 
-    override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
+    override val final: T_FullDerivationSet get() = emptySet()
     override val model: SimpleTypeModel get() = this
+
+    override val mdlBaseTypeDefinition: AnyType get() = this
+
+    override val mdlTargetNamespace: VAnyURI get() = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
+
+    override val mdlPrimitiveTypeDefinition: Nothing? get() = null
+
+    override val mdlItemTypeDefinition: Nothing? get() = null
+
+    override val mdlMemberTypeDefinitions: List<Nothing>
+        get() = emptyList()
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
@@ -231,9 +244,13 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = SimpleBuiltinRestriction(baseType)
 
+    override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val final: Set<Nothing> get() = emptySet()
     override val model: SimpleTypeModel get() = this
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.NIL
+    override val mdlPrimitiveTypeDefinition: Nothing? get() = null
+    override val mdlItemTypeDefinition: Nothing? get() = null
+    override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
 }
 
 internal open class SimpleBuiltinRestriction(

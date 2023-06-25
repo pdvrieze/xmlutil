@@ -34,7 +34,7 @@ enum class T_TypeDerivationControl {
     UNION
 }
 
-fun Set<T_TypeDerivationControl>.toDerivationSet(): T_DerivationSet = asSequence()
+fun T_FullDerivationSet.toDerivationSet(): T_DerivationSet = asSequence()
     .mapNotNull {
         when (it) {
             T_TypeDerivationControl.EXTENSION -> T_ReducedDerivationControl.EXTENSION
