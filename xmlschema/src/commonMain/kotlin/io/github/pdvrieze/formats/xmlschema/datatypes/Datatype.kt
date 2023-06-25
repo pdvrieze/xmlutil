@@ -105,7 +105,7 @@ sealed class ListDatatype protected constructor(
         baseType.check(seenTypes, inheritedTypes)
     }
 
-    override val model: SimpleTypeModel
+    override val model: ListDatatype
         get() = this
 
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.LIST
@@ -193,7 +193,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override val model: SimpleTypeModel get() = this
+    override val model: ErrorType get() = this
 
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
         override val rawPart: T_SimpleType.T_Restriction get() = this
@@ -220,11 +220,9 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
         get() = SimpleBuiltinRestriction(AnyType)
 
     override val final: T_FullDerivationSet get() = emptySet()
-    override val model: SimpleTypeModel get() = this
+    override val model: AnyType get() = this
 
     override val mdlBaseTypeDefinition: AnyType get() = this
-
-    override val mdlTargetNamespace: VAnyURI get() = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
 
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
 
@@ -246,7 +244,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val final: Set<Nothing> get() = emptySet()
-    override val model: SimpleTypeModel get() = this
+    override val model: AnySimpleType get() = this
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.NIL
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
     override val mdlItemTypeDefinition: Nothing? get() = null

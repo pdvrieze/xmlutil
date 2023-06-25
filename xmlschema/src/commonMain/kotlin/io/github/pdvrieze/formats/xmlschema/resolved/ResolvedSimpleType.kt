@@ -38,11 +38,9 @@ import nl.adaptivity.xmlutil.qname
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
     override val simpleDerivation: Derivation
 
-    val model: SimpleTypeModel
+    val model: Model
 
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
-
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
 
@@ -85,15 +83,19 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         abstract val baseType: ResolvedSimpleType
         abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
+
+    interface Model: SimpleTypeModel {
+        override val mdlFinal: T_FullDerivationSet
+    }
+
     @Suppress("LeakingThis")
     sealed class ModelBase(
         rawPart: XSISimpleType,
         protected val schema: ResolvedSchemaLike,
         context: ResolvedSimpleType
-    ) : SimpleTypeModel {
+    ) : SimpleTypeModel, Model {
 
         final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
-        final override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
         final override val mdlBaseTypeDefinition: ResolvedSimpleType
         final override val mdlItemTypeDefinition: ResolvedSimpleType?
         final override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
@@ -116,7 +118,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                     AnySimpleType -> simpleDerivation.itemTypeName?.let { schema.simpleType(it) }
                         ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
 
-                    else -> recurseBaseType(rawPart, schema, context) { it.mdlItemTypeDefinition }
+                    else -> recurseBaseType(typeName, rawPart.simpleDerivation, schema, context) { it.mdlItemTypeDefinition }
                 }
 
                 else -> null
@@ -127,7 +129,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                     mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map { schema.simpleType(it) }
                         ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ModelBase) }
 
-                    else -> mdlBaseTypeDefinition.mdlMemberTypeDefinitions
+                    else -> recurseBaseType(typeName, rawPart.simpleDerivation, schema, context) { it.mdlMemberTypeDefinitions } ?: emptyList()
                 }
 
 

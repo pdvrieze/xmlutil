@@ -16,11 +16,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class T_ReducedDerivationControl {
+enum class T_ReducedDerivationControl: ComplexTypeModel.Derivation, ElementModel.Derivations {
     @SerialName("restriction")
     RESTRICTION,
     @SerialName("extension")
