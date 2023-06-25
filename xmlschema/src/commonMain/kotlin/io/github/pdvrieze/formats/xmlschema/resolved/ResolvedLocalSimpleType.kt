@@ -51,13 +51,15 @@ class ResolvedLocalSimpleType(
             else -> error("Derivations must be union, list or restriction")
         }
 
-    override val model: SimpleTypeModel.Local by lazy { ModelImpl(rawPart, schema, mdlContext) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, mdlContext) }
+
+    interface Model: SimpleTypeModel.Local, ResolvedSimpleType.Model
 
     private inner class ModelImpl(
         rawPart: XSLocalSimpleType,
         schema: ResolvedSchemaLike,
         override val mdlContext: SimpleTypeContext
-    ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), SimpleTypeModel.Local {
+    ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), Model {
 
         override val mdlFinal: T_FullDerivationSet = schema.finalDefault
     }

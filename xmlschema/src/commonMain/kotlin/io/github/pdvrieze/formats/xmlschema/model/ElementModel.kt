@@ -81,5 +81,7 @@ interface ElementModel : IAnnotated, INamed {
     }
 
     interface ParentModel
+
+    interface Derivations
 }
 
