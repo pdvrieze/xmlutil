@@ -68,7 +68,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val elementFormDefault: T_FormChoice
         get() = rawPart.elementFormDefault ?: T_FormChoice.UNQUALIFIED
 
-    override val finalDefault : Set<T_TypeDerivationControl> get() = rawPart.finalDefault ?: emptySet()
+    override val finalDefault : T_FullDerivationSet get() = rawPart.finalDefault ?: emptySet()
 
     val id: VID? get() = rawPart.id
 

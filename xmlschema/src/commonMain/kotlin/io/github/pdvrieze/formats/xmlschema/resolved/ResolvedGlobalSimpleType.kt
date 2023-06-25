@@ -20,16 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -66,44 +63,24 @@ class ResolvedGlobalSimpleTypeImpl(
             else -> error("unsupported derivation")
         }
 
-    override val final: Set<T_SimpleDerivationSetElem>
+    override val final: T_FullDerivationSet
         get() = rawPart.final
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super.check(seenTypes, inheritedTypes)
         require(name.isNotEmpty())
+        requireNotNull(model)
     }
 
     override val model: SimpleTypeModel.Global by lazy { ModelImpl(rawPart, schema) }
 
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : SimpleTypeModel.Global {
+    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl), SimpleTypeModel.Global {
         override val mdlName: VNCName = rawPart.name
-        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlBaseTypeDefinition: TypeModel = when (val d = rawPart.simpleDerivation) {
-            is XSSimpleRestriction -> d.base?.let { schema.simpleType(it) }
-                ?: ResolvedLocalSimpleType(d.simpleType!!, schema, this@ResolvedGlobalSimpleTypeImpl)
-            else ->  AnySimpleType
-        }
 
-        override val mdlFinal: T_SimpleDerivationSet
-            get() = TODO("not implemented")
+        override val mdlFinal: T_FullDerivationSet = rawPart.final
 
-        override val mdlFacets: List<T_Facet>
-            get() = TODO("not implemented")
-        override val mdlFundamentalFacets: List<T_Facet>
-            get() = TODO("not implemented")
-        override val mdlVariety: SimpleTypeModel.Variety
-            get() = TODO("not implemented")
-        override val mdlPrimitiveTypeDefinition: PrimitiveDatatype
-            get() = TODO("not implemented")
-        override val mdlItemTypeDefinition: SimpleTypeModel?
-            get() = TODO("not implemented")
-        override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
-            get() = TODO("not implemented")
-        override val mdlAnnotations: AnnotationModel?
-            get() = TODO("not implemented")
     }
 
 }

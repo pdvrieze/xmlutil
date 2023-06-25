@@ -24,10 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Include
-import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedInclude(
@@ -44,7 +41,7 @@ class ResolvedInclude(
     override val blockDefault: T_BlockSet
         get() = schema.blockDefault // TODO maybe correct, maybe not
 
-    override val finalDefault: Set<T_TypeDerivationControl>
+    override val finalDefault: T_FullDerivationSet
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
     override val elements: List<ResolvedGlobalElement>
@@ -115,7 +112,7 @@ class ResolvedRedefine(
     override val blockDefault: T_BlockSet
         get() = schema.blockDefault // TODO maybe correct, maybe not
 
-    override val finalDefault: Set<T_TypeDerivationControl>
+    override val finalDefault: T_FullDerivationSet
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
     override val elements: List<ResolvedGlobalElement>

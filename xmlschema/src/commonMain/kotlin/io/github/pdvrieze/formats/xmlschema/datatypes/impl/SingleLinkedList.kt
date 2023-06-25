@@ -23,8 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.impl
 /** Simple read-only list that allows for fast recursion by having a back chain only */
 sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T> {
 
-    final override fun isEmpty(): Boolean = false
-
     abstract operator fun plus(other: T): SingleLinkedList<T>
 
     abstract fun dropLast(n: Int = 1): SingleLinkedList<T>
@@ -73,12 +71,15 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
         }
 
         override fun plus(other: T): SingleLinkedList<T> = Head(other)
+
+        final override fun isEmpty(): Boolean = true
     }
 
     private object EmptyImpl: Empty<Nothing>()
 
     sealed class ValuedElement<T>(val elem: T): SingleLinkedList<T>() {
         override fun plus(other: T): SingleLinkedList<T> = Tail(this, other)
+        final override fun isEmpty(): Boolean = false
     }
 
     class Head<T>(elem: T) : ValuedElement<T>(elem) {

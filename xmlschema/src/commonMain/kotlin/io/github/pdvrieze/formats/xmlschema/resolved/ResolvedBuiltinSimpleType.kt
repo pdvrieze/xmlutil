@@ -21,11 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType {
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
-    override val final: Set<T_SimpleDerivationSetElem> get() = emptySet()
+    override val final: T_FullDerivationSet get() = emptySet()
 
 }

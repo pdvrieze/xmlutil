@@ -25,6 +25,10 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.*
 
+sealed interface XSISimpleType : T_SimpleType {
+    abstract override val simpleDerivation: XSSimpleDerivation
+}
+
 @Serializable
 @XmlSerialName("simpleType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGlobalSimpleType(
@@ -34,13 +38,13 @@ class XSGlobalSimpleType(
     override val simpleDerivation: XSSimpleDerivation,
     @XmlElement(false)
     @Serializable(SchemaEnumSetSerializer::class)
-    override val final: T_SimpleDerivationSet = emptySet(),
+    override val final: T_FullDerivationSet = emptySet(),
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : T_GlobalSimpleType {
+) : XSISimpleType, T_GlobalSimpleType {
     override val targetNamespace: Nothing? get() = null
 }

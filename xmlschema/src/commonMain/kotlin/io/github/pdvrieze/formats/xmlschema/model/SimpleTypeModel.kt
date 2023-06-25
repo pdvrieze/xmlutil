@@ -24,16 +24,17 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 
 interface SimpleTypeModel : TypeModel, SimpleTypeContext {
     val mdlTargetNamespace: VAnyURI?
     val mdlFacets: List<T_Facet>
     val mdlFundamentalFacets: List<T_Facet>
     val mdlVariety: Variety
-    val mdlPrimitiveTypeDefinition: PrimitiveDatatype
+    val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
     val mdlItemTypeDefinition: SimpleTypeModel?
     val mdlMemberTypeDefinitions: List<SimpleTypeModel>
+    val mdlFinal: T_FullDerivationSet
 
     interface Local : SimpleTypeModel, TypeModel.Local {
         val mdlContext: SimpleTypeContext
@@ -41,7 +42,6 @@ interface SimpleTypeModel : TypeModel, SimpleTypeContext {
 
     interface Global : SimpleTypeModel, TypeModel.Global {
         val mdlName: VNCName
-        val mdlFinal: T_SimpleDerivationSet
 
     }
 
