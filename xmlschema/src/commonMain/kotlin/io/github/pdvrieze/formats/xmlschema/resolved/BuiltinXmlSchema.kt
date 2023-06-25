@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
@@ -72,18 +73,18 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             NMTokensType
         )
 
-    override val complexTypes: List<ResolvedGlobalComplexType>
+    override val complexTypes: List<Nothing>
         get() = emptyList()
 
-    override val groups: List<ResolvedToplevelGroup>
+    override val groups: List<Nothing>
         get() = emptyList()
 
-    override val attributeGroups: List<ResolvedToplevelAttributeGroup>
+    override val attributeGroups: List<Nothing>
         get() = emptyList()
 
-    override val blockDefault: T_BlockSet
+    override val blockDefault: Set<Nothing>
         get() = emptySet()
 
-    override val finalDefault: Set<T_TypeDerivationControl>
+    override val finalDefault: Set<Nothing>
         get() = emptySet()
 }

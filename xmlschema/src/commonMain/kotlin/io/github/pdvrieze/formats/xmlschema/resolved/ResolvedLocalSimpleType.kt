@@ -20,13 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import nl.adaptivity.xmlutil.QName
 
@@ -59,47 +57,11 @@ class ResolvedLocalSimpleType(
         rawPart: XSLocalSimpleType,
         schema: ResolvedSchemaLike,
         override val mdlContext: SimpleTypeContext
-    ) : ResolvedSimpleType.ModelBase(rawPart, schema), SimpleTypeModel.Local {
+    ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), SimpleTypeModel.Local {
 
-        override val mdlBaseTypeDefinition: ResolvedSimpleType = when (val d = rawPart.simpleDerivation) {
-            is XSSimpleRestriction -> d.base?.let { schema.simpleType(it) }
-                ?: ResolvedLocalSimpleType(d.simpleType!!, schema, this@ResolvedLocalSimpleType)
-            else ->  AnySimpleType
-        }
-
-
-        override val mdlFacets: List<T_Facet>
-            get() = TODO("not implemented")
-
-        override val mdlVariety: SimpleTypeModel.Variety = when (rawPart.simpleDerivation) {
-            is XSSimpleList -> SimpleTypeModel.Variety.LIST
-            is XSSimpleRestriction -> mdlBaseTypeDefinition.mdlVariety
-            is XSSimpleUnion -> SimpleTypeModel.Variety.UNION
-        }
-
-        override val mdlPrimitiveTypeDefinition: PrimitiveDatatype = when (val b = mdlBaseTypeDefinition) {
-            is PrimitiveDatatype -> b
-            else -> b.mdlPrimitiveTypeDefinition
-        }
-
-        override val mdlItemTypeDefinition: ResolvedSimpleType? = when(val d= rawPart.simpleDerivation) {
-            is XSSimpleList -> when (mdlBaseTypeDefinition) {
-                AnySimpleType -> d.itemTypeName?.let { schema.simpleType(it) } ?: ResolvedLocalSimpleType(d.simpleType!!, schema, this@ResolvedLocalSimpleType)
-                else -> mdlBaseTypeDefinition.mdlItemTypeDefinition
-            }
-            else -> null
-        }
-
-        override val mdlMemberTypeDefinitions: List<SimpleTypeModel> = run {
-            val d = rawPart.simpleDerivation
-            when {
-                d !is XSSimpleUnion -> emptyList()
-                mdlBaseTypeDefinition == AnySimpleType -> d.memberTypes?.map { schema.simpleType(it) }
-                    ?: d.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ResolvedLocalSimpleType) }
-                else -> mdlBaseTypeDefinition.mdlMemberTypeDefinitions
-            }
-        }
+        override val mdlFinal: T_FullDerivationSet = schema.finalDefault
     }
+
 
     override fun check() {
         super<ResolvedLocalType>.check()

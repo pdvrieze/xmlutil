@@ -40,7 +40,7 @@ class XSLocalSimpleType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : XSLocalType(), T_LocalSimpleType {
+) : XSLocalType(), XSISimpleType, T_LocalSimpleType {
 
 }
 

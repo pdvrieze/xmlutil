@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleDerivationSetElem
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 
 fun builtinType(localName: String, targetNamespace: String): Datatype? {
     if (targetNamespace != XmlSchemaConstants.XS_NAMESPACE) return null
@@ -105,8 +106,8 @@ sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDa
 
 class RestrictedAtomicDatatype(name: String, targetNamespace: String, override val baseType: AtomicDatatype) :
     AtomicDatatype(name, targetNamespace) {
-    override val final: Set<T_SimpleDerivationSetElem>
-        get() = TODO("not implemented")
+    override val final: Set<Nothing>
+        get() = emptySet()
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = TODO("not implemented")
     override val model: SimpleTypeModel

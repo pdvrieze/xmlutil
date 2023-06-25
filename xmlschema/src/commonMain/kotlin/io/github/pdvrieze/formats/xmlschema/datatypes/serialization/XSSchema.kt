@@ -46,7 +46,7 @@ class XSSchema(
     val elementFormDefault: T_FormChoice? = null,
 
     @Serializable(SchemaEnumSetSerializer::class)
-    val finalDefault: Set<T_TypeDerivationControl>? = null,
+    val finalDefault: T_FullDerivationSet? = null,
 
     val id: VID? = null,
 

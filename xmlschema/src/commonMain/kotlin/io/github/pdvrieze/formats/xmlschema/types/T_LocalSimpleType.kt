@@ -30,7 +30,7 @@ interface T_LocalSimpleType: T_SimpleType, T_LocalType {
 }
 
 interface T_GlobalSimpleType: T_SimpleType, T_GlobalType {
-    val final: Set<T_SimpleDerivationSetElem>
+    val final: T_FullDerivationSet
 }
 
 interface T_SimpleType: T_SimpleBaseType {
