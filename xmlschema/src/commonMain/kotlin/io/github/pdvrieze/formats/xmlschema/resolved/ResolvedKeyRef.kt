@@ -52,7 +52,7 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyref, schema: ResolvedSchem
 
     override val refer: QName get() = requireNotNull(rawPart.refer)
 
-    override val qName: QName get() = qname(schema.targetNamespace?.value, mdlName.xmlString)
+    val qName: QName get() = qname(schema.targetNamespace?.value, mdlName.xmlString)
 
     override val selector: XSSelector get() = rawPart.selector
 

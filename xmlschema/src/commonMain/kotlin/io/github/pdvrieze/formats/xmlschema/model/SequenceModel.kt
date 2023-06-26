@@ -20,7 +20,25 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+
 interface SequenceModel: ModelGroupModel, ModelGroupModel.InclContent {
-    override val mdlTerm: ModelGroupModel.InclContent
+//    override val mdlTerm: ModelGroupModel.InclContent
+
+    override val effectiveTotalRange: AllNNIRange
+        get() = run {
+            var minSum: VNonNegativeInteger = VUnsignedLong(0u)
+            var maxSum: T_AllNNI = T_AllNNI.Value(0u)
+            for (particle in mdlParticles) {
+                val r = particle.effectiveTotalRange
+                minSum += r.start
+                maxSum += r.endInclusive
+            }
+
+            AllNNIRange(mdlMinOccurs * minSum, mdlMaxOccurs * maxSum)
+        }
 
 }

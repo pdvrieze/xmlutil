@@ -20,14 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface ModelGroupDefModel: ElementModel.ParentModel, IAnnotated, INamedDecl,
-    ModelGroupModel.AllContent {
+interface GroupDefModel : ElementModel.ParentModel, IAnnotated, INamedDecl,
+    ModelGroupModel.AllContent, ComplexTypeModel.InitialParticles {
 
     val mdlModelGroup: ModelGroupModel
 
 
-    interface Ref : ParticleModel {
-        override val mdlTerm: ModelGroupDefModel
+    interface Ref : ComplexTypeModel.InitialParticles {
+//        override val mdlTerm: ModelGroupDefModel
     }
 }
 

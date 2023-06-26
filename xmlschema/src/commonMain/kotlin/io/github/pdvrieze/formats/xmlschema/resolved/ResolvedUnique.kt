@@ -50,7 +50,7 @@ class ResolvedDirectUnique(
 ): ResolvedNamedIdentityConstraint(schema, owner), T_Unique, ResolvedUnique, IdentityConstraintModel.Unique {
     override val name: VNCName = checkNotNull(rawPart.name)
 
-    override val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
+    val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
 
     override val selector: XSSelector get() = rawPart.selector
 
