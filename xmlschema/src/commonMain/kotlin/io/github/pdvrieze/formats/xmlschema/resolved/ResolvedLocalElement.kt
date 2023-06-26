@@ -35,6 +35,8 @@ class ResolvedLocalElement(
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema), ResolvedParticle, T_LocalElement, ElementModel.Local {
+
+
     override val scope: T_Scope get() = T_Scope.LOCAL
 
     override val ref: QName? get() = rawPart.ref
