@@ -36,14 +36,15 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 class XSComplexContent(
     override val id: VID? = null,
+    val mixed: Boolean? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
-    override val derivation: XSDerivationBase
-) : IXSComplexContent, T_ComplexType.ComplexContent {
+    override val derivation: XSComplexDerivationBase
+) : XSI_ComplexContent.Complex, T_ComplexType.ComplexContent {
     @Serializable
-    sealed class XSDerivationBase: T_ComplexDerivation {
+    sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
         abstract override val groups: List<XSGroupRef>
         abstract override val alls: List<XSAll>
         abstract override val choices: List<XSChoice>
@@ -75,7 +76,7 @@ class XSComplexContent(
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSDerivationBase(), T_ComplexRestrictionType {
+    ) : XSComplexDerivationBase(), T_ComplexRestrictionType {
         override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
     }
 
@@ -97,7 +98,7 @@ class XSComplexContent(
         override val openContents: List<XSOpenContent> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSDerivationBase(), T_ComplexExtensionType {
+    ) : XSComplexDerivationBase(), T_ComplexExtensionType {
         override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.EXTENSION
     }
 

@@ -34,6 +34,9 @@ interface VNonNegativeInteger : VInteger {
     fun toULong(): ULong
     fun toUInt(): UInt
 
+    operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger
+    operator fun times(other: VNonNegativeInteger): VNonNegativeInteger
+
     private class Inst(override val xmlString: String) : VNonNegativeInteger {
         override fun toLong(): Long = xmlString.toLong()
 
@@ -42,6 +45,14 @@ interface VNonNegativeInteger : VInteger {
         override fun toULong(): ULong = xmlString.toULong()
 
         override fun toUInt(): UInt = xmlString.toUInt()
+
+        override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {
+            return VUnsignedLong(toULong() + other.toULong())
+        }
+
+        override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
+            return VUnsignedLong(toULong() * other.toULong())
+        }
     }
 
     class Serializer : KSerializer<VNonNegativeInteger> {
