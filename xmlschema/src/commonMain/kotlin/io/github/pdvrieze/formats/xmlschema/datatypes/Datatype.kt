@@ -233,6 +233,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
+
     override val baseType: AnyType get() = AnyType
 
     override val name: VNCName get() = super<Datatype>.name

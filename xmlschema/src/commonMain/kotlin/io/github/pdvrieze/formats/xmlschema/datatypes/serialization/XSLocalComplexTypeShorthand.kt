@@ -51,6 +51,8 @@ class XSLocalComplexTypeShorthand(
 
     override val content: IXSComplexTypeShorthand get() = this
 
+    override val base: Nothing? get() = null
+
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             mixed = mixed,
