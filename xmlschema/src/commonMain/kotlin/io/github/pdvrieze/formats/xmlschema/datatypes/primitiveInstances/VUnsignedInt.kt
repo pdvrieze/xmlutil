@@ -38,6 +38,16 @@ abstract class VUnsignedInt : VUnsignedLong {
         override fun toInt(): Int = value.toInt()
 
         override fun toUInt(): UInt = value
+
+        override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {
+            if (other !is VUnsignedInt) return other.plus(this)
+            return Inst(value + other.toUInt())
+        }
+
+        override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
+            return VUnsignedLong(toULong() * other.toULong())
+        }
+
     }
 
     class Serializer : KSerializer<VUnsignedInt> {

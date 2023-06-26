@@ -75,7 +75,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
         }
 
         interface ElementBase : ContentType {
-            val mdlParticle: ParticleModel
+            val mdlParticle: InitialParticles
             val openContent: OpenContentModel
         }
 
@@ -87,6 +87,8 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
             override val mdlVariety: Variety get() = Variety.EMPTY
         }
     }
+
+    interface InitialParticles: ParticleModel
 
     interface Derivation: TypeModel.Derivation
 

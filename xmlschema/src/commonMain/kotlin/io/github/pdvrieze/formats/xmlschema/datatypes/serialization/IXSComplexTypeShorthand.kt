@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.types.*
 
 sealed interface IXSComplexTypeShorthand:
-    T_ComplexType.Shorthand, IXSComplexContent {
+    T_ComplexType.Shorthand, XSI_ComplexContent.Complex, XSI_ComplexDerivation {
     override val groups: List<XSGroupRef>
 
     override val alls: List<XSAll>
@@ -38,5 +38,5 @@ sealed interface IXSComplexTypeShorthand:
 
     override val attributeGroups: List<XSAttributeGroupRef>
 
-    val openContents: List<XSOpenContent>
+    override val openContents: List<XSOpenContent>
 }

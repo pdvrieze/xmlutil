@@ -33,7 +33,7 @@ sealed class ResolvedComplexTypeContent(
 ) : T_ComplexType.Content, ResolvedPart {
     abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
-    override abstract val rawPart: IXSComplexContent
+    override abstract val rawPart: XSI_ComplexContent
 }
 
 class ResolvedComplexContent(

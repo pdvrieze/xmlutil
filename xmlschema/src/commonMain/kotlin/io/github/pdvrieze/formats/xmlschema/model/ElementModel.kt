@@ -23,11 +23,12 @@ package io.github.pdvrieze.formats.xmlschema.model
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSScopeVariety
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import nl.adaptivity.xmlutil.QName
 
 interface ElementModel : IAnnotated, INamed {
 
     val mdlTypeDefinition: TypeModel
-    val mdlTypeTable : TypeTable?
+    val mdlTypeTable: TypeTable?
     val mdlNillable: Boolean
     val mdlValueConstraint: ValueConstraintModel?
     val mdlIdentityConstraints: Set<IdentityConstraintModel>
@@ -40,7 +41,7 @@ interface ElementModel : IAnnotated, INamed {
         val mdlScope: Scope
     }
 
-    interface Use: ElementModel, ModelGroupModel.AllContent {
+    interface Use : ElementModel, ModelGroupModel.AllContent {
 
     }
 
@@ -56,6 +57,7 @@ interface ElementModel : IAnnotated, INamed {
      */
     interface Local : Decl, ParticleModel, ParticleModel.BasicTerm {
         override val mdlScope: Scope.Local
+
         /** Return this */
         override val mdlTerm: Local
     }
@@ -71,10 +73,12 @@ interface ElementModel : IAnnotated, INamed {
 
     interface Scope {
         val variety: XSScopeVariety
-        interface Global: Scope {
+
+        interface Global : Scope {
             override val variety: XSScopeVariety get() = XSScopeVariety.GLOBAL
         }
-        interface Local: Scope {
+
+        interface Local : Scope {
             override val variety: XSScopeVariety get() = XSScopeVariety.LOCAL
             val parent: ParentModel
         }

@@ -48,7 +48,7 @@ sealed class XSGlobalComplexType(
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSComplexType, T_GlobalComplexType_Base {
-    abstract override val content: IXSComplexContent
+    abstract override val content: XSI_ComplexContent
 
     override val targetNamespace: Nothing? get() = null
 

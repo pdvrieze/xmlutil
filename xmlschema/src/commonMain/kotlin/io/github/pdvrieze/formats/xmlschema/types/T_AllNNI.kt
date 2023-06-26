@@ -26,8 +26,24 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(T_AllNNI.Serializer::class)
-sealed class T_AllNNI {
-    object UNBOUNDED: T_AllNNI() {
+sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
+
+
+    abstract operator fun plus(other: T_AllNNI): T_AllNNI
+
+    abstract operator fun times(other: T_AllNNI): T_AllNNI
+
+
+    object UNBOUNDED : T_AllNNI() {
+        override fun compareTo(other: T_AllNNI): Int = when(other){
+            UNBOUNDED -> 0
+            else -> 1
+        }
+
+        operator fun plus(other: VNonNegativeInteger): T_AllNNI = UNBOUNDED
+        override operator fun plus(other: T_AllNNI): T_AllNNI = UNBOUNDED
+        override operator fun times(other: T_AllNNI): T_AllNNI = UNBOUNDED
+
         override fun toString(): String = "unbounded"
     }
 
@@ -35,6 +51,28 @@ sealed class T_AllNNI {
     class Value(val value: VNonNegativeInteger): T_AllNNI(), VNonNegativeInteger by value {
         constructor(value: ULong): this(VNonNegativeInteger(value))
         constructor(value: UInt): this(VNonNegativeInteger(value))
+
+        override fun compareTo(other: T_AllNNI): Int {
+            return when (other) {
+                is UNBOUNDED -> -1
+                is Value -> toULong().compareTo(other.toULong())
+            }
+        }
+
+        override operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger = when (other) {
+            is Value -> Value(value + other.value)
+            else -> Value(value + other)
+        }
+
+        override operator fun plus(other: T_AllNNI): T_AllNNI = when (other) {
+            is Value -> Value(value + other.value)
+            is UNBOUNDED -> UNBOUNDED
+        }
+
+        override operator fun times(other: T_AllNNI): T_AllNNI = when (other) {
+            is Value -> Value(value.toULong() * other.value.toULong())
+            is UNBOUNDED -> UNBOUNDED
+        }
 
         override fun toString(): String = value.toString()
 
@@ -72,5 +110,19 @@ sealed class T_AllNNI {
         override fun serialize(encoder: Encoder, value: T_AllNNI) {
             encoder.encodeString(value.toString())
         }
+    }
+}
+
+class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive: T_AllNNI): ClosedRange<T_AllNNI> {
+    constructor(startNNI: VNonNegativeInteger, endInclusive: T_AllNNI) : this(T_AllNNI.Value(startNNI), endInclusive)
+    constructor(startNNI: VNonNegativeInteger, endInclusive: VNonNegativeInteger) : this(start = T_AllNNI.Value(startNNI), T_AllNNI.Value(endInclusive))
+
+    override fun contains(value: T_AllNNI): Boolean = when (value) {
+        is T_AllNNI.UNBOUNDED -> false
+        is T_AllNNI.Value -> start <= value && value <= endInclusive
+    }
+
+    override fun isEmpty(): Boolean {
+        return endInclusive !is T_AllNNI.UNBOUNDED && start < endInclusive
     }
 }

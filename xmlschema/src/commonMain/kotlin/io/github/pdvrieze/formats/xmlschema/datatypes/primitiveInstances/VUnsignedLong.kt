@@ -40,6 +40,16 @@ interface VUnsignedLong : VNonNegativeInteger {
         override fun toULong(): ULong = value
 
         override fun toUInt(): UInt = value.toUInt()
+
+        override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {
+            if (other !is VUnsignedLong) return other.plus(this)
+            return VUnsignedLong.Inst(value + other.toULong())
+        }
+
+        override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
+            return VUnsignedLong(toULong() * other.toULong())
+        }
+
     }
 
     class Serializer : KSerializer<VUnsignedLong> {

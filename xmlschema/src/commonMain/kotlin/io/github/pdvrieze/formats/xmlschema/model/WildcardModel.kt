@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
 import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
 
-interface WildcardModel : IAnnotated {
+interface WildcardModel : IAnnotated, ParticleModel.BasicTerm {
     val mdlNamespaceConstraint: Set<NamespaceConstraint>
     val mdlProcessContents: T_ProcessContents
 

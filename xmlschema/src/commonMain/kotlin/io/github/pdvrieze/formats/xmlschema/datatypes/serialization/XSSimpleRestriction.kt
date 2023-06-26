@@ -41,7 +41,7 @@ class XSSimpleRestriction(
     override val simpleType: XSLocalSimpleType? = null,
     override val facets: List<XSFacet> = emptyList(),
     @XmlValue(true)
-    override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
+    override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
 ) : XSSimpleDerivation(), T_SimpleType.T_Restriction

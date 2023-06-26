@@ -72,7 +72,6 @@ sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: 
     ResolvedIdentityConstraint(schema, owner) {
 
     abstract val name: VNCName
-    abstract val qName: QName
 
     final override val mdlName: VNCName get() = name
 
