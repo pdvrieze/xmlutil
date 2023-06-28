@@ -56,10 +56,22 @@ class ResolvedComplexContent(
     }
 }
 
-sealed class ResolvedDerivation(override val schema: ResolvedSchemaLike): T_ComplexDerivation, ResolvedPart {
-    override abstract val rawPart : T_ComplexDerivationSealedBase
+sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike): T_ComplexDerivation, ResolvedPart {
+    override abstract val rawPart : XSComplexContent.XSComplexDerivationBase
 
     override val groups: List<T_GroupRef> get() = rawPart.groups
+
+    override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
+        when (val t = rawPart.term) {
+            is XSAll -> ResolvedAll(scope, t, schema)
+            is XSChoice -> ResolvedChoice(scope, t, schema)
+            is XSGroupRef -> ResolvedGroupRef(t, schema)
+            is XSSequence -> ResolvedSequence(scope, t, schema)
+            null -> null
+        }
+    }
+
+
 
     abstract override val alls: List<ResolvedAll>
     abstract override val choices: List<ResolvedChoice>
@@ -98,7 +110,8 @@ class ResolvedComplexExtension(
     override val rawPart: XSComplexContent.XSExtension,
     scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedDerivation(schema), T_ComplexExtensionType {
+) : ResolvedDerivation(scope, schema), T_ComplexExtensionType {
+
     override val alls: List<ResolvedAll> =
         DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema)}
 
@@ -130,7 +143,7 @@ class ResolvedComplexRestriction(
     override val rawPart: XSComplexContent.XSRestriction,
     scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedDerivation(schema), T_ComplexRestrictionType {
+) : ResolvedDerivation(scope, schema), T_ComplexRestrictionType {
 
     override val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, scope) } }
 
@@ -171,7 +184,15 @@ class ResolvedComplexShorthandContent(
     schema: ResolvedSchemaLike
 ) : ResolvedComplexTypeContent(schema),
     T_ComplexType.ShorthandContent {
-
+    override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
+        when (val t = rawPart.term) {
+            is XSAll -> ResolvedAll(scope, t, schema)
+            is XSChoice -> ResolvedChoice(scope, t, schema)
+            is XSGroupRef -> ResolvedGroupRef(t, schema)
+            is XSSequence -> ResolvedSequence(scope, t, schema)
+            null -> null
+        }
+    }
     override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
     override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema) }
     override val choices: List<ResolvedChoice> = DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
