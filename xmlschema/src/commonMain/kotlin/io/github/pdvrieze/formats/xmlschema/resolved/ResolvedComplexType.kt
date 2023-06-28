@@ -44,7 +44,9 @@ sealed class ResolvedComplexType(
     override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    sealed interface ResolvedDirectParticle: T_ComplexType.DirectParticle
+    sealed interface ResolvedDirectParticle: T_ComplexType.DirectParticle {
+        fun check()
+    }
 
     interface Model : ComplexTypeModel {
         override val mdlBaseTypeDefinition: ResolvedType

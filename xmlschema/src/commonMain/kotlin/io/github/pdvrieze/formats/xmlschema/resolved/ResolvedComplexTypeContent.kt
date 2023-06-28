@@ -59,9 +59,7 @@ class ResolvedComplexContent(
 sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike): T_ComplexDerivation, ResolvedPart {
     override abstract val rawPart : XSComplexContent.XSComplexDerivationBase
 
-    override val groups: List<T_GroupRef> get() = rawPart.groups
-
-    override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
+    final override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
         when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)
@@ -71,20 +69,15 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
         }
     }
 
-
-
-    abstract override val alls: List<ResolvedAll>
-    abstract override val choices: List<ResolvedChoice>
-    abstract override val sequences: List<ResolvedSequence>
-    override val asserts: List<T_Assertion> get() = rawPart.asserts
+    final override val asserts: List<T_Assertion> get() = rawPart.asserts
     abstract override val attributes: List<ResolvedLocalAttribute>
     abstract override val attributeGroups: List<ResolvedAttributeGroupRef>
-    override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    override val annotation: XSAnnotation? get() = rawPart.annotation
-    override val id: VID? get() = rawPart.id
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-    override val base: QName? get() = rawPart.base
-    override val openContents: List<XSOpenContent> get() = rawPart.openContents
+    final override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
+    final override val annotation: XSAnnotation? get() = rawPart.annotation
+    final override val id: VID? get() = rawPart.id
+    final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+    final override val base: QName? get() = rawPart.base
+    final override val openContents: List<XSOpenContent> get() = rawPart.openContents
 
     val baseType: ResolvedGlobalType by lazy {
         schema.type(base ?: AnyType.qName)
@@ -97,9 +90,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
             baseType.check(seenTypes, inheritedTypes)
         }
 
-        alls.forEach(ResolvedAll::check)
-        choices.forEach(ResolvedChoice::check)
-        sequences.forEach(ResolvedSequence::check)
+        term?.check()
         attributes.forEach(ResolvedLocalAttribute::check)
         attributeGroups.forEach(ResolvedAttributeGroupRef::check)
 
@@ -112,15 +103,6 @@ class ResolvedComplexExtension(
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(scope, schema), T_ComplexExtensionType {
 
-    override val alls: List<ResolvedAll> =
-        DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema)}
-
-    override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
-
-    override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
-
     override val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema)}
 
@@ -130,12 +112,6 @@ class ResolvedComplexExtension(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
         require(base !in inheritedTypes.dropLastOrEmpty(1)) { "Recursive type use in complex content: $base" }
-
-        alls.forEach(ResolvedAll::check)
-        choices.forEach(ResolvedChoice::check)
-        sequences.forEach(ResolvedSequence::check)
-        attributes.forEach(ResolvedLocalAttribute::check)
-        attributeGroups.forEach(ResolvedAttributeGroupRef::check)
     }
 }
 
@@ -152,15 +128,6 @@ class ResolvedComplexRestriction(
     override val otherContents: List<CompactFragment>
         get() = rawPart.otherContents
 
-    override val alls: List<ResolvedAll> =
-        DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema)}
-
-    override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
-
-    override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
-
     override val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema)}
 
@@ -169,12 +136,6 @@ class ResolvedComplexRestriction(
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
-        alls.forEach(ResolvedAll::check)
-        choices.forEach(ResolvedChoice::check)
-        sequences.forEach(ResolvedSequence::check)
-        attributes.forEach(ResolvedLocalAttribute::check)
-        attributeGroups.forEach(ResolvedAttributeGroupRef::check)
-        simpleType?.check(seenTypes, inheritedTypes)
     }
 }
 
@@ -193,10 +154,7 @@ class ResolvedComplexShorthandContent(
             null -> null
         }
     }
-    override val groups: List<ResolvedGroupRef> = DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
-    override val alls: List<ResolvedAll> = DelegateList(rawPart.alls) { ResolvedAll(scope, it, schema) }
-    override val choices: List<ResolvedChoice> = DelegateList(rawPart.choices) { ResolvedChoice(scope, it, schema) }
-    override val sequences: List<ResolvedSequence> = DelegateList(rawPart.sequences) { ResolvedSequence(scope, it, schema) }
+
     override val asserts: List<T_Assertion> get() = rawPart.asserts
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
@@ -205,10 +163,7 @@ class ResolvedComplexShorthandContent(
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super.check()
-        groups.forEach(ResolvedGroupRef::check)
-        alls.forEach(ResolvedAll::check)
-        choices.forEach(ResolvedChoice::check)
-        sequences.forEach(ResolvedSequence::check)
+        term?.check()
         attributes.forEach(ResolvedLocalAttribute::check)
         attributeGroups.forEach(ResolvedAttributeGroupRef::check)
     }

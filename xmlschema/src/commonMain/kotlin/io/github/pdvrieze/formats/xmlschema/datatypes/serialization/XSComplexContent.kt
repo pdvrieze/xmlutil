@@ -46,10 +46,6 @@ class XSComplexContent(
     @Serializable
     sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
         abstract override val term: XSIDirectParticle?
-        abstract override val groups: List<XSGroupRef>
-        abstract override val alls: List<XSAll>
-        abstract override val choices: List<XSChoice>
-        abstract override val sequences: List<XSSequence>
         abstract override val asserts: List<XSAssertionFacet>
         abstract override val attributes: List<XSLocalAttribute>
         abstract override val attributeGroups: List<XSAttributeGroupRef>
@@ -68,10 +64,6 @@ class XSComplexContent(
 
         override val openContents: List<XSOpenContent> = emptyList(),
         override val term: XSIDirectParticle? = null,
-        override val groups: List<XSGroupRef> = emptyList(), // TODO shouldn't be lists
-        override val alls: List<XSAll> = emptyList(),
-        override val choices: List<XSChoice> = emptyList(),
-        override val sequences: List<XSSequence> = emptyList(),
         override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -92,11 +84,6 @@ class XSComplexContent(
         override val id: VID? = null,
         override val term: XSIDirectParticle? = null,
 
-        override val groups: List<XSGroupRef> = emptyList(),
-
-        override val alls: List<XSAll> = emptyList(),
-        override val choices: List<XSChoice> = emptyList(),
-        override val sequences: List<XSSequence> = emptyList(),
         override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),

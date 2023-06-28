@@ -27,14 +27,6 @@ sealed interface IXSComplexTypeShorthand:
 
     override val term: XSComplexContent.XSIDirectParticle?
 
-    override val groups: List<XSGroupRef>
-
-    override val alls: List<XSAll>
-
-    override val choices: List<XSChoice>
-
-    override val sequences: List<XSSequence>
-
     override val asserts: List<XSAssert>
 
     override val attributes: List<XSLocalAttribute>
