@@ -56,7 +56,7 @@ class ResolvedAll(
     parent: ResolvedType,
     override val rawPart: XSAll,
     override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_All {
+) : ResolvedExplicitGroup(parent, schema), T_All, ResolvedComplexType.ResolvedDirectParticle {
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 
@@ -73,7 +73,7 @@ class ResolvedChoice(
     parent: ResolvedType,
     override val rawPart: XSChoice,
     override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_Choice {
+) : ResolvedExplicitGroup(parent, schema), T_Choice, ResolvedComplexType.ResolvedDirectParticle {
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 
@@ -98,7 +98,7 @@ class ResolvedSequence(
     parent: ResolvedType,
     override val rawPart: XSSequence,
     override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_Sequence {
+) : ResolvedExplicitGroup(parent, schema), T_Sequence, ResolvedComplexType.ResolvedDirectParticle {
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 

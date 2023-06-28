@@ -45,4 +45,4 @@ class XSChoice(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSExplicitGroup, T_Choice
+) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle

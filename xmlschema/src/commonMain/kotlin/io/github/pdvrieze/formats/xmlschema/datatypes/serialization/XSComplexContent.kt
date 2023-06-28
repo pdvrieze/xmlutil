@@ -45,6 +45,7 @@ class XSComplexContent(
 ) : XSI_ComplexContent.Complex, T_ComplexType.ComplexContent {
     @Serializable
     sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
+        abstract override val term: XSIDirectParticle?
         abstract override val groups: List<XSGroupRef>
         abstract override val alls: List<XSAll>
         abstract override val choices: List<XSChoice>
@@ -55,6 +56,9 @@ class XSComplexContent(
         abstract val derivationMethod: ComplexTypeModel.DerivationMethod
     }
 
+    @Serializable
+    sealed interface XSIDirectParticle: T_ComplexType.DirectParticle
+
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
     class XSRestriction(
@@ -63,6 +67,7 @@ class XSComplexContent(
         override val annotation: XSAnnotation? = null,
 
         override val openContents: List<XSOpenContent> = emptyList(),
+        override val term: XSIDirectParticle? = null,
         override val groups: List<XSGroupRef> = emptyList(), // TODO shouldn't be lists
         override val alls: List<XSAll> = emptyList(),
         override val choices: List<XSChoice> = emptyList(),
@@ -85,7 +90,10 @@ class XSComplexContent(
     class XSExtension(
         override val base: QName,
         override val id: VID? = null,
+        override val term: XSIDirectParticle? = null,
+
         override val groups: List<XSGroupRef> = emptyList(),
+
         override val alls: List<XSAll> = emptyList(),
         override val choices: List<XSChoice> = emptyList(),
         override val sequences: List<XSSequence> = emptyList(),

@@ -20,4 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_Sequence: T_ExplicitGroup
+interface T_Sequence: T_ExplicitGroup, T_ComplexType.DirectParticle

@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleContentExtension: XSSimpleContentDerivation, T_SimpleExtensionType {
+class XSSimpleContentExtension: XSSimpleContentDerivation, T_SimpleExtensionType { // TODO should not implement SimpleExtensionType
 
     constructor(
         base: QName,

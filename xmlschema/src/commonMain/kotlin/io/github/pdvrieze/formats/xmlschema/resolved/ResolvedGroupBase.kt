@@ -43,7 +43,7 @@ sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealG
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), T_GroupRef {
+): ResolvedGroupBase(schema), T_GroupRef, ResolvedComplexType.ResolvedDirectParticle {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref

@@ -42,7 +42,7 @@ class XSAll(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): XSExplicitGroup, T_All {
+): XSExplicitGroup, T_All, XSComplexContent.XSIDirectParticle {
     override val choices: List<Nothing> get() = emptyList()
     override val sequences: List<Nothing> get() = emptyList()
 }
