@@ -22,7 +22,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
  * minOccurs is 0 or 1
  * maxOccurs is 0 or 1
  */
-interface T_All: T_ExplicitGroup {
+interface T_All: T_ExplicitGroup, T_ComplexType.DirectParticle {
     override val minOccurs: VNonNegativeInteger? // 0 or 1
     override val maxOccurs: T_AllNNI.Value? // 0 or 1
 

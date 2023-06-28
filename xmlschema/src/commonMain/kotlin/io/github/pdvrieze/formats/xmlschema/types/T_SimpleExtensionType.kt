@@ -25,6 +25,7 @@ interface T_SimpleExtensionType : T_ExtensionType,
 
     override val base: QName
 
+    override val term: Nothing? get() = null
     override val groups: List<Nothing> get() = emptyList()
     override val alls: List<Nothing> get() = emptyList()
     override val choices: List<Nothing> get() = emptyList()
@@ -40,6 +41,7 @@ interface T_SimpleRestrictionType : T_ExtensionType,
 
     override val base: QName
 
+    override val term: Nothing? get() = null
     override val groups: List<Nothing> get() = emptyList()
     override val alls: List<Nothing> get() = emptyList()
     override val choices: List<Nothing> get() = emptyList()

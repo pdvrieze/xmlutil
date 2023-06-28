@@ -35,6 +35,7 @@ class XSGlobalComplexTypeShorthand(
     final: T_DerivationSet?,
     block: T_DerivationSet?,
     defaultAttributesApply: Boolean?,
+    override val term: XSComplexContent.XSIDirectParticle? = null,
     override val groups: List<XSGroupRef>,
     override val alls: List<XSAll>,
     override val choices: List<XSChoice>,

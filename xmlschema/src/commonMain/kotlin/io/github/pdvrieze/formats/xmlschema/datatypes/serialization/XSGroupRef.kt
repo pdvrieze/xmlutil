@@ -39,7 +39,7 @@ class XSGroupRef(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : T_GroupRef, XSI_Annotated
+) : T_GroupRef, XSI_Annotated, XSComplexContent.XSIDirectParticle
 
 @Serializable
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)

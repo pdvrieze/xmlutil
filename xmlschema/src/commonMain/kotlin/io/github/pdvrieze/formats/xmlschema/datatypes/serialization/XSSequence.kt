@@ -47,4 +47,4 @@ class XSSequence(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): XSExplicitGroup, T_Sequence
+): XSExplicitGroup, T_Sequence, XSComplexContent.XSIDirectParticle

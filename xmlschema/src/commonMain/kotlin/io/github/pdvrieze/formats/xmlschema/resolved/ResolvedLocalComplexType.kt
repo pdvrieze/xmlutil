@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
@@ -50,10 +49,11 @@ class ResolvedLocalComplexType(
     }
 
     override val model: Model by lazy {
-        when (rawPart) {
-            is XSLocalComplexTypeComplex -> ComplexModelImpl(rawPart, schema, mdlContext)
-            is XSLocalComplexTypeShorthand -> ShorthandModelImpl(rawPart, schema, mdlContext)
-            is XSLocalComplexTypeSimple -> SimpleModelImpl(rawPart, schema, mdlContext)
+        when (val raw = rawPart) {
+            is XSLocalComplexTypeComplex -> ComplexModelImpl(raw, schema, mdlContext)
+            is XSLocalComplexTypeShorthand -> ShorthandModelImpl(raw, schema, mdlContext)
+            is XSLocalComplexTypeSimple -> SimpleModelImpl(raw, schema, mdlContext)
+            else -> error("XSLocalComplexType should be sealed")
         }
     }
 
