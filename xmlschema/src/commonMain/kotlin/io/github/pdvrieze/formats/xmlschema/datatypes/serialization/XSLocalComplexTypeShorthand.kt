@@ -30,10 +30,6 @@ class XSLocalComplexTypeShorthand(
     mixed: Boolean? = null,
     defaultAttributesApply: Boolean? = null,
     override val term: XSComplexContent.XSIDirectParticle? = null,
-    override val groups: List<XSGroupRef> = emptyList(),
-    override val alls: List<XSAll> = emptyList(),
-    override val choices: List<XSChoice> = emptyList(),
-    override val sequences: List<XSSequence> = emptyList(),
     override val asserts: List<XSAssert> = emptyList(),
     override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -58,10 +54,7 @@ class XSLocalComplexTypeShorthand(
         return SerialDelegate(
             mixed = mixed,
             defaultAttributesApply = defaultAttributesApply,
-            groups = groups,
-            alls = alls,
-            choices = choices,
-            sequences = sequences,
+            term = term,
             asserts = asserts,
             atributes = attributes,
             atributeGroups = attributeGroups,
@@ -80,25 +73,17 @@ class XSLocalComplexTypeShorthand(
 
         other as XSLocalComplexTypeShorthand
 
-        if (groups != other.groups) return false
-        if (alls != other.alls) return false
-        if (choices != other.choices) return false
-        if (sequences != other.sequences) return false
+        if (term != other.term) return false
         if (asserts != other.asserts) return false
         if (attributes != other.attributes) return false
         if (attributeGroups != other.attributeGroups) return false
         if (anyAttribute != other.anyAttribute) return false
-        if (openContents != other.openContents) return false
-
-        return true
+        return openContents == other.openContents
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + groups.hashCode()
-        result = 31 * result + alls.hashCode()
-        result = 31 * result + choices.hashCode()
-        result = 31 * result + sequences.hashCode()
+        result = 31 * result + (term?.hashCode() ?: 0)
         result = 31 * result + asserts.hashCode()
         result = 31 * result + attributes.hashCode()
         result = 31 * result + attributeGroups.hashCode()

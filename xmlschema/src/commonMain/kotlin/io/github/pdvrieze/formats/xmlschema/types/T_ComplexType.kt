@@ -65,10 +65,6 @@ interface T_ComplexType : T_Type {
 
     interface ParticleProperties {
         val term: DirectParticle?
-        val groups: List<T_GroupRef>
-        val alls: List<T_All>
-        val choices: List<T_Choice>
-        val sequences: List<T_Sequence>
     }
     interface DirectParticle
 }
