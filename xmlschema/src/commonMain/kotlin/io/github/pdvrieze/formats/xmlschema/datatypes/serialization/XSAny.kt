@@ -46,4 +46,4 @@ class XSAny(
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 
-): T_AnyElement
+): T_AnyElement, XSI_AllParticle

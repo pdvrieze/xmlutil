@@ -20,15 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface I_NestedParticles : I_NestedAllParticles {
-    val choices: List<T_Choice>
-    val sequences: List<T_Sequence>
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+
+interface I_NestedParticles {
+    val particles: List<T_Particle>
+//    val choices: List<T_Choice>
+//    val sequences: List<T_Sequence>
 }
 
 interface I_NestedAllParticles {
+    val particles: List<T_NestedAllParticle>
+/*
     val elements: List<T_LocalElement>
     val groups: List<T_GroupRef>
     val anys: List<T_AnyElement>
+*/
 }
 
 interface T_NestedAllParticle: T_Particle

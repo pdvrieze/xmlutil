@@ -21,19 +21,38 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.WildcardModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 
 class ResolvedAny(
     override val rawPart: XSAny,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated, ResolvedParticle, T_AnyElement {
+) : ResolvedPart, ResolvedParticle<ResolvedAny>, T_AnyElement, WildcardModel, ResolvedBasicTerm {
+    override val minOccurs: VNonNegativeInteger?
+        get() = mdlMinOccurs
+    override val maxOccurs: T_AllNNI?
+        get() = mdlMaxOccurs
+
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
     override val namespace: T_NamespaceList
         get() = rawPart.namespace ?: T_NamespaceList.ANY
+
+    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
+    override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
+    override val mdlMaxOccurs: T_AllNNI get() = rawPart.maxOccurs ?: T_AllNNI(1)
+    override val mdlTerm: ResolvedAny get() = this
+
+    override val mdlNamespaceConstraint: Set<WildcardModel.NamespaceConstraint>
+        get() = TODO("not implemented")
+
+    override val mdlProcessContents: T_ProcessContents
+        get() = processContents
 
     override val notNamespace: T_NotNamespaceList
         get() = rawPart.notNamespace ?: T_NotNamespaceList()
