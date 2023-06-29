@@ -67,7 +67,7 @@ class XSSchema(
 
     @XmlAfter("includes", "imports", "redefines", "overrides")
     @XmlBefore("simpleTypes", "complexTypes", "groups", "attributeGroups", "elements", "attributes", "notations")
-    val defaultOpenContent: List<XSDefaultOpenContent> = emptyList(),
+    val defaultOpenContent: XSDefaultOpenContent? = null,
 
     val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
     val complexTypes: List<XSGlobalComplexType> = emptyList(),

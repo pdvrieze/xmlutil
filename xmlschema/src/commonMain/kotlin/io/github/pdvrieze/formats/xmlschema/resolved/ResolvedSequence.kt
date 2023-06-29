@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
-import io.github.pdvrieze.formats.xmlschema.model.ChoiceSeqTerm
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
-import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
+import io.github.pdvrieze.formats.xmlschema.model.*
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 
 class ResolvedSequence(
@@ -56,4 +57,19 @@ class ResolvedSequence(
             require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
         }
     */
+}
+
+class SyntheticSequence(
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: T_AllNNI,
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqTerm>>,
+    override val schema: ResolvedSchemaLike,
+) : ResolvedComplexType.ResolvedDirectParticle<SyntheticSequence>, ResolvedChoiceSeqTerm, SequenceModel<SyntheticSequence> {
+    override val mdlTerm: SyntheticSequence get() = this
+    override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
+    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.SEQUENCE
+
+    override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
+    override val mdlAnnotations: AnnotationModel? get() = null
 }

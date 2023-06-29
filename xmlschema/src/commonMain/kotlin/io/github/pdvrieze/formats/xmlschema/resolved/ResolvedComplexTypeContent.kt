@@ -77,7 +77,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
     final override val id: VID? get() = rawPart.id
     final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
     final override val base: QName? get() = rawPart.base
-    final override val openContents: List<XSOpenContent> get() = rawPart.openContents
+    final override val openContent: XSOpenContent? get() = rawPart.openContent
 
     val baseType: ResolvedGlobalType by lazy {
         schema.type(base ?: AnyType.qName)
@@ -159,7 +159,7 @@ class ResolvedComplexShorthandContent(
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    val openContents: List<XSOpenContent> get() = rawPart.openContents
+    val openContent: XSOpenContent? get() = rawPart.openContent
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super.check()

@@ -81,7 +81,7 @@ sealed class XSLocalComplexType(
         val atributes: List<XSLocalAttribute> = emptyList(),
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
         val anyAttribute: XSAnyAttribute? = null,
-        val openContents: List<XSOpenContent> = emptyList(),
+        val openContent: XSOpenContent? = null,
         val defaultAttributesApply: Boolean? = null,
         val id: VID? = null,
         @XmlBefore("*")
@@ -116,7 +116,7 @@ sealed class XSLocalComplexType(
                     attributes = atributes,
                     attributeGroups = atributeGroups,
                     anyAttribute = anyAttribute,
-                    openContents = openContents,
+                    openContent = openContent,
                     id = id,
                     annotation = annotation,
                     otherAttrs = otherAttrs,
