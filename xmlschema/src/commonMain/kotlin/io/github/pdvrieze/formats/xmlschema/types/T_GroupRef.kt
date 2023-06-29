@@ -18,7 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import nl.adaptivity.xmlutil.QName
 
-interface T_GroupRef : T_RealGroup, XSI_Annotated, T_ComplexType.DirectParticle {
+interface T_GroupRef : T_RealGroup, XSI_Annotated {
     val ref: QName // required
 
     val name: Nothing? get() = null

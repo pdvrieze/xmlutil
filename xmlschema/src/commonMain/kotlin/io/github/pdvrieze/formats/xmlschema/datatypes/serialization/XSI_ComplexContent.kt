@@ -29,4 +29,6 @@ sealed interface XSI_ComplexContent : T_ComplexType.Content, XSI_Annotated {
 
 }
 
-sealed interface XSI_ComplexDerivation: T_ComplexDerivation
+sealed interface XSI_ComplexDerivation: T_ComplexDerivation {
+    override val term: XSComplexContent.XSIDirectParticle?
+}

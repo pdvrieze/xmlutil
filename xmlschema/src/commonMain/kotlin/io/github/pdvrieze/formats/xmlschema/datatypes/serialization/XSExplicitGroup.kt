@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroup
+import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
 
-interface XSExplicitGroup: T_ExplicitGroup {
+interface XSExplicitGroup: T_ExplicitGroupParticle {
     override val elements: List<XSLocalElement>
 
     override val groups: List<XSGroupRef>
@@ -32,4 +32,6 @@ interface XSExplicitGroup: T_ExplicitGroup {
     override val sequences: List<XSSequence>
 
     override val anys: List<XSAny>
+
+    fun hasChildren(): Boolean = elements.isEmpty() && groups.isEmpty() && choices.isEmpty() && sequences.isEmpty() && anys.isEmpty()
 }
