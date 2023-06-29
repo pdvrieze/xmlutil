@@ -21,101 +21,50 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSExplicitGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 
-sealed class ResolvedExplicitGroup(
-    parent: ResolvedType,
+fun ResolvedExplicitGroup(
+    parent: ResolvedComplexType?,
+    rawPart: XSExplicitGroup,
+    schema: ResolvedSchemaLike
+): ResolvedExplicitGroup<*> = when (rawPart) {
+    is XSAll -> ResolvedAll(parent, rawPart, schema)
+    is XSChoice -> ResolvedChoice(parent, rawPart, schema)
+    is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+    else -> error("Found unsupported group: $rawPart")
+}
+
+sealed class ResolvedExplicitGroup<out T: ResolvedExplicitGroup<T>>(
+    parent: ResolvedComplexType?,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle {
+) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle, ResolvedGroupParticle<T>, ModelGroupComponent {
     abstract override val rawPart: XSExplicitGroup
 
-    override val elements: List<ResolvedLocalElement> by lazy {
-        DelegateList(rawPart.elements) { ResolvedLocalElement(parent as ResolvedComplexType, it, schema) }
-    }
+    final override val particles: List<T_Particle>
+        get() = rawPart.particles
 
-    override val groups: List<ResolvedGroupRef> by lazy {
-        DelegateList(rawPart.groups) { ResolvedGroupRef(it, schema) }
-    }
+    final override val minOccurs: VNonNegativeInteger
+        get() = mdlMinOccurs
+    final override val mdlMinOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 
-    override val anys: List<T_AnyElement>
-        get() = TODO("not implemented")
+    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+
+    final override val mdlMaxOccurs: T_AllNNI
+        get() = rawPart.maxOccurs ?: T_AllNNI(1)
+
+    final override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+
+    abstract override val mdlParticles: List<ResolvedParticle<*>>
+
 
     override fun check() {
         super<ResolvedAnnotated>.check()
-        for (element in elements) {
-            element.check()
+        for (particle in mdlParticles) {
+            particle.check()
         }
     }
-}
-
-class ResolvedAll(
-    parent: ResolvedType,
-    override val rawPart: XSAll,
-    override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_All, ResolvedComplexType.ResolvedDirectParticle {
-    override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-
-    override val maxOccurs: T_AllNNI.Value
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-
-    init {
-        require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs"}
-        require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
-    }
-}
-
-class ResolvedChoice(
-    parent: ResolvedType,
-    override val rawPart: XSChoice,
-    override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_Choice, ResolvedComplexType.ResolvedDirectParticle {
-    override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-
-    override val maxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-
-    override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
-
-    override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
-
-/*
-    init {
-        require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs"}
-        require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
-    }
-*/
-}
-
-class ResolvedSequence(
-    parent: ResolvedType,
-    override val rawPart: XSSequence,
-    override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup(parent, schema), T_Sequence, ResolvedComplexType.ResolvedDirectParticle {
-    override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-
-    override val maxOccurs: T_AllNNI
-        get() = (rawPart.maxOccurs as? T_AllNNI.Value) ?: T_AllNNI.Value(1u)
-
-    override val choices: List<ResolvedChoice> =
-        DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
-
-    override val sequences: List<ResolvedSequence> =
-        DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
-
-/*
-    init {
-        require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs"}
-        require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
-    }
-*/
 }
 

@@ -28,15 +28,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRefParticle
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
+import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealGroup, ResolvedPart {
+sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealGroup, ResolvedPart, ResolvedAnnotated {
     abstract override val rawPart: XSI_Annotated
-    final override val id: VID?
-        get() = rawPart.id
-    final override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
+
+    override val annotation: XSAnnotation? get() = rawPart.annotation
 }
 
 
@@ -44,13 +45,19 @@ sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealG
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), T_GroupRef {
+): ResolvedGroupBase(schema), ResolvedGroupParticle<ResolvedGroupRef>, T_GroupRef {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
+    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
+    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger.ONE
+
+    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
+    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI.ONE
+
+    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
+
+    override val mdlTerm: ResolvedGroupRef get() = this
 
     override val ref: QName get() = rawPart.ref
-
-    override val annotation: XSAnnotation?
-        get() = referencedGroup.annotation
 
     override val particle: T_RealGroup.Particle
         get() = referencedGroup.particle
@@ -63,7 +70,7 @@ class ResolvedGroupRef(
 class ResolvedGroupRefParticle(
     override val rawPart: XSGroupRefParticle,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), ResolvedComplexType.ResolvedDirectParticle, T_GroupRef {
+): ResolvedGroupBase(schema), ResolvedParticle<ResolvedAllTerm>, ResolvedAllTerm, T_GroupRef {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref
@@ -77,8 +84,18 @@ class ResolvedGroupRefParticle(
     override val minOccurs: VNonNegativeInteger?
         get() = rawPart.minOccurs
 
+    override val mdlMinOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+
+    override val mdlMaxOccurs: T_AllNNI
+        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+
     override val maxOccurs: T_AllNNI?
         get() = rawPart.maxOccurs
+
+    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
+
+    override val mdlTerm: ResolvedGroupRefParticle get() = this
 
     override fun check() {
         referencedGroup.check()
@@ -88,16 +105,27 @@ class ResolvedGroupRefParticle(
 class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), NamedPart, T_NamedGroup {
+): ResolvedGroupBase(schema), NamedPart, T_NamedGroup, GroupDefModel, ModelGroupModel {
+    override val mdlName: VNCName
+        get() = rawPart.name
+
+    override val mdlTargetNamespace: Nothing?
+        get() = rawPart.targetNamespace
+
+    override val mdlModelGroup: ResolvedToplevelGroup
+        get() = this
+
+    override val mdlAnnotations: AnnotationModel?
+        get() = rawPart.annotation.models()
+
+
     override fun check() {
 //        TODO("not implemented")
     }
 
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
+    @Deprecated("incorrect")
     override val particle: T_NamedGroup.Particle
-        get() = rawPart.particle
+        get() = TODO()
 
     override val name: VNCName
         get() = rawPart.name

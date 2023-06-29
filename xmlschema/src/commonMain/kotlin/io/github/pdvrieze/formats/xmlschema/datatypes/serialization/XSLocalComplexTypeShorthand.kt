@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QNameSerializer
 class XSLocalComplexTypeShorthand(
     mixed: Boolean? = null,
     defaultAttributesApply: Boolean? = null,
-    override val term: XSComplexContent.XSIDirectParticle? = null,
+    override val term: XSComplexContent.XSIDerivationParticle? = null,
     override val asserts: List<XSAssert> = emptyList(),
     override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),

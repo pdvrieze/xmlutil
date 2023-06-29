@@ -61,7 +61,7 @@ class XSLocalElement(
     override val keyrefs: List<XSKeyref> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSIElement, T_LocalElement {
+) : XSIElement, T_LocalElement, XSI_AllParticle {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

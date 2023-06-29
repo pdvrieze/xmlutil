@@ -18,10 +18,10 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 interface T_RealGroup : XSI_Annotated {
 
-    interface Particle
+    interface Particle: T_Particle
     interface All: T_Group.All, XSI_OpenAttrs {
-        val minOccurs: Nothing? get() = null
-        val maxOccurs: Nothing? get() = null
+        val minOccurs: Nothing?
+        val maxOccurs: Nothing?
     }
     interface Choice: T_Group.Choice, T_SimpleExplicitGroup
     interface Sequence: T_Group.Sequence, T_SimpleExplicitGroup

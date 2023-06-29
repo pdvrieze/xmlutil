@@ -92,6 +92,8 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
 
     companion object Serializer: KSerializer<T_AllNNI> {
 
+        val ONE = invoke(1)
+
         operator fun invoke(v: Int): Value = Value(v.toULong())
 
         operator fun invoke(v: UInt): Value = Value(v.toULong())

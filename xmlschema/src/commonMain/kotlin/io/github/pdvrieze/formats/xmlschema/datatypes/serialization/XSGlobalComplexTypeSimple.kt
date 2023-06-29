@@ -61,7 +61,8 @@ class XSGlobalComplexTypeSimple(
             simpleContent = content,
             id = id,
             annotation = annotation,
-            otherAttrs = otherAttrs
+            otherAttrs = otherAttrs,
+            term = null
         )
     }
 }

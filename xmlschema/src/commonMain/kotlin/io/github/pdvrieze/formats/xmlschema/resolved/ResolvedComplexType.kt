@@ -37,20 +37,19 @@ sealed class ResolvedComplexType(
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlProhibitedSubstitutions: T_DerivationSet get() = model.mdlProhibitedSubstitutions
     override val mdlFinal: T_DerivationSet get() = model.mdlFinal
-    override val mdlContentType: ComplexTypeModel.ContentType get() = model.mdlContentType
+    override val mdlContentType: ResolvedGlobalComplexType.ResolvedContentType get() = model.mdlContentType
     override val mdlAttributeUses: Set<AttributeModel.Use> get() = model.mdlAttributeUses
     override val mdlAttributeWildcard: WildcardModel get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    sealed interface ResolvedDirectParticle: T_ComplexType.DirectParticle {
-        fun check()
-    }
+    sealed interface ResolvedDirectParticle<T: ResolvedTerm>: ResolvedParticle<T>, T_ComplexType.DirectParticle
 
     interface Model : ComplexTypeModel {
         override val mdlBaseTypeDefinition: ResolvedType
         override val mdlFinal: T_DerivationSet
+        override val mdlContentType: ResolvedGlobalComplexType.ResolvedContentType
     }
 
     protected abstract class ModelBase(rawPart: XSComplexType, schema: ResolvedSchemaLike) : Model {

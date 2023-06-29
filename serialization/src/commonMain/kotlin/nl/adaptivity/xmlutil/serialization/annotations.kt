@@ -51,6 +51,7 @@ public annotation class XmlSerialName(
  */
 @ExperimentalXmlUtilApi
 @SerialInfo
+@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 //@Repeatable
 public annotation class XmlNamespaceDeclSpec(
