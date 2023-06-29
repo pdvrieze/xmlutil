@@ -76,7 +76,7 @@ class ResolvedLocalComplexType(
             get() = TODO("not implemented")
         override val mdlAttributeWildcard: WildcardModel
             get() = TODO("not implemented")
-        override val mdlContentType: ComplexTypeModel.ContentType
+        override val mdlContentType: ResolvedGlobalComplexType.ResolvedContentType
             get() = TODO("not implemented")
     }
 
@@ -95,7 +95,7 @@ class ResolvedLocalComplexType(
             get() = TODO("not implemented")
         override val mdlBaseTypeDefinition: ResolvedType
             get() = TODO("not implemented")
-        override val mdlContentType: ComplexTypeModel.ContentType.Simple
+        override val mdlContentType: ResolvedGlobalComplexType.ResolvedSimpleContentType
             get() = TODO("not implemented")
     }
 

@@ -68,7 +68,8 @@ sealed class XSGlobalComplexType(
         val block: T_DerivationSet? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
-        val term: XSComplexContent.XSIDirectParticle? = null,
+        @Serializable
+        val term: XSComplexContent.XSIDerivationParticle?/* = null*/,
         val asserts: List<XSAssert> = emptyList(),
         val atributes: List<XSLocalAttribute> = emptyList(),
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -138,7 +139,7 @@ sealed class XSGlobalComplexType(
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSTopLevelComplexType", delegateSerializer.descriptor)
+            SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType", delegateSerializer.descriptor)
 
         override fun serialize(encoder: Encoder, value: XSGlobalComplexType) {
             delegateSerializer.serialize(encoder, value.toSerialDelegate())

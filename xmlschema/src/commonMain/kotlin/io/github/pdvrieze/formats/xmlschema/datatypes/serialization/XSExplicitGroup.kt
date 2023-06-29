@@ -21,17 +21,26 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_Particle
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import kotlinx.serialization.Serializable
 
-interface XSExplicitGroup: T_ExplicitGroupParticle {
-    override val elements: List<XSLocalElement>
+interface XSExplicitGroup : XSI_Particle, T_ExplicitGroupParticle {
+    override val particles: List<XSI_NestedParticle>
 
-    override val groups: List<XSGroupRef>
-
-    override val choices: List<XSChoice>
-
-    override val sequences: List<XSSequence>
-
-    override val anys: List<XSAny>
-
-    fun hasChildren(): Boolean = elements.isEmpty() && groups.isEmpty() && choices.isEmpty() && sequences.isEmpty() && anys.isEmpty()
+    fun hasChildren(): Boolean =
+        particles.isNotEmpty() // TODO filter out maxCount==0
 }
+
+@Serializable
+sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated, T_Particle
+
+@Serializable
+sealed interface XSI_AllParticle : XSI_NestedParticle
+
+/*
+ * Base interface for particle that is not a group reference.
+ */
+@Serializable
+sealed interface XSI_NestedParticle : XSI_Particle

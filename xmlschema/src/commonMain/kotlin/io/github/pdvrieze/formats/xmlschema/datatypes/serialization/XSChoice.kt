@@ -20,9 +20,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
-import io.github.pdvrieze.formats.xmlschema.resolved.models
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Choice
 import kotlinx.serialization.Serializable
@@ -36,21 +33,17 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSChoice(
+    override val particles: List<XSI_NestedParticle>,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
-    override val elements: List<XSLocalElement> = emptyList(),
-    override val groups: List<XSGroupRef> = emptyList(),
-    override val choices: List<XSChoice> = emptyList(),
-    override val sequences: List<XSSequence> = emptyList(),
-    override val anys: List<XSAny> = emptyList(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle, ParticleModel.Term {
-    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
-    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
-    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
-    override val mdlTerm: ParticleModel.Term get() = this
+) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle, XSI_NestedParticle {
+//    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
+//    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
+//    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
+//    override val mdlTerm: Term get() = this
 }

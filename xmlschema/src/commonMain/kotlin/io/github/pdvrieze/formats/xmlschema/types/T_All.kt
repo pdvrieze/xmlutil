@@ -25,7 +25,4 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 interface T_All: T_ExplicitGroupParticle, T_ComplexType.DirectParticle {
     override val minOccurs: VNonNegativeInteger? // 0 or 1
     override val maxOccurs: T_AllNNI.Value? // 0 or 1
-
-    override val choices: List<Nothing> get() = emptyList()
-    override val sequences: List<Nothing> get() = emptyList()
 }

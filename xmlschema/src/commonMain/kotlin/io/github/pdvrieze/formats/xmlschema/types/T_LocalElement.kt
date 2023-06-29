@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_LocalElement: T_Element, T_Particle {
+interface T_LocalElement: T_Element, T_NestedAllParticle {
     override val substitutionGroup: Nothing? get() = null
     override val abstract: Boolean get() = false
     override val final: Nothing? get() = null
