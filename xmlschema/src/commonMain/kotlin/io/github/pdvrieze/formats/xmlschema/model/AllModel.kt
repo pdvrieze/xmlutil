@@ -25,8 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsign
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
-interface AllModel : ModelGroupModel {
-//    override val mdlTerm: ModelGroupModel.AllContent
+interface AllModel<T: AllModel<T>> : ModelGroupComponent, ParticleModel<T>, Term {
+    //    override val mdlTerm: ModelGroupModel.AllContent
+    override val mdlParticles: List<ParticleModel<AllTerm>>
 
     override val effectiveTotalRange: AllNNIRange
         get() = run {

@@ -72,6 +72,8 @@ interface VNonNegativeInteger : VInteger {
     }
 
     companion object {
+        val ONE = invoke(1)
+
         operator fun invoke(rawValue: String): VNonNegativeInteger = when {
             rawValue.length > MAXLONG.length -> Inst(rawValue)
 

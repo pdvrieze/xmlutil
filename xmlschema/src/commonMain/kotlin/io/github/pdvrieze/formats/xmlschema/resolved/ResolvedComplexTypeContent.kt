@@ -59,11 +59,11 @@ class ResolvedComplexContent(
 sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike): T_ComplexDerivation, ResolvedPart {
     override abstract val rawPart : XSComplexContent.XSComplexDerivationBase
 
-    final override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
+    final override val term: ResolvedComplexType.ResolvedDirectParticle<*>? by lazy {
         when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)
-            is XSGroupRefParticle -> ResolvedGroupRefParticle(t, schema)
+//            is XSGroupRefParticle -> ResolvedGroupRefParticle(t, schema)
             is XSSequence -> ResolvedSequence(scope, t, schema)
             null -> null
         }
@@ -145,11 +145,11 @@ class ResolvedComplexShorthandContent(
     schema: ResolvedSchemaLike
 ) : ResolvedComplexTypeContent(schema),
     T_ComplexType.ShorthandContent {
-    override val term: ResolvedComplexType.ResolvedDirectParticle? by lazy {
+    override val term: ResolvedGroupParticle<*>? by lazy {
         when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)
-            is XSGroupRefParticle -> ResolvedGroupRefParticle(t, schema)
+            is XSGroupRef -> ResolvedGroupRef(t, schema)
             is XSSequence -> ResolvedSequence(scope, t, schema)
             null -> null
         }

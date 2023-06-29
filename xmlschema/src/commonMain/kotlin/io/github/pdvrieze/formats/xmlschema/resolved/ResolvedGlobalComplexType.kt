@@ -80,8 +80,8 @@ class ResolvedGlobalComplexType(
 
     override val model: Model by lazy {
         when (val r = rawPart) {
-            is XSGlobalComplexTypeComplex -> ComplexModelImpl(r, schema)
-            is XSGlobalComplexTypeShorthand -> ShorthandModelImpl(r, schema)
+            is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
+            is XSGlobalComplexTypeShorthand -> ShorthandModelImpl(this, r, schema)
             is XSGlobalComplexTypeSimple -> SimpleModelImpl(r, schema, this)
         }
 
@@ -122,11 +122,12 @@ class ResolvedGlobalComplexType(
     }
 
     private abstract class ComplexModelbase(
+        type: ResolvedComplexType,
         rawPart: XSGlobalComplexType,
         schema: ResolvedSchemaLike,
     ) : ModelBase(rawPart, schema) {
 
-        final override val mdlContentType: ComplexTypeModel.ContentType
+        final override val mdlContentType: ResolvedContentType
 
         final override val mdlBaseTypeDefinition: ResolvedType
 
@@ -141,11 +142,13 @@ class ResolvedGlobalComplexType(
             when (content) {
                 is XSComplexContent -> {
                     derivation = content.derivation
-                    mdlBaseTypeDefinition = schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
+                    mdlBaseTypeDefinition =
+                        schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
                 }
+
                 is IXSComplexTypeShorthand -> {
                     derivation = content
-                    check(derivation.base==null) { " Shorthand has no base" }
+                    check(derivation.base == null) { " Shorthand has no base" }
                     mdlBaseTypeDefinition = AnyType
                 }
             }
@@ -157,23 +160,26 @@ class ResolvedGlobalComplexType(
             }
 
 
-
             val effectiveMixed = (content as? XSComplexContent)?.mixed ?: rawPart.mixed ?: false
             val term = derivation.term
 
-            val explicitContent: XSComplexContent.XSIDirectParticle? = when {
+            val explicitContent: ResolvedGroupParticle<*>? = when {
                 (term == null) ||
                         (term.maxOccurs == T_AllNNI(0)) ||
                         (term is XSAll || term is XSSequence && !term.hasChildren()) ||
                         (term is XSChoice && term.minOccurs?.toUInt() == 0u && !term.hasChildren()) -> null
 
 
-                else -> term
+                else -> ResolvedGroupParticle(type, term, schema)
             }
 
-            val effectiveContent: XSComplexContent.XSIDirectParticle? = explicitContent ?: when {
+            val effectiveContent: ResolvedParticle<*>? = explicitContent ?: when {
                 !effectiveMixed -> null
-                else -> XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = T_AllNNI(1))
+                else -> ResolvedSequence(
+                    type,
+                    XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = T_AllNNI(1)),
+                    schema
+                )
             }
 
             val explicitContentType: ComplexTypeModel.ContentType = when {
@@ -191,19 +197,30 @@ class ResolvedGlobalComplexType(
 
                 effectiveContent == null -> mdlBaseTypeDefinition.mdlContentType
                 else -> {
-                    val baseParticle = (mdlBaseTypeDefinition.mdlContentType as ComplexTypeModel.ContentType.ElementBase).mdlParticle
-                    val baseTerm = baseParticle.mdlTerm
+                    val baseParticle = (mdlBaseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
+                    val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val part = when {
-                        baseTerm is AllModel && explicitContent == null -> baseParticle
-                        (baseTerm is AllModel && effectiveContent.mdlTerm is AllModel) -> {
+                        baseTerm is ResolvedAll && explicitContent == null -> baseParticle
+                        (baseTerm is ResolvedAll && effectiveContent.mdlTerm is AllModel<*>) -> {
                             val p = baseTerm.mdlParticles
+                            TODO()
+/*
+                            SyntheticAll(
+                                minOccurs = effectiveContent.mdlMinOccurs,
+                                maxOccurs = T_AllNNI(1),
+                                particles = p,
+                            )
+*/
+/*
                             XSAll(
                                 minOccurs = effectiveContent.mdlMinOccurs,
                                 maxOccurs = T_AllNNI(1),
+                                particles = p,
                                 elements = p.filterIsInstance<XSLocalElement>(),
                                 groups = p.filterIsInstance<XSGroupRef>(),
                                 anys = p.filterIsInstance<XSAny>(),
                             )
+*/
                         }
 
                         else -> {
@@ -223,34 +240,39 @@ class ResolvedGlobalComplexType(
         }
     }
 
-    interface ResolvedContentType: ComplexTypeModel.ContentType
+    interface ResolvedContentType : ComplexTypeModel.ContentType
 
     object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType
 
 
+    interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
+        override val mdlParticle: ResolvedParticle<ResolvedTerm>
+    }
 
     class MixedContentType(
-        override val mdlParticle: XSComplexContent.XSIDirectParticle
-    ) : ComplexTypeModel.ContentType.Mixed, ResolvedContentType {
+        override val mdlParticle: ResolvedParticle<*>
+    ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
     class ElementOnlyContentType(
-        override val mdlParticle: XSComplexContent.XSIDirectParticle
-    ) : ComplexTypeModel.ContentType.Mixed, ResolvedContentType {
+        override val mdlParticle: ResolvedParticle<*>
+    ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
+
+    interface ResolvedSimpleContentType : ResolvedContentType, ComplexTypeModel.GlobalSimpleContent,
+        ComplexTypeModel.ContentType.Simple
 
     private class SimpleModelImpl(
         rawPart: XSGlobalComplexTypeSimple,
         schema: ResolvedSchemaLike,
         context: ResolvedComplexType
-    ) :
-        ModelBase(rawPart, schema), ComplexTypeModel.GlobalSimpleContent, ComplexTypeModel.ContentType.Simple {
+    ) : ModelBase(rawPart, schema), ResolvedSimpleContentType {
 
         override val mdlBaseTypeDefinition: ResolvedType
 
-        override val mdlContentType: ComplexTypeModel.ContentType.Simple get() = this
+        override val mdlContentType: ResolvedSimpleContentType get() = this
 
         override val mdlSimpleTypeDefinition: SimpleTypeModel
 
@@ -319,17 +341,23 @@ class ResolvedGlobalComplexType(
             rawPart.content.derivation.derivationMethod
     }
 
-    private class ShorthandModelImpl(rawPart: XSGlobalComplexTypeShorthand, schema: ResolvedSchemaLike) :
-        ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalImplicitContent {
+    private class ShorthandModelImpl(
+        parent: ResolvedComplexType,
+        rawPart: XSGlobalComplexTypeShorthand,
+        schema: ResolvedSchemaLike
+    ) : ComplexModelbase(parent, rawPart, schema), ComplexTypeModel.GlobalImplicitContent {
 
     }
 
-    private class ComplexModelImpl(rawPart: XSGlobalComplexTypeComplex, schema: ResolvedSchemaLike) :
-        ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalComplexContent {
+    private class ComplexModelImpl(
+        parent: ResolvedComplexType,
+        rawPart: XSGlobalComplexTypeComplex,
+        schema: ResolvedSchemaLike
+    ) : ComplexModelbase(parent, rawPart, schema), ComplexTypeModel.GlobalComplexContent {
     }
 
     companion object {
-        internal fun contentType(effectiveMixed: Boolean, particle: XSComplexContent.XSIDirectParticle?): ResolvedContentType {
+        internal fun contentType(effectiveMixed: Boolean, particle: ResolvedParticle<*>?): ResolvedContentType {
             return when {
                 particle == null -> EmptyContentType
                 effectiveMixed -> MixedContentType(particle)
