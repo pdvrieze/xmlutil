@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 sealed interface IXSComplexTypeShorthand:
     T_ComplexType.Shorthand, XSI_ComplexContent.Complex, XSI_ComplexDerivation {
 
-    override val term: XSComplexContent.XSIDirectParticle?
+    override val term: XSComplexContent.XSIDerivationParticle?
 
     override val asserts: List<XSAssert>
 

@@ -57,11 +57,12 @@ class XSGlobalComplexTypeComplex(
             abstract = abstract,
             final = final,
             block = block,
-            defaultAttributesApply = defaultAttributesApply,
             complexContent = content,
             id = id,
+            defaultAttributesApply = defaultAttributesApply,
             annotation = annotation,
-            otherAttrs = otherAttrs
+            otherAttrs = otherAttrs,
+            term = null
         )
     }
 }

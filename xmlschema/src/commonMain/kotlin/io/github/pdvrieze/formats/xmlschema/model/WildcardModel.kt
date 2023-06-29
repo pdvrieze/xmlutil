@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.model
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
 import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
-
+//ParticleModel<AnyModel>, AllTerm, ChoiceSeqTerm, ParticleModel.BasicTerm
 interface WildcardModel : IAnnotated, ParticleModel.BasicTerm {
     val mdlNamespaceConstraint: Set<NamespaceConstraint>
     val mdlProcessContents: T_ProcessContents

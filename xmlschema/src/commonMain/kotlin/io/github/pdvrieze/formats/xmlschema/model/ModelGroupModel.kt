@@ -20,17 +20,29 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface ModelGroupModel : IAnnotated, ComplexTypeModel.InitialParticles {
+interface ModelGroupComponent : IAnnotated {
+    val mdlCompositor: ModelGroupModel.Compositor
+    val mdlParticles: List<ParticleModel<*>>
+}
+
+interface ModelGroupModel : IAnnotated {
+/*
     val mdlCompositor: Compositor
-    val mdlParticles: List<ParticleModel>
+    val mdlParticles: List<ModelGroupModel>
+*/
+
+    enum class Compositor { ALL, CHOICE, SEQUENCE }
+
+}
+
+interface ChoiceSeqTerm : Term
+interface DerivationTerm: ChoiceSeqTerm
+interface AllTerm : DerivationTerm
+
+interface GroupRefModel : ParticleModel<GroupDefModel>, AllTerm {
 
     override fun mdlIsEmptiable(): Boolean {
         return super.mdlIsEmptiable() || effectiveTotalRange.start.toUInt() == 0u
     }
-
-    enum class Compositor { ALL, CHOICE, SEQUENCE }
-
-    interface AllContent : ParticleModel
-    interface InclContent : AllContent
 
 }

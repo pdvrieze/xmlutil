@@ -19,8 +19,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.model.AllModel
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
+import io.github.pdvrieze.formats.xmlschema.model.Term
 import io.github.pdvrieze.formats.xmlschema.resolved.models
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
@@ -35,22 +36,23 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAll(
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI.Value? = null,
-    override val elements: List<XSLocalElement> = emptyList(),
-    override val groups: List<XSGroupRef> = emptyList(),
+    override val particles: List<XSI_AllParticle>,
+//    override val elements: List<XSLocalElement> = emptyList(),
+//    override val groups: List<XSGroupRef> = emptyList(),
 //    override val choices: List<XSChoice> = emptyList(),
 //    override val sequences: List<XSSequence> = emptyList(),
-    override val anys: List<XSAny> = emptyList(),
+//    override val anys: List<XSAny> = emptyList(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): XSExplicitGroup, T_All, XSComplexContent.XSIDirectParticle, ParticleModel.Term {
-    override val choices: List<Nothing> get() = emptyList()
-    override val sequences: List<Nothing> get() = emptyList()
-    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
-    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
-    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
-    override val mdlTerm: ParticleModel.Term get() = this
+): XSExplicitGroup, T_All, XSComplexContent.XSIDirectParticle {
+//    override val choices: List<Nothing> get() = emptyList()
+//    override val sequences: List<Nothing> get() = emptyList()
+//    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
+//    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
+//    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
+//    override val mdlTerm: XSAll get() = this
 }
 

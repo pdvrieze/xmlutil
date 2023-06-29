@@ -76,7 +76,7 @@ sealed class XSLocalComplexType(
         val mixed: Boolean? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
-        val term: XSComplexContent.XSIDirectParticle? = null,
+        val term: XSComplexContent.XSIDerivationParticle? = null,
         val asserts: List<XSAssert> = emptyList(),
         val atributes: List<XSLocalAttribute> = emptyList(),
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),

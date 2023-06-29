@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsign
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
-interface ChoiceModel: ModelGroupModel, ModelGroupModel.InclContent {
+interface ChoiceModel<T: ChoiceModel<T>>: ModelGroupComponent, ChoiceSeqTerm, ParticleModel<T> {
 //    override val mdlTerm: ModelGroupModel.InclContent
 
     override val effectiveTotalRange: AllNNIRange

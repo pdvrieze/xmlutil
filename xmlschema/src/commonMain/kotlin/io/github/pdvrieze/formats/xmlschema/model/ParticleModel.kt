@@ -24,11 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
-interface ParticleModel : IAnnotated {
+interface ParticleModel<out T : Term> : IAnnotated {
 
     val mdlMinOccurs: VNonNegativeInteger
     val mdlMaxOccurs: T_AllNNI
-    val mdlTerm: Term
+    val mdlTerm: T
 
     val effectiveTotalRange: AllNNIRange get() = AllNNIRange(T_AllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
 
@@ -36,10 +36,7 @@ interface ParticleModel : IAnnotated {
         return mdlMinOccurs.toUInt() == 0u
     }
 
-    interface Basic : ParticleModel {
-        override val mdlTerm: BasicTerm
-    }
-
-    interface Term
-    interface BasicTerm : Term
+    interface BasicTerm : AllTerm
 }
+
+interface Term

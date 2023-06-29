@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 
 interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel.ParentModel,
@@ -75,7 +74,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
         }
 
         interface ElementBase : ContentType {
-            val mdlParticle: InitialParticles
+            val mdlParticle: ParticleModel<Term>
             val openContent: OpenContentModel?
         }
 
@@ -87,8 +86,6 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
             override val mdlVariety: Variety get() = Variety.EMPTY
         }
     }
-
-    interface InitialParticles: ParticleModel
 
     interface Derivation: TypeModel.Derivation
 

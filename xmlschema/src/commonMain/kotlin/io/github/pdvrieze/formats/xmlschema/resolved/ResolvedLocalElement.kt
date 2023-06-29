@@ -21,7 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
@@ -31,11 +33,13 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
-    val parent: ResolvedComplexType,
+    val parent: ResolvedComplexType?,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), ResolvedParticle, T_LocalElement, ElementModel.Local {
-
+) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement, ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm {
+    override val id: VID? get() = rawPart.id
+    override val annotation: XSAnnotation? get() = rawPart.annotation
+    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     override val scope: T_Scope get() = T_Scope.LOCAL
 
@@ -62,10 +66,10 @@ class ResolvedLocalElement(
     override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
     override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
 
-    override val model: ElementModel.Local by lazy { ModelImpl(rawPart, schema) }
+    override val model: ElementModel.Local<ResolvedLocalElement> by lazy { ModelImpl(rawPart, schema) }
 
     override val mdlScope: ElementModel.Scope.Local get() = model.mdlScope
-    override val mdlTerm: ElementModel.Local get() = model.mdlTerm
+    override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
     override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
     override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs
@@ -80,13 +84,14 @@ class ResolvedLocalElement(
         keys.forEach { it.check() }
     }
 
-    private class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike) :
-        ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Local {
+    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike) :
+        ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Local<ResolvedLocalElement> {
 
         override val mdlScope: ElementModel.Scope.Local
             get() = TODO("not implemented")
-        override val mdlTerm: ElementModel.Local
-            get() = TODO("not implemented")
+
+        override val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
+
         override val mdlTargetNamespace: VAnyURI?
             get() = TODO("not implemented")
         override val mdlMinOccurs: VNonNegativeInteger

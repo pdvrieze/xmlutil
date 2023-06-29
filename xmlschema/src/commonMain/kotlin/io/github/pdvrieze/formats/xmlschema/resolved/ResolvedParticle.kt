@@ -20,17 +20,76 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.T_Particle
 
-interface ResolvedParticle : T_Particle {
-    val rawPart: T_Particle
-    override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-    override val maxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-    val term: Nothing get() = TODO("Do something with this")
-    val annotation: XSAnnotation?
+
+fun ResolvedGroupParticle(
+    parent: ResolvedComplexType,
+    term: XSComplexContent.XSIDerivationParticle,
+    schema: ResolvedSchemaLike
+): ResolvedGroupParticle<*> = when (term) {
+    is XSAll -> ResolvedAll(parent, term, schema)
+    is XSChoice -> ResolvedChoice(parent, term, schema)
+    is XSSequence -> ResolvedSequence(parent, term, schema)
+    is XSGroupRef -> ResolvedGroupRef(term, schema)
 }
+
+
+fun ResolvedParticle(
+    parent: ResolvedComplexType?,
+    rawPart: XSI_Particle,
+    schema: ResolvedSchemaLike
+): ResolvedParticle<*> = when (rawPart) {
+    is XSExplicitGroup -> ResolvedExplicitGroup(parent, rawPart, schema)
+    is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+    is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
+    is XSChoice -> ResolvedChoice(parent, rawPart, schema)
+    is XSAny -> ResolvedAny(rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+    is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+}
+
+fun ResolvedParticle(
+    parent: ResolvedComplexType?,
+    rawPart: XSI_NestedParticle,
+    schema: ResolvedSchemaLike
+): ResolvedParticle<ResolvedChoiceSeqTerm> = when (rawPart) {
+    is XSChoice -> ResolvedChoice(parent, rawPart, schema)
+    is XSAny -> ResolvedAny(rawPart, schema)
+    is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+    is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+}
+
+fun ResolvedParticle(
+    parent: ResolvedComplexType?,
+    rawPart: XSI_AllParticle,
+    schema: ResolvedSchemaLike
+): ResolvedParticle<ResolvedAllTerm> = when (rawPart) {
+    is XSAny -> ResolvedAny(rawPart, schema)
+    is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+}
+
+sealed interface ResolvedTerm : Term
+
+sealed interface ResolvedChoiceSeqTerm: ResolvedTerm, ChoiceSeqTerm
+
+sealed interface ResolvedDerivationTerm: ResolvedChoiceSeqTerm, DerivationTerm
+
+sealed interface ResolvedAllTerm: ResolvedDerivationTerm, AllTerm
+
+sealed interface ResolvedBasicTerm: ResolvedAllTerm, ParticleModel.BasicTerm
+
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, T_Particle, ParticleModel<T> {
+    override val rawPart: XSI_Particle
+//    override val minOccurs: VNonNegativeInteger
+//        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
+//    override val maxOccurs: T_AllNNI
+//        get() = rawPart.maxOccurs ?: T_AllNNI(1)
+    val term: T get() = TODO("Do something with this")
+}
+
+sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedParticle<T>, ResolvedTerm, ParticleModel<T>

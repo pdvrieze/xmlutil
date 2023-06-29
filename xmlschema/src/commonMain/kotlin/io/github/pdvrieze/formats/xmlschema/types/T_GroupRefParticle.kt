@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import nl.adaptivity.xmlutil.QName
 
-interface T_GroupRefParticle : T_RealGroup, XSI_Annotated, T_Particle, T_ComplexType.DirectParticle {
+interface T_GroupRefParticle : T_RealGroup, XSI_Annotated, T_ComplexType.DirectParticle, T_NestedAllParticle {
     val ref: QName // required
 
     val name: Nothing? get() = null
