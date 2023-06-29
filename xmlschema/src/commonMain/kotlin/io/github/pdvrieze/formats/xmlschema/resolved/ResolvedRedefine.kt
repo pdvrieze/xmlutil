@@ -35,6 +35,9 @@ class ResolvedInclude(
 
     val nestedSchema: XSSchema = resolver.readSchema(rawPart.schemaLocation)
 
+    override val defaultOpenContent: XSDefaultOpenContent?
+        get() = schema.defaultOpenContent
+
     override val schemaLocation: VAnyURI
         get() = rawPart.schemaLocation
 
@@ -130,6 +133,9 @@ class ResolvedRedefine(
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
+    override val defaultOpenContent: XSDefaultOpenContent?
+        get() = nestedSchema.defaultOpenContent
+
     init {
         val collatedSchema = CollatedSchema(nestedSchema, resolver.delegate(rawPart.schemaLocation))
 
@@ -153,7 +159,6 @@ class ResolvedRedefine(
         attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) {
             ResolvedToplevelAttributeGroup(it, this)
         }
-
     }
 
     override val id: VID?

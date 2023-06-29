@@ -55,6 +55,9 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val notations: List<XSNotation> get() = rawPart.notations
     val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
 
+    override val defaultOpenContent: XSDefaultOpenContent?
+        get() = rawPart.defaultOpenContent
+
     val attributeFormDefault: T_FormChoice
         get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED
 

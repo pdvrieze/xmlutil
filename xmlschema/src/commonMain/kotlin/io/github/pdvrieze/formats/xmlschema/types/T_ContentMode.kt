@@ -17,10 +17,14 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-enum class  T_ContentMode {
+@Serializable
+enum class T_ContentMode {
     @SerialName("interleave")
     INTERLEAVE,
     @SerialName("suffix")
-    SUFFIx
+    SUFFIX,
+    @SerialName("none")
+    NONE
 }
