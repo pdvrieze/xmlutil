@@ -31,6 +31,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("any", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAny(
+    @XmlElement(false)
+    @XmlSerialName("processContents", "", "")
     override val processContents: T_ProcessContents? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
@@ -43,7 +45,6 @@ class XSAny(
     override val id: VID? = null,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
-    @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 
-): T_AnyElement, XSI_AllParticle
+) : T_AnyElement, XSI_AllParticle
