@@ -48,8 +48,8 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
     }
 
     interface ImplicitContent: ComplexTypeModel {
-        override val mdlBaseTypeDefinition get(): AnyType = AnyType
-        override val mdlDerivationMethod: DerivationMethod get() = DerivationMethod.RESTRICION
+//        override val mdlBaseTypeDefinition get(): AnyType = AnyType
+//        override val mdlDerivationMethod: DerivationMethod get() = DerivationMethod.RESTRICION
     }
 
     interface GlobalSimpleContent: Global, SimpleContent
@@ -76,7 +76,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel
 
         interface ElementBase : ContentType {
             val mdlParticle: InitialParticles
-            val openContent: OpenContentModel
+            val openContent: OpenContentModel?
         }
 
         interface ElementOnly : ElementBase {

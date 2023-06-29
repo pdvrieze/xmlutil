@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
@@ -43,7 +44,7 @@ sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealG
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), T_GroupRef, ResolvedComplexType.ResolvedDirectParticle {
+): ResolvedGroupBase(schema), T_GroupRef {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref
@@ -62,7 +63,7 @@ class ResolvedGroupRef(
 class ResolvedGroupRefParticle(
     override val rawPart: XSGroupRefParticle,
     schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), ResolvedParticle, T_GroupRef {
+): ResolvedGroupBase(schema), ResolvedComplexType.ResolvedDirectParticle, T_GroupRef {
     val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val ref: QName get() = rawPart.ref
@@ -72,6 +73,12 @@ class ResolvedGroupRefParticle(
 
     override val particle: T_RealGroup.Particle
         get() = referencedGroup.particle
+
+    override val minOccurs: VNonNegativeInteger?
+        get() = rawPart.minOccurs
+
+    override val maxOccurs: T_AllNNI?
+        get() = rawPart.maxOccurs
 
     override fun check() {
         referencedGroup.check()

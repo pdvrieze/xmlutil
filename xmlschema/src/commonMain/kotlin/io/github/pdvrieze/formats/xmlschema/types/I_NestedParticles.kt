@@ -31,7 +31,10 @@ interface I_NestedAllParticles {
     val anys: List<T_AnyElement>
 }
 
+interface T_NestedAllParticle: T_Particle
+
 interface I_GroupParticles {
+    val particles: List<T_ExplicitGroupParticle>
     val choices: List<T_Choice>
     val sequences: List<T_Sequence>
     val alls: List<T_All>

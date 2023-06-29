@@ -19,6 +19,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
+import io.github.pdvrieze.formats.xmlschema.resolved.models
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
 import io.github.pdvrieze.formats.xmlschema.types.T_GroupRefParticle
@@ -39,7 +42,9 @@ class XSGroupRef(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : T_GroupRef, XSI_Annotated, XSComplexContent.XSIDirectParticle
+) : T_GroupRef, XSI_Annotated, ParticleModel.Term {
+
+}
 
 @Serializable
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -52,4 +57,9 @@ class XSGroupRefParticle(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : T_GroupRefParticle
+) : T_GroupRefParticle, XSComplexContent.XSIDirectParticle, ParticleModel.Term {
+    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
+    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
+    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
+    override val mdlTerm: ParticleModel.Term get() = this
+}
