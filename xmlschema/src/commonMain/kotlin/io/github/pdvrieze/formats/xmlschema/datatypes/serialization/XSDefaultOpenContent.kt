@@ -30,12 +30,12 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @XmlSerialName("defaultOpenContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSDefaultOpenContent(
     val appliesToEmpty: Boolean = false,
-    val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
-    @XmlValue(true)
-    val content: List<@Serializable(CompactFragmentSerializer::class) CompactFragment> = emptyList(),
+    override val id: VID? = null,
+    override val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
+    @XmlOtherAttributes
+    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
-    override val id: VID? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
-): XSI_Annotated
+    @XmlValue(true)
+    override val content: XSAny? = null
+) : XSI_OpenContent

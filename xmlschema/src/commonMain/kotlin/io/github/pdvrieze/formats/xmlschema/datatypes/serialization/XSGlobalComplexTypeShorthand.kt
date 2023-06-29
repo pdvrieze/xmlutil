@@ -40,7 +40,7 @@ class XSGlobalComplexTypeShorthand(
     override val attributes: List<XSLocalAttribute>,
     override val attributeGroups: List<XSAttributeGroupRef>,
     override val anyAttribute: XSAnyAttribute?,
-    override val openContents: List<XSOpenContent>,
+    override val openContent: XSOpenContent?,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
@@ -72,7 +72,7 @@ class XSGlobalComplexTypeShorthand(
             atributes = attributes,
             atributeGroups = attributeGroups,
             anyAttribute = anyAttribute,
-            openContents = openContents,
+            openContent = openContent,
             id = id,
             annotation = annotation,
             otherAttrs = otherAttrs

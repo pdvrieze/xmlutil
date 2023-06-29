@@ -20,11 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_Particle
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
 
 interface XSExplicitGroup : XSI_Particle, T_ExplicitGroupParticle {
     override val particles: List<XSI_NestedParticle>
@@ -34,7 +34,15 @@ interface XSExplicitGroup : XSI_Particle, T_ExplicitGroupParticle {
 }
 
 @Serializable
-sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated, T_Particle
+sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated, T_Particle {
+    object DUMMY: XSI_Particle {
+        override val minOccurs: Nothing? get() = null
+        override val maxOccurs: Nothing? get() = null
+        override val annotation: Nothing? get() = null
+        override val id: Nothing? get() = null
+        override val otherAttrs: Map<QName, String> get() = emptyMap()
+    }
+}
 
 @Serializable
 sealed interface XSI_AllParticle : XSI_NestedParticle

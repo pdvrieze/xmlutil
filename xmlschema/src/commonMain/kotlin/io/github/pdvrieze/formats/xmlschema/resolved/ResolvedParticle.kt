@@ -34,6 +34,7 @@ fun ResolvedGroupParticle(
     is XSChoice -> ResolvedChoice(parent, term, schema)
     is XSSequence -> ResolvedSequence(parent, term, schema)
     is XSGroupRef -> ResolvedGroupRef(term, schema)
+    else -> error("Unsupported particle")
 }
 
 
@@ -49,6 +50,7 @@ fun ResolvedParticle(
     is XSAny -> ResolvedAny(rawPart, schema)
     is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
     is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+    XSI_Particle.DUMMY ->error("Dummy cannot be resolved")
 }
 
 fun ResolvedParticle(

@@ -34,7 +34,7 @@ class XSLocalComplexTypeShorthand(
     override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
-    override val openContents: List<XSOpenContent> = emptyList(),
+    override val openContent: XSOpenContent? = null,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
@@ -59,7 +59,7 @@ class XSLocalComplexTypeShorthand(
             atributes = attributes,
             atributeGroups = attributeGroups,
             anyAttribute = anyAttribute,
-            openContents = openContents,
+            openContent = openContent,
             id = id,
             annotation = annotation,
             otherAttrs = otherAttrs,
@@ -78,7 +78,7 @@ class XSLocalComplexTypeShorthand(
         if (attributes != other.attributes) return false
         if (attributeGroups != other.attributeGroups) return false
         if (anyAttribute != other.anyAttribute) return false
-        return openContents == other.openContents
+        return openContent == other.openContent
     }
 
     override fun hashCode(): Int {
@@ -88,7 +88,7 @@ class XSLocalComplexTypeShorthand(
         result = 31 * result + attributes.hashCode()
         result = 31 * result + attributeGroups.hashCode()
         result = 31 * result + (anyAttribute?.hashCode() ?: 0)
-        result = 31 * result + openContents.hashCode()
+        result = 31 * result + openContent.hashCode()
         return result
     }
 

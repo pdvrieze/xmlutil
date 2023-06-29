@@ -21,12 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI
@@ -47,6 +46,7 @@ abstract sealed class ResolvedSchemaLike {
     abstract val attributeGroups: List<ResolvedToplevelAttributeGroup>
     abstract val blockDefault: T_BlockSet
     abstract val finalDefault: T_FullDerivationSet
+    abstract val defaultOpenContent: XSDefaultOpenContent?
 
     open fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {

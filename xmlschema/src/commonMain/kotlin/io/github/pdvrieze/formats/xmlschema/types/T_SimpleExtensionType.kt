@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import nl.adaptivity.xmlutil.QName
 
 interface T_SimpleExtensionType : T_ExtensionType,
@@ -27,7 +28,7 @@ interface T_SimpleExtensionType : T_ExtensionType,
 
     override val term: Nothing? get() = null
 
-    override val openContents: List<Nothing> get() = emptyList()
+    override val openContent: XSOpenContent? get() = null
 
 }
 
@@ -40,7 +41,7 @@ interface T_SimpleRestrictionType : T_ExtensionType,
 
     override val term: Nothing? get() = null
 
-    override val openContents: List<Nothing> get() = emptyList()
+    override val openContent: XSOpenContent? get() = null
 
 }
 

@@ -17,9 +17,29 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+
+interface XSI_OpenContent: XSI_Annotated {
+    val mode: T_ContentMode
+    val content: XSAny?
+}
 
 @Serializable
 @XmlSerialName("openContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSOpenContent
+class XSOpenContent(
+    override val id: VID? = null,
+    @XmlElement(false)
+    override val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
+    override val otherAttrs: Map<SerializableQName, String> = emptyMap(),
+    @XmlBefore("*")
+    override val annotation: XSAnnotation? = null,
+    override val content: XSAny? = null
+): XSI_OpenContent
