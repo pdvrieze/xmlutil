@@ -20,9 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
-import io.github.pdvrieze.formats.xmlschema.model.AllModel
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.T_All
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
@@ -45,4 +46,19 @@ class ResolvedAll(
         require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
         require(maxOccurs.let { it is T_AllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
     }
+}
+
+class SyntheticAll(
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: T_AllNNI,
+    override val mdlParticles: List<ResolvedParticle<ResolvedAllTerm>>,
+    override val schema: ResolvedSchemaLike,
+) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>, ResolvedChoiceSeqTerm, AllModel<SyntheticAll> {
+    override val mdlTerm: SyntheticAll get() = this
+    override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
+    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
+
+    override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
+    override val mdlAnnotations: AnnotationModel? get() = null
 }

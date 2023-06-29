@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
@@ -34,6 +35,8 @@ import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
+    override val defaultOpenContent: Nothing?
+        get() = null
 
     override fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
