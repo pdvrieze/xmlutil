@@ -20,5 +20,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_Choice : T_ExplicitGroup, T_ComplexType.DirectParticle
+interface T_Choice : T_ExplicitGroupParticle, T_ComplexType.DirectParticle
 

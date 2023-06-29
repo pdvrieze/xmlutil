@@ -20,6 +20,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
+import io.github.pdvrieze.formats.xmlschema.resolved.models
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Choice
 import kotlinx.serialization.Serializable
@@ -45,4 +48,9 @@ class XSChoice(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle
+) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle, ParticleModel.Term {
+    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
+    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
+    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
+    override val mdlTerm: ParticleModel.Term get() = this
+}

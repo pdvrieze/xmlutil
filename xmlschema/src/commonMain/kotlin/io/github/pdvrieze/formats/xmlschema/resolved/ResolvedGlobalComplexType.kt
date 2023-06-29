@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
@@ -123,30 +124,121 @@ class ResolvedGlobalComplexType(
     private abstract class ComplexModelbase(
         rawPart: XSGlobalComplexType,
         schema: ResolvedSchemaLike,
-    ) :
-        ModelBase(rawPart, schema) {
+    ) : ModelBase(rawPart, schema) {
 
         final override val mdlContentType: ComplexTypeModel.ContentType
 
+        final override val mdlBaseTypeDefinition: ResolvedType
+
+        final override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
+
+
         init {
+
             val content = rawPart.content as XSI_ComplexContent.Complex
-            val derivation: XSI_ComplexDerivation = when (content) {
-                is XSComplexContent -> content.derivation
-                is IXSComplexTypeShorthand -> content
+            val derivation: XSI_ComplexDerivation
+
+            when (content) {
+                is XSComplexContent -> {
+                    derivation = content.derivation
+                    mdlBaseTypeDefinition = schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
+                }
+                is IXSComplexTypeShorthand -> {
+                    derivation = content
+                    check(derivation.base==null) { " Shorthand has no base" }
+                    mdlBaseTypeDefinition = AnyType
+                }
             }
+
+
+            mdlDerivationMethod = when (derivation) {
+                is XSComplexContent.XSExtension -> ComplexTypeModel.DerivationMethod.EXTENSION
+                else -> ComplexTypeModel.DerivationMethod.RESTRICION
+            }
+
+
 
             val effectiveMixed = (content as? XSComplexContent)?.mixed ?: rawPart.mixed ?: false
+            val term = derivation.term
 
-/*
-            val explicitContent = when {
-                (derivation.groups.isEmpty() && derivation.alls.isEmpty() && derivation.choices.isEmpty() && derivation.sequences.isEmpty()) ||
-                        ()
+            val explicitContent: XSComplexContent.XSIDirectParticle? = when {
+                (term == null) ||
+                        (term.maxOccurs == T_AllNNI(0)) ||
+                        (term is XSAll || term is XSSequence && !term.hasChildren()) ||
+                        (term is XSChoice && term.minOccurs?.toUInt() == 0u && !term.hasChildren()) -> null
+
+
+                else -> term
             }
-*/
+
+            val effectiveContent: XSComplexContent.XSIDirectParticle? = explicitContent ?: when {
+                !effectiveMixed -> null
+                else -> XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = T_AllNNI(1))
+            }
+
+            val explicitContentType: ComplexTypeModel.ContentType = when {
+                derivation is XSComplexContent.XSRestriction ||
+                        derivation is IXSComplexTypeShorthand ->
+                    contentType(effectiveMixed, effectiveContent)
 
 
-            mdlContentType = object: ComplexTypeModel.ContentType.Empty {}
+                mdlBaseTypeDefinition !is ResolvedComplexType -> // simple type
+                    contentType(effectiveMixed, effectiveContent)
+
+                mdlBaseTypeDefinition.mdlContentType.mdlVariety.let {
+                    it == ComplexTypeModel.Variety.SIMPLE || it == ComplexTypeModel.Variety.EMPTY
+                } -> contentType(effectiveMixed, effectiveContent)
+
+                effectiveContent == null -> mdlBaseTypeDefinition.mdlContentType
+                else -> {
+                    val baseParticle = (mdlBaseTypeDefinition.mdlContentType as ComplexTypeModel.ContentType.ElementBase).mdlParticle
+                    val baseTerm = baseParticle.mdlTerm
+                    val part = when {
+                        baseTerm is AllModel && explicitContent == null -> baseParticle
+                        (baseTerm is AllModel && effectiveContent.mdlTerm is AllModel) -> {
+                            val p = baseTerm.mdlParticles
+                            XSAll(
+                                minOccurs = effectiveContent.mdlMinOccurs,
+                                maxOccurs = T_AllNNI(1),
+                                elements = p.filterIsInstance<XSLocalElement>(),
+                                groups = p.filterIsInstance<XSGroupRef>(),
+                                anys = p.filterIsInstance<XSAny>(),
+                            )
+                        }
+
+                        else -> {
+                            val p = listOf(baseParticle) + listOfNotNull(effectiveContent)
+                            XSSequence(
+                                minOccurs = VNonNegativeInteger(1),
+                                maxOccurs = T_AllNNI(1),
+                            )
+                        }
+                    }
+
+                    TODO()
+                }
+            }
+
+            mdlContentType = EmptyContentType
         }
+    }
+
+    interface ResolvedContentType: ComplexTypeModel.ContentType
+
+    object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType
+
+
+
+    class MixedContentType(
+        override val mdlParticle: XSComplexContent.XSIDirectParticle
+    ) : ComplexTypeModel.ContentType.Mixed, ResolvedContentType {
+        override val openContent: OpenContentModel? get() = null
+    }
+
+    class ElementOnlyContentType(
+        override val mdlParticle: XSComplexContent.XSIDirectParticle
+    ) : ComplexTypeModel.ContentType.Mixed, ResolvedContentType {
+        override val openContent: OpenContentModel? get() = null
     }
 
     private class SimpleModelImpl(
@@ -202,18 +294,22 @@ class ResolvedGlobalComplexType(
                         complexBaseContentType is ComplexTypeModel.ContentType.Mixed &&
                         complexBaseContentType.mdlParticle.mdlIsEmptiable() &&
                         derivation is XSSimpleContentRestriction -> {
-                    val sb = derivation.simpleType ?: error("Simple type definition constrained violated: 3.4.2.2 - step 2")
+                    val sb =
+                        derivation.simpleType ?: error("Simple type definition constrained violated: 3.4.2.2 - step 2")
 
-                    val st = ResolvedLocalSimpleType(XSLocalSimpleType(
-                        simpleDerivation = XSSimpleRestriction(
-                            simpleType = sb,
-                            facets = derivation.facets)
-                    ) , schema, context)
+                    val st = ResolvedLocalSimpleType(
+                        XSLocalSimpleType(
+                            simpleDerivation = XSSimpleRestriction(
+                                simpleType = sb,
+                                facets = derivation.facets
+                            )
+                        ), schema, context
+                    )
 
-                    mdlSimpleTypeDefinition = TODO()
+                    mdlSimpleTypeDefinition = st
                 }
 
-                else -> mdlSimpleTypeDefinition = TODO()
+                else -> mdlSimpleTypeDefinition = baseType as ResolvedSimpleType
             }
 
 
@@ -225,30 +321,21 @@ class ResolvedGlobalComplexType(
 
     private class ShorthandModelImpl(rawPart: XSGlobalComplexTypeShorthand, schema: ResolvedSchemaLike) :
         ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalImplicitContent {
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
-        override val mdlBaseTypeDefinition: AnyType get() = AnyType
-
-
 
     }
 
     private class ComplexModelImpl(rawPart: XSGlobalComplexTypeComplex, schema: ResolvedSchemaLike) :
         ComplexModelbase(rawPart, schema), ComplexTypeModel.GlobalComplexContent {
+    }
 
-        override val mdlBaseTypeDefinition: ResolvedType
-
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-
-        init {
-            val derivation = rawPart.content.derivation
-            mdlBaseTypeDefinition = schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
-            mdlDerivationMethod = when (derivation) {
-                is XSComplexContent.XSExtension -> ComplexTypeModel.DerivationMethod.EXTENSION
-                is XSComplexContent.XSRestriction -> ComplexTypeModel.DerivationMethod.RESTRICION
+    companion object {
+        internal fun contentType(effectiveMixed: Boolean, particle: XSComplexContent.XSIDirectParticle?): ResolvedContentType {
+            return when {
+                particle == null -> EmptyContentType
+                effectiveMixed -> MixedContentType(particle)
+                else -> ElementOnlyContentType(particle)
             }
         }
-
-
 
     }
 
