@@ -182,7 +182,7 @@ class ResolvedGlobalComplexType(
                 )
             }
 
-            val explicitContentType: ComplexTypeModel.ContentType = when {
+            val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
                         derivation is IXSComplexTypeShorthand ->
                     contentType(effectiveMixed, effectiveContent)
@@ -199,44 +199,73 @@ class ResolvedGlobalComplexType(
                 else -> {
                     val baseParticle = (mdlBaseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
-                    val part = when {
+                    val effectiveContentTerm = effectiveContent.mdlTerm
+                    val part: ResolvedParticle<*> = when {
                         baseTerm is ResolvedAll && explicitContent == null -> baseParticle
-                        (baseTerm is ResolvedAll && effectiveContent.mdlTerm is AllModel<*>) -> {
-                            val p = baseTerm.mdlParticles
-                            TODO()
-/*
+                        (baseTerm is ResolvedAll && effectiveContentTerm is ResolvedAll) -> {
+                            val p = baseTerm.mdlParticles + effectiveContentTerm.mdlParticles
                             SyntheticAll(
-                                minOccurs = effectiveContent.mdlMinOccurs,
-                                maxOccurs = T_AllNNI(1),
-                                particles = p,
+                                mdlMinOccurs = effectiveContent.mdlMinOccurs,
+                                mdlMaxOccurs = T_AllNNI(1),
+                                mdlParticles = p,
+                                schema = schema
                             )
-*/
-/*
-                            XSAll(
-                                minOccurs = effectiveContent.mdlMinOccurs,
-                                maxOccurs = T_AllNNI(1),
-                                particles = p,
-                                elements = p.filterIsInstance<XSLocalElement>(),
-                                groups = p.filterIsInstance<XSGroupRef>(),
-                                anys = p.filterIsInstance<XSAny>(),
-                            )
-*/
                         }
 
                         else -> {
-                            val p = listOf(baseParticle) + listOfNotNull(effectiveContent)
-                            XSSequence(
-                                minOccurs = VNonNegativeInteger(1),
-                                maxOccurs = T_AllNNI(1),
+                            val p: List<ResolvedParticle<ResolvedChoiceSeqTerm>> =
+                                (listOf(baseParticle) + listOfNotNull(effectiveContent).filterIsInstance<ResolvedChoiceSeqTerm>())
+                                    .filterIsInstance<ResolvedParticle<ResolvedChoiceSeqTerm>>()
+
+                            SyntheticSequence(
+                                mdlMinOccurs = VNonNegativeInteger(1),
+                                mdlMaxOccurs = T_AllNNI(1),
+                                mdlParticles = p,
+                                schema = schema
                             )
                         }
                     }
-
-                    TODO()
+                    when {
+                        effectiveMixed -> MixedContentType(part)
+                        else -> ElementOnlyContentType(part)
+                    }
                 }
             }
 
-            mdlContentType = EmptyContentType
+            val wildcardElement: XSI_OpenContent? = (rawPart as? IXSComplexTypeShorthand)?.openContent
+                ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
+                    explicitContentType.mdlVariety != ComplexTypeModel.Variety.EMPTY || it.appliesToEmpty
+                }
+
+            if (wildcardElement == null || wildcardElement.mode == T_ContentMode.NONE) {
+                mdlContentType = explicitContentType
+            } else {
+                val particle = (explicitContentType as? ResolvedElementBase)?.mdlParticle
+                    ?: SyntheticSequence(
+                        mdlMinOccurs = VNonNegativeInteger.ONE,
+                        mdlMaxOccurs = T_AllNNI.ONE,
+                        mdlParticles = emptyList(),
+                        schema = schema
+                    )
+
+                // TODO Add wildcard union
+                val w = wildcardElement.content ?: XSAny()
+                val openContent = XSOpenContent(
+                    mode = wildcardElement.mode ?: T_ContentMode.INTERLEAVE,
+                    content = w
+                )
+
+                mdlContentType = when  {
+                    effectiveMixed -> MixedContentType(
+                        mdlParticle = particle,
+                        mdlOpenContent = openContent,
+                    )
+                    else -> ElementOnlyContentType(
+                        mdlParticle = particle,
+                        mdlOpenContent = openContent,
+                    )
+                }
+            }
         }
     }
 
@@ -247,16 +276,19 @@ class ResolvedGlobalComplexType(
 
     interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
         override val mdlParticle: ResolvedParticle<ResolvedTerm>
+        val mdlOpenContent: XSOpenContent?
     }
 
     class MixedContentType(
-        override val mdlParticle: ResolvedParticle<*>
+        override val mdlParticle: ResolvedParticle<*>,
+        override val mdlOpenContent: XSOpenContent? = null
     ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
     class ElementOnlyContentType(
-        override val mdlParticle: ResolvedParticle<*>
+        override val mdlParticle: ResolvedParticle<*>,
+        override val mdlOpenContent: XSOpenContent? = null
     ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }

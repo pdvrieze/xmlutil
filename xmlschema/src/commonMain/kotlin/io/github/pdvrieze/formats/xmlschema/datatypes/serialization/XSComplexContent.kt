@@ -65,7 +65,7 @@ class XSComplexContent(
         override val id: VID? = null,
         override val annotation: XSAnnotation? = null,
 
-        override val openContents: List<XSOpenContent> = emptyList(),
+        override val openContent: XSOpenContent? = null,
         override val term: XSIDirectParticle? = null,
         override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
@@ -93,7 +93,7 @@ class XSComplexContent(
         override val anyAttribute: XSAnyAttribute? = null,
         override val annotation: XSAnnotation? = null,
 
-        override val openContents: List<XSOpenContent> = emptyList(),
+        override val openContent: XSOpenContent? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSComplexDerivationBase(), T_ComplexExtensionType {

@@ -21,7 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 
 interface T_ComplexDerivation : T_ComplexType.ParticleProperties,
     I_AttributeContainer, I_Assertions, T_Derivation {
-    val openContents: List<XSOpenContent>
+    val openContent: XSOpenContent?
 }
 
 sealed interface T_ComplexDerivationSealedBase : T_ComplexDerivation
