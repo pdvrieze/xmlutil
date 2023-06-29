@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_ExplicitGroup: XSI_Annotated, I_NestedParticles, T_Particle {
+interface T_ExplicitGroupParticle: XSI_Annotated, I_NestedParticles, T_Particle {
 // G_TypeDefParticle.Sequence, G_NestedParticle.Sequence, G_Particle.Sequence
 
 }

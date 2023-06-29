@@ -53,7 +53,7 @@ class XSComplexContent(
     }
 
     @Serializable
-    sealed interface XSIDirectParticle: T_ComplexType.DirectParticle
+    sealed interface XSIDirectParticle: T_ComplexType.DirectParticle, ComplexTypeModel.InitialParticles
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
