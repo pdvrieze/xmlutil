@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 sealed class ResolvedExplicitGroup(
     parent: ResolvedType,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroup {
+) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle {
     abstract override val rawPart: XSExplicitGroup
 
     override val elements: List<ResolvedLocalElement> by lazy {

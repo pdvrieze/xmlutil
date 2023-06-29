@@ -66,6 +66,8 @@ interface T_ComplexType : T_Type {
     interface ParticleProperties {
         val term: DirectParticle?
     }
-    interface DirectParticle
+    interface DirectParticle: T_Particle {
+
+    }
 }
 

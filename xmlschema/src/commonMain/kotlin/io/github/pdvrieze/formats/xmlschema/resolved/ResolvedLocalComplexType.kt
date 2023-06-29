@@ -105,9 +105,9 @@ class ResolvedLocalComplexType(
         mdlContext: ComplexTypeContext
     ) : ComplexModelBase(rawPart, schema, mdlContext), ComplexTypeModel.LocalImplicitContent {
         override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-            get() = super<ComplexTypeModel.LocalImplicitContent>.mdlDerivationMethod
+            get() = ComplexTypeModel.DerivationMethod.RESTRICION
         override val mdlBaseTypeDefinition: AnyType
-            get() = super<ComplexTypeModel.LocalImplicitContent>.mdlBaseTypeDefinition
+            get() = TODO()
     }
 
     private class ComplexModelImpl(
