@@ -36,7 +36,8 @@ class ResolvedLocalElement(
     val parent: ResolvedComplexType?,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement, ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm {
+) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement, ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm,
+    ResolvedComplexTypeContext {
     override val id: VID? get() = rawPart.id
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs

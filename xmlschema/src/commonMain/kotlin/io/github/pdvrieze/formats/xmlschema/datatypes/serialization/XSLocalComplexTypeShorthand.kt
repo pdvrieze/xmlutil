@@ -44,9 +44,10 @@ class XSLocalComplexTypeShorthand(
     id,
     annotation,
     otherAttrs
-), IXSComplexTypeShorthand, T_LocalComplexType_Shorthand {
+), XSComplexType.Shorthand, T_LocalComplexType_Shorthand {
 
-    override val content: IXSComplexTypeShorthand get() = this
+    override val content: XSLocalComplexTypeShorthand get() = this
+    override val derivation: XSLocalComplexTypeShorthand get() = this
 
     override val base: Nothing? get() = null
 

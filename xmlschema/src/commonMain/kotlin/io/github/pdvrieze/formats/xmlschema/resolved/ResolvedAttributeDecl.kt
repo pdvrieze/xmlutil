@@ -18,17 +18,12 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexDerivation
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 
-sealed interface XSI_ComplexContent : XSComplexType.Content, XSI_Annotated {
-    sealed interface Complex : XSI_ComplexContent
+interface ResolvedAttributeDecl : AttributeModel.Decl {
+    override val mdlTypeDefinition: ResolvedSimpleType
 
-}
-
-sealed interface XSI_ComplexDerivation : T_ComplexDerivation, XSComplexType.Derivation {
-    override val term: XSComplexContent.XSIDerivationParticle?
+    override val mdlScope: ResolvedAttribute.ResolvedScope
 }
