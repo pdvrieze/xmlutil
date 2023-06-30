@@ -243,7 +243,10 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         get() = if (mFixWhitespace) EventType.IGNORABLE_WHITESPACE else delegateToLocal(delegate.eventType)
 
     override val text: String
-        get() = delegate.text
+        get() = when (delegate.eventType) {
+            XMLStreamReader.PROCESSING_INSTRUCTION -> "${delegate.piTarget} ${delegate.piData}"
+            else -> delegate.text
+        }
 
     override val encoding: String?
         get() = delegate.encoding
