@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-
-interface AttributeGroupModel : AttributeModel.ParentModel, INamedDecl, IAnnotated {
+interface AttributeGroupModel : AttributeModel.AttributeParentModel, INamedDecl, IAnnotated {
     val mdlAttributeUses: Set<AttributeModel.Decl>
     val mdlAttributeWildcard: WildcardModel
 }

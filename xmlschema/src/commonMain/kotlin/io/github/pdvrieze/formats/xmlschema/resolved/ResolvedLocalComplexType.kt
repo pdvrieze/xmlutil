@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
@@ -31,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
-    context: ResolvedElement,
+    override val mdlContext: ResolvedComplexTypeContext,
 ) : ResolvedComplexType(schema), ResolvedLocalType, T_LocalComplexType_Base, ComplexTypeModel.Local {
     override val mixed: Boolean? get() = rawPart.mixed
     override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
@@ -50,75 +49,58 @@ class ResolvedLocalComplexType(
 
     override val model: Model by lazy {
         when (val raw = rawPart) {
-            is XSLocalComplexTypeComplex -> ComplexModelImpl(raw, schema, mdlContext)
-            is XSLocalComplexTypeShorthand -> ShorthandModelImpl(raw, schema, mdlContext)
-            is XSLocalComplexTypeSimple -> SimpleModelImpl(raw, schema, mdlContext)
+            is XSLocalComplexTypeComplex -> ComplexModelImpl(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeShorthand -> ShorthandModelImpl(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeSimple -> SimpleModelImpl(raw, schema, this, mdlContext)
             else -> error("XSLocalComplexType should be sealed")
         }
     }
-
-    override val mdlContext: ComplexTypeContext get() = model.mdlContext
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         content.check(seenTypes, inheritedTypes) // there is no name here
     }
 
-    interface Model: ResolvedComplexType.Model, ComplexTypeModel.Local
+    interface Model : ResolvedComplexType.Model, ComplexTypeModel.Local
 
-    private abstract class ModelBase(
-        rawPart: XSLocalComplexType, schema: ResolvedSchemaLike,
-        override val mdlContext: ComplexTypeContext
-    ) : ResolvedComplexType.ModelBase(rawPart, schema), Model {
-        override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: Set<Nothing> get() = emptySet()
-        override val mdlFinal: Set<Nothing> get() = emptySet()
-        override val mdlAttributeUses: Set<AttributeModel.Use>
-            get() = TODO("not implemented")
-        override val mdlAttributeWildcard: WildcardModel
-            get() = TODO("not implemented")
-        override val mdlContentType: ResolvedGlobalComplexType.ResolvedContentType
-            get() = TODO("not implemented")
+    interface SimpleModel : Model, ComplexTypeModel.LocalSimpleContent, ResolvedSimpleContentType {
+        override val mdlContentType: ResolvedSimpleContentType
     }
 
-    private abstract class ComplexModelBase(
-        rawPart: XSLocalComplexType,
-        schema: ResolvedSchemaLike,
-        mdlContext: ComplexTypeContext
-    ) : ModelBase(rawPart, schema, mdlContext)
+    interface ComplexModel : Model, ComplexTypeModel.LocalComplexContent
+
+    interface ImplicitModel : Model, ComplexTypeModel.LocalImplicitContent
 
     private class SimpleModelImpl(
         rawPart: XSLocalComplexTypeSimple,
         schema: ResolvedSchemaLike,
-        mdlContext: ComplexTypeContext
-    ) : ModelBase(rawPart, schema, mdlContext), ComplexTypeModel.LocalSimpleContent {
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-            get() = TODO("not implemented")
-        override val mdlBaseTypeDefinition: ResolvedType
-            get() = TODO("not implemented")
-        override val mdlContentType: ResolvedGlobalComplexType.ResolvedSimpleContentType
-            get() = TODO("not implemented")
+        parent: ResolvedComplexType,
+        override val mdlContext: ResolvedComplexTypeContext
+    ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
+        override val mdlAbstract: Boolean get() = false
+        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
+        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
     }
 
     private class ShorthandModelImpl(
         rawPart: XSLocalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
-        mdlContext: ComplexTypeContext
-    ) : ComplexModelBase(rawPart, schema, mdlContext), ComplexTypeModel.LocalImplicitContent {
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-            get() = ComplexTypeModel.DerivationMethod.RESTRICION
-        override val mdlBaseTypeDefinition: AnyType
-            get() = TODO()
+        parent: ResolvedComplexType,
+        override val mdlContext: ResolvedComplexTypeContext
+    ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
+        override val mdlAbstract: Boolean get() = false
+        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
+        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
     }
 
     private class ComplexModelImpl(
         rawPart: XSLocalComplexTypeComplex,
         schema: ResolvedSchemaLike,
-        mdlContext: ComplexTypeContext
-    ) : ComplexModelBase(rawPart, schema, mdlContext), ComplexTypeModel.LocalComplexContent {
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-            get() = TODO("not implemented")
-        override val mdlBaseTypeDefinition: ResolvedType
-            get() = TODO("not implemented")
+        parent: ResolvedComplexType,
+        override val mdlContext: ResolvedComplexTypeContext
+    ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
+        override val mdlAbstract: Boolean get() = false
+        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
+        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
     }
 }
 

@@ -20,18 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.*
-
-sealed interface IXSComplexTypeShorthand:
-    T_ComplexType.Shorthand, XSI_ComplexContent.Complex, XSI_ComplexDerivation {
-
-    override val term: XSComplexContent.XSIDerivationParticle?
-
-    override val asserts: List<XSAssert>
-
-    override val attributes: List<XSLocalAttribute>
-
-    override val attributeGroups: List<XSAttributeGroupRef>
-
-    override val openContent: XSOpenContent?
-}
+typealias IXSComplexTypeShorthand=XSComplexType.Shorthand

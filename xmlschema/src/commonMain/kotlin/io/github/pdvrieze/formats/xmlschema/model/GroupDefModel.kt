@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface GroupDefModel : ElementModel.ParentModel, IAnnotated, INamedDecl, Term {
+interface GroupDefModel : ElementModel.ElementParentModel, IAnnotated, INamedDecl, Term {
 
     val mdlModelGroup: ModelGroupModel
 

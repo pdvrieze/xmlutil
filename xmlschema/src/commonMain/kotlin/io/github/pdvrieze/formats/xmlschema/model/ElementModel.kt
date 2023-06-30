@@ -79,11 +79,11 @@ interface ElementModel : IAnnotated, INamed {
 
         interface Local : Scope {
             override val variety: XSScopeVariety get() = XSScopeVariety.LOCAL
-            val parent: ParentModel
+            val parent: ElementParentModel
         }
     }
 
-    interface ParentModel
+    interface ElementParentModel
 
     interface Derivations
 }

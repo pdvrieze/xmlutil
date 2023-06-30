@@ -49,7 +49,7 @@ class XSGlobalComplexTypeSimple(
     id,
     annotation,
     otherAttrs
-), T_TopLevelComplexType_Simple {
+), T_TopLevelComplexType_Simple, XSComplexType.Simple {
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             name = name,

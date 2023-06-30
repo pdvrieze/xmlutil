@@ -20,18 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
@@ -91,293 +87,45 @@ class ResolvedGlobalComplexType(
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    interface Model : ResolvedComplexType.Model, ComplexTypeModel.Global
-
-    private abstract class ModelBase(rawPart: XSGlobalComplexType, schema: ResolvedSchemaLike) :
-        ResolvedComplexType.ModelBase(rawPart, schema), Model {
-        final override val mdlName: VNCName = rawPart.name
-        final override val mdlTargetNamespace: VAnyURI? = rawPart.targetNamespace ?: schema.targetNamespace
-
-        final override val mdlAbstract: Boolean = rawPart.abstract ?: false
-
-        final override val mdlProhibitedSubstitutions: T_DerivationSet =
-            rawPart.block ?: schema.blockDefault.toDerivationSet()
-
-        final override val mdlFinal: T_DerivationSet = rawPart.final ?: schema.finalDefault.toDerivationSet()
-
-        final override val mdlAttributeUses: Set<AttributeModel.Use> get() = TODO()
-
-        final override val mdlAttributeWildcard: WildcardModel
-            get() = TODO("not implemented")
-
-        init {
-            val pseudoAttributesGroup =
-                (schema as? ResolvedSchema)?.defaultAttributes?.takeIf { rawPart.defaultAttributesApply != false }
-                    ?.let { defName ->
-                        ResolvedAttributeGroupRef(XSAttributeGroupRef(ref = defName), schema)
-                    }
-
-
-        }
+    interface Model : ResolvedComplexType.Model, ComplexTypeModel.Global {
     }
 
-    private abstract class ComplexModelbase(
-        type: ResolvedComplexType,
-        rawPart: XSGlobalComplexType,
-        schema: ResolvedSchemaLike,
-    ) : ModelBase(rawPart, schema) {
-
-        final override val mdlContentType: ResolvedContentType
-
-        final override val mdlBaseTypeDefinition: ResolvedType
-
-        final override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod
-
-
-        init {
-
-            val content = rawPart.content as XSI_ComplexContent.Complex
-            val derivation: XSI_ComplexDerivation
-
-            when (content) {
-                is XSComplexContent -> {
-                    derivation = content.derivation
-                    mdlBaseTypeDefinition =
-                        schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
-                }
-
-                is IXSComplexTypeShorthand -> {
-                    derivation = content
-                    check(derivation.base == null) { " Shorthand has no base" }
-                    mdlBaseTypeDefinition = AnyType
-                }
-            }
-
-
-            mdlDerivationMethod = when (derivation) {
-                is XSComplexContent.XSExtension -> ComplexTypeModel.DerivationMethod.EXTENSION
-                else -> ComplexTypeModel.DerivationMethod.RESTRICION
-            }
-
-
-            val effectiveMixed = (content as? XSComplexContent)?.mixed ?: rawPart.mixed ?: false
-            val term = derivation.term
-
-            val explicitContent: ResolvedGroupParticle<*>? = when {
-                (term == null) ||
-                        (term.maxOccurs == T_AllNNI(0)) ||
-                        (term is XSAll || term is XSSequence && !term.hasChildren()) ||
-                        (term is XSChoice && term.minOccurs?.toUInt() == 0u && !term.hasChildren()) -> null
-
-
-                else -> ResolvedGroupParticle(type, term, schema)
-            }
-
-            val effectiveContent: ResolvedParticle<*>? = explicitContent ?: when {
-                !effectiveMixed -> null
-                else -> ResolvedSequence(
-                    type,
-                    XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = T_AllNNI(1)),
-                    schema
-                )
-            }
-
-            val explicitContentType: ResolvedContentType = when {
-                derivation is XSComplexContent.XSRestriction ||
-                        derivation is IXSComplexTypeShorthand ->
-                    contentType(effectiveMixed, effectiveContent)
-
-
-                mdlBaseTypeDefinition !is ResolvedComplexType -> // simple type
-                    contentType(effectiveMixed, effectiveContent)
-
-                mdlBaseTypeDefinition.mdlContentType.mdlVariety.let {
-                    it == ComplexTypeModel.Variety.SIMPLE || it == ComplexTypeModel.Variety.EMPTY
-                } -> contentType(effectiveMixed, effectiveContent)
-
-                effectiveContent == null -> mdlBaseTypeDefinition.mdlContentType
-                else -> {
-                    val baseParticle = (mdlBaseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
-                    val baseTerm: ResolvedTerm = baseParticle.mdlTerm
-                    val effectiveContentTerm = effectiveContent.mdlTerm
-                    val part: ResolvedParticle<*> = when {
-                        baseTerm is ResolvedAll && explicitContent == null -> baseParticle
-                        (baseTerm is ResolvedAll && effectiveContentTerm is ResolvedAll) -> {
-                            val p = baseTerm.mdlParticles + effectiveContentTerm.mdlParticles
-                            SyntheticAll(
-                                mdlMinOccurs = effectiveContent.mdlMinOccurs,
-                                mdlMaxOccurs = T_AllNNI(1),
-                                mdlParticles = p,
-                                schema = schema
-                            )
-                        }
-
-                        else -> {
-                            val p: List<ResolvedParticle<ResolvedChoiceSeqTerm>> =
-                                (listOf(baseParticle) + listOfNotNull(effectiveContent).filterIsInstance<ResolvedChoiceSeqTerm>())
-                                    .filterIsInstance<ResolvedParticle<ResolvedChoiceSeqTerm>>()
-
-                            SyntheticSequence(
-                                mdlMinOccurs = VNonNegativeInteger(1),
-                                mdlMaxOccurs = T_AllNNI(1),
-                                mdlParticles = p,
-                                schema = schema
-                            )
-                        }
-                    }
-                    when {
-                        effectiveMixed -> MixedContentType(part)
-                        else -> ElementOnlyContentType(part)
-                    }
-                }
-            }
-
-            val wildcardElement: XSI_OpenContent? = (rawPart as? IXSComplexTypeShorthand)?.openContent
-                ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
-                    explicitContentType.mdlVariety != ComplexTypeModel.Variety.EMPTY || it.appliesToEmpty
-                }
-
-            if (wildcardElement == null || wildcardElement.mode == T_ContentMode.NONE) {
-                mdlContentType = explicitContentType
-            } else {
-                val particle = (explicitContentType as? ResolvedElementBase)?.mdlParticle
-                    ?: SyntheticSequence(
-                        mdlMinOccurs = VNonNegativeInteger.ONE,
-                        mdlMaxOccurs = T_AllNNI.ONE,
-                        mdlParticles = emptyList(),
-                        schema = schema
-                    )
-
-                // TODO Add wildcard union
-                val w = wildcardElement.content ?: XSAny()
-                val openContent = XSOpenContent(
-                    mode = wildcardElement.mode ?: T_ContentMode.INTERLEAVE,
-                    content = w
-                )
-
-                mdlContentType = when  {
-                    effectiveMixed -> MixedContentType(
-                        mdlParticle = particle,
-                        mdlOpenContent = openContent,
-                    )
-                    else -> ElementOnlyContentType(
-                        mdlParticle = particle,
-                        mdlOpenContent = openContent,
-                    )
-                }
-            }
-        }
+    interface SimpleModel : Model, ComplexTypeModel.GlobalSimpleContent, ResolvedSimpleContentType {
+        override val mdlContentType: ResolvedSimpleContentType
     }
 
-    interface ResolvedContentType : ComplexTypeModel.ContentType
+    interface ComplexModel : Model, ComplexTypeModel.GlobalComplexContent {
 
-    object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType
-
-
-    interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
-        override val mdlParticle: ResolvedParticle<ResolvedTerm>
-        val mdlOpenContent: XSOpenContent?
     }
 
-    class MixedContentType(
-        override val mdlParticle: ResolvedParticle<*>,
-        override val mdlOpenContent: XSOpenContent? = null
-    ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
-        override val openContent: OpenContentModel? get() = null
+    interface ImplicitModel : Model, ComplexTypeModel.GlobalImplicitContent {
+
     }
 
-    class ElementOnlyContentType(
-        override val mdlParticle: ResolvedParticle<*>,
-        override val mdlOpenContent: XSOpenContent? = null
-    ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
-        override val openContent: OpenContentModel? get() = null
-    }
-
-    interface ResolvedSimpleContentType : ResolvedContentType, ComplexTypeModel.GlobalSimpleContent,
-        ComplexTypeModel.ContentType.Simple
 
     private class SimpleModelImpl(
         rawPart: XSGlobalComplexTypeSimple,
         schema: ResolvedSchemaLike,
         context: ResolvedComplexType
-    ) : ModelBase(rawPart, schema), ResolvedSimpleContentType {
+    ) : SimpleModelBase(context, rawPart, schema), SimpleModel {
+        override val mdlName: VNCName = rawPart.name
+        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
 
-        override val mdlBaseTypeDefinition: ResolvedType
-
-        override val mdlContentType: ResolvedSimpleContentType get() = this
-
-        override val mdlSimpleTypeDefinition: SimpleTypeModel
-
-        init {
-            val qname = qname(schema.targetNamespace?.value, rawPart.name.xmlString)
-            val derivation = rawPart.content.derivation
-            val baseType: ResolvedType = derivation.base?.let { schema.type(it) } ?: AnyType
-
-            mdlBaseTypeDefinition = baseType
-
-
-            val complexBaseDerivation = (baseType as? ResolvedComplexType)?.mdlDerivationMethod
-            val baseTypeComplexBase = (baseType as? ResolvedComplexType)?.mdlBaseTypeDefinition
-            val complexBaseContentType = (baseType as? ComplexTypeModel)?.mdlContentType
-
-            when {
-                baseType is ResolvedComplexType &&
-                        complexBaseContentType is SimpleModelImpl &&
-                        derivation is XSSimpleContentRestriction -> {
-                    val b = derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) }
-                        ?: complexBaseContentType.mdlSimpleTypeDefinition
-
-                    mdlSimpleTypeDefinition = object : SimpleTypeModel {
-                        //                            override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-                        override val mdlFinal: Set<Nothing> get() = emptySet()
-
-                        //                            override val mdlContext: ResolvedComplexType = context
-                        override val mdlBaseTypeDefinition: TypeModel = b
-                        override val mdlFacets: List<T_Facet> get() = TODO("restriction children facets")
-                        override val mdlFundamentalFacets: List<T_Facet> get() = TODO("unclear what this is")
-                        override val mdlVariety: SimpleTypeModel.Variety get() = TODO("b.{variety}")
-                        override val mdlPrimitiveTypeDefinition: PrimitiveDatatype get() = TODO("b.{primitive type definition}")
-                        override val mdlItemTypeDefinition: SimpleTypeModel get() = TODO("b.{item type definition}")
-                        override val mdlMemberTypeDefinitions: List<SimpleTypeModel> get() = TODO("b.{memberTypeDefinitions}")
-                        override val mdlAnnotations: Nothing? get() = null
-
-                    }
-                }
-
-                baseType is ResolvedComplexType &&
-                        complexBaseContentType is ComplexTypeModel.ContentType.Mixed &&
-                        complexBaseContentType.mdlParticle.mdlIsEmptiable() &&
-                        derivation is XSSimpleContentRestriction -> {
-                    val sb =
-                        derivation.simpleType ?: error("Simple type definition constrained violated: 3.4.2.2 - step 2")
-
-                    val st = ResolvedLocalSimpleType(
-                        XSLocalSimpleType(
-                            simpleDerivation = XSSimpleRestriction(
-                                simpleType = sb,
-                                facets = derivation.facets
-                            )
-                        ), schema, context
-                    )
-
-                    mdlSimpleTypeDefinition = st
-                }
-
-                else -> mdlSimpleTypeDefinition = baseType as ResolvedSimpleType
-            }
-
-
-        }
-
-        override val mdlDerivationMethod: ComplexTypeModel.DerivationMethod =
-            rawPart.content.derivation.derivationMethod
     }
 
     private class ShorthandModelImpl(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeShorthand,
         schema: ResolvedSchemaLike
-    ) : ComplexModelbase(parent, rawPart, schema), ComplexTypeModel.GlobalImplicitContent {
+    ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
+        override val mdlName: VNCName = rawPart.name
+        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
 
     }
 
@@ -385,17 +133,12 @@ class ResolvedGlobalComplexType(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeComplex,
         schema: ResolvedSchemaLike
-    ) : ComplexModelbase(parent, rawPart, schema), ComplexTypeModel.GlobalComplexContent {
-    }
-
-    companion object {
-        internal fun contentType(effectiveMixed: Boolean, particle: ResolvedParticle<*>?): ResolvedContentType {
-            return when {
-                particle == null -> EmptyContentType
-                effectiveMixed -> MixedContentType(particle)
-                else -> ElementOnlyContentType(particle)
-            }
-        }
+    ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
+        override val mdlName: VNCName = rawPart.name
+        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
 
     }
 

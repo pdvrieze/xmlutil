@@ -38,30 +38,31 @@ interface AttributeModel : IAnnotated, INamed {
         val mdlInheritable: Boolean
     }
 
-    interface Global: Decl {
+    interface Global : Decl {
     }
 
     interface Ref : Use
 
     interface ProhibitedRef : IAnnotated
 
-    interface Local: Decl, Use {
+    interface Local : Decl, Use {
         override val mdlAttributeDeclaration: Decl get() = this
     }
 
     interface ScopeModel {
         val mdlVariety: XSScopeVariety
 
-        interface Global: ScopeModel {
+        interface Global : ScopeModel {
             override val mdlVariety: XSScopeVariety get() = XSScopeVariety.GLOBAL
         }
-        interface Local: ScopeModel {
+
+        interface Local : ScopeModel {
             override val mdlVariety: XSScopeVariety get() = XSScopeVariety.LOCAL
-            val parent: ParentModel
+            val parent: AttributeParentModel
         }
     }
 
-    interface ParentModel
+    interface AttributeParentModel
 
 }
 

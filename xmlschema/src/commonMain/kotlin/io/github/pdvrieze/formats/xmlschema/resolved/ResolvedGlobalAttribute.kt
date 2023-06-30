@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
 import nl.adaptivity.xmlutil.QName
 
@@ -33,10 +34,7 @@ class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttribute(schema),
-    T_GlobalAttribute, NamedPart {
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
+    T_GlobalAttribute, NamedPart, ResolvedAttributeGlobal {
 
     override val id: VID?
         get() = rawPart.id
@@ -64,6 +62,15 @@ class ResolvedGlobalAttribute(
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
+
+    override val mdlName: VNCName get() = name
+
+    override val mdlTypeDefinition: ResolvedSimpleType =
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: schema.simpleType(requireNotNull(rawPart.type) { "missing type for attribute $mdlQName" } )
+
+    override val mdlValueConstraint: Nothing? get() = null
+
+    override val mdlScope: ResolvedScope get() = this
 
     override fun check() {
         super<ResolvedAttribute>.check()
