@@ -58,8 +58,8 @@ public class DomReader(public val delegate: Node) : XmlReader {
             NodeConsts.ENTITY_REFERENCE_NODE,
             NodeConsts.COMMENT_NODE,
             NodeConsts.TEXT_NODE,
-            NodeConsts.PROCESSING_INSTRUCTION_NODE,
             NodeConsts.CDATA_SECTION_NODE -> (current as CharacterData).data
+            NodeConsts.PROCESSING_INSTRUCTION_NODE -> (current as CharacterData).let { "${it.nodeName} ${it.getData()}" }
 
             else -> throw XmlException("Node is not a text node")
         }

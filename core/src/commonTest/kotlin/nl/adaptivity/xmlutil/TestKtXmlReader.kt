@@ -64,4 +64,9 @@ class TestKtXmlReader : TestCommonReader() {
         testReaderWithBOM(XmlStreaming::newGenericReader)
     }
 
+    @Test
+    fun testProcessingInstruction() {
+        testProcessingInstruction(XmlStreaming::newGenericReader)
+    }
+
 }

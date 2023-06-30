@@ -10,6 +10,7 @@ Features:
   effectively functioning as wildcard)
 
 Fixes:
+- Fix reading of processing instruction events (#160).
 - Fix recovery of element children (#160).
 - Fix decoding of nil elements in certain cases (lists) where the end of the tag
   wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.

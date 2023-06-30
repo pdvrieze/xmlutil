@@ -60,4 +60,9 @@ class TestXmlReader : TestCommonReader() {
         testReaderWithBOM(XmlStreaming::newReader)
     }
 
+    @Test
+    fun testProcessingInstruction() {
+        testIgnorableWhitespace(XmlStreaming::newReader)
+    }
+
 }

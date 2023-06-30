@@ -67,4 +67,10 @@ class TestBufferedXmlReader : TestCommonReader() {
         testIgnorableWhitespace(::createReader)
     }
 
+    @Test
+    fun testProcessingInstruction() {
+        testProcessingInstruction(::createReader)
+    }
+
+
 }

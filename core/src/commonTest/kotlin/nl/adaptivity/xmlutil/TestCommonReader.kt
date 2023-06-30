@@ -20,11 +20,10 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 abstract class TestCommonReader {
     protected fun testReadCompactFragmentWithNamespaceInOuter(createReader: (String) -> XmlReader) {
@@ -161,6 +160,36 @@ abstract class TestCommonReader {
         }
 
         assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+    }
+
+    protected fun testProcessingInstruction(createReader: (String) -> XmlReader) {
+        val out = StringWriter()
+        val writer = KtXmlWriter(out)
+        val reader = createReader(
+            """
+                <?xpacket begin='' id='from_166'?>
+                <root xmlns="foo">bar</root>
+                <?xpacket end='w'?>
+            """.trimIndent()
+        )
+
+        run {
+            var event = reader.next()
+            if (event == EventType.START_DOCUMENT) event = reader.next()
+            assertEquals(EventType.PROCESSING_INSTRUCTION, event)
+            writer.writeCurrentEvent(reader)
+            val storedEvent = (reader.toEvent() as? XmlEvent.TextEvent) ?: fail("Event should be textEvent")
+            assertEquals(EventType.PROCESSING_INSTRUCTION, storedEvent.eventType)
+            assertEquals("xpacket begin='' id='from_166'", storedEvent.text)
+            do {
+                event = reader.next()
+            } while (event == EventType.IGNORABLE_WHITESPACE)
+            assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
+        }
+
+        assertEquals(EventType.TEXT, reader.next())
+        assertEquals("bar", reader.text)
     }
 
 
