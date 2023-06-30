@@ -774,6 +774,18 @@ public class KtXmlReader internal constructor(
             else -> throw XmlException("The element is not text, it is: $eventType")
         }
 
+    override val piTarget: String
+        get() {
+            check(eventType == PROCESSING_INSTRUCTION)
+            return get(0).substringBefore(' ')
+        }
+
+    override val piData: String
+        get() {
+            check(eventType == PROCESSING_INSTRUCTION)
+            return get(0).substringAfter(' ', "")
+        }
+
     public fun isEmptyElementTag(): Boolean {
         if (_eventType != START_ELEMENT) exception(ILLEGAL_TYPE)
         return isSelfClosing

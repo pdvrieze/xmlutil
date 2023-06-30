@@ -200,7 +200,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent =
-            TextEvent(reader.locationInfo, PROCESSING_INSTRUCTION, reader.text)
+            ProcessingInstructionEvent(reader.locationInfo, reader.piTarget, reader.piData)
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
             writer.processingInstruction(textEvent.text)

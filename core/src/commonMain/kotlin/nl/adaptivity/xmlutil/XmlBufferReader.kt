@@ -52,6 +52,13 @@ public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
     override val text: String
         get() = current<TextEvent>().text
 
+    override val piTarget: String
+        get() = current<ProcessingInstructionEvent>().target
+
+    override val piData: String
+        get() = current<ProcessingInstructionEvent>().data
+
+
     override val attributeCount: Int
         get() = current<StartElementEvent>().attributes.size
 

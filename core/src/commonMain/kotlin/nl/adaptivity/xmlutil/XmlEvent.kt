@@ -47,6 +47,9 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         }
     }
 
+    public class ProcessingInstructionEvent(locationInfo: String?, public val target: String, public val data: String) :
+        TextEvent(locationInfo, EventType.PROCESSING_INSTRUCTION, "$target $data")
+
     public class EntityRefEvent(
         locationInfo: String?,
         public val localName: String,

@@ -52,6 +52,20 @@ public class DomReader(public val delegate: Node) : XmlReader {
     override var depth: Int = 0
         private set
 
+    override val piTarget: String
+        get() {
+            val c = requireCurrent
+            require(c.nodeType == NodeConsts.PROCESSING_INSTRUCTION_NODE)
+            return c.nodeName
+        }
+
+    override val piData: String
+        get() {
+            val c = requireCurrent
+            require(c.nodeType == NodeConsts.PROCESSING_INSTRUCTION_NODE)
+            return (c as CharacterData).getData()
+        }
+
     @Suppress("DEPRECATION", "UNCHECKED_CAST")
     override val text: String
         get() = when (current?.nodeType) {

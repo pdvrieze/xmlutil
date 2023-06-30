@@ -8,6 +8,8 @@ Features:
 - Add a helper function `XmlSerializationPolicy.recoverNullNamespaceUse` that
   can be used to support recovering in case of null namespaces (and them
   effectively functioning as wildcard)
+- Properly expose processing instruction data throught piTarget and piData
+  attributes and `XmlEvent.ProcessingInstructionEvent` as event.
 
 Fixes:
 - Fix reading of processing instruction events (#160).
