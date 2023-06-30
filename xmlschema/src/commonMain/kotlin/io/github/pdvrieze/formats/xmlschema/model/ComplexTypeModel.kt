@@ -20,16 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttribute
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 
-interface ComplexTypeModel : TypeModel, AttributeModel.ParentModel, ElementModel.ParentModel,
+interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, ElementModel.ElementParentModel,
     SimpleTypeContext {
 
     val mdlAbstract: Boolean
     val mdlProhibitedSubstitutions: T_DerivationSet
     override val mdlFinal: Set<Derivation>
     val mdlContentType: ContentType
-    val mdlAttributeUses: Set<AttributeModel.Use>
+    val mdlAttributeUses: Set<ResolvedAttribute>
     val mdlAttributeWildcard: WildcardModel
     val mdlDerivationMethod: DerivationMethod
 

@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 
-fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedElement): ResolvedLocalType {
+fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedTypeContext): ResolvedLocalType {
     return when (rawPart) {
         is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
         is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)

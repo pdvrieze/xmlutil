@@ -23,19 +23,21 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute(
-    val parent: Parent,
+    override val parent: Parent,
     override val rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
-) : ResolvedAttribute(schema), ResolvedAttribute.Use, T_LocalAttribute {
+) : ResolvedAttribute(schema), ResolvedAttributeLocal, T_LocalAttribute {
     private val referenced: ResolvedAttribute? by lazy {
         rawPart.ref?.let {
             schema.attribute(
@@ -43,9 +45,6 @@ class ResolvedLocalAttribute(
             )
         }
     }
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id
@@ -80,6 +79,28 @@ class ResolvedLocalAttribute(
     override val simpleType: XSLocalSimpleType?
         get() = rawPart.simpleType ?: referenced?.simpleType
 
+    override val mdlName: VNCName
+        get() = name
+
+    override val mdlTypeDefinition: ResolvedSimpleType by lazy {
+        simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?:
+        schema.simpleType(requireNotNull(ref) { "Missing simple type for attribute $name" } )
+    }
+
+    override val mdlScope: ResolvedScope get() = this
+
+    override val mdlRequired: Boolean
+        get() = rawPart.use == XSAttrUse.REQUIRED
+
+    override val mdlAttributeDeclaration: ResolvedAttributeDecl
+        get() = when (ref) {
+            null -> this
+            else -> requireNotNull(referenced)
+        }
+
+    override val mdlValueConstraint: ValueConstraintModel?
+        get() = TODO("Implement local attribute value constraint")
+
     override fun check() {
         super<ResolvedAttribute>.check()
 //        if (rawPart.use!=XSAttrUse.PROHIBITED) {
@@ -90,5 +111,5 @@ class ResolvedLocalAttribute(
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
     }
 
-    interface Parent
+    interface Parent : AttributeModel.AttributeParentModel
 }

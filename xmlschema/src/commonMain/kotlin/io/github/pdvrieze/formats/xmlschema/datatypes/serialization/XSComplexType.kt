@@ -20,6 +20,46 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 
-sealed interface XSComplexType: T_ComplexType
+interface XSIComplexType : T_ComplexType {
+    override val content: XSComplexType.Content
+}
+
+sealed interface XSComplexType : XSIComplexType {
+
+    interface Content : T_ComplexType.Content {
+        val derivation: Derivation
+    }
+
+    interface Derivation: I_AttributeContainer {
+        override val attributes: List<XSLocalAttribute>
+        override val attributeGroups: List<XSAttributeGroupRef>
+    }
+
+    sealed interface ComplexBase : XSIComplexType {
+        override val content: XSI_ComplexContent.Complex
+    }
+
+    sealed interface Complex : ComplexBase {
+        override val content: XSComplexContent
+    }
+
+    sealed interface Shorthand : ComplexBase, T_ComplexType.Shorthand,
+        XSI_ComplexContent.Complex,
+        XSI_ComplexDerivation {
+        override val content: Shorthand
+
+        override val term: XSComplexContent.XSIDerivationParticle?
+        override val asserts: List<XSAssert>
+        override val attributes: List<XSLocalAttribute>
+        override val attributeGroups: List<XSAttributeGroupRef>
+        override val openContent: XSOpenContent?
+    }
+
+    interface Simple : XSIComplexType {
+        override val content: XSSimpleContent
+    }
+}
+

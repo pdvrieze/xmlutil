@@ -21,9 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeContext
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
+import io.github.pdvrieze.formats.xmlschema.model.TypeContext
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.T_Type
 import nl.adaptivity.xmlutil.QName
 
@@ -39,3 +40,9 @@ sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeMod
 
 
 }
+
+interface ResolvedTypeContext : ResolvedComplexTypeContext, ResolvedSimpleTypeContext, TypeContext
+
+interface ResolvedComplexTypeContext : ComplexTypeContext
+
+interface ResolvedSimpleTypeContext : SimpleTypeContext

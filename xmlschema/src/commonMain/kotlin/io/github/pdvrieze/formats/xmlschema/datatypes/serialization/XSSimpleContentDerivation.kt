@@ -36,7 +36,7 @@ sealed class XSSimpleContentDerivation(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : T_ComplexType.SimpleDerivation, I_Assertions, I_AttributeContainer {
+) : XSComplexType.Derivation, T_ComplexType.SimpleDerivation, I_Assertions, I_AttributeContainer {
     abstract val base: QName?
     abstract val derivationMethod: ComplexTypeModel.DerivationMethod
 }

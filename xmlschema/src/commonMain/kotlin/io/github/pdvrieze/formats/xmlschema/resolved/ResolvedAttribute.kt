@@ -21,19 +21,35 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeBase, SimpleTypeContext {
+) : ResolvedPart, T_AttributeBase, SimpleTypeContext, ResolvedAttributeDecl {
     abstract override val rawPart: XSAttribute
 
-    override val type: QName?
+    abstract override val name: VNCName
+
+    val mdlQName: QName
+        get() = qname((targetNamespace ?: schema.targetNamespace)?.value, name.xmlString)
+
+    override val type: QName? // TODO make abstract
         get() = (resolvedType as? ResolvedGlobalSimpleType)?.qName
+
+    final override val annotation: XSAnnotation?
+        get() = rawPart.annotation
+
 
     val resolvedType: ResolvedSimpleType by lazy {
         rawPart.type?.let { schema.simpleType(it) }
@@ -42,6 +58,22 @@ sealed class ResolvedAttribute(
     }
 
     val valueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
+
+    final override val mdlTargetNamespace: VAnyURI? by lazy {
+        targetNamespace ?: when {
+            (rawPart.form ?: (schema as ResolvedSchema)) == T_FormChoice.QUALIFIED ->
+                schema.targetNamespace
+
+            else -> null
+        }
+    }
+
+
+    final override val mdlInheritable: Boolean
+        get() = rawPart.inheritable ?: false
+
+    final override val mdlAnnotations: AnnotationModel?
+        get() = rawPart.annotation.models()
 
     override fun check() {
         super<ResolvedPart>.check()
@@ -52,6 +84,6 @@ sealed class ResolvedAttribute(
         }
     }
 
-    interface Use
+    interface ResolvedScope : AttributeModel.ScopeModel
 }
 

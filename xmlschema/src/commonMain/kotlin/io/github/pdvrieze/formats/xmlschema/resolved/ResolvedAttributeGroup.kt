@@ -30,9 +30,18 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
-    override val schema: ResolvedSchemaLike
+    final override val schema: ResolvedSchemaLike
 ) : ResolvedPart, T_AttributeGroupBase, XSI_Annotated {
     abstract override val rawPart: XSAttributeGroup
+
+
+    val attributeUses: Set<ResolvedAttribute>
+        get() {
+            return buildSet {
+
+            }
+        }
+
 }
 
 class ResolvedAttributeGroupRef(
@@ -70,8 +79,8 @@ class ResolvedAttributeGroupRef(
 
 class ResolvedToplevelAttributeGroup(
     override val rawPart: XSAttributeGroup,
-    override val schema: ResolvedSchemaLike
-) : NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
+    schema: ResolvedSchemaLike
+) : ResolvedAttributeGroup(schema), NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
 
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(this, it, schema)
