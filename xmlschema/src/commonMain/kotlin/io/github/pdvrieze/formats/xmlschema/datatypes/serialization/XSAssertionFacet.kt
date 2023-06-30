@@ -36,7 +36,11 @@ class XSAssertionFacet(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSFacet(), T_Assertion
+) : XSFacet(), T_Assertion {
+    override val value: Any
+        get() = this
+    override val fixed: Nothing? get() = null
+}
 
 /*
 
