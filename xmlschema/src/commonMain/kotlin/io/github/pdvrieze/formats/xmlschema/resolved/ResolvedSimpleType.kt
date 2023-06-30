@@ -33,6 +33,8 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
@@ -106,12 +108,21 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             val typeName = (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
             val simpleDerivation = rawPart.simpleDerivation
 
-            mdlBaseTypeDefinition = when (simpleDerivation) {
-                is XSSimpleRestriction -> simpleDerivation.base?.let { schema.simpleType (it) }
-                    ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
+            mdlBaseTypeDefinition = when {
+                simpleDerivation !is XSSimpleRestriction -> AnySimpleType
 
-                else -> AnySimpleType
+                rawPart is XSGlobalSimpleType &&
+                        typeName !=null && simpleDerivation.base!=null && typeName.isEquivalent(simpleDerivation.base) -> {
+                    require(schema is ResolvedRedefine) { "Only redefines can have 'self-referencing types'" }
+                    ResolvedGlobalSimpleType(schema.nestedSchema.simpleTypes.single { it.name.xmlString == typeName.localPart }, schema)
+                }
+
+                else -> simpleDerivation.base?.let {
+                    require(typeName == null || !it.isEquivalent(typeName))
+                    schema.simpleType (it)
+                } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
             }
+
 
             mdlItemTypeDefinition = when (simpleDerivation) {
                 is XSSimpleList -> when (mdlBaseTypeDefinition) {

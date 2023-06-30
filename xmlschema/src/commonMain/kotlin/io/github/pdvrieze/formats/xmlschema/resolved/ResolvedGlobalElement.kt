@@ -35,7 +35,11 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), T_GlobalElement, ElementModel.Global, ResolvedTypeContext {
+) : ResolvedElement(schema),
+    T_GlobalElement,
+    ElementModel.Global,
+    ResolvedTypeContext {
+
     override fun check() {
         super<ResolvedElement>.check()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
@@ -119,13 +123,15 @@ class ResolvedGlobalElement(
     override val model: ElementModel.Global by lazy { ModelImpl(rawPart, schema) }
 
     override val mdlScope: ElementModel.Scope.Global get() = model.mdlScope
+
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike) : ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Global {
-        override val mdlScope: ElementModel.Scope.Global
-            get() = TODO("not implemented")
-        override val mdlTargetNamespace: VAnyURI?
-            get() = TODO("not implemented")
+    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike) :
+        ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Global, ElementModel.Scope.Global {
+        override val mdlScope: ElementModel.Scope.Global get() = this
+
+        override val mdlTargetNamespace: VAnyURI? =
+            rawPart.targetNamespace ?: schema.targetNamespace
     }
 
 }

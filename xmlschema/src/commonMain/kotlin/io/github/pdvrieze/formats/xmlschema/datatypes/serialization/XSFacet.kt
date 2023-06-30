@@ -24,5 +24,5 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class XSFacet
+sealed class XSFacet : T_Facet
 
