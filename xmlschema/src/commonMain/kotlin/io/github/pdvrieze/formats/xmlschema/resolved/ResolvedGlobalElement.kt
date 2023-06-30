@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), T_GlobalElement, ElementModel.Global {
+) : ResolvedElement(schema), T_GlobalElement, ElementModel.Global, ResolvedTypeContext {
     override fun check() {
         super<ResolvedElement>.check()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
