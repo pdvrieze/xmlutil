@@ -472,10 +472,6 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Container : java/lang/annotation/Annotation {
-	public abstract fun value ()[Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;
-}
-
 public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun value ()Ljava/lang/String;
