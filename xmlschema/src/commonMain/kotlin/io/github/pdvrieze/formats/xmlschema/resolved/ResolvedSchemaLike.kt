@@ -59,7 +59,7 @@ abstract sealed class ResolvedSchemaLike {
 
     open fun type(typeName: QName): ResolvedGlobalType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinXmlSchema.simpleType(typeName)
+            BuiltinXmlSchema.type(typeName)
         } else {
             simpleTypes.firstOrNull { it.qName == typeName }
                 ?: complexTypes.firstOrNull { it.qName == typeName }
