@@ -39,7 +39,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
 
-        return simpleTypes.firstOrNull { it.qName == typeName }
+        return typeMap[typeName.localPart]
             ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
@@ -47,9 +47,8 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
-        if (typeName.localPart == AnyType.name.xmlString) return AnyType
-        return simpleTypes.firstOrNull { it.qName == typeName }
-            ?: throw NoSuchElementException("No type with name $typeName found")
+        if (typeName.localPart == "anyType") return AnyType
+        return simpleType(typeName)
     }
 
     override val elements: List<ResolvedGlobalElement>
@@ -58,8 +57,8 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val attributes: List<ResolvedGlobalAttribute>
         get() = emptyList()
 
-    override val simpleTypes: List<ResolvedGlobalSimpleType>
-        get() = listOf(
+    override val simpleTypes: List<ResolvedGlobalSimpleType> by lazy {
+        listOf(
             AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
             DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
             IntType, ShortType, ByteType, NonNegativeIntegerType, PositiveIntegerType,
@@ -71,6 +70,11 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             EntityType, IDType, IDRefType, NMTokenType, TimeType, EntitiesType, IDRefsType,
             NMTokensType
         )
+    }
+
+    private val typeMap: Map<String, ResolvedGlobalSimpleType> by lazy {
+        simpleTypes.associateBy { it.qName.localPart }
+    }
 
     override val complexTypes: List<Nothing>
         get() = emptyList()
