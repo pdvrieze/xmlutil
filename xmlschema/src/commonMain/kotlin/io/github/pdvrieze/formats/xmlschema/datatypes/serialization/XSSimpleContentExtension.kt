@@ -44,5 +44,5 @@ class XSSimpleContentExtension: XSSimpleContentDerivation, T_SimpleExtensionType
 
     override val base: @Serializable(QNameSerializer::class) QName
 
-    override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.EXTENSION
+    override val derivationMethod: T_TypeDerivationControl.EXTENSION get() = T_TypeDerivationControl.EXTENSION
 }

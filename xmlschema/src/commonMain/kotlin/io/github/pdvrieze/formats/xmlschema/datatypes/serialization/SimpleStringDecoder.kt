@@ -19,8 +19,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.EmptySerializersModule
@@ -29,10 +31,39 @@ import kotlinx.serialization.modules.SerializersModule
 @OptIn(ExperimentalSerializationApi::class)
 class SimpleStringDecoder constructor(
     val value: String,
-    override val serializersModule: SerializersModule = EmptySerializersModule
-): Decoder {
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        throw SerializationException("Structures are not supported by the simple string decoder: decoding $value")
+    override val serializersModule: SerializersModule = EmptySerializersModule()
+) : Decoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = when (descriptor.kind) {
+        is StructureKind.OBJECT -> ObjectDecoder(descriptor)
+        is PolymorphicKind.SEALED -> SealedDecoder()
+        else -> throw SerializationException("Structures are not supported by the simple string decoder: decoding $value")
+    }
+
+    private inner class ObjectDecoder(private val descriptor: SerialDescriptor) : AbstractDecoder() {
+        override val serializersModule: SerializersModule
+            get() = this@SimpleStringDecoder.serializersModule
+
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            return CompositeDecoder.DECODE_DONE
+        }
+    }
+
+    private inner class SealedDecoder() : AbstractDecoder() {
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            val s = decodeString()
+            return (0 until descriptor.elementsCount).first { descriptor.getElementName(it) == s }
+        }
+
+        override fun decodeString(): String {
+            return value
+        }
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T {
+            return deserializer.deserialize(ObjectDecoder(deserializer.descriptor))
+        }
+
+        override val serializersModule: SerializersModule
+            get() = this@SimpleStringDecoder.serializersModule
     }
 
     @ExperimentalSerializationApi
@@ -125,7 +156,7 @@ class SimpleStringListDecoder constructor(
     override fun decodeString(): String =
         throw UnsupportedOperationException("List need to be decoded as lists, not elements")
 
-    private val listCompositeDecoder = object: CompositeDecoder {
+    private val listCompositeDecoder = object : CompositeDecoder {
         override val serializersModule: SerializersModule
             get() = this@SimpleStringListDecoder.serializersModule
 

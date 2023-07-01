@@ -16,6 +16,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.SetSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -24,7 +26,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-class SchemaEnumSetSerializer<T: Enum<T>>(val elementSerializer: KSerializer<T>): KSerializer<Set<T>> {
+class SchemaEnumSetSerializer<T : Enum<T>>(val elementSerializer: KSerializer<T>) : KSerializer<Set<T>> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Set<${elementSerializer.descriptor.serialName}>", PrimitiveKind.STRING)
 
@@ -49,8 +51,63 @@ class SchemaEnumSetSerializer<T: Enum<T>>(val elementSerializer: KSerializer<T>)
                     elementSerializer.descriptor.getElementName(it)
                 }
             }
+
             else -> str.split(' ')
         }.filter { it.isNotEmpty() }
         return SetSerializer(elementSerializer).deserialize(SimpleStringListDecoder(names, decoder.serializersModule))
+    }
+}
+
+class AllDerivationSerializer : KSerializer<Set<T_TypeDerivationControl>> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Set<T_TypeDerviationControl>", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Set<T_TypeDerivationControl> {
+        return when (val s = decoder.decodeString().trim()) {
+            "#all" -> setOf(RESTRICTION, EXTENSION, LIST, UNION)
+            else -> s.split(' ').asSequence().mapNotNullTo(HashSet()) {
+                when (it) {
+                    RESTRICTION.name -> RESTRICTION
+                    EXTENSION.name -> EXTENSION
+                    LIST.name -> LIST
+                    UNION.name -> UNION
+                    else -> null
+                }
+            }
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Set<T_TypeDerivationControl>) {
+        val s = when (value.size) {
+            4 -> "#all"
+            else -> value.joinToString(" ") { it.name }
+        }
+        encoder.encodeString(s)
+    }
+}
+
+class ComplexDerivationSerializer : KSerializer<Set<ComplexBase>> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Set<T_TypeDerviationControl.ComplexBase>", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Set<ComplexBase> {
+        return when (val s = decoder.decodeString().trim()) {
+            "#all" -> setOf(RESTRICTION, EXTENSION)
+            else -> s.split(' ').asSequence().mapNotNullTo(HashSet()) {
+                when (it) {
+                    RESTRICTION.name -> RESTRICTION
+                    EXTENSION.name -> EXTENSION
+                    else -> null
+                }
+            }
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Set<ComplexBase>) {
+        val s = when (value.size) {
+            2 -> "#all"
+            else -> value.joinToString(" ") { it.name }
+        }
+        encoder.encodeString(s)
     }
 }

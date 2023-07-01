@@ -29,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
@@ -59,7 +58,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         get() = model.mdlMemberTypeDefinitions as List<ResolvedSimpleType>
 
-    override val mdlFinal: T_FullDerivationSet
+    override val mdlFinal: Set<TypeModel.Derivation>
         get() = model.mdlFinal
 
     override fun check(
@@ -85,8 +84,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
 
-    interface Model: SimpleTypeModel {
-        override val mdlFinal: T_FullDerivationSet
+    interface Model : SimpleTypeModel {
+        override val mdlFinal: Set<TypeModel.Derivation>
     }
 
     @Suppress("LeakingThis")
@@ -104,21 +103,25 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
 
         init {
-            val typeName = (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
+            val typeName =
+                (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
             val simpleDerivation = rawPart.simpleDerivation
 
             mdlBaseTypeDefinition = when {
                 simpleDerivation !is XSSimpleRestriction -> AnySimpleType
 
                 rawPart is XSGlobalSimpleType &&
-                        typeName !=null && simpleDerivation.base!=null && typeName.isEquivalent(simpleDerivation.base) -> {
+                        typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
                     require(schema is ResolvedRedefine) { "Only redefines can have 'self-referencing types'" }
-                    ResolvedGlobalSimpleType(schema.nestedSchema.simpleTypes.single { it.name.xmlString == typeName.localPart }, schema)
+                    ResolvedGlobalSimpleType(
+                        schema.nestedSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
+                        schema
+                    )
                 }
 
                 else -> simpleDerivation.base?.let {
                     require(typeName == null || !it.isEquivalent(typeName))
-                    schema.simpleType (it)
+                    schema.simpleType(it)
                 } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
             }
 
@@ -128,25 +131,36 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                     AnySimpleType -> simpleDerivation.itemTypeName?.let { schema.simpleType(it) }
                         ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
 
-                    else -> recurseBaseType(typeName, rawPart.simpleDerivation, schema, context) { it.mdlItemTypeDefinition }
+                    else -> recurseBaseType(
+                        typeName,
+                        rawPart.simpleDerivation,
+                        schema,
+                        context
+                    ) { it.mdlItemTypeDefinition }
                 }
 
                 else -> null
             }
 
             mdlMemberTypeDefinitions = when {
-                    simpleDerivation !is XSSimpleUnion -> emptyList()
-                    mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map { schema.simpleType(it) }
-                        ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ModelBase) }
+                simpleDerivation !is XSSimpleUnion -> emptyList()
+                mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map { schema.simpleType(it) }
+                    ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ModelBase) }
 
-                    else -> recurseBaseType(typeName, rawPart.simpleDerivation, schema, context) { it.mdlMemberTypeDefinitions } ?: emptyList()
-                }
+                else -> recurseBaseType(
+                    typeName,
+                    rawPart.simpleDerivation,
+                    schema,
+                    context
+                ) { it.mdlMemberTypeDefinitions } ?: emptyList()
+            }
 
 
             mdlVariety = when (simpleDerivation) {
                 is XSSimpleList -> SimpleTypeModel.Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(rawPart, schema, context) { it.mdlVariety }
                     ?: SimpleTypeModel.Variety.ATOMIC
+
                 is XSSimpleUnion -> SimpleTypeModel.Variety.UNION
                 else -> error("Unreachable/unsupported derivation")
             }
@@ -162,9 +176,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             }
 
 
-
         }
-
 
 
         final override val mdlFundamentalFacets: FundamentalFacets

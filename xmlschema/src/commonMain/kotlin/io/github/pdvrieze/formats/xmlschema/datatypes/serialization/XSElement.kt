@@ -20,7 +20,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -46,8 +48,8 @@ class XSElement(
     @XmlElement(false)
     override val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
-    @Serializable(SchemaEnumSetSerializer::class)
-    override val final: T_DerivationSet? = null,
+    @Serializable(ComplexDerivationSerializer::class)
+    override val final: Set<@Contextual T_TypeDerivationControl.ComplexBase>? = null,
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),

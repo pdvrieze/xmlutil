@@ -66,9 +66,9 @@ class ResolvedGlobalComplexType(
 
     override val abstract: Boolean get() = model.mdlAbstract
 
-    override val final: T_DerivationSet get() = model.mdlFinal
+    override val final: Set<out ComplexTypeModel.Derivation> get() = model.mdlFinal
 
-    override val block: T_DerivationSet get() = model.mdlProhibitedSubstitutions
+    override val block: Set<out ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedComplexType>.check(seenTypes, inheritedTypes)
@@ -116,8 +116,10 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            calcFinalSubstitutions(rawPart, schema)
 
     }
 
@@ -129,8 +131,10 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            calcFinalSubstitutions(rawPart, schema)
 
     }
 
@@ -142,8 +146,10 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: T_DerivationSet = calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: T_DerivationSet = calcFinalSubstitutions(rawPart, schema)
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            calcProhibitedSubstitutions(rawPart, schema)
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            calcFinalSubstitutions(rawPart, schema)
 
     }
 
