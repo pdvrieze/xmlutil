@@ -21,3 +21,4 @@ interface T_Facet: XSI_Annotated {
 
     val fixed: Boolean?
 }
+
