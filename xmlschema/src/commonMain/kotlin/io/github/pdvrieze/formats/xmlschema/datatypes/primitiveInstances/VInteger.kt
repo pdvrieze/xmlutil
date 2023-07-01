@@ -23,4 +23,31 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 interface VInteger : VDecimal {
     fun toLong(): Long
     fun toInt(): Int
+
+    companion object {
+        val ZERO: VInteger = IntInstance(0)
+
+        operator fun invoke(i: Int): VInteger {
+            return IntInstance(i)
+        }
+        operator fun invoke(l: Long): VInteger {
+            return LongInstance(l)
+        }
+    }
+}
+
+private class IntInstance(private val i: Int) : VInteger {
+    override fun toLong(): Long = i.toLong()
+
+    override fun toInt(): Int = i
+
+    override val xmlString: String get() = i.toString()
+}
+
+private class LongInstance(private val l: Long) : VInteger {
+    override fun toLong(): Long = l
+
+    override fun toInt(): Int = l.toInt()
+
+    override val xmlString: String get() = l.toString()
 }

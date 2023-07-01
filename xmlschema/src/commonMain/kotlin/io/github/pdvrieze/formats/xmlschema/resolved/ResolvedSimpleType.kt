@@ -22,14 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
@@ -46,9 +45,9 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
 
-    override val mdlFacets: List<T_Facet> get() = model.mdlFacets
+    override val mdlFacets: List<XSFacet> get() = model.mdlFacets
 
-    override val mdlFundamentalFacets: List<T_Facet> get() = model.mdlFundamentalFacets
+    override val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
 
     override val mdlVariety: SimpleTypeModel.Variety get() = model.mdlVariety
 
@@ -168,10 +167,10 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
 
 
-        final override val mdlFundamentalFacets: List<T_Facet>
+        final override val mdlFundamentalFacets: FundamentalFacets
             get() = TODO("not implemented")
 
-        final override val mdlFacets: List<T_Facet>
+        final override val mdlFacets: List<XSFacet>
             get() = TODO("not implemented")
 
         protected companion object {

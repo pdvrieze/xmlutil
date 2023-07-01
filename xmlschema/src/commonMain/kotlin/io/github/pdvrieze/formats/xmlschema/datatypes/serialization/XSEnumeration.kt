@@ -33,5 +33,5 @@ class XSEnumeration(
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSFacet(), T_NoFixedFacet
