@@ -107,7 +107,7 @@ sealed class ResolvedComplexType(
                     derivation = content.derivation
                     if ((parent as? ResolvedGlobalType)?.qName == derivation.base) {
                         require(schema is ResolvedRedefine) { "Self-reference of type names can only happen in redefine" }
-                        val b = schema.nestedSchema.complexTypes.single { it.name.xmlString==derivation.base?.localPart }
+                        val b = schema.nestedSchema.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
                         mdlBaseTypeDefinition = ResolvedGlobalComplexType(b, schema)
                     } else {
                         val base = requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
@@ -117,7 +117,7 @@ sealed class ResolvedComplexType(
                         val baseType = schema.type(base)
 
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
-                        while (b!=null) {
+                        while (b != null) {
                             val b2 = (b.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
                             b = b2?.let {
                                 require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
@@ -285,8 +285,9 @@ sealed class ResolvedComplexType(
                 baseType is ResolvedComplexType &&
                         complexBaseContentType is SimpleModelBase &&
                         derivation is XSSimpleContentRestriction -> {
-                    val b: ResolvedSimpleType = derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, parent) }
-                        ?: complexBaseContentType.mdlSimpleTypeDefinition
+                    val b: ResolvedSimpleType =
+                        derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, parent) }
+                            ?: complexBaseContentType.mdlSimpleTypeDefinition
 
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         parent,
@@ -320,8 +321,13 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = st
                 }
 
+                baseType is ResolvedComplexType &&
+                        complexBaseContentType is ResolvedSimpleContentType &&
+                        derivation is XSSimpleContentExtension ->
+                    mdlSimpleTypeDefinition = requireNotNull(complexBaseContentType.mdlSimpleTypeDefinition)
+
                 else -> mdlSimpleTypeDefinition = requireNotNull(baseType as? ResolvedSimpleType) {
-                    "Simple content base types must be effectively simple"
+                    "Simple content base types must be effectively simple ($baseType)"
                 }
             }
 
@@ -357,10 +363,23 @@ sealed class ResolvedComplexType(
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType, ComplexTypeModel.SimpleContent,
-        ComplexTypeModel.ContentType.Simple
+        ComplexTypeModel.ContentType.Simple {
+        override val mdlAttributeWildcard: WildcardModel
+
+        override val mdlContentType: ResolvedSimpleContentType
+
+        override val mdlSimpleTypeDefinition: ResolvedSimpleType
+
+        override val mdlBaseTypeDefinition: ResolvedType
+
+    }
 
     companion object {
-        internal fun contentType(effectiveMixed: Boolean, particle: ResolvedParticle<*>?, parent: ResolvedComplexType): ResolvedContentType {
+        internal fun contentType(
+            effectiveMixed: Boolean,
+            particle: ResolvedParticle<*>?,
+            parent: ResolvedComplexType
+        ): ResolvedContentType {
             return when {
                 particle == null -> EmptyContentType
                 effectiveMixed -> MixedContentType(particle)

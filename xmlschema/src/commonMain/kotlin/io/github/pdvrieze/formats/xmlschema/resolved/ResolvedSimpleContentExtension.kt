@@ -48,8 +48,8 @@ class ResolvedSimpleContentExtension(
 
     override val base: QName get() = rawPart.base
 
-    override val baseType: ResolvedSimpleType by lazy {
-        schema.simpleType(base)
+    override val baseType: ResolvedType by lazy {
+        schema.type(base)
     }
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
