@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
@@ -66,7 +67,9 @@ class ResolvedGlobalAttribute(
     override val mdlName: VNCName get() = name
 
     override val mdlTypeDefinition: ResolvedSimpleType =
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: schema.simpleType(requireNotNull(rawPart.type) { "missing type for attribute $mdlQName" } )
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
+            ?: rawPart.type?.let{ schema.simpleType(it) }
+            ?: AnySimpleType
 
     override val mdlValueConstraint: Nothing? get() = null
 
