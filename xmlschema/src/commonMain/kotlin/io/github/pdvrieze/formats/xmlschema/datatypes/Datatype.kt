@@ -24,16 +24,18 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NMTokenType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.*
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
+import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
@@ -108,10 +110,32 @@ sealed class ListDatatype protected constructor(
     override val model: ListDatatype
         get() = this
 
-    override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.LIST
+    final override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.LIST
+
+    final override val mdlAnnotations: Nothing? get() = null
+    final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
+    final override val mdlFacets: List<XSFacet> = listOf(
+        XSMinLength(1u),
+        XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE)
+    )
+    final override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
+        ordered = Order.FALSE,
+        bounded = false,
+        cardinality = Cardinality.COUNTABLY_INFINITE,
+        numeric = false
+    )
+    final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+        get() = AnySimpleType.mdlPrimitiveTypeDefinition
+
+    abstract override val mdlItemTypeDefinition: ResolvedSimpleType
+
+    final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        get() = emptyList()
+
+    final override val mdlFinal: T_FullDerivationSet get() = emptySet()
 }
 
-open class ConstructedListDatatype : ListDatatype {
+abstract class ConstructedListDatatype : ListDatatype {
     constructor(
         name: String,
         targetNamespace: String,
@@ -140,31 +164,6 @@ open class ConstructedListDatatype : ListDatatype {
 
     override val simpleDerivation: BuiltinListDerivation
         get() = BuiltinListDerivation(this, BuiltinXmlSchema)
-}
-
-class RestrictedListDatatype(
-    name: String,
-    targetNamespace: String,
-    override val baseType: ListDatatype,
-    val length: Long? = null,
-    val minLength: Long? = null,
-    val maxLength: Long? = null,
-    val enumeration: List<String>? = null,
-    val pattern: String? = null,
-    val assertions: List<XPathExpression> = emptyList()
-) : ListDatatype(name, targetNamespace, baseType.itemType) {
-
-    override val itemTypeName: QName?
-        get() = itemType.name.toQname(VAnyURI(XmlSchemaConstants.XS_NAMESPACE))
-
-    override val simpleType: Nothing? get() = null
-
-    override val final: T_FullDerivationSet
-        get() = emptySet()
-
-    override val simpleDerivation: ResolvedListDerivation
-        get() = TODO("Doesn't work")// ResolvedListDerivation(this, BuiltinXmlSchema)
-
 }
 
 /**
@@ -250,6 +249,15 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
+
+    override val mdlFacets: List<XSFacet> get() = emptyList()
+
+    override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
+        ordered = Order.FALSE,
+        bounded = false,
+        cardinality = Cardinality.COUNTABLY_INFINITE,
+        numeric = false,
+    )
 }
 
 internal open class SimpleBuiltinRestriction(

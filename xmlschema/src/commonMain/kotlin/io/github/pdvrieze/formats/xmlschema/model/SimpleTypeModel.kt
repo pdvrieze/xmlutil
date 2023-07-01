@@ -22,11 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
+import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
 interface SimpleTypeModel : TypeModel, SimpleTypeContext {
-    val mdlFacets: List<T_Facet>
-    val mdlFundamentalFacets: List<T_Facet>
+    val mdlFacets: List<XSFacet>
+    val mdlFundamentalFacets: FundamentalFacets
     val mdlVariety: Variety
     val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
     val mdlItemTypeDefinition: SimpleTypeModel?

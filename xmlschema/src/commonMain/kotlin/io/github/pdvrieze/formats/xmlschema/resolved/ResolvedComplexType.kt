@@ -292,7 +292,7 @@ sealed class ResolvedComplexType(
                         parent,
                         b,
                         derivation.facets,
-                        derivation.facets,
+                        b.mdlFundamentalFacets,
                         b.mdlVariety,
                         b.mdlPrimitiveTypeDefinition,
                         b.mdlItemTypeDefinition,
@@ -433,18 +433,18 @@ sealed class ResolvedComplexType(
 class SyntheticSimpleType(
     override val mdlContext: SimpleTypeContext,
     override val mdlBaseTypeDefinition: TypeModel,
-    override val mdlFacets: List<T_Facet>,
-    override val mdlFundamentalFacets: List<T_Facet>,
+    override val mdlFacets: List<XSFacet>,
+    override val mdlFundamentalFacets: FundamentalFacets,
     override val mdlVariety: SimpleTypeModel.Variety,
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
     override val mdlItemTypeDefinition: ResolvedSimpleType?,
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedSimpleType, SimpleTypeModel.Local {
+) : ResolvedSimpleType, SimpleTypeModel.Local, ResolvedSimpleType.Model {
     override val mdlAnnotations: Nothing? get() = null
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")
-    override val model: Nothing get() = error("Not supported")
+    override val model: SyntheticSimpleType get() = this
     override val rawPart: Nothing get() = error("Not supported")
 }
 
