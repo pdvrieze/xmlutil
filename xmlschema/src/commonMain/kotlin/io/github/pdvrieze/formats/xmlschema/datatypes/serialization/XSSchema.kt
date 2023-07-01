@@ -63,7 +63,7 @@ class XSSchema(
     val imports: List<XSImport> = emptyList(),
     val redefines: List<XSRedefine> = emptyList(),
     val overrides: List<XSOverride> = emptyList(),
-    val annotation: XSAnnotation? = null,
+    val annotations: List<XSAnnotation> = emptyList(),
 
 
     @XmlAfter("includes", "imports", "redefines", "overrides")
@@ -80,6 +80,16 @@ class XSSchema(
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSI_OpenAttrs {
+
+    override fun toString(): String {
+        return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
+    }
+
+    fun resolve(resolver: ResolvedSchema.Resolver): ResolvedSchema = ResolvedSchema(this, resolver)
+
+    fun check(resolver: ResolvedSchema.Resolver) {
+        resolve(resolver).check()
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -101,27 +111,25 @@ class XSSchema(
         if (imports != other.imports) return false
         if (redefines != other.redefines) return false
         if (overrides != other.overrides) return false
-        if (annotation != other.annotation) return false
+        if (annotations != other.annotations) return false
         if (defaultOpenContent != other.defaultOpenContent) return false
         if (simpleTypes != other.simpleTypes) return false
         if (complexTypes != other.complexTypes) return false
         if (groups != other.groups) return false
-        if (attributeGroups != other.attributeGroups) return false
         if (elements != other.elements) return false
         if (attributes != other.attributes) return false
+        if (attributeGroups != other.attributeGroups) return false
         if (notations != other.notations) return false
-        if (otherAttrs != other.otherAttrs) return false
-
-        return true
+        return otherAttrs == other.otherAttrs
     }
 
     override fun hashCode(): Int {
-        var result = attributeFormDefault.hashCode()
+        var result = attributeFormDefault?.hashCode() ?: 0
         result = 31 * result + blockDefault.hashCode()
         result = 31 * result + (defaultAttributes?.hashCode() ?: 0)
         result = 31 * result + (xpathDefaultNamespace?.hashCode() ?: 0)
-        result = 31 * result + elementFormDefault.hashCode()
-        result = 31 * result + finalDefault.hashCode()
+        result = 31 * result + (elementFormDefault?.hashCode() ?: 0)
+        result = 31 * result + (finalDefault?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (targetNamespace?.hashCode() ?: 0)
         result = 31 * result + (version?.hashCode() ?: 0)
@@ -130,26 +138,16 @@ class XSSchema(
         result = 31 * result + imports.hashCode()
         result = 31 * result + redefines.hashCode()
         result = 31 * result + overrides.hashCode()
-        result = 31 * result + (annotation?.hashCode() ?: 0)
-        result = 31 * result + defaultOpenContent.hashCode()
+        result = 31 * result + annotations.hashCode()
+        result = 31 * result + (defaultOpenContent?.hashCode() ?: 0)
         result = 31 * result + simpleTypes.hashCode()
         result = 31 * result + complexTypes.hashCode()
         result = 31 * result + groups.hashCode()
-        result = 31 * result + attributeGroups.hashCode()
         result = 31 * result + elements.hashCode()
         result = 31 * result + attributes.hashCode()
+        result = 31 * result + attributeGroups.hashCode()
         result = 31 * result + notations.hashCode()
         result = 31 * result + otherAttrs.hashCode()
         return result
-    }
-
-    override fun toString(): String {
-        return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
-    }
-
-    fun resolve(resolver: ResolvedSchema.Resolver): ResolvedSchema = ResolvedSchema(this, resolver)
-
-    fun check(resolver: ResolvedSchema.Resolver) {
-        resolve(resolver).check()
     }
 }

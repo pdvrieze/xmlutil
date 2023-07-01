@@ -242,10 +242,10 @@ sealed class ResolvedComplexType(
                     )
 
                 // TODO Add wildcard union
-                val w = wildcardElement.content ?: XSAny()
+                val w = wildcardElement.any ?: XSAny()
                 val openContent = XSOpenContent(
                     mode = wildcardElement.mode ?: T_ContentMode.INTERLEAVE,
-                    content = w
+                    any = w
                 )
 
                 mdlContentType = when {
@@ -287,6 +287,7 @@ sealed class ResolvedComplexType(
             when (derivation) {
                 is XSSimpleContentExtension -> require(T_TypeDerivationControl.EXTENSION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
                 is XSSimpleContentRestriction -> require(T_TypeDerivationControl.RESTRICTION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
+                else -> error("Compilation doesn't see exhaustion")
             }
 
             mdlBaseTypeDefinition = baseType
