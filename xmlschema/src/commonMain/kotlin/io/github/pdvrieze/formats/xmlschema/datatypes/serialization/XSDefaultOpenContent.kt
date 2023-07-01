@@ -36,6 +36,5 @@ class XSDefaultOpenContent(
     override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
-    @XmlValue(true)
-    override val content: XSAny? = null
+    override val any: XSAny? = null
 ) : XSI_OpenContent
