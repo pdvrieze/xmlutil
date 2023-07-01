@@ -49,7 +49,7 @@ class XSComplexContent(
         abstract override val asserts: List<XSAssertionFacet>
         abstract override val attributes: List<XSLocalAttribute>
         abstract override val attributeGroups: List<XSAttributeGroupRef>
-        abstract val derivationMethod: ComplexTypeModel.DerivationMethod
+        abstract val derivationMethod: T_TypeDerivationControl.ComplexBase
     }
 
     @Serializable
@@ -77,7 +77,7 @@ class XSComplexContent(
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSComplexDerivationBase(), T_ComplexRestrictionType {
-        override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
+        override val derivationMethod: T_TypeDerivationControl.ComplexBase get() = T_TypeDerivationControl.RESTRICTION
     }
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -97,7 +97,7 @@ class XSComplexContent(
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSComplexDerivationBase(), T_ComplexExtensionType {
-        override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.EXTENSION
+        override val derivationMethod: T_TypeDerivationControl.ComplexBase get() = T_TypeDerivationControl.EXTENSION
     }
 
 }

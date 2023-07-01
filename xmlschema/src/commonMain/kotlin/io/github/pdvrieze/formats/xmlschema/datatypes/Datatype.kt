@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NMTokenType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSMinLength
@@ -132,7 +131,7 @@ sealed class ListDatatype protected constructor(
     final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         get() = emptyList()
 
-    final override val mdlFinal: T_FullDerivationSet get() = emptySet()
+    final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
 }
 
 abstract class ConstructedListDatatype : ListDatatype {
@@ -159,7 +158,7 @@ abstract class ConstructedListDatatype : ListDatatype {
 
     override val simpleType: Nothing? get() = null
 
-    override val final: T_FullDerivationSet
+    override val final: Set<Nothing>
         get() = emptySet()
 
     override val simpleDerivation: BuiltinListDerivation
@@ -218,7 +217,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
 
-    override val final: T_FullDerivationSet get() = emptySet()
+//    override val final: Set<Nothing> get() = emptySet()
     override val model: AnyType get() = this
 
     override val mdlBaseTypeDefinition: AnyType get() = this

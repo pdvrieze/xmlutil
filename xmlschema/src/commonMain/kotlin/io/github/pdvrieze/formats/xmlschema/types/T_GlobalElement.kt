@@ -18,6 +18,7 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import nl.adaptivity.xmlutil.QName
 
 interface T_GlobalElement: T_Element {
@@ -25,7 +26,7 @@ interface T_GlobalElement: T_Element {
 
     override val substitutionGroup: List<QName>?
 
-    override val final: T_DerivationSet?
+    override val final: Set<out ComplexTypeModel.Derivation>?
 
     override val ref: Nothing? get() = null
     override val form: Nothing? get() = null
