@@ -99,20 +99,33 @@ sealed class ResolvedComplexType(
 
         init {
 
-            val content = rawPart.content as XSI_ComplexContent.Complex
+            val content = rawPart.content
             val derivation: XSI_ComplexDerivation
 
             when (content) {
                 is XSComplexContent -> {
                     derivation = content.derivation
-                    if (schema is ResolvedRedefine) {
-                        require((parent as? ResolvedGlobalType)?.qName == derivation.base) { "Re-use of types can only happen in redefine" }
+                    if ((parent as? ResolvedGlobalType)?.qName == derivation.base) {
+                        require(schema is ResolvedRedefine) { "Self-reference of type names can only happen in redefine" }
                         val b = schema.nestedSchema.complexTypes.single { it.name.xmlString==derivation.base?.localPart }
                         mdlBaseTypeDefinition = ResolvedGlobalComplexType(b, schema)
                     } else {
-                        require((parent as? ResolvedGlobalType)?.qName != derivation.base) { "Re-use of types can only happen in redefine" }
-                        mdlBaseTypeDefinition =
-                            schema.type(requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" })
+                        val base = requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
+
+                        val seenTypes = mutableSetOf<QName>()
+                        seenTypes.add(base)
+                        val baseType = schema.type(base)
+
+                        var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
+                        while (b!=null) {
+                            val b2 = (b.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
+                            b = b2?.let {
+                                require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
+                                schema.type(b2) as? ResolvedGlobalComplexType
+                            }
+                        }
+
+                        mdlBaseTypeDefinition = baseType
                     }
 
                 }
