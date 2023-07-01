@@ -39,9 +39,11 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
 
-        return typeMap[typeName.localPart]
-            ?: throw NoSuchElementException("No type with name $typeName found")
+        return doTypeLookup(typeName)
     }
+
+    private fun doTypeLookup(typeName: QName) = (typeMap[typeName.localPart]
+        ?: throw NoSuchElementException("No type with name $typeName found"))
 
     override fun type(typeName: QName): ResolvedGlobalType {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
@@ -49,8 +51,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         }
         if (typeName.localPart == "anyType") return AnyType
 
-        return typeMap[typeName.localPart]
-            ?: throw NoSuchElementException("No type with name $typeName found")
+        return doTypeLookup(typeName)
     }
 
     override val elements: List<ResolvedGlobalElement>
