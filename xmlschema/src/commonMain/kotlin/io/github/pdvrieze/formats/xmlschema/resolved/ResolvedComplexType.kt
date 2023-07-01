@@ -320,7 +320,9 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = st
                 }
 
-                else -> mdlSimpleTypeDefinition = baseType as ResolvedSimpleType
+                else -> mdlSimpleTypeDefinition = requireNotNull(baseType as? ResolvedSimpleType) {
+                    "Simple content base types must be effectively simple"
+                }
             }
 
 
