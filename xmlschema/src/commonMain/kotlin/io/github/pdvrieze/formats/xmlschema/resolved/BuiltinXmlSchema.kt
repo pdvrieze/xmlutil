@@ -48,7 +48,9 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
         if (typeName.localPart == "anyType") return AnyType
-        return simpleType(typeName)
+
+        return typeMap[typeName.localPart]
+            ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
     override val elements: List<ResolvedGlobalElement>
