@@ -22,9 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 import nl.adaptivity.xmlutil.QName
@@ -38,6 +37,7 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_Global
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: Nothing? get() = null
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.ATOMIC
-    override val mdlFinal: T_FullDerivationSet get() = emptySet()
+    override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
     override val mdlTargetNamespace: VAnyURI? get() = BuiltinXmlSchema.targetNamespace
+    override val final: Set<Nothing> get() = emptySet()
 }
