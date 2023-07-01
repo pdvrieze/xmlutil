@@ -16,30 +16,26 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-enum class T_TypeDerivationControl: SimpleTypeModel.Derivation {
-    @SerialName("restriction")
-    RESTRICTION,
+sealed class T_TypeDerivationControl(val name: String) : SimpleTypeModel.Derivation {
+    sealed class ComplexBase(name: String) : T_TypeDerivationControl(name), ComplexTypeModel.Derivation
 
-    @SerialName("extension")
-    EXTENSION,
+    object RESTRICTION : ComplexBase("restriction")
 
-    @SerialName("list")
-    LIST,
+    object EXTENSION : ComplexBase("extension")
 
-    @SerialName("union")
-    UNION
+    object LIST : T_TypeDerivationControl("list")
+
+    object UNION : T_TypeDerivationControl("union")
+
 }
 
-fun T_FullDerivationSet.toDerivationSet(): T_DerivationSet = asSequence()
-    .mapNotNull {
-        when (it) {
-            T_TypeDerivationControl.EXTENSION -> T_ReducedDerivationControl.EXTENSION
-            T_TypeDerivationControl.RESTRICTION -> T_ReducedDerivationControl.RESTRICTION
-            else -> null
-        }
-    }.toSet()
+fun Set<TypeModel.Derivation>.toDerivationSet(): Set<T_TypeDerivationControl.ComplexBase> =
+    asSequence()
+        .filterIsInstance<T_TypeDerivationControl.ComplexBase>()
+        .toSet()

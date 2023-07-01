@@ -21,6 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -38,5 +39,5 @@ sealed class XSSimpleContentDerivation(
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : XSComplexType.Derivation, T_ComplexType.SimpleDerivation, I_Assertions, I_AttributeContainer {
     abstract val base: QName?
-    abstract val derivationMethod: ComplexTypeModel.DerivationMethod
+    abstract val derivationMethod: T_TypeDerivationControl.ComplexBase
 }

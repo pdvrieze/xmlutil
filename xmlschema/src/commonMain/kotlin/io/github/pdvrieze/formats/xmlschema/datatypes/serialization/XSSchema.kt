@@ -21,6 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import kotlinx.serialization.Serializable
@@ -45,8 +46,8 @@ class XSSchema(
     @XmlElement(false)
     val elementFormDefault: T_FormChoice? = null,
 
-    @Serializable(SchemaEnumSetSerializer::class)
-    val finalDefault: T_FullDerivationSet? = null,
+    @Serializable(AllDerivationSerializer::class)
+    val finalDefault: Set<TypeModel.Derivation>? = null,
 
     val id: VID? = null,
 

@@ -44,9 +44,9 @@ interface SimpleTypeModel : TypeModel, SimpleTypeContext {
 
     enum class Variety { ATOMIC, LIST, UNION, NIL }
 
-    interface Derivation: TypeModel.Derivation
+    interface Derivation : TypeModel.Derivation
 }
 
-interface TypeContext: SimpleTypeContext, ComplexTypeContext
+interface TypeContext : SimpleTypeContext, ComplexTypeContext
 
 interface SimpleTypeContext

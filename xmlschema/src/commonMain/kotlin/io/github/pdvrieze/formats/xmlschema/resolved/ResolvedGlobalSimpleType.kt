@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -66,7 +67,7 @@ class ResolvedGlobalSimpleTypeImpl(
             else -> error("unsupported derivation")
         }
 
-    override val final: T_FullDerivationSet
+    override val final: Set<TypeModel.Derivation>
         get() = rawPart.final
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
@@ -86,7 +87,8 @@ class ResolvedGlobalSimpleTypeImpl(
         override val mdlName: VNCName = rawPart.name
         override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
-        override val mdlFinal: T_FullDerivationSet = rawPart.final
+        override val mdlFinal: Set<TypeModel.Derivation> =
+            rawPart.final
 
     }
 

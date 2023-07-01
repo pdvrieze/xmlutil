@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
@@ -107,7 +106,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     final override val mdlItemTypeDefinition: ResolvedSimpleType? get() = null
     final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType> get() = emptyList()
 
-    final override val mdlFinal: T_FullDerivationSet get() = emptySet()
+    final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
 }
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {

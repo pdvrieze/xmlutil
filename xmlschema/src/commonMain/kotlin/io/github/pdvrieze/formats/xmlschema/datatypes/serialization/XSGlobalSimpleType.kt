@@ -19,6 +19,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -37,8 +38,8 @@ class XSGlobalSimpleType(
     @XmlAfter("annotation")
     override val simpleDerivation: XSSimpleDerivation,
     @XmlElement(false)
-    @Serializable(SchemaEnumSetSerializer::class)
-    override val final: T_FullDerivationSet = emptySet(),
+    @Serializable(AllDerivationSerializer::class)
+    override val final: Set<TypeModel.Derivation> = emptySet(),
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,

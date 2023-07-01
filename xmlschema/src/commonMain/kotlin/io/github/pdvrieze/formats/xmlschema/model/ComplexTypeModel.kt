@@ -21,18 +21,18 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttribute
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 
 interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, ElementModel.ElementParentModel,
     SimpleTypeContext {
 
     val mdlAbstract: Boolean
-    val mdlProhibitedSubstitutions: T_DerivationSet
+    val mdlProhibitedSubstitutions: Set<out Derivation>
     override val mdlFinal: Set<Derivation>
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<ResolvedAttribute>
     val mdlAttributeWildcard: WildcardModel
-    val mdlDerivationMethod: DerivationMethod
+    val mdlDerivationMethod: Derivation
 
     interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global
 
@@ -47,20 +47,18 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
     interface ComplexContent : ComplexTypeModel {
     }
 
-    interface ImplicitContent: ComplexTypeModel {
+    interface ImplicitContent : ComplexTypeModel {
 //        override val mdlBaseTypeDefinition get(): AnyType = AnyType
 //        override val mdlDerivationMethod: DerivationMethod get() = DerivationMethod.RESTRICION
     }
 
-    interface GlobalSimpleContent: Global, SimpleContent
-    interface GlobalComplexContent: Global, ComplexContent
-    interface GlobalImplicitContent: Global, ImplicitContent
+    interface GlobalSimpleContent : Global, SimpleContent
+    interface GlobalComplexContent : Global, ComplexContent
+    interface GlobalImplicitContent : Global, ImplicitContent
 
-    interface LocalSimpleContent: Local, SimpleContent
-    interface LocalComplexContent: Local, ComplexContent
-    interface LocalImplicitContent: Local, ImplicitContent
-
-    enum class DerivationMethod { RESTRICION, EXTENSION }
+    interface LocalSimpleContent : Local, SimpleContent
+    interface LocalComplexContent : Local, ComplexContent
+    interface LocalImplicitContent : Local, ImplicitContent
 
     interface ContentType {
         val mdlVariety: Variety
@@ -88,7 +86,8 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
         }
     }
 
-    interface Derivation: TypeModel.Derivation
+
+    interface Derivation : SimpleTypeModel.Derivation
 
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 

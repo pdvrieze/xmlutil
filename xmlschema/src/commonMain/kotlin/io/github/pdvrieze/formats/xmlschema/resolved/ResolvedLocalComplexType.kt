@@ -78,8 +78,10 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
-        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            schema.blockDefault.toDerivationSet()
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            schema.finalDefault.toDerivationSet()
     }
 
     private class ShorthandModelImpl(
@@ -89,8 +91,10 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
-        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            schema.blockDefault.toDerivationSet()
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            schema.finalDefault.toDerivationSet()
     }
 
     private class ComplexModelImpl(
@@ -100,8 +104,10 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: T_DerivationSet = schema.blockDefault.toDerivationSet()
-        override val mdlFinal: T_DerivationSet = schema.finalDefault.toDerivationSet()
+        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+            schema.blockDefault.toDerivationSet()
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+            schema.finalDefault.toDerivationSet()
     }
 }
 

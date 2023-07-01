@@ -78,7 +78,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlIdentityConstraints: Set<IdentityConstraintModel> get() = model.mdlIdentityConstraints
     override val mdlSubstitutionGroupAffiliations: Set<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
     override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
-    override val mdlSubstitutionGroupExclusions: T_DerivationSet get() = model.mdlSubstitutionGroupExclusions
+    override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
     override val mdlName: VNCName get() = model.mdlName
@@ -99,7 +99,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         }
     }
 
-    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike): ElementModel {
+    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike) : ElementModel {
         override val mdlTypeDefinition: TypeModel
             get() = TODO("not implemented")
         override val mdlTypeTable: ElementModel.TypeTable?
@@ -114,7 +114,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             get() = TODO("not implemented")
         override val mdlDisallowedSubstitutions: T_BlockSet
             get() = TODO("not implemented")
-        override val mdlSubstitutionGroupExclusions: T_DerivationSet
+        override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation>
             get() = TODO("not implemented")
         override val mdlAbstract: Boolean
             get() = TODO("not implemented")
