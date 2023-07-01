@@ -39,7 +39,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         }
     }
 
-    val annotation: XSAnnotation? get() = rawPart.annotation
+    val annotations: List<XSAnnotation> get() = rawPart.annotations
 
     override val simpleTypes: List<ResolvedGlobalSimpleType> =
         DelegateList(rawPart.simpleTypes) { ResolvedGlobalSimpleType(it, this) }

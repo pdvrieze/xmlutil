@@ -733,7 +733,7 @@ internal constructor(
                     .firstOrNull { idx -> idx != valueChildIndex && l[idx].outputKind == OutputKind.Element }
                 if (invalidIdx != null) {
                     throw XmlSerialException(
-                        "Types with an @XmlValue member may not contain other child elements (${
+                        "Types (${tagName}) with an @XmlValue member may not contain other child elements (${
                             serialDescriptor.getElementDescriptor(
                                 invalidIdx
                             )
