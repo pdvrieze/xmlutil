@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSScopeVariety
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 
 interface ElementModel : IAnnotated, INamed {
 
@@ -33,7 +32,7 @@ interface ElementModel : IAnnotated, INamed {
     val mdlIdentityConstraints: Set<IdentityConstraintModel>
     val mdlSubstitutionGroupAffiliations: Set<Use>
     val mdlDisallowedSubstitutions: T_BlockSet
-    val mdlSubstitutionGroupExclusions: T_DerivationSet
+    val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation>
     val mdlAbstract: Boolean
 
     interface Decl : ElementModel, INamedDecl, TypeContext {
@@ -54,7 +53,7 @@ interface ElementModel : IAnnotated, INamed {
     /**
      * Local element without ref and present
      */
-    interface Local<T: Local<T>> : Decl, ParticleModel<T>, ParticleModel.BasicTerm {
+    interface Local<T : Local<T>> : Decl, ParticleModel<T>, ParticleModel.BasicTerm {
         override val mdlScope: Scope.Local
 
         /** Return this */

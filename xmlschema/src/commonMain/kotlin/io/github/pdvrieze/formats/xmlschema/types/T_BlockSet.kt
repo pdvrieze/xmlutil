@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -33,10 +34,12 @@ enum class T_BlockSetValues {
     SUBSTITUTION
 }
 
-fun T_BlockSet.toDerivationSet(): T_DerivationSet {
-    return asSequence().mapNotNull { when (it) {
-        T_BlockSetValues.EXTENSION -> T_ReducedDerivationControl.EXTENSION
-        T_BlockSetValues.RESTRICTION -> T_ReducedDerivationControl.RESTRICTION
-        T_BlockSetValues.SUBSTITUTION -> null
-    } }.toSet()
+fun T_BlockSet.toDerivationSet(): Set<out ComplexTypeModel.Derivation> {
+    return asSequence().mapNotNull {
+        when (it) {
+            T_BlockSetValues.EXTENSION -> T_TypeDerivationControl.EXTENSION
+            T_BlockSetValues.RESTRICTION -> T_TypeDerivationControl.RESTRICTION
+            T_BlockSetValues.SUBSTITUTION -> null
+        }
+    }.toSet()
 }

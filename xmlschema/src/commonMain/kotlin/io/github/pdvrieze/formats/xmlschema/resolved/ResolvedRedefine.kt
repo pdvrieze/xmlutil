@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -44,7 +45,7 @@ class ResolvedInclude(
     override val blockDefault: T_BlockSet
         get() = schema.blockDefault // TODO maybe correct, maybe not
 
-    override val finalDefault: T_FullDerivationSet
+    override val finalDefault: Set<TypeModel.Derivation>
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
     override val elements: List<ResolvedGlobalElement>
@@ -63,7 +64,7 @@ class ResolvedInclude(
         get() = schema.targetNamespace
 
     init {
-        require (nestedSchema.targetNamespace != schema.targetNamespace)
+        require(nestedSchema.targetNamespace != schema.targetNamespace)
         val collatedSchema = CollatedSchema(nestedSchema, resolver.delegate(rawPart.schemaLocation))
 
         elements = DelegateList(collatedSchema.elements.values.toList()) {
@@ -115,7 +116,7 @@ class ResolvedRedefine(
     override val blockDefault: T_BlockSet
         get() = schema.blockDefault // TODO maybe correct, maybe not
 
-    override val finalDefault: T_FullDerivationSet
+    override val finalDefault: Set<TypeModel.Derivation>
         get() = schema.finalDefault // TODO maybe correct, maybe not
 
     override val elements: List<ResolvedGlobalElement>

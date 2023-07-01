@@ -21,6 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleRestrictionType
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -45,7 +46,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, I_AttributeContaine
         annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ): super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
+    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
         this.base = base
         this.simpleType = simpleType
         this.facets = facets
@@ -59,5 +60,5 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, I_AttributeContaine
     override val facets: List<XSFacet>
 
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
-    override val derivationMethod: ComplexTypeModel.DerivationMethod get() = ComplexTypeModel.DerivationMethod.RESTRICION
+    override val derivationMethod: T_TypeDerivationControl.RESTRICTION get() = T_TypeDerivationControl.RESTRICTION
 }

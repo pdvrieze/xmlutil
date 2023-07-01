@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 
 interface T_GlobalComplexType_Base: T_ComplexType, T_GlobalType {
     override val name: VNCName
@@ -25,8 +26,8 @@ interface T_GlobalComplexType_Base: T_ComplexType, T_GlobalType {
      * Default: false
      */
     val abstract: Boolean?
-    val final: T_DerivationSet?
-    val block: T_DerivationSet?
+    val final: Set<out ComplexTypeModel.Derivation>?
+    val block: Set<out ComplexTypeModel.Derivation>?
 
 }
 

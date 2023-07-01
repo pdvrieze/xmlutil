@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
-import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import nl.adaptivity.xmlutil.QName
 
@@ -61,7 +61,8 @@ class ResolvedLocalSimpleType(
         override val mdlContext: SimpleTypeContext
     ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), Model {
 
-        override val mdlFinal: T_FullDerivationSet = schema.finalDefault
+        override val mdlFinal: Set<TypeModel.Derivation> =
+            schema.finalDefault
     }
 
 

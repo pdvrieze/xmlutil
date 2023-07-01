@@ -25,8 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationSet
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
 import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -59,7 +59,7 @@ class ResolvedGlobalElement(
         DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
-    override val final: T_DerivationSet
+    override val final: Set<out ComplexTypeModel.Derivation>
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
     override val targetNamespace: VAnyURI? get() = schema.targetNamespace

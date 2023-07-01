@@ -23,9 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_FullDerivationSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI
@@ -45,7 +45,7 @@ abstract sealed class ResolvedSchemaLike {
 
     abstract val attributeGroups: List<ResolvedToplevelAttributeGroup>
     abstract val blockDefault: T_BlockSet
-    abstract val finalDefault: T_FullDerivationSet
+    abstract val finalDefault: Set<TypeModel.Derivation>
     abstract val defaultOpenContent: XSDefaultOpenContent?
 
     open fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
@@ -110,7 +110,8 @@ abstract sealed class ResolvedSchemaLike {
 
     fun identityConstraint(constraintName: QName): ResolvedIdentityConstraint {
         return elements.asSequence().firstNotNullOfOrNull {
-            it.identityConstraints.asSequence().filterIsInstance<ResolvedNamedIdentityConstraint>().firstOrNull { it.qName.isEquivalent(constraintName) }
+            it.identityConstraints.asSequence().filterIsInstance<ResolvedNamedIdentityConstraint>()
+                .firstOrNull { it.qName.isEquivalent(constraintName) }
         } ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
     }
 }

@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
@@ -40,7 +41,7 @@ interface T_Element : T_Particle, XSI_Annotated, I_OptNamedAttrs {
     /** Optional, default false */
     val abstract: Boolean?
 
-    val final: T_DerivationSet?
+    val final: Set<out ComplexTypeModel.Derivation>?
 
     val block: T_BlockSet?
 

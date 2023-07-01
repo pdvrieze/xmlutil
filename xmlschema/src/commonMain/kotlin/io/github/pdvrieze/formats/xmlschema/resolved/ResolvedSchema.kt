@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -33,7 +34,9 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     override fun check() {
         super.check()
 
-        for (rd in redefines) { rd.check() }
+        for (rd in redefines) {
+            rd.check()
+        }
     }
 
     val annotation: XSAnnotation? get() = rawPart.annotation
@@ -45,13 +48,27 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         DelegateList(rawPart.complexTypes) { ResolvedGlobalComplexType(it, this) }
 
     val types: List<ResolvedGlobalType> get() = CombiningList(simpleTypes, complexTypes)
-    override val attributes: List<ResolvedGlobalAttribute> get() = DelegateList(rawPart.attributes) { ResolvedGlobalAttribute(it, this) }
+    override val attributes: List<ResolvedGlobalAttribute>
+        get() = DelegateList(rawPart.attributes) {
+            ResolvedGlobalAttribute(
+                it,
+                this
+            )
+        }
     val redefines: List<ResolvedRedefine> = DelegateList(rawPart.redefines) { ResolvedRedefine(it, this, resolver) }
 
-    override val elements: List<ResolvedGlobalElement> = DelegateList(CombiningList(rawPart.elements)) { ResolvedGlobalElement(it, this) }
+    override val elements: List<ResolvedGlobalElement> =
+        DelegateList(CombiningList(rawPart.elements)) { ResolvedGlobalElement(it, this) }
 
-    override val attributeGroups: List<ResolvedToplevelAttributeGroup> = DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedToplevelAttributeGroup(it, this) }
-    override val groups: List<ResolvedToplevelGroup> get() = DelegateList(rawPart.groups) { ResolvedToplevelGroup(it, this) }
+    override val attributeGroups: List<ResolvedToplevelAttributeGroup> =
+        DelegateList(CombiningList(rawPart.attributeGroups)) { ResolvedToplevelAttributeGroup(it, this) }
+    override val groups: List<ResolvedToplevelGroup>
+        get() = DelegateList(rawPart.groups) {
+            ResolvedToplevelGroup(
+                it,
+                this
+            )
+        }
     val notations: List<XSNotation> get() = rawPart.notations
     val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
 
@@ -71,7 +88,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val elementFormDefault: T_FormChoice
         get() = rawPart.elementFormDefault ?: T_FormChoice.UNQUALIFIED
 
-    override val finalDefault : T_FullDerivationSet get() = rawPart.finalDefault ?: emptySet()
+    override val finalDefault: Set<TypeModel.Derivation>
+        get() = rawPart.finalDefault ?: emptySet()
 
     val id: VID? get() = rawPart.id
 
