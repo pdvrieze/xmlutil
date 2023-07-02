@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -107,7 +108,7 @@ sealed class ResolvedComplexType(
                     if ((parent as? ResolvedGlobalType)?.qName == derivation.base) {
                         require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
                         val b =
-                            schema.relativeBase.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
+                            schema.originalSchema.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
                         mdlBaseTypeDefinition = ResolvedGlobalComplexType(b, schema)
                     } else {
                         val base =
@@ -287,7 +288,7 @@ sealed class ResolvedComplexType(
             when (derivation) {
                 is XSSimpleContentExtension -> require(T_TypeDerivationControl.EXTENSION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
                 is XSSimpleContentRestriction -> require(T_TypeDerivationControl.RESTRICTION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
-                else -> error("Compilation doesn't see exhaustion")
+                else -> error("Unsupported derivation child.")
             }
 
             mdlBaseTypeDefinition = baseType
@@ -308,7 +309,7 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         parent,
                         b,
-                        derivation.facets,
+                        derivation.facets.map { ResolvedFacet(it, schema) },
                         b.mdlFundamentalFacets,
                         b.mdlVariety,
                         b.mdlPrimitiveTypeDefinition,
@@ -467,8 +468,8 @@ sealed class ResolvedComplexType(
 
 class SyntheticSimpleType(
     override val mdlContext: SimpleTypeContext,
-    override val mdlBaseTypeDefinition: TypeModel,
-    override val mdlFacets: List<XSFacet>,
+    override val mdlBaseTypeDefinition: ResolvedType,
+    override val mdlFacets: List<ResolvedFacet>,
     override val mdlFundamentalFacets: FundamentalFacets,
     override val mdlVariety: SimpleTypeModel.Variety,
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
