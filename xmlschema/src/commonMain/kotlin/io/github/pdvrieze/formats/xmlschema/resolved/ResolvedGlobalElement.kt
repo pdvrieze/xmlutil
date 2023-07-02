@@ -62,7 +62,7 @@ class ResolvedGlobalElement(
     override val final: Set<ComplexTypeModel.Derivation>
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
-    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
+    override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
 
     override val name: VNCName get() = rawPart.name
     override val qName: QName

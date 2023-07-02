@@ -48,17 +48,19 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     init {
         val collatedSchema = CollatedSchema(rawPart, resolver, this)
 
-        simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) { (schema, v) -> ResolvedGlobalSimpleType(v, schema) }
+        simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) { (s, v) -> ResolvedGlobalSimpleType(v, s) }
 
-        complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) { (schema, v) -> ResolvedGlobalComplexType(v, schema) }
+        complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) { (s, v) -> ResolvedGlobalComplexType(v, s) }
 
-        elements = DelegateList(CombiningList(collatedSchema.elements.values.toList())) { (schema, v) -> ResolvedGlobalElement(v, schema) }
+        elements = DelegateList(CombiningList(collatedSchema.elements.values.toList())) { (s, v) ->
+            ResolvedGlobalElement(v, s)
+        }
 
-        groups = DelegateList(collatedSchema.groups.values.toList()) { (schema, v) -> ResolvedToplevelGroup(v, schema) }
+        groups = DelegateList(collatedSchema.groups.values.toList()) { (s, v) -> ResolvedToplevelGroup(v, s) }
 
-        attributes = DelegateList(collatedSchema.attributes.values.toList()) { (schema, v) -> ResolvedGlobalAttribute(v, schema) }
+        attributes = DelegateList(collatedSchema.attributes.values.toList()) { (s, v) -> ResolvedGlobalAttribute(v, s) }
 
-        attributeGroups = DelegateList(CombiningList(collatedSchema.attributeGroups.values.toList())) { (schema, v) -> ResolvedToplevelAttributeGroup(v, schema) }
+        attributeGroups = DelegateList(CombiningList(collatedSchema.attributeGroups.values.toList())) { (s, v) -> ResolvedToplevelAttributeGroup(v, s) }
     }
 
     val annotations: List<XSAnnotation> get() = rawPart.annotations
