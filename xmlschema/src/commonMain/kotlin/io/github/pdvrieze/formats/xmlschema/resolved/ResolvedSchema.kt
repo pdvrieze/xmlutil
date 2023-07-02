@@ -31,15 +31,7 @@ import nl.adaptivity.xmlutil.namespaceURI
 class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
     override fun check() {
         super.check()
-
-        for (rd in redefines) {
-            rd.check()
-        }
     }
-
-    val redefines: List<ResolvedRedefine> = emptyList()// DelegateList(rawPart.redefines) { ResolvedRedefine(it, this, resolver) }
-
-    val includes: List<ResolvedInclude> = emptyList()// DelegateList(rawPart.includes) { ResolvedInclude(it, this, resolver)}
 
     override val simpleTypes: List<ResolvedGlobalSimpleType>
 
@@ -102,73 +94,6 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val version: VToken? get() = rawPart.version
 
     val lang: VLanguage? get() = rawPart.lang
-
-
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-        for (include in includes) {
-            if ((include.targetNamespace?.value ?: "") == typeName.namespaceURI) {
-                include.maybeSimpleType(typeName)?.let { return it }
-            }
-        }
-        for (redefine in redefines) {
-            redefine.maybeSimpleType(typeName)?.let { return it }
-        }
-
-        return super.maybeSimpleType(typeName)
-    }
-
-    override fun maybeType(typeName: QName): ResolvedGlobalType? {
-        for (include in includes) {
-            if ((include.targetNamespace?.value ?: "") == typeName.namespaceURI) {
-                include.maybeType(typeName)?.let { return it }
-            }
-        }
-        for (redefine in redefines) {
-            redefine.maybeType(typeName)?.let { return it }
-        }
-
-        return super.maybeType(typeName)
-    }
-
-    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? {
-        for (include in includes) {
-            if ((include.targetNamespace?.value ?: "") == attributeGroupName.namespaceURI) {
-                include.maybeAttributeGroup(attributeGroupName)?.let { return it }
-            }
-        }
-        for (redefine in redefines) {
-            redefine.maybeAttributeGroup(attributeGroupName)?.let { return it }
-        }
-
-
-        return super.maybeAttributeGroup(attributeGroupName)
-    }
-
-    override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? {
-        for (include in includes) {
-            if ((include.targetNamespace?.value ?: "") == groupName.namespaceURI) {
-                include.maybeGroup(groupName)?.let { return it }
-            }
-        }
-        for (redefine in redefines) {
-            redefine.maybeGroup(groupName)?.let { return it }
-        }
-
-        return super.maybeGroup(groupName)
-    }
-
-    override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
-        for (include in includes) {
-            if ((include.targetNamespace?.value ?: "") == elementName.namespaceURI) {
-                include.maybeElement(elementName)?.let { return it }
-            }
-        }
-        for (redefine in redefines) {
-            redefine.maybeElement(elementName)?.let { return it }
-        }
-
-        return super.maybeElement(elementName)
-    }
 
     interface Resolver {
         val baseUri: VAnyURI
