@@ -59,7 +59,7 @@ class ResolvedGlobalElement(
         DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
-    override val final: Set<out ComplexTypeModel.Derivation>
+    override val final: Set<ComplexTypeModel.Derivation>
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
     override val targetNamespace: VAnyURI? get() = schema.targetNamespace

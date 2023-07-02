@@ -34,7 +34,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
     override val defaultOpenContent: Nothing?
         get() = null
 
-    fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
@@ -46,7 +46,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         ?: throw NoSuchElementException("No type with name $typeName found")
 
 
-    fun maybeType(typeName: QName): ResolvedGlobalType? {
+    override fun maybeType(typeName: QName): ResolvedGlobalType? {
         if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE && typeName.localPart == "anyType") return AnyType
         return maybeSimpleType(typeName)
     }

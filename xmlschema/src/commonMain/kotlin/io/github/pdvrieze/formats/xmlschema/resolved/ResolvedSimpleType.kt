@@ -112,9 +112,9 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
                 rawPart is XSGlobalSimpleType &&
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
-                    require(schema is ResolvedRedefine) { "Only redefines can have 'self-referencing types'" }
+                    require(schema is CollatedSchema.RedefineWrapper) { "Only redefines can have 'self-referencing types'" }
                     ResolvedGlobalSimpleType(
-                        schema.nestedSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
+                        schema.relativeBase.simpleTypes.single { it.name.xmlString == typeName.localPart },
                         schema
                     )
                 }
