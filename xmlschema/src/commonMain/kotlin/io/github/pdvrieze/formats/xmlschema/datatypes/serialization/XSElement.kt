@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSElement(
+data class XSElement(
     override val name: VNCName,
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,

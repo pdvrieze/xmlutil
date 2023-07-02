@@ -24,10 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
 import nl.adaptivity.xmlutil.QName
 

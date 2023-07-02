@@ -17,6 +17,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
@@ -30,7 +31,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("field", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSField(
+data class XSField(
     val xpath: VToken,
     val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
     override val id: VID? = null,

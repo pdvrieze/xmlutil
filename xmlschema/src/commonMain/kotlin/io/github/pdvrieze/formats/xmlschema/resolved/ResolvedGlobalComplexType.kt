@@ -25,8 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
@@ -66,9 +67,9 @@ class ResolvedGlobalComplexType(
 
     override val abstract: Boolean get() = model.mdlAbstract
 
-    override val final: Set<out ComplexTypeModel.Derivation> get() = model.mdlFinal
+    override val final: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
 
-    override val block: Set<out ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
+    override val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedComplexType>.check(seenTypes, inheritedTypes)
@@ -79,7 +80,7 @@ class ResolvedGlobalComplexType(
         when (val r = rawPart) {
             is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
             is XSGlobalComplexTypeShorthand -> ShorthandModelImpl(this, r, schema)
-            is XSGlobalComplexTypeSimple -> SimpleModelImpl(r, schema, this)
+            is XSGlobalComplexTypeSimple -> SimpleModelImpl(this, r, schema)
         }
 
     }
@@ -109,14 +110,14 @@ class ResolvedGlobalComplexType(
 
 
     private class SimpleModelImpl(
+        parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeSimple,
         schema: ResolvedSchemaLike,
-        context: ResolvedComplexType
-    ) : SimpleModelBase(context, rawPart, schema), SimpleModel {
+    ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
@@ -126,12 +127,12 @@ class ResolvedGlobalComplexType(
     private class ShorthandModelImpl(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeShorthand,
-        schema: ResolvedSchemaLike
+        schema: ResolvedSchemaLike,
     ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
@@ -146,7 +147,7 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
