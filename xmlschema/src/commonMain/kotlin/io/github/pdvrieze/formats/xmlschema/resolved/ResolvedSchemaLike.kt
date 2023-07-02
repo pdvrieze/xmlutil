@@ -48,42 +48,60 @@ abstract sealed class ResolvedSchemaLike {
     abstract val finalDefault: Set<TypeModel.Derivation>
     abstract val defaultOpenContent: XSDefaultOpenContent?
 
-    open fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
-        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinXmlSchema.simpleType(typeName)
-        } else {
-            simpleTypes.firstOrNull { it.qName == typeName }
-                ?: throw NoSuchElementException("No simple type with name $typeName found")
-        }
+    open fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+        return simpleTypes.firstOrNull { it.qName == typeName }
     }
 
-    open fun type(typeName: QName): ResolvedGlobalType {
+    fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinXmlSchema.type(typeName)
+            BuiltinXmlSchema.maybeSimpleType(typeName)
         } else {
-            simpleTypes.firstOrNull { it.qName == typeName }
-                ?: complexTypes.firstOrNull { it.qName == typeName }
-                ?: throw NoSuchElementException("No type with name $typeName found")
-        }
+            maybeSimpleType(typeName)
+        } ?: throw NoSuchElementException("No simple type with name $typeName found")
     }
+
+    open fun maybeType(typeName: QName): ResolvedGlobalType? {
+        return simpleTypes.firstOrNull { it.qName == typeName }
+            ?: complexTypes.firstOrNull { it.qName == typeName }
+    }
+
+    fun type(typeName: QName): ResolvedGlobalType {
+        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
+            BuiltinXmlSchema.maybeType(typeName)
+        } else {
+            maybeType(typeName)
+        } ?: throw NoSuchElementException("No type with name $typeName found")
+    }
+
+    open fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? =
+        attributeGroups.firstOrNull { it.qName.isEquivalent(attributeGroupName) }
 
     fun attributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup {
-        return attributeGroups.firstOrNull { it.qName.isEquivalent(attributeGroupName) }
+        return maybeAttributeGroup(attributeGroupName)
             ?: throw NoSuchElementException("No attribute group with name $attributeGroupName found")
     }
 
+    open fun maybeGroup(groupName: QName): ResolvedToplevelGroup? =
+        groups.firstOrNull { it.qName.isEquivalent(groupName) }
+
     fun modelGroup(groupName: QName): ResolvedToplevelGroup {
-        return groups.firstOrNull { it.qName.isEquivalent(groupName) }
+        return maybeGroup(groupName)
             ?: throw NoSuchElementException("No group with name $groupName found")
     }
 
+    open fun maybeElement(elementName: QName): ResolvedGlobalElement? =
+        elements.firstOrNull { it.qName.isEquivalent(elementName) }
+
     fun element(elementName: QName): ResolvedGlobalElement {
-        return elements.firstOrNull { it.qName.isEquivalent(elementName) }
+        return maybeElement(elementName)
             ?: throw NoSuchElementException("No element with name $elementName found")
     }
 
+    open fun maybeAttribute(attributeName: QName) =
+        attributes.firstOrNull { it.qName.isEquivalent(attributeName) }
+
     fun attribute(attributeName: QName): ResolvedGlobalAttribute {
-        return attributes.firstOrNull { it.qName.isEquivalent(attributeName) }
+        return maybeAttribute(attributeName)
             ?: throw NoSuchElementException("No attribute with name $attributeName found")
     }
 

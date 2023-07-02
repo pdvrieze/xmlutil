@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -22,23 +22,25 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSRedefine
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSInclude
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
+import io.github.pdvrieze.formats.xmlschema.types.T_Include
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedRedefine(
-    override val rawPart: XSRedefine,
+class ResolvedInclude(
+    override val rawPart: XSInclude,
     override val schema: ResolvedSchemaLike,
     resolver: ResolvedSchema.Resolver
-) : ResolvedSchemaLike(), ResolvedPart, T_Redefine {
+) : ResolvedSchemaLike(), ResolvedPart, T_Include {
 
     val nestedSchema: XSSchema = resolver.readSchema(rawPart.schemaLocation)
+
+    override val defaultOpenContent: XSDefaultOpenContent?
+        get() = schema.defaultOpenContent
 
     override val schemaLocation: VAnyURI
         get() = rawPart.schemaLocation
@@ -62,34 +64,31 @@ class ResolvedRedefine(
     override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
     override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-
-    override val defaultOpenContent: XSDefaultOpenContent?
-        get() = nestedSchema.defaultOpenContent
+        get() = nestedSchema.targetNamespace
 
     init {
-        val collatedSchema = CollatedSchema(nestedSchema, resolver.delegate(rawPart.schemaLocation), this)
+        require(nestedSchema.targetNamespace != schema.targetNamespace)
+        val collatedSchema = CollatedSchema(nestedSchema, resolver.delegate(rawPart.schemaLocation), schema)
 
-        collatedSchema.applyRedefines(rawPart, targetNamespace, schema)
+        elements = DelegateList(collatedSchema.elements.values.toList()) { (k, v) ->
+            ResolvedGlobalElement(v, k)
+        }
+        attributes = DelegateList(collatedSchema.attributes.values.toList()) { (k, v) ->
+            ResolvedGlobalAttribute(v, k)
+        }
+        simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) { (k, v) ->
+            ResolvedGlobalSimpleType(v, k)
+        }
+        complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) { (k, v) ->
+            ResolvedGlobalComplexType(v, k)
+        }
+        groups = DelegateList(collatedSchema.groups.values.toList()) { (k, v) ->
+            ResolvedToplevelGroup(v, k)
+        }
+        attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) { (k, v) ->
+            ResolvedToplevelAttributeGroup(v, k)
+        }
 
-        elements = DelegateList(collatedSchema.elements.values.toList()) { (schema, it) ->
-            ResolvedGlobalElement(it, schema)
-        }
-        attributes = DelegateList(collatedSchema.attributes.values.toList()) { (schema, it) ->
-            ResolvedGlobalAttribute(it, schema)
-        }
-        simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) { (schema, it) ->
-            ResolvedGlobalSimpleType(it, schema)
-        }
-        complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) { (schema, it) ->
-            ResolvedGlobalComplexType(it, schema)
-        }
-        groups = DelegateList(collatedSchema.groups.values.toList()) { (schema, it) ->
-            ResolvedToplevelGroup(it, schema)
-        }
-        attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) { (schema, it) ->
-            ResolvedToplevelAttributeGroup(it, schema)
-        }
     }
 
     override val id: VID?
@@ -104,8 +103,4 @@ class ResolvedRedefine(
     override fun check() {
         super<ResolvedSchemaLike>.check()
     }
-}
-
-private fun VNCName.toQName(schema: XSSchema): QName {
-    return toQname(schema.targetNamespace)
 }
