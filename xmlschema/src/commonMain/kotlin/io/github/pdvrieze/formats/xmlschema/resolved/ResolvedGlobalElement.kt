@@ -65,6 +65,7 @@ class ResolvedGlobalElement(
     override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
 
     override val name: VNCName get() = rawPart.name
+
     override val qName: QName
         get() = name.toQname(targetNamespace)
 

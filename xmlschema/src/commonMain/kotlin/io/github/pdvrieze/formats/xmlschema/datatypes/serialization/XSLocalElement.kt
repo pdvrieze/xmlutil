@@ -46,7 +46,7 @@ class XSLocalElement(
     override val id: VID? = null,
     override val maxOccurs: T_AllNNI? = null,
     override val minOccurs: VNonNegativeInteger? = null,
-    override val nillable: Boolean? = false,
+    override val nillable: Boolean? = null,
     @XmlElement(false)
     override val ref: QName? = null,
     override val targetNamespace: VAnyURI? = null,

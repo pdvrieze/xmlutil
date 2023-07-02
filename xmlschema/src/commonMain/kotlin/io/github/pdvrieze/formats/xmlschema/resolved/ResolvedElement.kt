@@ -57,7 +57,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val localType: T_Type?
         get() = rawPart.localType
 
-    override val name: VNCName get() = rawPart.name ?: error("Missing name")
+    override val name: VNCName? get() = rawPart.name
 
     override val annotation: XSAnnotation? get() = rawPart.annotation
 
