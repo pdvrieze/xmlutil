@@ -29,6 +29,9 @@ import java.net.URI
 import java.net.URL
 
 internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver {
+    override val baseUri: VAnyURI
+        get() = VAnyURI(baseURI.toASCIIString())
+
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
         return baseURI.resolve(schemaLocation.value).withXmlReader { reader ->
             return XML { defaultPolicy { autoPolymorphic = true; throwOnRepeatedElement = true; verifyElementOrder = true } }.decodeFromReader<XSSchema>(reader)
@@ -37,6 +40,10 @@ internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver
 
     override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
         return SimpleResolver(baseURI.resolve(schemaLocation.value))
+    }
+
+    override fun resolve(relativeUri: VAnyURI): VAnyURI {
+        return VAnyURI(baseURI.resolve(relativeUri.xmlString).toASCIIString())
     }
 }
 
