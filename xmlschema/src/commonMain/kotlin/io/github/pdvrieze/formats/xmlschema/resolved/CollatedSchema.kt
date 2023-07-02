@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.resolved.CollatedSchema.Companion.associateToUnique
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
@@ -42,6 +43,7 @@ internal class CollatedSchema(
     val complexTypes: MutableMap<QName, Pair<ResolvedSchemaLike, XSGlobalComplexType>> = mutableMapOf()
     val groups: MutableMap<QName, Pair<ResolvedSchemaLike, XSGroup>> = mutableMapOf()
     val attributeGroups: MutableMap<QName, Pair<ResolvedSchemaLike, XSAttributeGroup>> = mutableMapOf()
+    val notations: MutableMap<QName, Pair<ResolvedSchemaLike, XSNotation>> = mutableMapOf()
 
     init {
         addToCollation(baseSchema, schemaLike)
@@ -52,7 +54,7 @@ internal class CollatedSchema(
             val importedLocation = import.schemaLocation
             if (importedLocation != null && importedLocation !in includedUrls) { // Avoid recursion in collations
                 val relativeResolver = resolver.delegate(importedLocation)
-                var rawImport = resolver.readSchema(importedLocation)
+                val rawImport = resolver.readSchema(importedLocation)
 
                 val importNamespace = import.namespace
                 val importTargetNamespace = rawImport.targetNamespace
@@ -129,23 +131,14 @@ internal class CollatedSchema(
         schemaLike: ResolvedSchemaLike,
     ) {
         redefine.simpleTypes.associateToOverride(simpleTypes) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
         redefine.complexTypes.associateToOverride(complexTypes) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
         redefine.groups.associateToOverride(groups) { it.name.toQname(targetNamespace) to Pair(schemaLike, it) }
         redefine.attributeGroups.associateToOverride(attributeGroups) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
     }
 
@@ -153,30 +146,19 @@ internal class CollatedSchema(
         val targetNamespace = sourceSchema.targetNamespace
         sourceSchema.elements.associateToUnique(elements) { it.name.toQname(targetNamespace) to Pair(schemaLike, it) }
         sourceSchema.attributes.associateToUnique(attributes) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
         sourceSchema.simpleTypes.associateToUnique(simpleTypes) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
         sourceSchema.complexTypes.associateToUnique(complexTypes) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
         sourceSchema.groups.associateToUnique(groups) { it.name.toQname(targetNamespace) to Pair(schemaLike, it) }
         sourceSchema.attributeGroups.associateToUnique(attributeGroups) {
-            it.name.toQname(targetNamespace) to Pair(
-                schemaLike,
-                it
-            )
+            it.name.toQname(targetNamespace) to Pair(schemaLike, it)
         }
+        sourceSchema.notations.associateToUnique(notations) { it.name.toQname(targetNamespace) to Pair(schemaLike, it) }
     }
 
     private fun addToCollation(sourceSchema: CollatedSchema) {
@@ -186,11 +168,10 @@ internal class CollatedSchema(
         sourceSchema.complexTypes.entries.associateToUnique(complexTypes)
         sourceSchema.groups.entries.associateToUnique(groups)
         sourceSchema.attributeGroups.entries.associateToUnique(attributeGroups)
+        sourceSchema.notations.entries.associateToUnique(notations)
     }
 
-    class RedefineWrapper(val base: ResolvedSchemaLike, val relativeBase: XSSchema) : ResolvedSchemaLike() {
-        override val targetNamespace: VAnyURI?
-            get() = relativeBase.targetNamespace
+    class RedefineWrapper(val base: ResolvedSchemaLike, val originalSchema: XSSchema) : ResolvedSchemaLike() {
         override val elements: List<ResolvedGlobalElement>
             get() = base.elements
         override val attributes: List<ResolvedGlobalAttribute>
@@ -203,12 +184,16 @@ internal class CollatedSchema(
             get() = base.groups
         override val attributeGroups: List<ResolvedToplevelAttributeGroup>
             get() = base.attributeGroups
+        override val notations: List<ResolvedNotation>
+            get() = base.notations
+        override val targetNamespace: VAnyURI?
+            get() = originalSchema.targetNamespace
         override val blockDefault: T_BlockSet
-            get() = relativeBase.blockDefault
+            get() = originalSchema.blockDefault
         override val finalDefault: Set<TypeModel.Derivation>
-            get() = relativeBase.finalDefault ?: emptySet()
+            get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent?
-            get() = relativeBase.defaultOpenContent
+            get() = originalSchema.defaultOpenContent
     }
 
     class ChameleonWrapper(val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
@@ -226,6 +211,8 @@ internal class CollatedSchema(
             get() = base.groups
         override val attributeGroups: List<ResolvedToplevelAttributeGroup>
             get() = base.attributeGroups
+        override val notations: List<ResolvedNotation>
+            get() = base.notations
         override val blockDefault: T_BlockSet
             get() = base.blockDefault
         override val finalDefault: Set<TypeModel.Derivation>

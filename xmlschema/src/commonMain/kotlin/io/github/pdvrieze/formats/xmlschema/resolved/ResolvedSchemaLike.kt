@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI
 
-abstract sealed class ResolvedSchemaLike {
+sealed class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI?
 
     abstract val elements: List<ResolvedGlobalElement>
@@ -44,6 +44,9 @@ abstract sealed class ResolvedSchemaLike {
     abstract val groups: List<ResolvedToplevelGroup>
 
     abstract val attributeGroups: List<ResolvedToplevelAttributeGroup>
+
+    abstract val notations: List<ResolvedNotation>
+
     abstract val blockDefault: T_BlockSet
     abstract val finalDefault: Set<TypeModel.Derivation>
     abstract val defaultOpenContent: XSDefaultOpenContent?
