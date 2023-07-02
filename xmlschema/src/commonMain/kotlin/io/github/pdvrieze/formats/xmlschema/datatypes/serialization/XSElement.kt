@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -50,6 +51,7 @@ data class XSElement(
     @XmlElement(false)
     @Serializable(ComplexDerivationSerializer::class)
     override val final: Set<@Contextual T_TypeDerivationControl.ComplexBase>? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
     override val alternatives: List<T_AltType> = emptyList(),
