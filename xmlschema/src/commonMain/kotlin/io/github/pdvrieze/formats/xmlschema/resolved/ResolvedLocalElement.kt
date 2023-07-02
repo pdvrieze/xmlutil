@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
@@ -36,7 +37,8 @@ class ResolvedLocalElement(
     val parent: ResolvedComplexType?,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement, ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm,
+) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement,
+    ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm,
     ResolvedComplexTypeContext {
     override val id: VID? get() = rawPart.id
     override val annotation: XSAnnotation? get() = rawPart.annotation
@@ -77,9 +79,21 @@ class ResolvedLocalElement(
 
     override fun check() {
         super<ResolvedElement>.check()
-        if (rawPart.ref!= null) {
+        if (rawPart.ref != null) {
             refererenced// Don't check as that would already be done at top level
+            check(name == null) { "Local elements can not have both a name and ref attribute specified" }
+            check(block.isEmpty()) { "Local element references cannot have the block attribute specified" }
+            check(type == null) { "Local element references cannot have the type attribute specified" }
+            check(rawPart.nillable == null) {
+                "Local element references cannot have the nillable attribute specified"
+            }
+            check(rawPart.default == null) { "Local element references cannot have the default attribute specified" }
+            check(rawPart.fixed == null) { "Local element references cannot have the default attribute specified" }
+            check(rawPart.form == null) { "Local element references cannot have the default attribute specified" }
+        } else {
+            check(name != null) { "Missing name for local (non-referencing) element" }
         }
+
         keyrefs.forEach { it.check() }
         uniques.forEach { it.check() }
         keys.forEach { it.check() }
