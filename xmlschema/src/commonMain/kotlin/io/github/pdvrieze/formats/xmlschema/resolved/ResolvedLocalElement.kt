@@ -92,6 +92,7 @@ class ResolvedLocalElement(
             check(rawPart.form == null) { "Local element references cannot have the default attribute specified" }
         } else {
             check(name != null) { "Missing name for local (non-referencing) element" }
+            checkSingleType()
         }
 
         keyrefs.forEach { it.check() }
