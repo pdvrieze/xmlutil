@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,20 +18,25 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSRedefine
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
+import io.github.pdvrieze.formats.xmlschema.types.T_NoFixedFacet
+import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-private fun VNCName.toQName(schema: XSSchema): QName {
-    return toQname(schema.targetNamespace)
-}
+@Serializable
+@XmlSerialName("pattern", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+class XSPattern(
+    override val value: String,
+    override val id: VID? = null,
+    override val annotation: XSAnnotation? = null,
+
+    @XmlOtherAttributes
+    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+) : XSFacet(), T_NoFixedFacet

@@ -23,12 +23,17 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
@@ -42,13 +47,13 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    override val mdlBaseTypeDefinition: TypeModel get() = model.mdlBaseTypeDefinition
+    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
 
-    override val mdlFacets: List<XSFacet> get() = model.mdlFacets
+    override val mdlFacets: List<ResolvedFacet> get() = model.mdlFacets
 
     override val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
 
-    override val mdlVariety: SimpleTypeModel.Variety get() = model.mdlVariety
+    override val mdlVariety: Variety get() = model.mdlVariety
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
 
@@ -86,6 +91,9 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     interface Model : SimpleTypeModel {
         override val mdlFinal: Set<TypeModel.Derivation>
+        override val mdlItemTypeDefinition: ResolvedSimpleType?
+        override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        override val mdlBaseTypeDefinition: ResolvedType
     }
 
     @Suppress("LeakingThis")
@@ -98,8 +106,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
         final override val mdlBaseTypeDefinition: ResolvedSimpleType
         final override val mdlItemTypeDefinition: ResolvedSimpleType?
-        final override val mdlMemberTypeDefinitions: List<SimpleTypeModel>
-        final override val mdlVariety: SimpleTypeModel.Variety
+        final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        final override val mdlVariety: Variety
         final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
 
         init {
@@ -114,7 +122,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
                     require(schema is CollatedSchema.RedefineWrapper) { "Only redefines can have 'self-referencing types'" }
                     ResolvedGlobalSimpleType(
-                        schema.relativeBase.simpleTypes.single { it.name.xmlString == typeName.localPart },
+                        schema.originalSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
                         schema
                     )
                 }
@@ -126,17 +134,23 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             }
 
 
-            mdlItemTypeDefinition = when (simpleDerivation) {
-                is XSSimpleList -> when (mdlBaseTypeDefinition) {
-                    AnySimpleType -> simpleDerivation.itemTypeName?.let { schema.simpleType(it) }
+            mdlVariety = when (simpleDerivation) {
+                is XSSimpleList -> Variety.LIST
+                is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
+                    it.mdlVariety
+                } ?: Variety.ATOMIC
+
+                is XSSimpleUnion -> Variety.UNION
+                else -> error("Unreachable/unsupported derivation")
+            }
+
+
+            mdlItemTypeDefinition = when (mdlVariety) {
+                Variety.LIST -> when (mdlBaseTypeDefinition) {
+                    AnySimpleType -> (simpleDerivation as XSSimpleList).itemTypeName?.let { schema.simpleType(it) }
                         ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
 
-                    else -> recurseBaseType(
-                        typeName,
-                        rawPart.simpleDerivation,
-                        schema,
-                        context
-                    ) { it.mdlItemTypeDefinition }
+                    else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlItemTypeDefinition }
                 }
 
                 else -> null
@@ -148,27 +162,15 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                     ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ModelBase) }
 
                 else -> recurseBaseType(
-                    typeName,
-                    rawPart.simpleDerivation,
-                    schema,
-                    context
+                    mdlBaseTypeDefinition,
                 ) { it.mdlMemberTypeDefinitions } ?: emptyList()
             }
 
 
-            mdlVariety = when (simpleDerivation) {
-                is XSSimpleList -> SimpleTypeModel.Variety.LIST
-                is XSSimpleRestriction -> recurseBaseType(rawPart, schema, context) { it.mdlVariety }
-                    ?: SimpleTypeModel.Variety.ATOMIC
-
-                is XSSimpleUnion -> SimpleTypeModel.Variety.UNION
-                else -> error("Unreachable/unsupported derivation")
-            }
-
             mdlPrimitiveTypeDefinition = when (mdlVariety) {
-                SimpleTypeModel.Variety.ATOMIC -> when (val b = mdlBaseTypeDefinition) {
+                Variety.ATOMIC -> when (val b = mdlBaseTypeDefinition) {
                     is PrimitiveDatatype -> b
-                    else -> recurseBaseType(rawPart, schema, context) { it.mdlPrimitiveTypeDefinition }
+                    else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlPrimitiveTypeDefinition }
                         ?: run { null }
                 }
 
@@ -179,59 +181,102 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         }
 
 
-        final override val mdlFundamentalFacets: FundamentalFacets
-            get() = TODO("not implemented")
+        final override val mdlFacets: List<ResolvedFacet> = when (val d = rawPart.simpleDerivation) {
+            is XSSimpleRestriction -> {
+                // TODO actually support facets properly, including overlaying
+                mdlBaseTypeDefinition.mdlFacets + d.facets.map { ResolvedFacet(it, schema) }
+            }
 
-        final override val mdlFacets: List<XSFacet>
-            get() = TODO("not implemented")
-
-        protected companion object {
-            fun <R> recurseBaseType(
-                rawPart: XSISimpleType,
-                schema: ResolvedSchemaLike,
-                context: ResolvedSimpleType,
-                seenTypes: SingleLinkedList<QName> = SingleLinkedList(),
-                valueFun: (ResolvedSimpleType) -> R?
-            ): R? = recurseBaseType(
-                (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) },
-                rawPart.simpleDerivation,
-                schema, context, seenTypes, valueFun
+            is XSSimpleList -> listOf(
+                ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), schema)
             )
 
-            fun <R> recurseBaseType(
-                thisName: QName?,
-                d: XSSimpleDerivation?,
-                schema: ResolvedSchemaLike,
-                context: ResolvedSimpleType,
-                seenTypes: SingleLinkedList<QName> = SingleLinkedList(),
-                valueFun: (ResolvedSimpleType) -> R?
-            ): R? {
-//                val thisName = (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
+            is XSSimpleUnion -> emptyList()
+        }
 
-                val newSeen = when (thisName) {
-                    null -> seenTypes
-                    in seenTypes -> throw IllegalArgumentException("Recursion in seen types")
-                    else -> seenTypes + thisName
+
+        final override val mdlFundamentalFacets: FundamentalFacets = when (mdlVariety) {
+            Variety.NIL -> error("Nill variety has no facets")
+            Variety.LIST -> {
+                val cardinalty = when {
+                    mdlItemTypeDefinition!!.mdlFundamentalFacets.cardinality == Cardinality.FINITE &&
+                    mdlFacets.any { it is ResolvedMinLength } && mdlFacets.any { it is ResolvedMaxLength } -> Cardinality.FINITE
+                    else -> Cardinality.COUNTABLY_INFINITE
                 }
 
-                return when (/*val d = rawPart.simpleDerivation*/d) {
-                    !is XSSimpleRestriction -> valueFun(AnySimpleType)
+                FundamentalFacets(
+                    ordered = OrderedFacet.Order.FALSE,
+                    bounded = false,
+                    cardinality = cardinalty,
+                    numeric = false
+                )
+            }
+
+            Variety.ATOMIC -> {
+                val ordered = mdlBaseTypeDefinition.mdlFundamentalFacets.ordered
+                val bounded = mdlFacets.any { it is ResolvedBoundBaseFacet }
+                val cardinality = when {
+                    mdlBaseTypeDefinition.mdlFundamentalFacets.cardinality == Cardinality.FINITE -> Cardinality.FINITE
+                    mdlFacets.any { it is ResolvedLength || it is ResolvedMaxLength || it is ResolvedTotalDigits } -> Cardinality.FINITE
+                    mdlFacets.any { it is ResolvedMinInclusive || it is ResolvedMinExclusive } &&
+                            mdlFacets.any { it is ResolvedMaxInclusive || it is ResolvedMaxExclusive } &&
+                            (mdlFacets.any { it is ResolvedFractionDigits } || mdlPrimitiveTypeDefinition is FiniteDateType) ->
+                        Cardinality.FINITE
+
+                    else -> Cardinality.COUNTABLY_INFINITE
+                }
+
+                val numeric = mdlBaseTypeDefinition.mdlFundamentalFacets.numeric;
+
+                FundamentalFacets(ordered, bounded, cardinality, numeric)
+            }
+
+            Variety.UNION -> {
+                val firstFacet = mdlMemberTypeDefinitions.firstOrNull()?.mdlFundamentalFacets
+
+                val ordered = when {
+                    mdlMemberTypeDefinitions.all {
+                        it.mdlVariety == Variety.ATOMIC && it.mdlFundamentalFacets.ordered == firstFacet?.ordered
+                    } -> firstFacet!!.ordered
+
+                    mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.ordered == OrderedFacet.Order.FALSE } ->
+                        OrderedFacet.Order.FALSE
+
+                    else -> OrderedFacet.Order.PARTIAL
+                }
+
+                val isBounded = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.bounded }
+                val isInfinite =
+                    mdlMemberTypeDefinitions.any { it.mdlFundamentalFacets.cardinality == Cardinality.COUNTABLY_INFINITE }
+                FundamentalFacets(
+                    ordered = ordered,
+                    bounded = isBounded,
+                    cardinality = if (isInfinite) Cardinality.COUNTABLY_INFINITE else Cardinality.FINITE,
+                    numeric = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.numeric }
+                )
+            }
+
+        }
+
+        protected companion object {
+
+            fun <R> recurseBaseType(
+                startType: ResolvedSimpleType,
+                seenTypes: SingleLinkedList<ResolvedSimpleType> = SingleLinkedList(),
+                valueFun: (ResolvedSimpleType) -> R
+            ): R {
+                when (startType) {
+                    is ResolvedBuiltinType -> return valueFun(startType)
+                    in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
+                    else -> {}
+                }
+
+                val newSeen: SingleLinkedList<ResolvedSimpleType> = seenTypes + startType
+
+                return when (val base = startType.mdlBaseTypeDefinition) {
+                    !is ResolvedSimpleType -> error("Recursing should not go to anytype")
                     else -> {
-                        when (val base = d.base) {
-                            null -> valueFun(ResolvedLocalSimpleType(d.simpleType!!, schema, context))
-                            thisName -> null
-                            in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
-                            else -> {
-                                recurseBaseType(
-                                    base,
-                                    (schema.simpleType(base).rawPart as? XSSimpleDerivation),
-                                    schema,
-                                    context,
-                                    newSeen,
-                                    valueFun
-                                )
-                            }
-                        }
+                        recurseBaseType(base, newSeen, valueFun)
                     }
                 }
             }

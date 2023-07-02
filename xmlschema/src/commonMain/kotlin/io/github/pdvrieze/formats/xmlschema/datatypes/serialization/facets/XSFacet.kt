@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,7 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import kotlinx.serialization.Serializable

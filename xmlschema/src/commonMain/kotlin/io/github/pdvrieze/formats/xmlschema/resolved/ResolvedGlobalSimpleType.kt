@@ -58,7 +58,6 @@ class ResolvedGlobalSimpleTypeImpl(
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
             is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)

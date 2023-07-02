@@ -45,6 +45,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     override val attributeGroups: List<ResolvedToplevelAttributeGroup>
 
+    override val notations: List<ResolvedNotation>
+
+    val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
+
     init {
         val collatedSchema = CollatedSchema(rawPart, resolver, this)
 
@@ -60,15 +64,14 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
         attributes = DelegateList(collatedSchema.attributes.values.toList()) { (s, v) -> ResolvedGlobalAttribute(v, s) }
 
-        attributeGroups = DelegateList(CombiningList(collatedSchema.attributeGroups.values.toList())) { (s, v) -> ResolvedToplevelAttributeGroup(v, s) }
+        attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) { (s, v) -> ResolvedToplevelAttributeGroup(v, s) }
+
+        notations = DelegateList(collatedSchema.notations.values.toList()) { (s, v) -> ResolvedNotation(v, s) }
     }
 
     val annotations: List<XSAnnotation> get() = rawPart.annotations
 
     val types: List<ResolvedGlobalType> get() = CombiningList(simpleTypes, complexTypes)
-
-    val notations: List<XSNotation> get() = rawPart.notations
-    val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
 
     override val defaultOpenContent: XSDefaultOpenContent?
         get() = rawPart.defaultOpenContent

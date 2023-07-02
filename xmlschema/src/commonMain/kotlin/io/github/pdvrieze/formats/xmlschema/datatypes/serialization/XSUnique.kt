@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -39,6 +40,7 @@ data class XSUnique(
     override val fields: List<XSField> = emptyList(),
     val ref: QName? = null,
     override val id: VID? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     @XmlOtherAttributes
