@@ -42,6 +42,7 @@ class ResolvedGlobalElement(
 
     override fun check() {
         super<ResolvedElement>.check()
+        checkSingleType()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(SingleLinkedList(), SingleLinkedList())
     }
