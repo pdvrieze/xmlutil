@@ -18,16 +18,6 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import nl.adaptivity.xmlutil.serialization.XmlValue
-import nl.adaptivity.xmlutil.util.CompactFragment
-
-interface T_RestrictionType : T_DerivationSealedBase {
-    val simpleType: T_LocalSimpleType?
-    val facets: List<XSFacet>
-
-    @XmlValue(true)
-    val otherContents: List<CompactFragment>
-}
+data class IdentityConstraintHolder<T: ResolvedIdentityConstraint>(val element: ResolvedElement, val constraint: ResolvedIdentityConstraint)

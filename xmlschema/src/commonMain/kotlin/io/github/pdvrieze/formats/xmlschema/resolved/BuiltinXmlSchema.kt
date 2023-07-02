@@ -42,10 +42,6 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         return typeMap[typeName.localPart]
     }
 
-    private fun doTypeLookup(typeName: QName) = maybeSimpleType(typeName)
-        ?: throw NoSuchElementException("No type with name $typeName found")
-
-
     override fun maybeType(typeName: QName): ResolvedGlobalType? {
         if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE && typeName.localPart == "anyType") return AnyType
         return maybeSimpleType(typeName)
@@ -83,6 +79,9 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         get() = emptyList()
 
     override val attributeGroups: List<Nothing>
+        get() = emptyList()
+
+    override val notations: List<Nothing>
         get() = emptyList()
 
     override val blockDefault: Set<Nothing>
