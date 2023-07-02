@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
@@ -104,13 +103,13 @@ class ResolvedGroupRefParticle(
 
 class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
 ): ResolvedGroupBase(schema), NamedPart, T_NamedGroup, GroupDefModel, ModelGroupModel {
     override val mdlName: VNCName
         get() = rawPart.name
 
-    override val mdlTargetNamespace: Nothing?
-        get() = rawPart.targetNamespace
+    override val mdlTargetNamespace: VAnyURI?
+        get() = schema.targetNamespace
 
     override val mdlModelGroup: ResolvedToplevelGroup
         get() = this

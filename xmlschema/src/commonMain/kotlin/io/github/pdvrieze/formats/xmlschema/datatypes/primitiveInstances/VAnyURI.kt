@@ -35,3 +35,5 @@ value class VAnyURI(val value: String): VAnyAtomicType, CharSequence {
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
         xmlString.subSequence(startIndex, endIndex)
 }
+
+internal fun String.toAnyUri(): VAnyURI = VAnyURI(this)

@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("key", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSKey(
+data class XSKey(
     override val selector: XSSelector,
     override val fields: List<XSField> = emptyList(),
     val name: VNCName?,

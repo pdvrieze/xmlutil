@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("schema", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSchema(
+data class XSSchema(
     @XmlElement(false)
     val attributeFormDefault: T_FormChoice? = null,
 

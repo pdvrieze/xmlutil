@@ -105,9 +105,9 @@ sealed class ResolvedComplexType(
                 is XSComplexContent -> {
                     derivation = content.derivation
                     if ((parent as? ResolvedGlobalType)?.qName == derivation.base) {
-                        require(schema is ResolvedRedefine) { "Self-reference of type names can only happen in redefine" }
+                        require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
                         val b =
-                            schema.nestedSchema.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
+                            schema.relativeBase.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
                         mdlBaseTypeDefinition = ResolvedGlobalComplexType(b, schema)
                     } else {
                         val base =

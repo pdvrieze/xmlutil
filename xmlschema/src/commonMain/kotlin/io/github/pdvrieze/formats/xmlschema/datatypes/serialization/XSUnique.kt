@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("unique", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSUnique(
+data class XSUnique(
     val name: VNCName? = null,
     override val selector: XSSelector,
     @Required
