@@ -55,18 +55,20 @@ internal class CollatedSchema(
                 var rawImport = resolver.readSchema(importedLocation)
 
                 val importNamespace = import.namespace
-                val importTargetNamespace = rawImport.targetNamespace?.value
-                if (importNamespace != null) {
-                    if (importTargetNamespace.isNullOrEmpty()) {
-                        rawImport = rawImport.copy(targetNamespace = importNamespace)
-                    } else if (importTargetNamespace.isNotEmpty()) {
-                        require(importNamespace.value == importTargetNamespace) {
+                val importTargetNamespace = rawImport.targetNamespace
+                val chameleonSchema = when {
+                    importNamespace==null -> ChameleonWrapper(schemaLike, importTargetNamespace)
+                    importTargetNamespace.isNullOrEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
+                    else -> {
+                        require(importNamespace == importTargetNamespace) {
                             "Renaming can only be done with an import with a null targetNamespace"
                         }
+                        ChameleonWrapper(schemaLike, importTargetNamespace)
                     }
                 }
+
                 val collatedImport = CollatedSchema(
-                    rawImport, relativeResolver, schemaLike, includedUrls + relativeResolver.resolve(importedLocation)
+                    rawImport, relativeResolver, chameleonSchema, includedUrls + relativeResolver.resolve(importedLocation)
                 )
 
                 addToCollation(collatedImport)
@@ -77,24 +79,22 @@ internal class CollatedSchema(
             val includedLocation = include.schemaLocation
             if (includedLocation !in includedUrls) { // Avoid recursion in collations
                 val relativeResolver = resolver.delegate(includedLocation)
-                var rawInclude = resolver.readSchema(includedLocation)
+                val rawInclude = resolver.readSchema(includedLocation)
 
                 val importNamespace = baseSchema.targetNamespace
-                val importTargetNamespace = rawInclude.targetNamespace?.value
-                val chameleonSchema =
-                    schemaLike.takeIf { importNamespace == null || importTargetNamespace != null } ?:
-                    ChameleonWrapper(schemaLike, importNamespace!!)
+                val importTargetNamespace = rawInclude.targetNamespace
+                val chameleonNamespace = when {
+                    importNamespace == null -> importTargetNamespace
+                    importTargetNamespace == null -> importNamespace
 
-                if (importNamespace != null) {
-                    if (importTargetNamespace.isNullOrEmpty()) {
-                        rawInclude = rawInclude.copy(targetNamespace = importNamespace)
-                    } else if (importTargetNamespace.isNotEmpty()) {
-                        require(importNamespace.value == importTargetNamespace) {
-                            "Renaming can only be done with an import with a null targetNamespace"
+                    else -> {
+                        require(importNamespace == importTargetNamespace) {
+                            "Renaming can only be done with an import with a null targetNamespace ($importNamespace != $importTargetNamespace)"
                         }
+                        importNamespace
                     }
                 }
-
+                val chameleonSchema = ChameleonWrapper(schemaLike, chameleonNamespace)
 
                 val includedSchema = CollatedSchema(
                     rawInclude,
@@ -211,7 +211,7 @@ internal class CollatedSchema(
             get() = relativeBase.defaultOpenContent
     }
 
-    class ChameleonWrapper(val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI) : ResolvedSchemaLike() {
+    class ChameleonWrapper(val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
         override val targetNamespace: VAnyURI?
             get() = chameleonNamespace
         override val elements: List<ResolvedGlobalElement>
@@ -235,7 +235,7 @@ internal class CollatedSchema(
 
         private fun QName.extend(): QName {
             return when {
-                namespaceURI.isEmpty() -> QName(chameleonNamespace.value, localPart, prefix)
+                namespaceURI.isEmpty() -> QName(chameleonNamespace?.value ?: "", localPart, prefix)
                 else -> this
             }
         }

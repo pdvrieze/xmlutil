@@ -127,7 +127,8 @@ abstract sealed class ResolvedSchemaLike {
     }
 
     fun identityConstraint(constraintName: QName): ResolvedIdentityConstraint {
-        return elements.asSequence().firstNotNullOfOrNull {
+        // TODO actually collect constraints for actual schemas.
+        return elements.firstNotNullOfOrNull {
             it.identityConstraints.asSequence().filterIsInstance<ResolvedNamedIdentityConstraint>()
                 .firstOrNull { it.qName.isEquivalent(constraintName) }
         } ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
