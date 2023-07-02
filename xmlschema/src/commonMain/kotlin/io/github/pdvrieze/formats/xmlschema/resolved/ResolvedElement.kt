@@ -91,6 +91,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
+    protected fun checkSingleType() {
+        require(rawPart.type == null || rawPart.localType == null) {
+            "Types can only be specified in one way"
+        }
+    }
+
     override fun check() {
         super<OptNamedPart>.check()
         for (keyref in keyrefs) {
