@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -47,6 +48,10 @@ class ResolvedSimpleRestriction(
         rawPart.simpleType?.let {
             ResolvedLocalSimpleType(it, schema, context)
         }
+    }
+
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(seenTypes, inheritedTypes)
     }
 }
 
