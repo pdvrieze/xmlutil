@@ -31,25 +31,40 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
-import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedIdentityConstraint(
-    override val schema: ResolvedSchemaLike,
-    val owner: ResolvedElement
-) : ResolvedPart, T_IdentityConstraint, IdentityConstraintModel, XSI_OpenAttrs {
-    abstract override val rawPart: T_IdentityConstraint
-    final override val id: VID? get() = rawPart.id
+sealed interface ResolvedIdentityConstraint : ResolvedPart, T_IdentityConstraint, IdentityConstraintModel,
+    XSI_OpenAttrs, IdentityConstraintModel.Ref {
 
-    final override val annotation: XSAnnotation? get() = rawPart.annotation
+    override val owner: ResolvedElement
 
-    final override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
+    companion object {
+        fun Ref(
+            owner: ResolvedElement,
+            constraint: ResolvedIdentityConstraint
+        ): ResolvedIdentityConstraint {
+            return constraint
+        }
+    }
+}
 
-    final override val mdlAnnotations: AnnotationModel?
+sealed class ResolvedIdentityConstraintBase(
+    val schema: ResolvedSchemaLike,
+    override val owner: ResolvedElement
+): IdentityConstraintModel.Ref, IdentityConstraintModel {
+    abstract val rawPart: T_IdentityConstraint
+    val id: VID? get() = rawPart.id
+
+    val annotation: XSAnnotation? get() = rawPart.annotation
+
+    override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
+
+    override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
+
 }
 
 sealed class ResolvedIndirectIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraint(schema, owner) {
+    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
 
     abstract val ref: ResolvedNamedIdentityConstraint
 
@@ -69,7 +84,7 @@ sealed class ResolvedIndirectIdentityConstraint(schema: ResolvedSchemaLike, owne
 }
 
 sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraint(schema, owner) {
+    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
 
     abstract val name: VNCName
 

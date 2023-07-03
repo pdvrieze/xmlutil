@@ -29,7 +29,7 @@ interface ElementModel : IAnnotated, INamed {
     val mdlTypeTable: TypeTable?
     val mdlNillable: Boolean
     val mdlValueConstraint: ValueConstraintModel?
-    val mdlIdentityConstraints: Set<IdentityConstraintModel>
+    val mdlIdentityConstraints: Set<IdentityConstraintModel.Ref>
     val mdlSubstitutionGroupAffiliations: Set<Use>
     val mdlDisallowedSubstitutions: T_BlockSet
     val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation>

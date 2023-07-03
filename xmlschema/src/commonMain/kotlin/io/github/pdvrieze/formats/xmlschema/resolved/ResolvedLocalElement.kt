@@ -27,19 +27,17 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalElement
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
-    val parent: ResolvedComplexType?,
+    override val parent: ResolvedComplexType,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement,
     ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm,
-    ResolvedComplexTypeContext {
+    ResolvedComplexTypeContext, ElementModel.Scope.Local {
     override val id: VID? get() = rawPart.id
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
@@ -69,7 +67,7 @@ class ResolvedLocalElement(
     override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
     override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
 
-    override val model: ElementModel.Local<ResolvedLocalElement> by lazy { ModelImpl(rawPart, schema) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: ElementModel.Scope.Local get() = model.mdlScope
     override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
@@ -100,19 +98,36 @@ class ResolvedLocalElement(
         keys.forEach { it.check() }
     }
 
-    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike) :
-        ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Local<ResolvedLocalElement> {
+    interface Model: ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>
+
+    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
+        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
+
+        override val mdlName: VNCName = requireNotNull(rawPart.name)
 
         override val mdlScope: ElementModel.Scope.Local
-            get() = TODO("not implemented")
+            get() = this@ResolvedLocalElement
 
         override val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
 
-        override val mdlTargetNamespace: VAnyURI?
+        override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
+
+        override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+
+        override val mdlMaxOccurs: T_AllNNI = rawPart.maxOccurs ?: T_AllNNI.ONE
+
+        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = HashSet<ResolvedIdentityConstraint>().also { coll ->
+            rawPart.keys.mapTo(coll) { ResolvedKey(it, schema, context) }
+            rawPart.uniques.mapTo(coll) { ResolvedUnique(it, schema, context) }
+            rawPart.keyrefs.mapTo(coll) { ResolvedKeyRef(it, schema, context) }
+        }
+
+        override val mdlTypeTable: ElementModel.TypeTable?
             get() = TODO("not implemented")
-        override val mdlMinOccurs: VNonNegativeInteger
+
+        override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
-        override val mdlMaxOccurs: T_AllNNI
+        override val mdlTypeDefinition: ResolvedType
             get() = TODO("not implemented")
     }
 

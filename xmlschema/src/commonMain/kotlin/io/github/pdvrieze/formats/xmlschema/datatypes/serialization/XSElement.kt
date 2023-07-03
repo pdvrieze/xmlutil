@@ -20,7 +20,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -57,7 +56,7 @@ data class XSElement(
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
     override val keys: List<XSKey> = emptyList(),
-    override val keyrefs: List<XSKeyref> = emptyList(),
+    override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ): XSIElement, T_GlobalElement {

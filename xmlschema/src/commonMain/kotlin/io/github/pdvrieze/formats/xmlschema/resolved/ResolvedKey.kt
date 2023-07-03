@@ -38,8 +38,9 @@ fun ResolvedKey(
     else -> ResolvedDirectKey(rawPart, schema, owner)
 }
 
-interface ResolvedKey : T_Key, IdentityConstraintModel.Key, ResolvedPart {
+interface ResolvedKey : T_Key, IdentityConstraintModel.Key, ResolvedIdentityConstraint, ResolvedPart {
     override val rawPart: XSKey
+
 }
 
 class ResolvedDirectKey(
@@ -57,6 +58,9 @@ class ResolvedDirectKey(
 
     override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
         get() = IdentityConstraintModel.Category.KEY
+
+    override val constraint: ResolvedDirectKey
+        get() = this
 
     override fun check() {
         super<ResolvedNamedIdentityConstraint>.check()
@@ -76,6 +80,9 @@ class ResolvedIndirectKey(
         is ResolvedIndirectKey -> r.ref
         else -> throw IllegalArgumentException("Key's ref property ${rawPart.ref} does not refer to a key")
     }
+
+    override val constraint: ResolvedIndirectKey
+        get() = this
 
     override fun check() {
         super<ResolvedIndirectIdentityConstraint>.check()

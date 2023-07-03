@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -34,7 +33,7 @@ import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
-) : ResolvedType, T_ComplexType, ResolvedLocalAttribute.Parent, ComplexTypeModel {
+) : ResolvedType, T_ComplexType, ResolvedLocalAttribute.Parent, ElementModel.ElementParentModel, ComplexTypeModel {
     abstract override val rawPart: XSComplexType
 
     abstract override val content: ResolvedComplexTypeContent
@@ -42,8 +41,8 @@ sealed class ResolvedComplexType(
     protected abstract val model: Model
 
     override val mdlAbstract: Boolean get() = model.mdlAbstract
-    override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
-    override val mdlFinal: Set<out ComplexTypeModel.Derivation> get() = model.mdlFinal
+    override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
+    override val mdlFinal: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
     override val mdlContentType: ResolvedContentType get() = model.mdlContentType
     override val mdlAttributeUses: Set<ResolvedAttribute> get() = model.mdlAttributeUses
     override val mdlAttributeWildcard: WildcardModel get() = model.mdlAttributeWildcard
@@ -55,11 +54,18 @@ sealed class ResolvedComplexType(
         checkNotNull(model)
     }
 
-    sealed interface ResolvedDirectParticle<T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle
+    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        content.collectConstraints(collector)
+    }
+
+
+    sealed interface ResolvedDirectParticle<T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
+        fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+    }
 
     interface Model : ComplexTypeModel {
         override val mdlBaseTypeDefinition: ResolvedType
-        override val mdlFinal: Set<out T_TypeDerivationControl.ComplexBase>
+        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase>
         override val mdlContentType: ResolvedContentType
         override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase
     }
@@ -179,15 +185,15 @@ sealed class ResolvedComplexType(
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
                         derivation is IXSComplexTypeShorthand ->
-                    contentType(effectiveMixed, effectiveContent, parent)
+                    contentType(effectiveMixed, effectiveContent)
 
 
                 mdlBaseTypeDefinition !is ResolvedComplexType -> // simple type
-                    contentType(effectiveMixed, effectiveContent, parent)
+                    contentType(effectiveMixed, effectiveContent)
 
                 mdlBaseTypeDefinition.mdlContentType.mdlVariety.let {
                     it == ComplexTypeModel.Variety.SIMPLE || it == ComplexTypeModel.Variety.EMPTY
-                } -> contentType(effectiveMixed, effectiveContent, parent)
+                } -> contentType(effectiveMixed, effectiveContent)
 
                 effectiveContent == null -> mdlBaseTypeDefinition.mdlContentType
                 else -> {
@@ -309,7 +315,7 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         parent,
                         b,
-                        derivation.facets.map { ResolvedFacet(it, schema) },
+                        FacetList(derivation.facets, schema),
                         b.mdlFundamentalFacets,
                         b.mdlVariety,
                         b.mdlPrimitiveTypeDefinition,
@@ -394,8 +400,7 @@ sealed class ResolvedComplexType(
     companion object {
         internal fun contentType(
             effectiveMixed: Boolean,
-            particle: ResolvedParticle<*>?,
-            parent: ResolvedComplexType
+            particle: ResolvedParticle<*>?
         ): ResolvedContentType {
             return when {
                 particle == null -> EmptyContentType
@@ -469,7 +474,7 @@ sealed class ResolvedComplexType(
 class SyntheticSimpleType(
     override val mdlContext: SimpleTypeContext,
     override val mdlBaseTypeDefinition: ResolvedType,
-    override val mdlFacets: List<ResolvedFacet>,
+    override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,
     override val mdlVariety: SimpleTypeModel.Variety,
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
@@ -487,7 +492,7 @@ class SyntheticSimpleType(
 internal fun calcProhibitedSubstitutions(
     rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike
-): Set<out ComplexTypeModel.Derivation> {
+): Set<ComplexTypeModel.Derivation> {
     return rawPart.block ?: schema.blockDefault.toDerivationSet()
 }
 

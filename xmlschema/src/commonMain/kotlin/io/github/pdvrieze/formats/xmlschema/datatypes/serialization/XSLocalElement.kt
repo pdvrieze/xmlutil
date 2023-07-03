@@ -58,7 +58,7 @@ class XSLocalElement(
     override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
     override val keys: List<XSKey> = emptyList(),
-    override val keyrefs: List<XSKeyref> = emptyList(),
+    override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
 ) : XSIElement, T_LocalElement, XSI_AllParticle {
