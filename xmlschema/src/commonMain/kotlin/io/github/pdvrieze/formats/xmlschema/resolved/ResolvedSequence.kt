@@ -57,6 +57,11 @@ class ResolvedSequence(
             require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
         }
     */
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlParticles.forEach { particle -> particle.term.collectConstraints(collector) }
+    }
+
 }
 
 class SyntheticSequence(
@@ -72,4 +77,8 @@ class SyntheticSequence(
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: AnnotationModel? get() = null
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlParticles.forEach { particle -> particle.term.collectConstraints(collector) }
+    }
 }

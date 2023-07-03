@@ -29,11 +29,15 @@ import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
 sealed class ResolvedFacet(override val schema: ResolvedSchemaLike) : ResolvedPart {
     abstract override val rawPart: XSFacet
 
+    val fixed get() = rawPart.fixed
+
     val id: VID? get() = rawPart.id
     val annotation: XSAnnotation? get() = rawPart.annotation
 
     open fun check(type: ResolvedSimpleType) {}
-    open fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> { return Result.success(Unit) }
+    open fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> {
+        return Result.success(Unit)
+    }
 
     companion object {
         operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike): ResolvedFacet = when (rawPart) {
@@ -55,7 +59,8 @@ sealed class ResolvedFacet(override val schema: ResolvedSchemaLike) : ResolvedPa
     }
 }
 
-class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
+class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) :
+    ResolvedFacet(schema) {
     val test get() = rawPart.test
     val xPathDefaultNamespace get() = rawPart.xPathDefaultNamespace
 }
@@ -75,31 +80,36 @@ class ResolvedFractionDigits(override val rawPart: XSFractionDigits, schema: Res
 }
 
 sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
+    abstract val value: ULong
     override fun check(type: ResolvedSimpleType) {
         when (type.mdlVariety) {
-            Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition){
+            Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {
                 null -> error("Length is not supported on simple types not deriving from a primitive")
                 else -> error("Length is not supported for type ${primitive.qName}")
             }
+
             Variety.LIST -> {} // fine
             Variety.UNION,
             Variety.NIL -> error("Variety does not support length facet")
         }
     }
 
-    final override fun validate(type: ResolvedSimpleType, representation: String) : Result<Unit> = runCatching {
+    final override fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> = runCatching {
         when (type.mdlVariety) {
             Variety.ATOMIC -> {
                 when (val primitive = type.mdlPrimitiveTypeDefinition) {
                     is AnyURIType,
                     is StringType -> checkLength(representation.length, representation)
+
                     is HexBinaryType -> checkLength(primitive.length(representation), "hex value")
                     is Base64BinaryType -> checkLength(primitive.length(representation), "base64 value")
                     is QNameType,
                     is NotationType -> Unit
+
                     else -> error("Unsupported primitive type ${primitive?.qName} for simple type restriction")
                 }
             }
+
             Variety.LIST -> {
                 val len = representation.split(' ').size
                 checkLength(len, "list[$len]")
@@ -114,18 +124,36 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
     abstract fun checkLength(resolvedLength: Int, repr: String)
 }
 
-class ResolvedLength(override val rawPart: XSLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema) {
+interface IResolvedMinLength : ResolvedPart {
+    val value: ULong
+    val fixed: Boolean?
+    fun checkLength(resolvedLength: Int, repr: String)
+    fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
+    fun check(type: ResolvedSimpleType)
+}
 
-    val value: ULong get() = rawPart.value
+interface IResolvedMaxLength : ResolvedPart {
+    val value: ULong
+    val fixed: Boolean?
+    fun checkLength(resolvedLength: Int, repr: String)
+    fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
+    fun check(type: ResolvedSimpleType)
+}
+
+class ResolvedLength(override val rawPart: XSLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema),
+    IResolvedMinLength, IResolvedMaxLength {
+
+    override val value: ULong get() = rawPart.value
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength == value.toInt()) { "length($resolvedLength) of ${repr} is not $value" }
     }
 
 }
 
-class ResolvedMinLength(override val rawPart: XSMinLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema) {
+class ResolvedMinLength(override val rawPart: XSMinLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema),
+    IResolvedMinLength {
 
-    val value: ULong get() = rawPart.value
+    override val value: ULong get() = rawPart.value
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength >= value.toInt()) { "length($resolvedLength) of ${repr} is not at least $value" }
     }
@@ -133,33 +161,48 @@ class ResolvedMinLength(override val rawPart: XSMinLength, schema: ResolvedSchem
 }
 
 
-class ResolvedMaxLength(override val rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema) {
+class ResolvedMaxLength(override val rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema),
+    IResolvedMaxLength {
 
-    val value: ULong get() = rawPart.value
+    override val value: ULong get() = rawPart.value
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength <= value.toInt()) { "length($resolvedLength) of ${repr} is not at most $value" }
     }
 }
 
-sealed class ResolvedBoundBaseFacet(schema: ResolvedSchemaLike) : ResolvedFacet(schema)
+sealed class ResolvedBoundBaseFacet(schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
+    abstract val isInclusive: Boolean
 
-class ResolvedMaxExclusive(override val rawPart: XSMaxExclusive, schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema) {
+}
+
+sealed class ResolvedMaxBoundFacet(schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema)
+
+sealed class ResolvedMinBoundFacet(schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema)
+
+class ResolvedMaxExclusive(override val rawPart: XSMaxExclusive, schema: ResolvedSchemaLike) :
+    ResolvedMaxBoundFacet(schema) {
+    override val isInclusive: Boolean get() = false
 }
 
 
-class ResolvedMaxInclusive(override val rawPart: XSMaxInclusive, schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema) {
+class ResolvedMaxInclusive(override val rawPart: XSMaxInclusive, schema: ResolvedSchemaLike) :
+    ResolvedMaxBoundFacet(schema) {
+    override val isInclusive: Boolean get() = true
 }
 
 
-class ResolvedMinExclusive(override val rawPart: XSMinExclusive, schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema) {
+class ResolvedMinExclusive(override val rawPart: XSMinExclusive, schema: ResolvedSchemaLike) :
+    ResolvedMinBoundFacet(schema) {
+    override val isInclusive: Boolean get() = false
 }
 
-
-class ResolvedMinInclusive(override val rawPart: XSMinInclusive, schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema) {
+class ResolvedMinInclusive(override val rawPart: XSMinInclusive, schema: ResolvedSchemaLike) :
+    ResolvedMinBoundFacet(schema) {
+    override val isInclusive: Boolean get() = true
 }
 
 class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
-
+    val value: String get() = rawPart.value
 }
 
 class ResolvedTotalDigits(override val rawPart: XSTotalDigits, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {

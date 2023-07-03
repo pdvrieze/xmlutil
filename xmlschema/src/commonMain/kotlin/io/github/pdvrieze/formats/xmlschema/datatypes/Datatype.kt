@@ -117,9 +117,9 @@ sealed class ListDatatype protected constructor(
 
     final override val mdlAnnotations: Nothing? get() = null
     final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
-    final override val mdlFacets: List<ResolvedFacet> = listOf(
-        ResolvedMinLength(XSMinLength(1u), schemaLike),
-        ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE), schemaLike)
+    final override val mdlFacets: FacetList = FacetList(
+        minLength = ResolvedMinLength(XSMinLength(1u), schemaLike),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE), schemaLike)
     )
     final override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,
@@ -193,7 +193,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
-    override val mdlFacets: List<Nothing> get() = emptyList()
+    override val mdlFacets: FacetList get() = FacetList.EMPTY
 
     override val mdlBaseTypeDefinition: ErrorType get() = baseType
     override val mdlItemTypeDefinition: Nothing? get() = null
@@ -227,7 +227,8 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
-    override val mdlFacets: List<Nothing> get() = emptyList()
+
+    override val mdlFacets: FacetList get() = FacetList.EMPTY
 
     //    override val final: Set<Nothing> get() = emptySet()
     override val model: AnyType get() = this
@@ -261,7 +262,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
 
-    override val mdlFacets: List<Nothing> get() = emptyList()
+    override val mdlFacets: FacetList get() = FacetList.EMPTY
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,

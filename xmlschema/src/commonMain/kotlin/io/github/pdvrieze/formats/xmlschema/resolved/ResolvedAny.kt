@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
@@ -62,4 +61,6 @@ class ResolvedAny(
 
     override val processContents: T_ProcessContents
         get() = rawPart.processContents ?: T_ProcessContents.STRICT
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 }

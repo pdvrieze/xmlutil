@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyref
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
 fun ResolvedKeyRef(
-    rawPart: XSKeyref,
+    rawPart: XSKeyRef,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedKeyRef = when (rawPart.name) {
@@ -38,13 +38,16 @@ fun ResolvedKeyRef(
     else -> ResolvedDirectKeyRef(rawPart, schema, owner)
 }
 
-sealed interface ResolvedKeyRef : T_KeyRef, IdentityConstraintModel.KeyRef, ResolvedPart {
-    override val rawPart: XSKeyref
+sealed interface ResolvedKeyRef : T_KeyRef, IdentityConstraintModel.KeyRef, ResolvedIdentityConstraint {
+    override val rawPart: XSKeyRef
 }
 
-class ResolvedDirectKeyRef(override val rawPart: XSKeyref, schema: ResolvedSchemaLike, owner: ResolvedElement) :
+class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedNamedIdentityConstraint(schema, owner), ResolvedKeyRef, IdentityConstraintModel.KeyRef {
     override val name: VNCName = requireNotNull(rawPart.name)
+
+    override val constraint: ResolvedDirectKeyRef
+        get() = this
 
     init {
         require(rawPart.ref == null) { "A key reference can either have a name or ref" }
@@ -82,8 +85,11 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyref, schema: ResolvedSchem
 
 }
 
-class ResolvedIndirectKeyRef(override val rawPart: XSKeyref, schema: ResolvedSchemaLike, owner: ResolvedElement) :
+class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKeyRef, IdentityConstraintModel.KeyRef {
+
+    override val constraint: ResolvedIndirectKeyRef
+        get() = this
 
     override val ref: ResolvedDirectKeyRef = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectKeyRef -> r

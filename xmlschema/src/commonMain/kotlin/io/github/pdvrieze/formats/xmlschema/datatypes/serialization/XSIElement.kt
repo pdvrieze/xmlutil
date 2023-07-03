@@ -20,6 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_Element
+import io.github.pdvrieze.formats.xmlschema.types.*
 
-interface XSIElement : T_Element
+interface XSIElement : T_Element {
+    override val keyrefs: List<XSKeyRef>
+
+    override val uniques: List<XSUnique>
+
+    override val keys: List<XSKey>
+
+}
