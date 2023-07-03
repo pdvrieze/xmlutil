@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import kotlin.test.Test
 
 class TestXmlReader : TestCommonReader() {
@@ -62,7 +64,12 @@ class TestXmlReader : TestCommonReader() {
 
     @Test
     fun testProcessingInstruction() {
-        testIgnorableWhitespace(XmlStreaming::newReader)
+        testProcessingInstruction(XmlStreaming::newReader) { KtXmlWriter(StringWriter()) }
+    }
+
+    @Test
+    fun testProcessingInstructionDom() {
+        testProcessingInstruction(XmlStreaming::newReader) { DomWriter() }
     }
 
 }

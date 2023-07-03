@@ -143,6 +143,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
+                implementation(project(":testutil"))
             }
         }
 

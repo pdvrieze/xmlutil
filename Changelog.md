@@ -11,6 +11,7 @@ Features:
 - Handle processing instructions correctly, expose processing instructions as
   target (`XmlReader.piTarget`) + data (`XmlReader.piData`) pairs
   attributes and `XmlEvent.ProcessingInstructionEvent` as event. (#160)
+- Allow processing instructions/whitespace as children of Native Document.
 
 Fixes:
 - Fix reading/writing of processing instruction events (#160).

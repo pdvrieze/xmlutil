@@ -162,9 +162,8 @@ abstract class TestCommonReader {
         assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
     }
 
-    protected fun testProcessingInstruction(createReader: (String) -> XmlReader) {
-        val out = StringWriter()
-        val writer = KtXmlWriter(out)
+    protected fun testProcessingInstruction(createReader: (String) -> XmlReader, createWriter: () -> XmlWriter) {
+        val writer = createWriter()
         val reader = createReader(
             """
                 <?xpacket begin='' id='from_166'?>
@@ -175,10 +174,19 @@ abstract class TestCommonReader {
 
         run {
             var event = reader.next()
-            if (event == EventType.START_DOCUMENT) event = reader.next()
+            if (event == EventType.START_DOCUMENT) {
+                writer.writeCurrentEvent(reader)
+                event = reader.next()
+            }
+            if (event == EventType.IGNORABLE_WHITESPACE || event == EventType.TEXT) {
+                writer.writeCurrentEvent(reader)
+                event = reader.next()
+            }
+
             assertEquals(EventType.PROCESSING_INSTRUCTION, event)
             writer.writeCurrentEvent(reader)
-            val storedEvent = (reader.toEvent() as? XmlEvent.TextEvent) ?: fail("Event should be textEvent")
+            val storedEvent = (reader.toEvent() as? XmlEvent.ProcessingInstructionEvent) ?: fail("Event should be textEvent")
+
             assertEquals(EventType.PROCESSING_INSTRUCTION, storedEvent.eventType)
             assertEquals("xpacket begin='' id='from_166'", storedEvent.text)
             do {
@@ -187,6 +195,7 @@ abstract class TestCommonReader {
             } while (event == EventType.IGNORABLE_WHITESPACE)
             assertEquals(EventType.START_ELEMENT, event)
             assertEquals("root", reader.localName)
+
             assertEquals(EventType.TEXT, reader.next())
             assertEquals("bar", reader.text)
             writer.writeCurrentEvent(reader)

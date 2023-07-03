@@ -992,6 +992,7 @@ public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
 	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
 	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
 	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getSupportsWhitespaceAtToplevel (Lorg/w3c/dom/Document;)Z
 	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
 	public static final fun getTarget (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
 	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;

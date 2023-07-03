@@ -20,6 +20,10 @@
 
 package nl.adaptivity.xmlutil
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
 
 class TestKtXmlReader : TestCommonReader() {
@@ -66,7 +70,21 @@ class TestKtXmlReader : TestCommonReader() {
 
     @Test
     fun testProcessingInstruction() {
-        testProcessingInstruction(XmlStreaming::newGenericReader)
+        testProcessingInstruction(XmlStreaming::newGenericReader) { KtXmlWriter(StringWriter()) }
+    }
+
+    @Test
+    fun testProcessingInstructionDom() {
+        val domWriter = DomWriter()
+        testProcessingInstruction(XmlStreaming::newGenericReader) { domWriter }
+
+        val expected = XmlStreaming.newReader("""
+                <?xpacket begin='' id='from_166'?>
+                <root xmlns="foo">bar</root>
+                <?xpacket end='w'?>
+            """)
+        assertXmlEquals(expected, DomReader(domWriter.target))
+
     }
 
 }

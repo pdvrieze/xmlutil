@@ -148,16 +148,23 @@ public class DomWriter constructor(
         depth++
         when {
             currentNode == null && docDelegate == null -> {
-                docDelegate = createDocument(
+                val doc = createDocument(
                     qname(namespace ?: "", localName, prefix)
                 )
+                docDelegate = doc
                 currentNode = docDelegate
+
+                val e = doc.documentElement!!
+                doc.removeChild(e) // remove to allow for pending operations
+
                 for (pending in pendingOperations) {
-                    pending(docDelegate!!)
+                    pending(doc)
                 }
+                doc.appendChild(e)
+
                 (pendingOperations as MutableList).clear()
                 lastTagDepth = 0
-                currentNode = docDelegate?.documentElement
+                currentNode = doc.documentElement
                 return
             }
             currentNode == null && !isAppend -> {
@@ -229,15 +236,17 @@ public class DomWriter constructor(
     }
 
     override fun processingInstruction(target: String, data: String) {
-        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
-        if (currentNode?.nodeType != NodeConsts.ELEMENT_NODE) throw XmlException("Document already started")
-        if (docDelegate == null) {
+        val ce = currentNode
+//        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        if (ce == null) {
             addToPending { processingInstruction(target, data) }
         } else {
-            this.target.createProcessingInstruction(target, data).let { processInstr ->
-                this.target.appendChild(processInstr)
-            }
+
+            val processInstr = this.target.createProcessingInstruction(target, data)
+
+            ce.appendChild(processInstr)
         }
+        lastTagDepth = TAG_DEPTH_NOT_TAG
     }
 
     override fun ignorableWhitespace(text: String) {

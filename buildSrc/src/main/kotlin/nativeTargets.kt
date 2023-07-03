@@ -95,7 +95,15 @@ fun Project.addNativeTargets() {
         with(kotlin) {
             targets {
                 if (singleTargetMode) {
-                    kotlin.targetFromPreset(ext["ideaPreset"] as AbstractKotlinNativeTargetPreset<*>, "native")
+                    kotlin.targetFromPreset(ext["ideaPreset"] as AbstractKotlinNativeTargetPreset<*>, "native").apply {
+                        compilations.configureEach {
+                            val name  = this.name
+                            kotlinOptions {
+                                logger.lifecycle("Setting debugging options for compilation: ${name}")
+                                freeCompilerArgs = listOf("-g")
+                            }
+                        }
+                    }
                 } else {
                     if (nativeState != NativeState.HOST || host == Host.Linux) {
                         linuxX64 { addSourceSets() }
