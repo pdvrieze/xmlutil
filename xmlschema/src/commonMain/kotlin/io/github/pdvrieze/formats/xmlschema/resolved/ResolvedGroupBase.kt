@@ -64,6 +64,8 @@ class ResolvedGroupRef(
     override fun check() {
         referencedGroup.check()
     }
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 }
 
 class ResolvedGroupRefParticle(
@@ -99,6 +101,8 @@ class ResolvedGroupRefParticle(
     override fun check() {
         referencedGroup.check()
     }
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 }
 
 class ResolvedToplevelGroup(

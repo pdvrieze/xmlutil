@@ -33,6 +33,7 @@ sealed class ResolvedComplexTypeContent(
     override val schema: ResolvedSchemaLike
 ) : T_ComplexType.Content, ResolvedPart {
     abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
+    abstract fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
 
     override abstract val rawPart: XSI_ComplexContent
 }
@@ -55,10 +56,14 @@ class ResolvedComplexContent(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         derivation.check(seenTypes, inheritedTypes)
     }
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        derivation.term?.collectConstraints(collector)
+    }
 }
 
 sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike): T_ComplexDerivation, ResolvedPart {
-    override abstract val rawPart : XSComplexContent.XSComplexDerivationBase
+    abstract override val rawPart : XSComplexContent.XSComplexDerivationBase
 
     final override val term: ResolvedComplexType.ResolvedDirectParticle<*>? by lazy {
         when (val t = rawPart.term) {
@@ -167,6 +172,10 @@ class ResolvedComplexShorthandContent(
         term?.check()
         attributes.forEach(ResolvedLocalAttribute::check)
         attributeGroups.forEach(ResolvedAttributeGroupRef::check)
+    }
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        term?.collectConstraints(collector)
     }
 }
 

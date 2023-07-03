@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedElement
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedIdentityConstraint
 
 interface IdentityConstraintModel : IAnnotated, INamedDecl {
     val mdlIdentityConstraintCategory: Category
@@ -43,5 +45,10 @@ interface IdentityConstraintModel : IAnnotated, INamedDecl {
 
     interface Unique : ReferenceableConstraint {
         override val mdlIdentityConstraintCategory: Category get() = Category.UNIQUE
+    }
+
+    interface Ref {
+        val owner: ResolvedElement
+        val constraint: ResolvedIdentityConstraint
     }
 }

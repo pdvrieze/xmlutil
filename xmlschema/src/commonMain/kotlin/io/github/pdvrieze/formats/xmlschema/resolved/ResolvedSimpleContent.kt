@@ -49,4 +49,6 @@ class ResolvedSimpleContent(
 
         //TODO("not implemented")
     }
+
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 }

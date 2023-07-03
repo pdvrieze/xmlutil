@@ -298,7 +298,7 @@ class TestXSTestSuite {
 //            "name" to ABSENT,
             "ref" to SEEN,
         ),
-        XSKeyref.serializer() to mapOf(
+        XSKeyRef.serializer() to mapOf(
 //            "selector" to ABSENT,
 //            "fields" to ABSENT,
 //            "name" to ABSENT,

@@ -69,14 +69,14 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     abstract override val keyrefs: List<ResolvedKeyRef>
 
-    abstract val model: ElementModel
+    abstract val model: Model
 
-    override val mdlTypeDefinition: TypeModel get() = model.mdlTypeDefinition
+    override val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
     override val mdlTypeTable: ElementModel.TypeTable? get() = model.mdlTypeTable
     override val mdlNillable: Boolean get() = model.mdlNillable
     override val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
-    override val mdlIdentityConstraints: Set<IdentityConstraintModel> get() = model.mdlIdentityConstraints
-    override val mdlSubstitutionGroupAffiliations: Set<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
+    override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
+    override val mdlSubstitutionGroupAffiliations: Set<Use> get() = model.mdlSubstitutionGroupAffiliations
     override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
     override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
@@ -105,29 +105,42 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         }
     }
 
-    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike) : ElementModel {
-        override val mdlTypeDefinition: TypeModel
-            get() = TODO("not implemented")
-        override val mdlTypeTable: ElementModel.TypeTable?
-            get() = TODO("not implemented")
-        override val mdlNillable: Boolean
-            get() = TODO("not implemented")
-        override val mdlValueConstraint: ValueConstraintModel?
-            get() = TODO("not implemented")
-        override val mdlIdentityConstraints: Set<IdentityConstraintModel>
-            get() = TODO("not implemented")
-        override val mdlSubstitutionGroupAffiliations: Set<ElementModel.Use>
-            get() = TODO("not implemented")
-        override val mdlDisallowedSubstitutions: T_BlockSet
-            get() = TODO("not implemented")
-        override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation>
-            get() = TODO("not implemented")
-        override val mdlAbstract: Boolean
-            get() = TODO("not implemented")
-        override val mdlAnnotations: AnnotationModel?
-            get() = TODO("not implemented")
-        override val mdlName: VNCName
-            get() = TODO("not implemented")
+    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        collector.addAll(mdlIdentityConstraints)
+        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
+    }
+
+    interface Use: ElementModel.Use
+    interface Ref: ElementModel.Ref
+
+    interface Model: ElementModel {
+        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
+        override val mdlTypeDefinition: ResolvedType
+        override val mdlSubstitutionGroupAffiliations: Set<Use>
+    }
+
+    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) : Model {
+        final override val mdlNillable: Boolean = rawPart.nillable ?: false
+
+        final override val mdlSubstitutionGroupAffiliations: Set<ResolvedGlobalElement> =
+            rawPart.substitutionGroup?.mapTo(HashSet()) { schema.element(it) } ?: emptySet()
+
+        final override val mdlDisallowedSubstitutions: T_BlockSet =
+            (rawPart.block ?: schema.blockDefault)
+
+
+        final override val mdlSubstitutionGroupExclusions: Set<ComplexTypeModel.Derivation> =
+            (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
+
+        final override val mdlAbstract: Boolean = rawPart.abstract ?: false
+
+        final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
+        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
+            rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
+            rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
+            rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
+        }
+
     }
 
 }

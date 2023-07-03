@@ -48,7 +48,7 @@ fun ResolvedParticle(
     is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
     is XSChoice -> ResolvedChoice(parent, rawPart, schema)
     is XSAny -> ResolvedAny(rawPart, schema)
-    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
     is XSSequence -> ResolvedSequence(parent, rawPart, schema)
     XSI_Particle.DUMMY ->error("Dummy cannot be resolved")
 }
@@ -61,7 +61,7 @@ fun ResolvedParticle(
     is XSChoice -> ResolvedChoice(parent, rawPart, schema)
     is XSAny -> ResolvedAny(rawPart, schema)
     is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
-    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
     is XSSequence -> ResolvedSequence(parent, rawPart, schema)
 }
 
@@ -72,10 +72,12 @@ fun ResolvedParticle(
 ): ResolvedParticle<ResolvedAllTerm> = when (rawPart) {
     is XSAny -> ResolvedAny(rawPart, schema)
     is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
-    is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+    is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
 }
 
-sealed interface ResolvedTerm : Term
+sealed interface ResolvedTerm : Term {
+    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+}
 
 sealed interface ResolvedChoiceSeqTerm: ResolvedTerm, ChoiceSeqTerm
 

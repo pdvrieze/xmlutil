@@ -39,7 +39,7 @@ fun ResolvedUnique(
 }
 
 
-interface ResolvedUnique: T_Unique, IdentityConstraintModel.Unique, ResolvedPart {
+interface ResolvedUnique: T_Unique, IdentityConstraintModel.Unique, ResolvedIdentityConstraint {
     override val rawPart: XSUnique
 }
 
@@ -48,6 +48,10 @@ class ResolvedDirectUnique(
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedNamedIdentityConstraint(schema, owner), T_Unique, ResolvedUnique, IdentityConstraintModel.Unique {
+
+    override val constraint: ResolvedDirectUnique
+        get() = this
+
     override val name: VNCName = checkNotNull(rawPart.name)
 
     val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
@@ -71,6 +75,9 @@ class ResolvedIndirectUnique(
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedIndirectIdentityConstraint(schema, owner), T_Unique, ResolvedUnique, IdentityConstraintModel.Unique {
+
+    override val constraint: ResolvedIndirectUnique
+        get() = this
 
     override val ref: ResolvedDirectUnique = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectUnique -> r

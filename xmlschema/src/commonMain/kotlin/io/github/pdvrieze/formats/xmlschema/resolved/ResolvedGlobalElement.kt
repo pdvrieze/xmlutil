@@ -25,8 +25,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
 import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -38,7 +41,7 @@ class ResolvedGlobalElement(
 ) : ResolvedElement(schema),
     T_GlobalElement,
     ElementModel.Global,
-    ResolvedTypeContext {
+    ResolvedTypeContext, ResolvedElement.Use {
 
     override fun check() {
         super<ResolvedElement>.check()
@@ -122,18 +125,36 @@ class ResolvedGlobalElement(
 
     override val form: Nothing? get() = null
 
-    override val model: ElementModel.Global by lazy { ModelImpl(rawPart, schema) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: ElementModel.Scope.Global get() = model.mdlScope
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike) :
-        ResolvedElement.ModelImpl(rawPart, schema), ElementModel.Global, ElementModel.Scope.Global {
+    interface Model: ResolvedElement.Model, ElementModel.Global, ElementModel.Scope.Global
+
+    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
+        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
         override val mdlScope: ElementModel.Scope.Global get() = this
+
+        override val mdlName: VNCName = rawPart.name
 
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
+
+        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
+            rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
+            rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
+            rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
+        }
+
+        override val mdlTypeDefinition: ResolvedType
+            get() = TODO("not implemented")
+
+        override val mdlTypeTable: ElementModel.TypeTable?
+            get() = TODO("not implemented")
+        override val mdlValueConstraint: ValueConstraintModel?
+            get() = TODO("not implemented")
     }
 
 }
