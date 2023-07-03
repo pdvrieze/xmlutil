@@ -71,11 +71,6 @@ class ResolvedGlobalComplexType(
 
     override val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedComplexType>.check(seenTypes, inheritedTypes)
-        content.check(seenTypes + qName, inheritedTypes + qName)
-    }
-
     override val model: Model by lazy {
         when (val r = rawPart) {
             is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
@@ -88,6 +83,11 @@ class ResolvedGlobalComplexType(
     override val mdlName: VNCName get() = model.mdlName
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedComplexType>.check(seenTypes, inheritedTypes)
+        content.check(seenTypes + qName, inheritedTypes + qName)
+    }
 
     override fun toString(): String {
         return "ComplexType{ name=${name}, base=${mdlBaseTypeDefinition} }"

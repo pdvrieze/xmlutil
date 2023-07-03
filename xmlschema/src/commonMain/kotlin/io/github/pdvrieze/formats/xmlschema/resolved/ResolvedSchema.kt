@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
 class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
@@ -47,7 +46,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     override val notations: List<ResolvedNotation>
 
-    val identityConstraints: List<T_IdentityConstraint> get() = TODO("Delegate list of identity constraints")
+    val identityConstraints: List<ResolvedIdentityConstraint>
 
     init {
         val collatedSchema = CollatedSchema(rawPart, resolver, this)
@@ -67,6 +66,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) { (s, v) -> ResolvedToplevelAttributeGroup(v, s) }
 
         notations = DelegateList(collatedSchema.notations.values.toList()) { (s, v) -> ResolvedNotation(v, s) }
+
+        identityConstraints = mutableListOf<ResolvedIdentityConstraint>().also { collector ->
+            elements.forEach { elem -> elem.collectConstraints(collector) }
+            complexTypes.forEach { type -> type.collectConstraints(collector) }
+        }
     }
 
     val annotations: List<XSAnnotation> get() = rawPart.annotations

@@ -43,14 +43,17 @@ class ResolvedChoice(
         ResolvedParticle(parent, it, schema)
     }
 
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlParticles
+    }
 
     /*
-        override val choices: List<ResolvedChoice> =
-            DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
+            override val choices: List<ResolvedChoice> =
+                DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
 
-        override val sequences: List<ResolvedSequence> =
-            DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
-    */
+            override val sequences: List<ResolvedSequence> =
+                DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
+        */
 
     /*
         init {

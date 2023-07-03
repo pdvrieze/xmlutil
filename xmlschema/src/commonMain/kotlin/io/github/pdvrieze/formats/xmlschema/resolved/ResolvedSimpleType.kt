@@ -49,7 +49,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
 
-    override val mdlFacets: List<ResolvedFacet> get() = model.mdlFacets
+    override val mdlFacets: FacetList get() = model.mdlFacets
 
     override val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
 
@@ -57,11 +57,10 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
 
-    override val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition as ResolvedSimpleType?
+    override val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition
 
-    @Suppress("UNCHECKED_CAST")
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
-        get() = model.mdlMemberTypeDefinitions as List<ResolvedSimpleType>
+        get() = model.mdlMemberTypeDefinitions
 
     override val mdlFinal: Set<TypeModel.Derivation>
         get() = model.mdlFinal
@@ -96,7 +95,6 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         override val mdlBaseTypeDefinition: ResolvedType
     }
 
-    @Suppress("LeakingThis")
     sealed class ModelBase(
         rawPart: XSISimpleType,
         protected val schema: ResolvedSchemaLike,
@@ -163,7 +161,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
                 else -> recurseBaseType(
                     mdlBaseTypeDefinition,
-                ) { it.mdlMemberTypeDefinitions } ?: emptyList()
+                ) { it.mdlMemberTypeDefinitions }
             }
 
 
@@ -181,17 +179,16 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         }
 
 
-        final override val mdlFacets: List<ResolvedFacet> = when (val d = rawPart.simpleDerivation) {
+        final override val mdlFacets: FacetList = when (val d = rawPart.simpleDerivation) {
             is XSSimpleRestriction -> {
-                // TODO actually support facets properly, including overlaying
-                mdlBaseTypeDefinition.mdlFacets + d.facets.map { ResolvedFacet(it, schema) }
+                mdlBaseTypeDefinition.mdlFacets.override(FacetList(d.facets, schema))
             }
 
-            is XSSimpleList -> listOf(
+            is XSSimpleList -> FacetList(whiteSpace =
                 ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), schema)
             )
 
-            is XSSimpleUnion -> emptyList()
+            is XSSimpleUnion -> FacetList.EMPTY
         }
 
 
@@ -200,7 +197,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             Variety.LIST -> {
                 val cardinalty = when {
                     mdlItemTypeDefinition!!.mdlFundamentalFacets.cardinality == Cardinality.FINITE &&
-                    mdlFacets.any { it is ResolvedMinLength } && mdlFacets.any { it is ResolvedMaxLength } -> Cardinality.FINITE
+                            mdlFacets.minLength != null && mdlFacets.maxLength != null -> Cardinality.FINITE
                     else -> Cardinality.COUNTABLY_INFINITE
                 }
 
@@ -214,19 +211,19 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
             Variety.ATOMIC -> {
                 val ordered = mdlBaseTypeDefinition.mdlFundamentalFacets.ordered
-                val bounded = mdlFacets.any { it is ResolvedBoundBaseFacet }
+                val bounded = mdlFacets.minConstraint != null || mdlFacets.maxConstraint != null
                 val cardinality = when {
                     mdlBaseTypeDefinition.mdlFundamentalFacets.cardinality == Cardinality.FINITE -> Cardinality.FINITE
-                    mdlFacets.any { it is ResolvedLength || it is ResolvedMaxLength || it is ResolvedTotalDigits } -> Cardinality.FINITE
-                    mdlFacets.any { it is ResolvedMinInclusive || it is ResolvedMinExclusive } &&
-                            mdlFacets.any { it is ResolvedMaxInclusive || it is ResolvedMaxExclusive } &&
-                            (mdlFacets.any { it is ResolvedFractionDigits } || mdlPrimitiveTypeDefinition is FiniteDateType) ->
+                    mdlFacets.maxLength != null || mdlFacets.totalDigits != null -> Cardinality.FINITE
+                    mdlFacets.minConstraint != null &&
+                            mdlFacets.maxConstraint != null &&
+                            (mdlFacets.fractionDigits != null || mdlPrimitiveTypeDefinition is FiniteDateType) ->
                         Cardinality.FINITE
 
                     else -> Cardinality.COUNTABLY_INFINITE
                 }
 
-                val numeric = mdlBaseTypeDefinition.mdlFundamentalFacets.numeric;
+                val numeric = mdlBaseTypeDefinition.mdlFundamentalFacets.numeric
 
                 FundamentalFacets(ordered, bounded, cardinality, numeric)
             }
