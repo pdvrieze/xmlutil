@@ -125,10 +125,13 @@ public class XmlBufferedWriter @XmlUtilInternal constructor(
 
     override fun processingInstruction(text: String) {
         _buffer.add(
-            XmlEvent.TextEvent(
-                null, EventType.PROCESSING_INSTRUCTION,
-                text
-            )
+            XmlEvent.ProcessingInstructionEvent(null, text, "")
+        )
+    }
+
+    override fun processingInstruction(target: String, data: String) {
+        _buffer.add(
+            XmlEvent.ProcessingInstructionEvent(null, target, data)
         )
     }
 

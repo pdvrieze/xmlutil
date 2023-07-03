@@ -285,6 +285,16 @@ public class KtXmlWriter(
         writer.append("?>")
     }
 
+    override fun processingInstruction(target: String, data: String) {
+        finishPartialStartTag(false)
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        triggerStartDocument()
+        writer.append("<?")
+        writer.append(target)
+        if(data.isNotEmpty()) { writer.append(' ').append(data) }
+        writer.append("?>")
+    }
+
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         finishPartialStartTag(false)
         writeIndent()

@@ -183,13 +183,20 @@ abstract class TestCommonReader {
             assertEquals("xpacket begin='' id='from_166'", storedEvent.text)
             do {
                 event = reader.next()
+                writer.writeCurrentEvent(reader)
             } while (event == EventType.IGNORABLE_WHITESPACE)
             assertEquals(EventType.START_ELEMENT, event)
             assertEquals("root", reader.localName)
+            assertEquals(EventType.TEXT, reader.next())
+            assertEquals("bar", reader.text)
+            writer.writeCurrentEvent(reader)
+
+            while (reader.hasNext()) {
+                reader.next()
+                writer.writeCurrentEvent(reader)
+            }
         }
 
-        assertEquals(EventType.TEXT, reader.next())
-        assertEquals("bar", reader.text)
     }
 
 

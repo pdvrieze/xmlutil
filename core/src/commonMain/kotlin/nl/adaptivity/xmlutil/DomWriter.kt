@@ -228,6 +228,18 @@ public class DomWriter constructor(
         }
     }
 
+    override fun processingInstruction(target: String, data: String) {
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        if (currentNode?.nodeType != NodeConsts.ELEMENT_NODE) throw XmlException("Document already started")
+        if (docDelegate == null) {
+            addToPending { processingInstruction(target, data) }
+        } else {
+            this.target.createProcessingInstruction(target, data).let { processInstr ->
+                this.target.appendChild(processInstr)
+            }
+        }
+    }
+
     override fun ignorableWhitespace(text: String) {
         val ce = currentNode
         if (ce == null) {

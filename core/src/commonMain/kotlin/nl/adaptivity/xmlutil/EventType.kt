@@ -202,12 +202,13 @@ public enum class EventType {
         override fun createEvent(reader: XmlReader): TextEvent =
             ProcessingInstructionEvent(reader.locationInfo, reader.piTarget, reader.piData)
 
-        override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
-            writer.processingInstruction(textEvent.text)
+        override fun writeEvent(writer: XmlWriter, textEvent: TextEvent): Unit = when (textEvent) {
+            is ProcessingInstructionEvent -> writer.processingInstruction(textEvent.target, textEvent.data)
+            else -> writer.processingInstruction(textEvent.text)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
-            writer.processingInstruction(reader.text)
+            writer.processingInstruction(reader.piTarget, reader.piData)
         }
     };
 

@@ -8,11 +8,12 @@ Features:
 - Add a helper function `XmlSerializationPolicy.recoverNullNamespaceUse` that
   can be used to support recovering in case of null namespaces (and them
   effectively functioning as wildcard)
-- Properly expose processing instruction data throught piTarget and piData
-  attributes and `XmlEvent.ProcessingInstructionEvent` as event.
+- Handle processing instructions correctly, expose processing instructions as
+  target (`XmlReader.piTarget`) + data (`XmlReader.piData`) pairs
+  attributes and `XmlEvent.ProcessingInstructionEvent` as event. (#160)
 
 Fixes:
-- Fix reading of processing instruction events (#160).
+- Fix reading/writing of processing instruction events (#160).
 - Fix recovery of element children (#160).
 - Fix decoding of nil elements in certain cases (lists) where the end of the tag
   wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.

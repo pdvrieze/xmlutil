@@ -171,6 +171,7 @@ public final class nl/adaptivity/xmlutil/DomWriter : nl/adaptivity/xmlutil/core/
 	public final fun isAppend ()Z
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
@@ -353,6 +354,7 @@ public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlut
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun reader ()Lnl/adaptivity/xmlutil/XmlBufferReader;
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
@@ -438,6 +440,7 @@ public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -760,6 +763,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlWriter : java/io/Closea
 	public abstract fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public abstract fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public abstract fun processingInstruction (Ljava/lang/String;)V
+	public abstract fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public abstract fun setIndent (I)V
 	public abstract fun setIndentString (Ljava/lang/String;)V
 	public abstract fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -773,6 +777,7 @@ public final class nl/adaptivity/xmlutil/XmlWriter$DefaultImpls {
 	public static fun getIndent (Lnl/adaptivity/xmlutil/XmlWriter;)I
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/Namespace;)V
+	public static fun processingInstruction (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)V
 	public static fun setIndent (Lnl/adaptivity/xmlutil/XmlWriter;I)V
 	public static fun setPrefix (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static synthetic fun startDocument$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)V
@@ -902,6 +907,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmluti
 	public final fun isRepairNamespaces ()Z
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun setAddTrailingSpaceBeforeEnd (Z)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V

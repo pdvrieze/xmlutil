@@ -118,6 +118,9 @@ public interface XmlWriter : Closeable {
 
     public fun processingInstruction(text: String)
 
+    public fun processingInstruction(target: String, data: String): Unit =
+        processingInstruction("$target $data")
+
     public fun ignorableWhitespace(text: String)
 
     public fun attribute(namespace: String?, name: String, prefix: String?, value: String)
@@ -216,7 +219,7 @@ public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
         EventType.END_DOCUMENT -> endDocument()
         EventType.ENTITY_REF -> entityRef(reader.text)
         EventType.IGNORABLE_WHITESPACE -> ignorableWhitespace(reader.text)
-        EventType.PROCESSING_INSTRUCTION -> processingInstruction(reader.text)
+        EventType.PROCESSING_INSTRUCTION -> processingInstruction(reader.piTarget, reader.piData)
     }
 }
 
@@ -470,6 +473,9 @@ public fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, S
 private class SubstreamFilterWriter(delegate: XmlWriter) : XmlDelegatingWriter(delegate) {
 
     override fun processingInstruction(text: String) { /* ignore */
+    }
+
+    override fun processingInstruction(target: String, data: String) { /* ignore */
     }
 
     override fun endDocument() { /* ignore */
