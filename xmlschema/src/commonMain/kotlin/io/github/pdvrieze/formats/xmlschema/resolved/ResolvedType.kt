@@ -38,7 +38,9 @@ sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeMod
 
     fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
+    fun validate(representation: String)
 
+    fun validateValue(representation: Any) {}
 }
 
 interface ResolvedTypeContext : ResolvedComplexTypeContext, ResolvedSimpleTypeContext, TypeContext

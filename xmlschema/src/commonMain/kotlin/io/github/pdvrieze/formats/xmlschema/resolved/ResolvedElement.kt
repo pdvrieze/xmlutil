@@ -105,6 +105,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             keyref.check()
             checkNotNull(keyref.mdlReferencedKey)
         }
+        val d = default
+        if(d!=null) {
+            require(fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
+            mdlTypeDefinition.validate(d)
+        }
+
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -113,7 +119,9 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     }
 
     interface Use: ElementModel.Use
-    interface Ref: ElementModel.Ref
+    interface Ref: ElementModel.Ref {
+        override val mdlTerm: ResolvedGlobalElement
+    }
 
     interface Model: ElementModel {
         override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>

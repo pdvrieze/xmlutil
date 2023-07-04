@@ -79,6 +79,10 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         }
     }
 
+    override fun validate(representation: String) {
+        mdlPrimitiveTypeDefinition?.validate(representation)
+    }
+
     sealed class Derivation(final override val schema: ResolvedSchemaLike) : T_SimpleType.Derivation, ResolvedPart {
         final override val annotation: XSAnnotation? get() = rawPart.annotation
         final override val id: VID? get() = rawPart.id

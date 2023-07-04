@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,16 +20,27 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class VBoolean(val value: Boolean): VAnyAtomicType {
-    operator fun not(): VBoolean = VBoolean(!value)
+@Serializable
+value class VGMonthDay(val monthday: Int) : VAnyAtomicType {
 
-    companion object {
-        val TRUE = VBoolean(true)
-        val FALSE = VBoolean(false)
+    init {
+        val d = monthday shr 5
+        require(d in 1..12)
+        when(d) {
+            2 -> require((monthday and 0x1f) in 1..29)
+            4, 6, 9, 11 -> require((monthday and 0x1f) in 1..30)
+            else -> require((monthday and 0x1f) in 1..31)
+        }
     }
 
-    override val xmlString: String get() = value.toString()
+    constructor(day: Int, month: Int) : this((day and 0x1f) or (month shl 5))
+
+    val day: Int get() = monthday and 0x1f
+    val month: Int get() = monthday shr 5
+
+    override val xmlString: String get() = "$month-$day"
 }

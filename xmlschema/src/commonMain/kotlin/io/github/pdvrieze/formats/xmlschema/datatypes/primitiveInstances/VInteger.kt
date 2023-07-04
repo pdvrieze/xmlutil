@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import kotlin.jvm.JvmInline
+
 interface VInteger : VDecimal {
-    fun toLong(): Long
-    fun toInt(): Int
+    override fun toLong(): Long
+    override fun toInt(): Int
 
     companion object {
         val ZERO: VInteger = IntInstance(0)
@@ -50,4 +52,14 @@ private class LongInstance(private val l: Long) : VInteger {
     override fun toInt(): Int = l.toInt()
 
     override val xmlString: String get() = l.toString()
+}
+
+@JvmInline
+value class VDouble(val value: Double): VAnyAtomicType {
+    override val xmlString: String get() = value.toString()
+}
+
+@JvmInline
+value class VFloat(val value: Float): VAnyAtomicType {
+    override val xmlString: String get() = value.toString()
 }

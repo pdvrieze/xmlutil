@@ -50,6 +50,21 @@ sealed class ResolvedComplexType(
     override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
+    override fun validate(representation: String) {
+        when(val ct = mdlContentType) {
+            is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
+                st.mdlFacets.validate(
+                    st.mdlPrimitiveTypeDefinition,
+                    representation
+                ); st.validate(representation)
+            }
+            is MixedContentType -> {
+                check(ct.mdlParticle.mdlIsEmptiable()) { "Defaults are only valid for mixed content if the particle is emptiable" }
+            }
+            else -> error("The value ${representation} is not valid in an element-only complex type")
+        }
+    }
+
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
     }
@@ -487,6 +502,10 @@ class SyntheticSimpleType(
     override val simpleDerivation: Nothing get() = error("Not supported")
     override val model: SyntheticSimpleType get() = this
     override val rawPart: Nothing get() = error("Not supported")
+
+    override fun validate(representation: String) {
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
+    }
 }
 
 internal fun calcProhibitedSubstitutions(

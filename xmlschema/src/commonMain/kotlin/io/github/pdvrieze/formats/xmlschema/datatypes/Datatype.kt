@@ -204,6 +204,10 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
 
     override val model: ErrorType get() = this
 
+    override fun validate(representation: String) {
+        TODO("not implemented")
+    }
+
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
         override val rawPart: T_SimpleType.T_Restriction get() = this
 
@@ -241,6 +245,10 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
 
     override val mdlMemberTypeDefinitions: List<Nothing>
         get() = emptyList()
+
+    override fun validate(representation: String) {
+//        error("anyType cannot be directly implemented")
+    }
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
@@ -270,6 +278,10 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
         cardinality = Cardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
+
+    override fun validate(representation: String) {
+//        TODO("not implemented")
+    }
 }
 
 internal open class SimpleBuiltinRestriction(
