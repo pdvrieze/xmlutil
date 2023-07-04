@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,16 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class VBoolean(val value: Boolean): VAnyAtomicType {
-    operator fun not(): VBoolean = VBoolean(!value)
+@Serializable
+value class VGYear(val year: Int) : VAnyAtomicType {
+    override val xmlString: String get() = year.toString().padStart(4,'0')
+}
 
-    companion object {
-        val TRUE = VBoolean(true)
-        val FALSE = VBoolean(false)
-    }
-
-    override val xmlString: String get() = value.toString()
+@JvmInline
+@Serializable
+value class VNotation(val value: String): VAnyAtomicType {
+    override val xmlString: String get() = value
 }
