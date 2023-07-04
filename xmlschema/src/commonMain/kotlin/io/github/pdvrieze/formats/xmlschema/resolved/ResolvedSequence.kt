@@ -59,7 +59,7 @@ class ResolvedSequence(
     */
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlParticles.forEach { particle -> particle.term.collectConstraints(collector) }
+        mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
 }
@@ -79,6 +79,6 @@ class SyntheticSequence(
     override val mdlAnnotations: AnnotationModel? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlParticles.forEach { particle -> particle.term.collectConstraints(collector) }
+        mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 }
