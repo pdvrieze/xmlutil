@@ -23,13 +23,23 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
 class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
     override fun check() {
         super.check()
+        val icNames = HashSet<QName>()
+        for(ic in identityConstraints) {
+            check(icNames.add(ic.qName.let { QName(it.namespaceURI, it.localPart) })) {
+                "Duplicate identity constraint ${ic.qName}"
+            }
+        }
+
     }
 
     override val simpleTypes: List<ResolvedGlobalSimpleType>
