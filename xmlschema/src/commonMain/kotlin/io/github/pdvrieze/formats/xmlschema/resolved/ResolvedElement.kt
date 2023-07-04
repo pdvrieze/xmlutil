@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
@@ -29,7 +30,8 @@ import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel, SimpleTypeContext {
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel,
+    SimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm {
 
     abstract override val rawPart: XSIElement
     abstract val scope: T_Scope
@@ -81,7 +83,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
-    override val mdlName: VNCName get() = model.mdlName
+    override val mdlName: VNCName? get() = model.mdlName
 
     /**
      * disallowed substitutions
@@ -105,7 +107,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         }
     }
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         collector.addAll(mdlIdentityConstraints)
         (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
@@ -135,11 +137,17 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         final override val mdlAbstract: Boolean = rawPart.abstract ?: false
 
         final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
-        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
+
+        final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
             rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
             rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
             rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
         }
+
+        final override val mdlTypeDefinition: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+            ?: rawPart.type?.let { schema.type(it) }
+            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
+            ?: AnyType
 
     }
 

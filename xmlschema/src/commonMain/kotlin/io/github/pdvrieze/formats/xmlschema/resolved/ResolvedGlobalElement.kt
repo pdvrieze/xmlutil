@@ -40,8 +40,9 @@ class ResolvedGlobalElement(
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema),
     T_GlobalElement,
-    ElementModel.Global,
-    ResolvedTypeContext, ResolvedElement.Use {
+    ElementModel.Global, ResolvedElement.Use {
+
+    override val mdlName: VNCName get() = rawPart.name
 
     override fun check() {
         super<ResolvedElement>.check()
@@ -142,17 +143,11 @@ class ResolvedGlobalElement(
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
 
-        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
-            rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
-            rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
-            rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
+        override val mdlTypeTable: ElementModel.TypeTable? = rawPart.alternatives.takeIf { it.isNotEmpty() }?.let {
+
+            TODO()
         }
 
-        override val mdlTypeDefinition: ResolvedType
-            get() = TODO("not implemented")
-
-        override val mdlTypeTable: ElementModel.TypeTable?
-            get() = TODO("not implemented")
         override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
     }

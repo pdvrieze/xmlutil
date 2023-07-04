@@ -35,9 +35,8 @@ class ResolvedLocalElement(
     override val parent: ResolvedComplexType,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), ResolvedParticle<ResolvedLocalElement>, T_LocalElement,
-    ElementModel.Local<ResolvedLocalElement>, ResolvedBasicTerm,
-    ResolvedComplexTypeContext, ElementModel.Scope.Local {
+) : ResolvedElement(schema), ResolvedParticle<ResolvedElement>, T_LocalElement,
+    ElementModel.Local<ResolvedElement>, ResolvedComplexTypeContext, ElementModel.Scope.Local {
     override val id: VID? get() = rawPart.id
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
@@ -46,9 +45,10 @@ class ResolvedLocalElement(
 
     override val ref: QName? get() = rawPart.ref
 
-    val refererenced: ResolvedElement by lazy {
+    val referenced: ResolvedElement by lazy {
         ref?.let { schema.element(it) } ?: this
     }
+    override val mdlName: VNCName? get() = rawPart.name
 
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
@@ -78,7 +78,7 @@ class ResolvedLocalElement(
     override fun check() {
         super<ResolvedElement>.check()
         if (rawPart.ref != null) {
-            refererenced// Don't check as that would already be done at top level
+            referenced// Don't check as that would already be done at top level
             check(name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(block.isEmpty()) { "Local element references cannot have the block attribute specified" }
             check(type == null) { "Local element references cannot have the type attribute specified" }
@@ -103,7 +103,7 @@ class ResolvedLocalElement(
     private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
-        override val mdlName: VNCName = requireNotNull(rawPart.name)
+        override val mdlName: VNCName? = rawPart.name
 
         override val mdlScope: ElementModel.Scope.Local
             get() = this@ResolvedLocalElement
@@ -116,18 +116,10 @@ class ResolvedLocalElement(
 
         override val mdlMaxOccurs: T_AllNNI = rawPart.maxOccurs ?: T_AllNNI.ONE
 
-        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = HashSet<ResolvedIdentityConstraint>().also { coll ->
-            rawPart.keys.mapTo(coll) { ResolvedKey(it, schema, context) }
-            rawPart.uniques.mapTo(coll) { ResolvedUnique(it, schema, context) }
-            rawPart.keyrefs.mapTo(coll) { ResolvedKeyRef(it, schema, context) }
-        }
-
         override val mdlTypeTable: ElementModel.TypeTable?
             get() = TODO("not implemented")
 
         override val mdlValueConstraint: ValueConstraintModel?
-            get() = TODO("not implemented")
-        override val mdlTypeDefinition: ResolvedType
             get() = TODO("not implemented")
     }
 
