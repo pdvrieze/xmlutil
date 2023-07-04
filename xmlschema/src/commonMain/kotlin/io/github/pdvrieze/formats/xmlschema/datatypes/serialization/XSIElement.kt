@@ -29,4 +29,8 @@ interface XSIElement : T_Element {
 
     override val keys: List<XSKey>
 
+    override val localType: XSLocalType?
+
+    override val alternatives: List<T_AltType>
+        get() = TODO("not implemented")
 }

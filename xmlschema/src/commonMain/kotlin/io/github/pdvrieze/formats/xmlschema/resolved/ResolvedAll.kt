@@ -36,8 +36,6 @@ class ResolvedAll(
     override val mdlParticles: List<ResolvedParticle<ResolvedAllTerm>> = DelegateList(rawPart.particles) {
         ResolvedParticle(parent, it, schema)
     }
-
-
     override val mdlTerm: ResolvedAll get() = this
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
     override val maxOccurs: T_AllNNI.Value get() = super<ResolvedExplicitGroup>.maxOccurs as T_AllNNI.Value
@@ -48,7 +46,7 @@ class ResolvedAll(
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlParticles.forEach { particle -> particle.term.collectConstraints(collector) }
+        mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 }
 

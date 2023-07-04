@@ -24,7 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
-interface INamedDecl : INamed {
+interface INamedDecl : IOptNamedDecl, INamed {
+    override val mdlTargetNamespace: VAnyURI?
+}
+
+interface IOptNamedDecl : IOptNamed {
     val mdlTargetNamespace: VAnyURI?
 }
 

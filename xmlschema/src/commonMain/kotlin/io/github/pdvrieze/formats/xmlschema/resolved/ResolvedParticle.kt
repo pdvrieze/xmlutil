@@ -89,11 +89,7 @@ sealed interface ResolvedBasicTerm: ResolvedAllTerm, ParticleModel.BasicTerm
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, T_Particle, ParticleModel<T> {
     override val rawPart: XSI_Particle
-//    override val minOccurs: VNonNegativeInteger
-//        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-//    override val maxOccurs: T_AllNNI
-//        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-    val term: T get() = TODO("Do something with this")
+
 }
 
 sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedParticle<T>, ResolvedTerm, ParticleModel<T>

@@ -22,7 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface INamed {
-    val mdlName: VNCName
+interface IOptNamed {
+    val mdlName: VNCName?
+}
+
+interface INamed : IOptNamed {
+    override val mdlName: VNCName
 }
 
