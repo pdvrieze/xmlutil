@@ -26,13 +26,13 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
 @Serializable(VName.Serializer::class)
-interface VName: VToken {
+interface VName : VToken {
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VName
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer: SimpleTypeSerializer<VName>("token") {
+    class Serializer : SimpleTypeSerializer<VName>("token") {
         override fun deserialize(decoder: Decoder): VName {
             return Inst(decoder.decodeString())
         }

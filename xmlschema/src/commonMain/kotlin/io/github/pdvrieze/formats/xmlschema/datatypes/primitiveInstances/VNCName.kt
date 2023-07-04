@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
 @Serializable(VNCName.Serializer::class)
-interface VNCName: VName {
+interface VNCName : VName {
 
     fun toQname(targetNamespace: VAnyURI?): QName {
         return QName(targetNamespace?.value ?: "", xmlString)
@@ -38,7 +38,7 @@ interface VNCName: VName {
     private value class Inst(override val xmlString: String) : VNCName
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer: SimpleTypeSerializer<VNCName>("token") {
+    class Serializer : SimpleTypeSerializer<VNCName>("token") {
         override fun deserialize(decoder: Decoder): VNCName {
             return Inst(decoder.decodeString())
         }

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 
@@ -118,6 +119,53 @@ class FacetList(
             otherFacets
         )
 
+    }
+
+    fun validate(primitiveType: PrimitiveDatatype?, representation: String) {
+        val normalized = whiteSpace?.value?.normalize(representation) ?: representation
+
+        if (enumeration.isNotEmpty()) {
+            check(enumeration.any { normalized == it.value })
+        }
+
+        if (primitiveType != null) {
+            if (primitiveType is IStringType) {
+                minLength?.let { check(normalized.length >= it.value.toInt()) }
+                maxLength?.let { check(normalized.length <= it.value.toInt()) }
+                for (pattern in patterns) {
+                    pattern.regex.matchEntire(normalized)
+                }
+                check(minConstraint == null) { "Strings can not have numeric facets" }
+                check(maxConstraint == null) { "Strings can not have numeric facets" }
+                check(totalDigits == null) { "totalDigits only applies to decimal types"}
+                check(fractionDigits == null) { "totalDigits only applies to decimal types"}
+            } else if(primitiveType is IDecimalType) {
+                val actualValue = primitiveType.value(normalized)
+                minConstraint?.validate(primitiveType, actualValue)
+                maxConstraint?.validate(primitiveType, actualValue)
+                totalDigits?.let { check(normalized.length <= it.value.toInt()) }
+                check(fractionDigits == null) { "totalDigits only applies to decimal types"}
+
+                primitiveType.validateValue(actualValue)
+            } else if(primitiveType is DoubleType) {
+                val actualValue = primitiveType.value(normalized)
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types"}
+                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length<=it.value.toInt()) }
+
+                primitiveType.validateValue(actualValue)
+            } else if(primitiveType is FloatType) {
+                val actualValue = primitiveType.value(normalized)
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types"}
+                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length<=it.value.toInt()) }
+
+                primitiveType.validateValue(actualValue)
+            }
+            // TODO: support assertion facets
+        }
     }
 
 

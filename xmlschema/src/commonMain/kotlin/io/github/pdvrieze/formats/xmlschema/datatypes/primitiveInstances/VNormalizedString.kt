@@ -20,4 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-interface VNormalizedString: VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+
+interface VNormalizedString : VString {
+    companion object {
+        operator fun invoke(string: String): VNormalizedString {
+            return Impl(XSWhiteSpace.Values.REPLACE.normalize(string))
+        }
+    }
+
+    private class Impl(override val xmlString: String): VNormalizedString
+}
+

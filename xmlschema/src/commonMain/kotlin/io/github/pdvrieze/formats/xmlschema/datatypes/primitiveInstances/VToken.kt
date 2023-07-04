@@ -20,26 +20,27 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
 @Serializable(VToken.Serializer::class)
-interface VToken: VNormalizedString {
+interface VToken : VNormalizedString {
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VToken
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer: SimpleTypeSerializer<VToken>("token") {
+    class Serializer : SimpleTypeSerializer<VToken>("token") {
         override fun deserialize(decoder: Decoder): VToken {
             return Inst(decoder.decodeString())
         }
     }
 
     companion object {
-        operator fun invoke(value: String): VToken = Inst(value)
+        operator fun invoke(value: String): VToken = Inst(XSWhiteSpace.Values.COLLAPSE.normalize(value))
     }
 
 }

@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
@@ -35,9 +38,12 @@ sealed class ResolvedFacet(override val schema: ResolvedSchemaLike) : ResolvedPa
     val annotation: XSAnnotation? get() = rawPart.annotation
 
     open fun check(type: ResolvedSimpleType) {}
-    open fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> {
-        return Result.success(Unit)
-    }
+
+    open fun validate(type: PrimitiveDatatype, decimal: VDecimal) {}
+
+    open fun validate(float: VFloat) {}
+
+    open fun validate(float: VDouble) {}
 
     companion object {
         operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike): ResolvedFacet = when (rawPart) {
@@ -66,7 +72,7 @@ class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: Res
 }
 
 class ResolvedEnumeration(override val rawPart: XSEnumeration, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
-
+    val value: String get() = rawPart.value.xmlString
 }
 
 class ResolvedExplicitTimezone(override val rawPart: XSExplicitTimezone, schema: ResolvedSchemaLike) :
@@ -77,6 +83,7 @@ class ResolvedExplicitTimezone(override val rawPart: XSExplicitTimezone, schema:
 class ResolvedFractionDigits(override val rawPart: XSFractionDigits, schema: ResolvedSchemaLike) :
     ResolvedFacet(schema) {
 
+    val value: ULong get() = rawPart.value
 }
 
 sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
@@ -94,7 +101,7 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
         }
     }
 
-    final override fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> = runCatching {
+    fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> = runCatching {
         when (type.mdlVariety) {
             Variety.ATOMIC -> {
                 when (val primitive = type.mdlPrimitiveTypeDefinition) {
@@ -182,34 +189,54 @@ sealed class ResolvedMinBoundFacet(schema: ResolvedSchemaLike) : ResolvedBoundBa
 class ResolvedMaxExclusive(override val rawPart: XSMaxExclusive, schema: ResolvedSchemaLike) :
     ResolvedMaxBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
+
+    override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
+        check(decimal.toLong() < rawPart.value.xmlString.toLong())
+    }
 }
 
 
 class ResolvedMaxInclusive(override val rawPart: XSMaxInclusive, schema: ResolvedSchemaLike) :
     ResolvedMaxBoundFacet(schema) {
     override val isInclusive: Boolean get() = true
+
+    override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
+        check(decimal.toLong() <= rawPart.value.xmlString.toLong())
+    }
 }
 
 
 class ResolvedMinExclusive(override val rawPart: XSMinExclusive, schema: ResolvedSchemaLike) :
     ResolvedMinBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
+
+    override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
+        check(decimal.toLong() > rawPart.value.xmlString.toLong())
+    }
 }
 
 class ResolvedMinInclusive(override val rawPart: XSMinInclusive, schema: ResolvedSchemaLike) :
     ResolvedMinBoundFacet(schema) {
     override val isInclusive: Boolean get() = true
+
+    override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
+        check(decimal.toLong() >= rawPart.value.xmlString.toLong())
+    }
 }
 
 class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
     val value: String get() = rawPart.value
+    val regex: Regex by lazy { Regex(rawPart.value) }
 }
 
 class ResolvedTotalDigits(override val rawPart: XSTotalDigits, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
 
+    val value: ULong = rawPart.value
 }
 
 class ResolvedWhiteSpace(override val rawPart: XSWhiteSpace, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
+    val value: XSWhiteSpace.Values get() = rawPart.value
+
 
 }
 
