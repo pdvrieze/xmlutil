@@ -20,4 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-interface VDecimal : VAnyAtomicType
+interface VDecimal : VAnyAtomicType {
+    fun toLong(): Long
+    fun toInt(): Int
+}

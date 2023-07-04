@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,16 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class VBoolean(val value: Boolean): VAnyAtomicType {
-    operator fun not(): VBoolean = VBoolean(!value)
-
-    companion object {
-        val TRUE = VBoolean(true)
-        val FALSE = VBoolean(false)
+@Serializable
+value class VGMonth(val month: Int) : VAnyAtomicType {
+    init {
+        require(month in 1..12)
     }
 
-    override val xmlString: String get() = value.toString()
+    override val xmlString: String get() = month.toString()
 }
