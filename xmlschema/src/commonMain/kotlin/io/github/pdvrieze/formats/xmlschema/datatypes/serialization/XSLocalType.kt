@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.T_Element
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
+import io.github.pdvrieze.formats.xmlschema.types.T_Type
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -33,8 +34,12 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 
+sealed interface XSIType: XSI_Annotated, T_Type
+
+sealed interface XSGlobalType: XSIType
+
 @Serializable(XSLocalType.Serializer::class)
-sealed class XSLocalType: T_LocalType, XSI_Annotated {
+sealed class XSLocalType: T_LocalType, XSIType {
 
     companion object Serializer: KSerializer<XSLocalType> {
         @OptIn(InternalSerializationApi::class)
