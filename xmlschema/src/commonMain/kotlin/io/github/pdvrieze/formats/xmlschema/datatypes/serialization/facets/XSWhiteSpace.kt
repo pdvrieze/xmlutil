@@ -49,13 +49,37 @@ class XSWhiteSpace(
     @Serializable
     enum class Values {
         @SerialName("preserve")
-        PRESERVE,
+        PRESERVE {
+            override fun normalize(representation: String): String = representation
+        },
 
         @SerialName("replace")
-        REPLACE,
+        REPLACE {
+            override fun normalize(representation: String): String = buildString(representation.length) {
+                for(c in representation) {
+                    when (c) {
+                        '\t', '\n', '\r' -> append(' ')
+                        else -> append(c)
+                    }
+                }
+            }
+        },
 
         @SerialName("collapse")
-        COLLAPSE
+        COLLAPSE {
+            override fun normalize(representation: String): String = buildString(representation.length) {
+                var last = 'x'
+                for(c in representation) {
+                    last = when (c) {
+                        '\t', '\n', '\r', ' ' -> { if(last!=' ') append(' '); ' ' }
+
+                        else -> { append(c); c }
+                    }
+                }
+            }
+        };
+
+        abstract fun normalize(representation: String): String
     }
 
 }
