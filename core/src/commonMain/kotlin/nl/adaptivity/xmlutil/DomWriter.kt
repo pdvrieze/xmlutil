@@ -264,7 +264,8 @@ public class DomWriter constructor(
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
         val cur = requireCurrent("attribute")
         when {
-            prefix.isNullOrEmpty() -> cur.setAttribute(name, value)
+            namespace.isNullOrEmpty() && prefix.isNullOrEmpty() -> cur.setAttribute(name, value)
+            prefix.isNullOrEmpty() -> cur.setAttributeNS(namespace, name, value)
             else -> cur.setAttributeNS(
                 namespace ?: XMLConstants.NULL_NS_URI,
                 "${prefix}:$name",

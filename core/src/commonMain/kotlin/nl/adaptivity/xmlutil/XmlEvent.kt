@@ -264,9 +264,10 @@ public sealed class XmlEvent(public val locationInfo: String?) {
                     (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE == localName)
         }
 
-        override fun toString(): String = when (prefix.isBlank()) {
-            true -> "$localName=\"$value\""
-            else -> "$prefix.$localName=\"$value\""
+        override fun toString(): String = when {
+            namespaceUri.isBlank() -> "$localName=\"$value\""
+            prefix.isBlank() -> "{$namespaceUri}$localName=\"$value\""
+            else -> "{$namespaceUri}$prefix:$localName=\"$value\""
         }
 
         override fun equals(other: Any?): Boolean {

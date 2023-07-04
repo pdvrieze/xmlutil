@@ -197,9 +197,16 @@ public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
             }
             run {
                 for (i in reader.attributeIndices) {
+                    val attrPrefix = reader.getAttributePrefix(i)
+                    val namespace = if(attrPrefix=="") "" else reader.getAttributeNamespace(i)
+                    val prefix = when(namespace) {
+                        "" -> ""
+                        namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
+                        else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                    }
                     attribute(
-                        reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
-                        null, reader.getAttributeValue(i)
+                        namespace, reader.getAttributeLocalName(i),
+                        prefix, reader.getAttributeValue(i)
                     )
                 }
             }

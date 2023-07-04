@@ -14,6 +14,7 @@ Features:
 - Allow processing instructions/whitespace as children of Native Document.
 
 Fixes:
+- Fix recording/copying of attribute prefixes in copying algorithms (#167).
 - Fix reading/writing of processing instruction events (#160).
 - Fix recovery of element children (#160).
 - Fix decoding of nil elements in certain cases (lists) where the end of the tag

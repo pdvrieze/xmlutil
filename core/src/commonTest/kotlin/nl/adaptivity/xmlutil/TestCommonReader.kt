@@ -167,7 +167,7 @@ abstract class TestCommonReader {
         val reader = createReader(
             """
                 <?xpacket begin='' id='from_166'?>
-                <root xmlns="foo">bar</root>
+                <a:root xmlns:a="foo" a:b="42">bar</a:root>
                 <?xpacket end='w'?>
             """.trimIndent()
         )

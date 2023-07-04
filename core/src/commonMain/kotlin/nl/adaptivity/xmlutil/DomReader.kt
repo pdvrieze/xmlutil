@@ -242,12 +242,12 @@ public class DomReader(public val delegate: Node) : XmlReader {
                                 }
                 */
             }
-            val c = current!!
-            val nodeType = c.nodeType
+            val c2 = requireCurrent
+            val nodeType = c2.nodeType
             if (nodeType != NodeConsts.ELEMENT_NODE && nodeType != NodeConsts.DOCUMENT_NODE) {
                 atEndOfElement = true // No child elements for things like text
             }
-            return c.toEventType(atEndOfElement)
+            return c2.toEventType(atEndOfElement)
         }
     }
 
