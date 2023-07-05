@@ -80,7 +80,9 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
     }
 
     override fun validate(representation: String) {
+        check (this!=mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         mdlPrimitiveTypeDefinition?.validate(representation)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
     sealed class Derivation(final override val schema: ResolvedSchemaLike) : T_SimpleType.Derivation, ResolvedPart {

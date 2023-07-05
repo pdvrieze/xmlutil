@@ -227,6 +227,8 @@ class ResolvedMinInclusive(override val rawPart: XSMinInclusive, schema: Resolve
 class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
     val value: String get() = rawPart.value
     val regex: Regex by lazy { Regex(rawPart.value) }
+
+    override fun toString(): String = "Pattern('$value')"
 }
 
 class ResolvedTotalDigits(override val rawPart: XSTotalDigits, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
