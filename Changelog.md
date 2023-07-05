@@ -1,4 +1,5 @@
-# 0.86.1-SNAPSHOT
+# 0.86.1
+*(July 5, 2023)<br />*
 Features:
 - Support detecting duplicate elements outside of list context #145. This
   is not default behaviour as it is somewhat up to the serializer to deal
