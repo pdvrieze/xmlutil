@@ -120,6 +120,7 @@ internal fun assertStartElementEquals(
     messageProvider: () -> String? = { null }
 ) {
     assertQNameEquivalent(expectedEvent.name, actualEvent.name, messageProvider)
+    val elementNamespace = expectedEvent.namespaceUri
 
     val expectedAttributes = expectedEvent.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }

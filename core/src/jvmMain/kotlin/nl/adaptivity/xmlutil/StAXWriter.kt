@@ -269,7 +269,7 @@ public class StAXWriter(
             if (namespace.isNullOrEmpty() || prefix.isNullOrEmpty()) {
                 delegate.writeAttribute(name, value)
             } else {
-                delegate.writeAttribute(namespace, name, value)
+                delegate.writeAttribute(prefix, namespace, name, value)
             }
         } catch (e: XMLStreamException) {
             throw XmlException(e)

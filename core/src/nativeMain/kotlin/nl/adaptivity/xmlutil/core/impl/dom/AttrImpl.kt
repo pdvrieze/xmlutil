@@ -39,12 +39,6 @@ internal class AttrImpl(
         original.value
     )
 
-    init {
-        if (prefix.isNullOrEmpty() && !namespaceURI.isNullOrEmpty() && namespaceURI != XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
-            throw IllegalArgumentException("Attributes without prefix are always in the default namespace ({$namespaceURI}$localName = \"$value\")")
-        }
-    }
-
     override val name: String
         get() = when {
             prefix.isNullOrEmpty() -> localName
