@@ -22,7 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface ProcessingInstruction : Node {
+public actual external interface ProcessingInstruction : Node {
     public val target: String
     public var data: String
 }

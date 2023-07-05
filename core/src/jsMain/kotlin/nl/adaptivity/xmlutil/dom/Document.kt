@@ -52,3 +52,4 @@ public actual inline fun Document.getImplementation(): DOMImplementation = imple
 public actual inline fun Document.getDoctype(): DocumentType? = doctype
 public actual inline fun Document.getDocumentElement(): Element? = documentElement
 public actual inline fun Document.getInputEncoding(): String? = inputEncoding
+public actual val Document.supportsWhitespaceAtToplevel: Boolean get() = true

@@ -132,6 +132,11 @@ public class KtXmlReader internal constructor(
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
+    init {
+        val firstChar = peek(0)
+        if (firstChar == 0x0feff) { /* drop BOM */ peekCount=0; }
+    }
+
     override fun close() {
         //NO-Op
     }
@@ -767,6 +772,18 @@ public class KtXmlReader internal constructor(
         get() = when {
             eventType.isTextElement -> get(0)
             else -> throw XmlException("The element is not text, it is: $eventType")
+        }
+
+    override val piTarget: String
+        get() {
+            check(eventType == PROCESSING_INSTRUCTION)
+            return get(0).substringBefore(' ')
+        }
+
+    override val piData: String
+        get() {
+            check(eventType == PROCESSING_INSTRUCTION)
+            return get(0).substringAfter(' ', "")
         }
 
     public fun isEmptyElementTag(): Boolean {

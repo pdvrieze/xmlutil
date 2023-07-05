@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -50,6 +51,8 @@ public inline val QName.namespaceURI: String get() = getNamespaceURI()
 public fun QName.toNamespace(): Namespace {
     return XmlEvent.NamespaceImpl(prefix, namespaceURI)
 }
+
+public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = QName::class)

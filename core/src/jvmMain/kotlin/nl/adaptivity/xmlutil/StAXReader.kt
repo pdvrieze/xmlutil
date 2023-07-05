@@ -245,6 +245,12 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override val text: String
         get() = delegate.text
 
+    override val piTarget: String
+        get() = delegate.piTarget
+
+    override val piData: String
+        get() = delegate.piData
+
     override val encoding: String?
         get() = delegate.encoding
 

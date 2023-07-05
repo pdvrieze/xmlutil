@@ -116,7 +116,7 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Element -> { // This may occur with list values.
                     target.smartStartTag(serialName) {
                         if (discriminatorName != null) {
-                            val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor), true)
+                            val typeRef = ensureNamespace(config.policy.typeQName(xmlDescriptor), false)
                             smartWriteAttribute(discriminatorName, typeRef.toCName())
                         }
                         // Write the xml preserve attribute if the values starts or ends with whitespace
@@ -595,8 +595,10 @@ internal open class XmlEncoderBase internal constructor(
                     (serializer as SerializationStrategy<T?>).serialize(encoder, null)
                 }
             } else if (nilAttr != null && elemDescriptor.effectiveOutputKind == OutputKind.Element) {
-                target.smartStartTag(elemDescriptor.tagName) {
-                    smartWriteAttribute(nilAttr.first, nilAttr.second)
+                defer(index) {
+                    target.smartStartTag(elemDescriptor.tagName) {
+                        smartWriteAttribute(nilAttr.first, nilAttr.second)
+                    }
                 }
             }
 
@@ -727,8 +729,9 @@ internal open class XmlEncoderBase internal constructor(
             qName.prefix == "" -> { // the namespace is set
                 val effectivePrefix = target.namespaceContext.prefixesFor(qName.namespaceURI).asSequence()
                     .firstOrNull { it.isNotEmpty() }
-                    ?: namespaceContext.nextAutoPrefix()
-                target.namespaceAttr(effectivePrefix, qName.namespaceURI)
+                    ?: namespaceContext.nextAutoPrefix().also {
+                        target.namespaceAttr(it, qName.namespaceURI)
+                    }
                 return qName.copy(prefix = effectivePrefix)
             }
         }
@@ -738,7 +741,8 @@ internal open class XmlEncoderBase internal constructor(
         // If things match, or no namespace, no need to do anything
         if (registeredNamespace == qName.namespaceURI) return qName
 
-        val registeredPrefix = target.getPrefix(qName.namespaceURI)
+        val registeredPrefix =  target.namespaceContext.prefixesFor(qName.namespaceURI).asSequence().filterNot { isAttr && it.isEmpty() }.firstOrNull()
+
         return when { // Attributes with empty prefix are always in the default namespace, so if they are to be otherwise
 
             // There is a prefix to reuse, just reuse that (TODO make configurable)
@@ -789,10 +793,24 @@ internal open class XmlEncoderBase internal constructor(
      * Helper function that ensures writing the namespace attribute if needed.
      */
     private fun smartWriteAttribute(name: QName, value: String) {
-        val effectiveQName = ensureNamespace(name, true)
-        if (effectiveQName.prefix != "" && target.getNamespaceUri(effectiveQName.prefix) == null) {
-            target.namespaceAttr(effectiveQName.toNamespace())
+        val argPrefix = name.getPrefix()
+        val resolvedNamespace = target.getNamespaceUri(argPrefix)
+
+        val effectiveQName: QName = when {
+            name.namespaceURI.isEmpty() -> QName(name.localPart)
+            argPrefix.isEmpty() -> when (name.namespaceURI) {
+//                defaultNamespace -> name
+                else -> ensureNamespace(name, true)
+            }
+
+            resolvedNamespace != null -> name
+
+            else -> ensureNamespace(name, true)
         }
+
+//        if (effectiveQName.prefix != "" && target.getNamespaceUri(effectiveQName.prefix) == null) {
+//            target.namespaceAttr(effectiveQName.toNamespace())
+//        }
 
         target.writeAttribute(effectiveQName, value)
     }

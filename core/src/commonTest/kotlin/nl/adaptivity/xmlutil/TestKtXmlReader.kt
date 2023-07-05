@@ -20,6 +20,11 @@
 
 package nl.adaptivity.xmlutil
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
 
 class TestKtXmlReader : TestCommonReader() {
@@ -57,6 +62,41 @@ class TestKtXmlReader : TestCommonReader() {
     @Test
     fun testIgnorableWhitespace() {
         testIgnorableWhitespace(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testReaderWithBOM() {
+        testReaderWithBOM(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testProcessingInstruction() {
+        testProcessingInstruction(XmlStreaming::newGenericReader) { KtXmlWriter(StringWriter()) }
+    }
+
+    @Test
+    fun testProcessingInstructionDom() {
+        val domWriter = DomWriter()
+        testProcessingInstruction(XmlStreaming::newGenericReader) { domWriter }
+
+        val expectedXml = """
+                <?xpacket begin='' id='from_166'?>
+                <a:root xmlns:a="foo" a:b="42">bar</a:root>
+                <?xpacket end='w'?>
+            """
+        val expected = XmlStreaming.newReader(expectedXml)
+        assertXmlEquals(expected, DomReader(domWriter.target))
+
+        val fromDom = StringWriter()
+        KtXmlWriter(fromDom).use { writer ->
+            DomReader(domWriter.target).use { reader ->
+                while(reader.hasNext()) {
+                    reader.next()
+                    reader.writeCurrent(writer)
+                }
+            }
+        }
+         assertXmlEquals(expectedXml, fromDom.toString())
     }
 
 }

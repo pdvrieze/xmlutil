@@ -20,4 +20,4 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface DocumentType: Node
+public actual external interface DocumentType: Node

@@ -20,10 +20,10 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 abstract class TestCommonReader {
     protected fun testReadCompactFragmentWithNamespaceInOuter(createReader: (String) -> XmlReader) {
@@ -156,10 +156,68 @@ abstract class TestCommonReader {
             var event = reader.next()
             if (event == EventType.START_DOCUMENT) event = reader.next()
             assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
         }
 
         assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
     }
 
+    protected fun testProcessingInstruction(createReader: (String) -> XmlReader, createWriter: () -> XmlWriter) {
+        val writer = createWriter()
+        val reader = createReader(
+            """
+                <?xpacket begin='' id='from_166'?>
+                <a:root xmlns:a="foo" a:b="42">bar</a:root>
+                <?xpacket end='w'?>
+            """.trimIndent()
+        )
+
+        run {
+            var event = reader.next()
+            if (event == EventType.START_DOCUMENT) {
+                writer.writeCurrentEvent(reader)
+                event = reader.next()
+            }
+            if (event == EventType.IGNORABLE_WHITESPACE || event == EventType.TEXT) {
+                writer.writeCurrentEvent(reader)
+                event = reader.next()
+            }
+
+            assertEquals(EventType.PROCESSING_INSTRUCTION, event)
+            writer.writeCurrentEvent(reader)
+            val storedEvent = (reader.toEvent() as? XmlEvent.ProcessingInstructionEvent) ?: fail("Event should be textEvent")
+
+            assertEquals(EventType.PROCESSING_INSTRUCTION, storedEvent.eventType)
+            assertEquals("xpacket begin='' id='from_166'", storedEvent.text)
+            do {
+                event = reader.next()
+                writer.writeCurrentEvent(reader)
+            } while (event == EventType.IGNORABLE_WHITESPACE)
+            assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
+
+            assertEquals(EventType.TEXT, reader.next())
+            assertEquals("bar", reader.text)
+            writer.writeCurrentEvent(reader)
+
+            while (reader.hasNext()) {
+                reader.next()
+                writer.writeCurrentEvent(reader)
+            }
+        }
+
+    }
+
+
+    /** Test to reproduce #155, failing to parse with BOM */
+    protected fun testReaderWithBOM(createReader: (String) -> XmlReader) {
+        val reader = createReader("\ufeff<root>bar</root>")
+        run {
+            var event = reader.next()
+            if (event == EventType.START_DOCUMENT) event = reader.next()
+            assertEquals(EventType.START_ELEMENT, event)
+            assertEquals("root", reader.localName)
+        }
+    }
 
 }

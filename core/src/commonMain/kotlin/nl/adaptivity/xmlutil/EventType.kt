@@ -59,10 +59,16 @@ public enum class EventType {
             for (i in 0 until reader.attributeCount) {
                 val attrNs = reader.getAttributeNamespace(i)
                 if (attrNs!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+                    val attrPrefix = reader.getAttributePrefix(i)
+                    val prefix = when (attrNs) {
+                        "" -> ""
+                        writer.namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
+                        else -> writer.namespaceContext.getPrefix(attrNs) ?: attrPrefix
+                    }
                     writer.attribute(
                         attrNs,
                         reader.getAttributeLocalName(i),
-                        null,
+                        prefix,
                         reader.getAttributeValue(i)
                     )
                 }
@@ -197,15 +203,18 @@ public enum class EventType {
 
         override val isIgnorable: Boolean get() = true
 
-        override fun createEvent(reader: XmlReader): TextEvent =
-            TextEvent(reader.locationInfo, PROCESSING_INSTRUCTION, reader.text)
+        override val isTextElement: Boolean get() = true
 
-        override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
-            writer.processingInstruction(textEvent.text)
+        override fun createEvent(reader: XmlReader): TextEvent =
+            ProcessingInstructionEvent(reader.locationInfo, reader.piTarget, reader.piData)
+
+        override fun writeEvent(writer: XmlWriter, textEvent: TextEvent): Unit = when (textEvent) {
+            is ProcessingInstructionEvent -> writer.processingInstruction(textEvent.target, textEvent.data)
+            else -> writer.processingInstruction(textEvent.text)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
-            writer.processingInstruction(reader.text)
+            writer.processingInstruction(reader.piTarget, reader.piData)
         }
     };
 

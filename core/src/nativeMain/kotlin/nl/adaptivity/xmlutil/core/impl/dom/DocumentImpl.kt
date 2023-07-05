@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.dom.*
 
 internal class DocumentImpl(override val doctype: DocumentType?) : Document {
@@ -42,20 +43,14 @@ internal class DocumentImpl(override val doctype: DocumentType?) : Document {
             throw UnsupportedOperationException()
         }
 
+    private val _childNodes: NodeListImpl = NodeListImpl()
+
     override val childNodes: NodeList
-        get() = object : NodeList {
-            override val length: Int
-                get() = if (documentElement == null) 0 else 1
+        get() = _childNodes
 
-            override fun item(index: Int): Node? = when (index) {
-                0 -> documentElement
-                else -> null
-            }
-        }
+    override val firstChild: Node? get() = _childNodes.elements.firstOrNull()
 
-    override val firstChild: Node? get() = documentElement
-
-    override val lastChild: Node? get() = documentElement
+    override val lastChild: Node? get() = _childNodes.elements.lastOrNull()
 
     override val previousSibling: Node? get() = null
 
@@ -93,16 +88,28 @@ internal class DocumentImpl(override val doctype: DocumentType?) : Document {
 
     override fun appendChild(node: Node): Node {
         val n = checkNode(node)
-        if (documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
-        if (n !is ElementImpl) throw UnsupportedOperationException("Only element children to root supported for now")
-        _documentElement = n
+        when (n) {
+            is DocumentFragmentImpl -> for (child in n.childNodes) { appendChild(child); n._childNodes.elements.clear() }
+
+            is ElementImpl -> {
+                if (documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
+                _documentElement = n
+            }
+            is ProcessingInstructionImpl -> {}// fine
+            is TextImpl -> require(n.data.isXmlWhitespace()) { "Non-whitespace nodes cannot be added directly to a document" }
+            else -> throw IllegalArgumentException("Attempting to add node ${n.nodeType} where not permitted")
+        }
         n.parentNode = this
+        _childNodes.elements.add(n)
+
         return n
     }
 
     override fun removeChild(node: Node): Node {
-//        val n = checkNode(node)
         if (node != _documentElement) throw DOMException("Node is not a child of this document")
+        _documentElement = null
+        _childNodes.elements.remove(node)
+        (node as? NodeImpl)?.let { it.parentNode = null }
         return node
     }
 

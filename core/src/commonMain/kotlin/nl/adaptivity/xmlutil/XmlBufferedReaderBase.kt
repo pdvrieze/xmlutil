@@ -22,6 +22,10 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
+import nl.adaptivity.xmlutil.dom.CharacterData
+import nl.adaptivity.xmlutil.dom.data
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.nodeName
 
 
 @XmlUtilInternal
@@ -52,7 +56,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.ATTRIBUTE -> (current as Attribute).namespaceUri
             EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
             EventType.END_ELEMENT -> (current as EndElementEvent).namespaceUri
-            else -> throw XmlException("Attribute not defined here: namespaceUri")
+            else -> throw XmlException("Attribute not defined here: namespaceUri (current event: ${current?.eventType})")
         }
 
 
@@ -80,6 +84,12 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
 
     protected fun incDepth() { namespaceHolder.incDepth() }
     protected fun decDepth() { namespaceHolder.decDepth() }
+
+    override val piTarget: String
+        get() = (current as ProcessingInstructionEvent).target
+
+    override val piData: String
+        get() = (current as ProcessingInstructionEvent).data
 
     override val text: String
         get() {

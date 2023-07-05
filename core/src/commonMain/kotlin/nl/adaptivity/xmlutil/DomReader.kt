@@ -52,14 +52,28 @@ public class DomReader(public val delegate: Node) : XmlReader {
     override var depth: Int = 0
         private set
 
+    override val piTarget: String
+        get() {
+            val c = requireCurrent
+            require(c.nodeType == NodeConsts.PROCESSING_INSTRUCTION_NODE)
+            return (c as ProcessingInstruction).getTarget()
+        }
+
+    override val piData: String
+        get() {
+            val c = requireCurrent
+            require(c.nodeType == NodeConsts.PROCESSING_INSTRUCTION_NODE)
+            return (c as ProcessingInstruction).getData()
+        }
+
     @Suppress("DEPRECATION", "UNCHECKED_CAST")
     override val text: String
         get() = when (current?.nodeType) {
             NodeConsts.ENTITY_REFERENCE_NODE,
             NodeConsts.COMMENT_NODE,
             NodeConsts.TEXT_NODE,
-            NodeConsts.PROCESSING_INSTRUCTION_NODE,
             NodeConsts.CDATA_SECTION_NODE -> (current as CharacterData).data
+            NodeConsts.PROCESSING_INSTRUCTION_NODE -> (current as CharacterData).let { "${it.nodeName} ${it.getData()}" }
 
             else -> throw XmlException("Node is not a text node")
         }
@@ -228,12 +242,12 @@ public class DomReader(public val delegate: Node) : XmlReader {
                                 }
                 */
             }
-            val c = current!!
-            val nodeType = c.nodeType
+            val c2 = requireCurrent
+            val nodeType = c2.nodeType
             if (nodeType != NodeConsts.ELEMENT_NODE && nodeType != NodeConsts.DOCUMENT_NODE) {
                 atEndOfElement = true // No child elements for things like text
             }
-            return c.toEventType(atEndOfElement)
+            return c2.toEventType(atEndOfElement)
         }
     }
 

@@ -148,16 +148,23 @@ public class DomWriter constructor(
         depth++
         when {
             currentNode == null && docDelegate == null -> {
-                docDelegate = createDocument(
+                val doc = createDocument(
                     qname(namespace ?: "", localName, prefix)
                 )
+                docDelegate = doc
                 currentNode = docDelegate
+
+                val e = doc.documentElement!!
+                doc.removeChild(e) // remove to allow for pending operations
+
                 for (pending in pendingOperations) {
-                    pending(docDelegate!!)
+                    pending(doc)
                 }
+                doc.appendChild(e)
+
                 (pendingOperations as MutableList).clear()
                 lastTagDepth = 0
-                currentNode = docDelegate?.documentElement
+                currentNode = doc.documentElement
                 return
             }
             currentNode == null && !isAppend -> {
@@ -228,6 +235,20 @@ public class DomWriter constructor(
         }
     }
 
+    override fun processingInstruction(target: String, data: String) {
+        val ce = currentNode
+//        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        if (ce == null) {
+            addToPending { processingInstruction(target, data) }
+        } else {
+
+            val processInstr = this.target.createProcessingInstruction(target, data)
+
+            ce.appendChild(processInstr)
+        }
+        lastTagDepth = TAG_DEPTH_NOT_TAG
+    }
+
     override fun ignorableWhitespace(text: String) {
         val ce = currentNode
         if (ce == null) {
@@ -243,7 +264,8 @@ public class DomWriter constructor(
     override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
         val cur = requireCurrent("attribute")
         when {
-            prefix.isNullOrEmpty() -> cur.setAttribute(name, value)
+            namespace.isNullOrEmpty() && prefix.isNullOrEmpty() -> cur.setAttribute(name, value)
+            prefix.isNullOrEmpty() -> cur.setAttributeNS(namespace, name, value)
             else -> cur.setAttributeNS(
                 namespace ?: XMLConstants.NULL_NS_URI,
                 "${prefix}:$name",

@@ -48,9 +48,11 @@ fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> Str
 internal fun XmlReader.nextNotIgnored(): XmlEvent? {
     while (hasNext()) {
         val et = next()
-        if (!et.isIgnorable) {
+        if (et == EventType.PROCESSING_INSTRUCTION) {
+            return toEvent()
+        } else if (!et.isIgnorable) {
             val ev = toEvent()
-            if (! ev.isIgnorable) return toEvent()
+            if (!ev.isIgnorable) return ev // Check again for spurious empty text etc.
         }
     }
     return null
@@ -58,7 +60,6 @@ internal fun XmlReader.nextNotIgnored(): XmlEvent? {
 
 @JvmOverloads
 fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () -> String? = { null }): Unit {
-    val seen = mutableListOf<XmlEvent>()
     do {
         val expEv = expected.nextNotIgnored()
         val actEv = actual.nextNotIgnored()
@@ -119,6 +120,7 @@ internal fun assertStartElementEquals(
     messageProvider: () -> String? = { null }
 ) {
     assertQNameEquivalent(expectedEvent.name, actualEvent.name, messageProvider)
+    val elementNamespace = expectedEvent.namespaceUri
 
     val expectedAttributes = expectedEvent.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }

@@ -29,10 +29,7 @@ import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
-import nl.adaptivity.xmlutil.serialization.OutputKind
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import kotlin.test.*
 
@@ -62,7 +59,7 @@ class SmallTests {
                 indent = 4
                 xmlDeclMode = XmlDeclMode.Charset
                 xmlVersion = XmlVersion.XML10
-                policy = object : DefaultXmlSerializationPolicy(true) {
+                policy = object : DefaultXmlSerializationPolicy(pedantic = true, throwOnRepeatedElement = true) {
                     override fun effectiveOutputKind(
                         serializerParent: SafeParentInfo,
                         tagParent: SafeParentInfo,
@@ -75,6 +72,9 @@ class SmallTests {
 
         }
     }
+
+    @Serializable
+    data class Container(val inner: Test1)
 
     /**
      * Test for #112
@@ -103,6 +103,16 @@ class SmallTests {
     fun test1Serialization() {
         val actual = Test1.xml.encodeToString(Test1(Test1.TESTCOMMENT))
         assertXmlEquals(Test1.TESTDATA, actual)
+    }
+
+    @Test
+    fun testDetectDuplicateElements() {
+        val xml = """<Container><registry comment="value" /><registry comment="value2" /></Container>"""
+        val t = assertFailsWith<XmlSerialException> {
+            val decoded = XML { recommended() }.decodeFromString<Container>(xml)
+            assertEquals(Test1("value"), decoded.inner)
+        }
+        assertContains(t.message ?: "", "duplicate child", true)
     }
 
 }

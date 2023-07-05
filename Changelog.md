@@ -1,3 +1,31 @@
+# 0.86.1
+*(July 5, 2023)<br />*
+Features:
+- Support detecting duplicate elements outside of list context #145. This
+  is not default behaviour as it is somewhat up to the serializer to deal
+  with duplicate values, rather than the format.
+- Update to Kotlinx.serialization 1.5.1
+- Add SerializableQName as an alias that links is to the serializer.
+- Add a helper function `XmlSerializationPolicy.recoverNullNamespaceUse` that
+  can be used to support recovering in case of null namespaces (and them
+  effectively functioning as wildcard)
+- Handle processing instructions correctly, expose processing instructions as
+  target (`XmlReader.piTarget`) + data (`XmlReader.piData`) pairs
+  attributes and `XmlEvent.ProcessingInstructionEvent` as event. (#160)
+- Allow processing instructions/whitespace as children of Native Document.
+
+Fixes:
+- Fix recording/copying of attribute prefixes in copying algorithms (#167).
+- Fix reading/writing of processing instruction events (#160).
+- Fix recovery of element children (#160).
+- Fix decoding of nil elements in certain cases (lists) where the end of the tag
+  wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.
+- Fix accidental immediate emission of xsi:nil elements (rather than deferring
+  as expected #152).
+- Add expected key name to the error message when it couldn't be found for a
+  map. #140
+- Fix attribute name for empty prefix in Attr (native DOM). This should fix #142.
+
 # 0.86.0 – Go in chunks
 *(May 2, 2023)<br />*
 Features:

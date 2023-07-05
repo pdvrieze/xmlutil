@@ -147,7 +147,7 @@ internal open class NamespaceHolder : Iterable<Namespace> {
             return ((totalNamespaceCount - 1) downTo 0)
                 .asSequence()
                 .filter { getNamespace(it) == namespaceURI }
-                .map { getNamespace(it) }
+                .map { getPrefix(it) }
                 .iterator()
         }
     }

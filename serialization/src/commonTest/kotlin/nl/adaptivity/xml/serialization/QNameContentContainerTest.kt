@@ -22,11 +22,10 @@
 
 package nl.adaptivity.xml.serialization
 
-import kotlinx.serialization.UseSerializers
-import nl.adaptivity.xmlutil.QNameSerializer
-
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -39,7 +38,7 @@ class QNameContentContainerTest : PlatformTestBase<QNameContentContainerTest.Con
     Container.serializer()
 ) {
     override val expectedXML: String =
-        "<container xmlns=\"urn:example.org\" xmlns:baz=\"urn:foo\" xmlns:ns1=\"urn:example.org/2\" param=\"ABC Corp\" name=\"baz:bar\"><value>ns1:MyValue</value></container>"
+        "<container xmlns=\"urn:example.org\" xmlns:otherns=\"urn:example.org\" xmlns:baz=\"urn:foo\" xmlns:ns1=\"urn:example.org/2\" param=\"ABC Corp\" otherns:name=\"baz:bar\"><value>ns1:MyValue</value></container>"
     override val expectedJson: String =
         "{\"param\":\"ABC Corp\",\"name\":{\"namespace\":\"urn:foo\",\"localPart\":\"bar\",\"prefix\":\"baz\"},\"value\":{\"namespace\":\"urn:example.org/2\",\"localPart\":\"MyValue\",\"prefix\":\"ns1\"}}"
 
@@ -50,10 +49,10 @@ class QNameContentContainerTest : PlatformTestBase<QNameContentContainerTest.Con
     data class Container(
         val param: String,
         @XmlElement(false)
-        @XmlSerialName("name", namespace = "urn:example.org", prefix = "ns2")
+        @XmlSerialName("name", namespace = "urn:example.org", prefix = "otherns")
         val name: QName,
         @XmlElement
-        @XmlSerialName("value", namespace = "urn:example.org", prefix = "ns2")
+        @XmlSerialName("value", namespace = "urn:example.org", prefix = "otherns")
         val value: QName
     )
 

@@ -89,3 +89,5 @@ public actual inline fun NodeList.getLength(): Int = length
 public actual inline fun ProcessingInstruction.getTarget(): String = target
 public actual inline fun ProcessingInstruction.getData(): String = data
 public actual inline fun ProcessingInstruction.setData(data: String) { this.data = data }
+public actual val Document.supportsWhitespaceAtToplevel: Boolean get() = false
+

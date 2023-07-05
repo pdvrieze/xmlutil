@@ -52,7 +52,7 @@ public annotation class XmlSerialName(
 @ExperimentalXmlUtilApi
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-@Repeatable
+//@Repeatable
 public annotation class XmlNamespaceDeclSpec(
     val value: String,
 )
