@@ -105,10 +105,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             keyref.check()
             checkNotNull(keyref.mdlReferencedKey)
         }
-        val d = default
-        if(d!=null) {
+        default?.let { d ->
             require(fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
             mdlTypeDefinition.validate(d)
+        }
+        fixed?.let { f ->
+            mdlTypeDefinition.validate(f)
         }
 
     }
