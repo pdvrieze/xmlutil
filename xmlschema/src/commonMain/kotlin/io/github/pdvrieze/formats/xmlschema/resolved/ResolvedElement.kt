@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
@@ -106,10 +107,16 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             checkNotNull(keyref.mdlReferencedKey)
         }
         default?.let { d ->
-            require(fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
+            check(fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
+            check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
+                "ID types can not have fixed values"
+            }
             mdlTypeDefinition.validate(d)
         }
         fixed?.let { f ->
+            check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
+                "ID types can not have fixed values"
+            }
             mdlTypeDefinition.validate(f)
         }
 
