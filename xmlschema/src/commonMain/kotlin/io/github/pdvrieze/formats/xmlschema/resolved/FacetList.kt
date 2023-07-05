@@ -128,43 +128,51 @@ class FacetList(
             check(enumeration.any { normalized == it.value })
         }
 
-        if (primitiveType != null) {
-            if (primitiveType is IStringType) {
+        for (pattern in patterns) {
+            check(pattern.regex.matches(normalized)) { "'$normalized' does not match expression '${pattern.value}'" }
+        }
+
+        when (primitiveType) {
+            is IStringType -> {
                 minLength?.let { check(normalized.length >= it.value.toInt()) }
                 maxLength?.let { check(normalized.length <= it.value.toInt()) }
-                for (pattern in patterns) {
-                    pattern.regex.matchEntire(normalized)
-                }
                 check(minConstraint == null) { "Strings can not have numeric facets" }
                 check(maxConstraint == null) { "Strings can not have numeric facets" }
-                check(totalDigits == null) { "totalDigits only applies to decimal types"}
-                check(fractionDigits == null) { "totalDigits only applies to decimal types"}
-            } else if(primitiveType is IDecimalType) {
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+                check(fractionDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            is IDecimalType -> {
                 val actualValue = primitiveType.value(normalized)
                 minConstraint?.validate(primitiveType, actualValue)
                 maxConstraint?.validate(primitiveType, actualValue)
                 totalDigits?.let { check(normalized.length <= it.value.toInt()) }
-                check(fractionDigits == null) { "totalDigits only applies to decimal types"}
-
-                primitiveType.validateValue(actualValue)
-            } else if(primitiveType is DoubleType) {
-                val actualValue = primitiveType.value(normalized)
-                minConstraint?.validate(actualValue)
-                maxConstraint?.validate(actualValue)
-                check(totalDigits == null) { "totalDigits only applies to decimal types"}
-                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length<=it.value.toInt()) }
-
-                primitiveType.validateValue(actualValue)
-            } else if(primitiveType is FloatType) {
-                val actualValue = primitiveType.value(normalized)
-                minConstraint?.validate(actualValue)
-                maxConstraint?.validate(actualValue)
-                check(totalDigits == null) { "totalDigits only applies to decimal types"}
-                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length<=it.value.toInt()) }
+                check(fractionDigits == null) { "totalDigits only applies to decimal types" }
 
                 primitiveType.validateValue(actualValue)
             }
-            // TODO: support assertion facets
+
+            is DoubleType -> {
+                val actualValue = primitiveType.value(normalized)
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length <= it.value.toInt()) }
+
+                primitiveType.validateValue(actualValue)
+            }
+
+            is FloatType -> {
+                val actualValue = primitiveType.value(normalized)
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length <= it.value.toInt()) }
+
+                primitiveType.validateValue(actualValue)
+            }
+
+            else -> {}
         }
     }
 
@@ -226,7 +234,9 @@ class FacetList(
 
                     is ResolvedPattern -> pattern?.let {// combine by or
                         ResolvedPattern(XSPattern("(?:${it.value}|${facet.value})"), it.schema)
-                    } ?: facet
+                    } ?: run {
+                        pattern = facet
+                    }
 
                     is ResolvedTotalDigits ->
                         if (totalDigits != null) error("multiple totalDigits facets") else totalDigits = facet
