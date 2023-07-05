@@ -791,7 +791,24 @@ internal open class XmlEncoderBase internal constructor(
      * Helper function that ensures writing the namespace attribute if needed.
      */
     private fun smartWriteAttribute(name: QName, value: String) {
-        val effectiveQName = ensureNamespace(name, true)
+        val defaultNamespace = target.getNamespaceUri("")
+        val argPrefix = name.getPrefix()
+        val resolvedNamespace = target.getNamespaceUri(argPrefix)
+
+        val effectiveQName: QName = when {
+            name.namespaceURI.isEmpty() -> QName(name.localPart)
+            argPrefix.isEmpty() -> when (name.namespaceURI) {
+                defaultNamespace -> QName(name.localPart)
+                else -> ensureNamespace(name, true)
+            }
+
+            resolvedNamespace != null -> name
+
+            defaultNamespace == name.namespaceURI -> QName(name.localPart)
+
+            else -> ensureNamespace(name, true)
+        }
+
         if (effectiveQName.prefix != "" && target.getNamespaceUri(effectiveQName.prefix) == null) {
             target.namespaceAttr(effectiveQName.toNamespace())
         }
