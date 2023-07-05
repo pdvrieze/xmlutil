@@ -359,7 +359,7 @@ object DecimalType : PrimitiveDatatype("decimal", XmlSchemaConstants.XS_NAMESPAC
     }
 
     override fun validate(representation: String) {
-//        TODO("not implemented")
+        value(representation)
     }
 }
 
