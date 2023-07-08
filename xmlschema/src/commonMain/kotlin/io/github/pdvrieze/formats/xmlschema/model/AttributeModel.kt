@@ -58,7 +58,7 @@ interface AttributeModel : IAnnotated, INamed {
 
         interface Local : ScopeModel {
             override val mdlVariety: XSScopeVariety get() = XSScopeVariety.LOCAL
-            val parent: AttributeParentModel
+            val parent: Any
         }
     }
 

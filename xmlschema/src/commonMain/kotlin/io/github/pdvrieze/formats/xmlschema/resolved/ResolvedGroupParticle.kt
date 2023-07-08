@@ -32,7 +32,7 @@ sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedParticle<
     companion object {
 
         operator fun invoke(
-            parent: ResolvedComplexType?,
+            parent: ResolvedParticleParent,
             term: XSComplexContent.XSIDerivationParticle,
             schema: ResolvedSchemaLike
         ): ResolvedGroupParticle<*> = when (term) {

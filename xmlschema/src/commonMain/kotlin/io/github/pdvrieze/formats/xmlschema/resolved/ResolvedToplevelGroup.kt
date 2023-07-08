@@ -31,7 +31,8 @@ import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
 class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
-) : ResolvedGroupBase, NamedPart, T_NamedGroup, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember {
+) : ResolvedGroupBase, NamedPart, T_NamedGroup, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember,
+    ResolvedLocalElement.Parent, ResolvedParticleParent {
     override val mdlName: VNCName
         get() = rawPart.name
 
@@ -40,9 +41,9 @@ class ResolvedToplevelGroup(
 
     override val mdlModelGroup: ResolvedModelGroup by lazy {
         val r: ResolvedModelGroup = when (val c = rawPart.content) {
-            is XSGroup.All -> AllImpl(c, schema)
-            is XSGroup.Choice -> ChoiceImpl(c, schema)
-            is XSGroup.Sequence -> SequenceImpl(c, schema)
+            is XSGroup.All -> AllImpl(this, c, schema)
+            is XSGroup.Choice -> ChoiceImpl(this, c, schema)
+            is XSGroup.Sequence -> SequenceImpl(this, c, schema)
         }
         r
     }
@@ -79,10 +80,10 @@ class ResolvedToplevelGroup(
         override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
     }
 
-    private class AllImpl(override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
+    private class AllImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
         IResolvedAll {
         override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>> = rawPart.particles.map {
-            ResolvedParticle(null, it, schema)
+            ResolvedParticle.allMember(parent, it, schema)
         }
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -94,12 +95,12 @@ class ResolvedToplevelGroup(
         }
     }
 
-    private class ChoiceImpl(override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
+    private class ChoiceImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
         ModelGroupBase(schema),
         IResolvedChoice {
 
         override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = rawPart.particles.map {
-            ResolvedParticle(null, it, schema)
+            ResolvedParticle.choiceSeqMember(parent, it, schema)
         }
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -111,11 +112,11 @@ class ResolvedToplevelGroup(
         }
     }
 
-    private class SequenceImpl(override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
+    private class SequenceImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
         ModelGroupBase(schema),
         IResolvedSequence {
         override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = rawPart.particles.map {
-            ResolvedParticle(null, it, schema)
+            ResolvedParticle.choiceSeqMember(parent, it, schema)
         }
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
