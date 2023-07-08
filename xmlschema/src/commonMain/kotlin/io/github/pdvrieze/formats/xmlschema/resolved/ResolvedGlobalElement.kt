@@ -25,11 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
 import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet

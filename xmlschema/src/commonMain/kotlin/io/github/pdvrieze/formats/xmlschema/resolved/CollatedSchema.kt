@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.resolved.CollatedSchema.Companion.associateToUnique
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart

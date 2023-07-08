@@ -59,7 +59,11 @@ class ResolvedGlobalComplexType(
             by lazy {
                 when (val c = rawPart.content) {
                     is XSComplexContent -> ResolvedComplexContent(this, c, schema)
-                    is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
+                    is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
+                        this,
+                        c,
+                        schema
+                    )
                     is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
                     else -> error("unsupported content")
                 }

@@ -25,14 +25,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel,
-    SimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm {
+    SimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
 
     abstract override val rawPart: XSIElement
     abstract val scope: T_Scope
@@ -170,19 +169,3 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
 }
 
-class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)
-
-sealed class ValueConstraint(val value: String) {
-    class Default(value: String) : ValueConstraint(value)
-    class Fixed(value: String) : ValueConstraint(value)
-
-    companion object {
-        operator fun invoke(attr: XSAttribute): ValueConstraint? {
-            return when {
-                attr.default != null -> { check(attr.use!=null); Default(attr.default) }
-                attr.fixed != null -> Fixed(attr.fixed)
-                else -> null
-            }
-        }
-    }
-}

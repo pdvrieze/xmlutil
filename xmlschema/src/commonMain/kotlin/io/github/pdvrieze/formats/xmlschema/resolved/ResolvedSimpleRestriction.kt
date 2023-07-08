@@ -21,20 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import nl.adaptivity.xmlutil.QName
-
-abstract class ResolvedSimpleDerivationBase(
-    schema: ResolvedSchemaLike
-): ResolvedSimpleType.Derivation(schema), ResolvedPart, T_SimpleType.Derivation {
-    abstract override val rawPart: T_SimpleType.Derivation
-
-    abstract override val baseType: ResolvedSimpleType
-
-
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-}
 
 /**
  * Restriction is used for simple types.

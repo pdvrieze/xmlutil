@@ -24,8 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType, ResolvedSimpleType.Model {

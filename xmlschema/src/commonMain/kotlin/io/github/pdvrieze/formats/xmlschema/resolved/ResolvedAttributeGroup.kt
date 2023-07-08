@@ -20,14 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupBase
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedAttributeGroup(
     final override val schema: ResolvedSchemaLike
@@ -44,72 +39,3 @@ sealed class ResolvedAttributeGroup(
 
 }
 
-class ResolvedAttributeGroupRef(
-    override val rawPart: T_AttributeGroupRef,
-    override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
-    val resolvedGroup: ResolvedToplevelAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
-
-    override val attributes: List<T_LocalAttribute>
-        get() = resolvedGroup.attributes
-
-    override val attributeGroups: List<T_AttributeGroupRef>
-        get() = resolvedGroup.attributeGroups
-
-    override val anyAttribute: XSAnyAttribute?
-        get() = rawPart.anyAttribute
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val ref: QName
-        get() = rawPart.ref
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    override fun check() {
-        super<ResolvedPart>.check()
-        checkNotNull(resolvedGroup) // force resolve
-    }
-}
-
-class ResolvedToplevelAttributeGroup(
-    override val rawPart: XSAttributeGroup,
-    schema: ResolvedSchemaLike
-) : ResolvedAttributeGroup(schema), NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
-
-    override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
-        ResolvedLocalAttribute(this, it, schema)
-    }
-
-    override val attributeGroups: List<ResolvedAttributeGroupRef>
-        get() = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
-
-    override val anyAttribute: XSAnyAttribute?
-        get() = rawPart.anyAttribute
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    override val targetNamespace: VAnyURI?
-        get() = super<NamedPart>.targetNamespace
-
-    override fun check() {
-        super<NamedPart>.check()
-        for (a in attributes) { a.check() }
-        for (ag in attributeGroups) { ag.check() }
-    }
-}
