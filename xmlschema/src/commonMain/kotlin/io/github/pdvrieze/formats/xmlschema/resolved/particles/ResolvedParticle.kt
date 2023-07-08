@@ -30,30 +30,30 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
     override val rawPart: XSI_Particle
 
     companion object {
-        operator fun invoke(
-            parent: ResolvedComplexType?,
+        fun allMember(
+            parent: ResolvedParticleParent,
             rawPart: XSI_AllParticle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedAllMember> = when (rawPart) {
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
-            is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
+            is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
         }
 
-        operator fun invoke(
-            parent: ResolvedComplexType?,
+        fun choiceSeqMember(
+            parent: ResolvedParticleParent,
             rawPart: XSI_NestedParticle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedChoiceSeqMember> = when (rawPart) {
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
-            is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
+            is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
         }
 
         operator fun invoke(
-            parent: ResolvedComplexType?,
+            parent: ResolvedParticleParent,
             rawPart: XSI_Particle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
@@ -68,7 +68,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         }
 
         operator fun invoke(
-            parent: ResolvedComplexType?,
+            parent: ResolvedParticleParent,
             rawPart: XSExplicitGroup,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<*> = when (rawPart) {
