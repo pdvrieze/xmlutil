@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_Type
 import nl.adaptivity.xmlutil.QName
@@ -35,7 +36,7 @@ sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeMod
 
     fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
 
-    fun validate(representation: String)
+    fun validate(representation: VString)
 
     fun validateValue(representation: Any) {}
 }

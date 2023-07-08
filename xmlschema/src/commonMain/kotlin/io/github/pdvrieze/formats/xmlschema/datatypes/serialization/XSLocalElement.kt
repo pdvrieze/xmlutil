@@ -18,10 +18,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -39,8 +36,8 @@ class XSLocalElement(
     override val name: VNCName? = null, // can be determined from ref
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,
-    override val default: String? = null,
-    override val fixed: String? = null,
+    override val default: VString? = null,
+    override val fixed: VString? = null,
     @XmlElement(false)
     override val form: T_FormChoice? = null,
     override val id: VID? = null,

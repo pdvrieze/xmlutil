@@ -20,6 +20,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -37,8 +38,8 @@ data class XSElement(
     override val name: VNCName,
     @Serializable(SchemaEnumSetSerializer::class)
     override val block: T_BlockSet? = null,
-    override val default: String? = null,
-    override val fixed: String? = null,
+    override val default: VString? = null,
+    override val fixed: VString? = null,
     override val id: VID? = null,
     override val nillable: Boolean? = null,
     @XmlElement(false)

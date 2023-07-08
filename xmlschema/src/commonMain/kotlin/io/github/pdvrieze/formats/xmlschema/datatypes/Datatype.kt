@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
@@ -207,7 +208,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
 
     override val model: ErrorType get() = this
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
         TODO("not implemented")
     }
 
@@ -249,7 +250,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
     override val mdlMemberTypeDefinitions: List<Nothing>
         get() = emptyList()
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
 //        error("anyType cannot be directly implemented")
     }
 }
@@ -282,7 +283,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
         numeric = false,
     )
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
 //        TODO("not implemented")
     }
 }

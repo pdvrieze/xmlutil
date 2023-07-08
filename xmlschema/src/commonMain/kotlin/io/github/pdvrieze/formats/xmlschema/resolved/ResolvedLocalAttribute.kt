@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
@@ -48,10 +49,10 @@ class ResolvedLocalAttribute(
     override val id: VID?
         get() = rawPart.id
 
-    override val default: String?
+    override val default: VString?
         get() = rawPart.default ?: referenced?.default
 
-    override val fixed: String?
+    override val fixed: VString?
         get() = rawPart.fixed ?: referenced?.fixed
 
     override val form: T_FormChoice?

@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
@@ -40,6 +41,10 @@ sealed class ResolvedAttribute(
     abstract override val rawPart: XSAttribute
 
     abstract override val name: VNCName
+
+    abstract override val default: VString?
+
+    abstract override val fixed: VString?
 
     val mdlQName: QName
         get() = qname((targetNamespace ?: schema.targetNamespace)?.value, name.xmlString)

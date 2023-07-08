@@ -40,7 +40,8 @@ interface VToken : VNormalizedString {
     }
 
     companion object {
-        operator fun invoke(value: String): VToken = Inst(XSWhiteSpace.Values.COLLAPSE.normalize(value))
+        operator fun invoke(value: String): VToken =
+            Inst(XSWhiteSpace.Values.COLLAPSE.normalize(VString(value)).xmlString)
     }
 
 }
