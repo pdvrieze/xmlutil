@@ -92,11 +92,11 @@ fun builtinType(localName: String, targetNamespace: String): Datatype? {
     }
 }
 
-sealed interface IStringType: ResolvedBuiltinSimpleType {
+sealed interface IStringType : ResolvedBuiltinSimpleType {
     fun value(representation: VString): VString
 }
 
-sealed interface IDecimalType: ResolvedBuiltinSimpleType {
+sealed interface IDecimalType : ResolvedBuiltinSimpleType {
     fun value(representation: VString): VDecimal
 }
 
@@ -1101,8 +1101,8 @@ object HexBinaryType : PrimitiveDatatype("hexBinary", XmlSchemaConstants.XS_NAME
     )
 
     override fun value(representation: VString): ByteArray {
-        require(representation.length %2 ==0) { "Hex must have even amount of characters" }
-        return ByteArray(representation.length/2) { representation.substring(it*2, it*2+2).toInt(16).toByte() }
+        require(representation.length % 2 == 0) { "Hex must have even amount of characters" }
+        return ByteArray(representation.length / 2) { representation.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
     }
 
     override fun validateValue(representation: Any) {
@@ -1168,7 +1168,7 @@ object QNameType : PrimitiveDatatype("QName", XmlSchemaConstants.XS_NAMESPACE) {
             is VPrefixString -> representation.localname
             else -> representation.xmlString
         }
-        check(localName.indexOf(':') <0) { "local names cannot contain : characters" }
+        check(localName.indexOf(':') < 0) { "local names cannot contain : characters" }
     }
 }
 
@@ -1333,6 +1333,55 @@ object NCNameType : PrimitiveDatatype("NCName", XmlSchemaConstants.XS_NAMESPACE)
 
     override fun validate(representation: VString) {
         value(representation)
+    }
+
+    fun isNCName(str: CharSequence): Boolean {
+        if (str.length == 0) return false
+        when (str[0]) {
+            '\u00f7',
+            '\u037E' -> return false
+
+            in 'A'..'Z',
+            '_',
+            in 'a'..'z',
+            in '\u00c0'..'\u00d6',
+            in '\u00d8'..'\u02ff',
+            in '\u0370'..'\u1FFF',
+            '\u200C', '\u200D',
+            in '\u2070'..'\u218f',
+            in '\u2C00'..'\u2FEF',
+            in '\u3001'..'\uD7FF',
+            in '\uF900'..'\uFDCF',
+            in '\uFDF0'..'\uFFFD', -> Unit
+
+            else -> return false
+        }
+        for (idx in 1 until str.length) {
+            val c = str[idx]
+            when (str[0]) {
+                '\u00f7',
+                '\u037E' -> return false
+
+                in 'A'..'Z',
+                '_',
+                '-',
+                in 'a'..'z',
+                in '0'..'9',
+                '\u00b7',
+                in '\u00c0'..'\u00d6',
+                in '\u00d8'..'\u1FFF',
+                '\u200C', '\u200D',
+                '\u203F', '\u2040',
+                in '\u2070'..'\u218f',
+                in '\u2C00'..'\u2FEF',
+                in '\u3001'..'\uD7FF',
+                in '\uF900'..'\uFDCF',
+                in '\uFDF0'..'\uFFFD', -> Unit
+
+                else -> return false
+            }
+        }
+        return true
     }
 }
 

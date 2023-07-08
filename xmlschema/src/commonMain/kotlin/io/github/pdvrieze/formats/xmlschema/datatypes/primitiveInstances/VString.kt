@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
@@ -50,24 +51,38 @@ interface VString : VAnyAtomicType, CharSequence {
             else -> false
         }
 */
+
+        override fun toString(): String {
+            return xmlString
+        }
     }
 
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VString>("io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString") {
         override fun deserialize(decoder: Decoder): VString {
             val strRepr = decoder.decodeString()
-            val cpos = strRepr.indexOf(':')
+            if (decoder is XML.XmlInput) {
+                val cpos = strRepr.indexOf(':')
 
-            if (cpos > 0 && strRepr.indexOf(':', cpos + 1) < 0 && decoder is XML.XmlInput) {
+                if (cpos > 0) {
+                    if (strRepr.indexOf(':', cpos + 1) < 0) {
 
-                val prefix = strRepr.substring(0, cpos)
-                val ns = decoder.input.namespaceContext.getNamespaceURI(prefix)
-                if (ns != null) {
-                    val localName = strRepr.substring(cpos + 1)
-                    return VPrefixString(ns, prefix, localName)
+                        val prefix = strRepr.substring(0, cpos)
+                        val ns = decoder.input.namespaceContext.getNamespaceURI(prefix)
+                        if (ns != null) {
+                            val localName = strRepr.substring(cpos + 1)
+                            if (NCNameType.isNCName(prefix) && NCNameType.isNCName(localName)) {
+                                return VPrefixString(ns, prefix, localName)
+                            }
+                        }
+                    }
+                } else {
+                    val defaultNamespace = decoder.input.namespaceContext.getNamespaceURI("")
+                    if ((! defaultNamespace.isNullOrEmpty()) && NCNameType.isNCName(strRepr)) {
+                        return VPrefixString(defaultNamespace, "", strRepr)
+                    }
                 }
             }
-
             return Inst(strRepr)
         }
     }
@@ -82,7 +97,10 @@ interface VString : VAnyAtomicType, CharSequence {
  */
 class VPrefixString(val namespace: String, val prefix: String, val localname: String) : VString {
     override val xmlString: String
-        get() = "$prefix:$localname"
+        get() = when {
+            prefix.isEmpty() -> localname
+            else -> "$prefix:$localname"
+        }
 
     fun toQName(): QName = QName(namespace, localname, prefix)
 
