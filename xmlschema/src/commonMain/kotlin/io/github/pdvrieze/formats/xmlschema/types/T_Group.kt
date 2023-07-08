@@ -18,16 +18,14 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_AllParticle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 
 /** Base for XS_Group */
 interface T_Group: XSI_Annotated {
 
     interface All {
-        val elements: List<XSLocalElement>
-        val anys: List<XSAny>
-        val groups: List<XSGroupRef>
-
+        val particles: List<XSI_AllParticle>
     }
     interface Group: T_GroupRef
     interface Choice

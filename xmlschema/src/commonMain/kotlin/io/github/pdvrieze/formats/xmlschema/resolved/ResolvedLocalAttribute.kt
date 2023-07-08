@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice

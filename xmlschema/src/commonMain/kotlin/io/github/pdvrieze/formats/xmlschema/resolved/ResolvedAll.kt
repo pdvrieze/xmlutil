@@ -20,25 +20,31 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.model.*
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_All
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+
 
 class ResolvedAll(
     parent: ResolvedComplexType?,
     override val rawPart: XSAll,
-    override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup<ResolvedAll>(parent, schema), T_All, ResolvedComplexType.ResolvedDirectParticle<ResolvedAll>,
-    AllModel<ResolvedAll> {
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllTerm>> = DelegateList(rawPart.particles) {
-        ResolvedParticle(parent, it, schema)
+    schema: ResolvedSchemaLike
+) : ResolvedGroupParticleTermBase<ResolvedAll>(schema),
+    IResolvedAll,
+    ResolvedComplexType.ResolvedDirectParticle<ResolvedAll>,
+    ResolvedGroupLikeTerm,
+    ResolvedGroupParticle<ResolvedAll>,
+    T_All {
+
+    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>> = DelegateList(rawPart.particles) {
+        ResolvedParticle.invoke(parent, it, schema)
     }
+
+    override val maxOccurs: T_AllNNI.Value
+        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+
     override val mdlTerm: ResolvedAll get() = this
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
-    override val maxOccurs: T_AllNNI.Value get() = super<ResolvedExplicitGroup>.maxOccurs as T_AllNNI.Value
 
     init {
         require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
@@ -48,21 +54,9 @@ class ResolvedAll(
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
+
+    override fun check() {
+        super<IResolvedAll>.check()
+    }
 }
 
-class SyntheticAll(
-    override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: T_AllNNI,
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllTerm>>,
-    override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>, ResolvedChoiceSeqTerm, AllModel<SyntheticAll> {
-    override val mdlTerm: SyntheticAll get() = this
-    override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
-    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
-
-    override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
-    override val mdlAnnotations: AnnotationModel? get() = null
-
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-}

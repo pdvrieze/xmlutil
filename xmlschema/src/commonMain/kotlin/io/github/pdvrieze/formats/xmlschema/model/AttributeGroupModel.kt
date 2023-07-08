@@ -22,5 +22,5 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 interface AttributeGroupModel : AttributeModel.AttributeParentModel, INamedDecl, IAnnotated {
     val mdlAttributeUses: Set<AttributeModel.Decl>
-    val mdlAttributeWildcard: WildcardModel
+    val mdlAttributeWildcard: AnyModel
 }

@@ -18,11 +18,12 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved
+package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),

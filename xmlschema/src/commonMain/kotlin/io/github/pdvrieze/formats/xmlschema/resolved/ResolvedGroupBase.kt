@@ -20,119 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRefParticle
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
-import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.types.T_RealGroup
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
-sealed class ResolvedGroupBase(override val schema: ResolvedSchemaLike): T_RealGroup, ResolvedPart, ResolvedAnnotated {
+/**
+ * Base class for any resolved group related type
+ */
+sealed interface ResolvedGroupBase : T_RealGroup, ResolvedPart, ResolvedAnnotated {
     abstract override val rawPart: XSI_Annotated
 
     override val annotation: XSAnnotation? get() = rawPart.annotation
 }
 
 
-
-class ResolvedGroupRef(
-    override val rawPart: XSGroupRef,
-    schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), ResolvedGroupParticle<ResolvedGroupRef>, T_GroupRef {
-    val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
-    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
-    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger.ONE
-
-    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
-    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI.ONE
-
-    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
-
-    override val mdlTerm: ResolvedGroupRef get() = this
-
-    override val ref: QName get() = rawPart.ref
-
-    override val particle: T_RealGroup.Particle
-        get() = referencedGroup.particle
-
-    override fun check() {
-        referencedGroup.check()
-    }
-
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-}
-
-class ResolvedGroupRefParticle(
-    override val rawPart: XSGroupRefParticle,
-    schema: ResolvedSchemaLike
-): ResolvedGroupBase(schema), ResolvedParticle<ResolvedAllTerm>, ResolvedAllTerm, T_GroupRef {
-    val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
-
-    override val ref: QName get() = rawPart.ref
-
-    override val annotation: XSAnnotation?
-        get() = referencedGroup.annotation
-
-    override val particle: T_RealGroup.Particle
-        get() = referencedGroup.particle
-
-    override val minOccurs: VNonNegativeInteger?
-        get() = rawPart.minOccurs
-
-    override val mdlMinOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-
-    override val mdlMaxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
-
-    override val maxOccurs: T_AllNNI?
-        get() = rawPart.maxOccurs
-
-    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
-
-    override val mdlTerm: ResolvedGroupRefParticle get() = this
-
-    override fun check() {
-        referencedGroup.check()
-    }
-
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-}
-
-class ResolvedToplevelGroup(
-    override val rawPart: XSGroup,
-    schema: ResolvedSchemaLike,
-): ResolvedGroupBase(schema), NamedPart, T_NamedGroup, GroupDefModel, ModelGroupModel {
-    override val mdlName: VNCName
-        get() = rawPart.name
-
-    override val mdlTargetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-
-    override val mdlModelGroup: ResolvedToplevelGroup
-        get() = this
-
-    override val mdlAnnotations: AnnotationModel?
-        get() = rawPart.annotation.models()
-
-
-    override fun check() {
-//        TODO("not implemented")
-    }
-
-    @Deprecated("incorrect")
-    override val particle: T_NamedGroup.Particle
-        get() = TODO()
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-}

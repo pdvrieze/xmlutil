@@ -20,74 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 
-interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType
-
-fun ResolvedGlobalSimpleType(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
-    return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
-}
-
-class ResolvedGlobalSimpleTypeImpl(
-    override val rawPart: XSGlobalSimpleType,
-    override val schema: ResolvedSchemaLike,
-) : ResolvedGlobalSimpleType {
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-
-    override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
-            is XSSimpleList -> ResolvedListDerivation(raw, schema, this)
-            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this)
-            else -> error("unsupported derivation")
+interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType {
+    companion object {
+        operator fun invoke(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
         }
-
-    override val final: Set<TypeModel.Derivation>
-        get() = rawPart.final
-
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes, inheritedTypes)
-        require(name.isNotEmpty())
-        requireNotNull(model)
-    }
-
-    override val model: Model by lazy { ModelImpl(rawPart, schema) }
-
-    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
-
-    interface Model : ResolvedSimpleType.Model, SimpleTypeModel.Global
-
-    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) :
-        ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl), Model {
-        override val mdlName: VNCName = rawPart.name
-        override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
-
-        override val mdlFinal: Set<TypeModel.Derivation> =
-            rawPart.final
-
     }
 }
+

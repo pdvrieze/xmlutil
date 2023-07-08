@@ -23,8 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalComplexType(
@@ -41,7 +43,11 @@ class ResolvedLocalComplexType(
     override val content: ResolvedComplexTypeContent by lazy {
         when (val c = rawPart.content) {
             is XSComplexContent -> ResolvedComplexContent(this, c, schema)
-            is IXSComplexTypeShorthand -> ResolvedComplexShorthandContent(this, c, schema)
+            is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
+                this,
+                c,
+                schema
+            )
             is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
             else -> error("unsupported content")
         }

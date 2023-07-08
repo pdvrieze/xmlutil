@@ -31,6 +31,8 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet

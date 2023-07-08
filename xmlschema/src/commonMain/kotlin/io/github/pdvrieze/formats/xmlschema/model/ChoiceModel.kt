@@ -20,25 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
-import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+interface ChoiceModel : ChoiceSeqMember, GroupMember,
+    GroupLikeTermBase
 
-interface ChoiceModel<T: ChoiceModel<T>>: ModelGroupComponent, ChoiceSeqTerm, ParticleModel<T> {
-//    override val mdlTerm: ModelGroupModel.InclContent
-
-    override val effectiveTotalRange: AllNNIRange
-        get() = run {
-            var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
-            var maxMax: T_AllNNI = T_AllNNI.Value(0u)
-            for (particle in mdlParticles) {
-                val r = particle.effectiveTotalRange
-                if (r.start.toULong()<minMin.toULong()) minMin = r.start
-                if (r.endInclusive> maxMax) maxMax = r.endInclusive
-            }
-
-            AllNNIRange(mdlMinOccurs * minMin, mdlMaxOccurs * maxMax)
-        }
-
-}

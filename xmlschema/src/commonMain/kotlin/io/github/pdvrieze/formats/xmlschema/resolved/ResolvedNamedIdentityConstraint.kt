@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,18 +20,20 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSRedefine
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 
-private fun VNCName.toQName(schema: XSSchema): QName {
-    return toQname(schema.targetNamespace)
+sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
+    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
+
+    abstract val name: VNCName
+
+    final override val mdlName: VNCName get() = name
+
+    final override val mdlSelector: XPathExpression
+        get() = XPathExpression(rawPart.selector.xpath.xmlString)
+
+    final override val mdlFields: List<XPathExpression>
+        get() = rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
+
 }

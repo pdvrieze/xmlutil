@@ -23,6 +23,5 @@ interface T_GroupRef : T_RealGroup, XSI_Annotated {
 
     val name: Nothing? get() = null
 
-    val particle: T_RealGroup.Particle? get() = null
 }
 

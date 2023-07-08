@@ -24,17 +24,26 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.WildcardModel
+import io.github.pdvrieze.formats.xmlschema.model.AnyModel
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 
 class ResolvedAny(
     override val rawPart: XSAny,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedParticle<ResolvedAny>, T_AnyElement, WildcardModel, ResolvedBasicTerm {
-    override val minOccurs: VNonNegativeInteger?
-        get() = mdlMinOccurs
-    override val maxOccurs: T_AllNNI?
-        get() = mdlMaxOccurs
+) : ResolvedParticle<ResolvedAny>, ResolvedPart, T_AnyElement, AnyModel, ResolvedTerm, ResolvedAllMember {
+    override val mdlMinOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+
+    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
+
+    override val mdlMaxOccurs: T_AllNNI
+        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+
+    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
+
+    override val mdlAnnotations: AnnotationModel?
+        get() = rawPart.annotation.models()
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -42,12 +51,9 @@ class ResolvedAny(
     override val namespace: T_NamespaceList
         get() = rawPart.namespace ?: T_NamespaceList.ANY
 
-    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
-    override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-    override val mdlMaxOccurs: T_AllNNI get() = rawPart.maxOccurs ?: T_AllNNI(1)
     override val mdlTerm: ResolvedAny get() = this
 
-    override val mdlNamespaceConstraint: Set<WildcardModel.NamespaceConstraint>
+    override val mdlNamespaceConstraint: Set<AnyModel.NamespaceConstraint>
         get() = TODO("not implemented")
 
     override val mdlProcessContents: T_ProcessContents
@@ -63,4 +69,8 @@ class ResolvedAny(
         get() = rawPart.processContents ?: T_ProcessContents.STRICT
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+
+    override fun check() {
+//        TODO("not implemented")
+    }
 }

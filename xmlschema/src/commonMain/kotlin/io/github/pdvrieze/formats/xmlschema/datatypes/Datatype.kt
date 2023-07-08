@@ -32,6 +32,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhi
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.I_Named
