@@ -20,9 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedEnumeration(override val rawPart: XSEnumeration, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
-    val value: String get() = rawPart.value.xmlString
+    val value: VString = (rawPart.value as? VString) ?: VString(rawPart.value.xmlString)
 }

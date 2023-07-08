@@ -23,19 +23,34 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(VAnySimpleType.Serializer::class)
-interface VAnySimpleType {// inherits any
+interface VAnySimpleType {
+    // inherits any
     val xmlString: String
 
-    private class Inst(val value: String): VAnySimpleType {
+    private class Inst(val value: String) : VAnySimpleType {
         override val xmlString: String get() = value
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer: SimpleTypeSerializer<VAnySimpleType>("anySimpleType") {
+    class Serializer : SimpleTypeSerializer<VAnySimpleType>("anySimpleType") {
         override fun deserialize(decoder: Decoder): VAnySimpleType {
-            return Inst(decoder.decodeString())
+            val strRepr = decoder.decodeString()
+            val cpos = strRepr.indexOf(':')
+
+            if (cpos > 0 && strRepr.indexOf(':', cpos + 1) < 0 && decoder is XML.XmlInput) {
+
+                val prefix = strRepr.substring(0, cpos)
+                val ns = decoder.input.namespaceContext.getNamespaceURI(prefix)
+                if (ns != null) {
+                    val localName = strRepr.substring(cpos + 1)
+                    return VPrefixString(ns, prefix, localName)
+                }
+            }
+
+            return Inst(strRepr)
         }
     }
 }

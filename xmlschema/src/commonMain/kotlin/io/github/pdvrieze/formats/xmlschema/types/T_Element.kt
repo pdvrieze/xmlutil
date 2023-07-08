@@ -31,10 +31,10 @@ interface T_Element : T_Particle, XSI_Annotated, I_OptNamedAttrs {
     /** Attribute */
     val substitutionGroup: List<QName>?
 
-    val default: String?
+    val default: CharSequence?
 
     @XmlElement(false)
-    val fixed: String?
+    val fixed: CharSequence?
 
     val nillable: Boolean?
 

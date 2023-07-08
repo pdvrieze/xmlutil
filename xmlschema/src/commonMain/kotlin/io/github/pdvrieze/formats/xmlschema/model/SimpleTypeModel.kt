@@ -42,7 +42,15 @@ interface SimpleTypeModel : TypeModel, SimpleTypeContext {
 
     }
 
-    enum class Variety { ATOMIC, LIST, UNION, NIL }
+    enum class Variety { ATOMIC, LIST, UNION, NIL;
+
+        fun notNil(): Variety {
+            check(this != NIL) {
+                "Attempting to copy nil variety"
+            }
+            return this
+        }
+    }
 
     interface Derivation : TypeModel.Derivation
 }
