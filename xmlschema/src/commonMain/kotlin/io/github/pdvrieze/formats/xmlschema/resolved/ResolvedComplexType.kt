@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -59,7 +60,7 @@ sealed class ResolvedComplexType(
     override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
         when(val ct = mdlContentType) {
             is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
                 st.mdlFacets.validate(
@@ -345,7 +346,7 @@ sealed class ResolvedComplexType(
                         b,
                         FacetList(derivation.facets, schema),
                         b.mdlFundamentalFacets,
-                        b.mdlVariety,
+                        b.mdlVariety.notNil(),
                         b.mdlPrimitiveTypeDefinition,
                         b.mdlItemTypeDefinition,
                         b.mdlMemberTypeDefinitions,

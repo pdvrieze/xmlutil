@@ -21,6 +21,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -39,8 +40,8 @@ class XSGlobalAttribute : XSAttribute, T_GlobalAttribute {
     override val targetNamespace: Nothing? get() = null
 
     constructor(
-        default: String? = null,
-        fixed: String? = null,
+        default: VString? = null,
+        fixed: VString? = null,
         id: VID? = null,
         name: VNCName,
         type: QName? = null,

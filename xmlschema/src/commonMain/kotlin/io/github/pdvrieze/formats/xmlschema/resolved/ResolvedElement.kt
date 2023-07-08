@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
@@ -40,8 +41,9 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         get() = rawPart.type
     override val nillable: Boolean get() = rawPart.nillable ?: false
 
-    override val default: String? get() = rawPart.default
-    override val fixed: String? get() = rawPart.fixed
+    override val default: VString? get() = rawPart.default
+    override val fixed: VString? get() = rawPart.fixed
+
     val valueConstraint: ValueConstraint? by lazy {
         val rawDefault = rawPart.default
         val rawFixed = rawPart.fixed
