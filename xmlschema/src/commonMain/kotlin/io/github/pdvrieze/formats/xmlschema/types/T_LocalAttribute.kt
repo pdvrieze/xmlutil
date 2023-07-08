@@ -23,8 +23,8 @@ import nl.adaptivity.xmlutil.QName
 interface T_LocalAttribute: T_AttributeBase
 
 interface T_AttributeBase: XSI_Annotated, I_OptNamed {
-    val default: String?
-    val fixed: String?
+    val default: CharSequence?
+    val fixed: CharSequence?
     val form: T_FormChoice?
     val ref: QName?
     val type: QName?

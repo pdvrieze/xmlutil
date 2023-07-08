@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
@@ -122,21 +123,22 @@ class FacetList(
 
     }
 
-    fun validate(primitiveType: PrimitiveDatatype?, representation: String) {
+    fun validate(primitiveType: PrimitiveDatatype?, representation: VString) {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
+        val normalizedStr = normalized.toString()
 
         if (enumeration.isNotEmpty()) {
             check(enumeration.any { normalized == it.value })
         }
 
         for (pattern in patterns) {
-            check(pattern.regex.matches(normalized)) { "'$normalized' does not match expression '${pattern.value}'" }
+            check(pattern.regex.matches(normalizedStr)) { "'$normalized' does not match expression '${pattern.value}'" }
         }
 
         when (primitiveType) {
             is IStringType -> {
-                minLength?.let { check(normalized.length >= it.value.toInt()) }
-                maxLength?.let { check(normalized.length <= it.value.toInt()) }
+                minLength?.let { check(normalizedStr.length >= it.value.toInt()) }
+                maxLength?.let { check(normalizedStr.length <= it.value.toInt()) }
                 check(minConstraint == null) { "Strings can not have numeric facets" }
                 check(maxConstraint == null) { "Strings can not have numeric facets" }
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
@@ -158,7 +160,7 @@ class FacetList(
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
-                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length <= it.value.toInt()) }
+                fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
 
                 primitiveType.validateValue(actualValue)
             }
@@ -168,7 +170,7 @@ class FacetList(
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
-                fractionDigits?.let { check(normalized.substringAfterLast('.', "").length <= it.value.toInt()) }
+                fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
 
                 primitiveType.validateValue(actualValue)
             }

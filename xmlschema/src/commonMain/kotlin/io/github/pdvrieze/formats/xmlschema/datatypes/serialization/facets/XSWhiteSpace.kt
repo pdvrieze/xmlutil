@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import kotlinx.serialization.SerialName
@@ -50,12 +51,12 @@ class XSWhiteSpace(
     enum class Values {
         @SerialName("preserve")
         PRESERVE {
-            override fun normalize(representation: String): String = representation
+            override fun normalize(representation: VString): VString = representation
         },
 
         @SerialName("replace")
         REPLACE {
-            override fun normalize(representation: String): String = buildString(representation.length) {
+            override fun normalize(representation: VString): VString = buildVString(representation.length) {
                 for(c in representation) {
                     when (c) {
                         '\t', '\n', '\r' -> append(' ')
@@ -67,7 +68,7 @@ class XSWhiteSpace(
 
         @SerialName("collapse")
         COLLAPSE {
-            override fun normalize(representation: String): String = buildString(representation.length) {
+            override fun normalize(representation: VString): VString = buildVString(representation.length) {
                 var last = 'x'
                 for(c in representation) {
                     last = when (c) {
@@ -79,7 +80,15 @@ class XSWhiteSpace(
             }
         };
 
-        abstract fun normalize(representation: String): String
+        abstract fun normalize(representation: VString): VString
     }
 
+}
+
+internal inline fun buildVString(builderAction: StringBuilder.() -> Unit): VString {
+    return VString(buildString(builderAction))
+}
+
+internal inline fun buildVString(capacity: Int, builderAction: StringBuilder.() -> Unit): VString {
+    return VString(buildString(capacity, builderAction))
 }

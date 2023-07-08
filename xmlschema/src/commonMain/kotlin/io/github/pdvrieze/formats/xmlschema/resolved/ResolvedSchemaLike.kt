@@ -136,4 +136,9 @@ sealed class ResolvedSchemaLike {
                 .firstOrNull { it.qName.isEquivalent(constraintName) }
         } ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
     }
+
+    fun notation(notationName: QName): ResolvedNotation {
+        return notations.firstOrNull { it.qName.isEquivalent(notationName) }
+            ?: throw NoSuchElementException("No notation with name $notationName exists")
+    }
 }

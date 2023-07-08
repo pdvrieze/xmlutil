@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
@@ -83,13 +85,12 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for(enum in mdlFacets.enumeration) {
-                val n = qname(schema.targetNamespace?.value, enum.value)
-                schema.notations.any { it.qName.isEquivalent(n) }
+                schema.notation((enum.value as? VPrefixString)?.toQName()?: QName(enum.value.xmlString))
             }
         }
     }
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
         check (this!=mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         mdlPrimitiveTypeDefinition?.validate(representation)
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
@@ -151,7 +152,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             mdlVariety = when (simpleDerivation) {
                 is XSSimpleList -> Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
-                    it.mdlVariety.takeIf { it != Variety.NIL }
+                    it.mdlVariety.notNil()
                 } ?: Variety.ATOMIC
 
                 is XSSimpleUnion -> Variety.UNION

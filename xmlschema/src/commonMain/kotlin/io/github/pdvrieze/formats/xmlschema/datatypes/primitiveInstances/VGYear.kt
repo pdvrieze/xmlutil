@@ -21,16 +21,23 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.prefix
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
 value class VGYear(val year: Int) : VAnyAtomicType {
-    override val xmlString: String get() = year.toString().padStart(4,'0')
+    override val xmlString: String get() = year.toString().padStart(4, '0')
 }
 
 @JvmInline
 @Serializable
-value class VNotation(val value: String): VAnyAtomicType {
-    override val xmlString: String get() = value
+value class VNotation(val value: SerializableQName) : VAnyAtomicType {
+
+    constructor(str: VString) : this((str as? VPrefixString)?.toQName() ?: QName(str.xmlString))
+
+    override val xmlString: String get() = "${value.prefix}:${value.localPart}"
 }
