@@ -1164,7 +1164,11 @@ object QNameType : PrimitiveDatatype("QName", XmlSchemaConstants.XS_NAMESPACE) {
     }
 
     override fun validate(representation: VString) {
-        error("QNames cannot be represented by string")
+        val localName = when (representation) {
+            is VPrefixString -> representation.localname
+            else -> representation.xmlString
+        }
+        check(localName.indexOf(':') <0) { "local names cannot contain : characters" }
     }
 }
 
