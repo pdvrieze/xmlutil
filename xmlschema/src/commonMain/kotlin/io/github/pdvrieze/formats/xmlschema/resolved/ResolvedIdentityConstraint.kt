@@ -20,14 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
@@ -46,55 +38,3 @@ sealed interface ResolvedIdentityConstraint : ResolvedPart, T_IdentityConstraint
         }
     }
 }
-
-sealed class ResolvedIdentityConstraintBase(
-    val schema: ResolvedSchemaLike,
-    override val owner: ResolvedElement
-): IdentityConstraintModel.Ref, IdentityConstraintModel {
-    abstract val rawPart: T_IdentityConstraint
-    val id: VID? get() = rawPart.id
-
-    val annotation: XSAnnotation? get() = rawPart.annotation
-
-    override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
-
-    override val mdlAnnotations: AnnotationModel?
-        get() = rawPart.annotation.models()
-
-}
-
-sealed class ResolvedIndirectIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
-
-    abstract val ref: ResolvedNamedIdentityConstraint
-
-    final override val mdlName: VNCName get() = ref.mdlName
-
-    final override val selector: XSSelector
-        get() = ref.selector
-
-    final override val fields: List<XSField>
-        get() = ref.fields
-
-    final override val mdlSelector: XPathExpression
-        get() = ref.mdlSelector
-
-    final override val mdlFields: List<XPathExpression>
-        get() = ref.mdlFields
-}
-
-sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
-
-    abstract val name: VNCName
-
-    final override val mdlName: VNCName get() = name
-
-    final override val mdlSelector: XPathExpression
-        get() = XPathExpression(rawPart.selector.xpath.xmlString)
-
-    final override val mdlFields: List<XPathExpression>
-        get() = rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
-
-}
-

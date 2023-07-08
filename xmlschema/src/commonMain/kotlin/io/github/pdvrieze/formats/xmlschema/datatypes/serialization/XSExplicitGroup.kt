@@ -26,11 +26,8 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 
-interface XSExplicitGroup : XSI_Particle, T_ExplicitGroupParticle {
+sealed interface XSExplicitGroup : XSI_Grouplike, T_ExplicitGroupParticle {
     override val particles: List<XSI_NestedParticle>
-
-    fun hasChildren(): Boolean =
-        particles.isNotEmpty() // TODO filter out maxCount==0
 }
 
 @Serializable
@@ -42,6 +39,17 @@ sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated, T_Particle {
         override val id: Nothing? get() = null
         override val otherAttrs: Map<QName, String> get() = emptyMap()
     }
+}
+
+/**
+ * Base interface for all terms that can contain particles
+ */
+@Serializable
+sealed interface XSI_Grouplike: XSI_Particle {
+    val particles: List<XSI_Particle>
+
+    fun hasChildren(): Boolean =
+        particles.isNotEmpty() // TODO filter out maxCount==0
 }
 
 @Serializable

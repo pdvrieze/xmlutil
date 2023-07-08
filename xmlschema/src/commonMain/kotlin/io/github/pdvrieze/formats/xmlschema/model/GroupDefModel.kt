@@ -25,4 +25,3 @@ interface GroupDefModel : ElementModel.ElementParentModel, IAnnotated, INamedDec
     val mdlModelGroup: ModelGroupModel
 
 }
-

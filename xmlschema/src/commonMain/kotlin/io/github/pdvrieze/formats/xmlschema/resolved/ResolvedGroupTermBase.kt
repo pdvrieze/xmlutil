@@ -22,48 +22,60 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
 
-fun ResolvedExplicitGroup(
-    parent: ResolvedComplexType?,
-    rawPart: XSExplicitGroup,
-    schema: ResolvedSchemaLike
-): ResolvedExplicitGroup<*> = when (rawPart) {
-    is XSAll -> ResolvedAll(parent, rawPart, schema)
-    is XSChoice -> ResolvedChoice(parent, rawPart, schema)
-    is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-    else -> error("Found unsupported group: $rawPart")
-}
+/**
+ * Base class for all terms that contain groups: ResolvedAll, ResolvedChoice, ResolvedSequence, ResolvedGroup
+ */
+sealed class ResolvedGroupTermBase(
+    final override val schema: ResolvedSchemaLike
+) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle, ResolvedTerm {
 
-sealed class ResolvedExplicitGroup<out T: ResolvedExplicitGroup<T>>(
-    parent: ResolvedComplexType?,
-    override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle, ResolvedGroupParticle<T>, ModelGroupComponent {
-    abstract override val rawPart: XSExplicitGroup
+    abstract override val rawPart: XSI_Grouplike
 
-    final override val particles: List<T_Particle>
+    final override val particles: List<XSI_Particle>
         get() = rawPart.particles
 
     final override val minOccurs: VNonNegativeInteger
-        get() = mdlMinOccurs
-    final override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
 
-    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+/*
+    final override val mdlMinOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
+*/
 
-    final override val mdlMaxOccurs: T_AllNNI
+    override val maxOccurs: T_AllNNI
         get() = rawPart.maxOccurs ?: T_AllNNI(1)
 
-    final override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+/*
+    final override val mdlMaxOccurs: T_AllNNI
+        get() = rawPart.maxOccurs ?: T_AllNNI(1)
+*/
 
-    abstract override val mdlParticles: List<ResolvedParticle<*>>
+    final val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+
+    abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
 
     override fun check() {
         super<ResolvedAnnotated>.check()
         for (particle in mdlParticles) {
             particle.check()
+        }
+    }
+
+    companion object {
+        operator fun invoke(
+            parent: ResolvedComplexType?,
+            rawPart: XSExplicitGroup,
+            schema: ResolvedSchemaLike
+        ): ResolvedGroupTermBase = when (rawPart) {
+            is XSAll -> ResolvedAll(parent, rawPart, schema)
+            is XSChoice -> ResolvedChoice(parent, rawPart, schema)
+            is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+            else -> error("Found unsupported group: $rawPart")
         }
     }
 }

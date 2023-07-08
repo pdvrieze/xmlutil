@@ -36,7 +36,7 @@ interface ParticleModel<out T : Term> : IAnnotated {
         return mdlMinOccurs.toUInt() == 0u
     }
 
-    interface BasicTerm : AllTerm
+    interface BasicTerm : AllMember
 }
 
 interface Term

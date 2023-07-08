@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttribute
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 
 interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, ElementModel.ElementParentModel,
     SimpleTypeContext {
@@ -31,7 +30,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
     override val mdlFinal: Set<Derivation>
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<ResolvedAttribute>
-    val mdlAttributeWildcard: WildcardModel
+    val mdlAttributeWildcard: AnyModel
     val mdlDerivationMethod: Derivation
 
     interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global

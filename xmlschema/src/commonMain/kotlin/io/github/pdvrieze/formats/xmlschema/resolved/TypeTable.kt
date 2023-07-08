@@ -18,6 +18,8 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-typealias IXSComplexTypeShorthand=XSComplexType.Shorthand
+import io.github.pdvrieze.formats.xmlschema.types.T_AltType
+
+class TypeTable(alternatives: List<T_AltType>, default: T_AltType?)

@@ -24,16 +24,18 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 
-fun ResolvedLocalType(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedTypeContext): ResolvedLocalType {
-    return when (rawPart) {
-        is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
-        is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)
-        is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, context)
-        is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema, context)
-    }
-}
-
 sealed interface ResolvedLocalType : ResolvedType, T_LocalType, TypeModel.Local {
     override val rawPart: T_LocalType
+
+    companion object {
+        operator fun invoke(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedTypeContext): ResolvedLocalType {
+            return when (rawPart) {
+                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
+                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)
+                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, context)
+                is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema, context)
+            }
+        }
+    }
 }
 

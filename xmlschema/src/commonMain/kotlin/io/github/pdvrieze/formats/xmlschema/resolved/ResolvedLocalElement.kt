@@ -28,15 +28,25 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.T_LocalElement
+import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
     override val parent: ResolvedComplexType,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
-) : ResolvedElement(schema), ResolvedParticle<ResolvedElement>, T_LocalElement,
-    ElementModel.Local<ResolvedElement>, ResolvedComplexTypeContext, ElementModel.Scope.Local {
+) : ResolvedElement(schema),
+    ResolvedParticle<ResolvedLocalElement>,
+    T_LocalElement,
+    ElementModel.Local<ResolvedLocalElement>,
+    ResolvedComplexTypeContext,
+    ElementModel.Scope.Local,
+    ResolvedAllMember {
+
     override val id: VID? get() = rawPart.id
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs

@@ -20,40 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.ConstructedListDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
-import nl.adaptivity.xmlutil.QName
-
-abstract class ResolvedListDerivationBase(
-    schema: ResolvedSchemaLike
-) : ResolvedSimpleType.Derivation(schema),
-    T_SimpleType.T_List {
-    abstract override val rawPart: T_SimpleType.T_List
-
-    override val itemTypeName: QName? get() = rawPart.itemTypeName
-    abstract override val simpleType: ResolvedLocalSimpleType?
-
-    val itemType: ResolvedSimpleType by lazy {
-        val itemTypeName = rawPart.itemTypeName
-        when {
-            itemTypeName != null -> schema.simpleType(itemTypeName)
-            else -> {
-                simpleType ?: error("Item type is not specified, either by name or member")
-            }
-        }
-    }
-
-    override val baseType: ResolvedSimpleType get() = AnySimpleType
-
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        simpleType?.check(seenTypes, inheritedTypes)
-        itemType.check(seenTypes, inheritedTypes)
-    }
-}
 
 class ResolvedListDerivation(
     override val rawPart: XSSimpleList,
@@ -68,9 +35,3 @@ class ResolvedListDerivation(
 
 }
 
-class BuiltinListDerivation(
-    override val rawPart: ConstructedListDatatype,
-    schema: ResolvedSchemaLike
-) : ResolvedListDerivationBase(schema) {
-    override val simpleType: Nothing? get() = null
-}
