@@ -40,10 +40,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.qname
+import nl.adaptivity.xmlutil.*
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
     override val simpleDerivation: Derivation
@@ -85,7 +82,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for(enum in mdlFacets.enumeration) {
-                schema.notation((enum.value as? VPrefixString)?.toQName()?: QName(enum.value.xmlString))
+                schema.notation((enum.value as? VPrefixString)?.toQName() ?: QName(enum.value.xmlString))
             }
         }
     }
