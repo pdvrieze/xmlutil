@@ -68,7 +68,7 @@ sealed class ResolvedGroupTermBase(
 
     companion object {
         operator fun invoke(
-            parent: ResolvedComplexType?,
+            parent: ResolvedComplexType,
             rawPart: XSExplicitGroup,
             schema: ResolvedSchemaLike
         ): ResolvedGroupTermBase = when (rawPart) {

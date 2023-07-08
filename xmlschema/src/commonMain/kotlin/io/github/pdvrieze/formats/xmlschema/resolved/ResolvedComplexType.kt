@@ -37,7 +37,12 @@ import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
-) : ResolvedType, T_ComplexType, ResolvedLocalAttribute.Parent, ElementModel.ElementParentModel, ComplexTypeModel {
+) : ResolvedType,
+    T_ComplexType,
+    ResolvedLocalAttribute.Parent,
+    ResolvedLocalElement.Parent,
+    ResolvedParticleParent,
+    ComplexTypeModel {
     abstract override val rawPart: XSComplexType
 
     abstract override val content: ResolvedComplexTypeContent

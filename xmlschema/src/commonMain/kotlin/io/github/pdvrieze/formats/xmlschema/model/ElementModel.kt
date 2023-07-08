@@ -78,7 +78,7 @@ interface ElementModel : IAnnotated, IOptNamed {
 
         interface Local : Scope {
             override val variety: XSScopeVariety get() = XSScopeVariety.LOCAL
-            val parent: ElementParentModel
+            val parent: Any?
         }
     }
 

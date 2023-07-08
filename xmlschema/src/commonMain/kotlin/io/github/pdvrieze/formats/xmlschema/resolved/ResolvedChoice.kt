@@ -36,7 +36,7 @@ interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, ModelGroupModel,
 }
 
 class ResolvedChoice(
-    parent: ResolvedComplexType?,
+    parent: ResolvedParticleParent,
     override val rawPart: XSChoice,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<ResolvedChoice>(schema),
@@ -50,7 +50,7 @@ class ResolvedChoice(
     override val mdlTerm: ResolvedChoice get() = this
 
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = DelegateList(rawPart.particles) {
-        ResolvedParticle(parent, it, schema)
+        ResolvedParticle.choiceSeqMember(parent, it, schema)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
 
 class ResolvedAll(
-    parent: ResolvedComplexType?,
+    parent: ResolvedParticleParent,
     override val rawPart: XSAll,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<ResolvedAll>(schema),
@@ -38,7 +38,7 @@ class ResolvedAll(
     T_All {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>> = DelegateList(rawPart.particles) {
-        ResolvedParticle.invoke(parent, it, schema)
+        ResolvedParticle.allMember(parent, it, schema)
     }
 
     override val maxOccurs: T_AllNNI.Value
