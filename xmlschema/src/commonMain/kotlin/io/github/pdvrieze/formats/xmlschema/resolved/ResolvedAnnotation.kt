@@ -38,10 +38,3 @@ class ResolvedAnnotation(val rawPart: XSAnnotation) : XSI_OpenAttrs, AnnotationM
     override val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
     override val mdlAttributes: Map<QName, String> get() = otherAttrs
 }
-
-fun XSAnnotation?.models(): ResolvedAnnotation? = when (this){
-    null -> null
-    else -> ResolvedAnnotation(this)
-}
-
-

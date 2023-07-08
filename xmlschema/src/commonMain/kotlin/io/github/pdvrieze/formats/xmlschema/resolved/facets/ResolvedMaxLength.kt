@@ -18,21 +18,16 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.model
+package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
-import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
-//ParticleModel<AnyModel>, AllTerm, ChoiceSeqTerm, ParticleModel.BasicTerm
-interface WildcardModel : IAnnotated, ParticleModel.BasicTerm {
-    val mdlNamespaceConstraint: Set<NamespaceConstraint>
-    val mdlProcessContents: T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxLength
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-    interface NamespaceConstraint {
-        val mdlVariety: Variety
-        val namespaces: Set<VAnyURI>
-        val disallowedNames: T_QNameListA
+class ResolvedMaxLength(override val rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(schema),
+    IResolvedMaxLength {
 
-        enum class Variety { ANY, ENUMERATION, NOT}
+    override val value: ULong get() = rawPart.value
+    override fun checkLength(resolvedLength: Int, repr: String) {
+        check(resolvedLength <= value.toInt()) { "length($resolvedLength) of ${repr} is not at most $value" }
     }
 }

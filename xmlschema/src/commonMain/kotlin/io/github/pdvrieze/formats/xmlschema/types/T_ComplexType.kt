@@ -64,7 +64,7 @@ interface T_ComplexType : T_Type {
     }
 
     interface ParticleProperties {
-        val term: T_Particle?
+//        val term: T_Particle?
     }
 
     interface DerivationParticle: T_Particle
