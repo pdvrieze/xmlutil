@@ -20,16 +20,20 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 
-sealed class ValueConstraint(val value: String) {
-    class Default(value: String) : ValueConstraint(value)
-    class Fixed(value: String) : ValueConstraint(value)
+sealed class ValueConstraint(val value: VString) {
+    class Default(value: VString) : ValueConstraint(value)
+    class Fixed(value: VString) : ValueConstraint(value)
 
     companion object {
         operator fun invoke(attr: XSAttribute): ValueConstraint? {
             return when {
-                attr.default != null -> { check(attr.use!=null); Default(attr.default) }
+                attr.default != null -> {
+                    check(attr.use != null); Default(attr.default)
+                }
+
                 attr.fixed != null -> Fixed(attr.fixed)
                 else -> null
             }

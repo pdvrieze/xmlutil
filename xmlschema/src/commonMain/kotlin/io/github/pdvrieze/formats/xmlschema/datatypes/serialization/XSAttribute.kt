@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -32,8 +33,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 abstract class XSAttribute(
-    final override val default: String? = null,
-    final override val fixed: String? = null,
+    final override val default: VString? = null,
+    final override val fixed: VString? = null,
     final override val id: VID? = null,
     final override val type: SerializableQName? = null,
     final override val inheritable: Boolean? = null,

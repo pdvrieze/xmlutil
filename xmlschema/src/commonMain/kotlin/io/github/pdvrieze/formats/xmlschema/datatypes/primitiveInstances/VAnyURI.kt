@@ -26,6 +26,8 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @Serializable
 value class VAnyURI(val value: String): VAnyAtomicType, CharSequence {
+    constructor(charSequence: CharSequence) : this(charSequence.toString())
+
     override val xmlString: String get() = value
 
     override val length: Int get() = xmlString.length

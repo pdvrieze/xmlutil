@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
@@ -38,10 +39,10 @@ class ResolvedGlobalAttribute(
     override val id: VID?
         get() = rawPart.id
 
-    override val default: String?
+    override val default: VString?
         get() = rawPart.default
 
-    override val fixed: String?
+    override val fixed: VString?
         get() = rawPart.fixed
 
     override val name: VNCName

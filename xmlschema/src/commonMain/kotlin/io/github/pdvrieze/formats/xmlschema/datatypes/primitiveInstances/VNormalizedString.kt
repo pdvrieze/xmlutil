@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhi
 interface VNormalizedString : VString {
     companion object {
         operator fun invoke(string: String): VNormalizedString {
-            return Impl(XSWhiteSpace.Values.REPLACE.normalize(string))
+            return Impl(XSWhiteSpace.Values.REPLACE.normalize(VString(string)).xmlString)
         }
     }
 

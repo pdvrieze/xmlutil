@@ -20,9 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.types.T_AltType
+import io.github.pdvrieze.formats.xmlschema.types.T_Element
 
 interface XSIElement : T_Element {
+    override val default: VString?
+
+    override val fixed: VString?
+
     override val keyrefs: List<XSKeyRef>
 
     override val uniques: List<XSUnique>

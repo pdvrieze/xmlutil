@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
@@ -43,7 +44,7 @@ class SyntheticSimpleType(
     override val model: SyntheticSimpleType get() = this
     override val rawPart: Nothing get() = error("Not supported")
 
-    override fun validate(representation: String) {
+    override fun validate(representation: VString) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 }
