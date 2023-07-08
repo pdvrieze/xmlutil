@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
@@ -77,6 +78,13 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             else -> {
                 val qName = n.toQname(schema.targetNamespace)
                 simpleDerivation.check(SingleLinkedList(qName), inheritedTypes + qName)
+            }
+        }
+
+        if (mdlPrimitiveTypeDefinition == NotationType) {
+            for(enum in mdlFacets.enumeration) {
+                val n = qname(schema.targetNamespace?.value, enum.value)
+                schema.notations.any { it.qName.isEquivalent(n) }
             }
         }
     }
@@ -143,7 +151,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             mdlVariety = when (simpleDerivation) {
                 is XSSimpleList -> Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
-                    it.mdlVariety
+                    it.mdlVariety.takeIf { it != Variety.NIL }
                 } ?: Variety.ATOMIC
 
                 is XSSimpleUnion -> Variety.UNION
@@ -270,9 +278,10 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 seenTypes: SingleLinkedList<ResolvedSimpleType> = SingleLinkedList(),
                 valueFun: (ResolvedSimpleType) -> R
             ): R {
-                when (startType) {
-                    is ResolvedBuiltinType -> return valueFun(startType)
-                    in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
+                when  {
+                    startType is ResolvedBuiltinType -> return valueFun(startType)
+                    startType in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
+                    startType.simpleDerivation is ResolvedListDerivationBase -> return valueFun(startType)
                     else -> {}
                 }
 
