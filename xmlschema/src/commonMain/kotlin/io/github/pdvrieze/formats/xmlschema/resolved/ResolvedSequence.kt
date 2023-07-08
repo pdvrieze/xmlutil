@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 
 class ResolvedSequence(
-    parent: ResolvedComplexType?,
+    parent: ResolvedParticleParent,
     override val rawPart: XSSequence,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<ResolvedSequence>(schema),

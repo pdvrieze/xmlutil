@@ -36,7 +36,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Scope
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
-    override val parent: ResolvedComplexType,
+    override val parent: ResolvedParticleParent,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike
 ) : ResolvedElement(schema),
@@ -108,7 +108,7 @@ class ResolvedLocalElement(
         keys.forEach { it.check() }
     }
 
-    interface Model: ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>
+    interface Model : ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>
 
     private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
@@ -133,4 +133,8 @@ class ResolvedLocalElement(
             get() = TODO("not implemented")
     }
 
+    interface Parent : ElementModel.ElementParentModel
+
 }
+
+interface ResolvedParticleParent

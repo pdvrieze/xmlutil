@@ -55,7 +55,7 @@ class XSGroup(
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
     class All(
-        override val particles: List<XSI_AllParticle> = emptyList(),
+        override val particles: List<XSLocalElement> = emptyList(),
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
         override val id: VID? = null,
