@@ -26,8 +26,6 @@ interface T_SimpleExtensionType : T_ExtensionType,
 
     override val base: QName
 
-    override val term: Nothing? get() = null
-
     override val openContent: XSOpenContent? get() = null
 
 }
@@ -38,8 +36,6 @@ interface T_SimpleRestrictionType : T_ExtensionType,
     // TODO remove inheritance of complexExtension
 
     override val base: QName
-
-    override val term: Nothing? get() = null
 
     override val openContent: XSOpenContent? get() = null
 

@@ -20,73 +20,23 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_Key
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
-
-fun ResolvedKey(
-    rawPart: XSKey,
-    schema: ResolvedSchemaLike,
-    owner: ResolvedElement,
-): ResolvedKey = when(rawPart.name) {
-    null -> ResolvedIndirectKey(rawPart, schema, owner)
-    else -> ResolvedDirectKey(rawPart, schema, owner)
-}
 
 interface ResolvedKey : T_Key, IdentityConstraintModel.Key, ResolvedIdentityConstraint, ResolvedPart {
     override val rawPart: XSKey
 
-}
-
-class ResolvedDirectKey(
-    override val rawPart: XSKey,
-    schema: ResolvedSchemaLike,
-    owner: ResolvedElement,
-): ResolvedNamedIdentityConstraint(schema, owner), T_Key, ResolvedKey {
-    override val name: VNCName = checkNotNull(rawPart.name)
-
-    val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
-
-    override val selector: XSSelector get() = rawPart.selector
-
-    override val fields: List<XSField> get() = rawPart.fields
-
-    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
-        get() = IdentityConstraintModel.Category.KEY
-
-    override val constraint: ResolvedDirectKey
-        get() = this
-
-    override fun check() {
-        super<ResolvedNamedIdentityConstraint>.check()
-        checkNotNull(rawPart.name)
+    companion object {
+        operator fun invoke(
+            rawPart: XSKey,
+            schema: ResolvedSchemaLike,
+            owner: ResolvedElement,
+        ): ResolvedKey = when(rawPart.name) {
+            null -> ResolvedIndirectKey(rawPart, schema, owner)
+            else -> ResolvedDirectKey(rawPart, schema, owner)
+        }
     }
 
 }
 
-class ResolvedIndirectKey(
-    override val rawPart: XSKey,
-    schema: ResolvedSchemaLike,
-    owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(schema, owner), T_Key, ResolvedKey {
-
-    override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
-        is ResolvedDirectKey -> r
-        is ResolvedIndirectKey -> r.ref
-        else -> throw IllegalArgumentException("Key's ref property ${rawPart.ref} does not refer to a key")
-    }
-
-    override val constraint: ResolvedIndirectKey
-        get() = this
-
-    override fun check() {
-        super<ResolvedIndirectIdentityConstraint>.check()
-        check(rawPart.name == null)
-    }
-
-}

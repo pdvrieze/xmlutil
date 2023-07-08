@@ -22,9 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import io.github.pdvrieze.formats.xmlschema.resolved.FacetList
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedFacet
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
 interface SimpleTypeModel : TypeModel, SimpleTypeContext {

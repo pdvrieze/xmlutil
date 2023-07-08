@@ -22,24 +22,34 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
-import io.github.pdvrieze.formats.xmlschema.model.ChoiceSeqTerm
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_Choice
+
+interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, ModelGroupModel, IResolvedGroupMember {
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
+    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
+
+    override fun check() {
+        //TODO("not implemented")
+    }
+}
 
 class ResolvedChoice(
     parent: ResolvedComplexType?,
     override val rawPart: XSChoice,
-    override val schema: ResolvedSchemaLike
-) : ResolvedExplicitGroup<ResolvedChoice>(parent, schema), T_Choice,
+    schema: ResolvedSchemaLike
+) : ResolvedGroupParticleTermBase<ResolvedChoice>(schema),
+    IResolvedChoice,
+    T_Choice,
     ResolvedComplexType.ResolvedDirectParticle<ResolvedChoice>,
-    ResolvedChoiceSeqTerm,
-    ChoiceModel<ResolvedChoice>, ChoiceSeqTerm {
-
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
+    ChoiceModel,
+    ResolvedChoiceSeqMember,
+    ResolvedGroupParticle<ResolvedChoice> {
 
     override val mdlTerm: ResolvedChoice get() = this
 
-    override val mdlParticles: List<ResolvedParticle<*>> = DelegateList(rawPart.particles) {
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = DelegateList(rawPart.particles) {
         ResolvedParticle(parent, it, schema)
     }
 
@@ -61,4 +71,8 @@ class ResolvedChoice(
             require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
         }
     */
+
+    override fun check() {
+        super<ResolvedGroupParticleTermBase>.check()
+    }
 }

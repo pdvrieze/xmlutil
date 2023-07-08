@@ -47,7 +47,7 @@ class XSGroup(
     override val targetNamespace: Nothing? get() = null
 
     @Serializable
-    sealed class XSGroupElement: T_NamedGroup.Particle {
+    sealed class XSGroupElement : T_NamedGroup.Particle, XSI_Annotated {
         override val minOccurs: Nothing? get() = null
         override val maxOccurs: Nothing? get() = null
     }
@@ -55,15 +55,14 @@ class XSGroup(
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
     class All(
-        override val elements: List<XSLocalElement> = emptyList(),
-        override val anys: List<XSAny> = emptyList(),
-        override val groups: List<XSGroupRef> = emptyList(),
+        override val particles: List<XSI_AllParticle> = emptyList(),
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ): XSGroupElement(), T_NamedGroup.All, XSI_Annotated
+    ) : XSGroupElement(), T_NamedGroup.All {
+    }
 
     @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -85,6 +84,6 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ): XSGroupElement(), T_NamedGroup.Sequence
+    ) : XSGroupElement(), T_NamedGroup.Sequence
 
 }

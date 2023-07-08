@@ -30,5 +30,5 @@ sealed interface XSI_ComplexContent : XSComplexType.Content, XSI_Annotated {
 }
 
 sealed interface XSI_ComplexDerivation : T_ComplexDerivation, XSComplexType.Derivation {
-    override val term: XSComplexContent.XSIDerivationParticle?
+    val term: XSComplexContent.XSIDerivationParticle?
 }

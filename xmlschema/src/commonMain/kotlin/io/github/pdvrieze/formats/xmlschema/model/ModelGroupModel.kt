@@ -20,26 +20,34 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface ModelGroupComponent : IAnnotated {
-    val mdlCompositor: ModelGroupModel.Compositor
-    val mdlParticles: List<ParticleModel<*>>
-}
-
-interface ModelGroupModel : IAnnotated {
-/*
+/**
+ * Base interface for types that hold particles (all, choice, sequence)
+ */
+interface ModelGroupModel : IAnnotated, Term {
     val mdlCompositor: Compositor
-    val mdlParticles: List<ModelGroupModel>
-*/
+    val mdlParticles: List<ParticleModel<Term>>
 
     enum class Compositor { ALL, CHOICE, SEQUENCE }
-
 }
 
-interface ChoiceSeqTerm : Term
-interface DerivationTerm: ChoiceSeqTerm
-interface AllTerm : DerivationTerm
+/**
+ * Base interface for terms that can be defined in a group: all, choice, sequence
+ * @param M The kind of particles contained
+ */
+interface GroupMember : ModelGroupModel, Term {
+}
 
-interface GroupRefModel : ParticleModel<GroupDefModel>, AllTerm {
+/** Base interface for terms that can be defined in a choice or sequence: */
+interface ChoiceSeqMember : Term
+
+/** Base interface for terms that can be defined in an all: */
+interface AllMember : ChoiceSeqMember
+
+interface GroupRefModel : IAnnotated {
+    val mdlTerm: GroupDefModel
+}
+
+interface GroupRefParticleModel : GroupRefModel, ParticleModel<GroupDefModel>, AllMember {
 
     override fun mdlIsEmptiable(): Boolean {
         return super.mdlIsEmptiable() || effectiveTotalRange.start.toUInt() == 0u

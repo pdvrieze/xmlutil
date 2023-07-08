@@ -53,7 +53,7 @@ interface ElementModel : IAnnotated, IOptNamed {
     /**
      * Local element without ref and present
      */
-    interface Local<T : Term> : ElementModel, IOptNamedDecl, ParticleModel<T>, ParticleModel.BasicTerm {
+    interface Local<T : Local<T>> : ElementModel, IOptNamedDecl, ParticleModel<T>, ParticleModel.BasicTerm {
         val mdlScope: Scope.Local
 
         /** Return this */
