@@ -1337,49 +1337,9 @@ object NCNameType : PrimitiveDatatype("NCName", XmlSchemaConstants.XS_NAMESPACE)
 
     fun isNCName(str: CharSequence): Boolean {
         if (str.length == 0) return false
-        when (str[0]) {
-            '\u00f7',
-            '\u037E' -> return false
-
-            in 'A'..'Z',
-            '_',
-            in 'a'..'z',
-            in '\u00c0'..'\u00d6',
-            in '\u00d8'..'\u02ff',
-            in '\u0370'..'\u1FFF',
-            '\u200C', '\u200D',
-            in '\u2070'..'\u218f',
-            in '\u2C00'..'\u2FEF',
-            in '\u3001'..'\uD7FF',
-            in '\uF900'..'\uFDCF',
-            in '\uFDF0'..'\uFFFD', -> Unit
-
-            else -> return false
-        }
+        if (!isNameStartChar(str[0], false)) return false
         for (idx in 1 until str.length) {
-            val c = str[idx]
-            when (str[0]) {
-                '\u00f7',
-                '\u037E' -> return false
-
-                in 'A'..'Z',
-                '_',
-                '-',
-                in 'a'..'z',
-                in '0'..'9',
-                '\u00b7',
-                in '\u00c0'..'\u00d6',
-                in '\u00d8'..'\u1FFF',
-                '\u200C', '\u200D',
-                '\u203F', '\u2040',
-                in '\u2070'..'\u218f',
-                in '\u2C00'..'\u2FEF',
-                in '\u3001'..'\uD7FF',
-                in '\uF900'..'\uFDCF',
-                in '\uFDF0'..'\uFFFD', -> Unit
-
-                else -> return false
-            }
+            if (!isNameChar(str[idx], false)) return false
         }
         return true
     }
