@@ -16,30 +16,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias T_BlockSet = Set<T_BlockSetValues>
 
 @Serializable
-enum class T_BlockSetValues {
-    @SerialName("extension")
-    EXTENSION,
+sealed interface T_BlockSetValues
 
-    @SerialName("restriction")
-    RESTRICTION,
-
-    @SerialName("substitution")
-    SUBSTITUTION
-}
-
-fun T_BlockSet.toDerivationSet(): Set<T_TypeDerivationControl.ComplexBase> {
-    return asSequence().mapNotNull {
-        when (it) {
-            T_BlockSetValues.EXTENSION -> T_TypeDerivationControl.EXTENSION
-            T_BlockSetValues.RESTRICTION -> T_TypeDerivationControl.RESTRICTION
-            T_BlockSetValues.SUBSTITUTION -> null
-        }
-    }.toSet()
+fun T_BlockSet.toDerivationSet(): Set<T_DerivationControl.ComplexBase> {
+    return asSequence().filterIsInstance<T_DerivationControl.ComplexBase>().toSet()
 }

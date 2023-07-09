@@ -22,9 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.T_TopLevelComplexType_Simple
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -33,8 +32,8 @@ class XSGlobalComplexTypeSimple(
     name: VNCName,
     mixed: Boolean?,
     abstract: Boolean?,
-    final: Set<T_TypeDerivationControl.ComplexBase>?,
-    block: Set<T_TypeDerivationControl.ComplexBase>?,
+    final: Set<T_DerivationControl.ComplexBase>?,
+    block: Set<T_DerivationControl.ComplexBase>?,
     defaultAttributesApply: Boolean?,
     override val content: XSSimpleContent,
     id: VID? = null,
