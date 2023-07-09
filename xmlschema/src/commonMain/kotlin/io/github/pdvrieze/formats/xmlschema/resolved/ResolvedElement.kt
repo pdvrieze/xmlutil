@@ -80,7 +80,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlNillable: Boolean get() = model.mdlNillable
     override val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
     override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
-    override val mdlSubstitutionGroupAffiliations: Set<Use> get() = model.mdlSubstitutionGroupAffiliations
+    override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
     override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
     override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
@@ -128,22 +128,22 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
 
-    interface Use: ElementModel.Use
-    interface Ref: ElementModel.Ref {
+    interface Use : ElementModel.Use
+    interface Ref : ElementModel.Ref {
         override val mdlTerm: ResolvedGlobalElement
     }
 
-    interface Model: ElementModel {
+    interface Model : ElementModel {
         override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
         override val mdlTypeDefinition: ResolvedType
-        override val mdlSubstitutionGroupAffiliations: Set<Use>
+        override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
     }
 
-    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) : Model {
+    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
+        Model {
         final override val mdlNillable: Boolean = rawPart.nillable ?: false
 
-        final override val mdlSubstitutionGroupAffiliations: Set<ResolvedGlobalElement> =
-            rawPart.substitutionGroup?.mapTo(HashSet()) { schema.element(it) } ?: emptySet()
+        abstract override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
 
         final override val mdlDisallowedSubstitutions: T_BlockSet =
             (rawPart.block ?: schema.blockDefault)
@@ -156,16 +156,18 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
         final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
 
-        final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> = mutableSetOf<ResolvedIdentityConstraint>().also { set ->
-            rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
-            rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
-            rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
-        }
+        final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
+            mutableSetOf<ResolvedIdentityConstraint>().also { set ->
+                rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
+                rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
+                rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
+            }
 
-        final override val mdlTypeDefinition: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
-            ?: rawPart.type?.let { schema.type(it) }
-            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
-            ?: AnyType
+        final override val mdlTypeDefinition: ResolvedType =
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+                ?: rawPart.type?.let { schema.type(it) }
+                ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
+                ?: AnyType
 
     }
 

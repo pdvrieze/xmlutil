@@ -30,7 +30,7 @@ interface ElementModel : IAnnotated, IOptNamed {
     val mdlNillable: Boolean
     val mdlValueConstraint: ValueConstraintModel?
     val mdlIdentityConstraints: Set<IdentityConstraintModel.Ref>
-    val mdlSubstitutionGroupAffiliations: Set<Use>
+    val mdlSubstitutionGroupAffiliations: List<Use>
     val mdlDisallowedSubstitutions: T_BlockSet
     val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation>
     val mdlAbstract: Boolean
