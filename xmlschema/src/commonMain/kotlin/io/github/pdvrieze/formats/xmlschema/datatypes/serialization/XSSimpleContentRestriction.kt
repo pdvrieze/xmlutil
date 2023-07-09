@@ -20,6 +20,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleRestrictionType
 import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import kotlinx.serialization.Serializable
@@ -60,5 +61,5 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, I_AttributeContaine
     override val facets: List<XSFacet>
 
     override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
-    override val derivationMethod: T_TypeDerivationControl.RESTRICTION get() = T_TypeDerivationControl.RESTRICTION
+    override val derivationMethod: T_DerivationControl.RESTRICTION get() = T_DerivationControl.RESTRICTION
 }

@@ -28,10 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
@@ -57,20 +54,22 @@ sealed class ResolvedComplexType(
     override val mdlAttributeUses: Set<ResolvedAttribute> get() = model.mdlAttributeUses
     override val mdlAttributeWildcard: AnyModel get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
-    override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase get() = model.mdlDerivationMethod
+    override val mdlDerivationMethod: T_DerivationControl.ComplexBase get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
     override fun validate(representation: VString) {
-        when(val ct = mdlContentType) {
+        when (val ct = mdlContentType) {
             is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
                 st.mdlFacets.validate(
                     st.mdlPrimitiveTypeDefinition,
                     representation
                 ); st.validate(representation)
             }
+
             is MixedContentType -> {
                 check(ct.mdlParticle.mdlIsEmptiable()) { "Defaults are only valid for mixed content if the particle is emptiable" }
             }
+
             else -> error("The value ${representation} is not valid in an element-only complex type")
         }
     }
@@ -90,9 +89,9 @@ sealed class ResolvedComplexType(
 
     interface Model : ComplexTypeModel {
         override val mdlBaseTypeDefinition: ResolvedType
-        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase>
+        override val mdlFinal: Set<T_DerivationControl.ComplexBase>
         override val mdlContentType: ResolvedContentType
-        override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase
+        override val mdlDerivationMethod: T_DerivationControl.ComplexBase
     }
 
     protected abstract class ModelBase(
@@ -126,7 +125,7 @@ sealed class ResolvedComplexType(
 
         final override val mdlBaseTypeDefinition: ResolvedType
 
-        final override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase
+        final override val mdlDerivationMethod: T_DerivationControl.ComplexBase
 
         init {
             val baseTypeDefinition: ResolvedType
@@ -161,9 +160,10 @@ sealed class ResolvedComplexType(
                         // Do this after recursion test (otherwise it causes a stack overflow)
                         when (derivation) {
                             is XSComplexContent.XSExtension ->
-                                require(T_TypeDerivationControl.EXTENSION !in baseType.mdlFinal) { "Type $base is final for extension" }
+                                require(T_DerivationControl.EXTENSION !in baseType.mdlFinal) { "Type $base is final for extension" }
+
                             is XSComplexContent.XSRestriction ->
-                                require(T_TypeDerivationControl.RESTRICTION !in baseType.mdlFinal) { "Type $base is final for restriction"}
+                                require(T_DerivationControl.RESTRICTION !in baseType.mdlFinal) { "Type $base is final for restriction" }
                         }
 
                         baseTypeDefinition = baseType
@@ -183,8 +183,8 @@ sealed class ResolvedComplexType(
             mdlBaseTypeDefinition = baseTypeDefinition
 
             mdlDerivationMethod = when (derivation) {
-                is XSComplexContent.XSExtension -> T_TypeDerivationControl.EXTENSION
-                else -> T_TypeDerivationControl.RESTRICTION
+                is XSComplexContent.XSExtension -> T_DerivationControl.EXTENSION
+                else -> T_DerivationControl.RESTRICTION
             }
 
 
@@ -262,9 +262,9 @@ sealed class ResolvedComplexType(
 
             val wildcardElement: XSI_OpenContent? =
                 (rawPart as? XSComplexType.Shorthand)?.openContent
-                ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
-                    explicitContentType.mdlVariety != ComplexTypeModel.Variety.EMPTY || it.appliesToEmpty
-                }
+                    ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
+                        explicitContentType.mdlVariety != ComplexTypeModel.Variety.EMPTY || it.appliesToEmpty
+                    }
 
             if (wildcardElement == null || wildcardElement.mode == T_ContentMode.NONE) {
                 mdlContentType = explicitContentType
@@ -321,8 +321,8 @@ sealed class ResolvedComplexType(
             val baseType: ResolvedType = derivation.base?.let { schema.type(it) } ?: AnyType
 
             when (derivation) {
-                is XSSimpleContentExtension -> require(T_TypeDerivationControl.EXTENSION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
-                is XSSimpleContentRestriction -> require(T_TypeDerivationControl.RESTRICTION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
+                is XSSimpleContentExtension -> require(T_DerivationControl.EXTENSION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
+                is XSSimpleContentRestriction -> require(T_DerivationControl.RESTRICTION !in baseType.mdlFinal) { "${derivation.base} is final for extension" }
                 else -> error("Unsupported derivation child.")
             }
 
@@ -386,7 +386,7 @@ sealed class ResolvedComplexType(
 
         }
 
-        override val mdlDerivationMethod: T_TypeDerivationControl.ComplexBase =
+        override val mdlDerivationMethod: T_DerivationControl.ComplexBase =
             rawPart.content.derivation.derivationMethod
     }
 
@@ -476,12 +476,12 @@ sealed class ResolvedComplexType(
                 // Extension/restriction. Only restriction can prohibit attributes.
                 val t = parent.mdlBaseTypeDefinition as? ResolvedComplexType
                 when (t?.mdlDerivationMethod) {
-                    T_TypeDerivationControl.EXTENSION ->
+                    T_DerivationControl.EXTENSION ->
                         for (a in t.mdlAttributeUses) {
                             require(put(a.mdlQName, a) == null) { "Duplicate attribute $a" }
                         }
 
-                    T_TypeDerivationControl.RESTRICTION ->
+                    T_DerivationControl.RESTRICTION ->
                         for (a in t.mdlAttributeUses) {
                             if (a.mdlQName !in prohibitedAttrs) {
                                 getOrPut(a.mdlQName) { a }

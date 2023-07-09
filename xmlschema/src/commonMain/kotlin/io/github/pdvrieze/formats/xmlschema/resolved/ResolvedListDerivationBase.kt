@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
@@ -52,7 +53,7 @@ abstract class ResolvedListDerivationBase(
         simpleType?.check(seenTypes, inheritedTypes)
         itemType.check(seenTypes, inheritedTypes)
 
-        check(T_TypeDerivationControl.LIST !in itemType.mdlFinal) {
+        check(T_DerivationControl.LIST !in itemType.mdlFinal) {
             "$baseType is final for list, and can not be put in a list"
         }
         check(itemType.mdlVariety != SimpleTypeModel.Variety.LIST) {
