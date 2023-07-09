@@ -17,25 +17,27 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
-sealed class T_TypeDerivationControl(val name: String) : SimpleTypeModel.Derivation {
+sealed class T_DerivationControl(val name: String) {
     sealed class ComplexBase(name: String) : T_TypeDerivationControl(name), ComplexTypeModel.Derivation
 
-    object RESTRICTION : ComplexBase("restriction")
+    object RESTRICTION : ComplexBase("restriction"), T_BlockSetValues
 
-    object EXTENSION : ComplexBase("extension")
+    object EXTENSION : ComplexBase("extension"), T_BlockSetValues
 
     object LIST : T_TypeDerivationControl("list")
 
     object UNION : T_TypeDerivationControl("union")
 
+    object SUBSTITUTION : T_DerivationControl("substitution"), T_BlockSetValues
+
 }
 
-fun Set<TypeModel.Derivation>.toDerivationSet(): Set<T_TypeDerivationControl.ComplexBase> =
+
+sealed class T_TypeDerivationControl(name: String) : T_DerivationControl(name), TypeModel.Derivation
+
+fun Set<TypeModel.Derivation>.toDerivationSet(): Set<T_DerivationControl.ComplexBase> =
     asSequence()
-        .filterIsInstance<T_TypeDerivationControl.ComplexBase>()
+        .filterIsInstance<T_DerivationControl.ComplexBase>()
         .toSet()

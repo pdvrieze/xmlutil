@@ -47,25 +47,25 @@ class ResolvedGlobalElement(
         checkSingleType()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(SingleLinkedList(), SingleLinkedList())
-        if (T_BlockSetValues.SUBSTITUTION in mdlDisallowedSubstitutions) {
+        if (T_DerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }
 
-        val otherDisallowed = mdlDisallowedSubstitutions.toDerivationSet()
-        if (mdlSubstitutionGroupMembers.isNotEmpty() && otherDisallowed.isNotEmpty()) {
+        val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
+        if (mdlSubstitutionGroupMembers.isNotEmpty() && otherExcluded.isNotEmpty()) {
             for (substGroupMember in mdlSubstitutionGroupMembers) {
                 val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
                     is ResolvedComplexType -> t.mdlDerivationMethod
                     is ResolvedSimpleType -> when (t.mdlVariety) {
-                        SimpleTypeModel.Variety.ATOMIC -> T_TypeDerivationControl.RESTRICTION
-                        SimpleTypeModel.Variety.LIST -> T_TypeDerivationControl.LIST
-                        SimpleTypeModel.Variety.UNION -> T_TypeDerivationControl.UNION
+                        SimpleTypeModel.Variety.ATOMIC -> T_DerivationControl.RESTRICTION
+                        SimpleTypeModel.Variety.LIST -> T_DerivationControl.LIST
+                        SimpleTypeModel.Variety.UNION -> T_DerivationControl.UNION
                         SimpleTypeModel.Variety.NIL -> null
                     }
-                    else -> error("Compiler error")
+                    else -> null // shouldn't happen
                 }
                 if (deriv != null) {
-                    check(deriv !in otherDisallowed)
+                    check(deriv !in otherExcluded)
                 }
 
             }
@@ -79,6 +79,10 @@ class ResolvedGlobalElement(
             }
             substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
         }
+    }
+
+    override fun toString(): String {
+        return "ResolvedGlobalElement($qName, typeDef=$typeDef)"
     }
 
     val substitutionGroups: List<ResolvedGlobalElement> =
@@ -121,7 +125,7 @@ class ResolvedGlobalElement(
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
 
-    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroup
+    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupMembers
 
     val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
         @Suppress("UNCHECKED_CAST")
@@ -155,7 +159,7 @@ class ResolvedGlobalElement(
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     interface Model : ResolvedElement.Model, ElementModel.Global, ElementModel.Scope.Global {
-        val mdlSubstitutionGroup: List<ResolvedGlobalElement>
+        val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
     }
 
     private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
@@ -167,9 +171,9 @@ class ResolvedGlobalElement(
         override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
 
-        override val mdlSubstitutionGroup: List<ResolvedGlobalElement>
+        override val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
+            // Has to be lazy due to initialization loop
 
-        init {
             val thisName: QName = context.qName!!
             checkSubstitutionGroupChain(thisName, mdlSubstitutionGroupAffiliations, SingleLinkedList.empty())
 
@@ -183,9 +187,8 @@ class ResolvedGlobalElement(
                 }
                 group.addAll(child.mdlSubstitutionGroupMembers)
             }
-            mdlSubstitutionGroup = group.toList()
+            group.toList()
         }
-
 
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
@@ -208,5 +211,6 @@ class ResolvedGlobalElement(
         }
 
     }
+
 
 }
