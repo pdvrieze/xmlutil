@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isXmlName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,7 +35,9 @@ interface VName : VToken {
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VName>("token") {
         override fun deserialize(decoder: Decoder): VName {
-            return Inst(decoder.decodeString())
+            val s = decoder.decodeString()
+            check(s.isXmlName()) { "'$s' is not an xml name" }
+            return Inst(s)
         }
     }
 
