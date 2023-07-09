@@ -82,7 +82,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
     override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
     override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
-    override val mdlSubstitutionGroupExclusions: Set<out ComplexTypeModel.Derivation> get() = model.mdlSubstitutionGroupExclusions
+    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
     override val mdlName: VNCName? get() = model.mdlName
@@ -149,7 +149,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             (rawPart.block ?: schema.blockDefault)
 
 
-        final override val mdlSubstitutionGroupExclusions: Set<ComplexTypeModel.Derivation> =
+        final override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
             (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
 
         final override val mdlAbstract: Boolean = rawPart.abstract ?: false

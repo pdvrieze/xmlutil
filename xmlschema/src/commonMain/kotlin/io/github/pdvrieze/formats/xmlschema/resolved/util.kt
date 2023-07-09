@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
@@ -48,7 +48,7 @@ internal fun calcProhibitedSubstitutions(
 internal fun calcFinalSubstitutions(
     rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike
-): Set<T_TypeDerivationControl.ComplexBase> {
+): Set<T_DerivationControl.ComplexBase> {
     return rawPart.final ?: schema.finalDefault.toDerivationSet()
 }
 

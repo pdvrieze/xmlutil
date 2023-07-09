@@ -21,7 +21,10 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.T_AltType
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -36,7 +39,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 data class XSElement(
     override val name: VNCName,
-    @Serializable(SchemaEnumSetSerializer::class)
+    @Serializable(AllDerivationSerializer::class)
     override val block: T_BlockSet? = null,
     override val default: VString? = null,
     override val fixed: VString? = null,
@@ -50,7 +53,7 @@ data class XSElement(
     override val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
     @Serializable(ComplexDerivationSerializer::class)
-    override val final: Set<@Contextual T_TypeDerivationControl.ComplexBase>? = null,
+    override val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,

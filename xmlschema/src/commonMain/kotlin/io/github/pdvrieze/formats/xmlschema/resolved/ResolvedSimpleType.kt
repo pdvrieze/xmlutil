@@ -36,12 +36,12 @@ import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
-import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
     override val simpleDerivation: Derivation
@@ -91,7 +91,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             mdlFacets.checkList()
             if (mdlBaseTypeDefinition != AnySimpleType) {
                 check(mdlBaseTypeDefinition.mdlVariety == Variety.LIST)
-                check(T_TypeDerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
+                check(T_DerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
             }
         }
     }
