@@ -28,4 +28,19 @@ class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLik
     val regex: Regex by lazy { Regex(rawPart.value) }
 
     override fun toString(): String = "Pattern('$value')"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedPattern
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }
