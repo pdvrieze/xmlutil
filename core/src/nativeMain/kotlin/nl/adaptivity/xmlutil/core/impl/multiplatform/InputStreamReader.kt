@@ -24,7 +24,7 @@ import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileInputStream.Mode
 import platform.posix.FILE
 
-@OptIn(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalForeignApi::class)
 public class InputStreamReader(public val inputStream: InputStream) : Reader() {
     private val inputBuffer = UByteArray(INPUT_BYTE_BUFFER_SIZE)
     private var inputBufferOffset = 0

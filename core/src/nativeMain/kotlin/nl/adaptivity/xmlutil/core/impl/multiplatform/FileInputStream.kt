@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.*
 import platform.posix.*
 
-@OptIn(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalForeignApi::class)
 public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream() {
 
     public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
@@ -61,7 +61,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         clearerr(filePtr)
         memScoped {
             val bytePtr = alloc<UByteVar>()
-            val itemsRead: size_t = fread(bytePtr.ptr, 1, 1, filePtr)
+            val itemsRead: size_t = fread(bytePtr.ptr, 1u, 1u, filePtr)
             if (itemsRead == SIZE0) {
                 val error = ferror(filePtr)
                 if (error != 0) {
@@ -76,7 +76,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
 
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         val endIdx = off + len
-        require(off in 0 until b.size) { "Offset before start of array" }
+        require(off in b.indices) { "Offset before start of array" }
         require(endIdx <= b.size) { "Range size beyond buffer size" }
         return b.usePinned { buf ->
             read(buf.addressOf(off), sizeOf<ByteVar>().convert(), len.convert()).convert()
