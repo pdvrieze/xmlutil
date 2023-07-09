@@ -19,7 +19,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -41,8 +40,8 @@ sealed class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
     override val abstract: Boolean?,
-    override val final: Set<T_TypeDerivationControl.ComplexBase>?,
-    override val block: Set<T_TypeDerivationControl.ComplexBase>?,
+    override val final: Set<T_DerivationControl.ComplexBase>?,
+    override val block: Set<T_DerivationControl.ComplexBase>?,
     override val defaultAttributesApply: Boolean?,
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
@@ -64,10 +63,10 @@ sealed class XSGlobalComplexType(
         val abstract: Boolean? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
-        val final: Set<@Contextual T_TypeDerivationControl.ComplexBase>? = null,
+        val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
-        val block: Set<@Contextual T_TypeDerivationControl.ComplexBase>? = null,
+        val block: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         @Serializable

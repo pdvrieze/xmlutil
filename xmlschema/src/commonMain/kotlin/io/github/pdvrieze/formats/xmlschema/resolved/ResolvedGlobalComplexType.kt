@@ -26,8 +26,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalComplexType_Base
-import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
@@ -123,7 +123,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
 
     }
@@ -138,7 +138,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
 
     }
@@ -153,7 +153,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_TypeDerivationControl.ComplexBase> =
+        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
             calcFinalSubstitutions(rawPart, schema)
 
     }
