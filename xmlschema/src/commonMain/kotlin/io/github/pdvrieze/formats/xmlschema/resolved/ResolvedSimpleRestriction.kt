@@ -22,6 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
+import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 /**
@@ -40,6 +42,9 @@ class ResolvedSimpleRestriction(
 
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super.check(seenTypes, inheritedTypes)
+        check(T_TypeDerivationControl.RESTRICTION !in baseType.mdlFinal) {
+            "$baseType is final for restriction, and can not be restricted"
+        }
     }
 }
 
