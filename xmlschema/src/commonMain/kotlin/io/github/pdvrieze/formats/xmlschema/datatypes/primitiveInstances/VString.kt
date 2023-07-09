@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
@@ -71,14 +71,14 @@ interface VString : VAnyAtomicType, CharSequence {
                         val ns = decoder.input.namespaceContext.getNamespaceURI(prefix)
                         if (ns != null) {
                             val localName = strRepr.substring(cpos + 1)
-                            if (NCNameType.isNCName(prefix) && NCNameType.isNCName(localName)) {
+                            if (prefix.isNCName() && localName.isNCName()) {
                                 return VPrefixString(ns, prefix, localName)
                             }
                         }
                     }
                 } else {
                     val defaultNamespace = decoder.input.namespaceContext.getNamespaceURI("")
-                    if ((! defaultNamespace.isNullOrEmpty()) && NCNameType.isNCName(strRepr)) {
+                    if ((!defaultNamespace.isNullOrEmpty()) && strRepr.isNCName()) {
                         return VPrefixString(defaultNamespace, "", strRepr)
                     }
                 }

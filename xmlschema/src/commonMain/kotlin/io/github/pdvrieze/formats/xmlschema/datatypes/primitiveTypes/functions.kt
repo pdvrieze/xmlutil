@@ -49,8 +49,7 @@ fun isNameChar(c: Char, isColonValid: Boolean = true): Boolean = when (c) {
     ':' -> isColonValid
 
     in 'A'..'Z',
-    '_',
-    '-',
+    '_', '-', '.',
     in 'a'..'z',
     in '0'..'9',
     '\u00b7',
