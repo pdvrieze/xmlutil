@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxExclusive
@@ -29,7 +30,25 @@ class ResolvedMaxExclusive(override val rawPart: XSMaxExclusive, schema: Resolve
     ResolvedMaxBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
 
+    override val value: VAnySimpleType
+        get() = rawPart.value
+
     override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
         check(decimal.toLong() < rawPart.value.xmlString.toLong())
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedMaxExclusive
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }

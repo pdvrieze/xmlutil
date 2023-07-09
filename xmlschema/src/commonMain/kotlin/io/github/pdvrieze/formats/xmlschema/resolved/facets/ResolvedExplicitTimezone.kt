@@ -26,4 +26,19 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 class ResolvedExplicitTimezone(override val rawPart: XSExplicitTimezone, schema: ResolvedSchemaLike) :
     ResolvedFacet(schema) {
 
+    val value: XSExplicitTimezone.Value get() = rawPart.value
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedExplicitTimezone
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
 }

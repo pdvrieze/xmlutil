@@ -27,4 +27,19 @@ class ResolvedFractionDigits(override val rawPart: XSFractionDigits, schema: Res
     ResolvedFacet(schema) {
 
     val value: ULong get() = rawPart.value
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedFractionDigits
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinExclusive
@@ -29,7 +30,25 @@ class ResolvedMinExclusive(override val rawPart: XSMinExclusive, schema: Resolve
     ResolvedMinBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
 
+    override val value: VAnySimpleType
+        get() = rawPart.value
+
     override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
         check(decimal.toLong() > rawPart.value.xmlString.toLong())
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedMinExclusive
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }

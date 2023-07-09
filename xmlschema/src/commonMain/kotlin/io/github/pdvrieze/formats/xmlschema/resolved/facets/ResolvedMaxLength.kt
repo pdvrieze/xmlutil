@@ -30,4 +30,19 @@ class ResolvedMaxLength(override val rawPart: XSMaxLength, schema: ResolvedSchem
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength <= value.toInt()) { "length($resolvedLength) of ${repr} is not at most $value" }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedMaxLength
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }
