@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedUnionDerivation(
@@ -66,6 +67,11 @@ class ResolvedUnionDerivation(
                     m.check(seenTypes, inheritedTypes)
                 }
             }
+            check(T_TypeDerivationControl.UNION !in m.mdlFinal) {
+                "$m is final for union, and can not be put in a union"
+            }
         }
+
+
     }
 }
