@@ -179,6 +179,15 @@ class FacetList(
         }
     }
 
+    fun checkList() {
+        check(assertions.isEmpty())
+        check(explicitTimezone == null) { "lists don't have a timezone facet" }
+        check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
+        check(minConstraint == null) { "lists don't have a minConstraint facet" }
+        check(maxConstraint == null) { "lists don't have a maxConstraint facet" }
+        check(totalDigits == null) { "lists don't have a totalDigits facet" }
+    }
+
 
     companion object {
         val EMPTY: FacetList = FacetList()

@@ -40,6 +40,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_TypeDerivationControl
 import nl.adaptivity.xmlutil.*
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
@@ -49,7 +50,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
 
-    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
+    override val mdlBaseTypeDefinition: ResolvedSimpleType get() = model.mdlBaseTypeDefinition
 
     override val mdlFacets: FacetList get() = model.mdlFacets
 
@@ -82,7 +83,15 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for(enum in mdlFacets.enumeration) {
-                schema.notation((enum.value as? VPrefixString)?.toQName() ?: QName(enum.value.xmlString))
+                schema.notation((enum.value as? VPrefixString)?.toQName()?: QName(enum.value.xmlString))
+            }
+        }
+
+        if (mdlVariety == Variety.LIST) {
+            mdlFacets.checkList()
+            if (mdlBaseTypeDefinition != AnySimpleType) {
+                check(mdlBaseTypeDefinition.mdlVariety == Variety.LIST)
+                check(T_TypeDerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
             }
         }
     }
@@ -106,7 +115,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         override val mdlFinal: Set<TypeModel.Derivation>
         override val mdlItemTypeDefinition: ResolvedSimpleType?
         override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
-        override val mdlBaseTypeDefinition: ResolvedType
+        override val mdlBaseTypeDefinition: ResolvedSimpleType
     }
 
     sealed class ModelBase(

@@ -40,7 +40,7 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_Global
     override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
     override val mdlTargetNamespace: VAnyURI? get() = BuiltinXmlSchema.targetNamespace
     override val final: Set<Nothing> get() = emptySet()
-    override val mdlBaseTypeDefinition: ResolvedType
+    override val mdlBaseTypeDefinition: ResolvedSimpleType
     override val mdlItemTypeDefinition: ResolvedSimpleType?
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
 }
