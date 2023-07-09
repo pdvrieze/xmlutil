@@ -27,11 +27,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
-import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
 
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
@@ -47,6 +47,29 @@ class ResolvedGlobalElement(
         checkSingleType()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(SingleLinkedList(), SingleLinkedList())
+        if (T_BlockSetValues.SUBSTITUTION in mdlDisallowedSubstitutions) {
+            check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
+        }
+
+        val otherDisallowed = mdlDisallowedSubstitutions.toDerivationSet()
+        if (mdlSubstitutionGroupMembers.isNotEmpty() && otherDisallowed.isNotEmpty()) {
+            for (substGroupMember in mdlSubstitutionGroupMembers) {
+                val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
+                    is ResolvedComplexType -> t.mdlDerivationMethod
+                    is ResolvedSimpleType -> when (t.mdlVariety) {
+                        SimpleTypeModel.Variety.ATOMIC -> T_TypeDerivationControl.RESTRICTION
+                        SimpleTypeModel.Variety.LIST -> T_TypeDerivationControl.LIST
+                        SimpleTypeModel.Variety.UNION -> T_TypeDerivationControl.UNION
+                        SimpleTypeModel.Variety.NIL -> null
+                    }
+                    else -> error("Compiler error")
+                }
+                if (deriv != null) {
+                    check(deriv !in otherDisallowed)
+                }
+
+            }
+        }
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
@@ -94,10 +117,11 @@ class ResolvedGlobalElement(
 
     override val scope: T_Scope get() = T_Scope.GLOBAL
 
-    val affiliatedSubstitutionGroups: List<ResolvedElement> = rawPart.substitutionGroup?.let {
+    val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
 
+    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroup
 
     val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
         @Suppress("UNCHECKED_CAST")
@@ -130,13 +154,38 @@ class ResolvedGlobalElement(
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    interface Model: ResolvedElement.Model, ElementModel.Global, ElementModel.Scope.Global
+    interface Model : ResolvedElement.Model, ElementModel.Global, ElementModel.Scope.Global {
+        val mdlSubstitutionGroup: List<ResolvedGlobalElement>
+    }
 
     private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
         override val mdlScope: ElementModel.Scope.Global get() = this
 
         override val mdlName: VNCName = rawPart.name
+
+        override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
+            rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
+
+        override val mdlSubstitutionGroup: List<ResolvedGlobalElement>
+
+        init {
+            val thisName: QName = context.qName!!
+            checkSubstitutionGroupChain(thisName, mdlSubstitutionGroupAffiliations, SingleLinkedList.empty())
+
+            val group = HashSet<ResolvedGlobalElement>()
+            schema.elements
+                .filterTo(group) { it.rawPart.substitutionGroup?.any { it.isEquivalent(thisName) } ?: false }
+
+            for (child in group.toList()) {
+                for (m in child.mdlSubstitutionGroupMembers) {
+                    if (!group.add(m)) throw IllegalStateException("Substitution group is cyclic")
+                }
+                group.addAll(child.mdlSubstitutionGroupMembers)
+            }
+            mdlSubstitutionGroup = group.toList()
+        }
+
 
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
@@ -148,6 +197,16 @@ class ResolvedGlobalElement(
 
         override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
+
+        private fun checkSubstitutionGroupChain(qName: QName, substitutionGroups: List<ResolvedGlobalElement>, seenElements: SingleLinkedList<QName>) {
+            for (substitutionGroupHead in substitutionGroups) {
+                require(substitutionGroupHead.qName !in seenElements) {
+                    "Recursive subsitution group: $qName"
+                }
+                substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
+            }
+        }
+
     }
 
 }

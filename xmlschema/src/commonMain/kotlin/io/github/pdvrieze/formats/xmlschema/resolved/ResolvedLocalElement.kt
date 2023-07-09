@@ -113,6 +113,8 @@ class ResolvedLocalElement(
     private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
+        override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
+
         override val mdlName: VNCName? = rawPart.name
 
         override val mdlScope: ElementModel.Scope.Local
