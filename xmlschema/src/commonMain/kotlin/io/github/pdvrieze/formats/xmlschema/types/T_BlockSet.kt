@@ -34,7 +34,7 @@ enum class T_BlockSetValues {
     SUBSTITUTION
 }
 
-fun T_BlockSet.toDerivationSet(): Set<out ComplexTypeModel.Derivation> {
+fun T_BlockSet.toDerivationSet(): Set<T_TypeDerivationControl.ComplexBase> {
     return asSequence().mapNotNull {
         when (it) {
             T_BlockSetValues.EXTENSION -> T_TypeDerivationControl.EXTENSION
