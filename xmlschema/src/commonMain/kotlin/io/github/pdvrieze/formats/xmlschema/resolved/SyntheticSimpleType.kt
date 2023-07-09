@@ -29,7 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
 class SyntheticSimpleType(
     override val mdlContext: SimpleTypeContext,
-    override val mdlBaseTypeDefinition: ResolvedType,
+    override val mdlBaseTypeDefinition: ResolvedSimpleType,
     override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,
     override val mdlVariety: SimpleTypeModel.Variety,
