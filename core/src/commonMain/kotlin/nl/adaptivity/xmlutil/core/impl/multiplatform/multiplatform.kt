@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.Throws
 import kotlin.reflect.KClass
 
 @Target(

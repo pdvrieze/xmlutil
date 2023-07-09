@@ -73,6 +73,7 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
+        maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")}
         google()
     }
 

@@ -79,7 +79,7 @@ kotlin {
                 cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
             }
         }
-        js(BOTH) {
+        js {
             browser()
             compilations.all {
                 kotlinOptions {

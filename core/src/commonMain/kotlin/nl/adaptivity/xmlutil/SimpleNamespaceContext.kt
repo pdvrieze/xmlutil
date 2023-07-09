@@ -33,7 +33,6 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import kotlin.collections.set
 import kotlin.jvm.JvmName
 
@@ -239,7 +238,7 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            SerialDescriptor(SimpleNamespaceContext::class.name, actualSerializer.descriptor)
+            SerialDescriptor("nl.adaptivity.xmlutil.SimpleNamespaceContext", actualSerializer.descriptor)
 
         public fun from(originalNSContext: Iterable<Namespace>): SimpleNamespaceContext = when (originalNSContext) {
             is SimpleNamespaceContext -> originalNSContext

@@ -30,7 +30,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.devrieze.serialization.examples.custompolymorphic.XmlFruit.FruitType
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 
 /**
  * A
@@ -93,8 +92,13 @@ data class XmlFruit(
      * Simple serializer that serializes a [FruitType] as the string in its property [FruitType.serialName].
      */
     class FruitTypeSerializer: KSerializer<FruitType> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(FruitTypeSerializer::class.name, PrimitiveKind.STRING)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
+            "net.devrieze.serialization.examples.custompolymorphic.FruitType",
+            PrimitiveKind.STRING
+        )
+
         override fun deserialize(decoder: Decoder): FruitType = FruitType.values().first { decoder.decodeString() == it.serialName }
+
         override fun serialize(encoder: Encoder, value: FruitType): Unit = encoder.encodeString(value.serialName)
     }
 }
