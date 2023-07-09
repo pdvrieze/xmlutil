@@ -27,4 +27,22 @@ class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: Res
     ResolvedFacet(schema) {
     val test get() = rawPart.test
     val xPathDefaultNamespace get() = rawPart.xPathDefaultNamespace
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedAssertionFacet
+
+        if (test != other.test) return false
+        return xPathDefaultNamespace == other.xPathDefaultNamespace
+    }
+
+    override fun hashCode(): Int {
+        var result = test?.hashCode() ?: 0
+        result = 31 * result + (xPathDefaultNamespace?.hashCode() ?: 0)
+        return result
+    }
+
+
 }

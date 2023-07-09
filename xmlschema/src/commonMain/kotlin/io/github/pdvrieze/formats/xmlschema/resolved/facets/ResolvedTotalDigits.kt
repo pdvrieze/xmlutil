@@ -25,5 +25,20 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedTotalDigits(override val rawPart: XSTotalDigits, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
 
-    val value: ULong = rawPart.value
+    val value: ULong get() = rawPart.value
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedTotalDigits
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }

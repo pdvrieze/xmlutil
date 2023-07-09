@@ -20,9 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 sealed class ResolvedBoundBaseFacet(schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
     abstract val isInclusive: Boolean
+
+    abstract val value: VAnySimpleType
 
 }

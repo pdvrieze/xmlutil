@@ -26,5 +26,22 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 class ResolvedWhiteSpace(override val rawPart: XSWhiteSpace, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
     val value: XSWhiteSpace.Values get() = rawPart.value
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedWhiteSpace
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+    override fun toString(): String {
+        return "ResolvedWhiteSpace($value)"
+    }
+
 
 }

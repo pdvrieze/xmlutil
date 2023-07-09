@@ -31,4 +31,18 @@ class ResolvedLength(override val rawPart: XSLength, schema: ResolvedSchemaLike)
         check(resolvedLength == value.toInt()) { "length($resolvedLength) of ${repr} is not $value" }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedLength
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
 }
