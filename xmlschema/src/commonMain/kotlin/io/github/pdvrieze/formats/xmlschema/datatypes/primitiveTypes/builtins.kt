@@ -1335,14 +1335,6 @@ object NCNameType : PrimitiveDatatype("NCName", XmlSchemaConstants.XS_NAMESPACE)
         value(representation)
     }
 
-    fun isNCName(str: CharSequence): Boolean {
-        if (str.length == 0) return false
-        if (!isNameStartChar(str[0], false)) return false
-        for (idx in 1 until str.length) {
-            if (!isNameChar(str[idx], false)) return false
-        }
-        return true
-    }
 }
 
 object EntityType : PrimitiveDatatype("ENTITY", XmlSchemaConstants.XS_NAMESPACE), IStringType {
