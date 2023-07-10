@@ -82,8 +82,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         }
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
-            for(enum in mdlFacets.enumeration) {
-                schema.notation((enum.value as? VPrefixString)?.toQName()?: QName(enum.value.xmlString))
+            for (enum in mdlFacets.enumeration) {
+                schema.notation((enum.value as? VPrefixString)?.toQName() ?: QName(enum.value.xmlString))
             }
         }
 
@@ -97,7 +97,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
     }
 
     override fun validate(representation: VString) {
-        check (this!=mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
+        check(this != mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         mdlPrimitiveTypeDefinition?.validate(representation)
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
@@ -207,7 +207,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 mdlBaseTypeDefinition.mdlFacets.override(FacetList(d.facets, schema))
             }
 
-            is XSSimpleList -> FacetList(whiteSpace =
+            is XSSimpleList -> FacetList(
+                whiteSpace =
                 ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), schema)
             )
 
@@ -215,12 +216,13 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         }
 
 
-        final override val mdlFundamentalFacets: FundamentalFacets = when (mdlVariety) {
-            Variety.NIL -> error("Nill variety has no facets")
-            Variety.LIST -> {
+        final override val mdlFundamentalFacets: FundamentalFacets = when (rawPart.simpleDerivation) {
+
+            is XSSimpleList -> {
                 val cardinalty = when {
                     mdlItemTypeDefinition!!.mdlFundamentalFacets.cardinality == Cardinality.FINITE &&
                             mdlFacets.minLength != null && mdlFacets.maxLength != null -> Cardinality.FINITE
+
                     else -> Cardinality.COUNTABLY_INFINITE
                 }
 
@@ -232,7 +234,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 )
             }
 
-            Variety.ATOMIC -> {
+            is XSSimpleRestriction -> {
                 val ordered = mdlBaseTypeDefinition.mdlFundamentalFacets.ordered
                 val bounded = mdlFacets.minConstraint != null || mdlFacets.maxConstraint != null
                 val cardinality = when {
@@ -251,13 +253,14 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 FundamentalFacets(ordered, bounded, cardinality, numeric)
             }
 
-            Variety.UNION -> {
+            is XSSimpleUnion -> {
                 val firstFacet = mdlMemberTypeDefinitions.firstOrNull()?.mdlFundamentalFacets
+                val firstOrdered = firstFacet?.ordered
 
                 val ordered = when {
                     mdlMemberTypeDefinitions.all {
-                        it.mdlVariety == Variety.ATOMIC && it.mdlFundamentalFacets.ordered == firstFacet?.ordered
-                    } -> firstFacet!!.ordered
+                        it.mdlVariety == Variety.ATOMIC && it.mdlFundamentalFacets.ordered == firstOrdered
+                    } && firstOrdered != null -> firstOrdered
 
                     mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.ordered == OrderedFacet.Order.FALSE } ->
                         OrderedFacet.Order.FALSE
@@ -285,9 +288,10 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 seenTypes: SingleLinkedList<ResolvedSimpleType> = SingleLinkedList(),
                 valueFun: (ResolvedSimpleType) -> R
             ): R {
-                when  {
+                when {
                     startType is ResolvedBuiltinType -> return valueFun(startType)
                     startType in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
+                    startType.simpleDerivation is ResolvedUnionDerivation -> return valueFun(startType)
                     startType.simpleDerivation is ResolvedListDerivationBase -> return valueFun(startType)
                     else -> {}
                 }
@@ -295,6 +299,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 val newSeen: SingleLinkedList<ResolvedSimpleType> = seenTypes + startType
 
                 return when (val base = startType.mdlBaseTypeDefinition) {
+                    AnySimpleType -> return valueFun(base)
                     !is ResolvedSimpleType -> error("Recursing should not go to anytype")
                     else -> {
                         recurseBaseType(base, newSeen, valueFun)
