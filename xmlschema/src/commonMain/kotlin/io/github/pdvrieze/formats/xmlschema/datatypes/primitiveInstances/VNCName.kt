@@ -36,7 +36,9 @@ interface VNCName : VName {
 
 
     @JvmInline
-    private value class Inst(override val xmlString: String) : VNCName
+    private value class Inst(override val xmlString: String) : VNCName {
+        override fun toString(): String = xmlString
+    }
 
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VNCName>("token") {
