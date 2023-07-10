@@ -150,10 +150,16 @@ sealed class ResolvedComplexType(
 
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
                         while (b != null) {
-                            val b2 = (b.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
-                            b = b2?.let {
-                                require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
-                                schema.type(b2) as? ResolvedGlobalComplexType
+                            val lastB = b
+                            val b2 = (lastB.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
+                            b = b2?.let { b2Name ->
+                                if (lastB.qName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
+                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
+                                    ResolvedGlobalComplexType(b3, lastB.schema)
+                                } else {
+                                    require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
+                                    schema.type(b2) as? ResolvedGlobalComplexType
+                                }
                             }
                         }
 
