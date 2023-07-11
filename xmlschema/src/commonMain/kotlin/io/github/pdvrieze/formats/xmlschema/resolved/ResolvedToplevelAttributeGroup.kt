@@ -26,14 +26,19 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedToplevelAttributeGroup(
     override val rawPart: XSAttributeGroup,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    val location: String,
 ) : ResolvedAttributeGroup(schema), NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(this, it, schema)
