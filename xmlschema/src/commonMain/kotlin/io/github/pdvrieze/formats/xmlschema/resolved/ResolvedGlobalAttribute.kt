@@ -26,15 +26,20 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    val location: String,
 ) : ResolvedAttribute(schema),
     T_GlobalAttribute, NamedPart, ResolvedAttributeGlobal {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val id: VID?
         get() = rawPart.id
