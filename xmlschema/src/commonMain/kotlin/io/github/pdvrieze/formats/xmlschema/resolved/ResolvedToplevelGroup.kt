@@ -31,8 +31,13 @@ import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
 class ResolvedToplevelGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
+    val location: String,
 ) : ResolvedGroupBase, NamedPart, T_NamedGroup, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember,
     ResolvedLocalElement.Parent, ResolvedParticleParent {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
+
     override val mdlName: VNCName
         get() = rawPart.name
 

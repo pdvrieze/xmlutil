@@ -30,10 +30,15 @@ import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedGlobalSimpleTypeImpl(
+class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val rawPart: XSGlobalSimpleType,
     override val schema: ResolvedSchemaLike,
+    val location: String = "",
 ) : ResolvedGlobalSimpleType {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
+
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
