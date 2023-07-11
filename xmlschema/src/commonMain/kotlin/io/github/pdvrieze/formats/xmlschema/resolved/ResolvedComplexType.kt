@@ -139,7 +139,8 @@ sealed class ResolvedComplexType(
                         require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
                         val b =
                             schema.originalSchema.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
-                        baseTypeDefinition = ResolvedGlobalComplexType(b, schema)
+                        val sa = SchemaAssociatedElement(schema.originalLocation, b)
+                        baseTypeDefinition = ResolvedGlobalComplexType(sa, schema)
                     } else {
                         val base =
                             requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
@@ -155,7 +156,8 @@ sealed class ResolvedComplexType(
                             b = b2?.let { b2Name ->
                                 if (lastB.qName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
                                     val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
-                                    ResolvedGlobalComplexType(b3, lastB.schema)
+                                    val sa = SchemaAssociatedElement(lastB.schema.originalLocation, b3)
+                                    ResolvedGlobalComplexType(sa, lastB.schema)
                                 } else {
                                     require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
                                     schema.type(b2) as? ResolvedGlobalComplexType

@@ -21,9 +21,18 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSNotation
 
-class ResolvedNotation(override val rawPart: XSNotation, override val schema: ResolvedSchemaLike) : NamedPart {
+class ResolvedNotation(
+    override val rawPart: XSNotation,
+    override val schema: ResolvedSchemaLike,
+    val location: String,
+) : NamedPart {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSNotation>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
+
     override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     val public get() = rawPart.public

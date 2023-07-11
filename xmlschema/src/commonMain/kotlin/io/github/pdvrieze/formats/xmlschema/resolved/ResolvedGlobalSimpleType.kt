@@ -28,6 +28,9 @@ interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType, T_G
         operator fun invoke(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
             return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
         }
+        internal operator fun invoke(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
+        }
     }
 }
 

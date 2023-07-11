@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
@@ -36,53 +35,58 @@ internal class CollatedSchema(
     schemaLike: ResolvedSchemaLike,
     includedUrls: MutableList<VAnyURI> = mutableListOf(resolver.baseUri)
 ) {
-    val elements: MutableMap<QName, Pair<ResolvedSchemaLike, XSElement>> = mutableMapOf()
-    val attributes: MutableMap<QName, Pair<ResolvedSchemaLike, XSGlobalAttribute>> = mutableMapOf()
-    val simpleTypes: MutableMap<QName, Pair<ResolvedSchemaLike, XSGlobalSimpleType>> = mutableMapOf()
-    val complexTypes: MutableMap<QName, Pair<ResolvedSchemaLike, XSGlobalComplexType>> = mutableMapOf()
-    val groups: MutableMap<QName, Pair<ResolvedSchemaLike, XSGroup>> = mutableMapOf()
-    val attributeGroups: MutableMap<QName, Pair<ResolvedSchemaLike, XSAttributeGroup>> = mutableMapOf()
-    val notations: MutableMap<QName, Pair<ResolvedSchemaLike, XSNotation>> = mutableMapOf()
+    val elements: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSElement>>> = mutableMapOf()
+    val attributes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalAttribute>>> = mutableMapOf()
+    val simpleTypes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalSimpleType>>> = mutableMapOf()
+    val complexTypes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalComplexType>>> = mutableMapOf()
+    val groups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGroup>>> = mutableMapOf()
+    val attributeGroups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSAttributeGroup>>> = mutableMapOf()
+    val notations: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSNotation>>> = mutableMapOf()
 
     init {
-        addToCollation(baseSchema, schemaLike)
+        addToCollation(baseSchema, schemaLike, resolver.baseUri.toString())
 
         // TODO this may need more indirection to ensure scoping
 
         for (import in baseSchema.imports) {
             val importedLocation = import.schemaLocation
-            if (importedLocation != null && importedLocation !in includedUrls) { // Avoid recursion in collations
-                val relativeResolver = resolver.delegate(importedLocation)
-                val rawImport = resolver.readSchema(importedLocation)
+            if (importedLocation != null) {
+                val resolvedImport = resolver.resolve(importedLocation)
+                if (resolvedImport !in includedUrls) { // Avoid recursion in collations
+                    includedUrls.add(resolvedImport)
+                    val relativeResolver = resolver.delegate(resolvedImport)
+                    val rawImport = resolver.readSchema(resolvedImport)
 
-                val importNamespace = import.namespace
-                val importTargetNamespace = rawImport.targetNamespace
-                val chameleonSchema = when {
-                    importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
-                    importTargetNamespace.isNullOrEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
-                    else -> {
-                        require(importNamespace == importTargetNamespace) {
-                            "Renaming can only be done with an import with a null targetNamespace"
+                    val importNamespace = import.namespace
+                    val importTargetNamespace = rawImport.targetNamespace
+                    val chameleonSchema = when {
+                        importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
+                        importTargetNamespace.isNullOrEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
+                        else -> {
+                            require(importNamespace == importTargetNamespace) {
+                                "Renaming can only be done with an import with a null targetNamespace"
+                            }
+                            ChameleonWrapper(schemaLike, importTargetNamespace)
                         }
-                        ChameleonWrapper(schemaLike, importTargetNamespace)
                     }
+
+                    val collatedImport = CollatedSchema(
+                        rawImport,
+                        relativeResolver,
+                        chameleonSchema,
+                        includedUrls
+                    )
+
+                    addToCollation(collatedImport)
                 }
-
-                includedUrls.add(importedLocation)
-                val collatedImport = CollatedSchema(
-                    rawImport,
-                    relativeResolver,
-                    chameleonSchema,
-                    includedUrls
-                )
-
-                addToCollation(collatedImport)
             }
         }
 
         for (include in baseSchema.includes) {
             val includedLocation = include.schemaLocation
-            if (includedLocation !in includedUrls) { // Avoid recursion in collations
+            val resolvedIncluded = resolver.resolve(includedLocation)
+            if (resolvedIncluded !in includedUrls) { // Avoid recursion in collations
+                includedUrls.add(resolvedIncluded)
                 val relativeResolver = resolver.delegate(includedLocation)
                 val rawInclude = resolver.readSchema(includedLocation)
 
@@ -101,7 +105,6 @@ internal class CollatedSchema(
                 }
                 val chameleonSchema = ChameleonWrapper(schemaLike, chameleonNamespace)
 
-                includedUrls.add(relativeResolver.resolve(includedLocation))
                 val includedSchema = CollatedSchema(
                     rawInclude,
                     relativeResolver,
@@ -113,14 +116,15 @@ internal class CollatedSchema(
         }
 
         for (redefine in baseSchema.redefines) {
+            val relativeLocation = resolver.resolve(redefine.schemaLocation)
             val relativeResolver = resolver.delegate(redefine.schemaLocation)
             val nestedSchema = resolver.readSchema(redefine.schemaLocation)
 
-            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema)
+            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value)
 
             val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, nestedSchemaLike)
 
-            collatedSchema.applyRedefines(redefine, baseSchema.targetNamespace, nestedSchemaLike, baseSchema)
+            collatedSchema.applyRedefines(redefine, baseSchema.targetNamespace, nestedSchemaLike, relativeLocation.value)
 
             addToCollation(collatedSchema)
         }
@@ -131,44 +135,44 @@ internal class CollatedSchema(
         redefine: XSRedefine,
         targetNamespace: VAnyURI?,
         schemaLike: ResolvedSchemaLike,
-        redefiningSchema: XSSchema,
+        schemaLocation: String,
     ) {
         redefine.simpleTypes.associateToOverride(simpleTypes) {
-            RedefinableName(redefiningSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         redefine.complexTypes.associateToOverride(complexTypes) {
-            RedefinableName(redefiningSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         redefine.groups.associateToOverride(groups) {
-            RedefinableName(redefiningSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         redefine.attributeGroups.associateToOverride(attributeGroups) {
-            RedefinableName(redefiningSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
     }
 
-    private fun addToCollation(sourceSchema: XSSchema, schemaLike: ResolvedSchemaLike) {
+    private fun addToCollation(sourceSchema: XSSchema, schemaLike: ResolvedSchemaLike, schemaLocation: String) {
         val targetNamespace = sourceSchema.targetNamespace
         sourceSchema.elements.associateToUnique(elements) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.attributes.associateToUnique(attributes) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.simpleTypes.associateToUnique(simpleTypes) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.complexTypes.associateToUnique(complexTypes) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.groups.associateToUnique(groups) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.attributeGroups.associateToUnique(attributeGroups) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
         sourceSchema.notations.associateToUnique(notations) {
-            RedefinableName(sourceSchema, targetNamespace, it.name) to Pair(schemaLike, it)
+            QName(targetNamespace?.toString() ?: "", it.name.toString()) to Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
     }
 
@@ -182,7 +186,8 @@ internal class CollatedSchema(
         sourceSchema.notations.entries.associateToUnique(notations)
     }
 
-    class RedefineWrapper(val base: ResolvedSchemaLike, val originalSchema: XSSchema) : ResolvedSchemaLike() {
+    class RedefineWrapper(val base: ResolvedSchemaLike, val originalSchema: XSSchema, val originalLocation: String) : ResolvedSchemaLike() {
+
         override val elements: List<ResolvedGlobalElement>
             get() = base.elements
         override val attributes: List<ResolvedGlobalAttribute>
@@ -346,13 +351,4 @@ internal class CollatedSchema(
 
 }
 
-fun RedefinableName(schema: XSSchema, namespace: CharSequence?, localName: CharSequence): QName {
-    return QName(namespace?.toString() ?: "", localName.toString())
-}
-
-/*
-internal data class RedefinableName(val schema: XSSchema, val namespace: String, val localName: String) {
-    constructor(schema: XSSchema, namespace: CharSequence?, localName: CharSequence) :
-            this(schema, namespace?.toString() ?: "", localName.toString())
-}
-*/
+internal data class SchemaAssociatedElement<T>(val schemaLocation: String, val element: T)

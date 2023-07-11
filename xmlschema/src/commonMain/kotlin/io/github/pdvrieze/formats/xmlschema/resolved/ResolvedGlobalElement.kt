@@ -35,10 +35,14 @@ import nl.adaptivity.xmlutil.isEquivalent
 
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    val location: String = "",
 ) : ResolvedElement(schema),
     T_GlobalElement,
     ElementModel.Global, ResolvedElement.Use {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val mdlName: VNCName get() = rawPart.name
 
@@ -62,6 +66,7 @@ class ResolvedGlobalElement(
                         SimpleTypeModel.Variety.UNION -> T_DerivationControl.UNION
                         SimpleTypeModel.Variety.NIL -> null
                     }
+
                     else -> null // shouldn't happen
                 }
                 if (deriv != null) {
@@ -201,7 +206,11 @@ class ResolvedGlobalElement(
         override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
 
-        private fun checkSubstitutionGroupChain(qName: QName, substitutionGroups: List<ResolvedGlobalElement>, seenElements: SingleLinkedList<QName>) {
+        private fun checkSubstitutionGroupChain(
+            qName: QName,
+            substitutionGroups: List<ResolvedGlobalElement>,
+            seenElements: SingleLinkedList<QName>
+        ) {
             for (substitutionGroupHead in substitutionGroups) {
                 require(substitutionGroupHead.qName !in seenElements) {
                     "Recursive subsitution group: $qName"

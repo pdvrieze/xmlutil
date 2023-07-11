@@ -32,8 +32,13 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    val location: String
 ) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalComplexType_Base, ComplexTypeModel.Global {
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
+
     override val name: VNCName
         get() = rawPart.name
 
@@ -64,6 +69,7 @@ class ResolvedGlobalComplexType(
                         c,
                         schema
                     )
+
                     is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
                     else -> error("unsupported content")
                 }
