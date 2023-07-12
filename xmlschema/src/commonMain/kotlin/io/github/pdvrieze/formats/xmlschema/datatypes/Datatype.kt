@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
@@ -36,12 +37,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
-import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleBaseType
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
 abstract class Datatype(
@@ -173,7 +171,7 @@ abstract class ConstructedListDatatype : ListDatatype {
         get() = emptySet()
 
     override val simpleDerivation: BuiltinListDerivation
-        get() = BuiltinListDerivation(this, BuiltinXmlSchema)
+        get() = BuiltinListDerivation(this, BuiltinSchemaXmlschema)
 }
 
 /**
@@ -195,7 +193,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
-    override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
+    override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
     override val mdlFacets: FacetList get() = FacetList.EMPTY
 
@@ -212,7 +210,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
         TODO("not implemented")
     }
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
         override val rawPart: T_SimpleType.T_Restriction get() = this
 
         override val simpleType: Nothing? get() = null
@@ -291,7 +289,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 internal open class SimpleBuiltinRestriction(
     override val baseType: ResolvedBuiltinType,
     override val facets: List<XSFacet> = listOf(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true))
-) : ResolvedSimpleRestrictionBase(BuiltinXmlSchema) {
+) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
     override val rawPart: T_SimpleType.T_Restriction get() = this
     override val base: QName get() = baseType.qName
 

@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
-sealed class ResolvedSchemaLike {
+abstract class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI?
 
     abstract val blockDefault: T_BlockSet
@@ -53,7 +53,7 @@ sealed class ResolvedSchemaLike {
 
     fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinXmlSchema.maybeSimpleType(typeName)
+            BuiltinSchemaXmlschema.maybeSimpleType(typeName)
         } else {
             maybeSimpleType(typeName)
         } ?: throw NoSuchElementException("No simple type with name $typeName found")
@@ -61,7 +61,7 @@ sealed class ResolvedSchemaLike {
 
     fun type(typeName: QName): ResolvedGlobalType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinXmlSchema.maybeType(typeName)
+            BuiltinSchemaXmlschema.maybeType(typeName)
         } else {
             maybeType(typeName)
         } ?: throw NoSuchElementException("No type with name $typeName found")
