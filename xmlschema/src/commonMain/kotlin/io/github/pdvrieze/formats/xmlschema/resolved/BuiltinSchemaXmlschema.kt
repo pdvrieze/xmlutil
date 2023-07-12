@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-object BuiltinXmlSchema : ResolvedSchemaLike() {
+object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
     override val defaultOpenContent: Nothing?
         get() = null

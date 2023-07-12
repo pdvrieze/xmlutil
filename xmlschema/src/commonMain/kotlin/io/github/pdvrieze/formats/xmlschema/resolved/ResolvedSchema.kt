@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -45,7 +46,12 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         val collatedSchema = CollatedSchema(rawPart, resolver, schemaLike = this)
         nestedData[targetNamespace.value] = NestedData(targetNamespace, collatedSchema)
         // Use getOrPut to ensure uniqueness
-        nestedData.getOrPut(BuiltinXmlSchema.targetNamespace.value) { BuiltinXmlSchema.resolver }
+        nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
+        if (rawPart.targetNamespace?.value!=XMLConstants.XML_NS_URI &&
+            XMLConstants.XML_NS_URI in collatedSchema.importedNamespaces &&
+            ! collatedSchema.importedSchemas.containsKey(XMLConstants.XML_NS_URI)) {
+            nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
+        }
 
         for ((importNS, importCollation) in collatedSchema.importedSchemas) {
             nestedData[importNS] = NestedData(VAnyURI(importNS), importCollation)
@@ -168,6 +174,20 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         fun delegate(schemaLocation: VAnyURI): Resolver
 
         fun resolve(relativeUri: VAnyURI): VAnyURI
+    }
+
+    object DummyResolver: Resolver {
+        override val baseUri: VAnyURI = VAnyURI("")
+
+        override fun readSchema(schemaLocation: VAnyURI): XSSchema {
+            throw UnsupportedOperationException("Dummy resolver")
+        }
+
+        override fun delegate(schemaLocation: VAnyURI): Resolver = this
+
+        override fun resolve(relativeUri: VAnyURI): VAnyURI {
+            return relativeUri
+        }
     }
 
     internal interface SchemaElementResolver {
