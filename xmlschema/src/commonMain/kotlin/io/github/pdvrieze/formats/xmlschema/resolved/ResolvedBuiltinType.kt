@@ -31,14 +31,14 @@ import nl.adaptivity.xmlutil.QName
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType, ResolvedSimpleType.Model {
     override val rawPart: T_NamedType get() = this
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
-    override val schema: ResolvedSchemaLike get() = BuiltinXmlSchema
+    override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: Nothing? get() = null
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.ATOMIC
     override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
-    override val mdlTargetNamespace: VAnyURI? get() = BuiltinXmlSchema.targetNamespace
+    override val mdlTargetNamespace: VAnyURI? get() = BuiltinSchemaXmlschema.targetNamespace
     override val final: Set<Nothing> get() = emptySet()
     override val mdlBaseTypeDefinition: ResolvedSimpleType
     override val mdlItemTypeDefinition: ResolvedSimpleType?
