@@ -47,13 +47,7 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         return maybeSimpleType(typeName)
     }
 
-    override val elements: List<ResolvedGlobalElement>
-        get() = emptyList()
-
-    override val attributes: List<ResolvedGlobalAttribute>
-        get() = emptyList()
-
-    override val simpleTypes: List<ResolvedGlobalSimpleType> by lazy {
+    private val simpleTypes: List<ResolvedGlobalSimpleType> by lazy {
         listOf(
             AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
             DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
@@ -72,21 +66,48 @@ object BuiltinXmlSchema : ResolvedSchemaLike() {
         simpleTypes.associateBy { it.qName.localPart }
     }
 
-    override val complexTypes: List<Nothing>
-        get() = emptyList()
-
-    override val groups: List<Nothing>
-        get() = emptyList()
-
-    override val attributeGroups: List<Nothing>
-        get() = emptyList()
-
-    override val notations: List<Nothing>
-        get() = emptyList()
-
     override val blockDefault: Set<Nothing>
         get() = emptySet()
 
     override val finalDefault: Set<Nothing>
         get() = emptySet()
+
+    override fun maybeAttributeGroup(attributeGroupName: QName): Nothing? {
+        return null
+    }
+
+    override fun maybeGroup(groupName: QName): Nothing? = null
+
+    override fun maybeElement(elementName: QName): Nothing? = null
+
+    override fun maybeAttribute(attributeName: QName): Nothing? = null
+
+    override fun maybeIdentityConstraint(constraintName: QName): Nothing? = null
+
+    override fun maybeNotation(notationName: QName): Nothing? = null
+
+    override fun substitutionGroupMembers(headName: QName): Set<Nothing> = emptySet()
+
+    internal val resolver = object : ResolvedSchema.SchemaElementResolver {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+            return typeMap[typeName]
+        }
+
+        override fun maybeType(typeName: String): ResolvedGlobalType? {
+            if (typeName == "anyType") return AnyType
+            return maybeSimpleType(typeName)
+        }
+
+        override fun maybeAttributeGroup(attributeGroupName: String): Nothing? = null
+
+        override fun maybeGroup(groupName: String): Nothing? = null
+
+        override fun maybeElement(elementName: String): Nothing? = null
+
+        override fun maybeAttribute(attributeName: String): Nothing? = null
+
+        override fun maybeIdentityConstraint(constraintName: String): Nothing? = null
+
+        override fun maybeNotation(notationName: String): Nothing? = null
+    }
 }

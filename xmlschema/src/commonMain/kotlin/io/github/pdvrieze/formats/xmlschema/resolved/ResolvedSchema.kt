@@ -38,61 +38,22 @@ import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
 class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
-    override fun check() {
-        super.check()
-        val icNames = HashSet<QName>()
-        for(ic in identityConstraints) {
-            check(icNames.add(ic.qName.let { QName(it.namespaceURI, it.localPart) })) {
-                "Duplicate identity constraint ${ic.qName}"
-            }
-        }
 
-    }
-
-    override val simpleTypes: List<ResolvedGlobalSimpleType>
-
-    override val complexTypes: List<ResolvedGlobalComplexType>
-
-    override val elements: List<ResolvedGlobalElement>
-
-    override val groups: List<ResolvedToplevelGroup>
-
-    override val attributes: List<ResolvedGlobalAttribute>
-
-    override val attributeGroups: List<ResolvedToplevelAttributeGroup>
-
-    override val notations: List<ResolvedNotation>
-
-    val identityConstraints: List<ResolvedIdentityConstraint>
+    private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
 
     init {
-        val collatedSchema = CollatedSchema(rawPart, resolver, this)
+        val collatedSchema = CollatedSchema(rawPart, resolver, schemaLike = this)
+        nestedData[targetNamespace.value] = NestedData(targetNamespace, collatedSchema)
+        // Use getOrPut to ensure uniqueness
+        nestedData.getOrPut(BuiltinXmlSchema.targetNamespace.value) { BuiltinXmlSchema.resolver }
 
-        simpleTypes = DelegateList(collatedSchema.simpleTypes.values.toList()) { (s, v) -> ResolvedGlobalSimpleType(v, s) }
-
-        complexTypes = DelegateList(collatedSchema.complexTypes.values.toList()) { (s, v) -> ResolvedGlobalComplexType(v, s) }
-
-        elements = DelegateList(CombiningList(collatedSchema.elements.values.toList())) { (s, v) ->
-            ResolvedGlobalElement(v, s)
+        for ((importNS, importCollation) in collatedSchema.importedSchemas) {
+            nestedData[importNS] = NestedData(VAnyURI(importNS), importCollation)
         }
 
-        groups = DelegateList(collatedSchema.groups.values.toList()) { (s, v) -> ResolvedToplevelGroup(v, s) }
-
-        attributes = DelegateList(collatedSchema.attributes.values.toList()) { (s, v) -> ResolvedGlobalAttribute(v, s) }
-
-        attributeGroups = DelegateList(collatedSchema.attributeGroups.values.toList()) { (s, v) -> ResolvedToplevelAttributeGroup(v, s) }
-
-        notations = DelegateList(collatedSchema.notations.values.toList()) { (s, v) -> ResolvedNotation(v, s) }
-
-        identityConstraints = mutableListOf<ResolvedIdentityConstraint>().also { collector ->
-            elements.forEach { elem -> elem.collectConstraints(collector) }
-            complexTypes.forEach { type -> type.collectConstraints(collector) }
-        }
     }
 
     val annotations: List<XSAnnotation> get() = rawPart.annotations
-
-    val types: List<ResolvedGlobalType> get() = CombiningList(simpleTypes, complexTypes)
 
     override val defaultOpenContent: XSDefaultOpenContent?
         get() = rawPart.defaultOpenContent
@@ -121,6 +82,81 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     val lang: VLanguage? get() = rawPart.lang
 
+    private inline fun <R> withQName(name: QName, action: SchemaElementResolver.(String) -> R): R {
+        val data = nestedData[name.namespaceURI]
+            ?: throw NoSuchElementException("The namespace ${name.namespaceURI} is not available")
+        return data.action(name.localPart)
+    }
+
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = withQName(typeName) {
+        maybeSimpleType(it)
+    }
+
+    override fun maybeType(typeName: QName): ResolvedGlobalType? = withQName(typeName) {
+        maybeType(it)
+    }
+
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? = withQName(attributeGroupName) {
+        maybeAttributeGroup(it)
+    }
+
+    override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? = withQName(groupName) {
+        maybeGroup(it)
+    }
+
+    override fun maybeElement(elementName: QName): ResolvedGlobalElement? = withQName(elementName) {
+        maybeElement(it)
+    }
+
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? = withQName(attributeName) {
+        maybeAttribute(it)
+    }
+
+    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? = withQName(constraintName) {
+        maybeIdentityConstraint(it)
+    }
+
+    override fun maybeNotation(notationName: QName): ResolvedNotation? = withQName(notationName) {
+        maybeNotation(it)
+    }
+
+    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> = withQName(headName) {
+        substitutionGroupMembers(it)
+    }
+
+    fun check() {
+        val icNames = HashSet<QName>()
+        for (data in nestedData.values) {
+            if (data is NestedData) {
+                for (s in data.elements.values) {
+                    s.check()
+                }
+                for (a in data.attributes.values) {
+                    a.check()
+                }
+                for (t in data.simpleTypes.values) {
+                    t.check()
+                }
+                for (t in data.complexTypes.values) {
+                    t.check()
+                }
+                for (g in data.groups.values) {
+                    g.check()
+                }
+                for (ag in data.attributeGroups.values) {
+                    ag.check()
+                }
+                for (ic in data.identityConstraints.values) {
+                    check(icNames.add(ic.qName.let { QName(it.namespaceURI, it.localPart) })) {
+                        "Duplicate identity constraint ${ic.qName}"
+                    }
+                }
+            }
+        }
+
+    }
+
+
     interface Resolver {
         val baseUri: VAnyURI
 
@@ -132,6 +168,121 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         fun delegate(schemaLocation: VAnyURI): Resolver
 
         fun resolve(relativeUri: VAnyURI): VAnyURI
+    }
+
+    internal interface SchemaElementResolver {
+
+        fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType?
+
+        fun maybeType(typeName: String): ResolvedGlobalType?
+
+        fun maybeAttributeGroup(attributeGroupName: String): ResolvedToplevelAttributeGroup?
+
+        fun maybeGroup(groupName: String): ResolvedToplevelGroup?
+
+        fun maybeElement(elementName: String): ResolvedGlobalElement?
+
+        fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute?
+
+        fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint?
+
+        fun maybeNotation(notationName: String): ResolvedNotation?
+
+        fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> = emptySet()
+
+    }
+
+    private inner class NestedData(val targetNamespace: VAnyURI, source: CollatedSchema) : SchemaElementResolver {
+
+        val elements: Map<String, ResolvedGlobalElement>
+
+        val attributes: Map<String, ResolvedGlobalAttribute>
+
+        val simpleTypes: Map<String, ResolvedGlobalSimpleType>
+
+        val complexTypes: Map<String, ResolvedGlobalComplexType>
+
+        val groups: Map<String, ResolvedToplevelGroup>
+
+        val attributeGroups: Map<String, ResolvedToplevelAttributeGroup>
+
+        val notations: Map<String, ResolvedNotation>
+
+        init {
+            elements = DelegateMap(targetNamespace.value, source.elements) { (s, v) -> ResolvedGlobalElement(v, s) }
+
+            attributes =
+                DelegateMap(targetNamespace.value, source.attributes) { (s, v) -> ResolvedGlobalAttribute(v, s) }
+
+            simpleTypes =
+                DelegateMap(targetNamespace.value, source.simpleTypes) { (s, v) -> ResolvedGlobalSimpleType(v, s) }
+
+            complexTypes =
+                DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) -> ResolvedGlobalComplexType(v, s) }
+
+            groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedToplevelGroup(v, s) }
+
+            attributeGroups = DelegateMap(targetNamespace.value, source.attributeGroups) { (s, v) ->
+                ResolvedToplevelAttributeGroup(v, s)
+            }
+
+            notations = DelegateMap(targetNamespace.value, source.notations) { (s, v) -> ResolvedNotation(v, s) }
+
+        }
+
+        val identityConstraints: Map<String, ResolvedIdentityConstraint> by lazy {
+            val identityConstraintList = mutableListOf<ResolvedIdentityConstraint>().also { collector ->
+                elements.values.forEach { elem -> elem.collectConstraints(collector) }
+                complexTypes.values.forEach { type -> type.collectConstraints(collector) }
+            }
+            val map = HashMap<String, ResolvedIdentityConstraint>()
+            for (c in identityConstraintList) {
+                require(map.put(c.qName.localPart, c)==null) { "Duplicate identity constraint: ${c.qName}" }
+            }
+            map
+        }
+
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+            return simpleTypes[typeName]
+        }
+
+        override fun maybeType(typeName: String): ResolvedGlobalType? {
+            return complexTypes[typeName] ?: simpleTypes[typeName]
+        }
+
+        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedToplevelAttributeGroup? {
+            return attributeGroups[attributeGroupName]
+        }
+
+        override fun maybeGroup(groupName: String): ResolvedToplevelGroup? {
+            return groups[groupName]
+        }
+
+        override fun maybeElement(elementName: String): ResolvedGlobalElement? {
+            return elements[elementName]
+        }
+
+        override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
+            return attributes[attributeName]
+        }
+
+        override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
+            return identityConstraints[constraintName]
+        }
+
+        override fun maybeNotation(notationName: String): ResolvedNotation? {
+            return notations[notationName]
+        }
+
+        override fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> {
+            return elements.values.filterTo(HashSet<ResolvedGlobalElement>()) { elem ->
+                elem.rawPart.substitutionGroup?.any {
+                    targetNamespace.value == it.namespaceURI && it.localPart == headName
+                } == true
+            }
+        }
+
+
     }
 }
 

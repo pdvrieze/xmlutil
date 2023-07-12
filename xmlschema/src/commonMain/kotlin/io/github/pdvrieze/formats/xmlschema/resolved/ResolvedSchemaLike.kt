@@ -24,36 +24,32 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.namespaceURI
 
 sealed class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI?
 
-    abstract val elements: List<ResolvedGlobalElement>
-
-    abstract val attributes: List<ResolvedGlobalAttribute>
-
-    abstract val simpleTypes: List<ResolvedGlobalSimpleType>
-
-    abstract val complexTypes: List<ResolvedGlobalComplexType>
-
-    abstract val groups: List<ResolvedToplevelGroup>
-
-    abstract val attributeGroups: List<ResolvedToplevelAttributeGroup>
-
-    abstract val notations: List<ResolvedNotation>
-
     abstract val blockDefault: T_BlockSet
     abstract val finalDefault: Set<TypeModel.Derivation>
     abstract val defaultOpenContent: XSDefaultOpenContent?
 
-    open fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-        return simpleTypes.firstOrNull { it.qName == typeName }
-    }
+    abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?
+
+    abstract fun maybeType(typeName: QName): ResolvedGlobalType?
+
+    abstract fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup?
+
+    abstract fun maybeGroup(groupName: QName): ResolvedToplevelGroup?
+
+    abstract fun maybeElement(elementName: QName): ResolvedGlobalElement?
+
+    abstract fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute?
+
+    abstract fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint?
+
+    abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
     fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
         return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
@@ -61,11 +57,6 @@ sealed class ResolvedSchemaLike {
         } else {
             maybeSimpleType(typeName)
         } ?: throw NoSuchElementException("No simple type with name $typeName found")
-    }
-
-    open fun maybeType(typeName: QName): ResolvedGlobalType? {
-        return simpleTypes.firstOrNull { it.qName == typeName }
-            ?: complexTypes.firstOrNull { it.qName == typeName }
     }
 
     fun type(typeName: QName): ResolvedGlobalType {
@@ -76,69 +67,35 @@ sealed class ResolvedSchemaLike {
         } ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
-    open fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? =
-        attributeGroups.firstOrNull { it.qName.isEquivalent(attributeGroupName) }
-
     fun attributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup {
         return maybeAttributeGroup(attributeGroupName)
             ?: throw NoSuchElementException("No attribute group with name $attributeGroupName found")
     }
-
-    open fun maybeGroup(groupName: QName): ResolvedToplevelGroup? =
-        groups.firstOrNull { it.qName.isEquivalent(groupName) }
 
     fun modelGroup(groupName: QName): ResolvedToplevelGroup {
         return maybeGroup(groupName)
             ?: throw NoSuchElementException("No group with name $groupName found")
     }
 
-    open fun maybeElement(elementName: QName): ResolvedGlobalElement? =
-        elements.firstOrNull { it.qName.isEquivalent(elementName) }
-
     fun element(elementName: QName): ResolvedGlobalElement {
         return maybeElement(elementName)
             ?: throw NoSuchElementException("No element with name $elementName found")
     }
-
-    open fun maybeAttribute(attributeName: QName) =
-        attributes.firstOrNull { it.qName.isEquivalent(attributeName) }
 
     fun attribute(attributeName: QName): ResolvedGlobalAttribute {
         return maybeAttribute(attributeName)
             ?: throw NoSuchElementException("No attribute with name $attributeName found")
     }
 
-    open fun check() {
-        for (s in elements) {
-            s.check()
-        }
-        for (a in attributes) {
-            a.check()
-        }
-        for (t in simpleTypes) {
-            t.check()
-        }
-        for (t in complexTypes) {
-            t.check()
-        }
-        for (g in groups) {
-            g.check()
-        }
-        for (ag in attributeGroups) {
-            ag.check()
-        }
-    }
-
     fun identityConstraint(constraintName: QName): ResolvedIdentityConstraint {
-        // TODO actually collect constraints for actual schemas.
-        return elements.firstNotNullOfOrNull {
-            it.identityConstraints.asSequence().filterIsInstance<ResolvedNamedIdentityConstraint>()
-                .firstOrNull { it.qName.isEquivalent(constraintName) }
-        } ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
+        return maybeIdentityConstraint(constraintName)
+            ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
     }
 
     fun notation(notationName: QName): ResolvedNotation {
-        return notations.firstOrNull { it.qName.isEquivalent(notationName) }
+        return maybeNotation(notationName)
             ?: throw NoSuchElementException("No notation with name $notationName exists")
     }
+
+    abstract fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement>
 }

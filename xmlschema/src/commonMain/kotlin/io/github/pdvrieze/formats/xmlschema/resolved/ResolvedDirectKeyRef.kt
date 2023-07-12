@@ -48,7 +48,8 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
     override val fields: List<XSField> get() = rawPart.fields
 
     val referenced: ResolvedDirectKey by lazy {
-        schema.identityConstraint(refer) as? ResolvedDirectKey ?: error("A keyref must reference a key")
+        schema.identityConstraint(refer) as? ResolvedDirectKey
+            ?: throw NoSuchElementException("No identity constraint with name ${refer} exists")
     }
 
     override val mdlReferencedKey: IdentityConstraintModel.ReferenceableConstraint
