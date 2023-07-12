@@ -21,10 +21,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.T_AltType
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -63,7 +60,7 @@ data class XSElement(
     override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-): XSIElement, T_GlobalElement {
+): XSIElement, I_NamedAttrs, T_GlobalElement {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
