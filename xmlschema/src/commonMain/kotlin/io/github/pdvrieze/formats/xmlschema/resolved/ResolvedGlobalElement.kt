@@ -37,7 +37,7 @@ class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedElement(schema),
+) : ResolvedElement(schema), NamedPart,
     T_GlobalElement,
     ElementModel.Global, ResolvedElement.Use {
 
@@ -183,8 +183,7 @@ class ResolvedGlobalElement(
             checkSubstitutionGroupChain(thisName, mdlSubstitutionGroupAffiliations, SingleLinkedList.empty())
 
             val group = HashSet<ResolvedGlobalElement>()
-            schema.elements
-                .filterTo(group) { it.rawPart.substitutionGroup?.any { it.isEquivalent(thisName) } ?: false }
+            schema.substitutionGroupMembers(thisName).let { group.addAll(it) }
 
             for (child in group.toList()) {
                 for (m in child.mdlSubstitutionGroupMembers) {
