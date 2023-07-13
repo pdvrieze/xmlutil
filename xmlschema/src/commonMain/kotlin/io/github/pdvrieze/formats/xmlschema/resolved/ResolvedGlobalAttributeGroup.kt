@@ -26,12 +26,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedToplevelAttributeGroup(
+class ResolvedGlobalAttributeGroup(
     override val rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
