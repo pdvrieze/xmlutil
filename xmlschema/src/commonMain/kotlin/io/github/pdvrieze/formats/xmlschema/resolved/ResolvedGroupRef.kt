@@ -31,7 +31,8 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedGroupBase, GroupRefModel, T_GroupRef, ResolvedGroupParticle<ResolvedGlobalGroup> {
+) : ResolvedGroupBase, GroupRefModel, T_GroupRef, ResolvedGroupParticle<ResolvedGlobalGroup>,
+    ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
     val referencedGroup: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
@@ -52,5 +53,5 @@ class ResolvedGroupRef(
         referencedGroup.check()
     }
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 }
