@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
@@ -161,8 +162,16 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             mdlVariety = when (simpleDerivation) {
                 is XSSimpleList -> Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
-                    it.mdlVariety.notNil()
-                } ?: Variety.ATOMIC
+                    when (it) {
+                        AnySimpleType -> {
+                            require(schema.targetNamespace?.value == XmlSchemaConstants.XS_NAMESPACE) {
+                                "Direct inheritance of AnySimpleType is only allowed in the XMLSchema namespace"
+                            }
+                            Variety.ATOMIC
+                        }
+                        else -> it.mdlVariety.notNil()
+                    }
+                }
 
                 is XSSimpleUnion -> Variety.UNION
                 else -> error("Unreachable/unsupported derivation")
