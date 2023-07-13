@@ -103,12 +103,14 @@ class ResolvedGlobalElement(
     override val qName: QName
         get() = name.toQname(targetNamespace)
 
-    val typeDef: ResolvedType = rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
-        ?: type?.let {
-            schema.type(it)
-        }
-        ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
-        ?: AnyType
+    val typeDef: ResolvedType by lazy {
+        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
+            ?: type?.let {
+                schema.type(it)
+            }
+            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
+            ?: AnyType
+    }
 
 
     val typeTable: TypeTable? by lazy {
