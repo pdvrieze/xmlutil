@@ -31,12 +31,12 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedGroupBase, GroupRefModel, T_GroupRef, ResolvedGroupParticle<ResolvedToplevelGroup> {
-    val referencedGroup: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
+) : ResolvedGroupBase, GroupRefModel, T_GroupRef, ResolvedGroupParticle<ResolvedGlobalGroup> {
+    val referencedGroup: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
 
-    override val mdlTerm: ResolvedToplevelGroup get() = schema.modelGroup(rawPart.ref)
+    override val mdlTerm: ResolvedGlobalGroup get() = schema.modelGroup(rawPart.ref)
 
     override val ref: QName get() = rawPart.ref
 

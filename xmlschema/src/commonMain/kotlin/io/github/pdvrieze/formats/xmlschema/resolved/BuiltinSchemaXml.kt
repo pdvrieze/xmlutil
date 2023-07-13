@@ -20,26 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XML_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XS_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.datatypes.SimpleBuiltinRestriction
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.LanguageType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
 
@@ -97,11 +87,11 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
             return maybeType(QName(XML_NAMESPACE, typeName))
         }
 
-        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedToplevelAttributeGroup? {
+        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
             return maybeAttributeGroup(QName(XML_NAMESPACE, attributeGroupName))
         }
 
-        override fun maybeGroup(groupName: String): ResolvedToplevelGroup? {
+        override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
             return maybeGroup(QName(XML_NAMESPACE, groupName))
         }
 
@@ -136,10 +126,10 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? = delegate.maybeType(typeName)
 
-    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? =
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
         delegate.maybeAttributeGroup(attributeGroupName)
 
-    override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? = delegate.maybeGroup(groupName)
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = delegate.maybeGroup(groupName)
 
     override fun maybeElement(elementName: QName): ResolvedGlobalElement? = delegate.maybeElement(elementName)
 
