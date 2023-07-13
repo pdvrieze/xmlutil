@@ -102,11 +102,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         maybeType(it)
     }
 
-    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? = withQName(attributeGroupName) {
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? = withQName(attributeGroupName) {
         maybeAttributeGroup(it)
     }
 
-    override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? = withQName(groupName) {
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = withQName(groupName) {
         maybeGroup(it)
     }
 
@@ -196,9 +196,9 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
         fun maybeType(typeName: String): ResolvedGlobalType?
 
-        fun maybeAttributeGroup(attributeGroupName: String): ResolvedToplevelAttributeGroup?
+        fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup?
 
-        fun maybeGroup(groupName: String): ResolvedToplevelGroup?
+        fun maybeGroup(groupName: String): ResolvedGlobalGroup?
 
         fun maybeElement(elementName: String): ResolvedGlobalElement?
 
@@ -222,9 +222,9 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
         val complexTypes: Map<String, ResolvedGlobalComplexType>
 
-        val groups: Map<String, ResolvedToplevelGroup>
+        val groups: Map<String, ResolvedGlobalGroup>
 
-        val attributeGroups: Map<String, ResolvedToplevelAttributeGroup>
+        val attributeGroups: Map<String, ResolvedGlobalAttributeGroup>
 
         val notations: Map<String, ResolvedNotation>
 
@@ -240,10 +240,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
             complexTypes =
                 DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) -> ResolvedGlobalComplexType(v, s) }
 
-            groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedToplevelGroup(v, s) }
+            groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
 
             attributeGroups = DelegateMap(targetNamespace.value, source.attributeGroups) { (s, v) ->
-                ResolvedToplevelAttributeGroup(v, s)
+                ResolvedGlobalAttributeGroup(v, s)
             }
 
             notations = DelegateMap(targetNamespace.value, source.notations) { (s, v) -> ResolvedNotation(v, s) }
@@ -270,11 +270,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
             return complexTypes[typeName] ?: simpleTypes[typeName]
         }
 
-        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedToplevelAttributeGroup? {
+        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
             return attributeGroups[attributeGroupName]
         }
 
-        override fun maybeGroup(groupName: String): ResolvedToplevelGroup? {
+        override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
             return groups[groupName]
         }
 

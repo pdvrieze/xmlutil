@@ -63,7 +63,7 @@ internal class CollatedSchema(
             } else {
                 val resolvedImport = resolver.resolve(importedLocation)
                 val relativeResolver = resolver.delegate(resolvedImport)
-                val rawImport  by lazy { resolver.readSchema(resolvedImport) }
+                val rawImport by lazy { resolver.readSchema(resolvedImport) }
                 val targetNamespace = (import.namespace ?: rawImport.targetNamespace)?.value ?: ""
 
                 if (Pair(targetNamespace, resolvedImport) !in includedUrls) { // Avoid recursion in collations
@@ -89,7 +89,7 @@ internal class CollatedSchema(
                         checkNotNull(importTargetNamespace) { "Imports must have a namespace" }.value,
                         includedUrls
                     )
-                    for((_, nestedImport) in collatedImport.importedSchemas) {
+                    for ((_, nestedImport) in collatedImport.importedSchemas) {
                         addToCollation(nestedImport)
                     }
                     collatedImport.importedSchemas.clear()
@@ -129,7 +129,7 @@ internal class CollatedSchema(
                     chameleonNamespace.toString(),
                     includedUrls
                 )
-                for((_, nestedImport) in includedSchema.importedSchemas) {
+                for ((_, nestedImport) in includedSchema.importedSchemas) {
                     addToCollation(nestedImport)
                 }
                 includedSchema.importedSchemas.clear()
@@ -142,7 +142,7 @@ internal class CollatedSchema(
             val relativeResolver = resolver.delegate(redefine.schemaLocation)
             val nestedSchema = resolver.readSchema(redefine.schemaLocation)
 
-            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value)
+            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
 
             val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, schemaLike = nestedSchemaLike)
 
@@ -153,13 +153,12 @@ internal class CollatedSchema(
                 relativeLocation.value
             )
 
-            for((_, nestedImport) in collatedSchema.importedSchemas) {
+            for ((_, nestedImport) in collatedSchema.importedSchemas) {
                 addToCollation(nestedImport)
             }
             collatedSchema.importedSchemas.clear()
 
-            importedSchemas.put(baseSchema.targetNamespace?.value ?: "", collatedSchema)
-//            addToCollation(collatedSchema)
+            addToCollation(collatedSchema)
         }
 
     }
@@ -167,24 +166,33 @@ internal class CollatedSchema(
     fun applyRedefines(
         redefine: XSRedefine,
         targetNamespace: VAnyURI?,
-        schemaLike: ResolvedSchemaLike,
+        schemaLike: RedefineWrapper,
         schemaLocation: String,
     ) {
-        redefine.simpleTypes.associateToOverride(simpleTypes) {
-            QName(targetNamespace?.toString() ?: "", it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
+        redefine.simpleTypes.associateToOverride(
+            simpleTypes,
+            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
+        ) { it, old ->
+            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
+            Pair(s, SchemaAssociatedElement(schemaLocation, it))
         }
-        redefine.complexTypes.associateToOverride(complexTypes) {
-            QName(targetNamespace?.toString() ?: "", it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
+        redefine.complexTypes.associateToOverride(complexTypes,
+            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
+        ) { it, old ->
+            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
+            Pair(s, SchemaAssociatedElement(schemaLocation, it))
         }
-        redefine.groups.associateToOverride(groups) {
-            QName(targetNamespace?.toString() ?: "", it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
+        redefine.groups.associateToOverride(groups,
+            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
+        ) { it, old ->
+            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
+            Pair(s, SchemaAssociatedElement(schemaLocation, it))
         }
-        redefine.attributeGroups.associateToOverride(attributeGroups) {
-            QName(targetNamespace?.toString() ?: "", it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
+        redefine.attributeGroups.associateToOverride(attributeGroups,
+            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
+        ) { it, old ->
+            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
+            Pair(s, SchemaAssociatedElement(schemaLocation, it))
         }
     }
 
@@ -240,8 +248,12 @@ internal class CollatedSchema(
         sourceSchema.notations.entries.associateToUnique(notations)
     }
 
-    class RedefineWrapper(val base: ResolvedSchemaLike, val originalSchema: XSSchema, val originalLocation: String) :
-        ResolvedSchemaLike() {
+    class RedefineWrapper(
+        val base: ResolvedSchemaLike,
+        val originalSchema: XSSchema,
+        val originalLocation: String,
+        val nestedRedefine: RedefineWrapper?
+    ) : ResolvedSchemaLike() {
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
         override val blockDefault: T_BlockSet get() = originalSchema.blockDefault
@@ -256,11 +268,82 @@ internal class CollatedSchema(
             return base.maybeType(typeName)
         }
 
-        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? {
+        fun maybeComplexType(typeName: QName): ResolvedGlobalComplexType? {
+            return (base as? RedefineWrapper)?.maybeComplexType(typeName)
+        }
+
+        fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI)
+
+            val localName = typeName.localPart
+            return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalSimpleType(sa, base)
+            } ?: nestedRedefine?.nestedSimpleType(typeName)
+            ?: error("Nested simple type with name $typeName could not be found")
+        }
+
+        fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI) { }
+            val localName = typeName.localPart
+            return originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedComplexType(typeName)
+            ?: error("No nested complex type with name $typeName")
+        }
+
+        fun nestedAttributeGroup(typeName: QName): ResolvedGlobalAttributeGroup {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI) { }
+            val localName = typeName.localPart
+            return originalSchema.attributeGroups.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalAttributeGroup(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedAttributeGroup(typeName)
+            ?: error("No nested complex type with name $typeName")
+        }
+
+        fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI) { }
+            val localName = typeName.localPart
+            return originalSchema.groups.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalGroup(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedGroup(typeName)
+            ?: error("No nested complex type with name $typeName")
+        }
+
+        fun nestedElement(typeName: QName): ResolvedGlobalElement {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI) { }
+            val localName = typeName.localPart
+            return originalSchema.elements.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalElement(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedElement(typeName)
+            ?: error("No nested complex type with name $typeName")
+        }
+
+        fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI) { }
+            val localName = typeName.localPart
+            return originalSchema.attributes.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalAttribute(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedAttribute(typeName)
+            ?: error("No nested complex type with name $typeName")
+        }
+
+        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
             return base.maybeAttributeGroup(attributeGroupName)
         }
 
-        override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? {
+        override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
             return base.maybeGroup(groupName)
         }
 
@@ -282,6 +365,11 @@ internal class CollatedSchema(
 
         override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
             return base.substitutionGroupMembers(headName)
+        }
+
+        fun withNestedRedefine(nestedRedefine: RedefineWrapper?): RedefineWrapper = when (nestedRedefine) {
+            null -> this
+            else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine)
         }
     }
 
@@ -315,11 +403,11 @@ internal class CollatedSchema(
             return base.maybeAttribute(attributeName.extend())
         }
 
-        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup? {
+        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
             return base.maybeAttributeGroup(attributeGroupName.extend())
         }
 
-        override fun maybeGroup(groupName: QName): ResolvedToplevelGroup? {
+        override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
             return base.maybeGroup(groupName.extend())
         }
 
@@ -406,15 +494,17 @@ internal class CollatedSchema(
             return destination
         }
 
-        private inline fun <T, V, K, M : MutableMap<in K, in V>> Iterable<T>.associateToOverride(
+        private inline fun <T, V, K, M : MutableMap<in K, V>> Iterable<T>.associateToOverride(
             destination: M,
-            transform: (T) -> Pair<K, V>
+            getKey: (T) -> K,
+            getNewValue: (T, V) -> V
         ): M {
             for (element in this) {
-                val (key, value) = transform(element)
+                val key = getKey(element)
+                val oldValue: V = requireNotNull(destination[key]) { "Redefine must override an existing value" }
+                val newValue = getNewValue(element, oldValue)
 
-                require(key in destination) { "Duplicate key on unique association" }
-                destination.put(key, value)
+                destination.put(key, newValue)
             }
             return destination
         }

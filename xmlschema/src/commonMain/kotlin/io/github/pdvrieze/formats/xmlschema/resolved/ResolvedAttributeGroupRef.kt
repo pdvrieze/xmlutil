@@ -32,7 +32,7 @@ class ResolvedAttributeGroupRef(
     override val rawPart: T_AttributeGroupRef,
     override val schema: ResolvedSchemaLike
 ) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
-    val resolvedGroup: ResolvedToplevelAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
+    val resolvedGroup: ResolvedGlobalAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
 
     override val attributes: List<T_LocalAttribute>
         get() = resolvedGroup.attributes

@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
 
-class ResolvedToplevelGroup(
+class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
@@ -85,7 +85,7 @@ class ResolvedToplevelGroup(
         override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
     }
 
-    private class AllImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
+    private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
         IResolvedAll {
         override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>> = rawPart.particles.map {
             ResolvedParticle.allMember(parent, it, schema)
@@ -100,7 +100,7 @@ class ResolvedToplevelGroup(
         }
     }
 
-    private class ChoiceImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
+    private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
         ModelGroupBase(schema),
         IResolvedChoice {
 
@@ -117,7 +117,7 @@ class ResolvedToplevelGroup(
         }
     }
 
-    private class SequenceImpl(parent: ResolvedToplevelGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
+    private class SequenceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
         ModelGroupBase(schema),
         IResolvedSequence {
         override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = rawPart.particles.map {

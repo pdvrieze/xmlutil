@@ -135,15 +135,12 @@ sealed class ResolvedComplexType(
             when (content) {
                 is XSComplexContent -> {
                     derivation = content.derivation
-                    if ((parent as? ResolvedGlobalType)?.qName == derivation.base) {
+                    val base = requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
+                    if ((parent as? ResolvedGlobalType)?.qName == base) {
                         require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
-                        val b =
-                            schema.originalSchema.complexTypes.single { it.name.xmlString == derivation.base?.localPart }
-                        val sa = SchemaAssociatedElement(schema.originalLocation, b)
-                        baseTypeDefinition = ResolvedGlobalComplexType(sa, schema)
+
+                        baseTypeDefinition = schema.nestedComplexType(base)
                     } else {
-                        val base =
-                            requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
 
                         val seenTypes = mutableSetOf<QName>()
                         seenTypes.add(base)
@@ -155,9 +152,10 @@ sealed class ResolvedComplexType(
                             val b2 = (lastB.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
                             b = b2?.let { b2Name ->
                                 if (lastB.qName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
-                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
-                                    val sa = SchemaAssociatedElement(lastB.schema.originalLocation, b3)
-                                    ResolvedGlobalComplexType(sa, lastB.schema)
+//                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
+//                                    val sa = SchemaAssociatedElement(lastB.schema.originalLocation, b3)
+//                                    ResolvedGlobalComplexType(sa, lastB.schema)
+                                    lastB.schema.nestedComplexType(b2Name)
                                 } else {
                                     require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
                                     schema.type(b2) as? ResolvedGlobalComplexType
