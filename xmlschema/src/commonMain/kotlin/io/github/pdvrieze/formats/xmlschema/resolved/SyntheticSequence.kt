@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import nl.adaptivity.xmlutil.QName
 
 class SyntheticSequence(
     override val mdlMinOccurs: VNonNegativeInteger,
@@ -45,7 +46,7 @@ class SyntheticSequence(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check() {
-        super<IResolvedSequence>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<IResolvedSequence>.check(checkedTypes)
     }
 }

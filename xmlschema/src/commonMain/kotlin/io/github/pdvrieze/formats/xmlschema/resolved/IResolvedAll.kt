@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.model.AllModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll :
     AllModel,
@@ -33,7 +34,7 @@ interface IResolvedAll :
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
 
-    override fun check() {
+    override fun check(checkedTypes: MutableSet<QName>) {
         //TODO("not implemented")
     }
 }

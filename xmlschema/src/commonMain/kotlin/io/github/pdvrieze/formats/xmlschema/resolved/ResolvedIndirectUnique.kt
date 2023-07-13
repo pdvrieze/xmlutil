@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.T_Unique
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectUnique(
     override val rawPart: XSUnique,
@@ -39,8 +40,8 @@ class ResolvedIndirectUnique(
         else -> throw IllegalArgumentException("Unique's ref property ${rawPart.ref} does not refer to a unique")
     }
 
-    override fun check() {
-        super<ResolvedIndirectIdentityConstraint>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)
         check(rawPart.name == null)
     }
 

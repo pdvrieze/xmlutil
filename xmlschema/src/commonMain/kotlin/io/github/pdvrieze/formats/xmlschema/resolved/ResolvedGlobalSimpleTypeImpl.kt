@@ -67,10 +67,12 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val final: Set<TypeModel.Derivation>
         get() = rawPart.final
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         require(name.isNotEmpty())
-        requireNotNull(model)
+        if (checkedTypes.add(qName)) {
+            super.check(checkedTypes, inheritedTypes)
+            requireNotNull(model)
+        }
     }
 
     override val model: Model by lazy { ModelImpl(rawPart, schema) }

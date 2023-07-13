@@ -42,9 +42,9 @@ class ResolvedSimpleContent(
         }
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check()
-        derivation.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(checkedTypes)
+        derivation.check(checkedTypes, inheritedTypes)
 
 
         //TODO("not implemented")

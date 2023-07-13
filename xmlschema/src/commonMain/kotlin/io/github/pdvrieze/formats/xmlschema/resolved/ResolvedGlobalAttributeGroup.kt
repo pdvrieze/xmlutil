@@ -64,9 +64,11 @@ class ResolvedGlobalAttributeGroup(
     override val targetNamespace: VAnyURI?
         get() = super<NamedPart>.targetNamespace
 
-    override fun check() {
-        super<NamedPart>.check()
-        for (a in attributes) { a.check() }
-        for (ag in attributeGroups) { ag.check() }
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<NamedPart>.check(checkedTypes)
+        for (a in attributes) { a.check(checkedTypes)
+        }
+        for (ag in attributeGroups) { ag.check(checkedTypes)
+        }
     }
 }

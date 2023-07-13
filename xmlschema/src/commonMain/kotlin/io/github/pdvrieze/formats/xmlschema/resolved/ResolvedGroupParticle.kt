@@ -21,13 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import nl.adaptivity.xmlutil.QName
 
 /**
  * Base interface for all group-like resolved types: all, seq, choice, group
  */
 sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexType.ResolvedDirectParticle<T> {
-    override fun check() = super.check()
+    override fun check(checkedTypes: MutableSet<QName>) = super.check(checkedTypes)
 
     companion object {
 

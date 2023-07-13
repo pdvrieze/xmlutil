@@ -66,8 +66,8 @@ class ResolvedLocalSimpleType(
     }
 
 
-    override fun check() {
-        super<ResolvedLocalType>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedLocalType>.check(checkedTypes)
         checkNotNull(model)
     }
 }

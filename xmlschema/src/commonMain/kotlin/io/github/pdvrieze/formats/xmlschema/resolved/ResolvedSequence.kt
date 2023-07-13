@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedSequence(
     parent: ResolvedParticleParent,
@@ -63,8 +64,8 @@ class ResolvedSequence(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check() {
-        super<ResolvedGroupParticleTermBase>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedGroupParticleTermBase>.check(checkedTypes)
     }
 }
 

@@ -57,16 +57,16 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
         schema.type(base ?: AnyType.qName)
     }
 
-    open fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedPart>.check()
+    open fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedPart>.check(checkedTypes)
         val b = base
-        if (b != null && b !in seenTypes) { // Recursion is allowed, but must be managed
-            baseType.check(seenTypes, inheritedTypes)
+        if (b != null) { // Recursion is allowed, but must be managed
+            baseType.check(checkedTypes, inheritedTypes)
         }
 
-        term?.check()
-        attributes.forEach(ResolvedLocalAttribute::check)
-        attributeGroups.forEach(ResolvedAttributeGroupRef::check)
+        term?.check(checkedTypes)
+        attributes.forEach { it.check(checkedTypes) }
+        attributeGroups.forEach { it.check(checkedTypes) }
 
     }
 }

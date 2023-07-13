@@ -94,9 +94,11 @@ class ResolvedGlobalComplexType(
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedComplexType>.check(seenTypes, inheritedTypes)
-        content.check(seenTypes + qName, inheritedTypes + qName)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        if (checkedTypes.add(qName)) {
+            super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
+            content.check(checkedTypes, inheritedTypes + qName)
+        }
     }
 
     override fun toString(): String {

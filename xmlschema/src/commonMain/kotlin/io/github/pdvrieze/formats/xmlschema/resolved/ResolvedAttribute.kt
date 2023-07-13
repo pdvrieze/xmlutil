@@ -80,9 +80,9 @@ sealed class ResolvedAttribute(
     final override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
 
-    override fun check() {
-        super<ResolvedPart>.check()
-        resolvedType.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedPart>.check(checkedTypes)
+        resolvedType.check(checkedTypes)
         check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
         check (default == null || use == null || use == XSAttrUse.OPTIONAL) {
             "For attributes with default and use must have optional as use value"

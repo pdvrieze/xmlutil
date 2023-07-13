@@ -31,7 +31,6 @@ import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
 
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
@@ -46,11 +45,11 @@ class ResolvedGlobalElement(
 
     override val mdlName: VNCName get() = rawPart.name
 
-    override fun check() {
-        super<ResolvedElement>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedElement>.check(checkedTypes)
         checkSingleType()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
-        typeDef.check(SingleLinkedList(), SingleLinkedList())
+        typeDef.check(checkedTypes, SingleLinkedList())
         if (T_DerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }

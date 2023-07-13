@@ -25,12 +25,13 @@ import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_Choice
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, ModelGroupModel, IResolvedGroupMember {
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
 
-    override fun check() {
+    override fun check(checkedTypes: MutableSet<QName>) {
         //TODO("not implemented")
     }
 }
@@ -72,7 +73,7 @@ class ResolvedChoice(
         }
     */
 
-    override fun check() {
-        super<ResolvedGroupParticleTermBase>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedGroupParticleTermBase>.check(checkedTypes)
     }
 }

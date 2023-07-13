@@ -131,26 +131,27 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     }
 
     fun check() {
+        val checkedTypes = HashSet<QName>()
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
             if (data is NestedData) {
                 for (s in data.elements.values) {
-                    s.check()
+                    s.check(checkedTypes)
                 }
                 for (a in data.attributes.values) {
-                    a.check()
+                    a.check(checkedTypes)
                 }
                 for (t in data.simpleTypes.values) {
-                    t.check()
+                    t.check(checkedTypes)
                 }
                 for (t in data.complexTypes.values) {
-                    t.check()
+                    t.check(checkedTypes)
                 }
                 for (g in data.groups.values) {
-                    g.check()
+                    g.check(checkedTypes)
                 }
                 for (ag in data.attributeGroups.values) {
-                    ag.check()
+                    ag.check(checkedTypes)
                 }
                 for (ic in data.identityConstraints.values) {
                     check(icNames.add(ic.qName.let { QName(it.namespaceURI, it.localPart) })) {

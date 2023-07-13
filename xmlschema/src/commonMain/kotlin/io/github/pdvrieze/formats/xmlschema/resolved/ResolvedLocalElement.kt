@@ -85,8 +85,8 @@ class ResolvedLocalElement(
     override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
     override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs
 
-    override fun check() {
-        super<ResolvedElement>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedElement>.check(checkedTypes)
         if (rawPart.ref != null) {
             referenced// Don't check as that would already be done at top level
             check(name == null) { "Local elements can not have both a name and ref attribute specified" }
@@ -103,9 +103,9 @@ class ResolvedLocalElement(
             checkSingleType()
         }
 
-        keyrefs.forEach { it.check() }
-        uniques.forEach { it.check() }
-        keys.forEach { it.check() }
+        keyrefs.forEach { it.check(checkedTypes) }
+        uniques.forEach { it.check(checkedTypes) }
+        keys.forEach { it.check(checkedTypes) }
     }
 
     interface Model : ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>

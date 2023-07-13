@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
+import nl.adaptivity.xmlutil.QName
 
 /**
  * Base class for all terms that contain groups: ResolvedAll, ResolvedChoice, ResolvedSequence, ResolvedGroup
@@ -59,10 +60,10 @@ sealed class ResolvedGroupTermBase(
     abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
 
-    override fun check() {
-        super<ResolvedAnnotated>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedAnnotated>.check(checkedTypes)
         for (particle in mdlParticles) {
-            particle.check()
+            particle.check(checkedTypes)
         }
     }
 

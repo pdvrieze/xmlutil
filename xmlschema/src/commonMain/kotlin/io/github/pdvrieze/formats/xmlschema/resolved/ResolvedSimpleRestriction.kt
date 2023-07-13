@@ -39,8 +39,8 @@ class ResolvedSimpleRestriction(
         }
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(checkedTypes, inheritedTypes)
         check(T_DerivationControl.RESTRICTION !in baseType.mdlFinal) {
             "$baseType is final for restriction, and can not be restricted"
         }

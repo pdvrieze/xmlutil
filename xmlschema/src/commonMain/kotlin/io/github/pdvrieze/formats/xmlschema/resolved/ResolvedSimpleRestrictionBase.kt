@@ -43,7 +43,7 @@ abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : Resol
         base?.let{ schema.simpleType(it) } ?: checkNotNull(simpleType)
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
             requireNotNull(simpleType)
@@ -51,9 +51,9 @@ abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : Resol
             require(simpleType == null)
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
-        if (b !in seenTypes) {
+        if (b !in checkedTypes) {
             val inherited = (baseType as? OptNamedPart)?.qName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-            baseType.check(seenTypes, inherited)
+            baseType.check(checkedTypes, inherited)
             // Recursion is allowed
         }
     }

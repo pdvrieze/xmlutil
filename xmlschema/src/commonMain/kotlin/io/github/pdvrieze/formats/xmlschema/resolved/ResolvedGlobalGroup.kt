@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
@@ -56,7 +57,7 @@ class ResolvedGlobalGroup(
     override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
 
-    override fun check() {
+    override fun check(checkedTypes: MutableSet<QName>) {
         rawPart.content
 //        TODO("not implemented")
     }

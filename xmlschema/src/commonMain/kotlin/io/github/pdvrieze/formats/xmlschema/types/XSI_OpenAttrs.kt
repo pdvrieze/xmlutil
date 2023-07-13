@@ -30,7 +30,7 @@ interface XSI_OpenAttrs {
     @XmlOtherAttributes
     val otherAttrs: Map<QName, String>
 
-    fun check() {
+    fun check(checkedTypes: MutableSet<QName>) {
         val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI==XMLConstants.XSD_NS_URI }
         check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
     }

@@ -101,8 +101,8 @@ class ResolvedLocalAttribute(
     override val mdlValueConstraint: ValueConstraintModel?
         get() = TODO("Implement local attribute value constraint")
 
-    override fun check() {
-        super<ResolvedAttribute>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedAttribute>.check(checkedTypes)
 //        if (rawPart.use!=XSAttrUse.PROHIBITED) {
 //            check(type!=null) { "Attributes must have a type if their use is not prohibited" }
 //        }

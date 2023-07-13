@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType, ResolvedSimpleType.Model {
     override val rawPart: T_NamedType get() = this
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null

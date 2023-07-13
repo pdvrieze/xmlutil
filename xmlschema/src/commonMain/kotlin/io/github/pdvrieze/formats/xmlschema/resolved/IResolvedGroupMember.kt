@@ -22,11 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.model.GroupMember
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedGroupMember : ResolvedGroupLikeTerm, GroupMember, ResolvedTerm {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
-    override fun check() {
+    override fun check(checkedTypes: MutableSet<QName>) {
 //        super.check()
     }
 }

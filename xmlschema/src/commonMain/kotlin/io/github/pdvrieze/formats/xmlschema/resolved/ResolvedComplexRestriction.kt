@@ -52,7 +52,7 @@ class ResolvedComplexRestriction(
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedDerivation>.check(checkedTypes, inheritedTypes)
     }
 }

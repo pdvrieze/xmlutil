@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedComplexTypeContent(
     override val schema: ResolvedSchemaLike
 ) : T_ComplexType.Content, ResolvedPart {
-    abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
+    abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
     abstract fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
 
     override abstract val rawPart: XSI_ComplexContent
