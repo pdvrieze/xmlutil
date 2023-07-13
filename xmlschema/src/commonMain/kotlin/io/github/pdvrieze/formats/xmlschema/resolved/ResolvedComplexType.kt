@@ -83,7 +83,7 @@ sealed class ResolvedComplexType(
     }
 
 
-    sealed interface ResolvedDirectParticle<T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
+    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
         fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
     }
 
