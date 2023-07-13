@@ -110,4 +110,30 @@ class XSLocalElement(
         result = 31 * result + otherAttrs.hashCode()
         return result
     }
+
+    override fun toString(): String = buildString {
+        append("XSLocalElement(")
+        append("name=$name")
+        if (block != null) append(", block=$block, ")
+        if (default != null) append(", default=$default")
+        if (fixed != null) append(", fixed=$fixed")
+        if (form != null) append(", form=$form")
+        if (id != null) append(", id=$id")
+        if (maxOccurs != null) append(", maxOccurs=$maxOccurs")
+        if (minOccurs != null) append(", minOccurs=$minOccurs")
+        if (nillable != null) append(", nillable=$nillable")
+        if (ref != null) append(", ref=$ref")
+        if (targetNamespace != null) append(", targetNamespace=$targetNamespace")
+        if (type != null) append(", type=$type")
+        if (annotation != null) append(", annotation=$annotation")
+        if (localType != null) append(", localType=$localType")
+        if (alternatives.isNotEmpty()) append(", alternatives=$alternatives")
+        if (uniques.isNotEmpty()) append(", uniques=$uniques")
+        if (keys.isNotEmpty()) append(", keys=$keys")
+        if (keyrefs.isNotEmpty()) append(", keyrefs=$keyrefs")
+        if (otherAttrs.isNotEmpty()) append(", otherAttrs=$otherAttrs")
+        append(")")
+    }
+
+
 }

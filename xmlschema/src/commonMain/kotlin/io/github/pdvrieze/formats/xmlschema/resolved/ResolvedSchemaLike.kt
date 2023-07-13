@@ -51,21 +51,17 @@ abstract class ResolvedSchemaLike {
 
     abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
-    fun simpleType(typeName: QName): ResolvedGlobalSimpleType {
-        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinSchemaXmlschema.maybeSimpleType(typeName)
-        } else {
-            maybeSimpleType(typeName)
-        } ?: throw NoSuchElementException("No simple type with name $typeName found")
-    }
+    fun simpleType(typeName: QName): ResolvedGlobalSimpleType = when (typeName.namespaceURI) {
+        targetNamespace?.value -> maybeSimpleType(typeName)
+        XmlSchemaConstants.XS_NAMESPACE -> BuiltinSchemaXmlschema.maybeSimpleType(typeName)
+        else -> maybeSimpleType(typeName)
+    } ?: throw NoSuchElementException("No simple type with name $typeName found")
 
-    fun type(typeName: QName): ResolvedGlobalType {
-        return if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
-            BuiltinSchemaXmlschema.maybeType(typeName)
-        } else {
-            maybeType(typeName)
-        } ?: throw NoSuchElementException("No type with name $typeName found")
-    }
+    fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {
+        targetNamespace?.value -> maybeType(typeName)
+        XmlSchemaConstants.XS_NAMESPACE -> BuiltinSchemaXmlschema.maybeType(typeName)
+        else -> maybeType(typeName)
+    } ?: throw NoSuchElementException("No type with name $typeName found")
 
     fun attributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup {
         return maybeAttributeGroup(attributeGroupName)
