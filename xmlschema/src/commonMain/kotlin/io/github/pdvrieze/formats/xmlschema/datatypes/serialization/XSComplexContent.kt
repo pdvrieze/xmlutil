@@ -46,7 +46,7 @@ class XSComplexContent(
 ) : XSI_ComplexContent.Complex, T_ComplexType.ComplexContent {
     @Serializable
     sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
-        abstract override val term: XSIDirectParticle?
+        abstract override val term: XSIDerivationParticle?
         abstract override val asserts: List<XSAssertionFacet>
         abstract override val attributes: List<XSLocalAttribute>
         abstract override val attributeGroups: List<XSAttributeGroupRef>
@@ -67,7 +67,7 @@ class XSComplexContent(
         override val annotation: XSAnnotation? = null,
 
         override val openContent: XSOpenContent? = null,
-        override val term: XSIDirectParticle? = null,
+        override val term: XSIDerivationParticle? = null,
         override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -86,7 +86,7 @@ class XSComplexContent(
     class XSExtension(
         override val base: QName,
         override val id: VID? = null,
-        override val term: XSIDirectParticle? = null,
+        override val term: XSIDerivationParticle? = null,
 
         override val asserts: List<XSAssertionFacet> = emptyList(),
         override val attributes: List<XSLocalAttribute> = emptyList(),

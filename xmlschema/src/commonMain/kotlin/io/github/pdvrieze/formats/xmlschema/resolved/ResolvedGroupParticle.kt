@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 /**
  * Base interface for all group-like resolved types: all, seq, choice, group
  */
-sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedParticle<T> {
+sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexType.ResolvedDirectParticle<T> {
     override fun check() = super.check()
 
     companion object {
