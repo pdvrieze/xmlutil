@@ -36,7 +36,7 @@ class ResolvedGroupRefParticle(
     override val rawPart: XSGroupRefParticle,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedGroupBase,
-    ResolvedParticle<ResolvedToplevelGroup>,
+    ResolvedParticle<ResolvedGlobalGroup>,
     T_GroupRef {
 
     override val ref: QName get() = rawPart.ref
@@ -58,7 +58,7 @@ class ResolvedGroupRefParticle(
 
     override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
 
-    override val mdlTerm: ResolvedToplevelGroup by lazy { schema.modelGroup(rawPart.ref) }
+    override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override fun check() {
         mdlTerm.check()

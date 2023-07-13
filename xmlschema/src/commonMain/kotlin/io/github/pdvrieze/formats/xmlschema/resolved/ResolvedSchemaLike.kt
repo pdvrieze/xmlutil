@@ -39,9 +39,9 @@ abstract class ResolvedSchemaLike {
 
     abstract fun maybeType(typeName: QName): ResolvedGlobalType?
 
-    abstract fun maybeAttributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup?
+    abstract fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup?
 
-    abstract fun maybeGroup(groupName: QName): ResolvedToplevelGroup?
+    abstract fun maybeGroup(groupName: QName): ResolvedGlobalGroup?
 
     abstract fun maybeElement(elementName: QName): ResolvedGlobalElement?
 
@@ -67,12 +67,12 @@ abstract class ResolvedSchemaLike {
         } ?: throw NoSuchElementException("No type with name $typeName found")
     }
 
-    fun attributeGroup(attributeGroupName: QName): ResolvedToplevelAttributeGroup {
+    fun attributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup {
         return maybeAttributeGroup(attributeGroupName)
             ?: throw NoSuchElementException("No attribute group with name $attributeGroupName found")
     }
 
-    fun modelGroup(groupName: QName): ResolvedToplevelGroup {
+    fun modelGroup(groupName: QName): ResolvedGlobalGroup {
         return maybeGroup(groupName)
             ?: throw NoSuchElementException("No group with name $groupName found")
     }
