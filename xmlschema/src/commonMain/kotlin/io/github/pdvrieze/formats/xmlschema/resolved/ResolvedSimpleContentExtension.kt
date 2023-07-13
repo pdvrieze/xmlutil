@@ -52,12 +52,12 @@ class ResolvedSimpleContentExtension(
         schema.type(base)
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
 
-        if (b !in seenTypes) {
+        if (b !in checkedTypes) {
             val inherited = (baseType as? OptNamedPart)?.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-            baseType.check(seenTypes, inherited)
+            baseType.check(checkedTypes, inherited)
             // Recursion is allowed
         }
     }

@@ -24,5 +24,5 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType {
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
 }

@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_All
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import nl.adaptivity.xmlutil.QName
 
 
 class ResolvedAll(
@@ -55,8 +56,8 @@ class ResolvedAll(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check() {
-        super<IResolvedAll>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<IResolvedAll>.check(checkedTypes)
     }
 }
 

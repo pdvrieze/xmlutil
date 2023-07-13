@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import io.github.pdvrieze.formats.xmlschema.types.T_Key
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKey(
     override val rawPart: XSKey,
@@ -38,8 +39,8 @@ class ResolvedIndirectKey(
     override val constraint: ResolvedIndirectKey
         get() = this
 
-    override fun check() {
-        super<ResolvedIndirectIdentityConstraint>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)
         check(rawPart.name == null)
     }
 

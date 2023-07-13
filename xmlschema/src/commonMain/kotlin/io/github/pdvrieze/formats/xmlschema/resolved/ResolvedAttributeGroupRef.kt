@@ -55,8 +55,8 @@ class ResolvedAttributeGroupRef(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override fun check() {
-        super<ResolvedPart>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedPart>.check(checkedTypes)
         checkNotNull(resolvedGroup) // force resolve
     }
 }
