@@ -51,11 +51,11 @@ class ResolvedComplexShorthandContent(
     override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     val openContent: XSOpenContent? get() = rawPart.openContent
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super.check()
-        particle?.check()
-        attributes.forEach(ResolvedLocalAttribute::check)
-        attributeGroups.forEach(ResolvedAttributeGroupRef::check)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super.check(checkedTypes)
+        particle?.check(checkedTypes)
+        attributes.forEach { it.check(checkedTypes) }
+        attributeGroups.forEach { it.check(checkedTypes) }
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

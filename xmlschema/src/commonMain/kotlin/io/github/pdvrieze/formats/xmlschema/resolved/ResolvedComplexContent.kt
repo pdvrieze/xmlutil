@@ -40,8 +40,8 @@ class ResolvedComplexContent(
     }
 
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        derivation.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        derivation.check(checkedTypes, inheritedTypes)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

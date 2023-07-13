@@ -48,8 +48,8 @@ class ResolvedDirectKey(
     override val constraint: ResolvedDirectKey
         get() = this
 
-    override fun check() {
-        super<ResolvedNamedIdentityConstraint>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
         checkNotNull(rawPart.name)
     }
 
