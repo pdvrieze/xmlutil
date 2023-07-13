@@ -60,8 +60,8 @@ class ResolvedGroupRefParticle(
 
     override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
-    override fun check() {
-        mdlTerm.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        mdlTerm.check(checkedTypes)
     }
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

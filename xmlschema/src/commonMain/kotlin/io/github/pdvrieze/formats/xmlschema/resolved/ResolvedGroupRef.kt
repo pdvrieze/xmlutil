@@ -49,8 +49,8 @@ class ResolvedGroupRef(
 
     override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
-    override fun check() {
-        referencedGroup.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        referencedGroup.check(checkedTypes)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}

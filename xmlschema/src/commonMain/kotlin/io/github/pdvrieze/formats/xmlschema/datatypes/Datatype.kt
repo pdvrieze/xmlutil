@@ -108,8 +108,8 @@ sealed class ListDatatype protected constructor(
     override val targetNamespace: VAnyURI
         get() = super<Datatype>.targetNamespace
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        baseType.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        baseType.check(checkedTypes, inheritedTypes)
     }
 
     override val model: ListDatatype
@@ -219,7 +219,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
         override val base: QName get() = ErrorType.qName
         override val baseType: ErrorType get() = ErrorType
 
-        override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+        override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
 }
 
@@ -293,7 +293,7 @@ internal open class SimpleBuiltinRestriction(
     override val rawPart: T_SimpleType.T_Restriction get() = this
     override val base: QName get() = baseType.qName
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val simpleType: Nothing? get() = null
     override val otherContents: List<Nothing> get() = emptyList()
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()

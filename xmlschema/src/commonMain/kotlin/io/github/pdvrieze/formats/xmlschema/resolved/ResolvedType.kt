@@ -29,12 +29,12 @@ import nl.adaptivity.xmlutil.QName
 sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeModel {
     abstract override val rawPart: T_Type
 
-    override fun check() {
-        super<ResolvedAnnotated>.check()
-        check(SingleLinkedList(), SingleLinkedList())
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedAnnotated>.check(checkedTypes)
+        check(mutableSetOf(), SingleLinkedList())
     }
 
-    fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
+    fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
 
     fun validate(representation: VString)
 

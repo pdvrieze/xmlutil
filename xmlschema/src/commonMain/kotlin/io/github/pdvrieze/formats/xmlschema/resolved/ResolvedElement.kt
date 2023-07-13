@@ -101,10 +101,10 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         }
     }
 
-    override fun check() {
-        super<OptNamedPart>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<OptNamedPart>.check(checkedTypes)
         for (keyref in keyrefs) {
-            keyref.check()
+            keyref.check(checkedTypes)
             checkNotNull(keyref.mdlReferencedKey)
         }
         default?.let { d ->

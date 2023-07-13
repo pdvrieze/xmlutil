@@ -59,13 +59,13 @@ class ResolvedUnionDerivation(
 
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
             (m as? ResolvedGlobalType)?.let {
                 require(it.qName !in inheritedTypes) { "Recursive presence of ${it.qName}" }
-                if (it.qName !in seenTypes) {
-                    m.check(seenTypes, inheritedTypes)
+                if (it.qName !in checkedTypes) {
+                    m.check(checkedTypes, inheritedTypes)
                 }
             }
             check(T_DerivationControl.UNION !in m.mdlFinal) {

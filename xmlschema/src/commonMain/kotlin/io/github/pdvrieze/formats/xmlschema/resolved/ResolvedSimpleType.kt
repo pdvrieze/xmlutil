@@ -69,15 +69,16 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         get() = model.mdlFinal
 
     override fun check(
-        seenTypes: SingleLinkedList<QName>,
+        checkedTypes: MutableSet<QName>,
         inheritedTypes: SingleLinkedList<QName>
     ) { // TODO maybe move to toplevel
 
         when (val n = (this as? OptNamedPart)?.name) {
-            null -> simpleDerivation.check(SingleLinkedList(), inheritedTypes)
+            null -> simpleDerivation.check(checkedTypes, inheritedTypes)
             else -> {
                 val qName = n.toQname(schema.targetNamespace)
-                simpleDerivation.check(SingleLinkedList(qName), inheritedTypes + qName)
+                checkedTypes.add(qName)
+                simpleDerivation.check(checkedTypes, inheritedTypes + qName)
             }
         }
 
@@ -108,7 +109,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         abstract override val rawPart: T_SimpleType.Derivation
         abstract val baseType: ResolvedSimpleType
-        abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
+        abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
 
     interface Model : SimpleTypeModel {
@@ -147,6 +148,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                         schema
                     )
                 }
+
+                simpleDerivation.base?.isEquivalent(AnySimpleType.qName) == true -> AnySimpleType
 
                 else -> simpleDerivation.base?.let {
                     require(typeName == null || !it.isEquivalent(typeName))

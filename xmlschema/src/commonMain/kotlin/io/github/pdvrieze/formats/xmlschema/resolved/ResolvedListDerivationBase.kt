@@ -49,9 +49,9 @@ abstract class ResolvedListDerivationBase(
 
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        simpleType?.check(seenTypes, inheritedTypes)
-        itemType.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        simpleType?.check(checkedTypes, inheritedTypes)
+        itemType.check(checkedTypes, inheritedTypes)
 
         check(T_DerivationControl.LIST !in itemType.mdlFinal) {
             "$baseType is final for list, and can not be put in a list"

@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKeyRef, IdentityConstraintModel.KeyRef {
@@ -45,8 +46,8 @@ class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSch
 
     override val mdlReferencedKey: IdentityConstraintModel.ReferenceableConstraint get() = ref.mdlReferencedKey
 
-    override fun check() {
-        super<ResolvedIndirectIdentityConstraint>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)
         checkNotNull(rawPart.name)
         check(referenced.fields.size == fields.size) { "Key(${referenced.qName}) and keyrefs(${ref.qName}) must have equal field counts" }
     }

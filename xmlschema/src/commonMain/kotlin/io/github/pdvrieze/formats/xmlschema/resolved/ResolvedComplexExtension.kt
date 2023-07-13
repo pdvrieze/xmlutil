@@ -37,8 +37,8 @@ class ResolvedComplexExtension(
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedDerivation>.check(seenTypes, inheritedTypes)
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedDerivation>.check(checkedTypes, inheritedTypes)
         require(base !in inheritedTypes.dropLastOrEmpty(1)) { "Recursive type use in complex content: $base" }
     }
 }
