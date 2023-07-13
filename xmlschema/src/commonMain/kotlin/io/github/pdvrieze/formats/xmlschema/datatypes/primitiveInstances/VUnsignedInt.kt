@@ -48,6 +48,9 @@ abstract class VUnsignedInt : VUnsignedLong {
             return VUnsignedLong(toULong() * other.toULong())
         }
 
+        override fun toString(): String {
+            return "${value}u"
+        }
     }
 
     class Serializer : KSerializer<VUnsignedInt> {

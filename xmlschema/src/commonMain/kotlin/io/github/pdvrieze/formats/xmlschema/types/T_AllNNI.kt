@@ -121,7 +121,7 @@ class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive:
 
     override fun contains(value: T_AllNNI): Boolean = when (value) {
         is T_AllNNI.UNBOUNDED -> false
-        is T_AllNNI.Value -> start <= value && value <= endInclusive
+        else -> start <= value && value <= endInclusive
     }
 
     override fun isEmpty(): Boolean {
