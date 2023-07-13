@@ -70,10 +70,10 @@ internal class CollatedSchema(
                     includedUrls.add(Pair(targetNamespace, resolvedImport))
 
                     val importNamespace = import.namespace
-                    val importTargetNamespace = rawImport.targetNamespace
+                    val importTargetNamespace = rawImport.targetNamespace ?: VAnyURI("")
                     val chameleonSchema = when {
                         importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
-                        importTargetNamespace.isNullOrEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
+                        importTargetNamespace.isEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
                         else -> {
                             require(importNamespace == importTargetNamespace) {
                                 "Renaming can only be done with an import with a null targetNamespace"
@@ -86,7 +86,7 @@ internal class CollatedSchema(
                         rawImport,
                         relativeResolver,
                         chameleonSchema,
-                        checkNotNull(importTargetNamespace) { "Imports must have a namespace" }.value,
+                        importTargetNamespace.value,
                         includedUrls
                     )
                     for ((_, nestedImport) in collatedImport.importedSchemas) {

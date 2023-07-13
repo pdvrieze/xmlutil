@@ -69,7 +69,7 @@ class XSWhiteSpace(
         @SerialName("collapse")
         COLLAPSE {
             override fun normalize(representation: VString): VString = buildVString(representation.length) {
-                var last = 'x'
+                var last = ' ' // Start with space, to trim start of symbol
                 for(c in representation) {
                     last = when (c) {
                         '\t', '\n', '\r', ' ' -> { if(last!=' ') append(' '); ' ' }
@@ -77,6 +77,7 @@ class XSWhiteSpace(
                         else -> { append(c); c }
                     }
                 }
+                if (last == ' ') this.deleteAt(this.length - 1) // make sure to trim
             }
         };
 
