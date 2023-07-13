@@ -736,6 +736,7 @@ public final class nl/adaptivity/xmlutil/XmlUtil {
 	public static final fun toCName (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static final fun toQname (Ljava/lang/CharSequence;)Ljavax/xml/namespace/QName;
 	public static final fun toQname (Ljava/lang/CharSequence;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static final fun xmlCollapseWhitespace (Ljava/lang/String;)Ljava/lang/String;
 	public static final fun xmlEncode (Ljava/lang/CharSequence;)Ljava/lang/String;
 }
 

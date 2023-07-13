@@ -2,6 +2,7 @@
 Features:
 
 Fixes:
+- For attribute lists, make sure to collapse the whitespace.
 - When attributes have an `@XmlSerialName` annotation with a default namespace
   value, then this will result in a non-qualified attribute.
 

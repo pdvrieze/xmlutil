@@ -37,6 +37,19 @@ public fun isXmlWhitespace(data: CharArray): Boolean = data.all { isXmlWhitespac
 
 public fun isXmlWhitespace(data: CharSequence): Boolean = data.all { isXmlWhitespace(it) }
 
+public fun xmlCollapseWhitespace(original: String): String = buildString(original.length) {
+    var last = ' ' // Start with space, to trim start of symbol
+    for(c in original) {
+        last = when (c) {
+            '\t', '\n', '\r', ' ' -> { if(last!=' ') append(' '); ' ' }
+
+            else -> { append(c); c }
+        }
+    }
+    if (last == ' ') this.deleteAt(this.length - 1) // make sure to trim
+}
+
+
 @Deprecated(
     "Use the version that takes string parameters",
     ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())")

@@ -1052,7 +1052,7 @@ internal open class XmlDecoderBase internal constructor(
             return effectiveDeserializer.deserialize(
                 StringDecoder(
                     xmlDescriptor.valueDescriptor,
-                    input.getAttributeValue(attrIndex)
+                    xmlCollapseWhitespace(input.getAttributeValue(attrIndex))
                 )
             )
         }
@@ -1112,7 +1112,7 @@ internal open class XmlDecoderBase internal constructor(
     internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, attrIndex: Int) :
         TagDecoderBase<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
-        private val attrValues = input.getAttributeValue(attrIndex)
+        private val attrValues = xmlCollapseWhitespace(input.getAttributeValue(attrIndex))
             .split(*xmlDescriptor.delimiters)
 
         @ExperimentalSerializationApi
