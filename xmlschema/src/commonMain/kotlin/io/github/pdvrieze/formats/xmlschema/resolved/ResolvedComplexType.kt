@@ -74,7 +74,7 @@ sealed class ResolvedComplexType(
         }
     }
 
-    override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
     }
 

@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
     ResolvedGroupLikeTerm,
@@ -30,7 +31,7 @@ interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
 
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.SEQUENCE
 
-    override fun check() {
-        super<IResolvedGroupMember>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<IResolvedGroupMember>.check(checkedTypes)
     }
 }

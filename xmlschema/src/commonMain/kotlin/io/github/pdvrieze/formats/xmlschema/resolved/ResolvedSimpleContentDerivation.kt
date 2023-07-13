@@ -38,6 +38,6 @@ sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchema
 
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    abstract fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>)
+    abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
 
 }

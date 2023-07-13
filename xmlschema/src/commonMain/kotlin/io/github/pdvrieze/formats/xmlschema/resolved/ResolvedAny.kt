@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.AnyModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedAny(
     override val rawPart: XSAny,
@@ -70,7 +71,7 @@ class ResolvedAny(
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 
-    override fun check() {
+    override fun check(checkedTypes: MutableSet<QName>) {
 //        TODO("not implemented")
     }
 }

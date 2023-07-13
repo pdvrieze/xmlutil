@@ -49,8 +49,8 @@ class ResolvedDirectUnique(
     override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
         get() = IdentityConstraintModel.Category.UNIQUE
 
-    override fun check() {
-        super<ResolvedNamedIdentityConstraint>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
         checkNotNull(rawPart.name)
     }
 

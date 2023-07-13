@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import nl.adaptivity.xmlutil.QName
 
 class SyntheticAll(
     override val mdlMinOccurs: VNonNegativeInteger,
@@ -42,8 +43,8 @@ class SyntheticAll(
     override val mdlAnnotations: AnnotationModel? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-    override fun check() {
-        super<IResolvedAll>.check()
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<IResolvedAll>.check(checkedTypes)
         // TODO implement something
     }
 }
