@@ -50,9 +50,7 @@ class ResolvedSimpleContentRestriction(
     override fun check(seenTypes: SingleLinkedList<QName>, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
-            requireNotNull(simpleType)
-        } else {
-            require(simpleType == null)
+            requireNotNull(simpleType) { "A simple content restriction must have at least a base type or a simpletype child" }
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in seenTypes) {
