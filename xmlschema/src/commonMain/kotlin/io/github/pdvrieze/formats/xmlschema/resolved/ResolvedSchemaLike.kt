@@ -58,7 +58,11 @@ abstract class ResolvedSchemaLike {
     } ?: throw NoSuchElementException("No simple type with name $typeName found")
 
     fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {
-        targetNamespace?.value -> maybeType(typeName)
+        targetNamespace?.value -> when (typeName.namespaceURI) {
+            XmlSchemaConstants.XS_NAMESPACE -> maybeType(typeName) ?: BuiltinSchemaXmlschema.maybeType(typeName)
+            else -> maybeType(typeName)
+        }
+
         XmlSchemaConstants.XS_NAMESPACE -> BuiltinSchemaXmlschema.maybeType(typeName)
         else -> maybeType(typeName)
     } ?: throw NoSuchElementException("No type with name $typeName found")
