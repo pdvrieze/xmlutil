@@ -45,6 +45,7 @@ class XSAny(
     override val id: VID? = null,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
+    @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 
 ) : T_AnyElement, XSI_AllParticle
