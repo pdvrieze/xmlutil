@@ -81,7 +81,7 @@ class ResolvedGlobalComplexType(
 
     override val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
 
-    override val model: Model by lazy {
+    override val model: Model by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
             is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
             is XSGlobalComplexTypeShorthand -> ShorthandModelImpl(this, r, schema)
