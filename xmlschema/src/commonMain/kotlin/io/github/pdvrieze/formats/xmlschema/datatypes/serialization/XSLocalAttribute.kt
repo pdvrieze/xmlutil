@@ -99,4 +99,14 @@ class XSLocalAttribute : XSAttribute, T_LocalAttribute {
         return result
     }
 
+    override fun toString(): String = buildString {
+        append("XSLocalAttribute(")
+        if (name != null) append("name=$name, ")
+        if (form != null) append("form=$form, ")
+        if (ref != null) append("ref=$ref, ")
+        if (use != null) append("use=$use, ")
+        if (targetNamespace != null) append("targetNamespace=$targetNamespace")
+        append(")")
+    }
+
 }

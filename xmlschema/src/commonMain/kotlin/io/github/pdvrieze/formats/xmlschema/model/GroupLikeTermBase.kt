@@ -30,15 +30,3 @@ interface GroupLikeTermBase : IAnnotated, Term {
     val mdlParticles: List<ParticleModel<Term>>
 }
 
-val ParticleModel<GroupLikeTermBase>.effectiveTotalRange: AllNNIRange
-    get() = run {
-        var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
-        var maxMax: T_AllNNI = T_AllNNI.Value(0u)
-        for (particle in mdlTerm.mdlParticles) {
-            val r = particle.effectiveTotalRange
-            if (r.start.toULong()<minMin.toULong()) minMin = r.start
-            if (r.endInclusive> maxMax) maxMax = r.endInclusive
-        }
-
-        AllNNIRange(mdlMinOccurs * minMin, mdlMaxOccurs * maxMax)
-    }

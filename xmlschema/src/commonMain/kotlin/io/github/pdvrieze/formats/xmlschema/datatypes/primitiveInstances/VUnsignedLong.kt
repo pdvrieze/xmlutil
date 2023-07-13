@@ -50,6 +50,10 @@ interface VUnsignedLong : VNonNegativeInteger {
             return VUnsignedLong(toULong() * other.toULong())
         }
 
+        override fun toString(): String {
+            return "${value}u"
+        }
+
     }
 
     class Serializer : KSerializer<VUnsignedLong> {
@@ -66,6 +70,8 @@ interface VUnsignedLong : VNonNegativeInteger {
     }
 
     companion object {
+        val ZERO: VUnsignedLong = Inst(0u)
+
         operator fun invoke(value: ULong): VUnsignedLong = Inst(value)
         operator fun invoke(value: UInt): VUnsignedInt = VUnsignedInt(value)
     }

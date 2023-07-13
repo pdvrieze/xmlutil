@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
@@ -30,10 +31,38 @@ interface ParticleModel<out T : Term> : IAnnotated {
     val mdlMaxOccurs: T_AllNNI
     val mdlTerm: T
 
-    val effectiveTotalRange: AllNNIRange get() = AllNNIRange(T_AllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
+    val effectiveTotalRange: AllNNIRange
+        get() = when (val t = mdlTerm) {
+            is AllModel,
+            is SequenceModel<*> -> {
+                var min: VNonNegativeInteger = VUnsignedLong.ZERO
+                var max: T_AllNNI = T_AllNNI.Value(0u)
+                for (particle in (t as GroupLikeTermBase).mdlParticles) {
+                    val r = particle.effectiveTotalRange
+                    min += r.start
+                    max += r.endInclusive
+                }
+                AllNNIRange(mdlMinOccurs * min, mdlMaxOccurs * max)
+            }
+
+            is ChoiceModel -> {
+                var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
+                var maxMax: T_AllNNI = T_AllNNI.Value(0u)
+                for (particle in t.mdlParticles) {
+                    val r = particle.effectiveTotalRange
+                    minMin = minMin.coerceAtMost(r.start)
+                    maxMax = maxMax.coerceAtLeast(r.endInclusive)
+                }
+                minMin = minMin.coerceAtMost(maxMax)
+                AllNNIRange(mdlMinOccurs * minMin, mdlMaxOccurs * maxMax)
+
+            }
+
+            else -> AllNNIRange(T_AllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
+        }
 
     fun mdlIsEmptiable(): Boolean {
-        return mdlMinOccurs.toUInt() == 0u
+        return effectiveTotalRange.start.toUInt() == 0u
     }
 
     interface BasicTerm : AllMember

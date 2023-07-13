@@ -80,4 +80,15 @@ class XSGlobalComplexTypeShorthand(
         )
     }
 
+    override fun toString(): String = buildString {
+        append("XSGlobalComplexTypeShorthand(")
+        if(term!=null) { append("term=$term, ") }
+        if(asserts.isNotEmpty()) { append("asserts=$asserts, ") }
+        if(attributes.isNotEmpty()) { append("attributes=$attributes, ") }
+        if(attributeGroups.isNotEmpty()) { append("attributeGroups=$attributeGroups, ") }
+        if(anyAttribute!=null) { append("anyAttribute=$anyAttribute, ") }
+        if(openContent!=null) { append("openContent=$openContent") }
+        append(")")
+    }
+
 }
