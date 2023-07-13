@@ -76,7 +76,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set $tsName") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.startsWith("addB182")) {
+                            if (false || group.name.startsWith("addB194")) {
                                 dynamicContainer("Group ${group.name}") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
