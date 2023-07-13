@@ -20,4 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-interface AllModel : GroupMember
+interface AllModel : GroupMember, GroupLikeTermBase

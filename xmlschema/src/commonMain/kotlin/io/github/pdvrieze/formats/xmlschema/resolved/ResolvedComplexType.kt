@@ -67,7 +67,7 @@ sealed class ResolvedComplexType(
             }
 
             is MixedContentType -> {
-                check(ct.mdlParticle.mdlIsEmptiable()) { "Defaults are only valid for mixed content if the particle is emptiable" }
+                check(ct.mdlParticle.mdlIsEmptiable()) { "($rawPart) Defaults ($representation) are only valid for mixed content if the particle is emptiable" }
             }
 
             else -> error("The value ${representation} is not valid in an element-only complex type")
