@@ -37,7 +37,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
         when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)
-//            is XSGroupRefParticle -> ResolvedGroupRefParticle(t, schema)
+            is XSGroupRef -> ResolvedGroupRef(t, schema)
             is XSSequence -> ResolvedSequence(scope, t, schema)
             null -> null
         }
