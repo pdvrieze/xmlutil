@@ -90,7 +90,7 @@ class ResolvedLocalElement(
         if (rawPart.ref != null) {
             referenced// Don't check as that would already be done at top level
             check(name == null) { "Local elements can not have both a name and ref attribute specified" }
-            check(block.isEmpty()) { "Local element references cannot have the block attribute specified" }
+            check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
             check(type == null) { "Local element references cannot have the type attribute specified" }
             check(rawPart.nillable == null) {
                 "Local element references cannot have the nillable attribute specified"
