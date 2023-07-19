@@ -104,5 +104,7 @@ class VPrefixString(val namespace: String, val prefix: String, val localname: St
 
     fun toQName(): QName = QName(namespace, localname, prefix)
 
+    fun toVQName(): VQName = VQName(namespace, localname, prefix)
+
     override fun toString(): String = xmlString
 }

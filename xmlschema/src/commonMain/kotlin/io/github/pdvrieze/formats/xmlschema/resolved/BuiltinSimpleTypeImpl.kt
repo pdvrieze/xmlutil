@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
@@ -42,7 +43,7 @@ abstract class BuiltinSimpleTypeImpl(schemaLike: ResolvedSchemaLike) : ResolvedB
             is ResolvedUnionDerivation -> TODO()
 
             is ResolvedSimpleDerivationBase -> d.baseType.mdlFacets
-            is ResolvedSimpleRestrictionBase -> FacetList(d.facets, schemaLike)
+            is ResolvedSimpleRestrictionBase -> FacetList(d.facets, schemaLike, primitiveType = this as? PrimitiveDatatype)
         }
     }
 

@@ -26,12 +26,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinExclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMinExclusive(override val rawPart: XSMinExclusive, schema: ResolvedSchemaLike) :
+class ResolvedMinExclusive(
+    override val rawPart: XSMinExclusive,
+    schema: ResolvedSchemaLike,
+    primitiveDatatype: PrimitiveDatatype?
+) :
     ResolvedMinBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
 
-    override val value: VAnySimpleType
-        get() = rawPart.value
+    override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
         check(decimal.toLong() > rawPart.value.xmlString.toLong())

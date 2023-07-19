@@ -350,7 +350,7 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         parent,
                         b,
-                        FacetList(derivation.facets, schema),
+                        FacetList(derivation.facets, schema, b.mdlPrimitiveTypeDefinition),
                         b.mdlFundamentalFacets,
                         b.mdlVariety.notNil(),
                         b.mdlPrimitiveTypeDefinition,

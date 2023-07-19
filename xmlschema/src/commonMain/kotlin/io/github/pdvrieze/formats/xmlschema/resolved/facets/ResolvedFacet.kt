@@ -48,17 +48,17 @@ sealed class ResolvedFacet(override val schema: ResolvedSchemaLike) : ResolvedPa
     open fun validate(float: VDouble) {}
 
     companion object {
-        operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike): ResolvedFacet = when (rawPart) {
+        operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype?): ResolvedFacet = when (rawPart) {
             is XSAssertionFacet -> ResolvedAssertionFacet(rawPart, schema)
-            is XSEnumeration -> ResolvedEnumeration(rawPart, schema)
+            is XSEnumeration -> ResolvedEnumeration(rawPart, schema, primitiveDatatype)
             is XSExplicitTimezone -> ResolvedExplicitTimezone(rawPart, schema)
             is XSFractionDigits -> ResolvedFractionDigits(rawPart, schema)
             is XSLength -> ResolvedLength(rawPart, schema)
-            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, schema)
-            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, schema)
+            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, schema, primitiveDatatype)
+            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, schema, primitiveDatatype)
             is XSMaxLength -> ResolvedMaxLength(rawPart, schema)
-            is XSMinExclusive -> ResolvedMinExclusive(rawPart, schema)
-            is XSMinInclusive -> ResolvedMinInclusive(rawPart, schema)
+            is XSMinExclusive -> ResolvedMinExclusive(rawPart, schema, primitiveDatatype)
+            is XSMinInclusive -> ResolvedMinInclusive(rawPart, schema, primitiveDatatype)
             is XSMinLength -> ResolvedMinLength(rawPart, schema)
             is XSPattern -> ResolvedPattern(rawPart, schema)
             is XSTotalDigits -> ResolvedTotalDigits(rawPart, schema)
