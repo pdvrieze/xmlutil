@@ -72,6 +72,11 @@ internal class CollatedSchema(
                     val importNamespace = import.namespace
                     val importTargetNamespace = rawImport.targetNamespace ?: VAnyURI("")
                     val chameleonSchema = when {
+                        importNamespace.isNullOrEmpty() && importTargetNamespace.isEmpty() -> {
+                            val schemaNamespace = schemaLike.targetNamespace
+                            require(! schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
+                            ChameleonWrapper(schemaLike, schemaNamespace)
+                        }
                         importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
                         importTargetNamespace.isEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
                         else -> {
