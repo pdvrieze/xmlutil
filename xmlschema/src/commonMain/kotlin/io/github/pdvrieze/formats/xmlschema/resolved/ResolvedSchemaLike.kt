@@ -52,8 +52,10 @@ abstract class ResolvedSchemaLike {
     abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
     fun simpleType(typeName: QName): ResolvedGlobalSimpleType = when (typeName.namespaceURI) {
+        XmlSchemaConstants.XS_NAMESPACE -> maybeSimpleType(typeName)
+            ?: BuiltinSchemaXmlschema.maybeSimpleType(typeName)
+
         targetNamespace?.value -> maybeSimpleType(typeName)
-        XmlSchemaConstants.XS_NAMESPACE -> BuiltinSchemaXmlschema.maybeSimpleType(typeName)
         else -> maybeSimpleType(typeName)
     } ?: throw NoSuchElementException("No simple type with name $typeName found")
 
