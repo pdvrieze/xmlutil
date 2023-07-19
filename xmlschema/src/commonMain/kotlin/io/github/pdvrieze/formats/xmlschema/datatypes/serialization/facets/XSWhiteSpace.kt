@@ -32,6 +32,7 @@ import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable
 @XmlSerialName("whiteSpace", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -68,17 +69,8 @@ class XSWhiteSpace(
 
         @SerialName("collapse")
         COLLAPSE {
-            override fun normalize(representation: VString): VString = buildVString(representation.length) {
-                var last = ' ' // Start with space, to trim start of symbol
-                for(c in representation) {
-                    last = when (c) {
-                        '\t', '\n', '\r', ' ' -> { if(last!=' ') append(' '); ' ' }
-
-                        else -> { append(c); c }
-                    }
-                }
-                if (last == ' ') this.deleteAt(this.length - 1) // make sure to trim
-            }
+            override fun normalize(representation: VString): VString =
+                VString(xmlCollapseWhitespace(representation.xmlString))
         };
 
         abstract fun normalize(representation: VString): VString
