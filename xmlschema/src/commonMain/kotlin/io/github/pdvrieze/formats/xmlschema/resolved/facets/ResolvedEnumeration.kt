@@ -20,12 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedEnumeration(override val rawPart: XSEnumeration, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
-    val value: VString = (rawPart.value as? VString) ?: VString(rawPart.value.xmlString)
+class ResolvedEnumeration(
+    override val rawPart: XSEnumeration,
+    schema: ResolvedSchemaLike,
+    primitiveDatatype: PrimitiveDatatype?
+) : ResolvedFacet(schema) {
+    val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
