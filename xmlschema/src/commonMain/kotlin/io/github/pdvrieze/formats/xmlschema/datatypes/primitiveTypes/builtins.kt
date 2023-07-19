@@ -119,10 +119,13 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType> get() = emptyList()
 
     final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
+
+    override fun toString(): String = "Builtin:$name"
+
 }
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
-    abstract fun value(representation: VString): Any
+    abstract fun value(representation: VString): VAnySimpleType
 
     abstract override val baseType: ResolvedBuiltinType
     override val simpleDerivation: ResolvedSimpleRestrictionBase
@@ -201,8 +204,8 @@ object Base64BinaryType : PrimitiveDatatype("base64Binary", XmlSchemaConstants.X
         numeric = false,
     )
 
-    override fun value(representation: VString): ByteArray {
-        return Base64.decode(representation)
+    override fun value(representation: VString): VByteArray {
+        return VByteArray(Base64.decode(representation))
     }
 
     override fun validateValue(representation: Any) {
@@ -295,7 +298,7 @@ object DateTimeType : PrimitiveDatatype("dateTime", XmlSchemaConstants.XS_NAMESP
         numeric = false,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("not implemented")
     }
 
@@ -323,7 +326,7 @@ object DateTimeStampType : PrimitiveDatatype("dateTimeStamp", XmlSchemaConstants
         numeric = false,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("not implemented")
     }
 
@@ -400,8 +403,16 @@ object LongType : PrimitiveDatatype("long", XmlSchemaConstants.XS_NAMESPACE), ID
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger(Long.MAX_VALUE)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger(Long.MIN_VALUE)), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString(Long.MAX_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            LongType
+        ),
+        minConstraint = ResolvedMinInclusive(
+            XSMinInclusive(VString(Long.MIN_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            LongType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -431,8 +442,16 @@ object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IDec
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger(Int.MAX_VALUE)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger(Int.MIN_VALUE)), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString(Int.MAX_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            IntType
+        ),
+        minConstraint = ResolvedMinInclusive(
+            XSMinInclusive(VString(Int.MIN_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            IntType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -463,8 +482,12 @@ object ShortType : PrimitiveDatatype("short", XmlSchemaConstants.XS_NAMESPACE), 
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger(32767)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger(-32768)), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("32767")), BuiltinSchemaXmlschema, ShortType),
+        minConstraint = ResolvedMinInclusive(
+            XSMinInclusive(VString("-32768")),
+            BuiltinSchemaXmlschema,
+            ShortType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -495,8 +518,8 @@ object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), ID
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger(127)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger(-128)), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("27")), BuiltinSchemaXmlschema, ByteType),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("-128")), BuiltinSchemaXmlschema, ByteType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -518,6 +541,7 @@ object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), ID
         //TODO("not implemented")
     }
 
+    override fun toString(): String = "Builtin:Byte"
 }
 
 object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
@@ -527,7 +551,7 @@ object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchem
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, NonNegativeIntegerType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -558,7 +582,7 @@ object PositiveIntegerType : PrimitiveDatatype("positiveInteger", XmlSchemaConst
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger(1)), BuiltinSchemaXmlschema),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("1")), BuiltinSchemaXmlschema, PositiveIntegerType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -589,8 +613,12 @@ object UnsignedLongType : PrimitiveDatatype("unsignedLong", XmlSchemaConstants.X
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VUnsignedLong(ULong.MAX_VALUE)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString(ULong.MAX_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            UnsignedLongType
+        ),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, UnsignedLongType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -621,8 +649,12 @@ object UnsignedIntType : PrimitiveDatatype("unsignedInt", XmlSchemaConstants.XS_
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VUnsignedInt(UInt.MAX_VALUE)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString(UInt.MAX_VALUE.toString())),
+            BuiltinSchemaXmlschema,
+            UnsignedIntType
+        ),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, UnsignedIntType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -653,8 +685,12 @@ object UnsignedShortType : PrimitiveDatatype("unsignedShort", XmlSchemaConstants
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VUnsignedInt(65535u)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString("65535")),
+            BuiltinSchemaXmlschema,
+            UnsignedShortType
+        ),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, UnsignedShortType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -685,8 +721,12 @@ object UnsignedByteType : PrimitiveDatatype("unsignedByte", XmlSchemaConstants.X
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VUnsignedInt(255u)), BuiltinSchemaXmlschema),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString("255")),
+            BuiltinSchemaXmlschema,
+            UnsignedByteType
+        ),
+        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, UnsignedByteType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -717,7 +757,7 @@ object NonPositiveIntegerType : PrimitiveDatatype("nonPositiveInteger", XmlSchem
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger.ZERO), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("0")), BuiltinSchemaXmlschema, NonPositiveIntegerType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -753,7 +793,7 @@ object NegativeIntegerType : PrimitiveDatatype("negativeInteger", XmlSchemaConst
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VInteger(-1)), BuiltinSchemaXmlschema),
+        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("-1")), BuiltinSchemaXmlschema, NegativeIntegerType),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -824,7 +864,7 @@ object DurationType : PrimitiveDatatype("duration", XmlSchemaConstants.XS_NAMESP
         numeric = false,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("not implemented")
     }
 
@@ -848,7 +888,7 @@ object DayTimeDurationType : PrimitiveDatatype("dayTimeDuration", XmlSchemaConst
         numeric = false,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("not implemented")
     }
 
@@ -1100,9 +1140,10 @@ object HexBinaryType : PrimitiveDatatype("hexBinary", XmlSchemaConstants.XS_NAME
         numeric = false,
     )
 
-    override fun value(representation: VString): ByteArray {
+    override fun value(representation: VString): VByteArray {
         require(representation.length % 2 == 0) { "Hex must have even amount of characters" }
-        return ByteArray(representation.length / 2) { representation.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+        val b = ByteArray(representation.length / 2) { representation.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+        return VByteArray(b)
     }
 
     override fun validateValue(representation: Any) {
@@ -1155,8 +1196,8 @@ object QNameType : PrimitiveDatatype("QName", XmlSchemaConstants.XS_NAMESPACE) {
         numeric = false,
     )
 
-    override fun value(representation: VString): QName {
-        return (representation as? VPrefixString)?.toQName() ?: QName(representation.xmlString)
+    override fun value(representation: VString): VQName {
+        return (representation as? VPrefixString)?.toVQName() ?: VQName(representation.xmlString)
     }
 
     override fun validateValue(representation: Any) {
@@ -1472,7 +1513,7 @@ object TimeType : PrimitiveDatatype("time", XmlSchemaConstants.XS_NAMESPACE) {
         numeric = false,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("not implemented")
     }
 
@@ -1530,7 +1571,7 @@ object PrecisionDecimalType : PrimitiveDatatype("precisionDecimal", XmlSchemaCon
         numeric = true,
     )
 
-    override fun value(representation: VString): Any {
+    override fun value(representation: VString): VAnySimpleType {
         TODO("NOT IMPLEMENTED")
     }
 

@@ -43,7 +43,7 @@ class FacetList(
 
     private fun <T : ResolvedFacet> T.checkNotFixed(facet: ResolvedFacet?): T {
         check(this == facet || facet?.fixed != true) {
-            "Fixed facet ${facet} cannot be overridden"
+            "Fixed facet $facet cannot be overridden"
         }
         return this
     }
@@ -123,6 +123,77 @@ class FacetList(
 
     }
 
+    fun check(primitiveType: PrimitiveDatatype?) {
+        when (primitiveType) {
+            is IStringType -> {
+                if (minLength != null && maxLength != null) {
+                    check(minLength.value <= maxLength.value) { "minLength > maxLengh is not valid" }
+                }
+
+                check(minConstraint == null) { "Strings can not have numeric facets" }
+                check(maxConstraint == null) { "Strings can not have numeric facets" }
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+                check(fractionDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            is IDecimalType -> {
+                if (minConstraint != null && maxConstraint != null) {
+                    val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
+                        .toLong() + if (minConstraint.isInclusive) 0L else -1L
+
+                    val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
+                        .toLong() + if (maxConstraint.isInclusive) 0L else -1L
+
+                    check(minConstr <= maxConstr) { "The minimum constraint must be <= to the max constraint" }
+                } else if (minConstraint != null) {
+                    primitiveType.validateValue(minConstraint.value)
+                } else if (maxConstraint != null) {
+                    primitiveType.validateValue(maxConstraint.value)
+                }
+                check(primitiveType == DecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
+            }
+
+            is DoubleType -> {
+                val minC = minConstraint?.let {
+                    primitiveType.value(VString(it.value.xmlString)).also {
+                        primitiveType.validateValue(it)
+                    }
+                }
+                val maxC = maxConstraint?.let {
+                    primitiveType.value(VString(it.value.xmlString)).also {
+                        primitiveType.validateValue(it)
+                    }
+                }
+                if (minC != null && maxC != null) {
+                    check(minC.value <= maxC.value) { "Double constraints must be in order" }
+                }
+
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            is FloatType -> {
+                val minC = minConstraint?.let {
+                    primitiveType.value(VString(it.value.xmlString)).also {
+                        primitiveType.validateValue(it)
+                    }
+                }
+                val maxC = maxConstraint?.let {
+                    primitiveType.value(VString(it.value.xmlString)).also {
+                        primitiveType.validateValue(it)
+                    }
+                }
+                if (minC != null && maxC != null) {
+                    check(minC.value <= maxC.value) { "Float constraints must be in order" }
+                }
+
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            else -> {}
+        }
+
+    }
+
     fun validate(primitiveType: PrimitiveDatatype?, representation: VString) {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
         val normalizedStr = normalized.toString()
@@ -139,10 +210,6 @@ class FacetList(
             is IStringType -> {
                 minLength?.let { check(normalizedStr.length >= it.value.toInt()) }
                 maxLength?.let { check(normalizedStr.length <= it.value.toInt()) }
-                check(minConstraint == null) { "Strings can not have numeric facets" }
-                check(maxConstraint == null) { "Strings can not have numeric facets" }
-                check(totalDigits == null) { "totalDigits only applies to decimal types" }
-                check(fractionDigits == null) { "totalDigits only applies to decimal types" }
             }
 
             is IDecimalType -> {
@@ -150,7 +217,6 @@ class FacetList(
                 minConstraint?.validate(primitiveType, actualValue)
                 maxConstraint?.validate(primitiveType, actualValue)
                 totalDigits?.let { check(normalized.length <= it.value.toInt()) }
-                check(fractionDigits == null) { "totalDigits only applies to decimal types" }
 
                 primitiveType.validateValue(actualValue)
             }
@@ -159,7 +225,6 @@ class FacetList(
                 val actualValue = primitiveType.value(normalized)
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
-                check(totalDigits == null) { "totalDigits only applies to decimal types" }
                 fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
 
                 primitiveType.validateValue(actualValue)
@@ -192,8 +257,12 @@ class FacetList(
     companion object {
         val EMPTY: FacetList = FacetList()
 
-        operator fun invoke(rawFacets: Iterable<XSFacet>, schemaLike: ResolvedSchemaLike): FacetList =
-            FacetList(rawFacets.map { ResolvedFacet(it, schemaLike) })
+        operator fun invoke(
+            rawFacets: Iterable<XSFacet>,
+            schemaLike: ResolvedSchemaLike,
+            primitiveType: PrimitiveDatatype?
+        ): FacetList =
+            FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) })
 
         operator fun invoke(facets: Iterable<ResolvedFacet>): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()

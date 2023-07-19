@@ -26,12 +26,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxInclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMaxInclusive(override val rawPart: XSMaxInclusive, schema: ResolvedSchemaLike) :
+class ResolvedMaxInclusive(
+    override val rawPart: XSMaxInclusive,
+    schema: ResolvedSchemaLike,
+    primitiveDatatype: PrimitiveDatatype?
+) :
     ResolvedMaxBoundFacet(schema) {
     override val isInclusive: Boolean get() = true
 
-    override val value: VAnySimpleType
-        get() = rawPart.value
+    override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
         check(decimal.toLong() <= rawPart.value.xmlString.toLong())
