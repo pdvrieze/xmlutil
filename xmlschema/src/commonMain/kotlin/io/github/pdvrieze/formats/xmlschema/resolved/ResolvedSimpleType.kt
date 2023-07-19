@@ -96,6 +96,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                 check(T_DerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
             }
         }
+        mdlFacets.check(this.mdlPrimitiveTypeDefinition)
     }
 
     override fun validate(representation: VString) {
@@ -216,7 +217,7 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         final override val mdlFacets: FacetList = when (val d = rawPart.simpleDerivation) {
             is XSSimpleRestriction -> {
-                mdlBaseTypeDefinition.mdlFacets.override(FacetList(d.facets, schema))
+                mdlBaseTypeDefinition.mdlFacets.override(FacetList(d.facets, schema, mdlPrimitiveTypeDefinition))
             }
 
             is XSSimpleList -> FacetList(

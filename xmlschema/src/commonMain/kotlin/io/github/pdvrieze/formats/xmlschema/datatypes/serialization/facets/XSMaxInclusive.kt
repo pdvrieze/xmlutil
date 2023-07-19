@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import kotlinx.serialization.Serializable
@@ -34,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("maxInclusive", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSMaxInclusive(
-    override val value: VAnySimpleType,
+    override val value: VString,
     override val fixed: Boolean? = null,
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,

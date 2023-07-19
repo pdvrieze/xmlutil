@@ -22,16 +22,19 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxExclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMaxExclusive(override val rawPart: XSMaxExclusive, schema: ResolvedSchemaLike) :
-    ResolvedMaxBoundFacet(schema) {
+class ResolvedMaxExclusive(
+    override val rawPart: XSMaxExclusive,
+    schema: ResolvedSchemaLike,
+    primitiveDatatype: PrimitiveDatatype?
+) : ResolvedMaxBoundFacet(schema) {
     override val isInclusive: Boolean get() = false
 
-    override val value: VAnySimpleType
-        get() = rawPart.value
+    override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
         check(decimal.toLong() < rawPart.value.xmlString.toLong())
