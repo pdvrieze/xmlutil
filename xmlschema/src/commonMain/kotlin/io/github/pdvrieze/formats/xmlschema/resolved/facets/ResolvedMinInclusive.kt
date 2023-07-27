@@ -53,5 +53,6 @@ class ResolvedMinInclusive(
         return value.hashCode()
     }
 
+    override fun toString(): String = "[$value-"
 
 }
