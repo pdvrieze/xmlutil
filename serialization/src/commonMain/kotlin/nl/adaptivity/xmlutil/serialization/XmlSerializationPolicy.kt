@@ -510,8 +510,8 @@ public open class DefaultXmlSerializationPolicy
 
         return when {
             outputKind == OutputKind.Attribute -> when {
-                !useName.isDefaultNamespace -> useName.annotatedName!! // invariant enforced by type
-                useName.annotatedName != null -> QName(useName.annotatedName.getLocalPart()) // use unqualified attribute name
+                useName.isDefaultNamespace -> QName(useName.annotatedName?.getLocalPart() ?: useName.serialName)
+                useName.annotatedName != null -> useName.annotatedName
                 else -> QName(useName.serialName)
             } // Use non-prefix attributes by default
 
