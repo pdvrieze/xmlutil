@@ -798,6 +798,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicD
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDoInline ()Z
+	public fun getElementsCount ()I
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public fun hashCode ()I

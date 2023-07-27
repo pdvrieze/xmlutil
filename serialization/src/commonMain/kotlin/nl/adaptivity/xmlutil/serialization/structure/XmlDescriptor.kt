@@ -463,6 +463,8 @@ internal constructor(
     override val outputKind: OutputKind =
         policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
 
+    override val elementsCount: Int get() = 0
+
     @OptIn(ExperimentalSerializationApi::class)
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.append(tagName.toString())
