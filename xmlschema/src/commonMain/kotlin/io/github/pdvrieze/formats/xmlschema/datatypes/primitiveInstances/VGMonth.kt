@@ -31,4 +31,7 @@ value class VGMonth(val month: Int) : VAnyAtomicType {
     }
 
     override val xmlString: String get() = month.toString()
+
+    override fun toString(): String = xmlString
+
 }

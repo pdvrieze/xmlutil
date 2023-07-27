@@ -25,25 +25,10 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VID(override val xmlString: String) : VNCName
+value class VID(override val xmlString: String) : VNCName {
 
-@JvmInline
-@Serializable
-value class VDate(val dateVal: Int) : VAnyAtomicType {
-    constructor(year: Int, month:Int, day:Int): this(
-        ((day and 0x1f) or
-                ((month and 0xf)shl 5)) or
-                (year shl 9)
-    )
+    override fun toString(): String = xmlString
 
-    val day get() = (dateVal and 0x1f)
-
-    val month get() = (dateVal shr 5) and 0xf
-
-    val year get() = (dateVal shr 9)
-
-    override val xmlString: String
-        get() = "${year.toString().padStart(4,'0')}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}"
 }
 
 

@@ -53,5 +53,6 @@ class ResolvedMaxInclusive(
         return value.hashCode()
     }
 
+    override fun toString(): String = "-$value]"
 
 }

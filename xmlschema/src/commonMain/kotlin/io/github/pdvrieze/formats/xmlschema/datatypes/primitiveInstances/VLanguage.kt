@@ -25,4 +25,8 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VLanguage(override val xmlString: String) : VToken
+value class VLanguage(override val xmlString: String) : VToken {
+
+    override fun toString(): String = xmlString
+
+}

@@ -29,4 +29,10 @@ data class VQName(val namespaceUri: String, val localName: String, val prefix: S
         get() = "$prefix:$localName"
 
     fun toQName(): QName = QName(namespaceUri, localName, prefix)
+
+    override fun toString(): String = when {
+        prefix.isEmpty() -> "{${namespaceUri}$localName}"
+        else -> "{${namespaceUri}$prefix:$localName}"
+    }
+
 }

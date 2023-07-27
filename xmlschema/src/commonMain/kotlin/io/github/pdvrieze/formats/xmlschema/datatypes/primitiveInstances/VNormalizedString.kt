@@ -29,6 +29,10 @@ interface VNormalizedString : VString {
         }
     }
 
-    private class Impl(override val xmlString: String): VNormalizedString
+    private class Impl(override val xmlString: String): VNormalizedString {
+
+        override fun toString(): String = xmlString
+
+    }
 }
 

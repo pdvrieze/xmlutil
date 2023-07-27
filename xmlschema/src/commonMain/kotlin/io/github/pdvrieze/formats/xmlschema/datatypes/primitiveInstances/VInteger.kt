@@ -44,6 +44,9 @@ private class IntInstance(private val i: Int) : VInteger {
     override fun toInt(): Int = i
 
     override val xmlString: String get() = i.toString()
+
+    override fun toString(): String = xmlString
+
 }
 
 private class LongInstance(private val l: Long) : VInteger {
@@ -52,14 +55,20 @@ private class LongInstance(private val l: Long) : VInteger {
     override fun toInt(): Int = l.toInt()
 
     override val xmlString: String get() = l.toString()
+
+    override fun toString(): String = xmlString
 }
 
 @JvmInline
 value class VDouble(val value: Double): VAnyAtomicType {
     override val xmlString: String get() = value.toString()
+
+    override fun toString(): String = xmlString
 }
 
 @JvmInline
 value class VFloat(val value: Float): VAnyAtomicType {
     override val xmlString: String get() = value.toString()
+
+    override fun toString(): String = xmlString
 }
