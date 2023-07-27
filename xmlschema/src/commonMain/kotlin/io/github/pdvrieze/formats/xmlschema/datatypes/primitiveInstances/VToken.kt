@@ -30,7 +30,11 @@ import kotlin.jvm.JvmInline
 interface VToken : VNormalizedString {
 
     @JvmInline
-    private value class Inst(override val xmlString: String) : VToken
+    private value class Inst(override val xmlString: String) : VToken {
+
+        override fun toString(): String = xmlString
+
+    }
 
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VToken>("token") {

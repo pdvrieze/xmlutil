@@ -26,10 +26,13 @@ import kotlin.jvm.JvmInline
 value class VBoolean(val value: Boolean): VAnyAtomicType {
     operator fun not(): VBoolean = VBoolean(!value)
 
+    override val xmlString: String get() = value.toString()
+
+    override fun toString(): String = xmlString
+
     companion object {
         val TRUE = VBoolean(true)
         val FALSE = VBoolean(false)
     }
 
-    override val xmlString: String get() = value.toString()
 }

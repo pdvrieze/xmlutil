@@ -25,4 +25,8 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VIDRef(override val xmlString: String) : VNCName
+value class VIDRef(override val xmlString: String) : VNCName {
+
+    override fun toString(): String = xmlString
+
+}

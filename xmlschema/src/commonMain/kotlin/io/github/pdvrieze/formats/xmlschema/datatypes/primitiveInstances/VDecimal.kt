@@ -117,4 +117,6 @@ internal class VBigDecimalImpl(override val xmlString: String) : VBigDecimal {
         right = right.padStart(totalLen, '0')
         return left.compareTo(right)
     }
+
+    override fun toString(): String = xmlString
 }
