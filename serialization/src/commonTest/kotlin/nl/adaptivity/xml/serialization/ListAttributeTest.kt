@@ -59,8 +59,7 @@ class ListAttributeTest : PlatformTestBase<ListAttributeTest.Container>(
     fun testDeserializeRepeatedWhitespace() {
         val input = "<container xmlns=\"urn:example.org\" elements=\"a  b\" />"
         val actual = baseXmlFormat.decodeFromString(serializer, input)
-        assertNotEquals(value, actual)
-        assertEquals(Container(listOf("a", "", "b")), actual)
+        assertEquals(value, actual)
     }
 
     @OptIn(ExperimentalXmlUtilApi::class)
