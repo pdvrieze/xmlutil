@@ -54,4 +54,6 @@ class ResolvedMinExclusive(
     }
 
 
+    override fun toString(): String = "($value-"
+
 }

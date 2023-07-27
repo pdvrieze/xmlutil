@@ -139,7 +139,7 @@ class FacetList(
             is IIntegerType -> {
                 if (minConstraint != null && maxConstraint != null) {
                     val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
-                        .toLong() + if (minConstraint.isInclusive) 0L else -1L
+                        .toLong() + if (minConstraint.isInclusive) 0L else 1L
 
                     val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
                         .toLong() + if (maxConstraint.isInclusive) 0L else -1L

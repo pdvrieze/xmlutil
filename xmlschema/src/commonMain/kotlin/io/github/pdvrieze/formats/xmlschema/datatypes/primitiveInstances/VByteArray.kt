@@ -28,4 +28,6 @@ import kotlin.jvm.JvmInline
 @OptIn(ExperimentalEncodingApi::class)
 value class VByteArray(val value: ByteArray) : VAnyAtomicType {
     override val xmlString: String get() = Base64.encode(value)
+
+    override fun toString(): String = xmlString
 }
