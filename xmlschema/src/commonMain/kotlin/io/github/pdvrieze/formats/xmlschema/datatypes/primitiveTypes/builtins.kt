@@ -32,6 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -350,11 +351,15 @@ object DecimalType : PrimitiveDatatype("decimal", XmlSchemaConstants.XS_NAMESPAC
     )
 
     override fun value(representation: VString): VDecimal {
-        return when (representation.toLong()) {
-            in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                VInteger(representation.toLong().toInt())
+        return try {
+            when (representation.toLong()) {
+                in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
+                    VInteger(representation.toLong().toInt())
 
-            else -> VInteger(representation.toLong())
+                else -> VInteger(representation.toLong())
+            }
+        } catch (e: NumberFormatException) {
+            VBigDecimalImpl(xmlCollapseWhitespace(representation.xmlString))
         }
     }
 
@@ -365,9 +370,12 @@ object DecimalType : PrimitiveDatatype("decimal", XmlSchemaConstants.XS_NAMESPAC
     override fun validate(representation: VString) {
         value(representation)
     }
+
 }
 
-object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+sealed interface IIntegerType: IDecimalType
+
+object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: DecimalType get() = DecimalType
 
     override val mdlFacets: FacetList = FacetList(
@@ -396,7 +404,7 @@ object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPAC
     }
 }
 
-object LongType : PrimitiveDatatype("long", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object LongType : PrimitiveDatatype("long", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -435,7 +443,7 @@ object LongType : PrimitiveDatatype("long", XmlSchemaConstants.XS_NAMESPACE), ID
     }
 }
 
-object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: LongType get() = LongType
 
     override val mdlFacets: FacetList = FacetList(
@@ -475,7 +483,7 @@ object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IDec
 
 }
 
-object ShortType : PrimitiveDatatype("short", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object ShortType : PrimitiveDatatype("short", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: IntType get() = IntType
 
     override val mdlFacets: FacetList = FacetList(
@@ -511,7 +519,7 @@ object ShortType : PrimitiveDatatype("short", XmlSchemaConstants.XS_NAMESPACE), 
 
 }
 
-object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: ShortType get() = ShortType
 
     override val mdlFacets: FacetList = FacetList(
@@ -544,14 +552,18 @@ object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), ID
     override fun toString(): String = "Builtin:Byte"
 }
 
-object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("0")), BuiltinSchemaXmlschema, NonNegativeIntegerType),
+        minConstraint = ResolvedMinInclusive(
+            XSMinInclusive(VString("0")),
+            BuiltinSchemaXmlschema,
+            NonNegativeIntegerType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -575,7 +587,7 @@ object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchem
 
 }
 
-object PositiveIntegerType : PrimitiveDatatype("positiveInteger", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object PositiveIntegerType : PrimitiveDatatype("positiveInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -606,7 +618,7 @@ object PositiveIntegerType : PrimitiveDatatype("positiveInteger", XmlSchemaConst
 
 }
 
-object UnsignedLongType : PrimitiveDatatype("unsignedLong", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object UnsignedLongType : PrimitiveDatatype("unsignedLong", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -642,7 +654,7 @@ object UnsignedLongType : PrimitiveDatatype("unsignedLong", XmlSchemaConstants.X
 
 }
 
-object UnsignedIntType : PrimitiveDatatype("unsignedInt", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object UnsignedIntType : PrimitiveDatatype("unsignedInt", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: UnsignedLongType get() = UnsignedLongType
 
     override val mdlFacets: FacetList = FacetList(
@@ -678,7 +690,7 @@ object UnsignedIntType : PrimitiveDatatype("unsignedInt", XmlSchemaConstants.XS_
 
 }
 
-object UnsignedShortType : PrimitiveDatatype("unsignedShort", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object UnsignedShortType : PrimitiveDatatype("unsignedShort", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: UnsignedIntType get() = UnsignedIntType
 
     override val mdlFacets: FacetList = FacetList(
@@ -714,7 +726,7 @@ object UnsignedShortType : PrimitiveDatatype("unsignedShort", XmlSchemaConstants
 
 }
 
-object UnsignedByteType : PrimitiveDatatype("unsignedByte", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object UnsignedByteType : PrimitiveDatatype("unsignedByte", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: UnsignedShortType get() = UnsignedShortType
 
     override val mdlFacets: FacetList = FacetList(
@@ -750,14 +762,18 @@ object UnsignedByteType : PrimitiveDatatype("unsignedByte", XmlSchemaConstants.X
 
 }
 
-object NonPositiveIntegerType : PrimitiveDatatype("nonPositiveInteger", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object NonPositiveIntegerType : PrimitiveDatatype("nonPositiveInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("0")), BuiltinSchemaXmlschema, NonPositiveIntegerType),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString("0")),
+            BuiltinSchemaXmlschema,
+            NonPositiveIntegerType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -786,14 +802,18 @@ object NonPositiveIntegerType : PrimitiveDatatype("nonPositiveInteger", XmlSchem
 
 }
 
-object NegativeIntegerType : PrimitiveDatatype("negativeInteger", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object NegativeIntegerType : PrimitiveDatatype("negativeInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: NonPositiveIntegerType get() = NonPositiveIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("-1")), BuiltinSchemaXmlschema, NegativeIntegerType),
+        maxConstraint = ResolvedMaxInclusive(
+            XSMaxInclusive(VString("-1")),
+            BuiltinSchemaXmlschema,
+            NegativeIntegerType
+        ),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1534,7 +1554,8 @@ object EntitiesType :
     override fun validate(representation: VString) {}
 }
 
-object IDRefsType : ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType, BuiltinSchemaXmlschema) {
+object IDRefsType :
+    ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType, BuiltinSchemaXmlschema) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = IDRefType
 
