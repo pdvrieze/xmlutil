@@ -67,6 +67,8 @@ interface VNonNegativeInteger : VInteger {
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
             return VUnsignedLong(toULong() * other.toULong())
         }
+
+        override fun toString(): String = "${xmlString}u"
     }
 
     class Serializer : KSerializer<VNonNegativeInteger> {

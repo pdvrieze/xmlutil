@@ -31,4 +31,7 @@ value class VGDay(val day: Int) : VAnyAtomicType {
     }
 
     override val xmlString: String get() = day.toString().padStart(4, '0')
+
+    override fun toString(): String = xmlString
+
 }

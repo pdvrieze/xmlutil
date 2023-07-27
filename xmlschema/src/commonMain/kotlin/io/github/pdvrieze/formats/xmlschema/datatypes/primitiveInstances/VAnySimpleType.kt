@@ -32,6 +32,9 @@ interface VAnySimpleType {
 
     private class Inst(val value: String) : VAnySimpleType {
         override val xmlString: String get() = value
+
+        override fun toString(): String = xmlString
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false

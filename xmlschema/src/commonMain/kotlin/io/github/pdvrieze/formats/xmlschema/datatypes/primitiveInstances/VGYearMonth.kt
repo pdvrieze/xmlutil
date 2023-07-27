@@ -37,4 +37,7 @@ value class VGYearMonth(val monthYear: Int) : VAnyAtomicType {
     val year: Int get() = monthYear shr 4
 
     override val xmlString: String get() = "${year.toString().padStart(4,'0')}-${month.toString().padStart(2,'0')}"
+
+    override fun toString(): String = xmlString
+
 }

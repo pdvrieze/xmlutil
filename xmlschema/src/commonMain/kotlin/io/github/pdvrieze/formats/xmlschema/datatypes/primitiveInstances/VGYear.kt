@@ -40,4 +40,7 @@ value class VNotation(val value: SerializableQName) : VAnyAtomicType {
     constructor(str: VString) : this((str as? VPrefixString)?.toQName() ?: QName(str.xmlString))
 
     override val xmlString: String get() = "${value.prefix}:${value.localPart}"
+
+    override fun toString(): String = xmlString
+
 }
