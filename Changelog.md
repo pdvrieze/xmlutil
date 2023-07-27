@@ -2,6 +2,8 @@
 Features:
 
 Fixes:
+- When attributes have an `@XmlSerialName` annotation with a default namespace
+  value, then this will result in a non-qualified attribute.
 
 # 0.86.1
 *(July 5, 2023)<br />*

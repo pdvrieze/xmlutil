@@ -97,8 +97,15 @@ public interface XmlSerializationPolicy {
 
     public data class DeclaredNameInfo(
         val serialName: String,
-        val annotatedName: QName?
-    )
+        val annotatedName: QName?,
+        val isDefaultNamespace: Boolean/* = false*/
+    ) {
+        internal constructor(serialName: String) : this(serialName, null, false)
+
+        init {
+            check(!(isDefaultNamespace && annotatedName == null)) { "Default namespace requires there to be an annotated name" }
+        }
+    }
 
     public data class ActualNameInfo(
         val serialName: String,
@@ -190,13 +197,13 @@ public interface XmlSerializationPolicy {
 
     /** Determine the name of map keys for a given map type */
     public fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo =
-        DeclaredNameInfo("key", null) // minimal default for implementations.
+        DeclaredNameInfo("key") // minimal default for implementations.
 
     /**
      * Determine the name of the values for a given map type
      */
     public fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo =
-        DeclaredNameInfo("value", null) // minimal default for implementations.
+        DeclaredNameInfo("value") // minimal default for implementations.
 
     /**
      * Determine the name to use for the map element (only used when a map entry is wrapped)
@@ -222,7 +229,8 @@ public interface XmlSerializationPolicy {
      * first element.
      */
     @ExperimentalXmlUtilApi
-    public fun attributeListDelimiters(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Array<String> = arrayOf(" ", "\n", "\t", "\r")
+    public fun attributeListDelimiters(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Array<String> =
+        arrayOf(" ", "\n", "\t", "\r")
 
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
@@ -236,13 +244,18 @@ public interface XmlSerializationPolicy {
          * correct child).
          */
         @ExperimentalXmlUtilApi
-        public fun recoverNullNamespaceUse(inputKind: InputKind, descriptor: XmlDescriptor, name: QName?): List<XML.ParsedData<*>>? {
+        public fun recoverNullNamespaceUse(
+            inputKind: InputKind,
+            descriptor: XmlDescriptor,
+            name: QName?
+        ): List<XML.ParsedData<*>>? {
             if (name != null) {
                 if (name.namespaceURI == "") {
                     for (idx in 0 until descriptor.elementsCount) {
                         val candidate = descriptor.getElementDescriptor(idx)
                         if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
-                            candidate.tagName.localPart == name.getLocalPart()) {
+                            candidate.tagName.localPart == name.getLocalPart()
+                        ) {
                             return listOf(XML.ParsedData(idx, Unit, true))
                         }
                     }
@@ -250,7 +263,8 @@ public interface XmlSerializationPolicy {
                     for (idx in 0 until descriptor.elementsCount) {
                         val candidate = descriptor.getElementDescriptor(idx)
                         if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
-                            candidate.tagName.isEquivalent(QName(name.localPart))) {
+                            candidate.tagName.isEquivalent(QName(name.localPart))
+                        ) {
                             return listOf(XML.ParsedData(idx, Unit, true))
                         }
                     }
@@ -495,9 +509,14 @@ public open class DefaultXmlSerializationPolicy
         val parentSerialKind = tagParent.descriptor?.serialKind
 
         return when {
+            outputKind == OutputKind.Attribute -> when {
+                !useName.isDefaultNamespace -> useName.annotatedName!! // invariant enforced by type
+                useName.annotatedName != null -> QName(useName.annotatedName.getLocalPart()) // use unqualified attribute name
+                else -> QName(useName.serialName)
+            } // Use non-prefix attributes by default
+
             useName.annotatedName != null -> useName.annotatedName
 
-            outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
 
             serialKind is PrimitiveKind ||
                     serialKind == StructureKind.MAP ||
@@ -652,12 +671,13 @@ public open class DefaultXmlSerializationPolicy
     }
 
     override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {
-        return DeclaredNameInfo("key", null)
+        return DeclaredNameInfo("key")
     }
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
-        val childrenName = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
-        return DeclaredNameInfo("value", childrenName)
+        val childAnnotation = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()
+        val childrenName = childAnnotation?.toQName()
+        return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
 
     override fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName {

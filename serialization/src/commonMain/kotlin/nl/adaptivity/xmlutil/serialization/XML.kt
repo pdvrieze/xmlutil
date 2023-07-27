@@ -33,6 +33,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
@@ -162,7 +163,7 @@ public class XML constructor(
         target.indentString = config.indentString
 
         if (prefix != null) {
-            val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, null)
+            val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor)
 
             val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
 
@@ -206,7 +207,7 @@ public class XML constructor(
             }
         }
 
-        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootName)
+        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootName, false)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -220,7 +221,7 @@ public class XML constructor(
                 })
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
                 val newRootName = rootName?.remapPrefix(prefixMap)
-                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName)
+                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName, false)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
 
@@ -398,7 +399,7 @@ public class XML constructor(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
-        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, serialName)
+        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, serialName, false)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
         val polyInfo = (elementDescriptor as? XmlPolymorphicDescriptor)?.run {
@@ -434,11 +435,11 @@ public class XML constructor(
             ?: serialDescriptor.annotations.firstOrNull<XmlSerialName>()
                 ?.toQName(serialDescriptor.serialName, null)
             ?: config.policy.serialTypeNameToQName(
-                XmlSerializationPolicy.DeclaredNameInfo(serialDescriptor.serialName, null),
+                DeclaredNameInfo(serialDescriptor.serialName),
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
             )
 
-        return XmlRootDescriptor(config, serializersModule, serialDescriptor, serialName)
+        return XmlRootDescriptor(config, serializersModule, serialDescriptor, serialName, false)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)
