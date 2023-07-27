@@ -392,7 +392,7 @@ object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPAC
     )
 
     override fun value(representation: VString): VInteger {
-        return VInteger(representation.toInt())
+        return VInteger(representation.toLong())
     }
 
     override fun validateValue(representation: Any) {
@@ -526,7 +526,7 @@ object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), II
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), BuiltinSchemaXmlschema),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
-        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("27")), BuiltinSchemaXmlschema, ByteType),
+        maxConstraint = ResolvedMaxInclusive(XSMaxInclusive(VString("127")), BuiltinSchemaXmlschema, ByteType),
         minConstraint = ResolvedMinInclusive(XSMinInclusive(VString("-128")), BuiltinSchemaXmlschema, ByteType),
     )
 
