@@ -25,24 +25,48 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGMonthDay(val monthday: Int) : VAnyAtomicType {
+value class VGMonthDay(val monthdayVal: UInt) : IDateTime {
+    constructor(month: Int, day: Int) : this(
+        day.toIBits(5) or
+                month.toIBits(4, 5)
+    )
+
+    constructor(month: Int, day: Int, timezoneOffset: Int?) : this(
+        day.toIBits(5) or
+                month.toIBits(4, 5) or
+                when (timezoneOffset) {
+                    null -> 0u
+                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                }
+    )
 
     init {
-        val d = monthday shr 5
-        require(d in 1..12)
-        when(d) {
-            2 -> require((monthday and 0x1f) in 1..29)
-            4, 6, 9, 11 -> require((monthday and 0x1f) in 1..30)
-            else -> require((monthday and 0x1f) in 1..31)
+        val m = month
+        require(m in 1u..12u)
+        when(m) {
+            2u -> require(day in 1u..29u)
+            4u, 6u, 9u, 11u -> require(day in 1u..30u)
+            else -> require(day in 1u..31u)
         }
     }
 
-    constructor(day: Int, month: Int) : this((day and 0x1f) or (month shl 5))
+    override val day: UInt get() = monthdayVal.uintFromBits(5)
 
-    val day: Int get() = monthday and 0x1f
-    val month: Int get() = monthday shr 5
+    override val month: UInt get() = (monthdayVal shr 5).uintFromBits(4)
 
-    override val xmlString: String get() = "$month-$day"
+    override val timezoneOffset: Int? get() = when {
+        monthdayVal and 0x70000000u == 0u -> null
+        else -> (monthdayVal shr 18).intFromBits(13)
+    }
+
+
+    override val year: Nothing? get() = null
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
+
+
+    override val xmlString: String get() = "--${monthFrag()}-${dayFrag()}"
 
     override fun toString(): String = xmlString
 

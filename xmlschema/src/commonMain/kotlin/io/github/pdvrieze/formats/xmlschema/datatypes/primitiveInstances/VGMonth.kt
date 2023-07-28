@@ -25,12 +25,35 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGMonth(val month: Int) : VAnyAtomicType {
+value class VGMonth(val monthVal: UInt) : IDateTime {
+
+    constructor(month: Int, timezoneOffset: Int?) : this(
+        month.toIBits(5) or
+                when (timezoneOffset) {
+                    null -> 0u
+                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                }
+    )
+
+    constructor(month: Int, dummy: Nothing? = null) : this(month.toIBits(5))
+
     init {
-        require(month in 1..12)
+        require(month in 1u..12u)
     }
 
-    override val xmlString: String get() = month.toString()
+    override val month: UInt get() = monthVal.uintFromBits(5)
+    override val timezoneOffset: Int? get() = when {
+        monthVal and 0x70000000u == 0u -> null
+        else -> (monthVal shr 18).intFromBits(13)
+    }
+
+    override val year: Nothing? get() = null
+    override val day: Nothing? get() = null
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
+
+    override val xmlString: String get() = "--${monthFrag()}${timeZoneFrag()}"
 
     override fun toString(): String = xmlString
 
