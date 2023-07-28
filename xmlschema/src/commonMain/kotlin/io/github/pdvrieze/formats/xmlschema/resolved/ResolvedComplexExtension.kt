@@ -40,5 +40,8 @@ class ResolvedComplexExtension(
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedDerivation>.check(checkedTypes, inheritedTypes)
         require(base !in inheritedTypes.dropLastOrEmpty(1)) { "Recursive type use in complex content: $base" }
+        val b = baseType
+        require(b is ResolvedComplexType) { "Complex extensions cannot extend simple types" }
+        require(b.mdlContentType !is ResolvedComplexType.ResolvedSimpleContentType) { "Complex extensions cannot extend simpleContent" }
     }
 }
