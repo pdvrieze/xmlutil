@@ -25,18 +25,40 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGYearMonth(val monthYear: Int) : VAnyAtomicType {
+value class VGYearMonth(val monthYear: ULong) : IDateTime {
 
     init {
-        require((monthYear and 0xf) in 1..12)
+        require(monthYear.uintFromBits(4) in 1u..12u)
     }
 
-    constructor(month: Int, year: Int) : this((month and 0xf) or (year shl 4))
+    constructor(year: Int, month: Int) : this(
+        month.toLBits(4) or
+                year.toLBits(52, 4)
+    )
 
-    val month: Int get() = monthYear and 0xf
-    val year: Int get() = monthYear shr 4
+    constructor(year: Int, month: Int, timezoneOffset: Int?) : this(
+        month.toLBits(4) or
+                year.toLBits(52, 4) or
+                when (timezoneOffset) {
+                    null -> 0uL
+                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 50)
+                }
+    )
 
-    override val xmlString: String get() = "${year.toString().padStart(4,'0')}-${month.toString().padStart(2,'0')}"
+    override val month: UInt get() = monthYear.uintFromBits(4)
+    override val year: Int get() = (monthYear shr 4).intFromBits(46)
+
+    override val timezoneOffset: Int? get() = when {
+        monthYear and 0x7000000000000000uL == 0uL -> null
+        else -> (monthYear shr 50).intFromBits(13)
+    }
+
+    override val day: Nothing? get() = null
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
+
+    override val xmlString: String get() = "${yearFrag()}-${monthFrag()}${timeZoneFrag()}"
 
     override fun toString(): String = xmlString
 

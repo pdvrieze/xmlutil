@@ -29,8 +29,32 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGYear(val year: Int) : VAnyAtomicType {
-    override val xmlString: String get() = year.toString().padStart(4, '0')
+value class VGYear(val yearVal: UInt) : IDateTime {
+
+    constructor(year: Int, dummy: Nothing? = null) : this(year.toIBits(18))
+
+    constructor(year: Int, timezoneOffset: Int? = null) : this(
+        year.toIBits(18) or
+                when (timezoneOffset) {
+                    null -> 0u
+                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                }
+    )
+
+    override val year: Int get() = yearVal.intFromBits(18)
+
+    override val timezoneOffset: Int? get() = when {
+        yearVal and 0x70000000u == 0u -> null
+        else -> (yearVal shr 18).intFromBits(13)
+    }
+
+    override val day: Nothing? get() = null
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
+    override val month: Nothing? get() = null
+
+    override val xmlString: String get() = "${yearFrag()}${timeZoneFrag()}"
 }
 
 @JvmInline
