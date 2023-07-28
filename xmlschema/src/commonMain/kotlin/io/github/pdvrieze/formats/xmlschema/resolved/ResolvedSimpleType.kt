@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
@@ -85,7 +86,12 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for (enum in mdlFacets.enumeration) {
-                schema.notation((enum.value as? VPrefixString)?.toQName() ?: QName(enum.value.xmlString))
+                val name = when (val v = enum.value) {
+                    is VNotation -> v.value
+                    is VPrefixString -> v.toQName()
+                    else -> QName(enum.value.xmlString)
+                }
+                schema.notation(name)
             }
         }
 

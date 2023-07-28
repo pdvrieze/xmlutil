@@ -21,36 +21,24 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.prefix
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGYear(val yearVal: UInt) : IDateTime {
+value class VNotation(val value: SerializableQName) : VAnyAtomicType {
 
-    constructor(year: Int, dummy: Nothing? = null) : this(year.toIBits(18))
+    constructor(str: VString) : this((str as? VPrefixString)?.toQName() ?: QName(str.xmlString))
 
-    constructor(year: Int, timezoneOffset: Int? = null) : this(
-        year.toIBits(18) or
-                when (timezoneOffset) {
-                    null -> 0u
-                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
-                }
-    )
-
-    override val year: Int get() = yearVal.intFromBits(18)
-
-    override val timezoneOffset: Int?
-        get() = when {
-            yearVal and 0x70000000u == 0u -> null
-            else -> (yearVal shr 18).intFromBits(13)
+    override val xmlString: String
+        get() = when (val p = value.prefix) {
+            "" -> value.localPart
+            else -> "${value.prefix}:${value.localPart}"
         }
 
-    override val day: Nothing? get() = null
-    override val hour: Nothing? get() = null
-    override val minute: Nothing? get() = null
-    override val second: Nothing? get() = null
-    override val month: Nothing? get() = null
+    override fun toString(): String = xmlString
 
-    override val xmlString: String get() = "${yearFrag()}${timeZoneFrag()}"
 }
-
