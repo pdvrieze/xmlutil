@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 interface VDecimal : VAnyAtomicType {
     fun toLong(): Long
     fun toInt(): Int
+    fun toDouble(): Double = xmlString.toDouble()
     fun toVDecimal(): VBigDecimal = VBigDecimalImpl(xmlString)
 }
 

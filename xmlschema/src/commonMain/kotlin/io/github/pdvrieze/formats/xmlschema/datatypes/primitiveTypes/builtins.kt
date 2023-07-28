@@ -268,8 +268,20 @@ object DateType : PrimitiveDatatype("date", XmlSchemaConstants.XS_NAMESPACE), Fi
     )
 
     override fun value(representation: VString): VDate {
-        val (year, month, day) = representation.split('Z').first().split('-').map { it.toInt() }
-        return VDate(year, month, day)
+        val s = representation.xmlString
+        val monthIdx = s.indexOf('-', 1) // sign can be start
+        val year = s.substring(0, monthIdx).toInt()
+        val month = s.substring(monthIdx + 1, monthIdx + 3).toInt()
+        if (s[monthIdx + 3] != '-') throw NumberFormatException("Missing - between month and day")
+        val day = s.substring(monthIdx + 4, monthIdx + 6).toInt()
+
+        return when {
+            representation.length >= monthIdx + 6 ->
+                VDate(year, month, day, IDateTime.timezoneFragValue(s.substring(monthIdx + 6)))
+
+            else ->
+                VDate(year, month, day)
+        }
     }
 
     override fun validateValue(representation: Any) {
@@ -299,13 +311,32 @@ object DateTimeType : PrimitiveDatatype("dateTime", XmlSchemaConstants.XS_NAMESP
         numeric = false,
     )
 
-    override fun value(representation: VString): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(representation: VString): VDateTime {
+        val s = representation.xmlString
+        val tIndex = s.indexOf('T')
+        val zIndex = s.indexOf('Z', tIndex + 1)
+        require(tIndex >= 0)
+        val (year, month, day) = s.substring(0, tIndex).split('-').map { it.toInt() }
+        val hour = s.substring(tIndex + 1, tIndex + 3).toUInt()
+        if(s[tIndex+3]!=':') throw NumberFormatException("Missing : separtor between hours and minutes")
+        val minutes = s.substring(tIndex + 4, tIndex + 6).toUInt()
+        if(s[tIndex+6]!=':') throw NumberFormatException("Missing : separtor between minutes and seconds")
+        val secEnd = ((tIndex+7)..<s.length).firstOrNull {
+            s[it] != '.' && s[it] !in '0'..'9'
+        }
+        val seconds = DecimalType.value(VString(s.substring(tIndex+7, secEnd ?: s.length)))
+        return when (secEnd){
+            null -> VDateTime(year, month.toUInt(), day.toUInt(), hour, minutes, seconds)
+            else -> {
+                val timezoneOffset = IDateTime.timezoneFragValue(s.substring(secEnd))
+                VDateTime(year, month.toUInt(), day.toUInt(), hour, minutes, seconds, timezoneOffset)
+            }
+        }
     }
 
     override fun validate(representation: VString) {
         // TODO: validate date time
-        // value(representation)
+        value(representation)
     }
 }
 
@@ -327,12 +358,14 @@ object DateTimeStampType : PrimitiveDatatype("dateTimeStamp", XmlSchemaConstants
         numeric = false,
     )
 
-    override fun value(representation: VString): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(representation: VString): VDateTime {
+        return DateTimeType.value(representation).also {
+            requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
+        }
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 }
 
@@ -373,7 +406,7 @@ object DecimalType : PrimitiveDatatype("decimal", XmlSchemaConstants.XS_NAMESPAC
 
 }
 
-sealed interface IIntegerType: IDecimalType
+sealed interface IIntegerType : IDecimalType
 
 object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
     override val baseType: DecimalType get() = DecimalType
@@ -933,8 +966,16 @@ object YearMonthDurationType : PrimitiveDatatype("yearMonthDuration", XmlSchemaC
     )
 
     override fun value(representation: VString): VGYearMonth {
-        val (year, month) = representation.split('-').map { it.toInt() }
-        return VGYearMonth(year, month)
+        val s = representation.xmlString
+        val tzIndex = s.indexOf('Z')
+        if (tzIndex < 0) {
+            val (year, month) = s.split('-').map { it.toInt() }
+            return VGYearMonth(year, month)
+        } else {
+            val (year, month) = s.substring(0, tzIndex).split('-').map { it.toInt() }
+            val tz = IDateTime.timezoneFragValue(s.substring(tzIndex))
+            return VGYearMonth(year, month, tz)
+        }
     }
 
     override fun validateValue(representation: Any) {
@@ -993,7 +1034,13 @@ object GDayType : PrimitiveDatatype("gDay", XmlSchemaConstants.XS_NAMESPACE), Fi
     )
 
     override fun value(representation: VString): VGDay {
-        return VGDay(representation.toInt())
+        val s = representation.xmlString
+        require(s.startsWith("---"))
+        val tzIndex = s.indexOf('Z', 3)
+        return when {
+            tzIndex < 0 -> VGDay(s.substring(3).toInt())
+            else -> VGDay(s.substring(3, tzIndex).toInt(), IDateTime.timezoneFragValue(s.substring(tzIndex)))
+        }
     }
 
     override fun validateValue(representation: Any) {
@@ -1024,7 +1071,17 @@ object GMonthType : PrimitiveDatatype("gMonth", XmlSchemaConstants.XS_NAMESPACE)
     )
 
     override fun value(representation: VString): VGMonth {
-        return VGMonth(representation.toInt())
+        val s = representation.xmlString
+        require(s.startsWith("--"))
+        val month = s.substring(2, 4).toInt()
+
+        if (s.length==4) {
+            return VGMonth(month)
+        } else { // Handle bogus month format with trailing dashes (non-standard compliant, error in xmlschema older versions).
+            val tz = if (s.length>5 && s[4]=='-' && s[5]=='-') s.substring(6) else s.substring(4)
+            val tzOffset = IDateTime.timezoneFragValue(tz)
+            return VGMonth(month, tzOffset)
+        }
     }
 
     override fun validateValue(representation: Any) {
@@ -1055,8 +1112,21 @@ object GMonthDayType : PrimitiveDatatype("gMonthDay", XmlSchemaConstants.XS_NAME
     )
 
     override fun value(representation: VString): VGMonthDay {
-        val (month, day) = representation.split('-').map { it.toInt() }
-        return VGMonthDay(month, day)
+        val s = representation.xmlString
+        require(s.startsWith("--"))
+        val tzIndex = s.indexOf('Z', 2)
+        return when {
+            tzIndex<0 -> {
+                val (month, day) = s.substring(2).split('-').map { it.toInt() }
+                VGMonthDay(month, day)
+            }
+
+            else -> {
+                val tz = IDateTime.timezoneFragValue(s.substring(tzIndex))
+                val (month, day) = s.substring(2, tzIndex).split('-').map { it.toInt() }
+                VGMonthDay(month, day, tz)
+            }
+        }
     }
 
     override fun validateValue(representation: Any) {
@@ -1064,7 +1134,7 @@ object GMonthDayType : PrimitiveDatatype("gMonthDay", XmlSchemaConstants.XS_NAME
     }
 
     override fun validate(representation: VString) {
-        TODO("not implemented")
+        value(representation)
     }
 }
 
@@ -1087,7 +1157,11 @@ object GYearType : PrimitiveDatatype("gYear", XmlSchemaConstants.XS_NAMESPACE), 
     )
 
     override fun value(representation: VString): VGYear {
-        TODO("not implemented")
+        val s = representation.xmlString
+        val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it>=0) it+1 else s.length }
+        val year = s.substring(0, yearEnd).toInt()
+        val tzOffset = IDateTime.timezoneFragValue(s.substring(yearEnd))
+        return VGYear(year, tzOffset)
     }
 
     override fun validateValue(representation: Any) {
@@ -1095,7 +1169,7 @@ object GYearType : PrimitiveDatatype("gYear", XmlSchemaConstants.XS_NAMESPACE), 
     }
 
     override fun validate(representation: VString) {
-        TODO("not implemented")
+        value(representation)
     }
 }
 

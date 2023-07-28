@@ -25,12 +25,35 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VGDay(val day: Int) : VAnyAtomicType {
+value class VGDay(val dayVal: UInt) : IDateTime {
+
+    constructor(day: Int, timezoneOffset: Int?) : this(
+        day.toIBits(6) or
+                when (timezoneOffset) {
+                    null -> 0u
+                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                }
+    )
+
+    constructor(day: Int, dummy: Nothing? = null) : this(day.toIBits(6))
+
     init {
-        require(day in 1..31)
+        require((dayVal and 0xffu) in 1u..31u)
     }
 
-    override val xmlString: String get() = day.toString().padStart(4, '0')
+    override val day: UInt get() = dayVal.uintFromBits(6)
+    override val timezoneOffset: Int? get() = when {
+            dayVal and 0x70000000u == 0u -> null
+            else -> (dayVal shr 18).intFromBits(13)
+        }
+
+    override val year: Nothing? get() = null
+    override val month: Nothing? get() = null
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
+
+    override val xmlString: String get() = "---${dayFrag()}${timeZoneFrag()}"
 
     override fun toString(): String = xmlString
 

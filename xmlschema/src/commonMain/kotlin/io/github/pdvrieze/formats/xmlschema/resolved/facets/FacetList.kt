@@ -144,7 +144,7 @@ class FacetList(
                     val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
                         .toLong() + if (maxConstraint.isInclusive) 0L else -1L
 
-                    check(minConstr <= maxConstr) { "The minimum constraint must be <= to the max constraint" }
+                    check(minConstr <= maxConstr) { "The minimum constraint ($minConstr) must be <= to the max constraint ($maxConstr)" }
                 } else if (minConstraint != null) {
                     primitiveType.validateValue(minConstraint.value)
                 } else if (maxConstraint != null) {
@@ -159,7 +159,7 @@ class FacetList(
 
                     val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString)).toVDecimal()
 
-                    check(minConstr <= maxConstr) { "The minimum constraint must be <= to the max constraint" }
+                    check(minConstr <= maxConstr) { "The minimum constraint ($minConstr) must be <= to the max constraint ($maxConstr)" }
                 } else if (minConstraint != null) {
                     primitiveType.validateValue(minConstraint.value)
                 } else if (maxConstraint != null) {
@@ -180,7 +180,7 @@ class FacetList(
                     }
                 }
                 if (minC != null && maxC != null) {
-                    check(minC.value <= maxC.value) { "Double constraints must be in order" }
+                    check(minC.value <= maxC.value) { "Double constraints ($minC $maxC)  must be in order " }
                 }
 
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }

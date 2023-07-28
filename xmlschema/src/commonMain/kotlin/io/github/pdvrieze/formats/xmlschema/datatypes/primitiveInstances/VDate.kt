@@ -25,21 +25,42 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VDate(val dateVal: Int) : VAnyAtomicType {
-    constructor(year: Int, month:Int, day:Int): this(
-        ((day and 0x1f) or
-                ((month and 0xf)shl 5)) or
-                (year shl 9)
+value class VDate(val dateVal: ULong) : IDateTime {
+    constructor(year: Int, month: Int, day: Int) : this(
+        day.toLBits(5) or
+                month.toLBits(4, 5) or
+                year.toLBits(41, 9)
     )
 
-    val day get() = (dateVal and 0x1f)
+    constructor(year: Int, month: Int, day: Int, timezoneOffset: Int?) : this(
+        day.toLBits(5) or
+                month.toLBits(4, 5) or
+                year.toLBits(41, 9) or
+                when (timezoneOffset) {
+                    null -> 0uL
+                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 50)
+                }
+    )
 
-    val month get() = (dateVal shr 5) and 0xf
+    override val day: UInt get() = dateVal.uintFromBits(5)
 
-    val year get() = (dateVal shr 9)
+    override val month: UInt get() = (dateVal shr 5).uintFromBits(4)
+
+    override val year: Int get() = (dateVal shr 9).intFromBits(41)
+
+    override val timezoneOffset: Int? get() = when {
+        dateVal and 0x7000000000000000uL == 0uL -> null
+        else -> (dateVal shr 50).intFromBits(13)
+    }
+
+    override val hour: Nothing? get() = null
+    override val minute: Nothing? get() = null
+    override val second: Nothing? get() = null
 
     override val xmlString: String
-        get() = "${year.toString().padStart(4,'0')}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}"
+        get() = "${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${
+            day.toString().padStart(2, '0')
+        }"
 
     override fun toString(): String = xmlString
 }
