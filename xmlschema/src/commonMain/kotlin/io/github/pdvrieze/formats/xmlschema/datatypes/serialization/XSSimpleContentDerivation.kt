@@ -24,10 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 sealed class XSSimpleContentDerivation(
+    @XmlId
     override val id: VID?,
     override val attributes: List<XSLocalAttribute>,
     override val attributeGroups: List<XSAttributeGroupRef>,

@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Facet
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -37,6 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSMaxExclusive(
     override val value: VString,
     override val fixed: Boolean? = null,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes

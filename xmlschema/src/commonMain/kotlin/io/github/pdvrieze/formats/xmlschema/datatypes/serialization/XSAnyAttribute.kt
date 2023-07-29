@@ -26,6 +26,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("anyAttribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnyAttribute(
     override val annotation: XSAnnotation? = null,
+    @XmlId
     override val id: VID? = null,
     override val notQName: T_QNameListA? = null,
 

@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -36,6 +37,7 @@ class XSNotation(
     override val name: VNCName,
     val public: T_Public,
     val system: VAnyURI? = null,
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,

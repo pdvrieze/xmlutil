@@ -27,6 +27,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("include", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSInclude(
     override val schemaLocation: VAnyURI,
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,

@@ -28,6 +28,7 @@ import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -36,6 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 sealed class XSLocalComplexType(
     override val mixed: Boolean? = null,
     override val defaultAttributesApply: Boolean? = null,
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
@@ -83,6 +85,7 @@ sealed class XSLocalComplexType(
         val anyAttribute: XSAnyAttribute? = null,
         val openContent: XSOpenContent? = null,
         val defaultAttributesApply: Boolean? = null,
+        @XmlId
         val id: VID? = null,
         @XmlBefore("*")
         val annotation: XSAnnotation? = null,

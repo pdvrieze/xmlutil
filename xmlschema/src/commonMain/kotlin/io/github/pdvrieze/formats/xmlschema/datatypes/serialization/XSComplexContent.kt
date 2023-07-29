@@ -27,15 +27,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @XmlSerialName("complexContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSComplexContent(
+    @XmlId
     override val id: VID? = null,
     val mixed: Boolean? = null,
     @XmlOtherAttributes
@@ -63,6 +61,7 @@ class XSComplexContent(
     @Serializable
     class XSRestriction(
         override val base: QName,
+        @XmlId
         override val id: VID? = null,
         override val annotation: XSAnnotation? = null,
 
@@ -85,6 +84,7 @@ class XSComplexContent(
     @Serializable
     class XSExtension(
         override val base: QName,
+        @XmlId
         override val id: VID? = null,
         override val term: XSIDerivationParticle? = null,
 

@@ -27,6 +27,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroup(
     override val name: VNCName,
+    @XmlId
     override val id: VID? = null,
     val content: XSGroupElement,
     @XmlBefore("*")
@@ -58,6 +60,7 @@ class XSGroup(
         override val particles: List<XSLocalElement> = emptyList(),
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
+        @XmlId
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
@@ -70,6 +73,7 @@ class XSGroup(
         override val particles: List<XSI_NestedParticle>,
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
+        @XmlId
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
@@ -81,6 +85,7 @@ class XSGroup(
         override val particles: List<XSI_NestedParticle>,
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
+        @XmlId
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()

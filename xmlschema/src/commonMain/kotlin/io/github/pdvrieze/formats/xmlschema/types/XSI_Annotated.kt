@@ -20,11 +20,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 
 /**
  * This type is extended by all types which allow annotation other than &lt;schema> itself
  */
 interface XSI_Annotated: XSI_OpenAttrs {
     val annotation: XSAnnotation?
+    @XmlId
     val id: VID?
 }

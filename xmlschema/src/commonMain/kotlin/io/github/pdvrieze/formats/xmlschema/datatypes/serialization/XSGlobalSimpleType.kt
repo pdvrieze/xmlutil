@@ -40,6 +40,7 @@ class XSGlobalSimpleType(
     @XmlElement(false)
     @Serializable(AllDerivationSerializer::class)
     override val final: Set<TypeModel.Derivation> = emptySet(),
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,

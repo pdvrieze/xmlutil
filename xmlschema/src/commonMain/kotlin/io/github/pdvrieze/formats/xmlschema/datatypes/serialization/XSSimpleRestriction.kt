@@ -33,7 +33,7 @@ class XSSimpleRestriction(
     @XmlElement(false)
     @Serializable(QNameSerializer::class)
     override val base: QName? = null, // Rrequiers an embedded restriction
-    @XmlElement(false)
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,

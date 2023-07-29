@@ -23,6 +23,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ class XSRedefine(
     override val groups: List<XSGroup> = emptyList(),
     override val attributeGroups: List<XSAttributeGroup> = emptyList(),
     override val schemaLocation: VAnyURI,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
 
