@@ -131,6 +131,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     }
 
     fun check() {
+        rawPart.check(mutableSetOf())
         val checkedTypes = HashSet<QName>()
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
