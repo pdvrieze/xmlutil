@@ -29,10 +29,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable(XSGlobalComplexType.Serializer::class)
 @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -43,6 +40,7 @@ sealed class XSGlobalComplexType(
     override val final: Set<T_DerivationControl.ComplexBase>?,
     override val block: Set<T_DerivationControl.ComplexBase>?,
     override val defaultAttributesApply: Boolean?,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
 
@@ -77,6 +75,7 @@ sealed class XSGlobalComplexType(
         val anyAttribute: XSAnyAttribute? = null,
         val openContent: XSOpenContent? = null,
         val defaultAttributesApply: Boolean? = null,
+        @XmlId
         val id: VID? = null,
         @XmlBefore("*")
         val annotation: XSAnnotation? = null,

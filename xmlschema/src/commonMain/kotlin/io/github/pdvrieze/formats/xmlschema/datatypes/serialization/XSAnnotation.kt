@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAnnotation(
     val documentationElements: List<XSDocumentation> = emptyList(),
     val appInfos: List<XSAppInfo> = emptyList(),
+    @XmlId
     val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()

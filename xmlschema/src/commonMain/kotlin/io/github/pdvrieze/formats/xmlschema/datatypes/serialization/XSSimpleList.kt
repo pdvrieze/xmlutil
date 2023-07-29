@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +35,7 @@ class XSSimpleList(
     @SerialName("itemType")
     override val itemTypeName: @Serializable(QNameSerializer::class) QName? = null,
     override val simpleType: XSLocalSimpleType? = null,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
 

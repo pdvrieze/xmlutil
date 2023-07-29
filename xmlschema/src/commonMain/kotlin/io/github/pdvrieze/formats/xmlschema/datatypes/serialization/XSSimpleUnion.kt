@@ -23,6 +23,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -32,6 +33,7 @@ class XSSimpleUnion(
     override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
     @XmlElement(false)
     override val memberTypes: List<@Serializable(QNameSerializer::class) QName>? = null,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
 

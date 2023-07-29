@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 interface XSI_OpenContent: XSI_Annotated {
@@ -34,6 +35,7 @@ interface XSI_OpenContent: XSI_Annotated {
 @Serializable
 @XmlSerialName("openContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSOpenContent(
+    @XmlId
     override val id: VID? = null,
     @XmlElement(false)
     override val mode: T_ContentMode = T_ContentMode.INTERLEAVE,

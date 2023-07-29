@@ -25,10 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("selector", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -36,6 +33,7 @@ data class XSSelector(
     val xpath: VToken,
     @XmlElement(false)
     val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+    @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
