@@ -1006,16 +1006,16 @@ object DurationType : PrimitiveDatatype("duration", XmlSchemaConstants.XS_NAMESP
         numeric = false,
     )
 
-    override fun value(representation: VString): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(representation: VString): VDuration {
+        return VDuration(representation.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(maybeValue: VAnySimpleType): VDuration {
+        return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        value(representation)
     }
 }
 
