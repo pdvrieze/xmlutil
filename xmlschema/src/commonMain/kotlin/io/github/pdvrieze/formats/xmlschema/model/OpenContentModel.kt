@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 interface OpenContentModel {
     val mdlMode: Mode
-    val mdlWildCard: AnyModel
+    val mdlWildCard: AnyModel?
 
-    enum class Mode { INTERLEAVE, SUFFIX }
+    enum class Mode { INTERLEAVE, SUFFIX, NONE }
 }
