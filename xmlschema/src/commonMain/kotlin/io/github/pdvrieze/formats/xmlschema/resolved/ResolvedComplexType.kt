@@ -236,13 +236,13 @@ sealed class ResolvedComplexType(
             }
 
 
-            val effectiveMixed = (content as? XSComplexContent)?.mixed ?: rawPart.mixed ?: false
+            val effectiveMixed = (content as? XSComplexContent)?.mixed?.also { require(rawPart.mixed==null || rawPart.mixed==it) } ?: rawPart.mixed ?: false
             val term = derivation.term
 
             val explicitContent: ResolvedGroupParticle<*>? = when {
                 (term == null) ||
                         (term.maxOccurs == T_AllNNI(0)) ||
-                        (term is XSAll || term is XSSequence && !term.hasChildren()) ||
+                        ((term is XSAll && ! term.hasChildren()) || (term is XSSequence && !term.hasChildren())) ||
                         (term is XSChoice && term.minOccurs?.toUInt() == 0u && !term.hasChildren()) -> null
 
 
@@ -289,9 +289,11 @@ sealed class ResolvedComplexType(
                         }
 
                         else -> {
+                            require(baseParticle.mdlTerm !is ResolvedAll) { "All can not be part of a sequence" }
+
                             val p: List<ResolvedParticle<ResolvedChoiceSeqMember>> =
-                                (listOf(baseParticle) + listOfNotNull(effectiveContent).filterIsInstance<ResolvedChoiceSeqMember>())
-                                    .filterIsInstance<ResolvedParticle<ResolvedChoiceSeqMember>>()
+                                (listOf(baseParticle) + listOfNotNull(effectiveContent))
+                                    .map { check(it.mdlTerm is ResolvedChoiceSeqMember); it as ResolvedParticle<ResolvedChoiceSeqMember> }
 
                             SyntheticSequence(
                                 mdlMinOccurs = VNonNegativeInteger(1),
@@ -460,7 +462,7 @@ sealed class ResolvedComplexType(
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<*>,
         override val mdlOpenContent: ResolvedOpenContent? = null
-    ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
+    ) : ComplexTypeModel.ContentType.ElementOnly, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
