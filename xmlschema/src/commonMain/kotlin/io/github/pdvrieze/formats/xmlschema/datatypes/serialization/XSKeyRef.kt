@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -37,6 +38,7 @@ data class XSKeyRef(
     val name: VNCName? = null,
     val ref: QName? = null,
     override val refer: QName? = null,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes

@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @XmlSerialName("defaultOpenContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSDefaultOpenContent(
     val appliesToEmpty: Boolean = false,
+    @XmlId
     override val id: VID? = null,
     override val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
     @XmlOtherAttributes

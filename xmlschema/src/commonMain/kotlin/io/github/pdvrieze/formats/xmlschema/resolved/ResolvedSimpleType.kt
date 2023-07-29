@@ -232,6 +232,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
             )
 
             is XSSimpleUnion -> FacetList.EMPTY
+
+            else -> error("Compiler issue")
         }
 
 
@@ -297,6 +299,8 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
                     numeric = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.numeric }
                 )
             }
+
+            else -> error("Compiler issue")
 
         }
 
