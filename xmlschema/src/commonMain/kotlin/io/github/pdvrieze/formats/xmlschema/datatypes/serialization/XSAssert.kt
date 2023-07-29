@@ -27,6 +27,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -35,6 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAssert(
     override val test: XPathExpression,
     override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+    @XmlId
     override val id: VID?,
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes

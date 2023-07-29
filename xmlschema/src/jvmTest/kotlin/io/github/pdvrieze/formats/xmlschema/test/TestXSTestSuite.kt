@@ -62,9 +62,9 @@ class TestXSTestSuite {
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
 //                .filter { false || it.href.contains("sunMeta/") }
-                .filter { false || (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
+//                .filter { false || (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
 //                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/").any { m -> it.href.contains(m) } }
-//                .filter { false || (it.href.contains("msMeta/Additional") /*&& it.href.contains("CType")*/) }
+                .filter { false || (it.href.contains("msMeta/Additional") /*&& it.href.contains("CType")*/) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -76,7 +76,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set $tsName") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.equals("atomic-gYearMonth-enumeration")) {
+                            if (false || group.name.equals("addB043")) {
                                 dynamicContainer("Group ${group.name}") {
                                     addSchemaTests(setBaseUrl, group)
                                 }

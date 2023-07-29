@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -44,6 +45,7 @@ class XSAll(
 //    override val anys: List<XSAny> = emptyList(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
+    @XmlId
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
