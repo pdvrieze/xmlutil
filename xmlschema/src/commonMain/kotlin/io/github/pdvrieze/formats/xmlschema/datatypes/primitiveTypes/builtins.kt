@@ -1784,16 +1784,16 @@ object TimeType : PrimitiveDatatype("time", XmlSchemaConstants.XS_NAMESPACE) {
         numeric = false,
     )
 
-    override fun value(representation: VString): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(representation: VString): VTime {
+        return VTime(representation.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(maybeValue: VAnySimpleType): VTime {
+        return maybeValue as? VTime ?: value(VString(maybeValue.xmlString))
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        validateValue(value(representation))
     }
 }
 
