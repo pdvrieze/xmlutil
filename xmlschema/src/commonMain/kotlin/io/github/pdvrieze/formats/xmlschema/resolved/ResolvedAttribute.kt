@@ -57,7 +57,7 @@ sealed class ResolvedAttribute(
 
 
     val resolvedType: ResolvedSimpleType by lazy {
-        rawPart.type?.let { schema.simpleType(it) }
+        rawPart.type?.let { require(rawPart.simpleType==null) { "both simpletype and type attribute present" } ; schema.simpleType(it) }
             ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
             ?: AnySimpleType
     }
