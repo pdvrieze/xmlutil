@@ -25,7 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
     val value: String get() = rawPart.value
-    val regex: Regex by lazy { Regex(rawPart.value) }
+    val regex: Regex by lazy {
+        Regex(rawPart.value.convertToKtRegex())
+    }
 
     override fun toString(): String = "Pattern('$value')"
 
@@ -42,5 +44,10 @@ class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLik
         return value.hashCode()
     }
 
+}
 
+
+internal fun String.convertToKtRegex(): String {
+    return replace("\\c", "\\p{Alnum}") // technically it should be nmChar.
+        .replace("\\i", "\\p{Alpha}") // technically it should be nmStartChar
 }

@@ -197,7 +197,7 @@ class FacetList(
         val normalizedStr = normalized.toString()
 
         if (enumeration.isNotEmpty()) {
-            check(enumeration.any { normalized == it.value })
+            check(enumeration.any { normalized.xmlString == it.value.xmlString }) { "Value: '${normalized}' is not in ${enumeration.joinToString { "'${it.value.xmlString}'"}}" }
         }
 
         for (pattern in patterns) {
