@@ -22,22 +22,23 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
+import kotlin.math.abs
 
 @JvmInline
 @Serializable
 value class VGYearMonth(val monthYear: ULong) : IDateTime {
 
     init {
-        require(monthYear.uintFromBits(4) in 1u..12u)
+        require(month in 1u..12u) { "Month values must be between 1 and 12, was $month"}
     }
 
     constructor(year: Int, month: Int) : this(
-        month.toLBits(4) or
+        abs(month).toUInt().toLBits(4) or
                 year.toLBits(52, 4)
     )
 
     constructor(year: Int, month: Int, timezoneOffset: Int?) : this(
-        month.toLBits(4) or
+        abs(month).toUInt().toLBits(4) or
                 year.toLBits(52, 4) or
                 when (timezoneOffset) {
                     null -> 0uL
