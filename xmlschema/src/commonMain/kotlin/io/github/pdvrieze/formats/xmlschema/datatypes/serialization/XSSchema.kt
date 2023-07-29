@@ -52,6 +52,7 @@ data class XSSchema(
     @Serializable(AllDerivationSerializer::class)
     val finalDefault: Set<TypeModel.Derivation>? = null,
 
+    @XmlId
     val id: VID? = null,
 
     @XmlElement(false)

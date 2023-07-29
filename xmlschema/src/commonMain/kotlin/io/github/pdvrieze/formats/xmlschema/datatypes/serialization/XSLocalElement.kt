@@ -24,10 +24,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -40,6 +37,7 @@ class XSLocalElement(
     override val fixed: VString? = null,
     @XmlElement(false)
     override val form: T_FormChoice? = null,
+    @XmlId
     override val id: VID? = null,
     override val maxOccurs: T_AllNNI? = null,
     override val minOccurs: VNonNegativeInteger? = null,

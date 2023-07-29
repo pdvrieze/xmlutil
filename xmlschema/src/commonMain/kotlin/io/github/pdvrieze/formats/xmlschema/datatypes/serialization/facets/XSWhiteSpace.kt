@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -40,6 +41,7 @@ class XSWhiteSpace(
     @XmlElement(false)
     override val value: Values,
     override val fixed: Boolean? = null,
+    @XmlId
     override val id: VID? = null,
     override val annotation: XSAnnotation? = null,
 
