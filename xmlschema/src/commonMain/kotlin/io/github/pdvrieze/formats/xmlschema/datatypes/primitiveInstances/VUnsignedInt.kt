@@ -37,6 +37,8 @@ abstract class VUnsignedInt : VUnsignedLong {
 
         override fun toInt(): Int = value.toInt()
 
+        override fun toLong(): Long = value.toLong()
+
         override fun toUInt(): UInt = value
 
         override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {

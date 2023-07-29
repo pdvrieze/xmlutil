@@ -25,12 +25,16 @@ interface VDecimal : VAnyAtomicType {
     fun toInt(): Int
     fun toDouble(): Double = xmlString.toDouble()
     fun toVDecimal(): VBigDecimal = VBigDecimalImpl(xmlString)
+
+    operator fun compareTo(other: VDecimal): Int
 }
 
-interface VBigDecimal : Comparable<VBigDecimal>, VDecimal {
+interface VBigDecimal : Comparable<VDecimal>, VDecimal {
     val isInteger: Boolean get() = '.' !in xmlString
 
     override fun toVDecimal(): VBigDecimal = this
+
+    operator fun compareTo(other: VBigDecimal): Int
 }
 
 internal class VBigDecimalImpl(override val xmlString: String) : VBigDecimal {
@@ -68,6 +72,11 @@ internal class VBigDecimalImpl(override val xmlString: String) : VBigDecimal {
 
     override fun toInt(): Int {
         return xmlString.toInt()
+    }
+
+    override fun compareTo(other: VDecimal): Int = when (other){
+        is VBigDecimal -> compareTo(other)
+        else -> compareTo(VBigDecimalImpl(other.xmlString))
     }
 
     override fun compareTo(other: VBigDecimal): Int {
