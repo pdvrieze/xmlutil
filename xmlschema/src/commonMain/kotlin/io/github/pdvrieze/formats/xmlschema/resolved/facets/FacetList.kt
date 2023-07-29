@@ -136,7 +136,7 @@ class FacetList(
                 check(fractionDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is DecimalType -> {
+            is IDecimalType -> {
                 if (minConstraint != null && maxConstraint != null) {
                     val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
 
