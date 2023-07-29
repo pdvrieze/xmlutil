@@ -33,7 +33,6 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
 
     abstract operator fun times(other: T_AllNNI): T_AllNNI
 
-
     object UNBOUNDED : T_AllNNI() {
         override fun compareTo(other: T_AllNNI): Int = when(other){
             UNBOUNDED -> 0

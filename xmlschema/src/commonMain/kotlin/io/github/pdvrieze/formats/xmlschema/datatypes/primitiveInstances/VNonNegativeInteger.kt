@@ -43,6 +43,14 @@ interface VNonNegativeInteger : VInteger {
         else -> this
     }
 
+    override fun compareTo(other: VInteger): Int = when (other) {
+        is VNonNegativeInteger -> toULong().compareTo(other.toULong())
+        else -> {
+            val ol = other.toLong()
+            if (ol < 0) 1 else toULong().compareTo(ol.toULong())
+        }
+    }
+
     operator fun compareTo(other: VNonNegativeInteger): Int =
         toULong().compareTo(other.toULong())
 
