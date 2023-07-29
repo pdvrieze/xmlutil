@@ -696,7 +696,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val containingNamespaceUri = serialName.namespaceURI
             // Allow attributes in the null namespace to match candidates with a name that is that of the parent tag
-            if (isNameOfAttr) {
+            if (isNameOfAttr && ! config.policy.isStrictNames) {
                 if (name.namespaceURI.isEmpty()) {
                     val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
                     nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
@@ -718,7 +718,7 @@ internal open class XmlDecoderBase internal constructor(
 
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
-            if (containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
+            if (!config.policy.isStrictNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
                 nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
             }
 

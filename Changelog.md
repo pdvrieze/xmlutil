@@ -6,6 +6,8 @@ Features:
   relationships will be maintained.
 - Support checking ordering in reading.
 - Support ID type attributes with an @XmlId attribute marking them
+- Add support for strict attribute name matching (not allowing null namespace)
+  matchup
 
 Fixes:
 - For attribute lists, make sure to collapse the whitespace.
