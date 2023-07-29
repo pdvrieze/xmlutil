@@ -1230,13 +1230,13 @@ object GMonthDayType : PrimitiveDatatype("gMonthDay", XmlSchemaConstants.XS_NAME
         val tzIndex = s.indexOf('Z', 2)
         return when {
             tzIndex < 0 -> {
-                val (month, day) = s.substring(2).split('-').map { it.toInt() }
+                val (month, day) = s.substring(2).split('-').map { it.toUInt() }
                 VGMonthDay(month, day)
             }
 
             else -> {
                 val tz = IDateTime.timezoneFragValue(s.substring(tzIndex))
-                val (month, day) = s.substring(2, tzIndex).split('-').map { it.toInt() }
+                val (month, day) = s.substring(2, tzIndex).split('-').map { it.toUInt() }
                 VGMonthDay(month, day, tz)
             }
         }
@@ -1314,7 +1314,7 @@ object GYearMonthType : PrimitiveDatatype("gYearMonth", XmlSchemaConstants.XS_NA
 
     override fun value(representation: VString): VGYearMonth {
         val (year, month) = representation.split('-').map { it.toInt() }
-        return VGYearMonth(year, month)
+        return VGYearMonth(year, month.toUInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VGYearMonth {
