@@ -87,6 +87,8 @@ sealed class ResolvedAttribute(
         check (default == null || use == null || use == XSAttrUse.OPTIONAL) {
             "For attributes with default and use must have optional as use value"
         }
+        fixed?.let { resolvedType.validate(it) }
+        default?.let { resolvedType.validate(it) }
     }
 
     interface ResolvedScope : AttributeModel.ScopeModel
