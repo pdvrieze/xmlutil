@@ -26,12 +26,12 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @Serializable
 value class VGMonthDay(val monthdayVal: UInt) : IDateTime {
-    constructor(month: Int, day: Int) : this(
+    constructor(month: UInt, day: UInt) : this(
         day.toIBits(5) or
                 month.toIBits(4, 5)
     )
 
-    constructor(month: Int, day: Int, timezoneOffset: Int?) : this(
+    constructor(month: UInt, day: UInt, timezoneOffset: Int?) : this(
         day.toIBits(5) or
                 month.toIBits(4, 5) or
                 when (timezoneOffset) {
