@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
@@ -58,8 +59,8 @@ class ResolvedGlobalGroup(
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        rawPart.content
-//        TODO("not implemented")
+        super<NamedPart>.check(checkedTypes)
+        mdlModelGroup.check()
     }
 
     @Deprecated("incorrect")
@@ -99,6 +100,10 @@ class ResolvedGlobalGroup(
                 }
             }
         }
+
+        override fun check() {
+            rawPart.check(mutableSetOf())
+        }
     }
 
     private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
@@ -116,6 +121,10 @@ class ResolvedGlobalGroup(
                 }
             }
         }
+
+        override fun check() {
+            rawPart.check(mutableSetOf())
+        }
     }
 
     private class SequenceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
@@ -131,6 +140,10 @@ class ResolvedGlobalGroup(
                     p.collectConstraints(collector)
                 }
             }
+        }
+
+        override fun check() {
+            rawPart.check(mutableSetOf())
         }
     }
 }

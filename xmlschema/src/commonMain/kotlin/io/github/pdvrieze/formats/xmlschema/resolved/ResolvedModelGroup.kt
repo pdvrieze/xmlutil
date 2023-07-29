@@ -25,4 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 
 interface ResolvedModelGroup : ModelGroupModel {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+
+    fun check()
 }
