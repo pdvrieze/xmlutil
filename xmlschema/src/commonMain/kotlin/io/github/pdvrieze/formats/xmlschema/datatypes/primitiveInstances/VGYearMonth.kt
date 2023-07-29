@@ -32,13 +32,13 @@ value class VGYearMonth(val monthYear: ULong) : IDateTime {
         require(month in 1u..12u) { "Month values must be between 1 and 12, was $month"}
     }
 
-    constructor(year: Int, month: Int) : this(
-        abs(month).toUInt().toLBits(4) or
+    constructor(year: Int, month: UInt) : this(
+        month.toLBits(4) or
                 year.toLBits(52, 4)
     )
 
-    constructor(year: Int, month: Int, timezoneOffset: Int?) : this(
-        abs(month).toUInt().toLBits(4) or
+    constructor(year: Int, month: UInt, timezoneOffset: Int?) : this(
+        month.toLBits(4) or
                 year.toLBits(52, 4) or
                 when (timezoneOffset) {
                     null -> 0uL
