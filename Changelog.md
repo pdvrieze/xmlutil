@@ -5,6 +5,7 @@ Features:
   be ordered before/after elements that do not have this. Explicit order
   relationships will be maintained.
 - Support checking ordering in reading.
+- Support ID type attributes with an @XmlId attribute marking them
 
 Fixes:
 - For attribute lists, make sure to collapse the whitespace.

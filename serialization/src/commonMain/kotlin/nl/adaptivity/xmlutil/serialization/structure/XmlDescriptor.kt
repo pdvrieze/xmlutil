@@ -53,6 +53,7 @@ internal fun SerialDescriptor.declOutputKind(): OutputKind? {
     for (a in annotations) {
         when {
             a is XmlValue && a.value -> return OutputKind.Text
+            a is XmlId -> return OutputKind.Attribute
             a is XmlElement -> return if (a.value) OutputKind.Element else OutputKind.Attribute
             a is XmlPolyChildren ||
                     a is XmlChildrenName -> return OutputKind.Element
@@ -103,6 +104,8 @@ public sealed class XmlDescriptor(
     serializerParent: SafeParentInfo,
     final override val tagParent: SafeParentInfo = serializerParent,
 ) : SafeXmlDescriptor {
+
+    public abstract val isIdAttr: Boolean
 
     public val effectiveOutputKind: OutputKind
         get() = when (outputKind) {
@@ -324,6 +327,8 @@ public class XmlRootDescriptor internal constructor(
         from(config, serializersModule, tagParent, canBeAttribute = false)
     }
 
+    override val isIdAttr: Boolean get() = false
+
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = true // effectively a root descriptor is inline
@@ -464,6 +469,12 @@ internal constructor(
     @ExperimentalXmlUtilApi override val preserveSpace: Boolean
 ) : XmlValueDescriptor(policy, serializerParent, tagParent) {
 
+    override val isIdAttr: Boolean
+
+    init {
+        isIdAttr = serializerParent.elementUseAnnotations.any { it is XmlId }
+    }
+
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = false
@@ -507,6 +518,10 @@ public class XmlInlineDescriptor internal constructor(
     tagParent: SafeParentInfo,
     canBeAttribute: Boolean
 ) : XmlValueDescriptor(config.policy, serializerParent, tagParent) {
+
+    override val isIdAttr: Boolean = serializerParent.elementUseAnnotations.any {
+        it is XmlId
+    }
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
@@ -617,6 +632,8 @@ public class XmlAttributeMapDescriptor internal constructor(
     override val doInline: Boolean
         get() = false
 
+    override val isIdAttr: Boolean get() = false
+
     @ExperimentalXmlUtilApi
     override val preserveSpace: Boolean
         get() = true
@@ -688,6 +705,8 @@ internal constructor(
             config.policy.invalidOutputKind("Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
         }
     }
+
+    override val isIdAttr: Boolean get() = false
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
@@ -825,6 +844,9 @@ public class XmlPolymorphicDescriptor internal constructor(
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo
 ) : XmlValueDescriptor(config.policy, serializerParent, tagParent) {
+
+    override val isIdAttr: Boolean
+        get() = false
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
@@ -1059,6 +1081,8 @@ public class XmlMapDescriptor internal constructor(
 
     override val outputKind: OutputKind get() = OutputKind.Element
 
+    override val isIdAttr: Boolean get() = false
+
     public val isValueCollapsed: Boolean by lazy {
         config.policy.isMapValueCollapsed(serializerParent, valueDescriptor)
     }
@@ -1113,14 +1137,17 @@ public class XmlListDescriptor internal constructor(
 
     override val outputKind: OutputKind
 
+    override val isIdAttr: Boolean get() = false
+
     public val delimiters: Array<String>
 
     init {
         @OptIn(ExperimentalSerializationApi::class)
         outputKind = when {
-            tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false -> {
+            tagParent.elementUseAnnotations.firstOrNull<XmlElement>()?.value == false ->
                 OutputKind.Attribute
-            }
+
+            tagParent.elementUseAnnotations.firstOrNull<XmlId>() != null -> OutputKind.Attribute
 
             !isListEluded -> OutputKind.Element
 
@@ -1479,6 +1506,7 @@ private fun <T : Annotation> Iterable<T>.getRequestedOutputKind(): OutputKind? {
     for (annotation in this) {
         when {
             (annotation as? XmlValue)?.value == true -> return OutputKind.Mixed
+            annotation is XmlId ||
             annotation is XmlOtherAttributes -> return OutputKind.Attribute
             annotation is XmlElement -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
             annotation is XmlPolyChildren || annotation is XmlChildrenName -> return OutputKind.Element

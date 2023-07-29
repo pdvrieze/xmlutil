@@ -461,6 +461,13 @@ public synthetic class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/
 	public final synthetic fun value ()Z
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlId : java/lang/annotation/Annotation {
+}
+
+public synthetic class nl/adaptivity/xmlutil/serialization/XmlId$Impl : nl/adaptivity/xmlutil/serialization/XmlId {
+	public fun <init> ()V
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace : java/lang/annotation/Annotation {
 	public abstract fun value ()Z
 }
@@ -703,6 +710,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMap
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public final fun getValueDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun isIdAttr ()Z
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
@@ -714,6 +722,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor : nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {
@@ -735,6 +744,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public fun hashCode ()I
 	public fun isCData ()Z
 	public fun isElementOptional (I)Z
+	public abstract fun isIdAttr ()Z
 	public fun isNullable ()Z
 	public fun isUnsigned ()Z
 	public final fun toString ()Ljava/lang/String;
@@ -748,6 +758,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlInlineDescri
 	public fun getPreserveSpace ()Z
 	public fun getTagName ()Ljavax/xml/namespace/QName;
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 	public fun isUnsigned ()Z
 }
 
@@ -757,6 +768,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlListDescript
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
@@ -772,6 +784,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlListLikeD
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor {
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun isIdAttr ()Z
 	public final fun isValueCollapsed ()Z
 }
 
@@ -805,6 +818,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicD
 	public final fun getPolymorphicMode ()Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode;
 	public fun getPreserveSpace ()Z
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 	public final fun isTransparent ()Z
 }
 
@@ -815,6 +829,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDes
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlRootDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
@@ -826,6 +841,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlRootDescript
 	public fun getPreserveSpace ()Z
 	public fun getTagName ()Ljavax/xml/namespace/QName;
 	public fun hashCode ()I
+	public fun isIdAttr ()Z
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor {
