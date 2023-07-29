@@ -52,7 +52,7 @@ sealed class ResolvedComplexType(
     override val mdlFinal: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
     override val mdlContentType: ResolvedContentType get() = model.mdlContentType
     override val mdlAttributeUses: Set<ResolvedAttribute> get() = model.mdlAttributeUses
-    override val mdlAttributeWildcard: AnyModel get() = model.mdlAttributeWildcard
+    override val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlDerivationMethod: T_DerivationControl.ComplexBase get() = model.mdlDerivationMethod
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
@@ -76,6 +76,46 @@ sealed class ResolvedComplexType(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
+        if (mdlDerivationMethod == T_DerivationControl.EXTENSION) {
+            val baseType = mdlBaseTypeDefinition
+            if (baseType is ResolvedComplexType) {
+                require(T_DerivationControl.EXTENSION !in baseType.mdlFinal) { "Final types cannot be extended" }
+                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "Base attribute uses must be a subset of the extension" }
+                val baseWc = baseType.mdlAttributeWildcard
+                if (baseWc != null) {
+                    val wc = requireNotNull(mdlAttributeWildcard)
+                    // TODO apply 3.10.6.2 rules
+                    require(wc.mdlNamespaceConstraint.containsAll(baseWc.mdlNamespaceConstraint))
+                }
+
+                when (val baseCType = baseType.mdlContentType) {
+                    is ResolvedSimpleContentType ->
+                        require(baseCType.mdlSimpleTypeDefinition == (mdlContentType as ResolvedSimpleContentType).mdlSimpleTypeDefinition) {
+                            "3.4.6.2 - 1.4.1 - Simple content types must have the same simple type definition"
+                        }
+
+                    is EmptyContentType -> {}//require(mdlContentType is EmptyContentType)
+
+                    is MixedContentType -> {
+                        require(mdlContentType is MixedContentType)
+                        // Ensure chcking particle extensions
+                        val bot = baseCType.mdlOpenContent
+                        val eot = (mdlContentType as MixedContentType).mdlOpenContent
+                        require(bot == null || eot?.mdlMode == OpenContentModel.Mode.INTERLEAVE || (bot.mdlMode == OpenContentModel.Mode.SUFFIX && eot?.mdlMode == OpenContentModel.Mode.SUFFIX))
+                        if (bot != null && eot != null) {
+                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.containsAll(bot.mdlWildCard!!.mdlNamespaceConstraint))
+                        }
+                    }
+
+                    is ElementOnlyContentType -> {
+                        require(mdlContentType is ElementOnlyContentType) { "Content type for complex extension must match: ${mdlContentType.mdlVariety}!= ${baseCType.mdlVariety}" }
+                        // Ensure chcking particle extensions
+
+                    }
+                }
+            } else { // extension of simple type
+            }
+        }
     }
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -92,6 +132,7 @@ sealed class ResolvedComplexType(
         override val mdlFinal: Set<T_DerivationControl.ComplexBase>
         override val mdlContentType: ResolvedContentType
         override val mdlDerivationMethod: T_DerivationControl.ComplexBase
+        override val mdlAttributeWildcard: ResolvedAny?
     }
 
     protected abstract class ModelBase(
@@ -110,8 +151,8 @@ sealed class ResolvedComplexType(
             )
         }
 
-        override val mdlAttributeWildcard: AnyModel
-            get() = TODO("not implemented")
+        override val mdlAttributeWildcard: ResolvedAny? // TODO do more
+            get() = null
 
     }
 
@@ -149,7 +190,8 @@ sealed class ResolvedComplexType(
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
                         while (b != null) {
                             val lastB = b
-                            val b2 = (lastB.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
+                            val b2 =
+                                (lastB.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
                             b = b2?.let { b2Name ->
                                 if (lastB.qName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
 //                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
@@ -285,9 +327,11 @@ sealed class ResolvedComplexType(
 
                 // TODO Add wildcard union
                 val w = wildcardElement.any ?: XSAny()
-                val openContent = XSOpenContent(
-                    mode = wildcardElement.mode ?: T_ContentMode.INTERLEAVE,
-                    any = w
+                val openContent = ResolvedOpenContent(
+                    XSOpenContent(
+                        mode = wildcardElement.mode ?: T_ContentMode.INTERLEAVE,
+                        any = w
+                    ), schema
                 )
 
                 mdlContentType = when {
@@ -403,26 +447,26 @@ sealed class ResolvedComplexType(
     object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType
     interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
         override val mdlParticle: ResolvedParticle<ResolvedTerm>
-        val mdlOpenContent: XSOpenContent?
+        val mdlOpenContent: ResolvedOpenContent?
     }
 
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<*>,
-        override val mdlOpenContent: XSOpenContent? = null
+        override val mdlOpenContent: ResolvedOpenContent? = null
     ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<*>,
-        override val mdlOpenContent: XSOpenContent? = null
+        override val mdlOpenContent: ResolvedOpenContent? = null
     ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType, ComplexTypeModel.SimpleContent,
         ComplexTypeModel.ContentType.Simple {
-        override val mdlAttributeWildcard: AnyModel
+        override val mdlAttributeWildcard: ResolvedAny?
 
         override val mdlContentType: ResolvedSimpleContentType
 
@@ -475,7 +519,7 @@ sealed class ResolvedComplexType(
                 for (group in groups) {
                     val groupAttributeUses = group.attributeUses
                     val interSection = groupAttributeUses.intersect(this.keys)
-                    check(interSection.isNotEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
+                    check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
                     groupAttributeUses.associateByTo(this) { it.mdlQName }
                 }
 

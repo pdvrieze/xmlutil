@@ -30,7 +30,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
     override val mdlFinal: Set<Derivation>
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<ResolvedAttribute>
-    val mdlAttributeWildcard: AnyModel
+    val mdlAttributeWildcard: AnyModel?
     val mdlDerivationMethod: Derivation
 
     interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global
@@ -67,7 +67,7 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
         }
 
         interface Simple : ContentType {
-            override val mdlVariety: Variety get() = Variety.EMPTY
+            override val mdlVariety: Variety get() = Variety.SIMPLE
             val mdlSimpleTypeDefinition: SimpleTypeModel
         }
 
@@ -77,11 +77,11 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
         }
 
         interface ElementOnly : ElementBase {
-            override val mdlVariety: Variety get() = Variety.EMPTY
+            override val mdlVariety: Variety get() = Variety.ELEMENT_ONLY
         }
 
         interface Mixed : ElementBase {
-            override val mdlVariety: Variety get() = Variety.EMPTY
+            override val mdlVariety: Variety get() = Variety.MIXED
         }
     }
 
