@@ -136,28 +136,11 @@ class FacetList(
                 check(fractionDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is IIntegerType -> {
-                if (minConstraint != null && maxConstraint != null) {
-                    val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
-                        .toLong()
-
-                    val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
-                        .toLong()
-
-                    check(minConstr <= maxConstr) { "The minimum constraint ($minConstr) must be <= to the max constraint ($maxConstr)" }
-                } else if (minConstraint != null) {
-                    primitiveType.validateValue(minConstraint.value)
-                } else if (maxConstraint != null) {
-                    primitiveType.validateValue(maxConstraint.value)
-                }
-                check(primitiveType == DecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
-            }
-
             is DecimalType -> {
                 if (minConstraint != null && maxConstraint != null) {
-                    val minConstr = primitiveType.value(VString(minConstraint.value.xmlString)).toVDecimal()
+                    val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
 
-                    val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString)).toVDecimal()
+                    val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
 
                     check(minConstr <= maxConstr) { "The minimum constraint ($minConstr) must be <= to the max constraint ($maxConstr)" }
                 } else if (minConstraint != null) {

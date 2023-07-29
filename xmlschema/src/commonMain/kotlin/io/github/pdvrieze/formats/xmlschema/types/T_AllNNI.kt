@@ -114,9 +114,12 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
     }
 }
 
-class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive: T_AllNNI): ClosedRange<T_AllNNI> {
+class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive: T_AllNNI) : ClosedRange<T_AllNNI> {
     constructor(startNNI: VNonNegativeInteger, endInclusive: T_AllNNI) : this(T_AllNNI.Value(startNNI), endInclusive)
-    constructor(startNNI: VNonNegativeInteger, endInclusive: VNonNegativeInteger) : this(start = T_AllNNI.Value(startNNI), T_AllNNI.Value(endInclusive))
+    constructor(
+        startNNI: VNonNegativeInteger,
+        endInclusive: VNonNegativeInteger
+    ) : this(start = T_AllNNI.Value(startNNI), T_AllNNI.Value(endInclusive))
 
     override fun contains(value: T_AllNNI): Boolean = when (value) {
         is T_AllNNI.UNBOUNDED -> false
