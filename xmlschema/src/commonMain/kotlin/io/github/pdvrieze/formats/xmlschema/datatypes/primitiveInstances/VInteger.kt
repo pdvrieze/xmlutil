@@ -26,6 +26,13 @@ interface VInteger : VDecimal {
     override fun toLong(): Long
     override fun toInt(): Int
 
+    override fun compareTo(other: VDecimal): Int = when(other) {
+        is VBigDecimal -> VBigDecimalImpl(xmlString).compareTo(other)
+        else -> compareTo(other as VInteger)
+    }
+
+    operator fun compareTo(other: VInteger): Int
+
     companion object {
         val ZERO: VInteger = IntInstance(0)
 
@@ -47,6 +54,10 @@ private class IntInstance(private val i: Int) : VInteger {
 
     override fun toString(): String = xmlString
 
+    override fun compareTo(other: VInteger): Int = when (other) {
+        is VNonNegativeInteger -> if (i<0) -1 else i.toULong().compareTo(other.toULong())
+        else -> i.toLong().compareTo(other.toLong())
+    }
 }
 
 private class LongInstance(private val l: Long) : VInteger {
@@ -57,6 +68,13 @@ private class LongInstance(private val l: Long) : VInteger {
     override val xmlString: String get() = l.toString()
 
     override fun toString(): String = xmlString
+
+
+    override fun compareTo(other: VInteger): Int = when (other) {
+        is VNonNegativeInteger -> if (l < 0L) -1 else l.toULong().compareTo(other.toULong())
+        else -> l.compareTo(other.toLong())
+    }
+
 }
 
 @JvmInline
