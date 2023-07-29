@@ -1034,16 +1034,23 @@ object DayTimeDurationType : PrimitiveDatatype("dayTimeDuration", XmlSchemaConst
         numeric = false,
     )
 
-    override fun value(representation: VString): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(representation: VString): VDuration {
+        return VDuration(representation.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VAnySimpleType {
-        TODO("not implemented")
+    override fun value(maybeValue: VAnySimpleType): VDuration {
+        return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
+    }
+
+    override fun validateValue(representation: Any) {
+        require(representation is VDuration)
+        require(representation.months == 0L)
+        val days = representation.millis / (24 * 3600_000)
+        require(days == 0L)
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        validateValue(value(representation))
     }
 }
 
@@ -1062,29 +1069,22 @@ object YearMonthDurationType : PrimitiveDatatype("yearMonthDuration", XmlSchemaC
         numeric = false,
     )
 
-    override fun value(representation: VString): VGYearMonth {
-        val s = representation.xmlString
-        val tzIndex = s.indexOf('Z')
-        if (tzIndex < 0) {
-            val (year, month) = s.split('-').map { it.toInt() }
-            return VGYearMonth(year, month)
-        } else {
-            val (year, month) = s.substring(0, tzIndex).split('-').map { it.toInt() }
-            val tz = IDateTime.timezoneFragValue(s.substring(tzIndex))
-            return VGYearMonth(year, month, tz)
-        }
+    override fun value(representation: VString): VDuration {
+        return VDuration(representation.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGYearMonth {
-        return maybeValue as? VGYearMonth ?: value(VString(maybeValue.xmlString))
+    override fun value(maybeValue: VAnySimpleType): VDuration {
+        return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
     override fun validateValue(representation: Any) {
-        check(representation is VGYearMonth)
+        require(representation is VDuration)
+        val seconds = representation.millis % (24 * 3600_000)
+        require(seconds == 0L)
     }
 
     override fun validate(representation: VString) {
-        TODO("not implemented")
+        validateValue(value(representation))
     }
 }
 
