@@ -102,6 +102,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check() {
+            super.check(mutableSetOf())
             rawPart.check(mutableSetOf())
         }
     }
@@ -123,6 +124,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check() {
+            super.check(mutableSetOf())
             rawPart.check(mutableSetOf())
         }
     }
@@ -143,6 +145,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check() {
+            super.check(mutableSetOf())
             rawPart.check(mutableSetOf())
         }
     }
