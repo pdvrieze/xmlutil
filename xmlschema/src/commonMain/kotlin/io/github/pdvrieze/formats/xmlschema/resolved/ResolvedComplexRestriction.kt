@@ -54,5 +54,6 @@ class ResolvedComplexRestriction(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedDerivation>.check(checkedTypes, inheritedTypes)
+//        check()
     }
 }
