@@ -293,7 +293,10 @@ sealed class ResolvedComplexType(
 
                             val p: List<ResolvedParticle<ResolvedChoiceSeqMember>> =
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
-                                    .map { check(it.mdlTerm is ResolvedChoiceSeqMember); it as ResolvedParticle<ResolvedChoiceSeqMember> }
+                                    .map {
+                                        check(it.mdlTerm is ResolvedChoiceSeqMember) { "${it.mdlTerm} is not valid inside a sequence" }
+                                        it as ResolvedParticle<ResolvedChoiceSeqMember>
+                                    }
 
                             SyntheticSequence(
                                 mdlMinOccurs = VNonNegativeInteger(1),
