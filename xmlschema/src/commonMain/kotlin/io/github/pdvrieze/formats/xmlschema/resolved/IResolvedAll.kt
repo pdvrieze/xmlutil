@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.model.AllModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll :
@@ -35,6 +36,12 @@ interface IResolvedAll :
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        //TODO("not implemented")
+        super<IResolvedGroupMember>.check(checkedTypes)
+        for(particle in mdlParticles) {
+            val maxOccurs = particle.mdlMaxOccurs
+            check(maxOccurs <= T_AllNNI(1uL)) {
+                "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
+            }
+        }
     }
 }

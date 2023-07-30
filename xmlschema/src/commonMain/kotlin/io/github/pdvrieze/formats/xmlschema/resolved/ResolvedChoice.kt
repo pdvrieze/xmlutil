@@ -32,6 +32,7 @@ interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, ModelGroupModel,
     override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
 
     override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedGroupLikeTerm>.check(checkedTypes)
         //TODO("not implemented")
     }
 }
