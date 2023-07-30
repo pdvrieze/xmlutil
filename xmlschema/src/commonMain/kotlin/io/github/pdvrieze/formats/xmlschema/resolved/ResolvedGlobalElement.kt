@@ -174,6 +174,11 @@ class ResolvedGlobalElement(
 
         override val mdlName: VNCName = rawPart.name
 
+        override val mdlTargetNamespace: VAnyURI? =
+            rawPart.targetNamespace ?: schema.targetNamespace
+
+        override val mdlQName: QName = QName(mdlTargetNamespace?.toString() ?:"", mdlName.toString())
+
         override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
 
@@ -194,9 +199,6 @@ class ResolvedGlobalElement(
             }
             group.toList()
         }
-
-        override val mdlTargetNamespace: VAnyURI? =
-            rawPart.targetNamespace ?: schema.targetNamespace
 
         override val mdlTypeTable: ElementModel.TypeTable? = rawPart.alternatives.takeIf { it.isNotEmpty() }?.let {
 
