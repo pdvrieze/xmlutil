@@ -125,6 +125,10 @@ sealed class ResolvedComplexType(
 
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
         fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+        override fun check(checkedTypes: MutableSet<QName>) {
+            super.check(checkedTypes)
+            check(mdlMinOccurs<=mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+        }
     }
 
     interface Model : ComplexTypeModel {

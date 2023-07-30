@@ -50,6 +50,7 @@ class ResolvedGroupRef(
     override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
     override fun check(checkedTypes: MutableSet<QName>) {
+        super<ResolvedGroupParticle>.check(checkedTypes)
         referencedGroup.check(checkedTypes)
     }
 
