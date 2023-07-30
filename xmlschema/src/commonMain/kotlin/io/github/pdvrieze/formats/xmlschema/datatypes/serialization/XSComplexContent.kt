@@ -72,12 +72,13 @@ class XSComplexContent(
         override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         override val anyAttribute: XSAnyAttribute? = null,
         override val simpleType: XSLocalSimpleType? = null,
-        override val facets: List<XSFacet> = emptyList(),
         override val otherContents: List<CompactFragment> = emptyList(),
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSComplexDerivationBase(), T_ComplexRestrictionType {
         override val derivationMethod: T_DerivationControl.ComplexBase get() = T_DerivationControl.RESTRICTION
+        override val facets: List<Nothing> = emptyList()
+
     }
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
