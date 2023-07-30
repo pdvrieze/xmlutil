@@ -58,7 +58,7 @@ class ResolvedLocalElement(
     val referenced: ResolvedElement by lazy {
         ref?.let { schema.element(it) } ?: this
     }
-    override val mdlName: VNCName? get() = rawPart.name
+    override val mdlName: VNCName get() = rawPart.name ?: referenced.mdlName
 
     override val minOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
@@ -115,14 +115,17 @@ class ResolvedLocalElement(
 
         override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
 
-        override val mdlName: VNCName? = rawPart.name
+        override val mdlName: VNCName = rawPart.name ?: referenced.mdlName
+
+        override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
+
+        override val mdlQName: QName = QName(mdlTargetNamespace?.toString() ?: "", mdlName.toString())
 
         override val mdlScope: ElementModel.Scope.Local
             get() = this@ResolvedLocalElement
 
         override val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
 
-        override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
 
         override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
