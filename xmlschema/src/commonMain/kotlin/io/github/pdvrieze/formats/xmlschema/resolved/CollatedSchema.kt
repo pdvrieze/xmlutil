@@ -147,14 +147,15 @@ internal class CollatedSchema(
             val relativeResolver = resolver.delegate(redefine.schemaLocation)
             val nestedSchema = resolver.readSchema(redefine.schemaLocation)
 
-            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
+//            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
 
-            val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, schemaLike = nestedSchemaLike)
+            val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, schemaLike = schemaLike)
 
             collatedSchema.applyRedefines(
                 redefine,
                 baseSchema.targetNamespace,
-                nestedSchemaLike,
+                nestedSchema,
+                schemaLike,
                 relativeLocation.value
             )
 
@@ -171,33 +172,40 @@ internal class CollatedSchema(
     fun applyRedefines(
         redefine: XSRedefine,
         targetNamespace: VAnyURI?,
-        schemaLike: RedefineWrapper,
+        nestedSchema: XSSchema,
+        origSchemaLike: ResolvedSchemaLike,
         schemaLocation: String,
     ) {
-        redefine.simpleTypes.associateToOverride(
-            simpleTypes,
-            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
-        ) { it, old ->
+        for (st in redefine.simpleTypes) {
+            val name = QName(targetNamespace?.toString() ?: "", st.name.toString())
+            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
+            val old = requireNotNull(simpleTypes[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            Pair(s, SchemaAssociatedElement(schemaLocation, it))
+            simpleTypes[name] = Pair(s, SchemaAssociatedElement(schemaLocation, st))
         }
-        redefine.complexTypes.associateToOverride(complexTypes,
-            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
-        ) { it, old ->
+
+        for (ct in redefine.complexTypes) {
+            val name = QName(targetNamespace?.toString() ?: "", ct.name.toString())
+            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
+            val old = requireNotNull(complexTypes[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            Pair(s, SchemaAssociatedElement(schemaLocation, it))
+            complexTypes[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ct))
         }
-        redefine.groups.associateToOverride(groups,
-            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
-        ) { it, old ->
+
+        for (g in redefine.groups) {
+            val name = QName(targetNamespace?.toString() ?: "", g.name.toString())
+            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
+            val old = requireNotNull(groups[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            Pair(s, SchemaAssociatedElement(schemaLocation, it))
+            groups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, g))
         }
-        redefine.attributeGroups.associateToOverride(attributeGroups,
-            { QName(targetNamespace?.toString() ?: "", it.name.toString()) }
-        ) { it, old ->
+
+        for (ag in redefine.attributeGroups) {
+            val name = QName(targetNamespace?.toString() ?: "", ag.name.toString())
+            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
+            val old = requireNotNull(attributeGroups[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            Pair(s, SchemaAssociatedElement(schemaLocation, it))
+            attributeGroups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ag))
         }
     }
 
@@ -253,11 +261,15 @@ internal class CollatedSchema(
         sourceSchema.notations.entries.associateToUnique(notations)
     }
 
+    enum class Redefinable { TYPE, ELEMENT, ATTRIBUTE, GROUP, ATTRIBUTEGROUP }
+
     class RedefineWrapper(
         val base: ResolvedSchemaLike,
         val originalSchema: XSSchema,
         val originalLocation: String,
-        val nestedRedefine: RedefineWrapper?
+        val nestedRedefine: RedefineWrapper?,
+        val elementName: QName,
+        val elementKind: Redefinable,
     ) : ResolvedSchemaLike() {
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
@@ -266,10 +278,18 @@ internal class CollatedSchema(
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
 
         override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+            if (elementKind == Redefinable.TYPE && elementName==typeName) {
+                return nestedSimpleType(typeName)
+            }
+
             return base.maybeSimpleType(typeName)
         }
 
         override fun maybeType(typeName: QName): ResolvedGlobalType? {
+            if (elementKind == Redefinable.TYPE && elementName==typeName) {
+                return nestedType(typeName)
+            }
+
             return base.maybeType(typeName)
         }
 
@@ -298,6 +318,21 @@ internal class CollatedSchema(
                 ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
             } ?: nestedRedefine?.nestedComplexType(typeName)
             ?: error("No nested complex type with name $typeName")
+        }
+
+        fun nestedType(typeName: QName): ResolvedGlobalType {
+            val originalNS = originalSchema.targetNamespace?.value ?: ""
+            require(originalNS == typeName.namespaceURI)
+
+            val localName = typeName.localPart
+            return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalSimpleType(sa, base)
+            } ?: originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
+                val sa = SchemaAssociatedElement(originalLocation, b)
+                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
+            } ?: nestedRedefine?.nestedType(typeName)
+            ?: error("No nested type with name $typeName")
         }
 
         fun nestedAttributeGroup(typeName: QName): ResolvedGlobalAttributeGroup {
@@ -345,18 +380,30 @@ internal class CollatedSchema(
         }
 
         override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
+            if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName==attributeGroupName) {
+                return nestedAttributeGroup(attributeGroupName)
+            }
             return base.maybeAttributeGroup(attributeGroupName)
         }
 
         override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
+            if (elementKind == Redefinable.GROUP && elementName==groupName) {
+                return nestedGroup(groupName)
+            }
             return base.maybeGroup(groupName)
         }
 
         override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
+            if (elementKind == Redefinable.ELEMENT && this.elementName==elementName) {
+                return nestedElement(elementName)
+            }
             return base.maybeElement(elementName)
         }
 
         override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
+            if (elementKind == Redefinable.ATTRIBUTE && elementName==attributeName) {
+                return nestedAttribute(attributeName)
+            }
             return base.maybeAttribute(attributeName)
         }
 
@@ -374,7 +421,7 @@ internal class CollatedSchema(
 
         fun withNestedRedefine(nestedRedefine: RedefineWrapper?): RedefineWrapper = when (nestedRedefine) {
             null -> this
-            else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine)
+            else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine, elementName, elementKind)
         }
     }
 
