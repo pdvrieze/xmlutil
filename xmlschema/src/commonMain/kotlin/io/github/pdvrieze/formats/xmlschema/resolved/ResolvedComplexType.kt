@@ -30,7 +30,6 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedComplexType(
@@ -76,6 +75,7 @@ sealed class ResolvedComplexType(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
+        mdlContentType.check()
         if (mdlDerivationMethod == T_DerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
             if (baseType is ResolvedComplexType) {
@@ -115,6 +115,8 @@ sealed class ResolvedComplexType(
                 }
             } else { // extension of simple type
             }
+        } else { // restriction
+
         }
     }
 
@@ -126,8 +128,10 @@ sealed class ResolvedComplexType(
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
         fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
         override fun check(checkedTypes: MutableSet<QName>) {
+
             super.check(checkedTypes)
-            check(mdlMinOccurs<=mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+            check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+
         }
     }
 
@@ -447,16 +451,46 @@ sealed class ResolvedComplexType(
 
         override val mdlDerivationMethod: T_DerivationControl.ComplexBase =
             rawPart.content.derivation.derivationMethod
+
+        override fun check() {}
     }
 
     interface ResolvedContentType : ComplexTypeModel.ContentType {
-
+        fun check()
     }
 
-    object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType
+    object EmptyContentType : ComplexTypeModel.ContentType.Empty, ResolvedContentType {
+        override fun check() {}
+    }
+
     interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
         override val mdlParticle: ResolvedParticle<ResolvedTerm>
         val mdlOpenContent: ResolvedOpenContent?
+
+        override fun check() {
+            fun collectElements(
+                term: ResolvedTerm,
+                target: MutableList<ResolvedElement> = mutableListOf()
+            ): List<ResolvedElement> {
+                when (term) {
+                    is ResolvedElement -> target.add(term)
+                    is ResolvedGroupLikeTerm -> for (p in term.mdlParticles) {
+                        collectElements(p.mdlTerm, target)
+                    }
+                }
+                return target
+            }
+
+            val elements = mutableMapOf<QName, ResolvedType>()
+            for (particle in collectElements(mdlParticle.mdlTerm)) {
+                val qName = particle.mdlQName
+                val old = elements.put(qName, particle.mdlTypeDefinition)
+                if (old != null) require(particle.mdlTypeDefinition == old) {
+                    "If an element is repeated in a group it must have identical types"
+                }
+            }
+
+        }
     }
 
     class MixedContentType(
