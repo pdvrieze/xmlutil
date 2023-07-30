@@ -107,7 +107,11 @@ class ResolvedLocalAttribute(
 //            check(type!=null) { "Attributes must have a type if their use is not prohibited" }
 //        }
         if (rawPart.ref != null) {
-            require(referenced != null) { "If an attribute has a ref, it must also be resolvable" }
+            val r = referenced
+            require(r != null) { "If an attribute has a ref, it must also be resolvable" }
+            if (rawPart.fixed!=null && r.fixed!=null) {
+                require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
+            }
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
     }
 

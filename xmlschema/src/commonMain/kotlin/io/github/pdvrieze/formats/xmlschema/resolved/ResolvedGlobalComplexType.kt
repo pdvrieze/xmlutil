@@ -97,6 +97,7 @@ class ResolvedGlobalComplexType(
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         if (checkedTypes.add(qName)) {
             super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
+            mdlContentType.check()
             content.check(checkedTypes, inheritedTypes + qName)
         }
     }
