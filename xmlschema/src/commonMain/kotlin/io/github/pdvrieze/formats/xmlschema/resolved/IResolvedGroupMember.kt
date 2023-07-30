@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.model.GroupMember
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedGroupMember : ResolvedGroupLikeTerm, GroupMember, ResolvedTerm {
+interface IResolvedGroupMember : ResolvedGroupLikeTerm, GroupMember {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     override fun check(checkedTypes: MutableSet<QName>) {

@@ -85,7 +85,8 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
-    override val mdlName: VNCName? get() = model.mdlName
+    override val mdlName: VNCName get() = model.mdlName
+    val mdlQName: QName get() = model.mdlQName
 
     /**
      * disallowed substitutions
@@ -134,6 +135,8 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     }
 
     interface Model : ElementModel {
+        override val mdlName: VNCName
+        val mdlQName: QName
         override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
         override val mdlTypeDefinition: ResolvedType
         override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
@@ -141,6 +144,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
         Model {
+
         final override val mdlNillable: Boolean = rawPart.nillable ?: false
 
         abstract override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
