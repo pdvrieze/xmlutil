@@ -28,6 +28,6 @@ interface IResolvedGroupMember : ResolvedGroupLikeTerm, GroupMember, ResolvedTer
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     override fun check(checkedTypes: MutableSet<QName>) {
-//        super.check()
+        super.check(checkedTypes)
     }
 }

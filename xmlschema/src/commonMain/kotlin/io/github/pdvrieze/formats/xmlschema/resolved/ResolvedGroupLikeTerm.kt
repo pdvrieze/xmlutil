@@ -22,10 +22,17 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.model.GroupLikeTermBase
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import nl.adaptivity.xmlutil.QName
 
 /**
  * Base interface for all group-like terms: all, seq, choice, group
  */
 interface ResolvedGroupLikeTerm : GroupLikeTermBase, ResolvedTerm {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+
+    override fun check(checkedTypes: MutableSet<QName>) {
+        for(particle in mdlParticles) {
+            particle.check(checkedTypes)
+        }
+    }
 }
