@@ -20,14 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.particles
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Particle
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, T_Particle, ParticleModel<T> {
     override val rawPart: XSI_Particle
+
+    fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
+        maxMultiplier: T_AllNNI = T_AllNNI.ONE
+    ): ResolvedParticle<T>
 
     companion object {
         fun allMember(
@@ -78,4 +85,3 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         }
     }
 }
-
