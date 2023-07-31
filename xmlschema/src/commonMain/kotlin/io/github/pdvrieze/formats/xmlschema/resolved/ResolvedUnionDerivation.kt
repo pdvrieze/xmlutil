@@ -75,4 +75,16 @@ class ResolvedUnionDerivation(
 
 
     }
+
+    fun transitiveMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
+        for (m in resolvedMembers) {
+            val d = m.simpleDerivation
+            if (d is ResolvedUnionDerivation) {
+                d.transitiveMembership(collector)
+            } else {
+                collector.add(m)
+            }
+        }
+        return collector
+    }
 }

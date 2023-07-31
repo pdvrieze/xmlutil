@@ -20,30 +20,43 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedSequence(
-    parent: ResolvedParticleParent,
+class ResolvedSequence private constructor(
     override val rawPart: XSSequence,
-    schema: ResolvedSchemaLike
-) : ResolvedGroupParticleTermBase<ResolvedSequence>(schema),
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
+    schema: ResolvedSchemaLike,
+    override val minOccurs: VNonNegativeInteger?,
+    override val maxOccurs: T_AllNNI?,
+) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
     T_Sequence,
-    ResolvedComplexType.ResolvedDirectParticle<ResolvedSequence>,
-    ResolvedGroupParticle<ResolvedSequence>,
+    ResolvedComplexType.ResolvedDirectParticle<IResolvedSequence>,
+    ResolvedGroupParticle<IResolvedSequence>,
     ResolvedGroupLikeTerm,
     ModelGroupModel,
-    ResolvedAllMember,
     IResolvedSequence {
 
     override val mdlTerm: ResolvedSequence get() = this
 
-    override val mdlParticles: List<ResolvedParticle<*>> = DelegateList(rawPart.particles) {
-        ResolvedParticle(parent, it, schema)
-    }
+    constructor(
+        parent: ResolvedParticleParent,
+        rawPart: XSSequence,
+        schema: ResolvedSchemaLike
+    ) : this(
+        rawPart,
+        DelegateList(rawPart.particles) {
+            ResolvedParticle(parent, it, schema) as ResolvedParticle<ResolvedChoiceSeqMember>
+        },
+        schema,
+        rawPart.minOccurs,
+        rawPart.maxOccurs
+    )
 
     /*
         override val choices: List<ResolvedChoice> =
@@ -66,6 +79,28 @@ class ResolvedSequence(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticleTermBase>.check(checkedTypes)
+        val names = mutableSetOf<QName>()
+        for (elem in mdlParticles) {
+            if (elem is ResolvedLocalElement) {
+                check(names.add(elem.mdlQName)) { "Duplicate element with name ${elem.mdlQName} found in sequence" }
+            }
+        }
+    }
+
+
+    override fun check() {
+        super<IResolvedSequence>.check(mutableSetOf())
+        rawPart.check(mutableSetOf())
+    }
+
+    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: T_AllNNI): ResolvedSequence {
+        return ResolvedSequence(
+            rawPart,
+            mdlParticles,
+            schema,
+            minOccurs?.times(minMultiplier) ?: minMultiplier,
+            maxOccurs?.times(maxMultiplier)?: maxMultiplier
+        )
     }
 }
 
