@@ -24,13 +24,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
-sealed class ResolvedGroupParticleTermBase<T: ResolvedGroupParticleTermBase<T>>(schema: ResolvedSchemaLike):
+sealed class ResolvedGroupParticleTermBase<T: IResolvedGroupMember>(schema: ResolvedSchemaLike):
     ResolvedGroupTermBase(schema),
     ResolvedParticle<T> {
 
     final override val mdlMinOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+        get() = minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+        get() = maxOccurs ?: T_AllNNI.ONE
 }

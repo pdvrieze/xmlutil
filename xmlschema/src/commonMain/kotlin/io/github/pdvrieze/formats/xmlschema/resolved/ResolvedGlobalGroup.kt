@@ -22,13 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
@@ -101,6 +102,22 @@ class ResolvedGlobalGroup(
             }
         }
 
+        override fun normalize(
+            minMultiplier: VNonNegativeInteger,
+            maxMultiplier: T_AllNNI
+        ): SyntheticAll {
+            // there are no minOccurs/maxOccurs
+            val newParticles = mutableListOf<ResolvedParticle<ResolvedAllMember>>()
+            for (particle in this.mdlParticles) {
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, T_AllNNI.ONE) as ResolvedParticle<ResolvedAllMember>
+                when (normalized) {
+                    is IResolvedAll -> newParticles.addAll(normalized.mdlParticles)
+                    else -> newParticles.add(normalized)
+                }
+            }
+            return SyntheticAll(minMultiplier, maxMultiplier, newParticles, schema)
+        }
+
         override fun check() {
             super.check(mutableSetOf())
             rawPart.check(mutableSetOf())
@@ -121,6 +138,22 @@ class ResolvedGlobalGroup(
                     p.collectConstraints(collector)
                 }
             }
+        }
+
+        override fun normalize(
+            minMultiplier: VNonNegativeInteger,
+            maxMultiplier: T_AllNNI
+        ): SyntheticChoice {
+            // there are no minOccurs/maxOccurs
+            val newParticles = mutableListOf<ResolvedParticle<ResolvedChoiceSeqMember>>()
+            for (particle in this.mdlParticles) {
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, T_AllNNI.ONE) as ResolvedParticle<ResolvedChoiceSeqMember>
+                when (normalized) {
+                    is IResolvedChoice -> newParticles.addAll(normalized.mdlParticles)
+                    else -> newParticles.add(normalized)
+                }
+            }
+            return SyntheticChoice(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
         override fun check() {

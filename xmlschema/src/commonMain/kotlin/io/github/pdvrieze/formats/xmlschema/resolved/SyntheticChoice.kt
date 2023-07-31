@@ -23,35 +23,39 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import nl.adaptivity.xmlutil.QName
 
-class SyntheticAll(
+class SyntheticChoice(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: T_AllNNI,
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>,
-    IResolvedAll {
-
-    override val mdlTerm: SyntheticAll get() = this
+) : ResolvedComplexType.ResolvedDirectParticle<SyntheticChoice>, SequenceModel<ResolvedChoiceSeqMember>,
+    IResolvedChoice, ResolvedChoiceSeqMember {
+    override val mdlTerm: SyntheticChoice get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
     override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: AnnotationModel? get() = null
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
+    }
+
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedAll>.check(checkedTypes)
-        // TODO implement something
+        super<IResolvedChoice>.check(checkedTypes)
     }
 
-    override fun check() {
-    }
+    override fun check() {}
 
-    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: T_AllNNI): SyntheticAll {
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): SyntheticChoice {
         return super.normalize(minMultiplier, maxMultiplier)
     }
 }

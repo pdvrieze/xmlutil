@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotation
@@ -46,6 +47,8 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
+    override val rawPart: T_Type
+
     override val simpleDerivation: Derivation
 
     val model: Model
@@ -109,6 +112,54 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         check(this != mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         mdlPrimitiveTypeDefinition?.validate(representation)
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
+    }
+
+    override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
+        when (other) {
+            is ResolvedSimpleType -> return isValidlyDerivedFrom(other)
+            is ResolvedComplexType -> return isValidlyDerivedFrom(other)
+            else -> return false
+        }
+    }
+
+    /**
+     * 3.16.6.3
+     */
+    fun isValidlyDerivedFrom(complexBase: ResolvedComplexType): Boolean {
+        // 1 - never true, as this is a simple type, the base is complex
+        if (T_DerivationControl.RESTRICTION in complexBase.mdlFinal) return false
+        if (mdlBaseTypeDefinition == complexBase.mdlBaseTypeDefinition) return true //2.2.1
+        if (T_DerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
+        if (mdlVariety != Variety.ATOMIC && mdlBaseTypeDefinition == AnySimpleType) return true //2.2.3
+        if (mdlBaseTypeDefinition!= AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(complexBase)) return true //2.2.2
+        val sd = simpleDerivation
+        if (sd is ResolvedUnionDerivation) { //2.2.4.1
+            // Facets should be unassignable in union -- 2.2.4.3
+            val members = sd.transitiveMembership()//2.2.4.2
+            if (members.none { m -> isValidlyDerivedFrom(m) }) return false
+            return true
+        }
+        return false //none of the 4 options is true
+    }
+
+    /**
+     * 3.4.6.5
+     */
+    override fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean {
+        if(this == simpleBase) return true
+        if (T_DerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //2.1.a
+        if (mdlBaseTypeDefinition == simpleBase) return true //2.2.1
+        if (T_DerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
+        if (mdlVariety != Variety.ATOMIC && mdlBaseTypeDefinition == AnySimpleType) return true //2.2.3
+        if (mdlBaseTypeDefinition!= AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(simpleBase)) return true //2.2.2
+        val sd = simpleDerivation
+        if (sd is ResolvedUnionDerivation) { //2.2.4.1
+            // Facets should be unassignable in union -- 2.2.4.3
+            val members = sd.transitiveMembership()//2.2.4.2
+            if (members.none { m -> isValidlyDerivedFrom(m) }) return false
+            return true
+        }
+        return false //none of the 4 options is true
     }
 
     sealed class Derivation(final override val schema: ResolvedSchemaLike) : T_SimpleType.Derivation, ResolvedPart {

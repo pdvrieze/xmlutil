@@ -35,6 +35,8 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGroupRefParticle(
     override val rawPart: XSGroupRefParticle,
     override val schema: ResolvedSchemaLike,
+    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
+    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
     ResolvedParticle<ResolvedGlobalGroup>,
     T_GroupRef {
@@ -44,17 +46,11 @@ class ResolvedGroupRefParticle(
     override val annotation: XSAnnotation?
         get() = mdlTerm.annotation
 
-    override val minOccurs: VNonNegativeInteger?
-        get() = rawPart.minOccurs
-
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: T_AllNNI
         get() = rawPart.maxOccurs ?: T_AllNNI.ONE
-
-    override val maxOccurs: T_AllNNI?
-        get() = rawPart.maxOccurs
 
     override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
 
@@ -66,5 +62,17 @@ class ResolvedGroupRefParticle(
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlTerm.collectConstraints(collector)
+    }
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): ResolvedParticle<ResolvedGlobalGroup> {
+        return ResolvedGroupRefParticle(
+            rawPart,
+            schema,
+            minOccurs?.times(minMultiplier) ?: minMultiplier,
+            maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+        )
     }
 }

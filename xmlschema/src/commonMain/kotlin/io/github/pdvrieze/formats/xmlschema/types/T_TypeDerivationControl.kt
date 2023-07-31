@@ -22,15 +22,25 @@ import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 sealed class T_DerivationControl(val name: String) {
     sealed class ComplexBase(name: String) : T_TypeDerivationControl(name), ComplexTypeModel.Derivation
 
-    object RESTRICTION : ComplexBase("restriction"), T_BlockSetValues
+    object RESTRICTION : ComplexBase("restriction"), T_BlockSetValues {
+        override fun toString(): String = "RESTRICTION"
+    }
 
-    object EXTENSION : ComplexBase("extension"), T_BlockSetValues
+    object EXTENSION : ComplexBase("extension"), T_BlockSetValues {
+        override fun toString(): String = "EXTENSION"
+    }
 
-    object LIST : T_TypeDerivationControl("list")
+    object LIST : T_TypeDerivationControl("list") {
+        override fun toString(): String = "LIST"
+    }
 
-    object UNION : T_TypeDerivationControl("union")
+    object UNION : T_TypeDerivationControl("union") {
+        override fun toString(): String = "UNION"
+    }
 
-    object SUBSTITUTION : T_DerivationControl("substitution"), T_BlockSetValues
+    object SUBSTITUTION : T_DerivationControl("substitution"), T_BlockSetValues {
+        override fun toString(): String = "SUBSTITUTION"
+    }
 
 }
 

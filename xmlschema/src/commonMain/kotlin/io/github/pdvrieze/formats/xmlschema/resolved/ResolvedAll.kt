@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_All
@@ -27,29 +28,38 @@ import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import nl.adaptivity.xmlutil.QName
 
 
-class ResolvedAll(
-    parent: ResolvedParticleParent,
+class ResolvedAll private constructor(
     override val rawPart: XSAll,
-    schema: ResolvedSchemaLike
-) : ResolvedGroupParticleTermBase<ResolvedAll>(schema),
+    schema: ResolvedSchemaLike,
+    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
+    override val minOccurs: VNonNegativeInteger?,
+    override val maxOccurs: T_AllNNI.Value?,
+) : ResolvedGroupParticleTermBase<IResolvedAll>(schema),
     IResolvedAll,
-    ResolvedComplexType.ResolvedDirectParticle<ResolvedAll>,
+    ResolvedComplexType.ResolvedDirectParticle<IResolvedAll>,
     ResolvedGroupLikeTerm,
-    ResolvedGroupParticle<ResolvedAll>,
+    ResolvedGroupParticle<IResolvedAll>,
     T_All {
 
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>> = DelegateList(rawPart.particles) {
-        ResolvedParticle.allMember(parent, it, schema)
-    }
-
-    override val maxOccurs: T_AllNNI.Value
-        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+    constructor(
+        parent: ResolvedParticleParent,
+        rawPart: XSAll,
+        schema: ResolvedSchemaLike,
+    ) : this(
+        rawPart,
+        schema,
+        DelegateList(rawPart.particles) {
+            ResolvedParticle.allMember(parent, it, schema)
+        },
+        rawPart.minOccurs,
+        rawPart.maxOccurs
+    )
 
     override val mdlTerm: ResolvedAll get() = this
 
     init {
-        require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
-        require(maxOccurs.let { it is T_AllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
+        require(mdlMinOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
+        require(mdlMaxOccurs.let { it is T_AllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -58,6 +68,18 @@ class ResolvedAll(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<IResolvedAll>.check(checkedTypes)
+    }
+
+    override fun check() {
+        super<IResolvedAll>.check(mutableSetOf())
+        rawPart.check(mutableSetOf())
+    }
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): ResolvedParticle<IResolvedAll> {
+        TODO("not implemented")
     }
 }
 

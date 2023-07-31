@@ -20,61 +20,68 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import io.github.pdvrieze.formats.xmlschema.types.T_Choice
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, ModelGroupModel, IResolvedGroupMember {
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedGroupLikeTerm>.check(checkedTypes)
-        //TODO("not implemented")
-    }
-}
-
-class ResolvedChoice(
-    parent: ResolvedParticleParent,
+class ResolvedChoice private constructor(
     override val rawPart: XSChoice,
-    schema: ResolvedSchemaLike
-) : ResolvedGroupParticleTermBase<ResolvedChoice>(schema),
+    schema: ResolvedSchemaLike,
+    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
+    override val minOccurs: VNonNegativeInteger?,
+    override val maxOccurs: T_AllNNI?,
+) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice,
     T_Choice,
-    ResolvedComplexType.ResolvedDirectParticle<ResolvedChoice>,
+    ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
     ChoiceModel,
-    ResolvedChoiceSeqMember,
-    ResolvedGroupParticle<ResolvedChoice> {
+    ResolvedGroupParticle<IResolvedChoice> {
+
+    constructor(
+        parent: ResolvedParticleParent,
+        rawPart: XSChoice,
+        schema: ResolvedSchemaLike,
+    ) : this(
+        rawPart,
+        schema,
+        DelegateList(rawPart.particles) {
+            ResolvedParticle.choiceSeqMember(parent, it, schema)
+        },
+        rawPart.minOccurs,
+        rawPart.maxOccurs
+    )
+
 
     override val mdlTerm: ResolvedChoice get() = this
-
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>> = DelegateList(rawPart.particles) {
-        ResolvedParticle.choiceSeqMember(parent, it, schema)
-    }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles
     }
 
-    /*
-            override val choices: List<ResolvedChoice> =
-                DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
-
-            override val sequences: List<ResolvedSequence> =
-                DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
-        */
-
-    /*
-        init {
-            require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs"}
-            require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
-        }
-    */
-
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticleTermBase>.check(checkedTypes)
+    }
+
+
+    override fun check() {
+        super<IResolvedChoice>.check(mutableSetOf())
+        rawPart.check(mutableSetOf())
+    }
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): ResolvedChoice {
+        return ResolvedChoice(
+            rawPart,
+            schema,
+            mdlParticles,
+            minOccurs?.times(minMultiplier) ?: minMultiplier,
+            maxOccurs?.times(maxMultiplier) ?: maxMultiplier
+        )
     }
 }

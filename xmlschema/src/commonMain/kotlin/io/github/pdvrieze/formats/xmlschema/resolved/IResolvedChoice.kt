@@ -21,30 +21,27 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
+import io.github.pdvrieze.formats.xmlschema.model.ChoiceSeqMember
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
-import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
-    ResolvedGroupLikeTerm,
-    ResolvedAllMember,
-    IResolvedGroupMember {
-
+interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, IResolvedGroupMember, ResolvedChoiceSeqMember {
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
-
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.SEQUENCE
+    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedGroupMember>.check(checkedTypes)
+        super<ResolvedGroupLikeTerm>.check(checkedTypes)
+        //TODO("not implemented")
     }
 
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: T_AllNNI
-    ): SyntheticSequence {
+    ): SyntheticChoice {
         var newMin: VNonNegativeInteger = minMultiplier
         var newMax: T_AllNNI = maxMultiplier
         if (this is ResolvedParticle<*>) {
@@ -60,7 +57,7 @@ interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
             }
 
             when (val term: ResolvedChoiceSeqMember = cleanParticle.mdlTerm) {
-                is IResolvedSequence ->
+                is IResolvedChoice ->
                     for (child in term.mdlParticles) {
                         newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
                     }
@@ -68,7 +65,7 @@ interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
                 else -> newParticles.add(particle.normalizeTerm())
             }
         }
-        return SyntheticSequence(newMin, newMax, newParticles, schema)
+        return SyntheticChoice(newMin, newMax, newParticles, schema)
 
     }
 

@@ -501,7 +501,9 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                         System.err.println(e.message?.prependIndent("        "))
                     }
                 } catch (f: AssertionError) {
-                    f.addSuppressed(e)
+                    if (f != e) {
+                        f.addSuppressed(e)
+                    }
                     throw f
                 }
             }

@@ -21,7 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import nl.adaptivity.xmlutil.QName
+import kotlin.reflect.KClass
 
 /**
  * Base interface for all group-like resolved types: all, seq, choice, group

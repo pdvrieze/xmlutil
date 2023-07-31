@@ -66,6 +66,11 @@ interface ElementModel : IAnnotated, IOptNamed {
     }
 
     interface TypeTable {
+        fun isEquivalent(other: TypeTable): Boolean {
+            //TODO("not implemented")
+            return mdlAlternatives.size == other.mdlAlternatives.size
+        }
+
         val mdlAlternatives: List<TypeAlternativeModel>
         val mdlDefault: TypeAlternativeModel
     }

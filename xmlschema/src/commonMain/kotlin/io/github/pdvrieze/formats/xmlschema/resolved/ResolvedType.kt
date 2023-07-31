@@ -39,5 +39,23 @@ sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeMod
     fun validate(representation: VString)
 
     fun validateValue(representation: Any) {}
+
+    /**
+     * Defined in 3.3.4.2 last paragraph
+     */
+    fun isValidRestrictionOf(other: ResolvedType): Boolean {
+        // subject to blocking keywords
+        return isValidSubtitutionFor(other)
+    }
+
+    /**
+     * Defined in 3.3.4.2
+     */
+    fun isValidSubtitutionFor(other: ResolvedType): Boolean
+
+    /**
+     * Defined by 3.4.6.5
+     */
+    fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean
 }
 

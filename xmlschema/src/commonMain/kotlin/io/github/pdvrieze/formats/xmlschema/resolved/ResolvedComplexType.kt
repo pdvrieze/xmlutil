@@ -73,6 +73,46 @@ sealed class ResolvedComplexType(
         }
     }
 
+
+    /** 3.3.4.2 for complex types */
+    override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
+        return when (other) {
+            is ResolvedComplexType -> return isValidlyDerivedFrom(other)
+            is ResolvedSimpleType -> return isValidlyDerivedFrom(other)
+            else -> error("Unreachable")
+        }
+    }
+
+    /**
+     * 3.4.6.5 Type derivation ok (complex)
+     */
+    override fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean {
+        if(this == simpleBase) return true // 2.1
+        // check derivation method is not in blocking
+        if (this == simpleBase) return true // 2.2
+        val btd = mdlBaseTypeDefinition
+        if (btd==AnyType) return false // 2.3.1
+        return when(btd) {
+            is ResolvedComplexType -> btd.isValidlyDerivedFrom(simpleBase)
+            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(simpleBase)
+        }
+    }
+
+    /**
+     * 3.4.6.5 Type derivation ok (complex)
+     */
+    fun isValidlyDerivedFrom(complexBase: ResolvedComplexType): Boolean {
+        if(this == complexBase) return true // 2.1
+        // check derivation method is not in blocking
+        if (this == complexBase) return true // 2.2
+        val btd = mdlBaseTypeDefinition
+        if (btd==AnyType) return false // 2.3.1
+        return when(btd) {
+            is ResolvedComplexType -> btd.isValidlyDerivedFrom(complexBase)
+            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(complexBase)
+        }
+    }
+
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
         mdlContentType.check()
@@ -116,7 +156,51 @@ sealed class ResolvedComplexType(
             } else { // extension of simple type
             }
         } else { // restriction
+            val b = mdlBaseTypeDefinition
+            val ct: ResolvedContentType = mdlContentType
+//            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
+            val bt = (b as? ResolvedComplexType)?.mdlContentType
+            when {
+                b == AnyType -> {} // Derivation is fine
 
+                ct is ResolvedSimpleContentType -> {
+                    when(bt) {
+                        is ResolvedSimpleContentType -> {
+                            val sb = bt.mdlSimpleTypeDefinition
+                            val st = ct.mdlSimpleTypeDefinition
+                            check(st.isValidlyDerivedFrom(sb)) { "For derivation, simple content models must validly derive" }
+                        }
+
+                        is MixedContentType ->
+                            check(bt.mdlParticle.mdlIsEmptiable()) { "Simple variety can only restrict emptiable mixed content type" }
+
+                        else -> error("Invalid derivation of ${bt?.mdlVariety} by simple")
+                    }
+                }
+
+                ct is EmptyContentType -> {
+                    when (bt) {
+                        is ResolvedElementBase -> {
+                            check(bt.mdlParticle.mdlIsEmptiable())
+                        }
+                        !is EmptyContentType -> error("Invalid derivation of ${bt?.mdlVariety} by empty")
+                    }
+                }
+
+                ct is ElementOnlyContentType -> {
+                    check(bt is ResolvedElementBase) { "ElementOnly content type can only derive elementOnly or mixed" }
+                    check(ct.restricts(bt))
+                }
+
+                ct is MixedContentType -> {
+                    check(bt is MixedContentType) { "Mixed content type can only derive from mixed content" }
+                    check(ct.restricts(bt))
+                }
+            }
+
+            // check attributes : 3.4.6.3, item 3
+            // check attributes : 3.4.6.3, item 4
+            // check attributes : 3.4.6.3, item 5 assertions is an extension of b.extensions
         }
     }
 
@@ -418,7 +502,7 @@ sealed class ResolvedComplexType(
                 }
 
                 baseType is ResolvedComplexType &&
-                        complexBaseContentType is ComplexTypeModel.ContentType.Mixed &&
+                        complexBaseContentType is MixedContentType &&
                         complexBaseContentType.mdlParticle.mdlIsEmptiable() &&
                         derivation is XSSimpleContentRestriction -> {
                     val sb =
@@ -466,6 +550,13 @@ sealed class ResolvedComplexType(
     interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
         override val mdlParticle: ResolvedParticle<ResolvedTerm>
         val mdlOpenContent: ResolvedOpenContent?
+
+        /** Implementation of 3.4.6.4 */
+        fun restricts(base: ResolvedElementBase): Boolean {
+            // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
+            // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
+            TODO()
+        }
 
         override fun check() {
             fun collectElements(
