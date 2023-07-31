@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.model.AllModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
@@ -29,7 +30,6 @@ import nl.adaptivity.xmlutil.QName
 interface IResolvedAll :
     AllModel,
     ResolvedGroupLikeTerm,
-    ModelGroupModel,
     IResolvedGroupMember {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>
@@ -43,5 +43,38 @@ interface IResolvedAll :
                 "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
             }
         }
+    }
+
+    override fun normalize(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): SyntheticAll {
+        var newMin: VNonNegativeInteger = minMultiplier
+        var newMax: T_AllNNI = maxMultiplier
+        if (this is ResolvedParticle<*>) {
+            newMin *= mdlMinOccurs
+            newMax *= mdlMaxOccurs
+        }
+
+        val newParticles = mutableListOf<ResolvedParticle<ResolvedAllMember>>()
+
+        for (particle in mdlParticles) {
+            val cleanParticle = when (particle) {
+                is ResolvedGroupRef -> particle.flattenToModelGroup(ResolvedAllMember::class)
+                else -> particle
+            }
+
+            when (val term : ResolvedAllMember = cleanParticle.mdlTerm) {
+                is IResolvedAll -> {
+                    for (child in term.mdlParticles) {
+                        newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
+                    }
+                }
+
+                else -> newParticles.add(particle.normalizeTerm())
+            }
+        }
+        return SyntheticAll(newMin, newMax, newParticles, schema)
+
     }
 }

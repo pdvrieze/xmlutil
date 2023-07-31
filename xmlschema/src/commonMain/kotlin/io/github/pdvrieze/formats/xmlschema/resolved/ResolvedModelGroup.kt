@@ -20,11 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
+import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 
-interface ResolvedModelGroup : ModelGroupModel {
+interface ResolvedModelGroup : ModelGroupModel, ResolvedTerm {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     fun check()
+
+    fun normalize(
+        minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
+        maxMultiplier: T_AllNNI = T_AllNNI.ONE
+    ): ResolvedParticle</*IResolvedGroupMember*/ResolvedTerm>
 }

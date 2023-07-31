@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
@@ -54,6 +55,5 @@ class ResolvedComplexRestriction(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         super<ResolvedDerivation>.check(checkedTypes, inheritedTypes)
-//        check()
     }
 }

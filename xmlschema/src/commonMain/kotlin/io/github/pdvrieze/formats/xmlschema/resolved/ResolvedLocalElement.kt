@@ -38,7 +38,9 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalElement(
     override val parent: ResolvedParticleParent,
     override val rawPart: XSLocalElement,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
+    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     ResolvedParticle<ResolvedLocalElement>,
     T_LocalElement,
@@ -60,12 +62,6 @@ class ResolvedLocalElement(
     }
     override val mdlName: VNCName get() = rawPart.name ?: referenced.mdlName
 
-    override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-
-    override val maxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-
     override val form: T_FormChoice?
         get() = rawPart.form
 
@@ -82,8 +78,8 @@ class ResolvedLocalElement(
     override val mdlScope: ElementModel.Scope.Local get() = model.mdlScope
     override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
-    override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs
+    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs ?: VNonNegativeInteger.ONE
+    override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs ?: T_AllNNI.ONE
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
@@ -106,6 +102,23 @@ class ResolvedLocalElement(
         keyrefs.forEach { it.check(checkedTypes) }
         uniques.forEach { it.check(checkedTypes) }
         keys.forEach { it.check(checkedTypes) }
+    }
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): ResolvedLocalElement = when {
+        minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != T_AllNNI.ONE -> {
+            ResolvedLocalElement(
+                parent,
+                rawPart,
+                schema,
+                minOccurs?.times(minMultiplier) ?: minMultiplier,
+                maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+            )
+        }
+
+        else -> this
     }
 
     interface Model : ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>

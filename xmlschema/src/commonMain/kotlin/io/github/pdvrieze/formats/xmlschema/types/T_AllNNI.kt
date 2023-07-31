@@ -73,6 +73,8 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
             is UNBOUNDED -> UNBOUNDED
         }
 
+        operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
+
         override fun toString(): String = value.toString()
 
         companion object Serializer : KSerializer<Value> {
@@ -128,5 +130,9 @@ class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive:
 
     override fun isEmpty(): Boolean {
         return endInclusive !is T_AllNNI.UNBOUNDED && start < endInclusive
+    }
+
+    operator fun times(other: AllNNIRange): AllNNIRange {
+        return AllNNIRange(start * other.start, endInclusive * other.endInclusive)
     }
 }

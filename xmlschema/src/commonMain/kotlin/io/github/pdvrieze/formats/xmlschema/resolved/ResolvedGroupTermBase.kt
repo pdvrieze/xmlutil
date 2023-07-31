@@ -31,29 +31,13 @@ import nl.adaptivity.xmlutil.QName
  * Base class for all terms that contain groups: ResolvedAll, ResolvedChoice, ResolvedSequence, ResolvedGroup
  */
 sealed class ResolvedGroupTermBase(
-    final override val schema: ResolvedSchemaLike
+    final override val schema: ResolvedSchemaLike,
 ) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle, ResolvedTerm {
 
     abstract override val rawPart: XSI_Grouplike
 
     final override val particles: List<XSI_Particle>
         get() = rawPart.particles
-
-    final override val minOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-
-/*
-    final override val mdlMinOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger(1)
-*/
-
-    override val maxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-
-/*
-    final override val mdlMaxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI(1)
-*/
 
     final val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 

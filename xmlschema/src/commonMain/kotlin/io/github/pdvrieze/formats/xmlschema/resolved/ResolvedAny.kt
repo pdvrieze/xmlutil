@@ -31,17 +31,15 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedAny(
     override val rawPart: XSAny,
-    override val schema: ResolvedSchemaLike
+    override val schema: ResolvedSchemaLike,
+    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
+    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs
 ) : ResolvedParticle<ResolvedAny>, ResolvedPart, T_AnyElement, AnyModel, ResolvedTerm, ResolvedAllMember {
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-    override val minOccurs: VNonNegativeInteger? get() = rawPart.minOccurs
-
     override val mdlMaxOccurs: T_AllNNI
         get() = rawPart.maxOccurs ?: T_AllNNI.ONE
-
-    override val maxOccurs: T_AllNNI? get() = rawPart.maxOccurs
 
     override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
@@ -73,5 +71,23 @@ class ResolvedAny(
 
     override fun check(checkedTypes: MutableSet<QName>) {
 //        TODO("not implemented")
+    }
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): ResolvedAny {
+        return when {
+            minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != T_AllNNI.ONE -> {
+                ResolvedAny(
+                    rawPart,
+                    schema,
+                    minOccurs?.times(minMultiplier) ?: minMultiplier,
+                    maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+                )
+            }
+
+            else -> this
+        }
     }
 }

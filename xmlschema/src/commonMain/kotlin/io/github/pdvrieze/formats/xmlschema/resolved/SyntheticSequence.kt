@@ -49,4 +49,13 @@ class SyntheticSequence(
     override fun check(checkedTypes: MutableSet<QName>) {
         super<IResolvedSequence>.check(checkedTypes)
     }
+
+    override fun check() {}
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: T_AllNNI
+    ): SyntheticSequence {
+        return super.normalize(minMultiplier, maxMultiplier)
+    }
 }
