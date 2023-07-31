@@ -102,6 +102,37 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         }
     }
 
+    fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
+        if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
+
+        val vc = mdlValueConstraint // subsume 4.2
+        if (vc is ValueConstraintModel.Fixed && (specific.mdlValueConstraint as? ValueConstraintModel.Fixed) != vc.mdlValue) {
+            return false
+        }
+
+        // subsume 4.3
+        if (!specific.mdlIdentityConstraints.containsAll(mdlIdentityConstraints)) return false
+
+        // subsume 4.4
+        if (specific.mdlDisallowedSubstitutions.size > mdlDisallowedSubstitutions.size &&
+            specific.mdlDisallowedSubstitutions.containsAll(mdlDisallowedSubstitutions)
+        ) return false
+
+        // subsume 4.5
+        if (! specific.mdlTypeDefinition.isValidRestrictionOf(mdlTypeDefinition)) return false
+
+        // subsume 4.6
+        val gtt = mdlTypeTable
+        if (gtt == null) {
+            if (specific.mdlTypeTable!= null) return false
+        } else {
+            val stt = specific.mdlTypeTable
+            if (stt==null) return false
+            if (!gtt.isEquivalent(stt)) return false
+        }
+        return true
+    }
+
     override fun check(checkedTypes: MutableSet<QName>) {
         super<OptNamedPart>.check(checkedTypes)
         for (keyref in keyrefs) {
