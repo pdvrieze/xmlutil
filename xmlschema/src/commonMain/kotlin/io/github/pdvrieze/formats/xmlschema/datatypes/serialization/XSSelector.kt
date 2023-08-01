@@ -28,20 +28,25 @@ import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("selector", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-data class XSSelector(
-    val xpath: VToken,
+class XSSelector : XSAnnotatedBase {
+    val xpath: VToken
+
     @XmlElement(false)
-    val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
-    @XmlId
-    override val id: VID? = null,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
+    val xpathDefaultNamespace: T_XPathDefaultNamespace?
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-
-) : XSI_Annotated
+    constructor(
+        xpath: VToken,
+        xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.xpath = xpath
+        this.xpathDefaultNamespace = xpathDefaultNamespace
+    }
+}

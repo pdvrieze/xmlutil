@@ -20,9 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
 
 @Serializable
-sealed class XSSimpleDerivation : T_SimpleType.Derivation, XSI_Annotated
+sealed class XSSimpleDerivation : XSAnnotatedBase {
+    constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) :
+            super(id, annotation, otherAttrs)
+}

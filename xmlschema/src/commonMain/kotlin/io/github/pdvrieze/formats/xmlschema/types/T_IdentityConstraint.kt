@@ -20,12 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import nl.adaptivity.xmlutil.QName
 
-interface T_IdentityConstraint: XSI_Annotated, XSI_OpenAttrs {
+interface T_IdentityConstraint: XSI_Annotated {
     val selector: XSSelector
 
     /**
@@ -33,6 +31,5 @@ interface T_IdentityConstraint: XSI_Annotated, XSI_OpenAttrs {
      */
     val fields: List<XSField>
 
-    interface Named: T_IdentityConstraint, I_Named
 }
 

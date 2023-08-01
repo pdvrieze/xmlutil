@@ -67,7 +67,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val attributeFormDefault: T_FormChoice
         get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED
 
-    override val blockDefault: T_BlockSet get() = rawPart.blockDefault
+    override val blockDefault: T_BlockSet get() = rawPart.blockDefault ?: emptySet()
 
     val defaultAttributes: QName? get() = rawPart.defaultAttributes
 
