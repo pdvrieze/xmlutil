@@ -26,15 +26,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.types.T_GlobalType
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalComplexType_Base, ComplexTypeModel.Global {
+) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalType, ComplexTypeModel.Global {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -54,10 +55,10 @@ class ResolvedGlobalComplexType(
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
-    override val mixed: Boolean?
+    val mixed: Boolean?
         get() = rawPart.mixed
 
-    override val defaultAttributesApply: Boolean?
+    val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 
     override val content: ResolvedComplexTypeContent
@@ -75,11 +76,9 @@ class ResolvedGlobalComplexType(
                 }
             }
 
-    override val abstract: Boolean get() = model.mdlAbstract
-
-    override val final: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
-
-    override val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
+    val abstract: Boolean get() = model.mdlAbstract
+    val final: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
+    val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
 
     override val model: Model by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {

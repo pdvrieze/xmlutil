@@ -64,7 +64,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
             else -> error("unsupported derivation")
         }
 
-    override val final: Set<TypeModel.Derivation>
+    val final: Set<TypeModel.Derivation>
         get() = rawPart.final
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
