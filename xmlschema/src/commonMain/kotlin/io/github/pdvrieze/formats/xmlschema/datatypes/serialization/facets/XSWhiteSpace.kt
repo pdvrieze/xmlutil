@@ -22,10 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -33,13 +31,12 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable
 @XmlSerialName("whiteSpace", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSWhiteSpace(
     @XmlElement(false)
-    override val value: Values,
+    override val value: WhitespaceValue,
     override val fixed: Boolean? = null,
     @XmlId
     override val id: VID? = null,
@@ -47,43 +44,5 @@ class XSWhiteSpace(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet(), T_Facet {
+) : XSFacet()
 
-
-    @Serializable
-    enum class Values {
-        @SerialName("preserve")
-        PRESERVE {
-            override fun normalize(representation: VString): VString = representation
-        },
-
-        @SerialName("replace")
-        REPLACE {
-            override fun normalize(representation: VString): VString = buildVString(representation.length) {
-                for(c in representation) {
-                    when (c) {
-                        '\t', '\n', '\r' -> append(' ')
-                        else -> append(c)
-                    }
-                }
-            }
-        },
-
-        @SerialName("collapse")
-        COLLAPSE {
-            override fun normalize(representation: VString): VString =
-                VString(xmlCollapseWhitespace(representation.xmlString))
-        };
-
-        abstract fun normalize(representation: VString): VString
-    }
-
-}
-
-internal inline fun buildVString(builderAction: StringBuilder.() -> Unit): VString {
-    return VString(buildString(builderAction))
-}
-
-internal inline fun buildVString(capacity: Int, builderAction: StringBuilder.() -> Unit): VString {
-    return VString(buildString(capacity, builderAction))
-}

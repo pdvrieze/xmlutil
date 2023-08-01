@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexDerivation
 import nl.adaptivity.xmlutil.QName
 
@@ -43,7 +42,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
         }
     }
 
-    final override val asserts: List<T_Assertion> get() = rawPart.asserts
+    final override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
     abstract override val attributes: List<ResolvedLocalAttribute>
     abstract override val attributeGroups: List<ResolvedAttributeGroupRef>
     final override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute

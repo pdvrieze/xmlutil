@@ -20,9 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.types.T_Facet
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class XSFacet : T_Facet
+sealed class XSFacet : XSI_Annotated {
+
+    abstract val value: Any
+    abstract val fixed: Boolean?
+
+    sealed class NotFixed : XSFacet() {
+        final override val fixed: Nothing? get() = null
+    }
+
+    sealed class Numeric : XSFacet() {
+        abstract override val value: ULong
+    }
+}
 
