@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -38,7 +39,7 @@ abstract class BuiltinSimpleTypeImpl(schemaLike: ResolvedSchemaLike) : ResolvedB
     override val mdlFacets: FacetList by lazy {
         when (val d = simpleDerivation) {
             is ResolvedListDerivationBase -> FacetList(
-                whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true), schema)
+                whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), schema)
             )
             is ResolvedUnionDerivation -> TODO()
 
