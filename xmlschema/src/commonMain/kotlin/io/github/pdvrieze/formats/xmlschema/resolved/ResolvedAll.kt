@@ -79,7 +79,13 @@ class ResolvedAll private constructor(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: T_AllNNI
     ): ResolvedParticle<IResolvedAll> {
-        TODO("not implemented")
+        return ResolvedAll(
+            rawPart,
+            schema,
+            mdlParticles,
+            minOccurs?.times(minMultiplier) ?: minMultiplier,
+            (maxOccurs?.times(maxMultiplier) ?: maxMultiplier) as? T_AllNNI.Value
+        )
     }
 }
 
