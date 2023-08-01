@@ -69,4 +69,7 @@ interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, IResolvedGroupMe
 
     }
 
+    override fun restricts(general: ResolvedGroupLikeTerm): Boolean {
+        TODO("not implemented")
+    }
 }

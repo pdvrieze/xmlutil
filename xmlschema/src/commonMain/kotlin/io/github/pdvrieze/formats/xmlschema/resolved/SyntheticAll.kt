@@ -52,6 +52,6 @@ class SyntheticAll(
     }
 
     override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: T_AllNNI): SyntheticAll {
-        return super.normalize(minMultiplier, maxMultiplier)
+        return SyntheticAll(mdlMinOccurs*minMultiplier, mdlMaxOccurs*maxMultiplier, mdlParticles, schema)
     }
 }

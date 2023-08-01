@@ -84,4 +84,12 @@ class ResolvedChoice private constructor(
             maxOccurs?.times(maxMultiplier) ?: maxMultiplier
         )
     }
+
+    override fun toString(): String {
+        return buildString {
+            append("ResolvedChoice(")
+            mdlParticles.joinTo(this)
+            append(")")
+        }
+    }
 }

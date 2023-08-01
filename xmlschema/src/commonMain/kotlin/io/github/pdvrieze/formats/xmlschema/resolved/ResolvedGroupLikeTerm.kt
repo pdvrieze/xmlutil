@@ -35,4 +35,9 @@ interface ResolvedGroupLikeTerm : GroupLikeTermBase, ResolvedTerm {
             particle.check(checkedTypes)
         }
     }
+
+    /**
+     * Check that this group is a valid restriction of the [general] group
+     */
+    fun restricts(general: ResolvedGroupLikeTerm): Boolean
 }

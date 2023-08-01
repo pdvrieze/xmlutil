@@ -209,7 +209,8 @@ sealed class ResolvedComplexType(
     }
 
 
-    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>, T_ComplexType.DirectParticle {
+    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>,
+        T_Particle {
         fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
         override fun check(checkedTypes: MutableSet<QName>) {
 
@@ -331,7 +332,7 @@ sealed class ResolvedComplexType(
             val effectiveMixed = (content as? XSComplexContent)?.mixed?.also { require(rawPart.mixed==null || rawPart.mixed==it) } ?: rawPart.mixed ?: false
             val term = derivation.term
 
-            val explicitContent: ResolvedGroupParticle<*>? = when {
+            val explicitContent: ResolvedGroupParticle<ResolvedGroupLikeTerm>? = when {
                 (term == null) ||
                         (term.maxOccurs == T_AllNNI(0)) ||
                         ((term is XSAll && ! term.hasChildren()) || (term is XSSequence && !term.hasChildren())) ||
@@ -341,7 +342,7 @@ sealed class ResolvedComplexType(
                 else -> ResolvedGroupParticle.invoke(parent, term, schema)
             }
 
-            val effectiveContent: ResolvedParticle<*>? = explicitContent ?: when {
+            val effectiveContent: ResolvedParticle<ResolvedGroupLikeTerm>? = explicitContent ?: when {
                 !effectiveMixed -> null
                 else -> ResolvedSequence(
                     parent,
@@ -368,8 +369,8 @@ sealed class ResolvedComplexType(
                     val baseParticle = (baseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
-                    val part: ResolvedParticle<*> = when {
-                        baseTerm is ResolvedAll && explicitContent == null -> baseParticle
+                    val part: ResolvedDirectParticle<IResolvedGroupMember> = when {
+                        baseParticle is ResolvedAll && explicitContent == null -> baseParticle
                         (baseTerm is ResolvedAll && effectiveContentTerm is ResolvedAll) -> {
                             val p = baseTerm.mdlParticles + effectiveContentTerm.mdlParticles
                             SyntheticAll(
@@ -414,7 +415,7 @@ sealed class ResolvedComplexType(
             if (wildcardElement == null || wildcardElement.mode == T_ContentMode.NONE) {
                 mdlContentType = explicitContentType
             } else {
-                val particle = (explicitContentType as? ResolvedElementBase)?.mdlParticle
+                val particle: ResolvedParticle<ResolvedGroupLikeTerm> = (explicitContentType as? ResolvedElementBase)?.mdlParticle
                     ?: SyntheticSequence(
                         mdlMinOccurs = VNonNegativeInteger.ONE,
                         mdlMaxOccurs = T_AllNNI.ONE,
@@ -548,14 +549,19 @@ sealed class ResolvedComplexType(
     }
 
     interface ResolvedElementBase : ResolvedContentType, ComplexTypeModel.ContentType.ElementBase {
-        override val mdlParticle: ResolvedParticle<ResolvedTerm>
+        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>
         val mdlOpenContent: ResolvedOpenContent?
 
         /** Implementation of 3.4.6.4 */
         fun restricts(base: ResolvedElementBase): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
-            TODO()
+            val normalized = mdlParticle.normalizeTerm()
+            val normalizedBase = base.mdlParticle.normalizeTerm()
+            if(normalizedBase.mdlMinOccurs > normalized.mdlMinOccurs) return false
+            if(normalizedBase.mdlMaxOccurs < normalized.mdlMaxOccurs) return false
+            if(! normalized.mdlTerm.restricts(normalizedBase.mdlTerm)) return false
+            return true
         }
 
         override fun check() {
@@ -585,14 +591,14 @@ sealed class ResolvedComplexType(
     }
 
     class MixedContentType(
-        override val mdlParticle: ResolvedParticle<*>,
+        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>,
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : ComplexTypeModel.ContentType.Mixed, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
     }
 
     class ElementOnlyContentType(
-        override val mdlParticle: ResolvedParticle<*>,
+        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>,
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : ComplexTypeModel.ContentType.ElementOnly, ResolvedElementBase {
         override val openContent: OpenContentModel? get() = null
@@ -613,7 +619,7 @@ sealed class ResolvedComplexType(
     companion object {
         internal fun contentType(
             effectiveMixed: Boolean,
-            particle: ResolvedParticle<*>?
+            particle: ResolvedParticle<ResolvedGroupLikeTerm>?
         ): ResolvedContentType {
             return when {
                 particle == null -> EmptyContentType

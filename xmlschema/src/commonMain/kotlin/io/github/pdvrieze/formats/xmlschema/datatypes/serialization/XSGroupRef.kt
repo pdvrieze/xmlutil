@@ -19,14 +19,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
-import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
 import io.github.pdvrieze.formats.xmlschema.model.Term
-import io.github.pdvrieze.formats.xmlschema.resolved.models
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
-import io.github.pdvrieze.formats.xmlschema.types.T_GroupRefParticle
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -44,14 +38,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSGroupRef(
     @XmlId
     override val id: VID?,
-    override val ref: @Serializable(QNameSerializer::class) QName,
+    val ref: @Serializable(QNameSerializer::class) QName,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : XSComplexContent.XSIDerivationParticle, XSI_Particle, T_GroupRef, XSI_Annotated, Term {
+) : XSComplexContent.XSIDerivationParticle, XSI_Particle, XSI_Annotated, Term {
 
 }
 
@@ -62,12 +56,12 @@ class XSGroupRefParticle(
     override val id: VID?,
     override val minOccurs: VNonNegativeInteger? = null,
     override val maxOccurs: T_AllNNI? = null,
-    override val ref: @Serializable(QNameSerializer::class) QName,
+    val ref: @Serializable(QNameSerializer::class) QName,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
-) : T_GroupRefParticle, XSI_AllParticle {
+) : XSI_AllParticle {
 //    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
 //    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
 //    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)

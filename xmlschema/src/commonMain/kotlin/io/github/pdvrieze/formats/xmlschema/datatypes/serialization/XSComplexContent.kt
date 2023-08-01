@@ -20,8 +20,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -52,10 +52,13 @@ class XSComplexContent(
     }
 
     @Serializable
-    sealed interface XSIDerivationParticle: T_ComplexType.DerivationParticle
+    sealed interface XSIDerivationParticle: T_Particle {
+        override val minOccurs: VNonNegativeInteger?
+        override val maxOccurs: T_AllNNI?
+    }
 
     @Serializable
-    sealed interface XSIDirectParticle: XSIDerivationParticle, T_ComplexType.DirectParticle
+    sealed interface XSIDirectParticle: XSIDerivationParticle, T_Particle
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable

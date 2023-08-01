@@ -251,6 +251,10 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
     override fun validate(representation: VString) {
 //        error("anyType cannot be directly implemented")
     }
+
+    override fun toString(): String = "xsd:anyType"
+
+
 }
 
 object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {

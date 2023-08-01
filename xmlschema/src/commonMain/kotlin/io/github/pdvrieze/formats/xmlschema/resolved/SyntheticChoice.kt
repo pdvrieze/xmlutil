@@ -56,6 +56,6 @@ class SyntheticChoice(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: T_AllNNI
     ): SyntheticChoice {
-        return super.normalize(minMultiplier, maxMultiplier)
+        return SyntheticChoice(minOccurs*minMultiplier, maxOccurs*maxMultiplier, mdlParticles, schema)
     }
 }

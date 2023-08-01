@@ -56,6 +56,6 @@ class SyntheticSequence(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: T_AllNNI
     ): SyntheticSequence {
-        return super.normalize(minMultiplier, maxMultiplier)
+        return SyntheticSequence(mdlMinOccurs * minMultiplier, mdlMaxOccurs * maxMultiplier, mdlParticles, schema)
     }
 }

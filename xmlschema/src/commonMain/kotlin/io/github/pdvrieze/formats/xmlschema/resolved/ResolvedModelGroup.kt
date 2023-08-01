@@ -34,4 +34,6 @@ interface ResolvedModelGroup : ModelGroupModel, ResolvedTerm {
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
         maxMultiplier: T_AllNNI = T_AllNNI.ONE
     ): ResolvedParticle</*IResolvedGroupMember*/ResolvedTerm>
+
+    fun restricts(general: ResolvedGroupLikeTerm): Boolean
 }

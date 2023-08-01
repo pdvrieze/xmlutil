@@ -42,16 +42,15 @@ class XSGroup(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_NamedGroup, I_NamedAttrs {
+) : XSI_Annotated, I_NamedAttrs {
 
-    override val particle: T_NamedGroup.Particle
-        get() = TODO("not implemented")
     override val targetNamespace: Nothing? get() = null
 
     @Serializable
-    sealed class XSGroupElement : T_NamedGroup.Particle, XSI_Annotated {
-        override val minOccurs: Nothing? get() = null
-        override val maxOccurs: Nothing? get() = null
+    sealed class XSGroupElement : XSI_Annotated {
+        abstract val particles: List<XSI_NestedParticle>
+        val minOccurs: Nothing? get() = null
+        val maxOccurs: Nothing? get() = null
     }
 
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -64,7 +63,7 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSGroupElement(), T_NamedGroup.All {
+    ) : XSGroupElement() {
     }
 
     @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -77,7 +76,7 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSGroupElement(), T_NamedGroup.Choice
+    ) : XSGroupElement()
 
     @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
@@ -89,6 +88,6 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSGroupElement(), T_NamedGroup.Sequence
+    ) : XSGroupElement()
 
 }

@@ -28,14 +28,14 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_NamedGroup
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, NamedPart, T_NamedGroup, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember,
+) : ResolvedGroupBase, NamedPart, XSI_Annotated, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember,
     ResolvedLocalElement.Parent, ResolvedParticleParent {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
@@ -64,10 +64,6 @@ class ResolvedGlobalGroup(
         mdlModelGroup.check()
     }
 
-    @Deprecated("incorrect")
-    override val particle: T_NamedGroup.Particle
-        get() = TODO()
-
     override val name: VNCName
         get() = rawPart.name
 
@@ -82,6 +78,10 @@ class ResolvedGlobalGroup(
 
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
         get() = mdlModelGroup.mdlParticles
+
+    override fun restricts(general: ResolvedGroupLikeTerm): Boolean {
+        return mdlModelGroup.restricts(general)
+    }
 
     private sealed class ModelGroupBase(val schema: ResolvedSchemaLike) : ResolvedModelGroup {
         abstract val rawPart: XSGroup.XSGroupElement
