@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -43,32 +43,7 @@ class XSAssertionFacet(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet(), T_Assertion {
-    override val value: Any
-        get() = this
-    override val fixed: Nothing? get() = null
-
-
+) : XSFacet.NotFixed(), XSIAssertCommon {
+    override val value: Any get() = this
 }
 
-/*
-
-    : T_NoFixedFacet, T_Assertion {
-    constructor(
-        test: XPathExpression,
-        id: ID? = null,
-        xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
-        annotation: XSAnnotation? = null,
-        otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id,annotations, otherAttrs) {
-        this.test = test
-        this.xPathDefaultNamespace = xPathDefaultNamespace
-    }
-
-    override val xPathDefaultNamespace: T_XPathDefaultNamespace?
-
-    override val value: XPathExpression
-        get() = test
-
-    override val test: XPathExpression
-}*/

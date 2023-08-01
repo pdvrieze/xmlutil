@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_NoFixedFacet : T_Facet {
-    override val fixed: Nothing? get() = null
+interface T_NoFixedFacet : T_Facet, XSI_Annotated {
+    val fixed: Nothing? get() = null
+    val value: Any
 }

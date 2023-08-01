@@ -16,9 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_Facet: XSI_Annotated {
-    val value: Any
+interface T_Facet {
 
-    val fixed: Boolean?
 }
 

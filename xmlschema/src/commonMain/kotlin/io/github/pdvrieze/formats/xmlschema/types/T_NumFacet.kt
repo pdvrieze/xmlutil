@@ -16,6 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_NumFacet : T_Facet {
-    override val value: ULong
+interface T_NumFacet : T_Facet, XSI_Annotated {
+    val value: ULong
+    val fixed: Boolean?
 }

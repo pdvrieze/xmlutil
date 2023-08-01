@@ -18,30 +18,13 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
-interface I_NestedParticles {
-    val particles: List<T_Particle>
-//    val choices: List<T_Choice>
-//    val sequences: List<T_Sequence>
-}
-
-interface I_NestedAllParticles {
-    val particles: List<T_NestedAllParticle>
-/*
-    val elements: List<T_LocalElement>
-    val groups: List<T_GroupRef>
-    val anys: List<T_AnyElement>
-*/
-}
-
-interface T_NestedAllParticle: T_Particle
-
-interface I_GroupParticles {
-    val particles: List<T_ExplicitGroupParticle>
-    val choices: List<T_Choice>
-    val sequences: List<T_Sequence>
-    val alls: List<T_All>
+interface XSIAssertCommon: XSI_Annotated {
+    val test: XPathExpression?
+    val xPathDefaultNamespace: T_XPathDefaultNamespace?
 }

@@ -20,12 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-
 interface VNormalizedString : VString {
     companion object {
         operator fun invoke(string: String): VNormalizedString {
-            return Impl(XSWhiteSpace.Values.REPLACE.normalize(VString(string)).xmlString)
+            return Impl(WhitespaceValue.REPLACE.normalize(VString(string)).xmlString)
         }
     }
 

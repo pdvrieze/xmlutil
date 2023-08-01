@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
@@ -45,7 +43,7 @@ interface VNCName : VName {
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VNCName>("token") {
         override fun deserialize(decoder: Decoder): VNCName {
-            val s = XSWhiteSpace.Values.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString
+            val s = WhitespaceValue.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString
             require(s.isNCName()) {
                 "'$s' is not an NCName"
             }

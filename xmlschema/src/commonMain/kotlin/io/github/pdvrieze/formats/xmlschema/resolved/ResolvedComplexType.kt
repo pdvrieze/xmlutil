@@ -95,6 +95,7 @@ sealed class ResolvedComplexType(
         return when(btd) {
             is ResolvedComplexType -> btd.isValidlyDerivedFrom(simpleBase)
             is ResolvedSimpleType -> btd.isValidlyDerivedFrom(simpleBase)
+            else -> error("Should be unreachable")
         }
     }
 
@@ -110,6 +111,7 @@ sealed class ResolvedComplexType(
         return when(btd) {
             is ResolvedComplexType -> btd.isValidlyDerivedFrom(complexBase)
             is ResolvedSimpleType -> btd.isValidlyDerivedFrom(complexBase)
+            else -> error("Should be unreachable")
         }
     }
 
