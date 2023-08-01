@@ -26,7 +26,6 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 abstract class XSAnnotatedBase : XSOpenAttrsBase, XSI_Annotated {

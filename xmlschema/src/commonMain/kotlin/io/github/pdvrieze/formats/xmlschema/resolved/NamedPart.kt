@@ -20,15 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.I_Named
-import io.github.pdvrieze.formats.xmlschema.types.I_NamedAttrs
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
 interface NamedPart : OptNamedPart, I_Named {
-    override val rawPart: I_NamedAttrs
+    override val rawPart: XSI_OpenAttrs
 
-    override val name: VNCName get() = rawPart.name
+    override val name: VNCName get() = (rawPart as I_Named).name
+
+    override val targetNamespace: VAnyURI?
 
     override val qName: QName get() = QName(targetNamespace?.value ?: "", name.xmlString)
 }
