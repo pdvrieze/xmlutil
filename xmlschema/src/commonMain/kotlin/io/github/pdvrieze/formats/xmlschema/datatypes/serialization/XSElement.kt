@@ -19,9 +19,11 @@
  */
 
 @file:UseSerializers(QNameSerializer::class)
+
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -46,13 +48,11 @@ data class XSElement(
     override val nillable: Boolean? = null,
     @XmlElement(false)
     override val type: QName? = null,
-    override val abstract: Boolean? = null,
+    val abstract: Boolean? = null,
 
+    @XmlElement(false) val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
-    override val substitutionGroup: List<QName>? = null,
-    @XmlElement(false)
-    @Serializable(ComplexDerivationSerializer::class)
-    override val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
+    @Serializable(ComplexDerivationSerializer::class) val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
@@ -62,7 +62,11 @@ data class XSElement(
     override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-): XSIElement, T_GlobalElement, I_Named, XSI_OpenAttrs {
+) : XSIElement, I_Named {
+
+    override val ref: Nothing? get() = null
+    override val form: Nothing? get() = null
+    override val targetNamespace: VAnyURI? get() = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

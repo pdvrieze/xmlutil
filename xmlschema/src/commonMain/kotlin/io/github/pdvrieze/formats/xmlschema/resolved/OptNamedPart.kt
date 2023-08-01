@@ -29,10 +29,9 @@ import nl.adaptivity.xmlutil.QName
 interface OptNamedPart : ResolvedPart {
     override val rawPart: XSI_OpenAttrs
 
-    val name: VNCName? get() = (rawPart as I_OptNamed).name
+    val name: VNCName?
 
     val targetNamespace: VAnyURI?
-        get() = (rawPart as? I_OptNamed)?.targetNamespace ?: schema.targetNamespace
 
     val qName: QName?
         get() = name?.let { QName(targetNamespace?.value ?: "", it.xmlString) }

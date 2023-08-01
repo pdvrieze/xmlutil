@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_Choice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedChoice private constructor(
@@ -36,7 +35,6 @@ class ResolvedChoice private constructor(
     override val maxOccurs: T_AllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice,
-    T_Choice,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
     ChoiceModel,
     ResolvedGroupParticle<IResolvedChoice> {

@@ -21,12 +21,17 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 
-sealed interface ResolvedGlobalType : ResolvedType, NamedPart, T_NamedType, TypeModel.Global {
-    override val rawPart: T_NamedType
+sealed interface ResolvedGlobalType : ResolvedType, NamedPart, TypeModel.Global {
 
-    override val name: VNCName get() = super<NamedPart>.name
+    override val rawPart: XSGlobalType
+
+    override val name: VNCName get() = rawPart.name
 }
 

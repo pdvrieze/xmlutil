@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 
 sealed interface ResolvedLocalType : ResolvedType, T_LocalType, TypeModel.Local {
-    override val rawPart: T_LocalType
+    override val rawPart: XSLocalType
 
     companion object {
         operator fun invoke(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedTypeContext): ResolvedLocalType {

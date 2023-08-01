@@ -36,6 +36,7 @@ class ResolvedComplexShorthandContent(
             is XSGroupRef -> ResolvedGroupRef(t, schema)
             is XSSequence -> ResolvedSequence(scope, t, schema)
             null -> null
+            else -> error("Compiler issue")
         }
         r
     }

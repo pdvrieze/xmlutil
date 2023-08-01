@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalComplexType_Complex
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -39,7 +38,7 @@ class XSLocalComplexTypeComplex(
     id,
     annotation,
     otherAttrs
-), T_LocalComplexType_Complex, XSComplexType.Complex {
+), XSComplexType.Complex {
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
