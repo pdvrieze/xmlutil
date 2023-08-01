@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalComplexType_Base
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
@@ -33,9 +32,9 @@ class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
     override val mdlContext: ResolvedComplexTypeContext,
-) : ResolvedComplexType(schema), ResolvedLocalType, T_LocalComplexType_Base, ComplexTypeModel.Local {
-    override val mixed: Boolean? get() = rawPart.mixed
-    override val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
+) : ResolvedComplexType(schema), ResolvedLocalType, ComplexTypeModel.Local {
+    val mixed: Boolean? get() = rawPart.mixed
+    val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs

@@ -34,13 +34,14 @@ class ResolvedGroupRef(
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
-) : ResolvedGroupBase, GroupRefModel, ResolvedGroupParticle<ResolvedGlobalGroup>,
+) : ResolvedGroupBase,
+    GroupRefModel,
+    ResolvedGroupParticle<ResolvedGlobalGroup>,
     ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
-    val referencedGroup: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
 
-    override val mdlTerm: ResolvedGlobalGroup get() = schema.modelGroup(rawPart.ref)
+    override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     val ref: QName get() = rawPart.ref
 
@@ -51,10 +52,12 @@ class ResolvedGroupRef(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticle>.check(checkedTypes)
-        referencedGroup.check(checkedTypes)
+        mdlTerm.check(checkedTypes)
     }
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlTerm.collectConstraints(collector)
+    }
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
@@ -69,7 +72,7 @@ class ResolvedGroupRef(
     }
 
     fun <T : ResolvedTerm> flattenToModelGroup(targetTerm: KClass<T>): ResolvedParticle<T> {
-        val normalizedParticle = referencedGroup.mdlModelGroup.normalize(mdlMinOccurs, mdlMaxOccurs)
+        val normalizedParticle = mdlTerm.mdlModelGroup.normalize(mdlMinOccurs, mdlMaxOccurs)
         check (targetTerm.isInstance(normalizedParticle.mdlTerm)) {
             "The model group is ${ref} is not valid when expecting $targetTerm"
         }

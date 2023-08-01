@@ -42,4 +42,4 @@ class XSSimpleContent(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): XSI_ComplexContent, XSComplexType.Content, T_ComplexType.SimpleContent
+) : XSI_ComplexContent

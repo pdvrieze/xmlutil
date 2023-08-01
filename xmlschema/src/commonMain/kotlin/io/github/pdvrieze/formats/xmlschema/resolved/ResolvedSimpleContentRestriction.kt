@@ -34,14 +34,14 @@ class ResolvedSimpleContentRestriction(
     context: ResolvedComplexType,
     override val rawPart: XSSimpleContentRestriction,
     schema: ResolvedSchemaLike,
-) : ResolvedSimpleContentDerivation(schema), T_SimpleType.T_Restriction {
-    override val otherContents: List<CompactFragment> get() = rawPart.otherContents
+) : ResolvedSimpleContentDerivation(schema) {
+    val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
-    override val base: QName? get() = rawPart.base
+    val base: QName? get() = rawPart.base
 
-    override val facets: List<XSFacet> get() = rawPart.facets
+    val facets: List<XSFacet> get() = rawPart.facets
 
-    override val simpleType: ResolvedLocalSimpleType? by lazy {
+    val simpleType: ResolvedLocalSimpleType? by lazy {
         rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) }
     }
 

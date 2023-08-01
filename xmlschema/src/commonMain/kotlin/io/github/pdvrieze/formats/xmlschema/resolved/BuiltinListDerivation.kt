@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.ConstructedListDatatype
 
 class BuiltinListDerivation(
-    override val rawPart: ConstructedListDatatype,
     schema: ResolvedSchemaLike
 ) : ResolvedListDerivationBase(schema) {
+    override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
     override val simpleType: Nothing? get() = null
 }

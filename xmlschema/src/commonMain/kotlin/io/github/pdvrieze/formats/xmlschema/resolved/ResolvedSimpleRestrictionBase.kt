@@ -21,23 +21,23 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : ResolvedSimpleType.Derivation(schema),
-    T_SimpleType.T_Restriction {
+abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : ResolvedSimpleType.Derivation(schema) {
 
-    abstract override val rawPart: T_SimpleType.T_Restriction
+    abstract override val rawPart: XSSimpleRestriction
 
-    override val otherContents: List<CompactFragment> get() = rawPart.otherContents
+    open val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
-    override val base: QName? get() = rawPart.base
+    open val base: QName? get() = rawPart.base
 
-    override val facets: List<XSFacet> get() = rawPart.facets
+    open val facets: List<XSFacet> get() = rawPart.facets
 
-    abstract override val simpleType: ResolvedLocalSimpleType?
+    abstract val simpleType: ResolvedLocalSimpleType?
 
     override val baseType: ResolvedSimpleType by lazy {
         base?.let{ schema.simpleType(it) } ?: checkNotNull(simpleType)

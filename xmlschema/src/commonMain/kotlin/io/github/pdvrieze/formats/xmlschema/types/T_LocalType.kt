@@ -20,5 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_LocalType: T_Type
+interface T_LocalType: T_Type, XSI_Annotated,
+    XSI_OpenAttrs
 

@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -47,7 +47,8 @@ sealed class XSLocalComplexType(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSLocalType(), XSComplexType, T_LocalComplexType_Base {
+) : XSLocalType(), XSComplexType, T_LocalType, T_Type, XSI_Annotated,
+    XSI_OpenAttrs {
     abstract override val content: XSI_ComplexContent
 
     protected abstract fun toSerialDelegate(): SerialDelegate

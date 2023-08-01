@@ -37,14 +37,13 @@ import nl.adaptivity.xmlutil.qname
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
 ) : ResolvedType,
-    T_ComplexType,
     ResolvedLocalAttribute.Parent,
     ResolvedLocalElement.Parent,
     ResolvedParticleParent,
     ComplexTypeModel {
     abstract override val rawPart: XSComplexType
 
-    abstract override val content: ResolvedComplexTypeContent
+    abstract val content: ResolvedComplexTypeContent
 
     protected abstract val model: Model
 
@@ -213,8 +212,7 @@ sealed class ResolvedComplexType(
     }
 
 
-    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>,
-        T_Particle {
+    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>  {
         fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
         override fun check(checkedTypes: MutableSet<QName>) {
 
@@ -267,7 +265,7 @@ sealed class ResolvedComplexType(
 
         init {
             val baseTypeDefinition: ResolvedType
-            val content: XSI_ComplexContent.Complex = rawPart.content
+            val content: XSI_ComplexContent = rawPart.content
             val derivation: XSI_ComplexDerivation
 
             when (content) {

@@ -20,12 +20,3 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
-import nl.adaptivity.xmlutil.QName
-
-interface ResolvedAttrs: ResolvedPart, XSI_OpenAttrs {
-    override val rawPart: XSI_OpenAttrs
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-}

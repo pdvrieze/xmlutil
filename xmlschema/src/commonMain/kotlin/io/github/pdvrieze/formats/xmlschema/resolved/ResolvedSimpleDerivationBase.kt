@@ -20,13 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleDerivation
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedSimpleDerivationBase(
     schema: ResolvedSchemaLike
 ): ResolvedSimpleType.Derivation(schema), ResolvedPart, T_SimpleType.Derivation {
-    abstract override val rawPart: T_SimpleType.Derivation
+    abstract override val rawPart: XSSimpleDerivation
 
     abstract override val baseType: ResolvedSimpleType
 

@@ -22,6 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface T_NamedType: T_Type, I_Named, XSI_OpenAttrs {
+interface T_NamedType: I_Named, XSI_OpenAttrs, XSI_Annotated {
     override val name: VNCName
 }

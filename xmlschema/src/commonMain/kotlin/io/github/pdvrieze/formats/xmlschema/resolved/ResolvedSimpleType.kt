@@ -43,10 +43,10 @@ import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
-sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeModel {
-    override val rawPart: T_Type
+sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
+    override val rawPart: XSIType
 
-    override val simpleDerivation: Derivation
+    val simpleDerivation: Derivation
 
     val model: Model
 
@@ -159,11 +159,11 @@ sealed interface ResolvedSimpleType : ResolvedType, T_SimpleType, SimpleTypeMode
         return false //none of the 4 options is true
     }
 
-    sealed class Derivation(final override val schema: ResolvedSchemaLike) : T_SimpleType.Derivation, ResolvedPart {
+    sealed class Derivation(final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
         final override val annotation: XSAnnotation? get() = rawPart.annotation
         final override val id: VID? get() = rawPart.id
 
-        abstract override val rawPart: T_SimpleType.Derivation
+        abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType
         abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
     }

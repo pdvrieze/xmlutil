@@ -37,6 +37,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
             is XSGroupRef -> ResolvedGroupRef(t, schema)
             is XSSequence -> ResolvedSequence(scope, t, schema)
             null -> null
+            else -> error("Compiler issue")
         }
     }
 

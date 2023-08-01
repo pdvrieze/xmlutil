@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedSequence private constructor(
@@ -35,7 +34,6 @@ class ResolvedSequence private constructor(
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: T_AllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
-    T_Sequence,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedSequence>,
     ResolvedGroupParticle<IResolvedSequence>,
     ResolvedGroupLikeTerm,

@@ -20,63 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
-import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
-
-interface T_ComplexType : T_Type {
-    /**
-     * May not have simpleContent child
-     */
-    val mixed: Boolean?
-
-    /** Default: false */
-    val defaultAttributesApply: Boolean? // default true
-
-    /** Either this or shorthand content */
-    val content: Content
-
-    interface Content
-
-    sealed interface ContentSealed : Content
-
-    interface SimpleContent : ContentSealed {
-        val derivation: SimpleDerivation
-    }
-
-    interface SimpleDerivation : XSI_Annotated {
-
-    }
-
-    sealed interface SimpleDerivationBase : SimpleDerivation
-
-    interface ComplexContent : ContentSealed {
-        val derivation: T_ComplexDerivation
-    }
-
-    interface ShorthandContent : ContentSealed, ParticleProperties, I_Assertions {
-        val attributes: List<XSLocalAttribute>
-
-        /** Name elements AttributeGroup */
-        val attributeGroups: List<T_AttributeGroupRef>
-        val anyAttribute: XSAnyAttribute?
-    }
-
-    interface Simple : T_ComplexType {
-        override val content: SimpleContent
-    }
-
-    interface Complex : T_ComplexType {
-        override val content: ComplexContent
-    }
-
-    interface Shorthand : T_ComplexType, ShorthandContent {
-        override val content: ShorthandContent get() = this
-    }
-
-    interface ParticleProperties {
-//        val term: T_Particle?
-    }
+@Deprecated("Don't use")
+interface T_ComplexType {
 
 }
 
