@@ -102,5 +102,17 @@ class ResolvedSequence private constructor(
             maxOccurs?.times(maxMultiplier)?: maxMultiplier
         )
     }
+
+    override fun toString(): String {
+        return buildString {
+            append("ResolvedSequence(")
+            if (minOccurs!=null) append("minOccurs=$minOccurs, ")
+            if (maxOccurs!=null) append("maxOccurs=$maxOccurs, ")
+            append(mdlParticles)
+            append(")")
+        }
+    }
+
+
 }
 
