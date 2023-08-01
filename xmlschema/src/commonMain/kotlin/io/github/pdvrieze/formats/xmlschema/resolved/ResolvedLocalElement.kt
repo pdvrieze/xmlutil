@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
@@ -29,10 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalEleme
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalElement
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
@@ -76,8 +74,8 @@ class ResolvedLocalElement(
     override val mdlScope: ElementModel.Scope.Local get() = model.mdlScope
     override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs ?: VNonNegativeInteger.ONE
-    override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs ?: T_AllNNI.ONE
+    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
+    override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
@@ -123,8 +121,8 @@ class ResolvedLocalElement(
         return buildString {
             append("ResolvedLocalElement(")
             append("mdlName=$mdlName, ")
-            if (minOccurs!=null) append("minOccurs=$minOccurs, ")
-            if (maxOccurs!=null) append("maxOccurs=$maxOccurs, ")
+            if (minOccurs != null) append("minOccurs=$minOccurs, ")
+            if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
             append("type=${referenced.mdlTypeDefinition}")
             append(")")
         }
@@ -153,11 +151,22 @@ class ResolvedLocalElement(
 
         override val mdlMaxOccurs: T_AllNNI = rawPart.maxOccurs ?: T_AllNNI.ONE
 
-        override val mdlTypeTable: ElementModel.TypeTable?
+        override val mdlTypeTable: ElementModel.TypeTable
             get() = TODO("not implemented")
 
-        override val mdlValueConstraint: ValueConstraintModel?
+        override val mdlValueConstraint: ValueConstraintModel
             get() = TODO("not implemented")
+
+        override val mdlDisallowedSubstitutions: T_BlockSet =
+            (rawPart.block ?: schema.blockDefault)
+
+        override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+            schema.finalDefault.filterIsInstanceTo(HashSet())
+
+        override val mdlTypeDefinition: ResolvedType =
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+                ?: rawPart.type?.let { schema.type(it) }
+                ?: AnyType
     }
 
     interface Parent : ElementModel.ElementParentModel

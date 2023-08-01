@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_TopLevelComplexType_Simple
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -49,7 +49,7 @@ class XSGlobalComplexTypeSimple(
     id,
     annotation,
     otherAttrs
-), T_TopLevelComplexType_Simple, XSComplexType.Simple {
+), XSComplexType.Simple {
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             name = name,

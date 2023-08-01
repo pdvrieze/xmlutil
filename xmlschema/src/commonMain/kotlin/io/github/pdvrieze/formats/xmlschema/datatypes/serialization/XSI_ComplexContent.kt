@@ -21,10 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexDerivation
+import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
-sealed interface XSI_ComplexContent : XSComplexType.Content, XSI_Annotated {
-    sealed interface Complex : XSI_ComplexContent
+sealed interface XSI_ComplexContent : XSI_Annotated {
+    val derivation: XSComplexType.Derivation
 
 }
 

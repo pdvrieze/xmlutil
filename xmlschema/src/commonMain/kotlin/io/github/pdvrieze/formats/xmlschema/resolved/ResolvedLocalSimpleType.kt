@@ -32,7 +32,7 @@ class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike,
     override val mdlContext: SimpleTypeContext,
-) : ResolvedLocalType, ResolvedSimpleType, T_LocalSimpleType, SimpleTypeModel.Local {
+) : ResolvedLocalType, ResolvedSimpleType, SimpleTypeModel.Local {
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation

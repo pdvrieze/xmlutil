@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -60,7 +61,8 @@ class XSLocalElement(
     override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSIElement, T_LocalElement, XSI_AllParticle {
+) : XSIElement, XSI_AllParticle {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

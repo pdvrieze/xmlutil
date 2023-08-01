@@ -45,7 +45,7 @@ class XSComplexContent(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val derivation: XSComplexDerivationBase
-) : XSI_ComplexContent.Complex, T_ComplexType.ComplexContent {
+) : XSI_ComplexContent {
     @Serializable
     sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
         abstract override val term: XSIDerivationParticle?
@@ -56,9 +56,12 @@ class XSComplexContent(
     }
 
     @Serializable
-    sealed interface XSIDerivationParticle : T_Particle {
-        override val minOccurs: VNonNegativeInteger?
-        override val maxOccurs: T_AllNNI?
+    sealed interface XSIDerivationParticle {
+        /** Optional, default 1 */
+        val minOccurs: VNonNegativeInteger?
+
+        /** Optional, default 1 */
+        val maxOccurs: T_AllNNI?
     }
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)

@@ -31,10 +31,9 @@ class ResolvedSimpleContent(
     private val scope: ResolvedComplexType,
     override val rawPart: XSSimpleContent,
     schema: ResolvedSchemaLike
-) : ResolvedComplexTypeContent(schema),
-    T_ComplexType.SimpleContent {
+) : ResolvedComplexTypeContent(schema)  {
 
-    override val derivation: ResolvedSimpleContentDerivation by lazy {
+    val derivation: ResolvedSimpleContentDerivation by lazy {
         when (val d = rawPart.derivation) {
             is XSSimpleContentExtension -> ResolvedSimpleContentExtension(scope, d, schema)
             is XSSimpleContentRestriction -> ResolvedSimpleContentRestriction(scope, d, schema)

@@ -22,14 +22,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.T_NamedType
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_GlobalSimpleType, ResolvedSimpleType.Model {
-    override val rawPart: T_NamedType get() = this
+interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, ResolvedSimpleType.Model {
+    override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw parts")
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val annotation: Nothing? get() = null
@@ -39,7 +41,6 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType, T_Global
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.ATOMIC
     override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
     override val mdlTargetNamespace: VAnyURI? get() = BuiltinSchemaXmlschema.targetNamespace
-    override val final: Set<Nothing> get() = emptySet()
     override val mdlBaseTypeDefinition: ResolvedSimpleType
     override val mdlItemTypeDefinition: ResolvedSimpleType?
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
