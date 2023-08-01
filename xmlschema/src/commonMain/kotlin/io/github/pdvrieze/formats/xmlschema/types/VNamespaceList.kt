@@ -29,11 +29,11 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-@Serializable(T_NamespaceList.Serializer::class)
-sealed class T_NamespaceList {
-    object ANY : T_NamespaceList()
-    object OTHER : T_NamespaceList()
-    class Values(val values: List<Elem>) : T_NamespaceList(), List<Elem> by values {
+@Serializable(VNamespaceList.Serializer::class)
+sealed class VNamespaceList {
+    object ANY : VNamespaceList()
+    object OTHER : VNamespaceList()
+    class Values(val values: List<Elem>) : VNamespaceList(), List<Elem> by values {
 /*
         constructor(values: List<String>) : this(values.map { Elem.fromString(it) })
         constructor(values: List<AnyURI>) : this(values.map { Uri(it) })
@@ -54,11 +54,11 @@ sealed class T_NamespaceList {
     object LOCAL : Elem()
     class Uri(val value: VAnyURI) : Elem()
 
-    object Serializer : KSerializer<T_NamespaceList> {
+    object Serializer : KSerializer<VNamespaceList> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("namespaceList", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: T_NamespaceList) {
+        override fun serialize(encoder: Encoder, value: VNamespaceList) {
             val str = when (value) {
                 ANY -> "##any"
                 OTHER -> "##other"
@@ -73,7 +73,7 @@ sealed class T_NamespaceList {
             encoder.encodeString(str)
         }
 
-        override fun deserialize(decoder: Decoder): T_NamespaceList {
+        override fun deserialize(decoder: Decoder): VNamespaceList {
             return when (val str = decoder.decodeString().trim()) {
                 "##any" -> ANY
                 "##other" -> OTHER

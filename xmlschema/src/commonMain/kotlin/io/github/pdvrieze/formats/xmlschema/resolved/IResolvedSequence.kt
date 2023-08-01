@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
@@ -43,10 +43,10 @@ interface IResolvedSequence: SequenceModel<ResolvedChoiceSeqMember>,
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): SyntheticSequence {
         var newMin: VNonNegativeInteger = minMultiplier
-        var newMax: T_AllNNI = maxMultiplier
+        var newMax: VAllNNI = maxMultiplier
         if (this is ResolvedParticle<*>) {
             newMin *= mdlMinOccurs
             newMax *= mdlMaxOccurs

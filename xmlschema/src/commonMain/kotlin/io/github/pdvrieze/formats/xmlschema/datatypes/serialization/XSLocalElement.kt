@@ -36,14 +36,14 @@ class XSLocalElement(
     @XmlBefore("type")
     override val name: VNCName? = null, // can be determined from ref
     @Serializable(AllDerivationSerializer::class)
-    override val block: T_BlockSet? = null,
+    override val block: VBlockSet? = null,
     override val default: VString? = null,
     override val fixed: VString? = null,
     @XmlElement(false)
-    override val form: T_FormChoice? = null,
+    override val form: VFormChoice? = null,
     @XmlId
     override val id: VID? = null,
-    override val maxOccurs: T_AllNNI? = null,
+    override val maxOccurs: VAllNNI? = null,
     override val minOccurs: VNonNegativeInteger? = null,
     override val nillable: Boolean? = null,
     @XmlElement(false)
@@ -54,7 +54,6 @@ class XSLocalElement(
 
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
-    override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
     override val keys: List<XSKey> = emptyList(),
     override val keyrefs: List<XSKeyRef> = emptyList(),

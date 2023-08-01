@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.model.Term
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -43,7 +43,7 @@ class XSGroupRef(
     override val id: VID?,
     val ref: SerializableQName,
     override val minOccurs: VNonNegativeInteger? = null,
-    override val maxOccurs: T_AllNNI? = null,
+    override val maxOccurs: VAllNNI? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes

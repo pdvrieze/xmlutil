@@ -20,10 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 /**
@@ -32,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
  */
 interface XSI_OpenAttrs {
     @XmlOtherAttributes
-    val otherAttrs: Map<QName, String>
+    val otherAttrs: Map<SerializableQName, String>
 
     fun check(checkedTypes: MutableSet<QName>) {
         val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI==XMLConstants.XSD_NS_URI }

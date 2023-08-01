@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, ParticleModel<T> {
@@ -34,11 +34,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
     val minOccurs: VNonNegativeInteger?
 
     /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
+    val maxOccurs: VAllNNI?
 
     fun normalizeTerm(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
-        maxMultiplier: T_AllNNI = T_AllNNI.ONE
+        maxMultiplier: VAllNNI = VAllNNI.ONE
     ): ResolvedParticle<T>
 
     companion object {

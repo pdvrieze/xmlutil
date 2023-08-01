@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
@@ -41,7 +41,7 @@ class XSLocalAttribute : XSAttribute {
     override val name: VNCName?
 
     @XmlElement(false)
-    val form: T_FormChoice?
+    val form: VFormChoice?
     var ref: SerializableQName? = null
         private set
 
@@ -53,7 +53,7 @@ class XSLocalAttribute : XSAttribute {
 
     constructor(
         name: VNCName? = null,
-        form: T_FormChoice? = null,
+        form: VFormChoice? = null,
         ref: QName? = null,
         use: XSAttrUse? = null,
         default: VString? = null,

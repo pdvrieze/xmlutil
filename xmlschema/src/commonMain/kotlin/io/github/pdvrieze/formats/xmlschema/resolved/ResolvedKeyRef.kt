@@ -22,10 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
+import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedKeyRef : T_KeyRef, IdentityConstraintModel.KeyRef, ResolvedIdentityConstraint {
+sealed interface ResolvedKeyRef : IdentityConstraintModel.KeyRef, ResolvedIdentityConstraint {
     override val rawPart: XSKeyRef
+    val refer: QName?
 
     companion object {
         operator fun invoke(

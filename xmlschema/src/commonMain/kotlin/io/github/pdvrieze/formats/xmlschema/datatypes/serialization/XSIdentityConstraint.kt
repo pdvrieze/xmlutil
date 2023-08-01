@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,12 +18,14 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
 
-interface T_IdentityConstraint: XSI_Annotated {
+@Serializable
+sealed class XSIdentityConstraint : XSAnnotatedBase {
     val selector: XSSelector
 
     /**
@@ -31,5 +33,15 @@ interface T_IdentityConstraint: XSI_Annotated {
      */
     val fields: List<XSField>
 
+    constructor(
+        selector: XSSelector,
+        fields: List<XSField>,
+        id: VID?,
+        annotation: XSAnnotation?,
+        otherAttrs: Map<SerializableQName, String>
+    ) : super(id, annotation, otherAttrs) {
+        this.selector = selector
+        this.fields = fields
+    }
 }
 

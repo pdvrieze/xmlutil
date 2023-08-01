@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleContentExtension: XSSimpleContentDerivation { // TODO should not implement SimpleExtensionType
+class XSSimpleContentExtension : XSSimpleContentDerivation {
 
     constructor(
         base: QName,
@@ -47,5 +47,9 @@ class XSSimpleContentExtension: XSSimpleContentDerivation { // TODO should not i
 
     override val base: @Serializable(QNameSerializer::class) QName
 
-    override val derivationMethod: T_DerivationControl.EXTENSION get() = T_DerivationControl.EXTENSION
+    /**
+     * Mark the derivation as extension
+     */
+    @Deprecated("Use 'is XSSimpleContentExtension' instead")
+    override val derivationMethod: VDerivationControl.EXTENSION get() = VDerivationControl.EXTENSION
 }

@@ -22,24 +22,21 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @XmlSerialName("simpleContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
-class XSSimpleContent(
-    override val derivation: XSSimpleContentDerivation,
-    @XmlId
-    override val id: VID? = null,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
+class XSSimpleContent : XSAnnotatedBase, XSI_ComplexContent {
+    override val derivation: XSSimpleContentDerivation
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_ComplexContent
+    constructor(
+        derivation: XSSimpleContentDerivation,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.derivation = derivation
+    }
+}

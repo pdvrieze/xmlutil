@@ -34,21 +34,26 @@ import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
-@Serializable(T_QNameListA.Serializer::class)
-class T_QNameListA(val values: List<T_QNameListA.Elem>): List<T_QNameListA.Elem> by values {
+@Serializable(VQNameList.Serializer::class)
+class VQNameList(val values: List<VQNameList.Elem>): List<VQNameList.Elem> by values {
+
+    constructor() : this(listOf())
+
     sealed class Elem
     object DEFINED: Elem()
+    object DEFINEDSIBLING: Elem()
     class Name(val qName: QName): Elem()
 
-    object Serializer: KSerializer<T_QNameListA> {
+    object Serializer: KSerializer<VQNameList> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("List<QName>", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: T_QNameListA) {
+        override fun serialize(encoder: Encoder, value: VQNameList) {
             val e = encoder as? XML.XmlOutput
             val str = value.joinToString(" ") {
                 when (it) {
                     DEFINED -> "##defined"
+                    DEFINEDSIBLING -> "##definedSibling"
                     is Name -> when (e) {
                         null -> "{${it.qName.namespaceURI}}${it.qName.prefix}:${it.qName.localPart}"
                         else -> e.ensureNamespace(it.qName)
@@ -59,7 +64,7 @@ class T_QNameListA(val values: List<T_QNameListA.Elem>): List<T_QNameListA.Elem>
             encoder.encodeString(str)
         }
 
-        override fun deserialize(decoder: Decoder): T_QNameListA {
+        override fun deserialize(decoder: Decoder): VQNameList {
             val str = decoder.decodeString()
             val d = decoder as? XML.XmlInput
             val items = str.splitToSequence(' ')
@@ -67,10 +72,11 @@ class T_QNameListA(val values: List<T_QNameListA.Elem>): List<T_QNameListA.Elem>
                 .mapTo(mutableListOf()) { elem ->
                     when (elem) {
                         "##defined" -> DEFINED
+                        "##definedSibling" -> DEFINEDSIBLING
                         else -> Name(parseQName(d, elem))
                     }
                 }
-            return T_QNameListA(items)
+            return VQNameList(items)
         }
 
     }
