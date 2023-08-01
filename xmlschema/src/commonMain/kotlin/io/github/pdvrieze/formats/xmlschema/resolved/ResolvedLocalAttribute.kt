@@ -37,7 +37,7 @@ class ResolvedLocalAttribute(
     override val parent: Parent,
     override val rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
-) : ResolvedAttribute(schema), ResolvedAttributeLocal, T_LocalAttribute {
+) : ResolvedAttribute(schema), ResolvedAttributeLocal {
     private val referenced: ResolvedAttribute? by lazy {
         rawPart.ref?.let {
             schema.attribute(
@@ -55,13 +55,13 @@ class ResolvedLocalAttribute(
     override val fixed: VString?
         get() = rawPart.fixed ?: referenced?.fixed
 
-    override val form: T_FormChoice?
-        get() = rawPart.form ?: referenced?.form
+    val form: T_FormChoice?
+        get() = rawPart.form
 
     override val name: VNCName
         get() = rawPart.name ?: referenced?.name ?: error("An attribute requires a name, either direct or referenced")
 
-    override val ref: QName?
+    val ref: QName?
         get() = rawPart.ref
 
     override val targetNamespace: VAnyURI?
@@ -70,20 +70,23 @@ class ResolvedLocalAttribute(
     override val type: QName?
         get() = rawPart.type ?: referenced?.type
 
-    override val use: XSAttrUse
-        get() = rawPart.use ?: referenced?.use ?: XSAttrUse.OPTIONAL
+    val use: XSAttrUse
+        get() = rawPart.use ?: XSAttrUse.OPTIONAL
 
-    override val inheritable: Boolean
-        get() = rawPart.inheritable ?: referenced?.inheritable ?: false
+    val inheritable: Boolean
+        get() = rawPart.inheritable  ?: false
+/*
 
     override val simpleType: XSLocalSimpleType?
         get() = rawPart.simpleType ?: referenced?.simpleType
+*/
 
     override val mdlName: VNCName
         get() = name
 
     override val mdlTypeDefinition: ResolvedSimpleType by lazy {
-        simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?:
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?:
+        referenced?.mdlTypeDefinition ?:
         schema.simpleType(requireNotNull(ref) { "Missing simple type for attribute $name" } )
     }
 

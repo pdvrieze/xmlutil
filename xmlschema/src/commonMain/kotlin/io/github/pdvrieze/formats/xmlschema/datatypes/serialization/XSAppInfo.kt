@@ -34,12 +34,21 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlSerialName("appinfo", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAppInfo(
-    @XmlElement(false)
-    val source: VAnyURI? = null,
+class XSAppInfo : XSOpenAttrsBase {
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)
-    val content: CompactFragment = CompactFragment(""),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSI_OpenAttrs
+    val content: CompactFragment
+
+    @XmlElement(false)
+    val source: VAnyURI?
+
+    constructor(
+        source: VAnyURI? = null,
+        content: CompactFragment = CompactFragment(""),
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(otherAttrs) {
+        this.content = content
+        this.source = source
+    }
+
+}

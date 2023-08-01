@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.types.I_NamedAttrs
 import io.github.pdvrieze.formats.xmlschema.types.T_GlobalAttribute
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -36,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSGlobalAttribute : XSAttribute, T_GlobalAttribute {
+class XSGlobalAttribute : XSAttribute, I_NamedAttrs {
 
     @XmlBefore("type")
     override val name: VNCName
@@ -44,16 +45,16 @@ class XSGlobalAttribute : XSAttribute, T_GlobalAttribute {
     override val targetNamespace: Nothing? get() = null
 
     constructor(
+        name: VNCName,
         default: VString? = null,
         fixed: VString? = null,
-        id: VID? = null,
-        name: VNCName,
         type: QName? = null,
         inheritable: Boolean? = null,
-        annotation: XSAnnotation? = null,
         simpleType: XSLocalSimpleType? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, type, inheritable, annotation, simpleType, otherAttrs) {
+    ) : super(default, fixed, type, inheritable, simpleType, id, annotation, otherAttrs) {
         this.name = name
     }
 
