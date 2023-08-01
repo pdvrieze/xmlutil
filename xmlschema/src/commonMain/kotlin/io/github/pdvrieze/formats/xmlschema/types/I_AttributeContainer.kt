@@ -20,16 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
-
 /**
  * (attribute | attributeGroup)* anyAttribute*
  */
 interface I_AttributeContainer {
-    val attributes: List<T_LocalAttribute>
-    /** Name elements AttributeGroup */
-    val attributeGroups: List<T_AttributeGroupRef>
-    val anyAttribute: XSAnyAttribute?
 }

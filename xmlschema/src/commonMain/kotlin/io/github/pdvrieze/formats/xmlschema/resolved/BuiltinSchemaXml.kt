@@ -40,7 +40,8 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
             targetNamespace = VAnyURI(XML_NAMESPACE),
             attributeFormDefault = T_FormChoice.QUALIFIED,
             attributes = listOf(
-                XSGlobalAttribute(name = VNCName("lang"),
+                XSGlobalAttribute(
+                    name = VNCName("lang"),
                     simpleType = XSLocalSimpleType(
                         simpleDerivation = XSSimpleUnion(
                             memberTypes = listOf(QName(XS_NAMESPACE, "language")),
@@ -53,7 +54,8 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                         )
                     ),
                 ),
-                XSGlobalAttribute(name = VNCName("space"), default = VString("preserve"),
+                XSGlobalAttribute(
+                    name = VNCName("space"), default = VString("preserve"),
                     simpleType = XSLocalSimpleType(simpleDerivation = XSSimpleRestriction(
                         base = QName(XS_NAMESPACE, "NCName"),
                         facets = listOf(

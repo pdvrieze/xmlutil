@@ -34,8 +34,7 @@ class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttribute(schema),
-    T_GlobalAttribute, NamedPart, ResolvedAttributeGlobal {
+) : ResolvedAttribute(schema), NamedPart, ResolvedAttributeGlobal {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -55,10 +54,10 @@ class ResolvedGlobalAttribute(
     override val type: QName?
         get() = rawPart.type
 
-    override val inheritable: Boolean?
+    val inheritable: Boolean?
         get() = rawPart.inheritable
 
-    override val simpleType: XSLocalSimpleType?
+    val simpleType: XSLocalSimpleType?
         get() = rawPart.simpleType
 
     override val targetNamespace: VAnyURI?

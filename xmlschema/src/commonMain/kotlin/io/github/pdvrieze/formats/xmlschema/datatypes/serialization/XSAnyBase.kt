@@ -18,45 +18,37 @@
  * under the License.
  */
 
-
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.T_NamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.T_NotNamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-@XmlSerialName("any", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAny : XSAnyBase, XSI_AllParticle {
-    override val maxOccurs: T_AllNNI?
-    override val minOccurs: VNonNegativeInteger?
-    
+abstract class XSAnyBase : XSAnnotatedBase {
     @XmlElement(false)
-    val notQName: T_QNameList?
+    val namespace: T_NamespaceList?
+
+    @XmlElement(false)
+    val notNamespace: T_NotNamespaceList?
 
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")
-    override val processContents: T_ProcessContents?
+    abstract val processContents: T_ProcessContents?
 
     constructor(
-        processContents: T_ProcessContents? = null,
-        notQName: T_QNameList? = null,
         namespace: T_NamespaceList? = null,
         notNamespace: T_NotNamespaceList? = null,
-        minOccurs: VNonNegativeInteger? = null,
-        maxOccurs: T_AllNNI? = null,
-        id: VID? = null,
-        annotation: XSAnnotation? = null,
-        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-    ) : super(namespace, notNamespace, id, annotation, otherAttrs) {
-        this.maxOccurs = maxOccurs
-        this.minOccurs = minOccurs
-        this.notQName = notQName
-        this.processContents = processContents
+        id: VID?,
+        annotation: XSAnnotation?,
+        otherAttrs: Map<QName, String>
+    ) : super(id, annotation, otherAttrs) {
+        this.namespace = namespace
+        this.notNamespace = notNamespace
     }
 }

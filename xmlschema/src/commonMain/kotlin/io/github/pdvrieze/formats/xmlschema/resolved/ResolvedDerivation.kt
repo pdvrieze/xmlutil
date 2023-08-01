@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.types.T_ComplexDerivation
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike) :
-    T_ComplexDerivation,
     ResolvedPart {
     abstract override val rawPart: XSComplexContent.XSComplexDerivationBase
 
@@ -42,15 +41,15 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
         }
     }
 
-    final override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
-    abstract override val attributes: List<ResolvedLocalAttribute>
-    abstract override val attributeGroups: List<ResolvedAttributeGroupRef>
-    final override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
-    final override val annotation: XSAnnotation? get() = rawPart.annotation
-    final override val id: VID? get() = rawPart.id
+    final val asserts: List<XSIAssertCommon> get() = rawPart.asserts
+    abstract val attributes: List<ResolvedLocalAttribute>
+    abstract val attributeGroups: List<ResolvedAttributeGroupRef>
+    final val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
+    final val annotation: XSAnnotation? get() = rawPart.annotation
+    final val id: VID? get() = rawPart.id
     final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-    final override val base: QName? get() = rawPart.base
-    final override val openContent: XSOpenContent? get() = rawPart.openContent
+    final val base: QName? get() = rawPart.base
+    final val openContent: XSOpenContent? get() = rawPart.openContent
 
     val baseType: ResolvedGlobalType by lazy {
         schema.type(base ?: AnyType.qName)

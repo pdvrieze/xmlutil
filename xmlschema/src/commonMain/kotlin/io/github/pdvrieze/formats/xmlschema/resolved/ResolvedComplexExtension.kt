@@ -30,7 +30,7 @@ class ResolvedComplexExtension(
     override val rawPart: XSComplexContent.XSExtension,
     scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedDerivation(scope, schema), T_ComplexExtensionType {
+) : ResolvedDerivation(scope, schema) {
 
     override val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }

@@ -23,7 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
@@ -33,18 +35,31 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-abstract class XSAttribute(
-    final override val default: VString? = null,
-    final override val fixed: VString? = null,
-    @XmlId
-    final override val id: VID? = null,
-    final override val type: SerializableQName? = null,
-    final override val inheritable: Boolean? = null,
-    override val annotation: XSAnnotation? = null,
-    final override val simpleType: XSLocalSimpleType? = null,
-    @XmlOtherAttributes
-    final override val otherAttrs: Map<SerializableQName, String> = emptyMap(),
-) : T_AttributeBase {
+sealed class XSAttribute : XSAnnotatedBase, I_OptNamed {
+
+    val default: VString?
+    val fixed: VString?
+    val type: SerializableQName?
+    val inheritable: Boolean?
+    val simpleType: XSLocalSimpleType?
+
+    constructor(
+        default: VString? = null,
+        fixed: VString? = null,
+        type: SerializableQName? = null,
+        inheritable: Boolean? = null,
+        simpleType: XSLocalSimpleType? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.default = default
+        this.fixed = fixed
+        this.type = type
+        this.inheritable = inheritable
+        this.simpleType = simpleType
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

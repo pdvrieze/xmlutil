@@ -47,7 +47,7 @@ class XSChoice(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSExplicitGroup, T_Choice, XSComplexContent.XSIDirectParticle, XSI_NestedParticle {
+) : XSExplicitGroup, T_Choice, XSI_NestedParticle {
 //    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
 //    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
 //    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)

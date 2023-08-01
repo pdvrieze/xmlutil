@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedAttributeGroup(
     final override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeGroupBase, XSI_Annotated {
+) : ResolvedPart, XSI_Annotated {
     abstract override val rawPart: XSAttributeGroup
 
 

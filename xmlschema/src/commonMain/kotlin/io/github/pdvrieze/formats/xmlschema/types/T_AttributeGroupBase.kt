@@ -20,5 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+
 interface T_AttributeGroupBase: I_AttributeContainer {
+    val attributes: List<XSAttribute>
+
+    /** Name elements AttributeGroup */
+    val attributeGroups: List<T_AttributeGroupRef>
+    val anyAttribute: XSAnyAttribute?
 }
