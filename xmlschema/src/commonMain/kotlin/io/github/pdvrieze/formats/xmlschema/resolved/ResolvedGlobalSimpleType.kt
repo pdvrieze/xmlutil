@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
     companion object {

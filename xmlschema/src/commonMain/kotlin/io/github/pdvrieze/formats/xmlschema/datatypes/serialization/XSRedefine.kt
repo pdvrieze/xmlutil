@@ -23,27 +23,36 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_Redefine
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("redefine", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSRedefine(
-    override val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
-    override val complexTypes: List<XSGlobalComplexType> = emptyList(),
-    override val groups: List<XSGroup> = emptyList(),
-    override val attributeGroups: List<XSAttributeGroup> = emptyList(),
-    override val schemaLocation: VAnyURI,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
+class XSRedefine : XSAnnotatedBase {
+    val simpleTypes: List<XSGlobalSimpleType>
+    val complexTypes: List<XSGlobalComplexType>
+    val groups: List<XSGroup>
+    val attributeGroups: List<XSAttributeGroup>
+    val schemaLocation: VAnyURI
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
-) : T_Redefine {
+    constructor(
+        simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+        complexTypes: List<XSGlobalComplexType> = emptyList(),
+        groups: List<XSGroup> = emptyList(),
+        attributeGroups: List<XSAttributeGroup> = emptyList(),
+        schemaLocation: VAnyURI,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.simpleTypes = simpleTypes
+        this.complexTypes = complexTypes
+        this.groups = groups
+        this.attributeGroups = attributeGroups
+        this.schemaLocation = schemaLocation
+    }
 }

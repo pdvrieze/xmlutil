@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-interface XSIElement : XSI_Annotated, I_OptNamed, XSI_OpenAttrs {
+interface XSIElement : XSI_Annotated, I_OptNamed {
     val default: VString?
 
     val fixed: VString?
