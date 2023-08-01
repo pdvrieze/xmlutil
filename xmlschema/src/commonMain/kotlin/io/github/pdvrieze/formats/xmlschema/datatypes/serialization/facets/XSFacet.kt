@@ -20,8 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlId
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 sealed class XSFacet : XSI_Annotated {
@@ -29,12 +34,47 @@ sealed class XSFacet : XSI_Annotated {
     abstract val value: Any
     abstract val fixed: Boolean?
 
-    sealed class NotFixed : XSFacet() {
+    @XmlId
+    final override val id: VID?
+    final override val annotation: XSAnnotation?
+    @XmlOtherAttributes
+    final override val otherAttrs: Map<SerializableQName, String>
+
+    constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) {
+        this.id = id
+        this.annotation = annotation
+        this.otherAttrs = otherAttrs
+    }
+
+    @Serializable
+    sealed class NotFixed : XSFacet {
+        constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs)
+
         final override val fixed: Nothing? get() = null
     }
 
-    sealed class Numeric : XSFacet() {
-        abstract override val value: ULong
+    @Serializable
+    sealed class Fixed : XSFacet {
+        final override val fixed: Boolean?
+
+        constructor(fixed: Boolean?, id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs) {
+            this.fixed = fixed
+        }
+    }
+
+    @Serializable
+    sealed class Numeric : Fixed {
+        final override val value: ULong
+
+        constructor(
+            value: ULong,
+            fixed: Boolean?,
+            id: VID?,
+            annotation: XSAnnotation?,
+            otherAttrs: Map<SerializableQName, String>
+        ) : super(fixed, id, annotation, otherAttrs) {
+            this.value = value
+        }
     }
 }
 

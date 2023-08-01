@@ -26,18 +26,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("fractionDigits", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSFractionDigits(
-    override val value: ULong,
-    override val fixed: Boolean? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet.Numeric()
+class XSFractionDigits : XSFacet.Numeric {
+    constructor(
+        value: ULong,
+        fixed: Boolean? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(value, fixed, id, annotation, otherAttrs)
+}

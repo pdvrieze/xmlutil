@@ -27,17 +27,19 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("enumeration", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSEnumeration(
-    override val value: VString,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet.NotFixed()
+class XSEnumeration : XSFacet.NotFixed {
+    constructor(
+        value: VString,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.value = value
+    }
+
+    override val value: VString
+}
