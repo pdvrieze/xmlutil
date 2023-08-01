@@ -34,15 +34,18 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("whiteSpace", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSWhiteSpace(
+class XSWhiteSpace : XSFacet.Fixed {
     @XmlElement(false)
-    override val value: WhitespaceValue,
-    override val fixed: Boolean? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
+    override val value: WhitespaceValue
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet()
+    constructor(
+        value: WhitespaceValue,
+        fixed: Boolean? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(fixed, id, annotation, otherAttrs) {
+        this.value = value
+    }
+}
 
