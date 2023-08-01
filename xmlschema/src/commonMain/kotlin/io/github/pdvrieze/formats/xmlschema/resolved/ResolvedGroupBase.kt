@@ -21,13 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.types.T_RealGroup
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 /**
  * Base class for any resolved group related type
  */
-sealed interface ResolvedGroupBase : T_RealGroup, ResolvedPart, ResolvedAnnotated {
+sealed interface ResolvedGroupBase : XSI_Annotated, ResolvedPart, ResolvedAnnotated {
     abstract override val rawPart: XSI_Annotated
 
     override val annotation: XSAnnotation? get() = rawPart.annotation

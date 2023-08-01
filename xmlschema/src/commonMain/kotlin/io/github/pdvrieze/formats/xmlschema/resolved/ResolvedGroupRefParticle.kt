@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRefPa
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
 import nl.adaptivity.xmlutil.QName
 
 /**
@@ -38,10 +37,9 @@ class ResolvedGroupRefParticle(
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
-    ResolvedParticle<ResolvedGlobalGroup>,
-    T_GroupRef {
+    ResolvedParticle<ResolvedGlobalGroup> {
 
-    override val ref: QName get() = rawPart.ref
+    val ref: QName get() = rawPart.ref
 
     override val annotation: XSAnnotation?
         get() = mdlTerm.annotation

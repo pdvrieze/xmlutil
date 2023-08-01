@@ -26,17 +26,15 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupRefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_GroupRef
 import nl.adaptivity.xmlutil.QName
 import kotlin.reflect.KClass
-import kotlin.reflect.cast
 
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
-) : ResolvedGroupBase, GroupRefModel, T_GroupRef, ResolvedGroupParticle<ResolvedGlobalGroup>,
+) : ResolvedGroupBase, GroupRefModel, ResolvedGroupParticle<ResolvedGlobalGroup>,
     ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
     val referencedGroup: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
@@ -44,7 +42,7 @@ class ResolvedGroupRef(
 
     override val mdlTerm: ResolvedGlobalGroup get() = schema.modelGroup(rawPart.ref)
 
-    override val ref: QName get() = rawPart.ref
+    val ref: QName get() = rawPart.ref
 
     override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 

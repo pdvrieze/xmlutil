@@ -121,6 +121,17 @@ class ResolvedLocalElement(
         else -> this
     }
 
+    override fun toString(): String {
+        return buildString {
+            append("ResolvedLocalElement(")
+            append("mdlName=$mdlName, ")
+            if (minOccurs!=null) append("minOccurs=$minOccurs, ")
+            if (maxOccurs!=null) append("maxOccurs=$maxOccurs, ")
+            append("type=${referenced.mdlTypeDefinition}")
+            append(")")
+        }
+    }
+
     interface Model : ResolvedElement.Model, ElementModel.Local<ResolvedLocalElement>
 
     private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :

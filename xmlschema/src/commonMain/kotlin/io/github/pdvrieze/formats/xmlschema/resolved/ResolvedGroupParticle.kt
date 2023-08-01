@@ -37,7 +37,7 @@ sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexTy
             parent: ResolvedParticleParent,
             term: XSComplexContent.XSIDerivationParticle,
             schema: ResolvedSchemaLike
-        ): ResolvedGroupParticle<*> = when (term) {
+        ): ResolvedGroupParticle<ResolvedGroupLikeTerm> = when (term) {
             is XSAll -> ResolvedAll(parent, term, schema)
             is XSChoice -> ResolvedChoice(parent, term, schema)
             is XSSequence -> ResolvedSequence(parent, term, schema)

@@ -37,7 +37,7 @@ interface IResolvedAll :
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<IResolvedGroupMember>.check(checkedTypes)
-        for(particle in mdlParticles) {
+        for (particle in mdlParticles) {
             val maxOccurs = particle.mdlMaxOccurs
             check(maxOccurs <= T_AllNNI(1uL)) {
                 "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
@@ -64,7 +64,7 @@ interface IResolvedAll :
                 else -> particle
             }
 
-            when (val term : ResolvedAllMember = cleanParticle.mdlTerm) {
+            when (val term: ResolvedAllMember = cleanParticle.mdlTerm) {
                 is IResolvedAll -> {
                     for (child in term.mdlParticles) {
                         newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
@@ -76,5 +76,30 @@ interface IResolvedAll :
         }
         return SyntheticAll(newMin, newMax, newParticles, schema)
 
+    }
+
+    override fun restricts(general: ResolvedGroupLikeTerm): Boolean {
+        // TODO be order independent
+        if (general !is IResolvedAll) return false
+        val specificParticles = mdlParticles.toList()
+        val generalParticles = general.mdlParticles.toList()
+
+        var thisPos = 0
+
+        for (generalPos in generalParticles.indices) {
+            if (thisPos>=specificParticles.size) { // the particle must be ignorable
+                if (!generalParticles[generalPos].mdlIsEmptiable()) return false
+            } else {
+                if (specificParticles[thisPos] != generalParticles[generalPos]) {
+                    return false
+                } else {
+                    ++thisPos
+                }
+            }
+        }
+        for (tailIdx in thisPos until specificParticles.size) {
+            if(!specificParticles[tailIdx].mdlIsEmptiable()) return false
+        }
+        return true
     }
 }
