@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
@@ -33,14 +34,17 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("defaultOpenContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSDefaultOpenContent(
-    val appliesToEmpty: Boolean = false,
-    @XmlId
-    override val id: VID? = null,
-    override val mode: T_ContentMode = T_ContentMode.INTERLEAVE,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap(),
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
-    override val any: XSAny? = null
-) : XSI_OpenContent
+class XSDefaultOpenContent : XSOpenContentBase {
+    val appliesToEmpty: Boolean
+
+    constructor(
+        appliesToEmpty: Boolean = false,
+        id: VID? = null,
+        mode: T_ContentMode = T_ContentMode.INTERLEAVE,
+        otherAttrs: Map<SerializableQName, String> = emptyMap(),
+        annotation: XSAnnotation? = null,
+        any: XSAny? = null
+    ) : super(mode, any, id, annotation, otherAttrs) {
+        this.appliesToEmpty = appliesToEmpty
+    }
+}

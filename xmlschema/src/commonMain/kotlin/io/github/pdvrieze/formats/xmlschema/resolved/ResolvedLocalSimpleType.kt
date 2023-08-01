@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalSimpleType
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalSimpleType(

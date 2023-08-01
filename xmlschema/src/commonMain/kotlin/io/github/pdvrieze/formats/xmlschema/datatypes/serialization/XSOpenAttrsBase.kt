@@ -22,13 +22,15 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
-abstract class XSOpenAttrsBase: XSI_OpenAttrs {
+abstract class XSOpenAttrsBase : XSI_OpenAttrs {
     @XmlOtherAttributes
-    final override val otherAttrs: Map<SerializableQName, String>
+    final override val otherAttrs: Map<@Serializable(with=QNameSerializer::class) QName, String>
 
     constructor(otherAttrs: Map<SerializableQName, String> = emptyMap()) {
         this.otherAttrs = otherAttrs

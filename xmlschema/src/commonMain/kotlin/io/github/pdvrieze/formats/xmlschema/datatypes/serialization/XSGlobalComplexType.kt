@@ -50,8 +50,7 @@ sealed class XSGlobalComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSComplexType, XSGlobalType, T_GlobalType, T_Type, XSI_Annotated,
-    XSI_OpenAttrs {
+) : XSComplexType, XSGlobalType, XSI_Annotated, I_Named {
     abstract override val content: XSI_ComplexContent
 
     override val targetNamespace: Nothing? get() = null
@@ -72,7 +71,7 @@ sealed class XSGlobalComplexType(
         val block: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
-        @Serializable
+//        @Serializable
         val term: XSComplexContent.XSIDerivationParticle?/* = null*/,
         val asserts: List<XSAssert> = emptyList(),
         val atributes: List<XSLocalAttribute> = emptyList(),
