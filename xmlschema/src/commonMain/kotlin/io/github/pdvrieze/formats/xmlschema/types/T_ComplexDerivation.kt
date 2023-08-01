@@ -20,12 +20,20 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 
 interface T_ComplexDerivation : T_ComplexType.ParticleProperties,
     I_AttributeContainer, I_Assertions, T_Derivation {
     val openContent: XSOpenContent?
+    val attributes: List<XSLocalAttribute>
+
+    /** Name elements AttributeGroup */
+    val attributeGroups: List<XSAttributeGroupRef>
+    val anyAttribute: XSAnyAttribute?
 }
 
 sealed interface T_ComplexDerivationSealedBase : T_ComplexDerivation

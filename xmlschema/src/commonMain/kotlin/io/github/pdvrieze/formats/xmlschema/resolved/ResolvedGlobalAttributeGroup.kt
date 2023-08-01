@@ -34,19 +34,19 @@ class ResolvedGlobalAttributeGroup(
     override val rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(schema), NamedPart, T_NamedAttributeGroup, XSI_Annotated, ResolvedLocalAttribute.Parent {
+) : ResolvedAttributeGroup(schema), NamedPart, ResolvedLocalAttribute.Parent {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
+    val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(this, it, schema)
     }
 
-    override val attributeGroups: List<ResolvedAttributeGroupRef>
+    val attributeGroups: List<ResolvedAttributeGroupRef>
         get() = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
 
-    override val anyAttribute: XSAnyAttribute?
+    val anyAttribute: XSAnyAttribute?
         get() = rawPart.anyAttribute
 
     override val annotation: XSAnnotation?

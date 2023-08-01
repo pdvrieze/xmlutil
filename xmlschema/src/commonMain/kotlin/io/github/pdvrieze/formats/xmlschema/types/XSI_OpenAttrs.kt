@@ -39,3 +39,4 @@ interface XSI_OpenAttrs {
         check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
     }
 }
+

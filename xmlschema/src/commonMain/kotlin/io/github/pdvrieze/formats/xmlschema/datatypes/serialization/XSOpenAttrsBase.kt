@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,19 +18,19 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_NamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_NotNamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
-interface T_Wildcard {
-    /** Optional */
-    val namespace: T_NamespaceList?
+@Serializable
+abstract class XSOpenAttrsBase: XSI_OpenAttrs {
+    @XmlOtherAttributes
+    final override val otherAttrs: Map<SerializableQName, String>
 
-    /** Optional, Min length 1 */
-    val notNamespace: T_NotNamespaceList?
-
-    /** Optional, default strict */
-    val processContents: T_ProcessContents?
+    constructor(otherAttrs: Map<SerializableQName, String> = emptyMap()) {
+        this.otherAttrs = otherAttrs
+    }
 }

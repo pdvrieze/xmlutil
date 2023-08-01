@@ -34,8 +34,8 @@ object AGTargetNSDefaults {
         attributes = listOf(
             XSLocalAttribute(
                 name = VNCName("number"),
-                type = QName(XS_NAMESPACE, "integer", "xsd"),
-                use = XSAttrUse.REQUIRED
+                use = XSAttrUse.REQUIRED,
+                type = QName(XS_NAMESPACE, "integer", "xsd")
             ),
             XSLocalAttribute(
                 name = VNCName("height"),

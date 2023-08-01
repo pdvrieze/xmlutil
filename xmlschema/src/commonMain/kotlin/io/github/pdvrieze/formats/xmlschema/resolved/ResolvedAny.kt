@@ -34,7 +34,7 @@ class ResolvedAny(
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: T_AllNNI? = rawPart.maxOccurs
-) : ResolvedParticle<ResolvedAny>, ResolvedPart, T_AnyElement, AnyModel, ResolvedTerm, ResolvedAllMember {
+) : ResolvedParticle<ResolvedAny>, ResolvedPart, AnyModel, ResolvedTerm, ResolvedAllMember {
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
@@ -47,7 +47,7 @@ class ResolvedAny(
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
-    override val namespace: T_NamespaceList
+    val namespace: T_NamespaceList
         get() = rawPart.namespace ?: T_NamespaceList.ANY
 
     override val mdlTerm: ResolvedAny get() = this
@@ -58,13 +58,13 @@ class ResolvedAny(
     override val mdlProcessContents: T_ProcessContents
         get() = processContents
 
-    override val notNamespace: T_NotNamespaceList
+    val notNamespace: T_NotNamespaceList
         get() = rawPart.notNamespace ?: T_NotNamespaceList()
 
-    override val notQName: T_QNameList
+    val notQName: T_QNameList
         get() = T_QNameList()
 
-    override val processContents: T_ProcessContents
+    val processContents: T_ProcessContents
         get() = rawPart.processContents ?: T_ProcessContents.STRICT
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}

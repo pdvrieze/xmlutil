@@ -36,36 +36,37 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSLocalAttribute : XSAttribute, T_LocalAttribute {
+class XSLocalAttribute : XSAttribute {
 
     @XmlBefore("type")
     override val name: VNCName?
 
     @XmlElement(false)
-    override val form: T_FormChoice?
-    override var ref: SerializableQName? = null
+    val form: T_FormChoice?
+    var ref: SerializableQName? = null
         private set
 
     @XmlElement(false)
-    override val use: XSAttrUse?
+    val use: XSAttrUse?
+
     override val targetNamespace: VAnyURI?
 
 
     constructor(
+        name: VNCName? = null,
+        form: T_FormChoice? = null,
+        ref: QName? = null,
+        use: XSAttrUse? = null,
         default: VString? = null,
         fixed: VString? = null,
-        form: T_FormChoice? = null,
-        id: VID? = null,
-        name: VNCName? = null,
-        ref: QName? = null,
         type: QName? = null,
-        use: XSAttrUse? = null,
-        inheritable: Boolean? = null,
         targetNamespace: VAnyURI? = null,
-        annotation: XSAnnotation? = null,
+        inheritable: Boolean? = null,
         simpleType: XSLocalSimpleType? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(default, fixed, id, type, inheritable, annotation, simpleType, otherAttrs) {
+    ) : super(default, fixed, type, inheritable, simpleType, id, annotation, otherAttrs) {
         this.name = name
         this.form = form
         this.ref = ref

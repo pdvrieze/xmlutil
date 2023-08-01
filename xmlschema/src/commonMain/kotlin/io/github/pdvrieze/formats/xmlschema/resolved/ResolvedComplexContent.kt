@@ -30,10 +30,9 @@ class ResolvedComplexContent(
     parent: ResolvedComplexType,
     override val rawPart: XSComplexContent,
     schema: ResolvedSchemaLike
-) : ResolvedComplexTypeContent(schema),
-    T_ComplexType.ComplexContent {
+) : ResolvedComplexTypeContent(schema) {
 
-    override val derivation: ResolvedDerivation by lazy {
+    val derivation: ResolvedDerivation by lazy {
         when (val d = rawPart.derivation) {
             is XSComplexContent.XSExtension -> ResolvedComplexExtension(d, parent, schema)
             is XSComplexContent.XSRestriction -> ResolvedComplexRestriction(d, parent, schema)

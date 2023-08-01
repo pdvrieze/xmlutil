@@ -27,29 +27,32 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
+import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
 import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeBase, SimpleTypeContext, ResolvedAttributeDecl {
+) : ResolvedPart, XSI_Annotated, I_OptNamed, SimpleTypeContext, ResolvedAttributeDecl {
     abstract override val rawPart: XSAttribute
 
     abstract override val name: VNCName
 
-    abstract override val default: VString?
+    abstract val default: VString?
 
-    abstract override val fixed: VString?
+    abstract val fixed: VString?
 
     val mdlQName: QName
         get() = qname((targetNamespace ?: schema.targetNamespace)?.value, name.xmlString)
 
-    override val type: QName? // TODO make abstract
+    open val type: QName? // TODO make abstract
         get() = (resolvedType as? ResolvedGlobalSimpleType)?.qName
 
     final override val annotation: XSAnnotation?
@@ -66,7 +69,7 @@ sealed class ResolvedAttribute(
 
     final override val mdlTargetNamespace: VAnyURI? by lazy {
         targetNamespace ?: when {
-            (rawPart.form ?: (schema as ResolvedSchema)) == T_FormChoice.QUALIFIED ->
+            ((rawPart as? XSLocalAttribute)?.form ?: (schema as ResolvedSchema)) == T_FormChoice.QUALIFIED ->
                 schema.targetNamespace
 
             else -> null
@@ -84,6 +87,7 @@ sealed class ResolvedAttribute(
         super<ResolvedPart>.check(checkedTypes)
         resolvedType.check(checkedTypes)
         check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
+        val use = (this as? ResolvedLocalAttribute)?.use
         check (default == null || use == null || use == XSAttrUse.OPTIONAL) {
             "For attributes with default and use must have optional as use value"
         }

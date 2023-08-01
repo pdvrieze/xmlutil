@@ -25,11 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 interface T_Particle {
     /** Optional, default 1 */
     val minOccurs: VNonNegativeInteger?
-//        get() = 1.toULong()
 
     /** Optional, default 1 */
     val maxOccurs: T_AllNNI?
-//        get() = T_AllNNI(1)
 
-    interface Group: T_Particle
+    interface Group : T_Particle
 }

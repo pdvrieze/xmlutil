@@ -34,8 +34,9 @@ sealed interface XSComplexType : XSIComplexType {
     }
 
     interface Derivation: I_AttributeContainer {
-        override val attributes: List<XSLocalAttribute>
-        override val attributeGroups: List<XSAttributeGroupRef>
+        val attributes: List<XSLocalAttribute>
+        val attributeGroups: List<XSAttributeGroupRef>
+        val anyAttribute: XSAnyAttribute?
     }
 
     sealed interface ComplexBase : XSIComplexType {

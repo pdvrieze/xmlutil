@@ -33,20 +33,20 @@ class ResolvedSimpleContentExtension(
     scope: ResolvedComplexType,
     override val rawPart: XSSimpleContentExtension,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleContentDerivation(schema), T_SimpleExtensionType {
-    override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
-    override val attributes: List<ResolvedLocalAttribute> =
+) : ResolvedSimpleContentDerivation(schema) {
+    val asserts: List<XSIAssertCommon> get() = rawPart.asserts
+    val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
-    override val attributeGroups: List<ResolvedAttributeGroupRef> =
+    val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
-    override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
+    val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     override val annotation: XSAnnotation? get() = rawPart.annotation
 
     override val id: VID? get() = rawPart.id
 
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
-    override val base: QName get() = rawPart.base
+    val base: QName get() = rawPart.base
 
     override val baseType: ResolvedType by lazy {
         schema.type(base)
