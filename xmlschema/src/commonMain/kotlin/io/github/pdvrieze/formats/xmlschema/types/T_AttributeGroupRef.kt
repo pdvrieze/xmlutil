@@ -20,8 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
-interface T_AttributeGroupRef: T_AttributeGroupBase, XSI_Annotated {
+interface T_AttributeGroupRef: XSI_Annotated {
     val ref: QName
+    val attributes: List<XSAttribute>
+
+    /** Name elements AttributeGroup */
+    val attributeGroups: List<T_AttributeGroupRef>
+    val anyAttribute: XSAnyAttribute?
 }

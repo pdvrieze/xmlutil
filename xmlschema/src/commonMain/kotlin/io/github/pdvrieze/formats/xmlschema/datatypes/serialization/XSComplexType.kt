@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.I_AttributeContainer
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 
 interface XSIComplexType : T_ComplexType {
@@ -33,7 +32,7 @@ sealed interface XSComplexType : XSIComplexType {
         val derivation: Derivation
     }
 
-    interface Derivation: I_AttributeContainer {
+    interface Derivation {
         val attributes: List<XSLocalAttribute>
         val attributeGroups: List<XSAttributeGroupRef>
         val anyAttribute: XSAnyAttribute?

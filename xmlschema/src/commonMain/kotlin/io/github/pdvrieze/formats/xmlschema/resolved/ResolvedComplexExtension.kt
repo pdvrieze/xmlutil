@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSComplexContent
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexExtensionType
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedComplexExtension(

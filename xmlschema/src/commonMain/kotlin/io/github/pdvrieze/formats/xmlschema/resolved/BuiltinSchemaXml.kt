@@ -28,7 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import nl.adaptivity.xmlutil.QName
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
