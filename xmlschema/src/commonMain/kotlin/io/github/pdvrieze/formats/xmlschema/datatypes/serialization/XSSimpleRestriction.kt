@@ -23,30 +23,42 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.types.T_RestrictionType
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlIgnoreWhitespace(true)
 @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSimpleRestriction(
-    @XmlElement(false)
-    @Serializable(QNameSerializer::class)
-    override val base: QName? = null, // Rrequiers an embedded restriction
-    @XmlId
-    override val id: VID? = null,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
+class XSSimpleRestriction : XSSimpleDerivation, T_RestrictionType, XSI_Annotated {
 
-    override val simpleType: XSLocalSimpleType? = null,
-    override val facets: List<XSFacet> = emptyList(),
+    @XmlElement(false)
+    override val base: SerializableQName?
+    override val simpleType: XSLocalSimpleType?
+    override val facets: List<XSFacet>
+
     @XmlValue(true)
-    override val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment> = emptyList(),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
-) : XSSimpleDerivation(), T_SimpleType.T_Restriction
+    override val otherContents: List<@Serializable(with = CompactFragmentSerializer::class) CompactFragment>
+
+    // Requires an embedded restriction
+    constructor(
+        base: QName? = null,
+        simpleType: XSLocalSimpleType? = null,
+        facets: List<XSFacet> = emptyList(),
+        otherContents: List<CompactFragment> = emptyList(),
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.base = base
+        this.simpleType = simpleType
+        this.facets = facets
+        this.otherContents = otherContents
+    }
+}
 

@@ -31,5 +31,3 @@ sealed interface ResolvedGroupBase : XSI_Annotated, ResolvedPart, ResolvedAnnota
 
     override val annotation: XSAnnotation? get() = rawPart.annotation
 }
-
-

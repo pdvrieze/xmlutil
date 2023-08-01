@@ -27,67 +27,108 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLangua
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("schema", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-data class XSSchema(
-    @XmlElement(false)
-    val attributeFormDefault: T_FormChoice? = null,
-
-    @Serializable(AllDerivationSerializer::class)
-    val blockDefault: T_BlockSet = emptySet(),
-
-    @Serializable(QNameSerializer::class)
-    val defaultAttributes: QName? = null,
-
-    val xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+class XSSchema : XSOpenAttrsBase {
 
     @XmlElement(false)
-    val elementFormDefault: T_FormChoice? = null,
+    val attributeFormDefault: T_FormChoice?
 
     @Serializable(AllDerivationSerializer::class)
-    val finalDefault: Set<TypeModel.Derivation>? = null,
+    val blockDefault: Set<T_BlockSetValues>?
+
+    val defaultAttributes: SerializableQName?
+    val xpathDefaultNamespace: T_XPathDefaultNamespace?
+    @XmlElement(false)
+    val elementFormDefault: T_FormChoice?
+
+    @Serializable(AllDerivationSerializer::class)
+    val finalDefault: Set<TypeModel.Derivation>?
 
     @XmlId
-    val id: VID? = null,
+    val id: VID?
 
     @XmlElement(false)
-    val targetNamespace: VAnyURI? = null,
+    val targetNamespace: VAnyURI?
 
-    val version: VToken? = null,
-
+    val version: VToken?
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
-    val lang: VLanguage? = null,
+    val lang: VLanguage?
 
-    val includes: List<XSInclude> = emptyList(),
-    val imports: List<XSImport> = emptyList(),
-    val redefines: List<XSRedefine> = emptyList(),
-    val overrides: List<XSOverride> = emptyList(),
-    val annotations: List<XSAnnotation> = emptyList(),
-
-
+    val includes: List<XSInclude>
+    val imports: List<XSImport>
+    val redefines: List<XSRedefine>
+    val overrides: List<XSOverride>
+    val annotations: List<XSAnnotation>
     @XmlAfter("includes", "imports", "redefines", "overrides")
     @XmlBefore("simpleTypes", "complexTypes", "groups", "attributeGroups", "elements", "attributes", "notations")
-    val defaultOpenContent: XSDefaultOpenContent? = null,
+    val defaultOpenContent: XSDefaultOpenContent?
 
-    val simpleTypes: List<XSGlobalSimpleType> = emptyList(),
-    val complexTypes: List<XSGlobalComplexType> = emptyList(),
-    val groups: List<XSGroup> = emptyList(),
-    val elements: List<XSElement> = emptyList(),
-    val attributes: List<XSGlobalAttribute> = emptyList(),
-    val attributeGroups: List<XSAttributeGroup> = emptyList(),
-    val notations: List<XSNotation> = emptyList(),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_OpenAttrs {
+    val simpleTypes: List<XSGlobalSimpleType>
+    val complexTypes: List<XSGlobalComplexType>
+    val groups: List<XSGroup>
+    val elements: List<XSElement>
+    val attributes: List<XSGlobalAttribute>
+    val attributeGroups: List<XSAttributeGroup>
+    val notations: List<XSNotation>
+
+    constructor(
+        attributeFormDefault: T_FormChoice? = null,
+        blockDefault: T_BlockSet = emptySet(),
+        defaultAttributes: SerializableQName? = null,
+        xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        elementFormDefault: T_FormChoice? = null,
+        finalDefault: Set<TypeModel.Derivation>? = null,
+        id: VID? = null,
+        targetNamespace: VAnyURI? = null,
+        version: VToken? = null,
+        lang: VLanguage? = null,
+        includes: List<XSInclude> = emptyList(),
+        imports: List<XSImport> = emptyList(),
+        redefines: List<XSRedefine> = emptyList(),
+        overrides: List<XSOverride> = emptyList(),
+        annotations: List<XSAnnotation> = emptyList(),
+        defaultOpenContent: XSDefaultOpenContent? = null,
+        simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+        complexTypes: List<XSGlobalComplexType> = emptyList(),
+        groups: List<XSGroup> = emptyList(),
+        elements: List<XSElement> = emptyList(),
+        attributes: List<XSGlobalAttribute> = emptyList(),
+        attributeGroups: List<XSAttributeGroup> = emptyList(),
+        notations: List<XSNotation> = emptyList(),
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(otherAttrs) {
+        this.attributeFormDefault = attributeFormDefault
+        this.blockDefault = blockDefault
+        this.defaultAttributes = defaultAttributes
+        this.xpathDefaultNamespace = xpathDefaultNamespace
+        this.elementFormDefault = elementFormDefault
+        this.finalDefault = finalDefault
+        this.id = id
+        this.targetNamespace = targetNamespace
+        this.version = version
+        this.lang = lang
+        this.includes = includes
+        this.imports = imports
+        this.redefines = redefines
+        this.overrides = overrides
+        this.annotations = annotations
+        this.defaultOpenContent = defaultOpenContent
+        this.simpleTypes = simpleTypes
+        this.complexTypes = complexTypes
+        this.groups = groups
+        this.elements = elements
+        this.attributes = attributes
+        this.attributeGroups = attributeGroups
+        this.notations = notations
+    }
 
     override fun toString(): String {
         return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)

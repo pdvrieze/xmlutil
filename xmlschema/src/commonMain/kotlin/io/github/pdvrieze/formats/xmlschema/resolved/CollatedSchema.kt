@@ -273,7 +273,7 @@ internal class CollatedSchema(
     ) : ResolvedSchemaLike() {
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
-        override val blockDefault: T_BlockSet get() = originalSchema.blockDefault
+        override val blockDefault: T_BlockSet get() = originalSchema.blockDefault ?: emptySet()
         override val finalDefault: Set<TypeModel.Derivation> get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
 

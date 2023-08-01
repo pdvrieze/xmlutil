@@ -18,6 +18,8 @@
  * under the License.
  */
 
+// Needed for serializer plugin (despite alias)
+@file:UseSerializers(QNameSerializer::class)
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
@@ -26,24 +28,27 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
+import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAll(
-    override val minOccurs: VNonNegativeInteger? = null,
-    override val maxOccurs: T_AllNNI.Value? = null,
-    override val particles: List<XSI_AllParticle>,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
-    @XmlId
-    override val id: VID? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSExplicitGroup
+class XSAll : XSExplicitGroup {
+    override val maxOccurs: T_AllNNI.Value?
+    override val particles: List<XSI_AllParticle>
+
+    constructor(
+        particles: List<XSI_AllParticle>,
+        minOccurs: VNonNegativeInteger? = null,
+        maxOccurs: T_AllNNI.Value? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(minOccurs, id, annotation, otherAttrs) {
+        this.maxOccurs = maxOccurs
+        this.particles = particles
+    }
+}
 

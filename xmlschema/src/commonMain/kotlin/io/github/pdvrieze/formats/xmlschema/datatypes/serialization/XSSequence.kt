@@ -18,7 +18,9 @@
  * under the License.
  */
 
+// Needed for serializer plugin (despite alias)
 @file:UseSerializers(QNameSerializer::class)
+
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
@@ -36,21 +38,20 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSSequence(
-    @XmlId
-    override val id: VID? = null,
-    override val minOccurs: VNonNegativeInteger? = null,
-    override val maxOccurs: T_AllNNI? = null,
-    override val particles: List<XSI_NestedParticle> = emptyList(),
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
+class XSSequence : XSExplicitGroup, XSI_NestedParticle {
+    override val particles: List<XSI_NestedParticle>
+    override val maxOccurs: T_AllNNI?
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-): XSExplicitGroup, XSI_NestedParticle {
-//    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
-//    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
-//    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)
-//    override val mdlTerm: Term get() = this
+    constructor(
+        particles: List<XSI_NestedParticle> = emptyList(),
+        minOccurs: VNonNegativeInteger? = null,
+        maxOccurs: T_AllNNI? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(minOccurs, id, annotation, otherAttrs) {
+        this.particles = particles
+        this.maxOccurs = maxOccurs
+    }
 }
 

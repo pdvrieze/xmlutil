@@ -18,29 +18,36 @@
  * under the License.
  */
 
-
-@file:UseSerializers(QNameSerializer::class)
-
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("annotation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAnnotation(
-    val documentationElements: List<XSDocumentation> = emptyList(),
-    val appInfos: List<XSAppInfo> = emptyList(),
+class XSAnnotation : XSOpenAttrsBase {
+    val documentationElements: List<XSDocumentation>
+    val appInfos: List<XSAppInfo>
+
     @XmlId
-    val id: VID? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSI_OpenAttrs
+    val id: VID?
+
+    constructor(
+        documentationElements: List<XSDocumentation> = emptyList(),
+        appInfos: List<XSAppInfo> = emptyList(),
+        id: VID? = null,
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(otherAttrs) {
+        this.documentationElements = documentationElements
+        this.appInfos = appInfos
+        this.id = id
+    }
+
+}
+

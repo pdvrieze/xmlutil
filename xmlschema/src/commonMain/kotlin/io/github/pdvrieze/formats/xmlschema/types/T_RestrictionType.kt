@@ -20,12 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 interface T_RestrictionType : T_DerivationSealedBase {
-    val simpleType: T_LocalSimpleType?
+    val simpleType: XSLocalSimpleType?
     val facets: List<XSFacet>
 
     @XmlValue(true)

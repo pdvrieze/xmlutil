@@ -29,8 +29,8 @@ import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, T_Type, TypeModel,
-    XSI_Annotated, XSI_OpenAttrs {
+sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, TypeModel,
+    XSI_Annotated {
     abstract override val rawPart: XSIType
 
     override fun check(checkedTypes: MutableSet<QName>) {

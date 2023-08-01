@@ -37,13 +37,25 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
 @XmlSerialName("documentation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSDocumentation(
-    val source: VAnyURI? = null,
+class XSDocumentation : XSOpenAttrsBase {
+    val source: VAnyURI?
+
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
-    val lang: String? = null,
+    val lang: String?
+
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)
-    val content: CompactFragment = CompactFragment(""),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-): XSI_OpenAttrs
+    val content: CompactFragment
+
+    constructor(
+        source: VAnyURI? = null,
+        lang: String? = null,
+        content: CompactFragment = CompactFragment(""),
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(otherAttrs) {
+        this.source = source
+        this.lang = lang
+        this.content = content
+    }
+
+}

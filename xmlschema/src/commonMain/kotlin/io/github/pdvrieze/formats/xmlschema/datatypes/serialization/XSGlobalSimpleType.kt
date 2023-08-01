@@ -24,15 +24,14 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalSimpleType
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.*
 
-sealed interface XSISimpleType : T_SimpleType {
-    abstract override val simpleDerivation: XSSimpleDerivation
+sealed interface XSISimpleType : XSI_Annotated {
+    val simpleDerivation: XSSimpleDerivation
 }
 
 @Serializable
@@ -44,7 +43,7 @@ class XSGlobalSimpleType(
     override val simpleDerivation: XSSimpleDerivation,
     @XmlElement(false)
     @Serializable(AllDerivationSerializer::class)
-    override val final: Set<TypeModel.Derivation> = emptySet(),
+    val final: Set<TypeModel.Derivation> = emptySet(),
     @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
@@ -52,6 +51,6 @@ class XSGlobalSimpleType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : XSISimpleType, XSGlobalType, T_GlobalSimpleType {
+) : XSISimpleType, XSGlobalType {
     override val targetNamespace: Nothing? get() = null
 }

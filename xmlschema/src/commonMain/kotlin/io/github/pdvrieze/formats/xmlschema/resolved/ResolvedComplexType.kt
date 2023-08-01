@@ -408,7 +408,7 @@ sealed class ResolvedComplexType(
                 }
             }
 
-            val wildcardElement: XSI_OpenContent? =
+            val wildcardElement: XSOpenContentBase? =
                 (rawPart as? XSComplexType.Shorthand)?.openContent
                     ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
                         explicitContentType.mdlVariety != ComplexTypeModel.Variety.EMPTY || it.appliesToEmpty

@@ -46,7 +46,7 @@ class XSNotation(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_Annotated, I_Named, XSI_OpenAttrs {
+) : XSI_Annotated, I_Named {
     override val targetNamespace: Nothing?
         get() = null
 }
