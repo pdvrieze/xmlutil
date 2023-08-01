@@ -49,5 +49,5 @@ class XSAll(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-): XSExplicitGroup, XSComplexContent.XSIDirectParticle
+) : XSExplicitGroup
 

@@ -24,23 +24,22 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalAttribute
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeGroupRef(
     override val rawPart: T_AttributeGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, T_AttributeGroupRef, XSI_Annotated {
+) : ResolvedPart, XSI_Annotated {
     val resolvedGroup: ResolvedGlobalAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
 
-    override val attributes: List<T_LocalAttribute>
+    val attributes: List<ResolvedLocalAttribute>
         get() = resolvedGroup.attributes
 
-    override val attributeGroups: List<T_AttributeGroupRef>
+    val attributeGroups: List<ResolvedAttributeGroupRef>
         get() = resolvedGroup.attributeGroups
 
-    override val anyAttribute: XSAnyAttribute?
+    val anyAttribute: XSAnyAttribute?
         get() = rawPart.anyAttribute
 
     override val annotation: XSAnnotation?
@@ -49,7 +48,7 @@ class ResolvedAttributeGroupRef(
     override val id: VID?
         get() = rawPart.id
 
-    override val ref: QName
+    val ref: QName
         get() = rawPart.ref
 
     override val otherAttrs: Map<QName, String>

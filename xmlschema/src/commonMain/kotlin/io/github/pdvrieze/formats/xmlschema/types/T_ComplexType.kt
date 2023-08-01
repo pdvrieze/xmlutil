@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 
 interface T_ComplexType : T_Type {
@@ -53,7 +55,13 @@ interface T_ComplexType : T_Type {
     }
 
     interface ShorthandContent : ContentSealed,
-        ParticleProperties, I_AttributeContainer, I_Assertions
+        ParticleProperties, I_AttributeContainer, I_Assertions {
+        val attributes: List<XSLocalAttribute>
+
+        /** Name elements AttributeGroup */
+        val attributeGroups: List<T_AttributeGroupRef>
+        val anyAttribute: XSAnyAttribute?
+    }
 
     interface Simple : T_ComplexType {
         override val content: SimpleContent

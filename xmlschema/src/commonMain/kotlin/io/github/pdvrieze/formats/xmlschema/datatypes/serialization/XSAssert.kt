@@ -36,13 +36,20 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("assert", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAssert(
-    override val test: XPathExpression,
-    override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
-    @XmlId
-    override val id: VID?,
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSIAssertCommon
+class XSAssert : XSAnnotatedBase, XSIAssertCommon {
+    override val test: XPathExpression?
+    override val xPathDefaultNamespace: T_XPathDefaultNamespace?
+
+    constructor(
+        test: XPathExpression,
+        xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        id: VID?,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.test = test
+        this.xPathDefaultNamespace = xPathDefaultNamespace
+    }
+
+}
 

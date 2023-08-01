@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,19 +18,27 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
-/**
- * This type is extended by all types which allow annotation other than &lt;schema> itself
- */
-interface XSI_Annotated : XSI_OpenAttrs {
-    val annotation: XSAnnotation?
-
+@Serializable
+abstract class XSAnnotatedBase : XSOpenAttrsBase, XSI_Annotated {
     @XmlId
-    val id: VID?
-}
+    final override val id: VID?
 
+    @XmlBefore("*")
+    final override val annotation: XSAnnotation?
+
+    constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(otherAttrs) {
+        this.id = id
+        this.annotation = annotation
+    }
+
+}
