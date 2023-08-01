@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
 import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
 import nl.adaptivity.xmlutil.QName
 
@@ -43,7 +42,7 @@ class ResolvedComplexShorthandContent(
         r
     }
 
-    override val asserts: List<T_Assertion> get() = rawPart.asserts
+    override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
     override val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> =

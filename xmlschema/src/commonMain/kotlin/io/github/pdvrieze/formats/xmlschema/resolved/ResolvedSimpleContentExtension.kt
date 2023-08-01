@@ -24,8 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentExtension
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleExtensionType
 import nl.adaptivity.xmlutil.QName
 
@@ -34,7 +34,7 @@ class ResolvedSimpleContentExtension(
     override val rawPart: XSSimpleContentExtension,
     schema: ResolvedSchemaLike
 ) : ResolvedSimpleContentDerivation(schema), T_SimpleExtensionType {
-    override val asserts: List<T_Assertion> get() = rawPart.asserts
+    override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
     override val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     override val attributeGroups: List<ResolvedAttributeGroupRef> =
