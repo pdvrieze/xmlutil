@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.types.T_AttributeGroupBase
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 sealed class ResolvedAttributeGroup(

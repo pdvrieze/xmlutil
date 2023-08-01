@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
-interface T_Element : T_Particle, XSI_Annotated, I_OptNamedAttrs {
+interface T_Element : T_Particle, XSI_Annotated, I_OptNamed, XSI_OpenAttrs {
     val localType: T_Type?
 
     val alternatives: List<T_AltType>

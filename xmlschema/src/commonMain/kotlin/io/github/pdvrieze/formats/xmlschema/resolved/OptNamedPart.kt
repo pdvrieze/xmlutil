@@ -23,16 +23,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
-import io.github.pdvrieze.formats.xmlschema.types.I_OptNamedAttrs
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
-interface OptNamedPart : ResolvedPart, I_OptNamed {
-    override val rawPart: I_OptNamedAttrs
+interface OptNamedPart : ResolvedPart {
+    override val rawPart: XSI_OpenAttrs
 
-    override val name: VNCName? get() = rawPart.name
+    val name: VNCName? get() = (rawPart as I_OptNamed).name
 
-    override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.targetNamespace
+    val targetNamespace: VAnyURI?
+        get() = (rawPart as? I_OptNamed)?.targetNamespace ?: schema.targetNamespace
 
     val qName: QName?
         get() = name?.let { QName(targetNamespace?.value ?: "", it.xmlString) }

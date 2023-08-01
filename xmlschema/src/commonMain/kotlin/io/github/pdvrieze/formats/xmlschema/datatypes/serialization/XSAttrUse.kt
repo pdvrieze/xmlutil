@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Suppress("unused")
