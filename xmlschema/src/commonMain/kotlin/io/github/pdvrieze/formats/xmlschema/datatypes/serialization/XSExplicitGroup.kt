@@ -18,50 +18,30 @@
  * under the License.
  */
 
+@file:UseSerializers(QNameSerializer::class)
+
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-
-sealed interface XSExplicitGroup : XSI_Grouplike, XSComplexContent.XSIDerivationParticle,
-    XSI_Annotated {
-}
+import kotlinx.serialization.UseSerializers
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 
 @Serializable
-sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated {
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
+sealed class XSExplicitGroup : XSI_Grouplike, XSComplexContent.XSIDerivationParticle,
+    XSAnnotatedBase {
 
-    /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
+    final override val minOccurs: VNonNegativeInteger?
 
-    object DUMMY: XSI_Particle {
-        override val minOccurs: Nothing? get() = null
-        override val maxOccurs: Nothing? get() = null
-        override val annotation: Nothing? get() = null
-        override val id: Nothing? get() = null
-        override val otherAttrs: Map<QName, String> get() = emptyMap()
+    constructor(
+        minOccurs: VNonNegativeInteger? = null,
+        id: VID?,
+        annotation: XSAnnotation?,
+        otherAttrs: Map<SerializableQName, String>
+    ) : super(id, annotation, otherAttrs) {
+        this.minOccurs = minOccurs
     }
 }
 
-/**
- * Base interface for all terms that can contain particles
- */
-@Serializable
-sealed interface XSI_Grouplike: XSI_Particle {
-    val particles: List<XSI_Particle>
-
-    fun hasChildren(): Boolean =
-        particles.isNotEmpty() // TODO filter out maxCount==0
-}
-
-@Serializable
-sealed interface XSI_AllParticle : XSI_NestedParticle
-
-/*
- * Base interface for particle that is not a group reference.
- */
-@Serializable
-sealed interface XSI_NestedParticle : XSI_Particle

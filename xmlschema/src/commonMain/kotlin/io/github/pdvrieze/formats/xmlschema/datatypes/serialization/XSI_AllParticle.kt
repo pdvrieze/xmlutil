@@ -20,8 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import kotlinx.serialization.Serializable
 
-interface XSI_SimpleRestriction: XSI_Annotated,
-    T_SimpleType.T_Restriction
+@Serializable
+sealed interface XSI_AllParticle : XSI_NestedParticle

@@ -18,10 +18,26 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.SerializableQName
 
-interface T_NamedType: I_Named, XSI_OpenAttrs, XSI_Annotated {
-    override val name: VNCName
+@Serializable
+abstract class XSOpenContentBase: XSAnnotatedBase {
+    val mode: T_ContentMode
+    val any: XSAny?
+
+    constructor(
+        mode: T_ContentMode,
+        any: XSAny?,
+        id: VID?,
+        annotation: XSAnnotation?,
+        otherAttrs: Map<SerializableQName, String>
+    ) : super(id, annotation, otherAttrs) {
+        this.mode = mode
+        this.any = any
+    }
 }

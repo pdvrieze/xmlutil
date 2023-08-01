@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import nl.adaptivity.xmlutil.QName
 
 interface T_AltType: XSI_Annotated {
-    val simpleTypes: List<T_LocalSimpleType>
+    val simpleTypes: List<XSLocalSimpleType>
 
     val complexTypes: List<T_ComplexType>
 

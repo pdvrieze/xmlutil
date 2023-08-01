@@ -26,16 +26,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalType
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema), T_GlobalType, ComplexTypeModel.Global {
+) : ResolvedGlobalType, ResolvedComplexType(schema), ComplexTypeModel.Global {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)

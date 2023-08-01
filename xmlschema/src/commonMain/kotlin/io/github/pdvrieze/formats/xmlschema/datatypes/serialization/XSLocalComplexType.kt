@@ -47,8 +47,7 @@ sealed class XSLocalComplexType(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSLocalType(), XSComplexType, T_LocalType, T_Type, XSI_Annotated,
-    XSI_OpenAttrs {
+) : XSLocalType(), XSComplexType, XSI_Annotated {
     abstract override val content: XSI_ComplexContent
 
     protected abstract fun toSerialDelegate(): SerialDelegate

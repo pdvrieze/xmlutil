@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
@@ -40,7 +41,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
+import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 
 abstract class Datatype(
     override val name: VNCName,
@@ -96,8 +100,7 @@ sealed class ListDatatype protected constructor(
     targetNamespace: String,
     val itemType: Datatype,
     schemaLike: ResolvedSchemaLike,
-) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType,
-    T_SimpleType.T_List {
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, XSI_Annotated {
     abstract override val baseType: ResolvedType
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
@@ -138,6 +141,8 @@ sealed class ListDatatype protected constructor(
         get() = emptyList()
 
     final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
+    abstract val itemTypeName: SerializableQName?
+    abstract val simpleType: XSLocalSimpleType?
 }
 
 abstract class ConstructedListDatatype : ListDatatype {
@@ -219,8 +224,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, T_SimpleBaseType,
-    TypeModel {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, TypeModel {
     override val baseType: AnyType get() = AnyType // No actual base type
 
     override val name: VNCName get() = super<Datatype>.name

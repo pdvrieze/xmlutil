@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
@@ -43,5 +44,5 @@ data class XSField(
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
+    override val otherAttrs: Map<SerializableQName, String>
 ) : XSI_Annotated

@@ -18,38 +18,44 @@
  * under the License.
  */
 
-// Needed for serializer plugin
-@file:UseSerializers(QNameSerializer::class)
-
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.SerializableQName
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-@XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSChoice : XSExplicitGroup, XSI_NestedParticle {
-    override val particles: List<XSI_NestedParticle>
-    override val maxOccurs: T_AllNNI?
+sealed interface XSI_Particle : XSI_Annotated {
+    /** Optional, default 1 */
+    val minOccurs: VNonNegativeInteger?
 
-    constructor(
-        particles: List<XSI_NestedParticle>,
-        minOccurs: VNonNegativeInteger? = null,
-        maxOccurs: T_AllNNI? = null,
-        annotation: XSAnnotation? = null,
-        id: VID? = null,
-        otherAttrs: Map<SerializableQName, String> = emptyMap()
-    ) : super(minOccurs, id, annotation, otherAttrs) {
-        this.particles = particles
-        this.maxOccurs = maxOccurs
+    /** Optional, default 1 */
+    val maxOccurs: T_AllNNI?
+
+    object DUMMY : XSI_Particle {
+        override val minOccurs: Nothing? get() = null
+        override val maxOccurs: Nothing? get() = null
+        override val annotation: Nothing? get() = null
+        override val id: Nothing? get() = null
+        override val otherAttrs: Map<QName, String> get() = emptyMap()
     }
-
 }
+
+/**
+ * Base interface for all terms that can contain particles
+ */
+@Serializable
+sealed interface XSI_Grouplike : XSI_Particle {
+    val particles: List<XSI_Particle>
+
+    fun hasChildren(): Boolean =
+        particles.isNotEmpty() // TODO filter out maxCount==0
+}
+
+/*
+ * Base interface for particle that is not a group reference.
+ */
+@Serializable
+sealed interface XSI_NestedParticle : XSI_Particle
