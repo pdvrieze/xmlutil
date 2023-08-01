@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSScopeVariety
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 
 interface ElementModel : IAnnotated, IOptNamed {
@@ -32,7 +32,7 @@ interface ElementModel : IAnnotated, IOptNamed {
     val mdlValueConstraint: ValueConstraintModel?
     val mdlIdentityConstraints: Set<IdentityConstraintModel.Ref>
     val mdlSubstitutionGroupAffiliations: List<Use>
-    val mdlDisallowedSubstitutions: T_BlockSet
+    val mdlDisallowedSubstitutions: VBlockSet
     val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     val mdlAbstract: Boolean
 

@@ -39,15 +39,15 @@ import nl.adaptivity.xmlutil.serialization.*
 class XSSchema : XSOpenAttrsBase {
 
     @XmlElement(false)
-    val attributeFormDefault: T_FormChoice?
+    val attributeFormDefault: VFormChoice?
 
     @Serializable(AllDerivationSerializer::class)
     val blockDefault: Set<T_BlockSetValues>?
 
     val defaultAttributes: SerializableQName?
-    val xpathDefaultNamespace: T_XPathDefaultNamespace?
+    val xpathDefaultNamespace: VXPathDefaultNamespace?
     @XmlElement(false)
-    val elementFormDefault: T_FormChoice?
+    val elementFormDefault: VFormChoice?
 
     @Serializable(AllDerivationSerializer::class)
     val finalDefault: Set<TypeModel.Derivation>?
@@ -80,11 +80,11 @@ class XSSchema : XSOpenAttrsBase {
     val notations: List<XSNotation>
 
     constructor(
-        attributeFormDefault: T_FormChoice? = null,
-        blockDefault: T_BlockSet = emptySet(),
+        attributeFormDefault: VFormChoice? = null,
+        blockDefault: VBlockSet = emptySet(),
         defaultAttributes: SerializableQName? = null,
-        xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
-        elementFormDefault: T_FormChoice? = null,
+        xpathDefaultNamespace: VXPathDefaultNamespace? = null,
+        elementFormDefault: VFormChoice? = null,
         finalDefault: Set<TypeModel.Derivation>? = null,
         id: VID? = null,
         targetNamespace: VAnyURI? = null,

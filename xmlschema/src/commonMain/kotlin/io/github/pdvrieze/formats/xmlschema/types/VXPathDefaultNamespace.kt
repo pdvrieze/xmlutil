@@ -29,26 +29,26 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-@Serializable(T_XPathDefaultNamespace.Serializer::class)
-sealed class T_XPathDefaultNamespace {
+@Serializable(VXPathDefaultNamespace.Serializer::class)
+sealed class VXPathDefaultNamespace {
 
-    object DEFAULTNAMESPACE: T_XPathDefaultNamespace()
-    object TARGETNAMESPACE: T_XPathDefaultNamespace()
-    object LOCAL: T_XPathDefaultNamespace()
-    class Uri(val value: VAnyURI): T_XPathDefaultNamespace()
+    object DEFAULTNAMESPACE: VXPathDefaultNamespace()
+    object TARGETNAMESPACE: VXPathDefaultNamespace()
+    object LOCAL: VXPathDefaultNamespace()
+    class Uri(val value: VAnyURI): VXPathDefaultNamespace()
 
-    companion object Serializer: KSerializer<T_XPathDefaultNamespace> {
+    companion object Serializer: KSerializer<VXPathDefaultNamespace> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("xpathDefaultNamespace", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: T_XPathDefaultNamespace) = encoder.encodeString(when (value) {
+        override fun serialize(encoder: Encoder, value: VXPathDefaultNamespace) = encoder.encodeString(when (value) {
             DEFAULTNAMESPACE -> "##defaultNamespace"
             TARGETNAMESPACE -> "##targetNamespace"
             LOCAL -> "##local"
             is Uri -> value.value.value
         })
 
-        override fun deserialize(decoder: Decoder): T_XPathDefaultNamespace = when (val str = decoder.decodeString()){
+        override fun deserialize(decoder: Decoder): VXPathDefaultNamespace = when (val str = decoder.decodeString()){
             "##defaultNamespace" -> DEFAULTNAMESPACE
             "##targetNamespace" -> TARGETNAMESPACE
             "##local" -> LOCAL

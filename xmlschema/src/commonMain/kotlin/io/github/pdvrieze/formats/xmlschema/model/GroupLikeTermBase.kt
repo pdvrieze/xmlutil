@@ -20,11 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
-import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-
 /** Base interface for any type that holds multiple particles */
 interface GroupLikeTermBase : IAnnotated, Term {
     val mdlParticles: List<ParticleModel<Term>>

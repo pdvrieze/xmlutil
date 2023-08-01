@@ -22,9 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_Key
 
-interface ResolvedKey : T_Key, IdentityConstraintModel.Key, ResolvedIdentityConstraint, ResolvedPart {
+interface ResolvedKey : IdentityConstraintModel.Key, ResolvedIdentityConstraint, ResolvedPart {
     override val rawPart: XSKey
 
     companion object {

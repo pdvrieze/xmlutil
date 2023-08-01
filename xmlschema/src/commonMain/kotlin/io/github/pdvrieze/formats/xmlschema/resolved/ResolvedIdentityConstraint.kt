@@ -20,12 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 
-sealed interface ResolvedIdentityConstraint : ResolvedPart, T_IdentityConstraint, IdentityConstraintModel,
+sealed interface ResolvedIdentityConstraint : ResolvedPart, IdentityConstraintModel,
     XSI_OpenAttrs, IdentityConstraintModel.Ref {
+    val selector: XSSelector
+
+    /**
+     * At least 1 if selector is present
+     */
+    val fields: List<XSField>
 
     override val owner: ResolvedElement
 

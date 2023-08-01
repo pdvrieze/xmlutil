@@ -21,17 +21,17 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
+import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 
 @Serializable
 abstract class XSOpenContentBase: XSAnnotatedBase {
-    val mode: T_ContentMode
+    val mode: VContentMode
     val any: XSAny?
 
     constructor(
-        mode: T_ContentMode,
+        mode: VContentMode,
         any: XSAny?,
         id: VID?,
         annotation: XSAnnotation?,

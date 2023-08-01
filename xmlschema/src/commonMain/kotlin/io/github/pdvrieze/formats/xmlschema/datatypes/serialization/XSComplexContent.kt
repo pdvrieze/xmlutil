@@ -31,6 +31,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
@@ -47,12 +48,36 @@ class XSComplexContent(
     override val derivation: XSComplexDerivationBase
 ) : XSI_ComplexContent {
     @Serializable
-    sealed class XSComplexDerivationBase: XSI_ComplexDerivation {
-        abstract override val term: XSIDerivationParticle?
-        abstract override val asserts: List<XSAssertionFacet>
-        abstract override val attributes: List<XSLocalAttribute>
-        abstract override val attributeGroups: List<XSAttributeGroupRef>
-        abstract val derivationMethod: T_DerivationControl.ComplexBase
+    sealed class XSComplexDerivationBase : XSAnnotatedBase, XSI_ComplexDerivation {
+        final override val term: XSIDerivationParticle?
+        final override val asserts: List<XSAssertionFacet>
+        final override val attributes: List<XSLocalAttribute>
+        final override val attributeGroups: List<XSAttributeGroupRef>
+        final override val anyAttribute: XSAnyAttribute?
+        final override val openContent: XSOpenContent?
+        final override val base: QName?
+        abstract val derivationMethod: VDerivationControl.Complex
+
+        constructor(
+            base: QName?,
+            term: XSIDerivationParticle?,
+            attributes: List<XSLocalAttribute>,
+            attributeGroups: List<XSAttributeGroupRef>,
+            asserts: List<XSAssertionFacet>,
+            anyAttribute: XSAnyAttribute?,
+            openContent: XSOpenContent?,
+            id: VID?,
+            annotation: XSAnnotation?,
+            otherAttrs: Map<SerializableQName, String>
+        ) : super(id, annotation, otherAttrs) {
+            this.term = term
+            this.asserts = asserts
+            this.attributes = attributes
+            this.attributeGroups = attributeGroups
+            this.anyAttribute = anyAttribute
+            this.openContent = openContent
+            this.base = base
+        }
     }
 
     @Serializable
@@ -61,52 +86,74 @@ class XSComplexContent(
         val minOccurs: VNonNegativeInteger?
 
         /** Optional, default 1 */
-        val maxOccurs: T_AllNNI?
+        val maxOccurs: VAllNNI?
     }
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
-    class XSRestriction(
-        override val base: QName,
-        @XmlId
-        override val id: VID? = null,
-        override val annotation: XSAnnotation? = null,
+    class XSRestriction : XSComplexDerivationBase {
+        val simpleType: XSLocalSimpleType?
+        val otherContents: List<CompactFragment>
 
-        override val openContent: XSOpenContent? = null,
-        override val term: XSIDerivationParticle? = null,
-        override val asserts: List<XSAssertionFacet> = emptyList(),
-        override val attributes: List<XSLocalAttribute> = emptyList(),
-        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-        override val anyAttribute: XSAnyAttribute? = null,
-        override val simpleType: XSLocalSimpleType? = null,
-        override val otherContents: List<CompactFragment> = emptyList(),
-        @XmlOtherAttributes
-        override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSComplexDerivationBase(), T_ComplexRestrictionType {
-        override val derivationMethod: T_DerivationControl.ComplexBase get() = T_DerivationControl.RESTRICTION
-        override val facets: List<Nothing> = emptyList()
+        constructor(
+            simpleType: XSLocalSimpleType? = null,
+            otherContents: List<CompactFragment> = emptyList(),
+            base: QName,
+            term: XSIDerivationParticle? = null,
+            attributes: List<XSLocalAttribute> = emptyList(),
+            attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+            asserts: List<XSAssertionFacet> = emptyList(),
+            anyAttribute: XSAnyAttribute? = null,
+            openContent: XSOpenContent? = null,
+            id: VID? = null,
+            annotation: XSAnnotation? = null,
+            otherAttrs: Map<QName, String> = emptyMap()
+        ) : super(
+            base,
+            term,
+            attributes,
+            attributeGroups,
+            asserts,
+            anyAttribute,
+            openContent,
+            id,
+            annotation,
+            otherAttrs
+        ) {
+            this.simpleType = simpleType
+            this.otherContents = otherContents
+        }
 
+        /**
+         * Mark the derivation as restriction
+         */
+        @Deprecated("Use 'is XSComplexContent.XSRestriction' instead")
+        override val derivationMethod: VDerivationControl.Complex get() = VDerivationControl.RESTRICTION
     }
 
     @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable
-    class XSExtension(
-        override val base: QName,
-        @XmlId
-        override val id: VID? = null,
-        override val term: XSIDerivationParticle? = null,
+    class XSExtension : XSComplexDerivationBase {
+        constructor(
+            base: QName,
+            term: XSIDerivationParticle? = null,
+            attributes: List<XSLocalAttribute> = emptyList(),
+            attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+            asserts: List<XSAssertionFacet> = emptyList(),
+            anyAttribute: XSAnyAttribute? = null,
+            openContent: XSOpenContent? = null,
+            id: VID? = null,
+            annotation: XSAnnotation? = null,
+            otherAttrs: Map<QName, String> = emptyMap()
+        ) : super(
+            base, term, attributes, attributeGroups, asserts, anyAttribute, openContent, id, annotation, otherAttrs
+        )
 
-        override val asserts: List<XSAssertionFacet> = emptyList(),
-        override val attributes: List<XSLocalAttribute> = emptyList(),
-        override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-        override val anyAttribute: XSAnyAttribute? = null,
-        override val annotation: XSAnnotation? = null,
-
-        override val openContent: XSOpenContent? = null,
-        @XmlOtherAttributes
-        override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSComplexDerivationBase(), T_ComplexExtensionType {
-        override val derivationMethod: T_DerivationControl.ComplexBase get() = T_DerivationControl.EXTENSION
+        /**
+         * Mark the derivation as extension
+         */
+        @Deprecated("Use 'is XSComplexContent.XSExtension' instead")
+        override val derivationMethod: VDerivationControl.Complex get() = VDerivationControl.EXTENSION
     }
 
 }

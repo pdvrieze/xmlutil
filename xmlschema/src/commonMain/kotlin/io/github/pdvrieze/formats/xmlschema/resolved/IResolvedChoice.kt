@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, IResolvedGroupMember, ResolvedChoiceSeqMember {
@@ -39,10 +39,10 @@ interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, IResolvedGroupMe
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): SyntheticChoice {
         var newMin: VNonNegativeInteger = minMultiplier
-        var newMax: T_AllNNI = maxMultiplier
+        var newMax: VAllNNI = maxMultiplier
         if (this is ResolvedParticle<*>) {
             newMin*=mdlMinOccurs
             newMax*=mdlMaxOccurs

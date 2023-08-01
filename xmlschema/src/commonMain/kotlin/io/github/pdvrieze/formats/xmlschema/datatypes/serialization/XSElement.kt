@@ -40,7 +40,7 @@ import nl.adaptivity.xmlutil.serialization.*
 data class XSElement(
     override val name: VNCName,
     @Serializable(AllDerivationSerializer::class)
-    override val block: T_BlockSet? = null,
+    override val block: VBlockSet? = null,
     override val default: VString? = null,
     override val fixed: VString? = null,
     @XmlId
@@ -52,11 +52,10 @@ data class XSElement(
 
     @XmlElement(false) val substitutionGroup: List<QName>? = null,
     @XmlElement(false)
-    @Serializable(ComplexDerivationSerializer::class) val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
+    @Serializable(ComplexDerivationSerializer::class) val final: Set<@Contextual VDerivationControl.Complex>? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val localType: XSLocalType? = null,
-    override val alternatives: List<T_AltType> = emptyList(),
     override val uniques: List<XSUnique> = emptyList(),
     override val keys: List<XSKey> = emptyList(),
     override val keyrefs: List<XSKeyRef> = emptyList(),
