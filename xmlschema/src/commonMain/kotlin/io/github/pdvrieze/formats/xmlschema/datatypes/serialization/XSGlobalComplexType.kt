@@ -41,8 +41,8 @@ sealed class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
     val abstract: Boolean?,
-    val final: Set<T_DerivationControl.ComplexBase>?,
-    val block: Set<T_DerivationControl.ComplexBase>?,
+    val final: Set<VDerivationControl.Complex>?,
+    val block: Set<VDerivationControl.Complex>?,
     override val defaultAttributesApply: Boolean?,
     @XmlId
     override val id: VID? = null,
@@ -65,10 +65,10 @@ sealed class XSGlobalComplexType(
         val abstract: Boolean? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
-        val final: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
+        val final: Set<@Contextual VDerivationControl.Complex>? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
-        val block: Set<@Contextual T_DerivationControl.ComplexBase>? = null,
+        val block: Set<@Contextual VDerivationControl.Complex>? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
 //        @Serializable

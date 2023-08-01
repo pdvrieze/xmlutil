@@ -29,33 +29,34 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-@Serializable(T_AllNNI.Serializer::class)
-sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
+// TODO Unify this with VNonNegativeInteger
+@Serializable(VAllNNI.Serializer::class)
+sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
 
-    abstract operator fun plus(other: T_AllNNI): T_AllNNI
+    abstract operator fun plus(other: VAllNNI): VAllNNI
 
-    abstract operator fun times(other: T_AllNNI): T_AllNNI
+    abstract operator fun times(other: VAllNNI): VAllNNI
 
-    object UNBOUNDED : T_AllNNI() {
-        override fun compareTo(other: T_AllNNI): Int = when(other){
+    object UNBOUNDED : VAllNNI() {
+        override fun compareTo(other: VAllNNI): Int = when(other){
             UNBOUNDED -> 0
             else -> 1
         }
 
-        operator fun plus(other: VNonNegativeInteger): T_AllNNI = UNBOUNDED
-        override operator fun plus(other: T_AllNNI): T_AllNNI = UNBOUNDED
-        override operator fun times(other: T_AllNNI): T_AllNNI = UNBOUNDED
+        operator fun plus(other: VNonNegativeInteger): VAllNNI = UNBOUNDED
+        override operator fun plus(other: VAllNNI): VAllNNI = UNBOUNDED
+        override operator fun times(other: VAllNNI): VAllNNI = UNBOUNDED
 
         override fun toString(): String = "unbounded"
     }
 
     @Serializable(Value.Serializer::class)
-    class Value(val value: VNonNegativeInteger): T_AllNNI(), VNonNegativeInteger by value {
+    class Value(val value: VNonNegativeInteger): VAllNNI(), VNonNegativeInteger by value {
         constructor(value: ULong): this(VNonNegativeInteger(value))
         constructor(value: UInt): this(VNonNegativeInteger(value))
 
-        override fun compareTo(other: T_AllNNI): Int {
+        override fun compareTo(other: VAllNNI): Int {
             return when (other) {
                 is UNBOUNDED -> -1
                 is Value -> toULong().compareTo(other.toULong())
@@ -67,12 +68,12 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
             else -> Value(value + other)
         }
 
-        override operator fun plus(other: T_AllNNI): T_AllNNI = when (other) {
+        override operator fun plus(other: VAllNNI): VAllNNI = when (other) {
             is Value -> Value(value + other.value)
             is UNBOUNDED -> UNBOUNDED
         }
 
-        override operator fun times(other: T_AllNNI): T_AllNNI = when (other) {
+        override operator fun times(other: VAllNNI): VAllNNI = when (other) {
             is Value -> Value(value.toULong() * other.value.toULong())
             is UNBOUNDED -> UNBOUNDED
         }
@@ -95,7 +96,7 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
         }
     }
 
-    companion object Serializer: KSerializer<T_AllNNI> {
+    companion object Serializer: KSerializer<VAllNNI> {
 
         val ONE = invoke(1)
 
@@ -109,31 +110,31 @@ sealed class T_AllNNI: Comparable<T_AllNNI> { //TODO make interface
 
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI", PrimitiveKind.STRING)
 
-        override fun deserialize(decoder: Decoder): T_AllNNI = when (val v= decoder.decodeString()) {
+        override fun deserialize(decoder: Decoder): VAllNNI = when (val v= decoder.decodeString()) {
             "unbounded" -> UNBOUNDED
             else -> Value(VNonNegativeInteger(v))
         }
 
-        override fun serialize(encoder: Encoder, value: T_AllNNI) {
+        override fun serialize(encoder: Encoder, value: VAllNNI) {
             encoder.encodeString(value.toString())
         }
     }
 }
 
-class AllNNIRange(override val start: T_AllNNI.Value, override val endInclusive: T_AllNNI) : ClosedRange<T_AllNNI> {
-    constructor(startNNI: VNonNegativeInteger, endInclusive: T_AllNNI) : this(T_AllNNI.Value(startNNI), endInclusive)
+class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: VAllNNI) : ClosedRange<VAllNNI> {
+    constructor(startNNI: VNonNegativeInteger, endInclusive: VAllNNI) : this(VAllNNI.Value(startNNI), endInclusive)
     constructor(
         startNNI: VNonNegativeInteger,
         endInclusive: VNonNegativeInteger
-    ) : this(start = T_AllNNI.Value(startNNI), T_AllNNI.Value(endInclusive))
+    ) : this(start = VAllNNI.Value(startNNI), VAllNNI.Value(endInclusive))
 
-    override fun contains(value: T_AllNNI): Boolean = when (value) {
-        is T_AllNNI.UNBOUNDED -> false
+    override fun contains(value: VAllNNI): Boolean = when (value) {
+        is VAllNNI.UNBOUNDED -> false
         else -> start <= value && value <= endInclusive
     }
 
     override fun isEmpty(): Boolean {
-        return endInclusive !is T_AllNNI.UNBOUNDED && start < endInclusive
+        return endInclusive !is VAllNNI.UNBOUNDED && start < endInclusive
     }
 
     operator fun times(other: AllNNIRange): AllNNIRange {

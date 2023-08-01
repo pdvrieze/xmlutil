@@ -21,9 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_NamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_NotNamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.VNotNamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -32,18 +32,18 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 abstract class XSAnyBase : XSAnnotatedBase {
     @XmlElement(false)
-    val namespace: T_NamespaceList?
+    val namespace: VNamespaceList?
 
     @XmlElement(false)
-    val notNamespace: T_NotNamespaceList?
+    val notNamespace: VNotNamespaceList?
 
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")
-    abstract val processContents: T_ProcessContents?
+    abstract val processContents: VProcessContents?
 
     constructor(
-        namespace: T_NamespaceList? = null,
-        notNamespace: T_NotNamespaceList? = null,
+        namespace: VNamespaceList? = null,
+        notNamespace: VNotNamespaceList? = null,
         id: VID?,
         annotation: XSAnnotation?,
         otherAttrs: Map<QName, String>

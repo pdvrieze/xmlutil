@@ -23,11 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.*
 
@@ -37,11 +34,11 @@ class XSSelector : XSAnnotatedBase {
     val xpath: VToken
 
     @XmlElement(false)
-    val xpathDefaultNamespace: T_XPathDefaultNamespace?
+    val xpathDefaultNamespace: VXPathDefaultNamespace?
 
     constructor(
         xpath: VToken,
-        xpathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         id: VID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()

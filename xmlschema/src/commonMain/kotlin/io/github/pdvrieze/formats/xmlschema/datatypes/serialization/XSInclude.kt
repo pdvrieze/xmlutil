@@ -25,24 +25,23 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_Include
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("include", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSInclude(
-    override val schemaLocation: VAnyURI,
-    @XmlId
-    override val id: VID? = null,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-): T_Include
+class XSInclude : XSAnnotatedBase {
+    val schemaLocation: VAnyURI
+
+    constructor(
+        schemaLocation: VAnyURI,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.schemaLocation = schemaLocation
+    }
+}

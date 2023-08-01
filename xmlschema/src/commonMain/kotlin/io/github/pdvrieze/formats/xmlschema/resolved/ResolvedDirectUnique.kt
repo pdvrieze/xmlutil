@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_Unique
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
@@ -33,7 +32,7 @@ class ResolvedDirectUnique(
     override val rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedNamedIdentityConstraint(schema, owner), T_Unique, ResolvedUnique, IdentityConstraintModel.Unique {
+): ResolvedNamedIdentityConstraint(schema, owner), ResolvedUnique, IdentityConstraintModel.Unique {
 
     override val constraint: ResolvedDirectUnique
         get() = this

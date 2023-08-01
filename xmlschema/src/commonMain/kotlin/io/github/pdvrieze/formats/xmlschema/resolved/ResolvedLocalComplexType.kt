@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
@@ -85,7 +85,7 @@ class ResolvedLocalComplexType(
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
             schema.blockDefault.toDerivationSet()
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()
     }
 
@@ -98,7 +98,7 @@ class ResolvedLocalComplexType(
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
             schema.blockDefault.toDerivationSet()
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()
     }
 
@@ -111,7 +111,7 @@ class ResolvedLocalComplexType(
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
             schema.blockDefault.toDerivationSet()
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()
     }
 }

@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -32,7 +32,7 @@ sealed interface XSI_Particle : XSI_Annotated {
     val minOccurs: VNonNegativeInteger?
 
     /** Optional, default 1 */
-    val maxOccurs: T_AllNNI?
+    val maxOccurs: VAllNNI?
 
     object DUMMY : XSI_Particle {
         override val minOccurs: Nothing? get() = null

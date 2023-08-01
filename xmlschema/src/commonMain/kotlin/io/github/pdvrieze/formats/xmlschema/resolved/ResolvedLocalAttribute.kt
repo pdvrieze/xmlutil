@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute(
@@ -53,7 +53,7 @@ class ResolvedLocalAttribute(
     override val fixed: VString?
         get() = rawPart.fixed ?: referenced?.fixed
 
-    val form: T_FormChoice?
+    val form: VFormChoice?
         get() = rawPart.form
 
     override val name: VNCName

@@ -20,17 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import nl.adaptivity.xmlutil.QName
 
 interface T_AltType: XSI_Annotated {
-    val simpleTypes: List<XSLocalSimpleType>
+    val simpleTypes: List<ResolvedSimpleType>
 
-    val complexTypes: List<T_ComplexType>
+    val complexTypes: List<ResolvedComplexType>
 
     val test: String?
 
     val type: QName?
 
-    val xPathDefaultNamespace: T_XPathDefaultNamespace
+    val xPathDefaultNamespace: VXPathDefaultNamespace
 }

@@ -40,7 +40,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     SimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
 
     abstract override val rawPart: XSIElement
-    abstract val scope: T_Scope
+
+    /**
+     * This can be done better with type checks
+     */
+    @Deprecated("Use is ResolvedGlobalElement or is ResolvedLocalElement")
+    abstract val scope: VScope
 
     val type: QName?
         get() = rawPart.type
@@ -72,7 +77,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     open val annotation: XSAnnotation? get() = rawPart.annotation
 
-    val alternatives: List<T_AltType> get() = rawPart.alternatives
+    val alternatives: List<Nothing> get() = rawPart.alternatives
 
     abstract val uniques: List<ResolvedUnique>
 
@@ -88,7 +93,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
     override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
     override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
-    override val mdlDisallowedSubstitutions: T_BlockSet get() = model.mdlDisallowedSubstitutions
+    override val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
     override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations

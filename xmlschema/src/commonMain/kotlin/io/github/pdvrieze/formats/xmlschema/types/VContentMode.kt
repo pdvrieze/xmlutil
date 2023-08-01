@@ -20,7 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-@Deprecated("Not needed")
-interface T_Type {
-}
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
+enum class VContentMode {
+    @SerialName("interleave")
+    INTERLEAVE,
+    @SerialName("suffix")
+    SUFFIX,
+    @SerialName("none")
+    NONE
+}

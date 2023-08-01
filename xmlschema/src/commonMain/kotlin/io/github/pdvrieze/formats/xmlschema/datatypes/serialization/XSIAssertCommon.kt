@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
+import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
 interface XSIAssertCommon: XSI_Annotated {
     val test: XPathExpression?
-    val xPathDefaultNamespace: T_XPathDefaultNamespace?
+    val xPathDefaultNamespace: VXPathDefaultNamespace?
 }

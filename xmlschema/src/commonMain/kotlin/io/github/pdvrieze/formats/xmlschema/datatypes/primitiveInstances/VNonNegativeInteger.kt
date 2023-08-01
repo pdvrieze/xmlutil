@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -38,8 +38,8 @@ interface VNonNegativeInteger : VInteger {
     operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger
     operator fun times(other: VNonNegativeInteger): VNonNegativeInteger
 
-    fun coerceAtMost(maxMax: T_AllNNI): VNonNegativeInteger = when {
-        maxMax is T_AllNNI.Value && maxMax.value < this -> maxMax
+    fun coerceAtMost(maxMax: VAllNNI): VNonNegativeInteger = when {
+        maxMax is VAllNNI.Value && maxMax.value < this -> maxMax
         else -> this
     }
 
@@ -54,8 +54,8 @@ interface VNonNegativeInteger : VInteger {
     operator fun compareTo(other: VNonNegativeInteger): Int =
         toULong().compareTo(other.toULong())
 
-    operator fun compareTo(other: T_AllNNI): Int = when {
-        other !is T_AllNNI.Value -> -1 // If not a value then unbounded
+    operator fun compareTo(other: VAllNNI): Int = when {
+        other !is VAllNNI.Value -> -1 // If not a value then unbounded
         else -> toULong().compareTo(other.toULong())
     }
 

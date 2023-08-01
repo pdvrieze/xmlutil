@@ -22,8 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -32,8 +31,8 @@ class XSGlobalComplexTypeShorthand(
     name: VNCName,
     mixed: Boolean?,
     abstract: Boolean?,
-    final: Set<T_DerivationControl.ComplexBase>?,
-    block: Set<T_DerivationControl.ComplexBase>?,
+    final: Set<VDerivationControl.Complex>?,
+    block: Set<VDerivationControl.Complex>?,
     defaultAttributesApply: Boolean?,
     override val term: XSComplexContent.XSIDerivationParticle? = null,
     override val asserts: List<XSAssert>,

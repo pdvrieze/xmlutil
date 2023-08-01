@@ -26,7 +26,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -36,13 +36,13 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAll : XSExplicitGroup {
-    override val maxOccurs: T_AllNNI.Value?
+    override val maxOccurs: VAllNNI.Value?
     override val particles: List<XSI_AllParticle>
 
     constructor(
         particles: List<XSI_AllParticle>,
         minOccurs: VNonNegativeInteger? = null,
-        maxOccurs: T_AllNNI.Value? = null,
+        maxOccurs: VAllNNI.Value? = null,
         id: VID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()

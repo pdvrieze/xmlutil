@@ -23,12 +23,12 @@ package io.github.pdvrieze.formats.xmlschema.model
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 interface ParticleModel<out T : Term> : IAnnotated {
 
     val mdlMinOccurs: VNonNegativeInteger
-    val mdlMaxOccurs: T_AllNNI
+    val mdlMaxOccurs: VAllNNI
     val mdlTerm: T
 
     val effectiveTotalRange: AllNNIRange
@@ -36,7 +36,7 @@ interface ParticleModel<out T : Term> : IAnnotated {
             is AllModel,
             is SequenceModel<*> -> {
                 var min: VNonNegativeInteger = VUnsignedLong.ZERO
-                var max: T_AllNNI = T_AllNNI.Value(0u)
+                var max: VAllNNI = VAllNNI.Value(0u)
                 for (particle in (t as GroupLikeTermBase).mdlParticles) {
                     val r = particle.effectiveTotalRange
                     min += r.start
@@ -47,7 +47,7 @@ interface ParticleModel<out T : Term> : IAnnotated {
 
             is ChoiceModel -> {
                 var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
-                var maxMax: T_AllNNI = T_AllNNI.Value(0u)
+                var maxMax: VAllNNI = VAllNNI.Value(0u)
                 for (particle in t.mdlParticles) {
                     val r = particle.effectiveTotalRange
                     minMin = minMin.coerceAtMost(r.start)
@@ -58,7 +58,7 @@ interface ParticleModel<out T : Term> : IAnnotated {
 
             }
 
-            else -> AllNNIRange(T_AllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
+            else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
 
     fun mdlIsEmptiable(): Boolean {

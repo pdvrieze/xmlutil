@@ -25,19 +25,19 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 class SyntheticChoice(
     override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: T_AllNNI,
+    override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedComplexType.ResolvedDirectParticle<SyntheticChoice>, SequenceModel<ResolvedChoiceSeqMember>,
     IResolvedChoice, ResolvedChoiceSeqMember {
     override val mdlTerm: SyntheticChoice get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
-    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+    override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: AnnotationModel? get() = null
@@ -54,7 +54,7 @@ class SyntheticChoice(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): SyntheticChoice {
         return SyntheticChoice(minOccurs*minMultiplier, maxOccurs*maxMultiplier, mdlParticles, schema)
     }

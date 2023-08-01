@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import nl.adaptivity.xmlutil.QName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-interface T_GroupRef : XSI_Annotated {
-    val ref: QName // required
+@Serializable
+enum class VFormChoice {
+    @SerialName("qualified")
+    QUALIFIED,
 
-    val name: Nothing? get() = null
-
+    @SerialName("unqualified")
+    UNQUALIFIED
 }
-

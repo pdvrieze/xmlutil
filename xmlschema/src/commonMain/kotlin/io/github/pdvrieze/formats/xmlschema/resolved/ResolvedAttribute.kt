@@ -32,7 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
@@ -68,7 +68,7 @@ sealed class ResolvedAttribute(
 
     final override val mdlTargetNamespace: VAnyURI? by lazy {
         targetNamespace ?: when {
-            ((rawPart as? XSLocalAttribute)?.form ?: (schema as ResolvedSchema)) == T_FormChoice.QUALIFIED ->
+            ((rawPart as? XSLocalAttribute)?.form ?: (schema as ResolvedSchema)) == VFormChoice.QUALIFIED ->
                 schema.targetNamespace
 
             else -> null

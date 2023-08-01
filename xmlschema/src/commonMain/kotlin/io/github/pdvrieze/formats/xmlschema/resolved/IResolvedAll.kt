@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.model.AllModel
 import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll :
@@ -39,7 +39,7 @@ interface IResolvedAll :
         super<IResolvedGroupMember>.check(checkedTypes)
         for (particle in mdlParticles) {
             val maxOccurs = particle.mdlMaxOccurs
-            check(maxOccurs <= T_AllNNI(1uL)) {
+            check(maxOccurs <= VAllNNI(1uL)) {
                 "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
             }
         }
@@ -47,10 +47,10 @@ interface IResolvedAll :
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): SyntheticAll {
         var newMin: VNonNegativeInteger = minMultiplier
-        var newMax: T_AllNNI = maxMultiplier
+        var newMax: VAllNNI = maxMultiplier
         if (this is ResolvedParticle<*>) {
             newMin *= mdlMinOccurs
             newMax *= mdlMaxOccurs
