@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
@@ -104,12 +104,12 @@ class ResolvedGlobalGroup(
 
         override fun normalize(
             minMultiplier: VNonNegativeInteger,
-            maxMultiplier: T_AllNNI
+            maxMultiplier: VAllNNI
         ): SyntheticAll {
             // there are no minOccurs/maxOccurs
             val newParticles = mutableListOf<ResolvedParticle<ResolvedAllMember>>()
             for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, T_AllNNI.ONE) as ResolvedParticle<ResolvedAllMember>
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE) as ResolvedParticle<ResolvedAllMember>
                 when (normalized) {
                     is IResolvedAll -> newParticles.addAll(normalized.mdlParticles)
                     else -> newParticles.add(normalized)
@@ -142,12 +142,12 @@ class ResolvedGlobalGroup(
 
         override fun normalize(
             minMultiplier: VNonNegativeInteger,
-            maxMultiplier: T_AllNNI
+            maxMultiplier: VAllNNI
         ): SyntheticChoice {
             // there are no minOccurs/maxOccurs
             val newParticles = mutableListOf<ResolvedParticle<ResolvedChoiceSeqMember>>()
             for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, T_AllNNI.ONE) as ResolvedParticle<ResolvedChoiceSeqMember>
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE) as ResolvedParticle<ResolvedChoiceSeqMember>
                 when (normalized) {
                     is IResolvedChoice -> newParticles.addAll(normalized.mdlParticles)
                     else -> newParticles.add(normalized)

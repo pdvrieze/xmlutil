@@ -22,12 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
@@ -43,6 +43,6 @@ sealed class XSSimpleContentDerivation(
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
 ) : XSComplexType.Derivation, XSI_Annotated, I_Assertions {
-    abstract val base: QName?
-    abstract val derivationMethod: T_DerivationControl.ComplexBase
+    abstract val base: SerializableQName?
+    abstract val derivationMethod: VDerivationControl.Complex
 }

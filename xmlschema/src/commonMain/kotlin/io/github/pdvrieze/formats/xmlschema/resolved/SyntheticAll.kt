@@ -24,12 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 class SyntheticAll(
     override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: T_AllNNI,
+    override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>,
@@ -37,7 +37,7 @@ class SyntheticAll(
 
     override val mdlTerm: SyntheticAll get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
-    override val maxOccurs: T_AllNNI get() = mdlMaxOccurs
+    override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: AnnotationModel? get() = null
@@ -51,7 +51,7 @@ class SyntheticAll(
     override fun check() {
     }
 
-    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: T_AllNNI): SyntheticAll {
+    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): SyntheticAll {
         return SyntheticAll(mdlMinOccurs*minMultiplier, mdlMaxOccurs*maxMultiplier, mdlParticles, schema)
     }
 }

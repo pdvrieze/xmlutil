@@ -25,27 +25,32 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.T_KeyRef
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("keyref", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-data class XSKeyRef(
-    override val selector: XSSelector,
-    override val fields: List<XSField> = emptyList(),
-    val name: VNCName? = null,
-    val ref: QName? = null,
-    override val refer: QName? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String>
+class XSKeyRef : XSIdentityConstraint {
+    val name: VNCName?
+    val ref: SerializableQName?
+    val refer: SerializableQName?
 
-): T_KeyRef
+    constructor(
+        name: VNCName? = null,
+        ref: QName? = null,
+        refer: QName? = null,
+        selector: XSSelector,
+        fields: List<XSField> = emptyList(),
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<QName, String>
+    ) : super(selector, fields, id, annotation, otherAttrs) {
+        this.name = name
+        this.ref = ref
+        this.refer = refer
+    }
+}

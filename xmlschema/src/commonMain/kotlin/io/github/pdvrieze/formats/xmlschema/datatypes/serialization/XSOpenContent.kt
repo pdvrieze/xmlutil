@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
+import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSOpenContent : XSOpenContentBase {
     constructor(
         id: VID? = null,
-        mode: T_ContentMode = T_ContentMode.INTERLEAVE,
+        mode: VContentMode = VContentMode.INTERLEAVE,
         otherAttrs: Map<SerializableQName, String> = emptyMap(),
         annotation: XSAnnotation? = null,
         any: XSAny? = null

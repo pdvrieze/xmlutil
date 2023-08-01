@@ -23,10 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -54,12 +54,17 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         this.otherContents = otherContents
     }
 
-    override val base: @Serializable(QNameSerializer::class) QName
+    override val base: SerializableQName
 
     override val simpleType: XSLocalSimpleType?
 
     override val facets: List<XSFacet>
 
     val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
-    override val derivationMethod: T_DerivationControl.RESTRICTION get() = T_DerivationControl.RESTRICTION
+
+    /**
+     * Mark the derivation as restriction
+     */
+    @Deprecated("Use 'is XSSimpleContentRestriction' instead")
+    override val derivationMethod: VDerivationControl.RESTRICTION get() = VDerivationControl.RESTRICTION
 }

@@ -22,14 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.OpenContentModel
-import io.github.pdvrieze.formats.xmlschema.types.T_ContentMode
+import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
 class ResolvedOpenContent(val rawPart: XSOpenContent, schemaLike: ResolvedSchemaLike) : OpenContentModel {
 
     override val mdlMode: OpenContentModel.Mode = when(rawPart.mode) {
-        T_ContentMode.INTERLEAVE -> OpenContentModel.Mode.INTERLEAVE
-        T_ContentMode.SUFFIX -> OpenContentModel.Mode.SUFFIX
-        T_ContentMode.NONE -> OpenContentModel.Mode.NONE
+        VContentMode.INTERLEAVE -> OpenContentModel.Mode.INTERLEAVE
+        VContentMode.SUFFIX -> OpenContentModel.Mode.SUFFIX
+        VContentMode.NONE -> OpenContentModel.Mode.NONE
     }
 
     override val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schemaLike) }

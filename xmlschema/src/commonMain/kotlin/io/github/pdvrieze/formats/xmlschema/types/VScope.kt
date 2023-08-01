@@ -20,14 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
-@Serializable
-enum class T_FormChoice {
-    @SerialName("qualified")
-    QUALIFIED,
-
-    @SerialName("unqualified")
-    UNQUALIFIED
+enum class VScope {
+    GLOBAL,
+    LOCAL
 }

@@ -24,14 +24,14 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI?
 
-    abstract val blockDefault: T_BlockSet
+    abstract val blockDefault: VBlockSet
     abstract val finalDefault: Set<TypeModel.Derivation>
     abstract val defaultOpenContent: XSDefaultOpenContent?
 

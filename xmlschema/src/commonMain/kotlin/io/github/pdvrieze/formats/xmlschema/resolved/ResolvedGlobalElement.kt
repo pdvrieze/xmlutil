@@ -49,7 +49,7 @@ class ResolvedGlobalElement(
         checkSingleType()
         checkSubstitutionGroupChain(SingleLinkedList(qName))
         typeDef.check(checkedTypes, SingleLinkedList())
-        if (T_DerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
+        if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }
 
@@ -59,9 +59,9 @@ class ResolvedGlobalElement(
                 val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
                     is ResolvedComplexType -> t.mdlDerivationMethod
                     is ResolvedSimpleType -> when (t.mdlVariety) {
-                        SimpleTypeModel.Variety.ATOMIC -> T_DerivationControl.RESTRICTION
-                        SimpleTypeModel.Variety.LIST -> T_DerivationControl.LIST
-                        SimpleTypeModel.Variety.UNION -> T_DerivationControl.UNION
+                        SimpleTypeModel.Variety.ATOMIC -> VDerivationControl.RESTRICTION
+                        SimpleTypeModel.Variety.LIST -> VDerivationControl.LIST
+                        SimpleTypeModel.Variety.UNION -> VDerivationControl.UNION
                         SimpleTypeModel.Variety.NIL -> null
                     }
 
@@ -113,10 +113,11 @@ class ResolvedGlobalElement(
 
 
     val typeTable: TypeTable? by lazy {
+        // TODO actually implement alternatives properly
         when (rawPart.alternatives.size) {
             0 -> null
             else -> TypeTable(
-                alternatives = rawPart.alternatives.filter { it.test != null },
+                alternatives = emptyList(),// rawPart.alternatives.filter { it.test != null },
                 default = rawPart.alternatives.lastOrNull()?.let {
                     null //TODO actually use resolved types
                 } ?: null
@@ -124,7 +125,7 @@ class ResolvedGlobalElement(
         }
     }
 
-    override val scope: T_Scope get() = T_Scope.GLOBAL
+    override val scope: VScope get() = VScope.GLOBAL
 
     val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
@@ -198,7 +199,7 @@ class ResolvedGlobalElement(
         override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
 
-        override val mdlDisallowedSubstitutions: T_BlockSet =
+        override val mdlDisallowedSubstitutions: VBlockSet =
             (rawPart.block ?: schema.blockDefault)
 
         override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =

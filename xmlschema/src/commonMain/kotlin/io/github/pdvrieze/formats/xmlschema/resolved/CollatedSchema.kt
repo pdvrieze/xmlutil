@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -273,7 +273,7 @@ internal class CollatedSchema(
     ) : ResolvedSchemaLike() {
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
-        override val blockDefault: T_BlockSet get() = originalSchema.blockDefault ?: emptySet()
+        override val blockDefault: VBlockSet get() = originalSchema.blockDefault ?: emptySet()
         override val finalDefault: Set<TypeModel.Derivation> get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
 
@@ -429,7 +429,7 @@ internal class CollatedSchema(
         override val targetNamespace: VAnyURI?
             get() = chameleonNamespace
 
-        override val blockDefault: T_BlockSet
+        override val blockDefault: VBlockSet
             get() = base.blockDefault
         override val finalDefault: Set<TypeModel.Derivation>
             get() = base.finalDefault
