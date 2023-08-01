@@ -33,13 +33,16 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("minInclusive", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSMinInclusive(
-    override val value: VString,
-    override val fixed: Boolean? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
+class XSMinInclusive : XSFacet.Fixed {
+    override val value: VString
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet()
+    constructor(
+        value: VString,
+        fixed: Boolean? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(fixed, id, annotation, otherAttrs) {
+        this.value = value
+    }
+}

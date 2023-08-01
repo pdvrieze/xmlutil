@@ -29,21 +29,25 @@ import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("assertion", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSAssertionFacet(
-    override val test: XPathExpression? = null,
-    override val xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val annotation: XSAnnotation? = null,
-    @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSFacet.NotFixed(), XSIAssertCommon {
+class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
+
+    override val xPathDefaultNamespace: T_XPathDefaultNamespace?
+    override val test: XPathExpression?
     override val value: Any get() = this
+
+    constructor(
+        test: XPathExpression? = null,
+        xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(id, annotation, otherAttrs) {
+        this.xPathDefaultNamespace = xPathDefaultNamespace
+        this.test = test
+    }
 }
 
