@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_All
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -38,8 +37,7 @@ class ResolvedAll private constructor(
     IResolvedAll,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedAll>,
     ResolvedGroupLikeTerm,
-    ResolvedGroupParticle<IResolvedAll>,
-    T_All {
+    ResolvedGroupParticle<IResolvedAll> {
 
     constructor(
         parent: ResolvedParticleParent,

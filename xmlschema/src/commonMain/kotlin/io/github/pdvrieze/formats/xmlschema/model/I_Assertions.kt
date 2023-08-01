@@ -16,9 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 
 /** assert* */
 interface I_Assertions {
-    val asserts: List<T_Assertion>
+    val asserts: List<XSIAssertCommon>
 }

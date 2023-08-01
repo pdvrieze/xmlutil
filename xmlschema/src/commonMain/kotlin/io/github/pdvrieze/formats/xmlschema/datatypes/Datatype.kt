@@ -25,9 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
@@ -100,7 +100,7 @@ sealed class ListDatatype protected constructor(
     T_SimpleType.T_List {
     abstract override val baseType: ResolvedType
 
-    val whiteSpace: XSWhiteSpace.Values get() = XSWhiteSpace.Values.COLLAPSE
+    val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
     override val name: VNCName
         get() = super<Datatype>.name
@@ -121,7 +121,7 @@ sealed class ListDatatype protected constructor(
     final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
     final override val mdlFacets: FacetList = FacetList(
         minLength = ResolvedMinLength(XSMinLength(1u), schemaLike),
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE), schemaLike)
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), schemaLike)
     )
     final override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,
@@ -292,7 +292,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
 internal open class SimpleBuiltinRestriction(
     override val baseType: ResolvedBuiltinType,
-    override val facets: List<XSFacet> = listOf(XSWhiteSpace(XSWhiteSpace.Values.COLLAPSE, true))
+    override val facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
     override val rawPart: T_SimpleType.T_Restriction get() = this
     override val base: QName get() = baseType.qName

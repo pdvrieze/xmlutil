@@ -16,7 +16,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_AnyElement: XSI_Annotated, T_Wildcard, T_NestedAllParticle {
+interface T_AnyElement: XSI_Annotated, T_Wildcard, T_Particle {
     override val namespace: T_NamespaceList?
     override val notNamespace: T_NotNamespaceList?
     val notQName: T_QNameList?

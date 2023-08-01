@@ -16,8 +16,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_IntFacet : T_Facet {
+interface T_IntFacet : T_Facet, XSI_Annotated {
 
-    override val value: Int
+    val value: Int
+    val fixed: Boolean?
 
 }

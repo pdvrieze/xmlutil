@@ -21,7 +21,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import io.github.pdvrieze.formats.xmlschema.types.T_Assertion
 import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -41,4 +40,5 @@ class XSAssert(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : T_Assertion
+) : XSIAssertCommon
+

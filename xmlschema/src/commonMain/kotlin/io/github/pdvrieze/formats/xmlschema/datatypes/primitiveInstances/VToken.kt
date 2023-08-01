@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -45,7 +44,7 @@ interface VToken : VNormalizedString {
 
     companion object {
         operator fun invoke(value: String): VToken =
-            Inst(XSWhiteSpace.Values.COLLAPSE.normalize(VString(value)).xmlString)
+            Inst(WhitespaceValue.COLLAPSE.normalize(VString(value)).xmlString)
     }
 
 }
