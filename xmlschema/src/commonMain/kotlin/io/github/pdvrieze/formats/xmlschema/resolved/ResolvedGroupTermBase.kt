@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
 import nl.adaptivity.xmlutil.QName
 
 /**
@@ -30,11 +29,11 @@ import nl.adaptivity.xmlutil.QName
  */
 sealed class ResolvedGroupTermBase(
     final override val schema: ResolvedSchemaLike,
-) : ResolvedPart, ResolvedAnnotated, T_ExplicitGroupParticle, ResolvedTerm {
+) : ResolvedPart, ResolvedAnnotated, ResolvedTerm {
 
     abstract override val rawPart: XSI_Grouplike
 
-    final override val particles: List<XSI_Particle>
+    val particles: List<XSI_Particle>
         get() = rawPart.particles
 
     final val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()

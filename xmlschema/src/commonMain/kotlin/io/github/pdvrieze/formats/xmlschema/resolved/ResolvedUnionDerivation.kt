@@ -31,14 +31,13 @@ class ResolvedUnionDerivation(
     override val rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType
-) : ResolvedSimpleDerivationBase(schema),
-    T_SimpleType.T_Union {
+) : ResolvedSimpleDerivationBase(schema) {
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    override val simpleTypes: List<ResolvedLocalSimpleType> =
+    val simpleTypes: List<ResolvedLocalSimpleType> =
         DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema, context) }
 
-    override val memberTypes: List<QName>?
+    val memberTypes: List<QName>?
         get() = rawPart.memberTypes
 
     val resolvedMembers: List<ResolvedSimpleType>

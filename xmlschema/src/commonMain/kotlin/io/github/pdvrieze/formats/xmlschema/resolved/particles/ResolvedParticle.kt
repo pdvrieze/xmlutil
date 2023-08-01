@@ -25,11 +25,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_Particle
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, T_Particle, ParticleModel<T> {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, ParticleModel<T> {
     override val rawPart: XSI_Particle
+
+    /** Optional, default 1 */
+    val minOccurs: VNonNegativeInteger?
+
+    /** Optional, default 1 */
+    val maxOccurs: T_AllNNI?
 
     fun normalizeTerm(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
@@ -43,7 +48,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedAllMember> = when (rawPart) {
             is XSAny -> ResolvedAny(rawPart, schema)
-            is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+            is XSGroupRef -> ResolvedGroupRef(
+                rawPart,
+                schema
+            )
+
             is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
         }
 
@@ -54,7 +63,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         ): ResolvedParticle<ResolvedChoiceSeqMember> = when (rawPart) {
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
-            is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+            is XSGroupRef -> ResolvedGroupRef(
+                rawPart,
+                schema
+            )
+
             is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
         }
@@ -67,7 +80,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
             is XSAll -> ResolvedAll(parent, rawPart, schema)
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-            is XSGroupRefParticle -> ResolvedGroupRefParticle(rawPart, schema)
+            is XSGroupRef -> ResolvedGroupRef(
+                rawPart,
+                schema
+            )
+
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)

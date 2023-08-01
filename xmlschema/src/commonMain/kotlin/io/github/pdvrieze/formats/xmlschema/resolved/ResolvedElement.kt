@@ -20,13 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
@@ -61,10 +63,12 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     }
     open val id: VID? get() = rawPart.id
 
-    val localType: T_Type?
+    val localType: XSIType?
         get() = rawPart.localType
 
     override val name: VNCName? get() = rawPart.name
+
+    override val targetNamespace: VAnyURI? get() = rawPart.targetNamespace
 
     open val annotation: XSAnnotation? get() = rawPart.annotation
 
@@ -180,16 +184,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
         final override val mdlNillable: Boolean = rawPart.nillable ?: false
 
-        abstract override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
-
-        final override val mdlDisallowedSubstitutions: T_BlockSet =
-            (rawPart.block ?: schema.blockDefault)
-
-
-        final override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
-            (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
-
-        final override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        final override val mdlAbstract: Boolean = (rawPart as? XSElement)?.abstract ?: false
 
         final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
 
@@ -199,12 +194,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
                 rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
                 rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
             }
-
-        final override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
-                ?: rawPart.type?.let { schema.type(it) }
-                ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
-                ?: AnyType
 
     }
 

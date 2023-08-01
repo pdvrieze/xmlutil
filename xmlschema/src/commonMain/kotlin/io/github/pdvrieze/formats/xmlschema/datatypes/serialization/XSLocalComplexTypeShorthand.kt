@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_LocalComplexType_Shorthand
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -44,7 +43,7 @@ class XSLocalComplexTypeShorthand(
     id,
     annotation,
     otherAttrs
-), XSComplexType.Shorthand, T_LocalComplexType_Shorthand {
+), XSComplexType.Shorthand {
 
     override val content: XSLocalComplexTypeShorthand get() = this
     override val derivation: XSLocalComplexTypeShorthand get() = this

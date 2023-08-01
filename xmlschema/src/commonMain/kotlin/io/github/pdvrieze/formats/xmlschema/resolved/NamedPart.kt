@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 interface NamedPart : OptNamedPart, I_Named {
     override val rawPart: XSI_OpenAttrs
 
-    override val name: VNCName get() = (rawPart as I_Named).name
+    override val name: VNCName
 
     override val targetNamespace: VAnyURI?
 

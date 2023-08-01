@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
-import io.github.pdvrieze.formats.xmlschema.types.T_Sequence
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -48,7 +47,7 @@ class XSSequence(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-): XSExplicitGroup, T_Sequence, XSI_NestedParticle {
+): XSExplicitGroup, XSI_NestedParticle {
 //    override val mdlAnnotations: AnnotationModel? get() = annotation.models()
 //    override val mdlMinOccurs: VNonNegativeInteger get() = minOccurs ?: VNonNegativeInteger(1)
 //    override val mdlMaxOccurs: T_AllNNI get() = maxOccurs ?: T_AllNNI(1)

@@ -20,23 +20,32 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.T_AltType
-import io.github.pdvrieze.formats.xmlschema.types.T_Element
+import io.github.pdvrieze.formats.xmlschema.types.*
+import nl.adaptivity.xmlutil.QName
 
-interface XSIElement : T_Element {
-    override val default: VString?
+interface XSIElement : XSI_Annotated, I_OptNamed, XSI_OpenAttrs {
+    val default: VString?
 
-    override val fixed: VString?
+    val fixed: VString?
 
-    override val keyrefs: List<XSKeyRef>
+    val keyrefs: List<XSKeyRef>
 
-    override val uniques: List<XSUnique>
+    val uniques: List<XSUnique>
 
-    override val keys: List<XSKey>
+    val keys: List<XSKey>
 
-    override val localType: XSLocalType?
+    val localType: XSLocalType?
 
-    override val alternatives: List<T_AltType>
+    val alternatives: List<T_AltType>
         get() = TODO("not implemented")
+    val type: QName?
+
+    val nillable: Boolean?
+
+    val block: T_BlockSet?
+    val form: T_FormChoice?
+
+    val ref: QName?
 }

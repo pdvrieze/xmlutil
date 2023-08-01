@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.T_LocalType
 import io.github.pdvrieze.formats.xmlschema.types.T_Type
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SealedClassSerializer
@@ -32,9 +34,11 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 
-sealed interface XSIType: XSI_Annotated, T_Type
+sealed interface XSIType: XSI_Annotated
 
-sealed interface XSGlobalType: XSIType
+sealed interface XSGlobalType: XSIType {
+    val name: VNCName
+}
 
 @Serializable(XSLocalType.Serializer::class)
 sealed class XSLocalType: T_LocalType, XSIType {

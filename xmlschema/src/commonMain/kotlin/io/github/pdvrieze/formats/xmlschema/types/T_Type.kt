@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-interface T_Type: XSI_Annotated, XSI_OpenAttrs {
+@Deprecated("Not needed")
+interface T_Type {
 }
 

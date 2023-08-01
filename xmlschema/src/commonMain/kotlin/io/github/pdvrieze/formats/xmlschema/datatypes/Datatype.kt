@@ -167,11 +167,8 @@ abstract class ConstructedListDatatype : ListDatatype {
 
     override val simpleType: Nothing? get() = null
 
-    override val final: Set<Nothing>
-        get() = emptySet()
-
     override val simpleDerivation: BuiltinListDerivation
-        get() = BuiltinListDerivation(this, BuiltinSchemaXmlschema)
+        get() = BuiltinListDerivation(BuiltinSchemaXmlschema)
 }
 
 /**
@@ -188,8 +185,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String) : Datatype(nam
 
 object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedGlobalSimpleType, ResolvedBuiltinType {
     override val baseType: ErrorType get() = ErrorType
-    override val rawPart: ErrorType get() = this
-    override val final: Set<Nothing> get() = emptySet()
+    override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
     override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
@@ -211,7 +207,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     }
 
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
-        override val rawPart: T_SimpleType.T_Restriction get() = this
+        override val rawPart: Nothing get() = throw UnsupportedOperationException()
 
         override val simpleType: Nothing? get() = null
         override val facets: List<XSFacet> get() = emptyList()
@@ -269,7 +265,6 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
         get() = SimpleBuiltinRestriction(baseType)
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
-    override val final: Set<Nothing> get() = emptySet()
     override val model: AnySimpleType get() = this
     override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.NIL
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
@@ -294,7 +289,7 @@ internal open class SimpleBuiltinRestriction(
     override val baseType: ResolvedBuiltinType,
     override val facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
-    override val rawPart: T_SimpleType.T_Restriction get() = this
+    override val rawPart: Nothing get() = throw UnsupportedOperationException()
     override val base: QName get() = baseType.qName
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit

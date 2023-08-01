@@ -20,19 +20,23 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_ExplicitGroupParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_Particle
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 
-sealed interface XSExplicitGroup : XSI_Grouplike, T_ExplicitGroupParticle, XSComplexContent.XSIDerivationParticle, T_Particle {
-    override val particles: List<XSI_NestedParticle>
+sealed interface XSExplicitGroup : XSI_Grouplike, XSComplexContent.XSIDerivationParticle,
+    XSI_Annotated {
 }
 
 @Serializable
-sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated, T_Particle {
+sealed interface XSI_Particle : XSI_OpenAttrs, XSI_Annotated {
+    /** Optional, default 1 */
+    val minOccurs: VNonNegativeInteger?
+
+    /** Optional, default 1 */
+    val maxOccurs: T_AllNNI?
+
     object DUMMY: XSI_Particle {
         override val minOccurs: Nothing? get() = null
         override val maxOccurs: Nothing? get() = null

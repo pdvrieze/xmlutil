@@ -29,10 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalElement
-import io.github.pdvrieze.formats.xmlschema.types.T_Scope
-import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalElement(
@@ -40,7 +37,6 @@ class ResolvedGlobalElement(
     schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedElement(schema), NamedPart,
-    T_GlobalElement,
     ElementModel.Global, ResolvedElement.Use {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
@@ -96,7 +92,7 @@ class ResolvedGlobalElement(
         DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
-    override val final: Set<ComplexTypeModel.Derivation>
+    val final: Set<ComplexTypeModel.Derivation>
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
     override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
@@ -147,19 +143,10 @@ class ResolvedGlobalElement(
 
     override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
 
-    override val substitutionGroup: List<QName>?
+    val substitutionGroup: List<QName>?
         get() = rawPart.substitutionGroup
 
-    override val abstract: Boolean get() = rawPart.abstract ?: false
-
-    override val ref: Nothing?
-        get() = rawPart.ref
-
-    override val minOccurs: Nothing? get() = null
-
-    override val maxOccurs: Nothing? get() = null
-
-    override val form: Nothing? get() = null
+    val abstract: Boolean get() = rawPart.abstract ?: false
 
     override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
@@ -210,6 +197,18 @@ class ResolvedGlobalElement(
 
         override val mdlValueConstraint: ValueConstraintModel?
             get() = TODO("not implemented")
+
+        override val mdlDisallowedSubstitutions: T_BlockSet =
+            (rawPart.block ?: schema.blockDefault)
+
+        override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+            (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
+
+        override val mdlTypeDefinition: ResolvedType =
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+                ?: rawPart.type?.let { schema.type(it) }
+                ?: (rawPart as? XSElement)?.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
+                ?: AnyType
 
         private fun checkSubstitutionGroupChain(
             qName: QName,

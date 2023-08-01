@@ -22,11 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 
 interface T_Redefine : XSI_Annotated {
     val simpleTypes: List<T_GlobalSimpleType>
-    val complexTypes: List<T_GlobalComplexType_Base>
+    val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
     val attributeGroups: List<XSAttributeGroup>
     val schemaLocation: VAnyURI

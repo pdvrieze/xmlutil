@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.T_SimpleType
@@ -29,12 +30,11 @@ import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedListDerivationBase(
     schema: ResolvedSchemaLike
-) : ResolvedSimpleType.Derivation(schema),
-    T_SimpleType.T_List {
-    abstract override val rawPart: T_SimpleType.T_List
+) : ResolvedSimpleType.Derivation(schema) {
+    abstract override val rawPart: XSSimpleList
 
-    override val itemTypeName: QName? get() = rawPart.itemTypeName
-    abstract override val simpleType: ResolvedLocalSimpleType?
+    val itemTypeName: QName? get() = rawPart.itemTypeName
+    abstract val simpleType: ResolvedLocalSimpleType?
 
     val itemType: ResolvedSimpleType by lazy {
         val itemTypeName = rawPart.itemTypeName

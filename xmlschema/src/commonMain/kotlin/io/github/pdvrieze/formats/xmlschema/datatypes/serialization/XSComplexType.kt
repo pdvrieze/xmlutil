@@ -20,17 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexType
+interface XSIComplexType : XSIType {
+    val content: XSI_ComplexContent
 
-interface XSIComplexType : T_ComplexType {
-    override val content: XSComplexType.Content
+    /**
+     * May not have simpleContent child
+     */
+    val mixed: Boolean?
+
+    /** Default: false */
+    val defaultAttributesApply: Boolean? // default true
 }
 
+/**
+ * This second interface has only 2 children to allow for sealed nature to work.
+ */
 sealed interface XSComplexType : XSIComplexType {
-
-    interface Content : T_ComplexType.Content {
-        val derivation: Derivation
-    }
 
     interface Derivation {
         val attributes: List<XSLocalAttribute>
@@ -39,16 +44,15 @@ sealed interface XSComplexType : XSIComplexType {
     }
 
     sealed interface ComplexBase : XSIComplexType {
-        override val content: XSI_ComplexContent.Complex
+        override val content: XSI_ComplexContent
     }
 
     sealed interface Complex : ComplexBase {
         override val content: XSComplexContent
     }
 
-    sealed interface Shorthand : ComplexBase, T_ComplexType.Shorthand,
-        XSI_ComplexContent.Complex,
-        XSI_ComplexDerivation {
+    sealed interface Shorthand : ComplexBase, XSI_ComplexDerivation,
+        XSI_ComplexContent {
         override val content: Shorthand
 
         override val term: XSComplexContent.XSIDerivationParticle?

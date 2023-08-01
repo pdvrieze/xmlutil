@@ -23,8 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_GlobalComplexType_Base
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -41,9 +40,9 @@ import nl.adaptivity.xmlutil.serialization.*
 sealed class XSGlobalComplexType(
     override val name: VNCName,
     override val mixed: Boolean?,
-    override val abstract: Boolean?,
-    override val final: Set<T_DerivationControl.ComplexBase>?,
-    override val block: Set<T_DerivationControl.ComplexBase>?,
+    val abstract: Boolean?,
+    val final: Set<T_DerivationControl.ComplexBase>?,
+    val block: Set<T_DerivationControl.ComplexBase>?,
     override val defaultAttributesApply: Boolean?,
     @XmlId
     override val id: VID? = null,
@@ -51,7 +50,8 @@ sealed class XSGlobalComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSComplexType, XSGlobalType, T_GlobalComplexType_Base {
+) : XSComplexType, XSGlobalType, T_GlobalType, T_Type, XSI_Annotated,
+    XSI_OpenAttrs {
     abstract override val content: XSI_ComplexContent
 
     override val targetNamespace: Nothing? get() = null
