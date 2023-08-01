@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.T_ComplexDerivation
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema: ResolvedSchemaLike) :
