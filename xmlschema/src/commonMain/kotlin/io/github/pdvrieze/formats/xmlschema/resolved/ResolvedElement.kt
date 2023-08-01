@@ -27,22 +27,25 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
-import io.github.pdvrieze.formats.xmlschema.model.*
+import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
+import io.github.pdvrieze.formats.xmlschema.model.ElementModel
+import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, T_Element, ElementModel,
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, ElementModel,
     SimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
 
     abstract override val rawPart: XSIElement
     abstract val scope: T_Scope
 
-    override val type: QName?
+    val type: QName?
         get() = rawPart.type
-    override val nillable: Boolean get() = rawPart.nillable ?: false
+    val nillable: Boolean get() = rawPart.nillable ?: false
 
-    override val default: VString? get() = rawPart.default
-    override val fixed: VString? get() = rawPart.fixed
+    val default: VString? get() = rawPart.default
+    val fixed: VString? get() = rawPart.fixed
 
     val valueConstraint: ValueConstraint? by lazy {
         val rawDefault = rawPart.default
@@ -56,22 +59,22 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             else -> null
         }
     }
-    override val id: VID? get() = rawPart.id
+    open val id: VID? get() = rawPart.id
 
-    override val localType: T_Type?
+    val localType: T_Type?
         get() = rawPart.localType
 
     override val name: VNCName? get() = rawPart.name
 
-    override val annotation: XSAnnotation? get() = rawPart.annotation
+    open val annotation: XSAnnotation? get() = rawPart.annotation
 
-    override val alternatives: List<T_AltType> get() = rawPart.alternatives
+    val alternatives: List<T_AltType> get() = rawPart.alternatives
 
-    abstract override val uniques: List<ResolvedUnique>
+    abstract val uniques: List<ResolvedUnique>
 
-    abstract override val keys: List<ResolvedKey>
+    abstract val keys: List<ResolvedKey>
 
-    abstract override val keyrefs: List<ResolvedKeyRef>
+    abstract val keyrefs: List<ResolvedKeyRef>
 
     abstract val model: Model
 
@@ -91,10 +94,9 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     /**
      * disallowed substitutions
      */
-    override val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
+    val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
 
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
+    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     protected fun checkSingleType() {
         require(rawPart.type == null || rawPart.localType == null) {

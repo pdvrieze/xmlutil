@@ -54,8 +54,7 @@ interface T_ComplexType : T_Type {
         val derivation: T_ComplexDerivation
     }
 
-    interface ShorthandContent : ContentSealed,
-        ParticleProperties, I_AttributeContainer, I_Assertions {
+    interface ShorthandContent : ContentSealed, ParticleProperties, I_Assertions {
         val attributes: List<XSLocalAttribute>
 
         /** Name elements AttributeGroup */

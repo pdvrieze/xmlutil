@@ -46,7 +46,7 @@ class XSGroup(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSI_Annotated, I_NamedAttrs {
+) : XSI_Annotated, I_Named, XSI_OpenAttrs {
 
     override val targetNamespace: Nothing? get() = null
 

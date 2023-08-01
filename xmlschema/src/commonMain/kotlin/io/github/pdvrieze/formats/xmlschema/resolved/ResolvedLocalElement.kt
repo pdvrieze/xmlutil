@@ -43,27 +43,25 @@ class ResolvedLocalElement(
     override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     ResolvedParticle<ResolvedLocalElement>,
-    T_LocalElement,
     ElementModel.Local<ResolvedLocalElement>,
     ResolvedComplexTypeContext,
     ElementModel.Scope.Local,
     ResolvedAllMember {
+    override val id: VID? get() = super<ResolvedElement>.id
 
-    override val id: VID? get() = rawPart.id
-    override val annotation: XSAnnotation? get() = rawPart.annotation
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+    override val annotation: XSAnnotation? get() = super<ResolvedElement>.annotation
+
+    override val otherAttrs: Map<QName, String> get() = super<ResolvedParticle>.otherAttrs
 
     override val scope: T_Scope get() = T_Scope.LOCAL
-
-    override val ref: QName? get() = rawPart.ref
+    val ref: QName? get() = rawPart.ref
 
     val referenced: ResolvedElement by lazy {
         ref?.let { schema.element(it) } ?: this
     }
     override val mdlName: VNCName get() = rawPart.name ?: referenced.mdlName
 
-    override val form: T_FormChoice?
-        get() = rawPart.form
+    val form: T_FormChoice? get() = rawPart.form
 
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace

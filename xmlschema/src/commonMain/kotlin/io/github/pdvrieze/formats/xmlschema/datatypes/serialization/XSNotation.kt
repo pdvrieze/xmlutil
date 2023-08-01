@@ -24,9 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.I_NamedAttrs
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.types.T_Public
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -48,7 +46,7 @@ class XSNotation(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_Annotated, I_NamedAttrs {
+) : XSI_Annotated, I_Named, XSI_OpenAttrs {
     override val targetNamespace: Nothing?
         get() = null
 }

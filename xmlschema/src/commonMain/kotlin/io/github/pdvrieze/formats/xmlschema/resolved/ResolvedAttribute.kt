@@ -32,7 +32,6 @@ import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
-import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
 import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName

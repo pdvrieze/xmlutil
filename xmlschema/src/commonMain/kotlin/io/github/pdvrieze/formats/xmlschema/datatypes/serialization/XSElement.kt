@@ -62,7 +62,7 @@ data class XSElement(
     override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-): XSIElement, I_NamedAttrs, T_GlobalElement {
+): XSIElement, T_GlobalElement, I_Named, XSI_OpenAttrs {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

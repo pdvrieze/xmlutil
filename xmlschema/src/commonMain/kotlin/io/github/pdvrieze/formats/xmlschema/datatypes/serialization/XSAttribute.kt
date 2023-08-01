@@ -24,13 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
-import io.github.pdvrieze.formats.xmlschema.types.T_AttributeBase
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
