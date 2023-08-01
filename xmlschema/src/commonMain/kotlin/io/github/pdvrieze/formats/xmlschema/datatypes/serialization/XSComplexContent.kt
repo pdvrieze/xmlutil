@@ -56,13 +56,10 @@ class XSComplexContent(
     }
 
     @Serializable
-    sealed interface XSIDerivationParticle: T_Particle {
+    sealed interface XSIDerivationParticle : T_Particle {
         override val minOccurs: VNonNegativeInteger?
         override val maxOccurs: T_AllNNI?
     }
-
-    @Serializable
-    sealed interface XSIDirectParticle: XSIDerivationParticle, T_Particle
 
     @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable

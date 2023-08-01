@@ -29,8 +29,7 @@ class ResolvedComplexShorthandContent(
     scope: ResolvedComplexType,
     override val rawPart: XSComplexType.Shorthand,
     schema: ResolvedSchemaLike
-) : ResolvedComplexTypeContent(schema),
-    T_ComplexType.ShorthandContent {
+) : ResolvedComplexTypeContent(schema) {
     val particle: ResolvedGroupParticle<ResolvedGroupLikeTerm>? by lazy {
         val r: ResolvedGroupParticle<ResolvedGroupLikeTerm>? = when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
@@ -42,12 +41,12 @@ class ResolvedComplexShorthandContent(
         r
     }
 
-    override val asserts: List<XSIAssertCommon> get() = rawPart.asserts
-    override val attributes: List<ResolvedLocalAttribute> =
+    val asserts: List<XSIAssertCommon> get() = rawPart.asserts
+    val attributes: List<ResolvedLocalAttribute> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
-    override val attributeGroups: List<ResolvedAttributeGroupRef> =
+    val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
-    override val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
+    val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     val openContent: XSOpenContent? get() = rawPart.openContent
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {

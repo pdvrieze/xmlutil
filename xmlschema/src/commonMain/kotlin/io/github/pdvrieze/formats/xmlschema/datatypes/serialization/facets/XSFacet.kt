@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
@@ -36,6 +37,7 @@ sealed class XSFacet : XSI_Annotated {
 
     @XmlId
     final override val id: VID?
+    @XmlBefore("*")
     final override val annotation: XSAnnotation?
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>

@@ -32,9 +32,9 @@ class ResolvedComplexRestriction(
     override val rawPart: XSComplexContent.XSRestriction,
     scope: ResolvedComplexType,
     schema: ResolvedSchemaLike
-) : ResolvedDerivation(scope, schema), T_ComplexRestrictionType {
+) : ResolvedDerivation(scope, schema) {
 
-    override val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let {
+    val simpleType: ResolvedLocalSimpleType? by lazy { rawPart.simpleType?.let {
         ResolvedLocalSimpleType(
             it,
             schema,
@@ -42,9 +42,9 @@ class ResolvedComplexRestriction(
         )
     } }
 
-    override val facets: List<XSFacet> get() = rawPart.facets
+    val facets: List<XSFacet> get() = rawPart.facets
 
-    override val otherContents: List<CompactFragment>
+    val otherContents: List<CompactFragment>
         get() = rawPart.otherContents
 
     override val attributes: List<ResolvedLocalAttribute> =

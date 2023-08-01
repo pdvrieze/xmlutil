@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 
-sealed interface XSExplicitGroup : XSI_Grouplike, T_ExplicitGroupParticle {
+sealed interface XSExplicitGroup : XSI_Grouplike, T_ExplicitGroupParticle, XSComplexContent.XSIDerivationParticle, T_Particle {
     override val particles: List<XSI_NestedParticle>
 }
 
