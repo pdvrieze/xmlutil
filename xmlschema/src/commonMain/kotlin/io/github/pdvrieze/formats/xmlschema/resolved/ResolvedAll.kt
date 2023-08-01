@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 
@@ -32,7 +32,7 @@ class ResolvedAll private constructor(
     schema: ResolvedSchemaLike,
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
     override val minOccurs: VNonNegativeInteger?,
-    override val maxOccurs: T_AllNNI.Value?,
+    override val maxOccurs: VAllNNI.Value?,
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(schema),
     IResolvedAll,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedAll>,
@@ -57,7 +57,7 @@ class ResolvedAll private constructor(
 
     init {
         require(mdlMinOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
-        require(mdlMaxOccurs.let { it is T_AllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
+        require(mdlMaxOccurs.let { it is VAllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -75,14 +75,14 @@ class ResolvedAll private constructor(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): ResolvedParticle<IResolvedAll> {
         return ResolvedAll(
             rawPart,
             schema,
             mdlParticles,
             minOccurs?.times(minMultiplier) ?: minMultiplier,
-            (maxOccurs?.times(maxMultiplier) ?: maxMultiplier) as? T_AllNNI.Value
+            (maxOccurs?.times(maxMultiplier) ?: maxMultiplier) as? VAllNNI.Value
         )
     }
 }

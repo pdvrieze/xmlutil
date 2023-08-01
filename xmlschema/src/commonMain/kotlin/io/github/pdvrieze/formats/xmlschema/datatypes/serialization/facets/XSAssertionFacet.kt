@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
-import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
+import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -35,13 +35,13 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("assertion", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
 
-    override val xPathDefaultNamespace: T_XPathDefaultNamespace?
+    override val xPathDefaultNamespace: VXPathDefaultNamespace?
     override val test: XPathExpression?
     override val value: Any get() = this
 
     constructor(
         test: XPathExpression? = null,
-        xPathDefaultNamespace: T_XPathDefaultNamespace? = null,
+        xPathDefaultNamespace: VXPathDefaultNamespace? = null,
         id: VID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()

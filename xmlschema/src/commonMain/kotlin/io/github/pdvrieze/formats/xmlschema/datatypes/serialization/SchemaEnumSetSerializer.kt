@@ -21,8 +21,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.T_DerivationControl.*
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.SetSerializer
@@ -65,11 +65,11 @@ class SchemaEnumSetSerializer<T : Enum<T>>(val elementSerializer: KSerializer<T>
     }
 }
 
-class AllDerivationSerializer : KSerializer<Set<T_DerivationControl>> {
+class AllDerivationSerializer : KSerializer<Set<VDerivationControl>> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("Set<T_DeriviationControl>", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): Set<T_DerivationControl> {
+    override fun deserialize(decoder: Decoder): Set<VDerivationControl> {
         return when (val s = decoder.decodeString().trim()) {
             "#all" -> setOf(RESTRICTION, EXTENSION, LIST, UNION, SUBSTITUTION)
             "" -> emptySet()
@@ -86,7 +86,7 @@ class AllDerivationSerializer : KSerializer<Set<T_DerivationControl>> {
         }
     }
 
-    override fun serialize(encoder: Encoder, value: Set<T_DerivationControl>) {
+    override fun serialize(encoder: Encoder, value: Set<VDerivationControl>) {
         val s = when (value.size) {
             4 -> "#all"
             else -> value.joinToString(" ") { it.name }
@@ -95,11 +95,11 @@ class AllDerivationSerializer : KSerializer<Set<T_DerivationControl>> {
     }
 }
 
-class ComplexDerivationSerializer : KSerializer<Set<ComplexBase>> {
+class ComplexDerivationSerializer : KSerializer<Set<Complex>> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("Set<T_TypeDerviationControl.ComplexBase>", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): Set<ComplexBase> {
+    override fun deserialize(decoder: Decoder): Set<Complex> {
         return when (val s = decoder.decodeString().trim()) {
             "#all" -> setOf(RESTRICTION, EXTENSION)
             "" -> emptySet()
@@ -113,7 +113,7 @@ class ComplexDerivationSerializer : KSerializer<Set<ComplexBase>> {
         }
     }
 
-    override fun serialize(encoder: Encoder, value: Set<ComplexBase>) {
+    override fun serialize(encoder: Encoder, value: Set<Complex>) {
         val s = when (value.size) {
             2 -> "#all"
             else -> value.joinToString(" ") { it.name }

@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -38,14 +37,14 @@ interface XSIElement : XSI_Annotated, I_OptNamed {
 
     val localType: XSLocalType?
 
-    val alternatives: List<T_AltType>
-        get() = TODO("not implemented")
+    val alternatives: List<Nothing> get() = emptyList()
+
     val type: QName?
 
     val nillable: Boolean?
 
-    val block: T_BlockSet?
-    val form: T_FormChoice?
+    val block: VBlockSet?
+    val form: VFormChoice?
 
     val ref: QName?
 }

@@ -24,10 +24,10 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.T_NamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_NotNamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
-import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.VNotNamespaceList
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VAttrQNameList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -38,17 +38,17 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("anyAttribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnyAttribute : XSAnyBase {
-    val notQName: T_QNameListA?
+    val notQName: VAttrQNameList?
 
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")
-    override val processContents: T_ProcessContents?
+    override val processContents: VProcessContents?
 
     constructor(
-        notQName: T_QNameListA? = null,
-        namespace: T_NamespaceList? = null,
-        notNamespace: T_NotNamespaceList? = null,
-        processContents: T_ProcessContents? = T_ProcessContents.STRICT,
+        notQName: VAttrQNameList? = null,
+        namespace: VNamespaceList? = null,
+        notNamespace: VNotNamespaceList? = null,
+        processContents: VProcessContents? = VProcessContents.STRICT,
         id: VID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()

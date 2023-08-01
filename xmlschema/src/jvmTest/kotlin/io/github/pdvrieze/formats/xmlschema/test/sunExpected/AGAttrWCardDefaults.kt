@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
 import nl.adaptivity.xmlutil.QName
 
 object AGAttrWCardDefaults {
@@ -43,7 +43,7 @@ object AGAttrWCardDefaults {
                 type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd")
             )
         ),
-        anyAttribute = XSAnyAttribute(processContents = T_ProcessContents.SKIP)
+        anyAttribute = XSAnyAttribute(processContents = VProcessContents.SKIP)
     )
 
     val expectedSchema = XSSchema(

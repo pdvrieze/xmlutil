@@ -38,7 +38,7 @@ class ResolvedLocalElement(
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
+    override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     ResolvedParticle<ResolvedLocalElement>,
     ElementModel.Local<ResolvedLocalElement>,
@@ -51,7 +51,7 @@ class ResolvedLocalElement(
 
     override val otherAttrs: Map<QName, String> get() = super<ResolvedParticle>.otherAttrs
 
-    override val scope: T_Scope get() = T_Scope.LOCAL
+    override val scope: VScope get() = VScope.LOCAL
     val ref: QName? get() = rawPart.ref
 
     val referenced: ResolvedElement by lazy {
@@ -59,7 +59,7 @@ class ResolvedLocalElement(
     }
     override val mdlName: VNCName get() = rawPart.name ?: referenced.mdlName
 
-    val form: T_FormChoice? get() = rawPart.form
+    val form: VFormChoice? get() = rawPart.form
 
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
@@ -75,7 +75,7 @@ class ResolvedLocalElement(
     override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
     override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
-    override val mdlMaxOccurs: T_AllNNI get() = model.mdlMaxOccurs
+    override val mdlMaxOccurs: VAllNNI get() = model.mdlMaxOccurs
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
@@ -102,9 +102,9 @@ class ResolvedLocalElement(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): ResolvedLocalElement = when {
-        minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != T_AllNNI.ONE -> {
+        minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
             ResolvedLocalElement(
                 parent,
                 rawPart,
@@ -149,7 +149,7 @@ class ResolvedLocalElement(
 
         override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-        override val mdlMaxOccurs: T_AllNNI = rawPart.maxOccurs ?: T_AllNNI.ONE
+        override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
 
         override val mdlTypeTable: ElementModel.TypeTable
             get() = TODO("not implemented")
@@ -157,7 +157,7 @@ class ResolvedLocalElement(
         override val mdlValueConstraint: ValueConstraintModel
             get() = TODO("not implemented")
 
-        override val mdlDisallowedSubstitutions: T_BlockSet =
+        override val mdlDisallowedSubstitutions: VBlockSet =
             (rawPart.block ?: schema.blockDefault)
 
         override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =

@@ -33,13 +33,13 @@ class ResolvedAny(
     override val rawPart: XSAny,
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs
+    override val maxOccurs: VAllNNI? = rawPart.maxOccurs
 ) : ResolvedParticle<ResolvedAny>, ResolvedPart, AnyModel, ResolvedTerm, ResolvedAllMember {
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-    override val mdlMaxOccurs: T_AllNNI
-        get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+    override val mdlMaxOccurs: VAllNNI
+        get() = rawPart.maxOccurs ?: VAllNNI.ONE
 
     override val mdlAnnotations: AnnotationModel?
         get() = rawPart.annotation.models()
@@ -47,25 +47,25 @@ class ResolvedAny(
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
-    val namespace: T_NamespaceList
-        get() = rawPart.namespace ?: T_NamespaceList.ANY
+    val namespace: VNamespaceList
+        get() = rawPart.namespace ?: VNamespaceList.ANY
 
     override val mdlTerm: ResolvedAny get() = this
 
     override val mdlNamespaceConstraint: Set<AnyModel.NamespaceConstraint>
         get() = TODO("not implemented")
 
-    override val mdlProcessContents: T_ProcessContents
+    override val mdlProcessContents: VProcessContents
         get() = processContents
 
-    val notNamespace: T_NotNamespaceList
-        get() = rawPart.notNamespace ?: T_NotNamespaceList()
+    val notNamespace: VNotNamespaceList
+        get() = rawPart.notNamespace ?: VNotNamespaceList()
 
-    val notQName: T_QNameList
-        get() = T_QNameList()
+    val notQName: VQNameList
+        get() = VQNameList()
 
-    val processContents: T_ProcessContents
-        get() = rawPart.processContents ?: T_ProcessContents.STRICT
+    val processContents: VProcessContents
+        get() = rawPart.processContents ?: VProcessContents.STRICT
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 
@@ -75,10 +75,10 @@ class ResolvedAny(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): ResolvedAny {
         return when {
-            minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != T_AllNNI.ONE -> {
+            minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
                 ResolvedAny(
                     rawPart,
                     schema,

@@ -25,7 +25,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.T_Unique
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -38,17 +37,20 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("unique", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-data class XSUnique(
-    val name: VNCName? = null,
-    override val selector: XSSelector,
-    @Required
-    override val fields: List<XSField> = emptyList(),
-    val ref: QName? = null,
-    @XmlId
-    override val id: VID? = null,
-    @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
+class XSUnique : XSIdentityConstraint {
+    val name: VNCName?
+    val ref: QName?
 
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap()
-): T_Unique
+    constructor(
+        name: VNCName? = null,
+        ref: QName? = null,
+        selector: XSSelector,
+        fields: List<XSField> = emptyList(),
+        id: VID? = null,
+        annotation: XSAnnotation? = null,
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(selector, fields, id, annotation, otherAttrs) {
+        this.name = name
+        this.ref = ref
+    }
+}

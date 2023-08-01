@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedChoice private constructor(
@@ -32,7 +32,7 @@ class ResolvedChoice private constructor(
     schema: ResolvedSchemaLike,
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
     override val minOccurs: VNonNegativeInteger?,
-    override val maxOccurs: T_AllNNI?,
+    override val maxOccurs: VAllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
@@ -72,7 +72,7 @@ class ResolvedChoice private constructor(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): ResolvedChoice {
         return ResolvedChoice(
             rawPart,

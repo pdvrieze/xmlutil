@@ -23,35 +23,33 @@ package io.github.pdvrieze.formats.xmlschema.types
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 
-sealed class T_DerivationControl(val name: String) {
-    sealed class ComplexBase(name: String) : T_TypeDerivationControl(name), ComplexTypeModel.Derivation
+sealed class VDerivationControl(val name: String) {
+    sealed class Complex(name: String) : Type(name), ComplexTypeModel.Derivation
+    sealed class Type(name: String) : VDerivationControl(name), TypeModel.Derivation
 
-    object RESTRICTION : ComplexBase("restriction"), T_BlockSetValues {
+    object RESTRICTION : Complex("restriction"), T_BlockSetValues {
         override fun toString(): String = "RESTRICTION"
     }
 
-    object EXTENSION : ComplexBase("extension"), T_BlockSetValues {
+    object EXTENSION : Complex("extension"), T_BlockSetValues {
         override fun toString(): String = "EXTENSION"
     }
 
-    object LIST : T_TypeDerivationControl("list") {
+    object LIST : Type("list") {
         override fun toString(): String = "LIST"
     }
 
-    object UNION : T_TypeDerivationControl("union") {
+    object UNION : Type("union") {
         override fun toString(): String = "UNION"
     }
 
-    object SUBSTITUTION : T_DerivationControl("substitution"), T_BlockSetValues {
+    object SUBSTITUTION : VDerivationControl("substitution"), T_BlockSetValues {
         override fun toString(): String = "SUBSTITUTION"
     }
 
 }
 
-
-sealed class T_TypeDerivationControl(name: String) : T_DerivationControl(name), TypeModel.Derivation
-
-fun Set<TypeModel.Derivation>.toDerivationSet(): Set<T_DerivationControl.ComplexBase> =
+fun Set<TypeModel.Derivation>.toDerivationSet(): Set<VDerivationControl.Complex> =
     asSequence()
-        .filterIsInstance<T_DerivationControl.ComplexBase>()
+        .filterIsInstance<VDerivationControl.Complex>()
         .toSet()

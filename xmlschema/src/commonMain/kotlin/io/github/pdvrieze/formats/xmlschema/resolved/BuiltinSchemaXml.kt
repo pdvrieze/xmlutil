@@ -28,8 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
@@ -39,7 +39,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
     init {
         val rawSchema = XSSchema(
             targetNamespace = VAnyURI(XML_NAMESPACE),
-            attributeFormDefault = T_FormChoice.QUALIFIED,
+            attributeFormDefault = VFormChoice.QUALIFIED,
             attributes = listOf(
                 XSGlobalAttribute(
                     name = VNCName("lang"),
@@ -118,7 +118,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val targetNamespace: VAnyURI get() = delegate.targetNamespace
 
-    override val blockDefault: T_BlockSet get() = delegate.blockDefault
+    override val blockDefault: VBlockSet get() = delegate.blockDefault
 
     override val finalDefault: Set<TypeModel.Derivation> get() = delegate.finalDefault
 

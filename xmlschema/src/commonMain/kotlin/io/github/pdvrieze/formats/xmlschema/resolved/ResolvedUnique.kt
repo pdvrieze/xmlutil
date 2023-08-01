@@ -22,9 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_Unique
 
-interface ResolvedUnique : T_Unique, IdentityConstraintModel.Unique, ResolvedIdentityConstraint {
+interface ResolvedUnique : IdentityConstraintModel.Unique, ResolvedIdentityConstraint {
     override val rawPart: XSUnique
 
     companion object {

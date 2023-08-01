@@ -51,15 +51,10 @@ sealed interface XSComplexType : XSIComplexType {
         override val content: XSComplexContent
     }
 
-    sealed interface Shorthand : ComplexBase, XSI_ComplexDerivation,
-        XSI_ComplexContent {
+    sealed interface Shorthand : ComplexBase, XSI_ComplexDerivation, XSI_ComplexContent {
         override val content: Shorthand
 
-        override val term: XSComplexContent.XSIDerivationParticle?
         override val asserts: List<XSAssert>
-        override val attributes: List<XSLocalAttribute>
-        override val attributeGroups: List<XSAttributeGroupRef>
-        override val openContent: XSOpenContent?
     }
 
     interface Simple : XSIComplexType {

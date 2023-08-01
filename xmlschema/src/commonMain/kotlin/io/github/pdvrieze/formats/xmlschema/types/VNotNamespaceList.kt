@@ -29,8 +29,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-@Serializable(T_NotNamespaceList.Serializer::class)
-class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : List<T_NotNamespaceList.Elem> by values {
+@Serializable(VNotNamespaceList.Serializer::class)
+class VNotNamespaceList(private val values: List<VNotNamespaceList.Elem>) : List<VNotNamespaceList.Elem> by values {
 
     constructor() : this(emptyList())
 
@@ -48,11 +48,11 @@ class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : Li
     object LOCAL : Elem()
     class Uri(val value: VAnyURI) : Elem()
 
-    object Serializer : KSerializer<T_NotNamespaceList> {
+    object Serializer : KSerializer<VNotNamespaceList> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("namespaceList", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: T_NotNamespaceList) {
+        override fun serialize(encoder: Encoder, value: VNotNamespaceList) {
             val str = value.values.joinToString(" ") { v ->
                 when (v) {
                     TARGETNAMESPACE -> "##targetNamespace"
@@ -64,7 +64,7 @@ class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : Li
             encoder.encodeString(str)
         }
 
-        override fun deserialize(decoder: Decoder): T_NotNamespaceList {
+        override fun deserialize(decoder: Decoder): VNotNamespaceList {
             val values = decoder.decodeString()
                 .trim()
                 .splitToSequence(' ')
@@ -72,7 +72,7 @@ class T_NotNamespaceList(private val values: List<T_NotNamespaceList.Elem>) : Li
                 .map { Elem.fromString(it) }
                 .toList()
 
-            return T_NotNamespaceList(values)
+            return VNotNamespaceList(values)
         }
     }
 

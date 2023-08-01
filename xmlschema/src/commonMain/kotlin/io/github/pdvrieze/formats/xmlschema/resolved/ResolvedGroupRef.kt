@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupRefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 import kotlin.reflect.KClass
 
@@ -33,7 +33,7 @@ class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: T_AllNNI? = rawPart.maxOccurs,
+    override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
     GroupRefModel,
     ResolvedGroupParticle<ResolvedGlobalGroup>,
@@ -47,7 +47,7 @@ class ResolvedGroupRef(
 
     override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-    override val mdlMaxOccurs: T_AllNNI get() = rawPart.maxOccurs ?: T_AllNNI.ONE
+    override val mdlMaxOccurs: VAllNNI get() = rawPart.maxOccurs ?: VAllNNI.ONE
 
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -61,7 +61,7 @@ class ResolvedGroupRef(
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
-        maxMultiplier: T_AllNNI
+        maxMultiplier: VAllNNI
     ): ResolvedParticle<ResolvedGlobalGroup> {
         return ResolvedGroupRef(
             rawPart,

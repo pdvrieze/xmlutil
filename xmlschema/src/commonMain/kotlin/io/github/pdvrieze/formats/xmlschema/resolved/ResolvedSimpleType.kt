@@ -99,7 +99,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
             mdlFacets.checkList()
             if (mdlBaseTypeDefinition != AnySimpleType) {
                 check(mdlBaseTypeDefinition.mdlVariety == Variety.LIST)
-                check(T_DerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
+                check(VDerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
             }
         }
         mdlFacets.check(this.mdlPrimitiveTypeDefinition)
@@ -124,9 +124,9 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
      */
     fun isValidlyDerivedFrom(complexBase: ResolvedComplexType): Boolean {
         // 1 - never true, as this is a simple type, the base is complex
-        if (T_DerivationControl.RESTRICTION in complexBase.mdlFinal) return false
+        if (VDerivationControl.RESTRICTION in complexBase.mdlFinal) return false
         if (mdlBaseTypeDefinition == complexBase.mdlBaseTypeDefinition) return true //2.2.1
-        if (T_DerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
+        if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
         if (mdlVariety != Variety.ATOMIC && mdlBaseTypeDefinition == AnySimpleType) return true //2.2.3
         if (mdlBaseTypeDefinition!= AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(complexBase)) return true //2.2.2
         val sd = simpleDerivation
@@ -144,9 +144,9 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
      */
     override fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean {
         if(this == simpleBase) return true
-        if (T_DerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //2.1.a
+        if (VDerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //2.1.a
         if (mdlBaseTypeDefinition == simpleBase) return true //2.2.1
-        if (T_DerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
+        if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
         if (mdlVariety != Variety.ATOMIC && mdlBaseTypeDefinition == AnySimpleType) return true //2.2.3
         if (mdlBaseTypeDefinition!= AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(simpleBase)) return true //2.2.2
         val sd = simpleDerivation

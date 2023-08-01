@@ -26,10 +26,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -38,12 +37,12 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSChoice : XSExplicitGroup, XSI_NestedParticle {
     override val particles: List<XSI_NestedParticle>
-    override val maxOccurs: T_AllNNI?
+    override val maxOccurs: VAllNNI?
 
     constructor(
         particles: List<XSI_NestedParticle>,
         minOccurs: VNonNegativeInteger? = null,
-        maxOccurs: T_AllNNI? = null,
+        maxOccurs: VAllNNI? = null,
         annotation: XSAnnotation? = null,
         id: VID? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()

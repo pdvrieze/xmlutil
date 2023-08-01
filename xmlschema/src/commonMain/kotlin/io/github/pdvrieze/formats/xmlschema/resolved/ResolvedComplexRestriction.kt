@@ -40,7 +40,7 @@ class ResolvedComplexRestriction(
         )
     } }
 
-    val facets: List<XSFacet> get() = rawPart.facets
+    val facets: List<Nothing> get() = emptyList()
 
     val otherContents: List<CompactFragment>
         get() = rawPart.otherContents

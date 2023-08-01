@@ -21,14 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
-import io.github.pdvrieze.formats.xmlschema.types.T_Key
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKey(
     override val rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(schema, owner), T_Key, ResolvedKey {
+): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKey {
 
     override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectKey -> r

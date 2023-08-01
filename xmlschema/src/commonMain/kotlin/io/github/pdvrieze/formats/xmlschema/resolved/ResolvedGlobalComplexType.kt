@@ -129,7 +129,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
 
     }
@@ -144,7 +144,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
 
     }
@@ -159,7 +159,7 @@ class ResolvedGlobalComplexType(
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
             calcProhibitedSubstitutions(rawPart, schema)
-        override val mdlFinal: Set<T_DerivationControl.ComplexBase> =
+        override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
 
     }

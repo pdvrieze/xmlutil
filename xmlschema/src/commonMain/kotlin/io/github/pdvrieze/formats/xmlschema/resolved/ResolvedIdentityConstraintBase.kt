@@ -25,13 +25,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.T_IdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 
 sealed class ResolvedIdentityConstraintBase(
     val schema: ResolvedSchemaLike,
     override val owner: ResolvedElement
 ): IdentityConstraintModel.Ref, IdentityConstraintModel {
-    abstract val rawPart: T_IdentityConstraint
+    abstract val rawPart: XSIdentityConstraint
     val id: VID? get() = rawPart.id
 
     val annotation: XSAnnotation? get() = rawPart.annotation

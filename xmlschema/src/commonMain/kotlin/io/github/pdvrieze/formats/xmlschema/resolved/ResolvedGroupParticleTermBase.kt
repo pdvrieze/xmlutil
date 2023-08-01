@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.T_AllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 sealed class ResolvedGroupParticleTermBase<T: IResolvedGroupMember>(schema: ResolvedSchemaLike):
     ResolvedGroupTermBase(schema),
@@ -31,6 +31,6 @@ sealed class ResolvedGroupParticleTermBase<T: IResolvedGroupMember>(schema: Reso
     final override val mdlMinOccurs: VNonNegativeInteger
         get() = minOccurs ?: VNonNegativeInteger.ONE
 
-    override val mdlMaxOccurs: T_AllNNI
-        get() = maxOccurs ?: T_AllNNI.ONE
+    override val mdlMaxOccurs: VAllNNI
+        get() = maxOccurs ?: VAllNNI.ONE
 }

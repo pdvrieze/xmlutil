@@ -29,9 +29,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpe
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.model.qName
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSet
-import io.github.pdvrieze.formats.xmlschema.types.T_FormChoice
-import io.github.pdvrieze.formats.xmlschema.types.T_XPathDefaultNamespace
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
@@ -64,18 +64,18 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     override val defaultOpenContent: XSDefaultOpenContent?
         get() = rawPart.defaultOpenContent
 
-    val attributeFormDefault: T_FormChoice
-        get() = rawPart.attributeFormDefault ?: T_FormChoice.UNQUALIFIED
+    val attributeFormDefault: VFormChoice
+        get() = rawPart.attributeFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override val blockDefault: T_BlockSet get() = rawPart.blockDefault ?: emptySet()
+    override val blockDefault: VBlockSet get() = rawPart.blockDefault ?: emptySet()
 
     val defaultAttributes: QName? get() = rawPart.defaultAttributes
 
-    val xPathDefaultNamespace: T_XPathDefaultNamespace
-        get() = rawPart.xpathDefaultNamespace ?: T_XPathDefaultNamespace.LOCAL
+    val xPathDefaultNamespace: VXPathDefaultNamespace
+        get() = rawPart.xpathDefaultNamespace ?: VXPathDefaultNamespace.LOCAL
 
-    val elementFormDefault: T_FormChoice
-        get() = rawPart.elementFormDefault ?: T_FormChoice.UNQUALIFIED
+    val elementFormDefault: VFormChoice
+        get() = rawPart.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
     override val finalDefault: Set<TypeModel.Derivation>
         get() = rawPart.finalDefault ?: emptySet()

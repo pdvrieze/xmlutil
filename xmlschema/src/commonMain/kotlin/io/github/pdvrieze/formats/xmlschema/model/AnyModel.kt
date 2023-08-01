@@ -21,17 +21,17 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.types.T_ProcessContents
-import io.github.pdvrieze.formats.xmlschema.types.T_QNameListA
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VAttrQNameList
 //ParticleModel<AnyModel>, AllTerm, ChoiceSeqTerm, ParticleModel.BasicTerm
 interface AnyModel : IAnnotated, ParticleModel.BasicTerm {
     val mdlNamespaceConstraint: Set<NamespaceConstraint>
-    val mdlProcessContents: T_ProcessContents
+    val mdlProcessContents: VProcessContents
 
     interface NamespaceConstraint {
         val mdlVariety: Variety
         val namespaces: Set<VAnyURI>
-        val disallowedNames: T_QNameListA
+        val disallowedNames: VAttrQNameList
 
         enum class Variety { ANY, ENUMERATION, NOT}
     }

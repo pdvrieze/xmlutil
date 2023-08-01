@@ -20,19 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
-typealias T_SimpleDerivationSet=Set<T_SimpleDerivationSetElem>
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-enum class T_SimpleDerivationSetElem {
-    @SerialName("extension")
-    EXTENSION,
-    @SerialName("restriction")
-    RESTRICTION,
-    @SerialName("list")
-    LIST,
-    @SerialName("union")
-    UNION
+@XmlSerialName("processContents", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+enum class VProcessContents {
+    @SerialName("skip") SKIP,
+    @SerialName("lax") LAX,
+    @SerialName("strict") STRICT,
 }
