@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedTerm : ResolvedAnnotatedXX {
+interface ResolvedTerm : ResolvedAnnotated {
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
 
-    fun check(checkedTypes: MutableSet<QName>)
+//    override fun check(checkedTypes: MutableSet<QName>)
 }

@@ -75,8 +75,8 @@ class ResolvedGlobalGroup(
 
     private sealed class ModelGroupBase(val schema: ResolvedSchemaLike) {
         abstract val rawPart: XSGroup.XSGroupElement
-        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
-        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+//        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+//        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     }
 
     private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
@@ -109,8 +109,12 @@ class ResolvedGlobalGroup(
             return SyntheticAll(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
+        override fun check(checkedTypes: MutableSet<QName>) {
+            super.check(checkedTypes)
+        }
+
         override fun check() {
-            super.check(mutableSetOf())
+            check(mutableSetOf())
         }
     }
 
@@ -146,8 +150,12 @@ class ResolvedGlobalGroup(
             return SyntheticChoice(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
+        override fun check(checkedTypes: MutableSet<QName>) {
+            super.check(checkedTypes)
+        }
+
         override fun check() {
-            super.check(mutableSetOf())
+            check(mutableSetOf())
         }
     }
 
@@ -164,6 +172,10 @@ class ResolvedGlobalGroup(
                     p.collectConstraints(collector)
                 }
             }
+        }
+
+        override fun check(checkedTypes: MutableSet<QName>) {
+            super.check(checkedTypes)
         }
 
         override fun check() {
