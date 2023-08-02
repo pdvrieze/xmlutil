@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
-
 interface ResolvedAttributeGlobal :
     ResolvedAttributeDecl,
     ResolvedAttribute.ResolvedScope,
-    AttributeModel.ScopeModel.Global
+    IScope.Global

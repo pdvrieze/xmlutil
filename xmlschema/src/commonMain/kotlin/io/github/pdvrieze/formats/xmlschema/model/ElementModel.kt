@@ -20,7 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSScopeVariety
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedIdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedTypeContext
+import io.github.pdvrieze.formats.xmlschema.types.VScopeVariety
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 
@@ -30,13 +32,13 @@ interface ElementModel : IAnnotated, IOptNamed {
     val mdlTypeTable: TypeTable?
     val mdlNillable: Boolean
     val mdlValueConstraint: ValueConstraintModel?
-    val mdlIdentityConstraints: Set<IdentityConstraintModel.Ref>
+    val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
     val mdlSubstitutionGroupAffiliations: List<Use>
     val mdlDisallowedSubstitutions: VBlockSet
     val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     val mdlAbstract: Boolean
 
-    interface Decl : ElementModel, INamedDecl, TypeContext {
+    interface Decl : ElementModel, INamedDecl, ResolvedTypeContext {
         val mdlScope: Scope
     }
 
@@ -76,14 +78,14 @@ interface ElementModel : IAnnotated, IOptNamed {
     }
 
     interface Scope {
-        val variety: XSScopeVariety
+        val variety: VScopeVariety
 
         interface Global : Scope {
-            override val variety: XSScopeVariety get() = XSScopeVariety.GLOBAL
+            override val variety: VScopeVariety get() = VScopeVariety.GLOBAL
         }
 
         interface Local : Scope {
-            override val variety: XSScopeVariety get() = XSScopeVariety.LOCAL
+            override val variety: VScopeVariety get() = VScopeVariety.LOCAL
             val parent: Any?
         }
     }

@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
-import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -36,8 +36,8 @@ class ResolvedChoice private constructor(
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
-    ChoiceModel,
-    ResolvedGroupParticle<IResolvedChoice> {
+    ResolvedGroupParticle<IResolvedChoice>,
+    ResolvedAnnotated {
 
     constructor(
         parent: ResolvedParticleParent,

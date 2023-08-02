@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
  */
 sealed class ResolvedGroupTermBase(
     final override val schema: ResolvedSchemaLike,
-) : ResolvedPart, ResolvedAnnotated, ResolvedTerm {
+) : ResolvedPart, OldResolvedAnnotated, ResolvedTerm {
 
     abstract override val rawPart: XSI_Grouplike
 
@@ -42,7 +42,7 @@ sealed class ResolvedGroupTermBase(
 
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAnnotated>.check(checkedTypes)
+        super<OldResolvedAnnotated>.check(checkedTypes)
         for (particle in mdlParticles) {
             particle.check(checkedTypes)
         }

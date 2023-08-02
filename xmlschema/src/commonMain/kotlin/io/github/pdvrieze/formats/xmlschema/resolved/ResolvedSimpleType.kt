@@ -30,7 +30,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationTyp
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
@@ -50,7 +49,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
 
     val model: Model
 
-    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     override val mdlBaseTypeDefinition: ResolvedSimpleType get() = model.mdlBaseTypeDefinition
 
@@ -67,7 +66,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         get() = model.mdlMemberTypeDefinitions
 
-    override val mdlFinal: Set<TypeModel.Derivation>
+    override val mdlFinal: Set<VDerivationControl.Type>
         get() = model.mdlFinal
 
     override fun check(
@@ -159,7 +158,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
         return false //none of the 4 options is true
     }
 
-    sealed class Derivation(final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
+    sealed class Derivation(final override val schema: ResolvedSchemaLike) : OldResolvedAnnotated {
         final override val annotation: XSAnnotation? get() = rawPart.annotation
         final override val id: VID? get() = rawPart.id
 
@@ -169,7 +168,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
     }
 
     interface Model : SimpleTypeModel {
-        override val mdlFinal: Set<TypeModel.Derivation>
+        override val mdlFinal: Set<VDerivationControl.Type>
         override val mdlItemTypeDefinition: ResolvedSimpleType?
         override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         override val mdlBaseTypeDefinition: ResolvedSimpleType
@@ -181,7 +180,8 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
         context: ResolvedSimpleType
     ) : SimpleTypeModel, Model {
 
-        final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
+        final override val mdlAnnotations: ResolvedAnnotation? =
+            rawPart.annotation.models()
         final override val mdlBaseTypeDefinition: ResolvedSimpleType
         final override val mdlItemTypeDefinition: ResolvedSimpleType?
         final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>

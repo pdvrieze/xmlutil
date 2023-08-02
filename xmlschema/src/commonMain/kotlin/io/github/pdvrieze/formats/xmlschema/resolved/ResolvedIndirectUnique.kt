@@ -21,15 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectUnique(
     override val rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedUnique, IdentityConstraintModel.Unique {
-
+): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedUnique {
     override val constraint: ResolvedIndirectUnique
         get() = this
 

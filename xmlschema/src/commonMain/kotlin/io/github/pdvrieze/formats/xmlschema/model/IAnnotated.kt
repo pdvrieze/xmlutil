@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotation
+
 interface IAnnotated {
-    val mdlAnnotations: AnnotationModel?
+    val mdlAnnotations: ResolvedAnnotation?
 }
+

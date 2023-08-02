@@ -24,8 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.GroupDefModel
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
@@ -35,8 +34,9 @@ class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, NamedPart, XSI_Annotated, GroupDefModel, ResolvedGroupLikeTerm, ResolvedAllMember,
-    ResolvedLocalElement.Parent, ResolvedParticleParent {
+) : ResolvedGroupBase, NamedPart, XSI_Annotated, ResolvedGroupLikeTerm, ResolvedAllMember,
+    ResolvedLocalElement.Parent, ResolvedParticleParent,
+    ElementModel.ElementParentModel, INamedDecl {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -47,7 +47,7 @@ class ResolvedGlobalGroup(
     override val mdlTargetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
-    override val mdlModelGroup: ResolvedModelGroup by lazy {
+    val mdlModelGroup: ResolvedModelGroup by lazy {
         val r: ResolvedModelGroup = when (val c = rawPart.content) {
             is XSGroup.All -> AllImpl(this, c, schema)
             is XSGroup.Choice -> ChoiceImpl(this, c, schema)
@@ -56,7 +56,7 @@ class ResolvedGlobalGroup(
         r
     }
 
-    override val mdlAnnotations: AnnotationModel?
+    override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -85,7 +85,7 @@ class ResolvedGlobalGroup(
 
     private sealed class ModelGroupBase(val schema: ResolvedSchemaLike) : ResolvedModelGroup {
         abstract val rawPart: XSGroup.XSGroupElement
-        override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
+        override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
     }
 
     private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),

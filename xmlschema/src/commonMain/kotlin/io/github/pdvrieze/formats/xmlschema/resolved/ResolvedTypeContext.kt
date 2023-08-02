@@ -20,6 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.TypeContext
-
-interface ResolvedTypeContext : ResolvedComplexTypeContext, ResolvedSimpleTypeContext, TypeContext
+interface ResolvedTypeContext {
+    interface Member: ResolvedComplexTypeContext, ResolvedSimpleTypeContext
+}
