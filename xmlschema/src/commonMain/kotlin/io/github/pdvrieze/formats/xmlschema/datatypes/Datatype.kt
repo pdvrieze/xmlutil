@@ -140,7 +140,7 @@ sealed class ListDatatype protected constructor(
     final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         get() = emptyList()
 
-    final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
+    final override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
     abstract val itemTypeName: SerializableQName?
     abstract val simpleType: XSLocalSimpleType?
 }
@@ -224,7 +224,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, TypeModel {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType {
     override val baseType: AnyType get() = AnyType // No actual base type
 
     override val name: VNCName get() = super<Datatype>.name

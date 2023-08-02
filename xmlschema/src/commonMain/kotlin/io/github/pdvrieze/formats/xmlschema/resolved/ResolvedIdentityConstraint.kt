@@ -20,13 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 
-sealed interface ResolvedIdentityConstraint : ResolvedPart, IdentityConstraintModel,
-    XSI_OpenAttrs, IdentityConstraintModel.Ref {
+sealed interface ResolvedIdentityConstraint : NamedPart {
     val selector: XSSelector
 
     /**
@@ -34,7 +33,13 @@ sealed interface ResolvedIdentityConstraint : ResolvedPart, IdentityConstraintMo
      */
     val fields: List<XSField>
 
-    override val owner: ResolvedElement
+    val owner: ResolvedElement
+    val constraint: ResolvedIdentityConstraint
+    val mdlIdentityConstraintCategory: Category
+    val mdlSelector: XPathExpression
+    val mdlFields: List<XPathExpression>
+
+    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     companion object {
         fun Ref(
@@ -44,4 +49,6 @@ sealed interface ResolvedIdentityConstraint : ResolvedPart, IdentityConstraintMo
             return constraint
         }
     }
+
+    enum class Category { KEY, KEYREF, UNIQUE }
 }

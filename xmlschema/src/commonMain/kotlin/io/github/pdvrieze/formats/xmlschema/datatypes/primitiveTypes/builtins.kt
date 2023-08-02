@@ -31,6 +31,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -118,7 +119,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     final override val mdlItemTypeDefinition: ResolvedSimpleType? get() = null
     final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType> get() = emptyList()
 
-    final override val mdlFinal: Set<TypeModel.Derivation> get() = emptySet()
+    final override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
 
     override fun toString(): String = "Builtin:$name"
 

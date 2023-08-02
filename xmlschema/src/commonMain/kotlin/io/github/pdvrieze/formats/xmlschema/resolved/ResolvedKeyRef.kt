@@ -21,12 +21,15 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedKeyRef : IdentityConstraintModel.KeyRef, ResolvedIdentityConstraint {
+sealed interface ResolvedKeyRef : ResolvedIdentityConstraint {
     override val rawPart: XSKeyRef
     val refer: QName?
+
+    val mdlReferencedKey: ResolvedReferenceableConstraint
+
+    override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.KEYREF
 
     companion object {
         operator fun invoke(

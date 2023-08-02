@@ -21,17 +21,18 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 
-interface ResolvedKey : IdentityConstraintModel.Key, ResolvedIdentityConstraint, ResolvedPart {
+interface ResolvedKey : ResolvedReferenceableConstraint, ResolvedPart {
     override val rawPart: XSKey
+
+    override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.KEY
 
     companion object {
         operator fun invoke(
             rawPart: XSKey,
             schema: ResolvedSchemaLike,
             owner: ResolvedElement,
-        ): ResolvedKey = when(rawPart.name) {
+        ): ResolvedKey = when (rawPart.name) {
             null -> ResolvedIndirectKey(rawPart, schema, owner)
             else -> ResolvedDirectKey(rawPart, schema, owner)
         }

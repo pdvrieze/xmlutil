@@ -44,14 +44,14 @@ class ResolvedLocalElement(
     ElementModel.Local<ResolvedLocalElement>,
     ResolvedComplexTypeContext,
     ElementModel.Scope.Local,
-    ResolvedAllMember {
+    ResolvedBasicTerm {
     override val id: VID? get() = super<ResolvedElement>.id
 
     override val annotation: XSAnnotation? get() = super<ResolvedElement>.annotation
 
     override val otherAttrs: Map<QName, String> get() = super<ResolvedParticle>.otherAttrs
 
-    override val scope: VScope get() = VScope.LOCAL
+    override val scope: VScopeVariety get() = VScopeVariety.LOCAL
     val ref: QName? get() = rawPart.ref
 
     val referenced: ResolvedElement by lazy {

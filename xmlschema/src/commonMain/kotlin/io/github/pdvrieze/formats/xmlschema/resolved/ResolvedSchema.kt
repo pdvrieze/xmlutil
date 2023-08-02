@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import nl.adaptivity.xmlutil.QName
@@ -77,7 +78,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val elementFormDefault: VFormChoice
         get() = rawPart.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override val finalDefault: Set<TypeModel.Derivation>
+    override val finalDefault: Set<VDerivationControl.Type>
         get() = rawPart.finalDefault ?: emptySet()
 
     val id: VID? get() = rawPart.id

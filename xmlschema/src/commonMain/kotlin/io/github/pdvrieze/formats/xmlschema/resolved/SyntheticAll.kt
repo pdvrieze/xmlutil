@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -40,7 +39,7 @@ class SyntheticAll(
     override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
-    override val mdlAnnotations: AnnotationModel? get() = null
+    override val mdlAnnotations: ResolvedAnnotation? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
     override fun check(checkedTypes: MutableSet<QName>) {

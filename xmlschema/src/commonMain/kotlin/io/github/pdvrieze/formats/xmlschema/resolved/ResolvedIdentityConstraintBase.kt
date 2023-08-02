@@ -22,23 +22,26 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 
 sealed class ResolvedIdentityConstraintBase(
-    val schema: ResolvedSchemaLike,
-    override val owner: ResolvedElement
-): IdentityConstraintModel.Ref, IdentityConstraintModel {
-    abstract val rawPart: XSIdentityConstraint
+    override val schema: ResolvedSchemaLike,
+    val owner: ResolvedElement
+) : ResolvedPart {
+    abstract override val rawPart: XSIdentityConstraint
     val id: VID? get() = rawPart.id
 
     val annotation: XSAnnotation? get() = rawPart.annotation
 
-    override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
+    val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
-    override val mdlAnnotations: AnnotationModel?
+    val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
+
+    abstract val constraint: ResolvedIdentityConstraint
+    abstract val mdlSelector: XPathExpression
+    abstract val mdlFields: List<XPathExpression>
 
 }

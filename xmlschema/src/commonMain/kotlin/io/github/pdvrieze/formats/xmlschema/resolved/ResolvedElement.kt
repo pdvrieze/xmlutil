@@ -29,15 +29,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.ElementModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, ElementModel,
-    SimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
+    ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
 
     abstract override val rawPart: XSIElement
 
@@ -45,7 +43,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
      * This can be done better with type checks
      */
     @Deprecated("Use is ResolvedGlobalElement or is ResolvedLocalElement")
-    abstract val scope: VScope
+    abstract val scope: VScopeVariety
 
     val type: QName?
         get() = rawPart.type
@@ -96,7 +94,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
     override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     override val mdlAbstract: Boolean get() = model.mdlAbstract
-    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     override val mdlName: VNCName get() = model.mdlName
     val mdlQName: QName get() = model.mdlQName
 
@@ -130,15 +128,15 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         ) return false
 
         // subsume 4.5
-        if (! specific.mdlTypeDefinition.isValidRestrictionOf(mdlTypeDefinition)) return false
+        if (!specific.mdlTypeDefinition.isValidRestrictionOf(mdlTypeDefinition)) return false
 
         // subsume 4.6
         val gtt = mdlTypeTable
         if (gtt == null) {
-            if (specific.mdlTypeTable!= null) return false
+            if (specific.mdlTypeTable != null) return false
         } else {
             val stt = specific.mdlTypeTable
-            if (stt==null) return false
+            if (stt == null) return false
             if (!gtt.isEquivalent(stt)) return false
         }
         return true
@@ -191,7 +189,8 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
         final override val mdlAbstract: Boolean = (rawPart as? XSElement)?.abstract ?: false
 
-        final override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
+        final override val mdlAnnotations: ResolvedAnnotation? =
+            rawPart.annotation.models()
 
         final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
             mutableSetOf<ResolvedIdentityConstraint>().also { set ->

@@ -18,6 +18,14 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.model
+package io.github.pdvrieze.formats.xmlschema.types
 
-interface SequenceModel<M : ChoiceSeqMember> : ChoiceSeqMember, GroupLikeTermBase, GroupMember
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+
+data class VNamespaceConstraint(
+    val mdlVariety: Variety,
+    val namespaces: Set<VAnyURI?>,
+    val disallowedNames: VAttrQNameList,
+) {
+    enum class Variety { ANY, ENUMERATION, NOT}
+}

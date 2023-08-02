@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,11 +18,16 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.model
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 
-/** assert* */
-interface I_Assertions {
-    val asserts: List<XSIAssertCommon>
+interface OldResolvedAnnotated: ResolvedPart, XSI_Annotated {
+    override val rawPart: XSI_Annotated
+
+    override val annotation: XSAnnotation? get() = rawPart.annotation
+
+    override val id: VID? get() = rawPart.id
 }

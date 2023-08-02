@@ -20,20 +20,33 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import io.github.pdvrieze.formats.xmlschema.types.VScopeVariety
 
-sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
+interface IScope {
+    val mdlVariety: VScopeVariety
 
-    abstract override val name: VNCName
+    interface Global : IScope {
+        override val mdlVariety: VScopeVariety get() = VScopeVariety.GLOBAL
+    }
 
-    val mdlName: VNCName get() = name
+    interface Local : IScope {
+        override val mdlVariety: VScopeVariety get() = VScopeVariety.LOCAL
+        val parent: Any
+    }
+}
 
-    final override val mdlSelector: XPathExpression
-        get() = XPathExpression(rawPart.selector.xpath.xmlString)
+sealed class VAttributeScope : IScope {
+    class Global : VAttributeScope(), IScope.Global
 
-    final override val mdlFields: List<XPathExpression>
-        get() = rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
+    class Local(override val parent: Member) : VAttributeScope(), IScope.Local
 
+    interface Member
+}
+
+sealed class VElementScope : IScope {
+    class Global : VElementScope(), IScope.Global
+
+    class Local(override val parent: Member) : VElementScope(), IScope.Local
+
+    interface Member
 }

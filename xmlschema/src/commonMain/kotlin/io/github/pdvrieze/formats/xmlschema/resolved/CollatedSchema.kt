@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -274,7 +275,7 @@ internal class CollatedSchema(
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
         override val blockDefault: VBlockSet get() = originalSchema.blockDefault ?: emptySet()
-        override val finalDefault: Set<TypeModel.Derivation> get() = originalSchema.finalDefault ?: emptySet()
+        override val finalDefault: Set<VDerivationControl.Type> get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
 
         override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
@@ -431,7 +432,7 @@ internal class CollatedSchema(
 
         override val blockDefault: VBlockSet
             get() = base.blockDefault
-        override val finalDefault: Set<TypeModel.Derivation>
+        override val finalDefault: Set<VDerivationControl.Type>
             get() = base.finalDefault
         override val defaultOpenContent: XSDefaultOpenContent?
             get() = base.defaultOpenContent

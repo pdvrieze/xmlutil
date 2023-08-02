@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAny
+
 interface OpenContentModel {
     val mdlMode: Mode
-    val mdlWildCard: AnyModel?
+    val mdlWildCard: ResolvedAny?
 
     enum class Mode { INTERLEAVE, SUFFIX, NONE }
 }

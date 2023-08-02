@@ -24,17 +24,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedAnnotation(val rawPart: XSAnnotation) : XSI_OpenAttrs, AnnotationModel {
+class ResolvedAnnotation(val rawPart: XSAnnotation) : XSI_OpenAttrs {
     val id: VID? = rawPart.id
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
     
-    override val mdlApplicationInformation: List<XSAppInfo> get() = rawPart.appInfos
-    override val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
-    override val mdlAttributes: Map<QName, String> get() = otherAttrs
+    val mdlApplicationInformation: List<XSAppInfo> get() = rawPart.appInfos
+    val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
+    val mdlAttributes: Map<QName, String> get() = otherAttrs
 }

@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
@@ -32,21 +31,18 @@ class ResolvedDirectUnique(
     override val rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedNamedIdentityConstraint(schema, owner), ResolvedUnique, IdentityConstraintModel.Unique {
+): ResolvedNamedIdentityConstraint(schema, owner), ResolvedUnique {
 
     override val constraint: ResolvedDirectUnique
         get() = this
 
     override val name: VNCName = checkNotNull(rawPart.name)
 
-    val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
+    override val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
 
     override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
-
-    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
-        get() = IdentityConstraintModel.Category.UNIQUE
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedNamedIdentityConstraint>.check(checkedTypes)

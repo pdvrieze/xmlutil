@@ -41,7 +41,7 @@ fun XSAnnotation?.models(): ResolvedAnnotation? = when (this){
 internal fun calcProhibitedSubstitutions(
     rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike
-): Set<ComplexTypeModel.Derivation> {
+): Set<VDerivationControl.Complex> {
     return rawPart.block ?: schema.blockDefault.toDerivationSet()
 }
 

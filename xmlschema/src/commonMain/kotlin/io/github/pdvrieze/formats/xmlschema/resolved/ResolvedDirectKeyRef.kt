@@ -24,12 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
 class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedNamedIdentityConstraint(schema, owner), ResolvedKeyRef, IdentityConstraintModel.KeyRef {
+    ResolvedNamedIdentityConstraint(schema, owner), ResolvedKeyRef {
     override val name: VNCName = requireNotNull(rawPart.name)
 
     override val constraint: ResolvedDirectKeyRef
@@ -41,7 +40,7 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
 
     override val refer: QName get() = requireNotNull(rawPart.refer)
 
-    val qName: QName get() = qname(schema.targetNamespace?.value, mdlName.xmlString)
+    override val qName: QName get() = qname(schema.targetNamespace?.value, mdlName.xmlString)
 
     override val selector: XSSelector get() = rawPart.selector
 
@@ -52,17 +51,13 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
             ?: throw NoSuchElementException("No identity constraint with name ${refer} exists")
     }
 
-    override val mdlReferencedKey: IdentityConstraintModel.ReferenceableConstraint
+    override val mdlReferencedKey: ResolvedReferenceableConstraint
         get() = schema.identityConstraint(refer).let {
-            check(it is IdentityConstraintModel.ReferenceableConstraint) {
+            check(it is ResolvedReferenceableConstraint) {
                 "keyref can only refer to key or unique elements, not to other keyrefs"
             }
             it
         }
-
-
-    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
-        get() = IdentityConstraintModel.Category.KEYREF
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedNamedIdentityConstraint>.check(checkedTypes)

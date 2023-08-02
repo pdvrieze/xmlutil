@@ -20,10 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
+import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 
-interface ResolvedAttributeDecl : AttributeModel.Decl {
-    override val mdlTypeDefinition: ResolvedSimpleType
+interface ResolvedAttributeDecl : INamedDecl {
+    val mdlTypeDefinition: ResolvedSimpleType
 
-    override val mdlScope: ResolvedAttribute.ResolvedScope
+    val mdlScope: ResolvedAttribute.ResolvedScope
+    val mdlValueConstraint: ValueConstraintModel?
+    val mdlInheritable: Boolean
 }

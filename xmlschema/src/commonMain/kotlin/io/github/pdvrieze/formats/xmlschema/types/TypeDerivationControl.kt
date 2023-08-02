@@ -20,36 +20,51 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class VDerivationControl(val name: String) {
-    sealed class Complex(name: String) : Type(name), ComplexTypeModel.Derivation
-    sealed class Type(name: String) : VDerivationControl(name), TypeModel.Derivation
+    @Serializable
+    sealed class Complex : Type {
+        constructor(name: String) : super(name)
+    }
 
+    @Serializable
+    sealed class Type : VDerivationControl {
+        constructor(name: String) : super(name)
+    }
+
+    @Serializable
+    @SerialName("restriction")
     object RESTRICTION : Complex("restriction"), T_BlockSetValues {
         override fun toString(): String = "RESTRICTION"
     }
 
+    @Serializable
+    @SerialName("extension")
     object EXTENSION : Complex("extension"), T_BlockSetValues {
         override fun toString(): String = "EXTENSION"
     }
 
+    @Serializable
     object LIST : Type("list") {
         override fun toString(): String = "LIST"
     }
 
+    @Serializable
     object UNION : Type("union") {
         override fun toString(): String = "UNION"
     }
 
+    @Serializable
     object SUBSTITUTION : VDerivationControl("substitution"), T_BlockSetValues {
         override fun toString(): String = "SUBSTITUTION"
     }
 
 }
 
-fun Set<TypeModel.Derivation>.toDerivationSet(): Set<VDerivationControl.Complex> =
+fun Set<VDerivationControl>.toDerivationSet(): Set<VDerivationControl.Complex> =
     asSequence()
         .filterIsInstance<VDerivationControl.Complex>()
         .toSet()

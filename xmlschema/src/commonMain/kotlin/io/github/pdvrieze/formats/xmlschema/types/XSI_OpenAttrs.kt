@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
