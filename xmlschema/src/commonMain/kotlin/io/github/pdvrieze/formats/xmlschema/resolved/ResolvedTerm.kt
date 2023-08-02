@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedTerm {
+interface ResolvedTerm : ResolvedAnnotated {
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
 
     fun check(checkedTypes: MutableSet<QName>)

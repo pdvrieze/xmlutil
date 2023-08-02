@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -35,8 +34,7 @@ class ResolvedGlobalComplexType(
     schema: ResolvedSchemaLike,
     val location: String
 ) : ResolvedGlobalType, ResolvedComplexType(schema), INamedDecl,
-    ResolvedSimpleTypeContext,
-    IAnnotated {
+    ResolvedSimpleTypeContext {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -107,14 +105,13 @@ class ResolvedGlobalComplexType(
     }
 
     interface Model : ResolvedComplexType.Model, INamedDecl,
-        ResolvedSimpleTypeContext,
-        IAnnotated
+        ResolvedSimpleTypeContext
 
     interface SimpleModel : Model, ResolvedSimpleContentType {
         override val mdlContentType: ResolvedSimpleContentType
     }
 
-    interface ComplexBase: Model, IAnnotated, ResolvedSimpleTypeContext
+    interface ComplexBase: Model, ResolvedSimpleTypeContext
 
     interface ComplexModel : ComplexBase, INamedDecl
 

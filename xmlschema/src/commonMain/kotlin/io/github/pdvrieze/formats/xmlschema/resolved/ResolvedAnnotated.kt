@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
-
-interface ResolvedAnnotated : IAnnotated {
-    override val mdlAnnotations: ResolvedAnnotation?
+interface ResolvedAnnotated {
+    val mdlAnnotations: ResolvedAnnotation?
 }

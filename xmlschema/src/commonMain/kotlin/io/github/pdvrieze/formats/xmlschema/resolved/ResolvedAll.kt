@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedAll private constructor(
     override val rawPart: XSAll,
     schema: ResolvedSchemaLike,
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI.Value?,
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(schema),

@@ -29,8 +29,8 @@ class ResolvedComplexShorthandContent(
     override val rawPart: XSComplexType.Shorthand,
     schema: ResolvedSchemaLike
 ) : ResolvedComplexTypeContent(schema) {
-    val particle: ResolvedGroupParticle<ResolvedGroupLikeTerm>? by lazy {
-        val r: ResolvedGroupParticle<ResolvedGroupLikeTerm>? = when (val t = rawPart.term) {
+    val particle: ResolvedGroupParticle<ResolvedModelGroup>? by lazy {
+        val r: ResolvedGroupParticle<ResolvedModelGroup>? = when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)
             is XSGroupRef -> ResolvedGroupRef(t, schema)
