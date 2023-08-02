@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 class SyntheticChoice(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedComplexType.ResolvedDirectParticle<SyntheticChoice>, IResolvedChoice {
     override val mdlTerm: SyntheticChoice get() = this
