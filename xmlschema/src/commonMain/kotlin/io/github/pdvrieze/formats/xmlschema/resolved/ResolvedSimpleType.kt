@@ -30,19 +30,18 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationTyp
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel.Variety
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
+import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
-sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
+sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
     override val rawPart: XSIType
 
     val simpleDerivation: Derivation
@@ -53,17 +52,17 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
 
     override val mdlBaseTypeDefinition: ResolvedSimpleType get() = model.mdlBaseTypeDefinition
 
-    override val mdlFacets: FacetList get() = model.mdlFacets
+    val mdlFacets: FacetList get() = model.mdlFacets
 
-    override val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
+    val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
 
-    override val mdlVariety: Variety get() = model.mdlVariety
+    val mdlVariety: Variety get() = model.mdlVariety
 
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
+    val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
 
-    override val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition
+    val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition
 
-    override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+    val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         get() = model.mdlMemberTypeDefinitions
 
     override val mdlFinal: Set<VDerivationControl.Type>
@@ -167,18 +166,23 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
         abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
 
-    interface Model : SimpleTypeModel {
-        override val mdlFinal: Set<VDerivationControl.Type>
-        override val mdlItemTypeDefinition: ResolvedSimpleType?
-        override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
-        override val mdlBaseTypeDefinition: ResolvedSimpleType
+    interface Model {
+        val mdlFinal: Set<VDerivationControl.Type>
+        val mdlItemTypeDefinition: ResolvedSimpleType?
+        val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        val mdlBaseTypeDefinition: ResolvedSimpleType
+        val mdlFacets: FacetList
+        val mdlFundamentalFacets: FundamentalFacets
+        val mdlVariety: Variety
+        val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+        val mdlAnnotations: ResolvedAnnotation?
     }
 
     sealed class ModelBase(
         rawPart: XSISimpleType,
         protected val schema: ResolvedSchemaLike,
         context: ResolvedSimpleType
-    ) : SimpleTypeModel, Model {
+    ) : Model {
 
         final override val mdlAnnotations: ResolvedAnnotation? =
             rawPart.annotation.models()
@@ -247,7 +251,7 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
             mdlMemberTypeDefinitions = when {
                 simpleDerivation !is XSSimpleUnion -> emptyList()
                 mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map { schema.simpleType(it) }
-                    ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, this@ModelBase) }
+                    ?: simpleDerivation.simpleTypes.map { ResolvedLocalSimpleType(it, schema, context) }
 
                 else -> recurseBaseType(
                     mdlBaseTypeDefinition,
@@ -377,6 +381,16 @@ sealed interface ResolvedSimpleType : ResolvedType, SimpleTypeModel {
                     }
                 }
             }
+        }
+    }
+
+    enum class Variety { ATOMIC, LIST, UNION, NIL;
+
+        fun notNil(): Variety {
+            check(this != NIL) {
+                "Attempting to copy nil variety"
+            }
+            return this
         }
     }
 

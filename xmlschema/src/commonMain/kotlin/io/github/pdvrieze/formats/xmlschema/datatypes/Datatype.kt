@@ -32,18 +32,17 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpl
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
+import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
-import kotlinx.serialization.Serializable
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 
 abstract class Datatype(
@@ -100,7 +99,7 @@ sealed class ListDatatype protected constructor(
     targetNamespace: String,
     val itemType: Datatype,
     schemaLike: ResolvedSchemaLike,
-) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, XSI_Annotated {
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model, XSI_Annotated {
     abstract override val baseType: ResolvedType
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
@@ -118,7 +117,7 @@ sealed class ListDatatype protected constructor(
     override val model: ListDatatype
         get() = this
 
-    final override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.LIST
+    final override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.LIST
 
     final override val mdlAnnotations: Nothing? get() = null
     final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
@@ -188,7 +187,11 @@ sealed class UnionDatatype(name: String, targetNamespace: String) : Datatype(nam
     val members: List<Datatype> get() = TODO()
 }
 
-object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedGlobalSimpleType, ResolvedBuiltinType {
+object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
+    ResolvedGlobalSimpleType,
+    ResolvedBuiltinType,
+    ResolvedSimpleType.Model {
+
     override val baseType: ErrorType get() = ErrorType
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
     override val annotation: Nothing? get() = null
@@ -202,10 +205,20 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
     override val name: VNCName get() = super<Datatype>.name
-    override val targetNamespace: VAnyURI
-        get() = super<Datatype>.targetNamespace
 
+    override val mdlFinal: Set<VDerivationControl.Type>
+        get() = super<ResolvedBuiltinType>.mdlFinal
+
+    override val mdlFundamentalFacets: FundamentalFacets get() = super<ResolvedBuiltinType>.mdlFundamentalFacets
+
+    override val mdlVariety: ResolvedSimpleType.Variety get() = super<ResolvedBuiltinType>.mdlVariety
+
+    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+        get() = super<ResolvedBuiltinType>.mdlPrimitiveTypeDefinition
+    override val targetNamespace: VAnyURI
+        get() = super.targetNamespace
     override val model: ErrorType get() = this
+    override val mdlAnnotations: Nothing? get() = null
 
     override fun validate(representation: VString) {
         TODO("not implemented")
@@ -224,12 +237,16 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE), ResolvedG
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType {
+object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, ResolvedSimpleType.Model {
     override val baseType: AnyType get() = AnyType // No actual base type
 
     override val name: VNCName get() = super<Datatype>.name
-    override val targetNamespace: VAnyURI
-        get() = super<Datatype>.targetNamespace
+
+    override val mdlName: VNCName get() = name
+    override val mdlAnnotations: Nothing? get() = null
+    override val mdlVariety: ResolvedSimpleType.Variety get() = super.mdlVariety
+    override val mdlFinal: Set<VDerivationControl.Type> get() = super.mdlFinal
+    override val mdlFundamentalFacets: FundamentalFacets get() = super.mdlFundamentalFacets
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
@@ -257,7 +274,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedB
 
 }
 
-object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType {
+object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
 
     override val baseType: AnyType get() = AnyType
 
@@ -270,13 +287,13 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val model: AnySimpleType get() = this
-    override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.NIL
+    override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.NIL
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
-
+    override val mdlFinal: Set<VDerivationControl.Type> get() = super.mdlFinal
     override val mdlFacets: FacetList get() = FacetList.EMPTY
-
+    override val mdlAnnotations: Nothing? get() = null
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,
         bounded = false,

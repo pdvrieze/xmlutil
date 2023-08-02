@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual

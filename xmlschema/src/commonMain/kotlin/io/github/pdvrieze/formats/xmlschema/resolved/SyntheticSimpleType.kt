@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
@@ -31,12 +30,12 @@ class SyntheticSimpleType(
     override val mdlBaseTypeDefinition: ResolvedSimpleType,
     override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,
-    override val mdlVariety: SimpleTypeModel.Variety,
+    override val mdlVariety: ResolvedSimpleType.Variety,
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
     override val mdlItemTypeDefinition: ResolvedSimpleType?,
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedSimpleType, SimpleTypeModel, ResolvedSimpleType.Model {
+) : ResolvedSimpleType, ResolvedSimpleType.Model {
     override val mdlAnnotations: Nothing? get() = null
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")
