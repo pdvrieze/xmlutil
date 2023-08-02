@@ -20,6 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.ChoiceSeqMember
-
-sealed interface ResolvedChoiceSeqMember : ResolvedTerm, ChoiceSeqMember
+sealed interface ResolvedChoiceSeqMember : ResolvedTerm

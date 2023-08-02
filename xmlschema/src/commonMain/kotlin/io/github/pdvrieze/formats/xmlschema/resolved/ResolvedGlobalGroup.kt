@@ -35,8 +35,7 @@ class ResolvedGlobalGroup(
     override val schema: ResolvedSchemaLike,
     val location: String,
 ) : ResolvedGroupBase, NamedPart, XSI_Annotated, ResolvedGroupLikeTerm, ResolvedAllMember,
-    ResolvedLocalElement.Parent, ResolvedParticleParent,
-    ElementModel.ElementParentModel, INamedDecl {
+    ResolvedParticleParent, INamedDecl {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -47,13 +46,12 @@ class ResolvedGlobalGroup(
     override val mdlTargetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
-    val mdlModelGroup: ResolvedModelGroup by lazy {
-        val r: ResolvedModelGroup = when (val c = rawPart.content) {
+    val mdlModelGroup: IResolvedModelGroup by lazy {
+        when (val c = rawPart.content) {
             is XSGroup.All -> AllImpl(this, c, schema)
             is XSGroup.Choice -> ChoiceImpl(this, c, schema)
             is XSGroup.Sequence -> SequenceImpl(this, c, schema)
         }
-        r
     }
 
     override val mdlAnnotations: ResolvedAnnotation?

@@ -21,13 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedChoice : IResolvedGroupMember, ResolvedChoiceSeqMember,
+interface IResolvedChoice : IResolvedModelGroup, ResolvedChoiceSeqMember,
     ResolvedAnnotated, ResolvedTerm {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
