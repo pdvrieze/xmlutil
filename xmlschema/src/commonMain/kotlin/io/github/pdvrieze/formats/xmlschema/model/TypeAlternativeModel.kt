@@ -21,8 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedType
 
 interface TypeAlternativeModel : IAnnotated {
     val mdlTest: VToken?
-    val mdlTypeDef: TypeModel
+    val mdlTypeDef: ResolvedType
 }

@@ -21,8 +21,27 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType {
+interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType, ResolvedSimpleType.Model {
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+
+    override val mdlFinal: Set<VDerivationControl.Type>
+        get() = super<ResolvedBuiltinType>.mdlFinal
+
+    override val mdlAnnotations: Nothing? get() = null
+
+    override val mdlFacets: FacetList
+
+    override val mdlFundamentalFacets: FundamentalFacets
+
+    override val mdlVariety: ResolvedSimpleType.Variety
+        get() = super<ResolvedBuiltinType>.mdlVariety
+
+    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+
 }

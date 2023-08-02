@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 
@@ -29,20 +28,20 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
     abstract val value: ULong
     override fun check(type: ResolvedSimpleType) {
         when (type.mdlVariety) {
-            SimpleTypeModel.Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {
+            ResolvedSimpleType.Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {
                 null -> error("Length is not supported on simple types not deriving from a primitive")
                 else -> error("Length is not supported for type ${primitive.qName}")
             }
 
-            SimpleTypeModel.Variety.LIST -> {} // fine
-            SimpleTypeModel.Variety.UNION,
-            SimpleTypeModel.Variety.NIL -> error("Variety does not support length facet")
+            ResolvedSimpleType.Variety.LIST -> {} // fine
+            ResolvedSimpleType.Variety.UNION,
+            ResolvedSimpleType.Variety.NIL -> error("Variety does not support length facet")
         }
     }
 
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit> = runCatching {
         when (type.mdlVariety) {
-            SimpleTypeModel.Variety.ATOMIC -> {
+            ResolvedSimpleType.Variety.ATOMIC -> {
                 when (val primitive = type.mdlPrimitiveTypeDefinition) {
                     is AnyURIType,
                     is StringType -> checkLength(representation.length, representation)
@@ -56,13 +55,13 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
                 }
             }
 
-            SimpleTypeModel.Variety.LIST -> {
+            ResolvedSimpleType.Variety.LIST -> {
                 val len = representation.split(' ').size
                 checkLength(len, "list[$len]")
             }
 
-            SimpleTypeModel.Variety.UNION,
-            SimpleTypeModel.Variety.NIL -> error("Length Facet not supported in this variety")
+            ResolvedSimpleType.Variety.UNION,
+            ResolvedSimpleType.Variety.NIL -> error("Length Facet not supported in this variety")
         }
     }
 

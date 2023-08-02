@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -54,7 +53,7 @@ abstract class ResolvedListDerivationBase(
         check(VDerivationControl.LIST !in itemType.mdlFinal) {
             "$baseType is final for list, and can not be put in a list"
         }
-        check(itemType.mdlVariety != SimpleTypeModel.Variety.LIST) {
+        check(itemType.mdlVariety != ResolvedSimpleType.Variety.LIST) {
             "The item in a list must be of variety atomic or union"
         }
     }

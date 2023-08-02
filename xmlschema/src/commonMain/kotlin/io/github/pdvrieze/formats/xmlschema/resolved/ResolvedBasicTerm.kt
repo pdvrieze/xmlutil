@@ -20,11 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-
 /**
  * Either resolved element or resolved any
  */
-sealed interface ResolvedBasicTerm : ResolvedAllMember, ParticleModel.BasicTerm {
+sealed interface ResolvedBasicTerm : ResolvedAllMember {
 }

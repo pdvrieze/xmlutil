@@ -24,8 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
@@ -102,7 +100,7 @@ sealed interface IDecimalType : ResolvedBuiltinSimpleType {
 }
 
 sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace),
-    ResolvedBuiltinSimpleType {
+    ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
 
     override val name: VNCName get() = super<Datatype>.name
     override val targetNamespace: VAnyURI
@@ -113,7 +111,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
     abstract override val mdlBaseTypeDefinition: ResolvedBuiltinType
     abstract override val mdlFacets: FacetList
     abstract override val mdlFundamentalFacets: FundamentalFacets
-    override val mdlVariety: SimpleTypeModel.Variety get() = SimpleTypeModel.Variety.ATOMIC
+    override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.ATOMIC
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = null
 
     final override val mdlItemTypeDefinition: ResolvedSimpleType? get() = null

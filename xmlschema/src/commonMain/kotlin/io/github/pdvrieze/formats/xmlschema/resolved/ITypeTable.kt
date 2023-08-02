@@ -18,17 +18,16 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.model
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedGlobalGroup
+import io.github.pdvrieze.formats.xmlschema.model.TypeAlternativeModel
 
-/** Base interface for terms that can be defined in a choice or sequence: */
-interface ChoiceSeqMember : Term
+interface ITypeTable {
+    fun isEquivalent(other: ITypeTable): Boolean {
+        //TODO("not implemented")
+        return mdlAlternatives.size == other.mdlAlternatives.size
+    }
 
-/** Base interface for terms that can be defined in an all: */
-interface AllMember : ChoiceSeqMember
-
-interface GroupRefModel : IAnnotated {
-    val mdlTerm: ResolvedGlobalGroup
+    val mdlAlternatives: List<TypeAlternativeModel>
+    val mdlDefault: TypeAlternativeModel
 }
-

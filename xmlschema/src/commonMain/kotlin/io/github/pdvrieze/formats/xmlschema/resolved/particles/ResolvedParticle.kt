@@ -21,13 +21,15 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.particles
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated, ParticleModel<T> {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated, IAnnotated {
     override val rawPart: XSI_Particle
 
     /** Optional, default 1 */
@@ -35,11 +37,47 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
 
     /** Optional, default 1 */
     val maxOccurs: VAllNNI?
+    val mdlMinOccurs: VNonNegativeInteger
+    val mdlMaxOccurs: VAllNNI
+    val mdlTerm: T
+    val effectiveTotalRange: AllNNIRange
+        get() = when (val t = mdlTerm) {
+            is IResolvedAll,
+            is IResolvedSequence -> {
+                var min: VNonNegativeInteger = VUnsignedLong.ZERO
+                var max: VAllNNI = VAllNNI.Value(0u)
+                for (particle in (t as ResolvedGroupLikeTerm).mdlParticles) {
+                    val r = particle.effectiveTotalRange
+                    min += r.start
+                    max += r.endInclusive
+                }
+                AllNNIRange(mdlMinOccurs * min, mdlMaxOccurs * max)
+            }
+
+            is IResolvedChoice -> {
+                var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
+                var maxMax: VAllNNI = VAllNNI.Value(0u)
+                for (particle in t.mdlParticles) {
+                    val r = particle.effectiveTotalRange
+                    minMin = minMin.coerceAtMost(r.start)
+                    maxMax = maxMax.coerceAtLeast(r.endInclusive)
+                }
+                minMin = minMin.coerceAtMost(maxMax)
+                AllNNIRange(mdlMinOccurs * minMin, mdlMaxOccurs * maxMax)
+
+            }
+
+            else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
+        }
 
     fun normalizeTerm(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
         maxMultiplier: VAllNNI = VAllNNI.ONE
     ): ResolvedParticle<T>
+
+    fun mdlIsEmptiable(): Boolean {
+        return effectiveTotalRange.start.toUInt() == 0u
+    }
 
     companion object {
         fun allMember(
@@ -63,13 +101,12 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
         ): ResolvedParticle<ResolvedChoiceSeqMember> = when (rawPart) {
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
-            is XSGroupRef -> ResolvedGroupRef(
-                rawPart,
-                schema
-            )
+            is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
 
             is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+
+            else -> error("Unreachable case/compiler limitation")
         }
 
         operator fun invoke(

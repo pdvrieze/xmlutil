@@ -20,7 +20,5 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.AllMember
-
-sealed interface ResolvedAllMember : ResolvedChoiceSeqMember, AllMember, ResolvedTerm {
+sealed interface ResolvedAllMember : ResolvedChoiceSeqMember, ResolvedTerm {
 }

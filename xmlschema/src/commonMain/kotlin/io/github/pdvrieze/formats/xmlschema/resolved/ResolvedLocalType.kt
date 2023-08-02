@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 
 sealed interface ResolvedLocalType : ResolvedType {
     override val rawPart: XSLocalType

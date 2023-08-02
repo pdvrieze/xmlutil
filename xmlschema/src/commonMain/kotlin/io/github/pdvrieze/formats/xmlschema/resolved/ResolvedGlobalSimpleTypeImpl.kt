@@ -25,8 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -50,6 +48,8 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val name: VNCName
         get() = rawPart.name
+
+    override val mdlName: VNCName get() = name
 
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
@@ -79,7 +79,10 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
-    interface Model : ResolvedSimpleType.Model, SimpleTypeModel.Global
+    interface Model : ResolvedSimpleType.Model {
+        val mdlTargetNamespace: VAnyURI?
+        val mdlName: VNCName
+    }
 
     private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) :
         ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl),

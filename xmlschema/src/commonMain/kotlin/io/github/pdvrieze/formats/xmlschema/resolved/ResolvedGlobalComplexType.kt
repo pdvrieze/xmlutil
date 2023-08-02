@@ -25,7 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
+import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -33,7 +34,9 @@ class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema), ComplexTypeModel.Global {
+) : ResolvedGlobalType, ResolvedComplexType(schema), INamedDecl,
+    ResolvedSimpleTypeContext,
+    IAnnotated {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -103,21 +106,19 @@ class ResolvedGlobalComplexType(
         return "ComplexType{ name=${name}, base=${mdlBaseTypeDefinition} }"
     }
 
-    interface Model : ResolvedComplexType.Model, ComplexTypeModel.Global {
-    }
+    interface Model : ResolvedComplexType.Model, INamedDecl,
+        ResolvedSimpleTypeContext,
+        IAnnotated
 
-    interface SimpleModel : Model, ComplexTypeModel.GlobalSimpleContent, ResolvedSimpleContentType {
+    interface SimpleModel : Model, ResolvedSimpleContentType {
         override val mdlContentType: ResolvedSimpleContentType
     }
 
-    interface ComplexModel : Model, ComplexTypeModel.GlobalComplexContent {
+    interface ComplexBase: Model, IAnnotated, ResolvedSimpleTypeContext
 
-    }
+    interface ComplexModel : ComplexBase, INamedDecl
 
-    interface ImplicitModel : Model, ComplexTypeModel.GlobalImplicitContent {
-
-    }
-
+    interface ImplicitModel : ComplexBase, INamedDecl
 
     private class SimpleModelImpl(
         parent: ResolvedComplexType,
@@ -125,6 +126,8 @@ class ResolvedGlobalComplexType(
         schema: ResolvedSchemaLike,
     ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlName: VNCName = rawPart.name
+        override val mdlContext: ResolvedComplexTypeContext
+            get() = TODO("not implemented")
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
@@ -161,7 +164,6 @@ class ResolvedGlobalComplexType(
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
-
     }
 
 }
