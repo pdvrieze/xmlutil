@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -32,7 +33,7 @@ abstract class ResolvedSchemaLike {
     abstract val targetNamespace: VAnyURI?
 
     abstract val blockDefault: VBlockSet
-    abstract val finalDefault: Set<TypeModel.Derivation>
+    abstract val finalDefault: Set<VDerivationControl.Type>
     abstract val defaultOpenContent: XSDefaultOpenContent?
 
     abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?

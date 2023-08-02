@@ -22,16 +22,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike,
-    override val mdlContext: SimpleTypeContext,
-) : ResolvedLocalType, ResolvedSimpleType, SimpleTypeModel.Local {
+    override val mdlContext: ResolvedSimpleTypeContext,
+) : ResolvedLocalType, ResolvedSimpleType, SimpleTypeModel {
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -52,15 +52,17 @@ class ResolvedLocalSimpleType(
 
     override val model: Model by lazy { ModelImpl(rawPart, schema, mdlContext) }
 
-    interface Model: SimpleTypeModel.Local, ResolvedSimpleType.Model
+    interface Model: SimpleTypeModel, ResolvedSimpleType.Model {
+        val mdlContext: ResolvedSimpleTypeContext
+    }
 
     private inner class ModelImpl(
         rawPart: XSLocalSimpleType,
         schema: ResolvedSchemaLike,
-        override val mdlContext: SimpleTypeContext
+        override val mdlContext: ResolvedSimpleTypeContext
     ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), Model {
 
-        override val mdlFinal: Set<TypeModel.Derivation> =
+        override val mdlFinal: Set<VDerivationControl.Type> =
             schema.finalDefault
     }
 

@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -120,7 +121,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val blockDefault: VBlockSet get() = delegate.blockDefault
 
-    override val finalDefault: Set<TypeModel.Derivation> get() = delegate.finalDefault
+    override val finalDefault: Set<VDerivationControl.Type> get() = delegate.finalDefault
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = delegate.defaultOpenContent
 

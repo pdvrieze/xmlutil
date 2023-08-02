@@ -32,7 +32,7 @@ class ResolvedGlobalAttributeGroup(
     override val rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(schema), NamedPart, ResolvedLocalAttribute.Parent {
+) : ResolvedAttributeGroup(schema), NamedPart, VAttributeScope.Member {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)

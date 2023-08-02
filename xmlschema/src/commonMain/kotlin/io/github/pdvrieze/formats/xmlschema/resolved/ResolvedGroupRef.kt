@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.GroupRefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -39,7 +38,7 @@ class ResolvedGroupRef(
     ResolvedGroupParticle<ResolvedGlobalGroup>,
     ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
 
-    override val mdlAnnotations: AnnotationModel? get() = rawPart.annotation.models()
+    override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
     override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 

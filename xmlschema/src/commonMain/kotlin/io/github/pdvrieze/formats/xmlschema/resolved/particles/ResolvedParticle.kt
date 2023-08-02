@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated, ParticleModel<T> {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated, ParticleModel<T> {
     override val rawPart: XSI_Particle
 
     /** Optional, default 1 */

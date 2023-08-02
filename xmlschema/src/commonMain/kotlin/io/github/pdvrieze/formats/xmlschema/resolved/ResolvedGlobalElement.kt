@@ -36,7 +36,7 @@ class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedElement(schema), NamedPart,
+) : ResolvedElement(schema), NamedPart, ResolvedComplexTypeContext,
     ElementModel.Global, ResolvedElement.Use {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
@@ -92,7 +92,7 @@ class ResolvedGlobalElement(
         DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
 
     /** Substitution group exclusions */
-    val final: Set<ComplexTypeModel.Derivation>
+    val final: Set<VDerivationControl.Complex>
         get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
 
     override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
@@ -125,7 +125,7 @@ class ResolvedGlobalElement(
         }
     }
 
-    override val scope: VScope get() = VScope.GLOBAL
+    override val scope: VScopeVariety get() = VScopeVariety.GLOBAL
 
     val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
@@ -168,7 +168,7 @@ class ResolvedGlobalElement(
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
 
-        override val mdlQName: QName = QName(mdlTargetNamespace?.toString() ?:"", mdlName.toString())
+        override val mdlQName: QName = QName(mdlTargetNamespace?.toString() ?: "", mdlName.toString())
 
         override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
@@ -208,7 +208,8 @@ class ResolvedGlobalElement(
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
-                ?: (rawPart as? XSElement)?.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
+                ?: (rawPart as? XSElement)?.substitutionGroup?.firstOrNull()
+                    ?.let { schema.element(it).mdlTypeDefinition }
                 ?: AnyType
 
         private fun checkSubstitutionGroupChain(

@@ -21,12 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
-interface ResolvedModelGroup : ModelGroupModel, ResolvedTerm {
-    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+interface ResolvedModelGroup : ResolvedTerm, ResolvedAnnotated {
+    val mdlCompositor: Compositor
+
+    val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     fun check()
 
@@ -36,4 +37,6 @@ interface ResolvedModelGroup : ModelGroupModel, ResolvedTerm {
     ): ResolvedParticle</*IResolvedGroupMember*/ResolvedTerm>
 
     fun restricts(general: ResolvedGroupLikeTerm): Boolean
+
+    enum class Compositor { ALL, CHOICE, SEQUENCE }
 }

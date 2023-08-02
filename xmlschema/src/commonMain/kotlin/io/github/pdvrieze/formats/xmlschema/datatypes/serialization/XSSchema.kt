@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.types.*
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -50,7 +51,7 @@ class XSSchema : XSOpenAttrsBase {
     val elementFormDefault: VFormChoice?
 
     @Serializable(AllDerivationSerializer::class)
-    val finalDefault: Set<TypeModel.Derivation>?
+    val finalDefault: Set<@Contextual VDerivationControl.Type>?
 
     @XmlId
     val id: VID?
@@ -85,7 +86,7 @@ class XSSchema : XSOpenAttrsBase {
         defaultAttributes: SerializableQName? = null,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         elementFormDefault: VFormChoice? = null,
-        finalDefault: Set<TypeModel.Derivation>? = null,
+        finalDefault: Set<VDerivationControl.Type>? = null,
         id: VID? = null,
         targetNamespace: VAnyURI? = null,
         version: VToken? = null,

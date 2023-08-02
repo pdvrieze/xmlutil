@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 /**
  * Base class for any resolved group related type
  */
-sealed interface ResolvedGroupBase : XSI_Annotated, ResolvedPart, ResolvedAnnotated {
+sealed interface ResolvedGroupBase : XSI_Annotated, ResolvedPart, OldResolvedAnnotated {
     abstract override val rawPart: XSI_Annotated
 
     override val annotation: XSAnnotation? get() = rawPart.annotation

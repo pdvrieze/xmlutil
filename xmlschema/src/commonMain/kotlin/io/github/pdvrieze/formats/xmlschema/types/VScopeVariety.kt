@@ -18,14 +18,14 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
+package io.github.pdvrieze.formats.xmlschema.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Suppress("unused")
 @Serializable
-enum class XSScopeVariety {
+enum class VScopeVariety {
     @SerialName("global")
     GLOBAL,
 

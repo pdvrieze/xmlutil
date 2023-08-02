@@ -20,23 +20,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttribute
+import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
-interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, ElementModel.ElementParentModel,
-    SimpleTypeContext {
+interface ComplexTypeModel : TypeModel, VAttributeScope.Member, ElementModel.ElementParentModel,
+    ResolvedSimpleTypeContext {
 
     val mdlAbstract: Boolean
-    val mdlProhibitedSubstitutions: Set<out Derivation>
-    override val mdlFinal: Set<Derivation>
+    val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
+    override val mdlFinal: Set<VDerivationControl.Complex>
     val mdlContentType: ContentType
     val mdlAttributeUses: Set<ResolvedAttribute>
-    val mdlAttributeWildcard: AnyModel?
-    val mdlDerivationMethod: Derivation
+    val mdlAttributeWildcard: ResolvedAny?
+    val mdlDerivationMethod: VDerivationControl.Complex
 
     interface Global : ComplexTypeModel, INamedDecl, TypeModel.Global
 
-    interface Local : ComplexTypeModel, TypeModel.Local {
-        val mdlContext: ComplexTypeContext
+    interface Local : ComplexTypeModel {
+        val mdlContext: ResolvedComplexTypeContext
     }
 
     interface SimpleContent : ComplexTypeModel {
@@ -85,8 +86,6 @@ interface ComplexTypeModel : TypeModel, AttributeModel.AttributeParentModel, Ele
         }
     }
 
-
-    interface Derivation : SimpleTypeModel.Derivation
 
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 

@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.SequenceModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -33,14 +31,14 @@ class SyntheticSequence(
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticSequence>, SequenceModel<ResolvedChoiceSeqMember>,
-    IResolvedSequence, ResolvedChoiceSeqMember {
+) : ResolvedComplexType.ResolvedDirectParticle<SyntheticSequence>,
+    IResolvedSequence {
     override val mdlTerm: SyntheticSequence get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
     override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
-    override val mdlAnnotations: AnnotationModel? get() = null
+    override val mdlAnnotations: ResolvedAnnotation? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }

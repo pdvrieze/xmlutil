@@ -66,6 +66,9 @@ class ResolvedLocalComplexType(
         content.check(checkedTypes, inheritedTypes) // there is no name here
     }
 
+    interface Foo {}
+//    interface Context {} /* : ComplexTypeContext*/
+
     interface Model : ResolvedComplexType.Model, ComplexTypeModel.Local
 
     interface SimpleModel : Model, ComplexTypeModel.LocalSimpleContent, ResolvedSimpleContentType {
@@ -83,7 +86,7 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
         override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()
@@ -96,7 +99,7 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
         override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()
@@ -109,7 +112,7 @@ class ResolvedLocalComplexType(
         override val mdlContext: ResolvedComplexTypeContext
     ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
         override val mdlAbstract: Boolean get() = false
-        override val mdlProhibitedSubstitutions: Set<out ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
         override val mdlFinal: Set<VDerivationControl.Complex> =
             schema.finalDefault.toDerivationSet()

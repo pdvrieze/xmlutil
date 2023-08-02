@@ -22,10 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexTypeContext
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
-interface SimpleTypeModel : TypeModel, SimpleTypeContext {
+interface SimpleTypeModel : TypeModel, ResolvedSimpleTypeContext {
     val mdlFacets: FacetList
     val mdlFundamentalFacets: FundamentalFacets
     val mdlVariety: Variety
@@ -33,8 +35,8 @@ interface SimpleTypeModel : TypeModel, SimpleTypeContext {
     val mdlItemTypeDefinition: SimpleTypeModel?
     val mdlMemberTypeDefinitions: List<SimpleTypeModel>
 
-    interface Local : SimpleTypeModel, TypeModel.Local {
-        val mdlContext: SimpleTypeContext
+    interface Local : SimpleTypeModel {
+        val mdlContext: ResolvedSimpleTypeContext
     }
 
     interface Global : SimpleTypeModel, TypeModel.Global {
@@ -52,9 +54,5 @@ interface SimpleTypeModel : TypeModel, SimpleTypeContext {
         }
     }
 
-    interface Derivation : TypeModel.Derivation
 }
 
-interface TypeContext : SimpleTypeContext, ComplexTypeContext
-
-interface SimpleTypeContext

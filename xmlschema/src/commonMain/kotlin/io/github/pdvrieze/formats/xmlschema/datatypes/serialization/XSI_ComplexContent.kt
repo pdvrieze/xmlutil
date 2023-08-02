@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.model.I_Assertions
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
@@ -29,8 +28,9 @@ sealed interface XSI_ComplexContent : XSI_Annotated {
 
 }
 
-sealed interface XSI_ComplexDerivation : XSComplexType.Derivation, I_Assertions, XSI_Annotated {
+sealed interface XSI_ComplexDerivation : XSComplexType.Derivation, XSI_Annotated {
     val term: XSComplexContent.XSIDerivationParticle?
     val openContent: XSOpenContent?
     val base: QName?
+    val asserts: List<XSIAssertCommon>
 }

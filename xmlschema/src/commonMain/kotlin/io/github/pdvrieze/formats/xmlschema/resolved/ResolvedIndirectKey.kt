@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import nl.adaptivity.xmlutil.QName
 
@@ -28,12 +30,16 @@ class ResolvedIndirectKey(
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKey {
+    override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = super.mdlIdentityConstraintCategory
 
     override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectKey -> r
         is ResolvedIndirectKey -> r.ref
         else -> throw IllegalArgumentException("Key's ref property ${rawPart.ref} does not refer to a key")
     }
+
+    override val name: VNCName
+        get() = rawPart.name ?: ref.name
 
     override val constraint: ResolvedIndirectKey
         get() = this

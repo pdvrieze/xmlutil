@@ -48,4 +48,4 @@ class XSGroupRef(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<SerializableQName, String>
-) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated, Term
+) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated
