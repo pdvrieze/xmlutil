@@ -27,14 +27,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, ResolvedAnnotated, NamedPart, XSI_Annotated, ResolvedParticleParent, INamedDecl {
+) : ResolvedGroupBase, ResolvedAnnotated, NamedPart, ResolvedParticleParent, INamedDecl {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -111,7 +111,6 @@ class ResolvedGlobalGroup(
 
         override fun check() {
             super.check(mutableSetOf())
-            rawPart.check(mutableSetOf())
         }
     }
 
@@ -149,7 +148,6 @@ class ResolvedGlobalGroup(
 
         override fun check() {
             super.check(mutableSetOf())
-            rawPart.check(mutableSetOf())
         }
     }
 
@@ -170,7 +168,6 @@ class ResolvedGlobalGroup(
 
         override fun check() {
             super.check(mutableSetOf())
-            rawPart.check(mutableSetOf())
         }
     }
 }

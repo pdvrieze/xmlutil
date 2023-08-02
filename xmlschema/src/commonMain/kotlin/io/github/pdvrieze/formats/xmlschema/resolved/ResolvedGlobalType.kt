@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
 
 sealed interface ResolvedGlobalType : ResolvedType, NamedPart,
-    ResolvedAnnotated {
+    ResolvedAnnotatedXX {
     val mdlTargetNamespace: VAnyURI?
 
     override val rawPart: XSGlobalType

@@ -23,14 +23,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeGroupRef(
     override val rawPart: XSAttributeGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, XSI_Annotated {
+) : ResolvedAnnotated {
     val resolvedGroup: ResolvedGlobalAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
+
+    override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
     val attributes: List<ResolvedLocalAttribute>
         get() = resolvedGroup.attributes
@@ -51,7 +53,7 @@ class ResolvedAttributeGroupRef(
         get() = rawPart.otherAttrs
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedPart>.check(checkedTypes)
+        super.check(checkedTypes)
         checkNotNull(resolvedGroup) // force resolve
     }
 }

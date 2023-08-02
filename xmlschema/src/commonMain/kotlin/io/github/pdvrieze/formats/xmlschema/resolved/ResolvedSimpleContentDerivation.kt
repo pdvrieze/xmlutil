@@ -24,11 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentDerivation
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchemaLike) :
-    ResolvedPart, XSI_Annotated {
+    ResolvedPart, ResolvedAnnotated {
     abstract override val rawPart: XSSimpleContentDerivation
 
     abstract val baseType: ResolvedType

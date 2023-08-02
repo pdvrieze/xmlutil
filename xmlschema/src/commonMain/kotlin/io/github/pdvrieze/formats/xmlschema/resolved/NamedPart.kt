@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.I_Named
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
 interface NamedPart : OptNamedPart, I_Named {

@@ -31,7 +31,7 @@ class SyntheticChoice(
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticChoice>, IResolvedChoice {
+) : ResolvedParticle<SyntheticChoice>, IResolvedChoice {
     override val mdlTerm: SyntheticChoice get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
     override val maxOccurs: VAllNNI get() = mdlMaxOccurs

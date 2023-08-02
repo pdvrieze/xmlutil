@@ -24,17 +24,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : OldResolvedAnnotated, ResolvedPart, XSI_Annotated,
-    ResolvedAnnotated {
+sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart {
     abstract override val rawPart: XSIType
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<OldResolvedAnnotated>.check(checkedTypes)
+        super<ResolvedAnnotated>.check(checkedTypes)
         check(mutableSetOf(), SingleLinkedList())
     }
 

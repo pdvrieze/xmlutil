@@ -26,10 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated,
-    ResolvedAnnotated {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated {
     override val rawPart: XSI_Particle
 
     /** Optional, default 1 */
@@ -40,6 +40,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
     val mdlMinOccurs: VNonNegativeInteger
     val mdlMaxOccurs: VAllNNI
     val mdlTerm: T
+
     val effectiveTotalRange: AllNNIRange
         get() = when (val t = mdlTerm) {
             is IResolvedAll,
@@ -69,6 +70,13 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
 
             else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
+
+    override fun check(checkedTypes: MutableSet<QName>) {
+
+        super<ResolvedPart>.check(checkedTypes)
+        check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+
+    }
 
     fun normalizeTerm(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,

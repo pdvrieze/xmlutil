@@ -31,7 +31,7 @@ class SyntheticSequence(
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticSequence>,
+) : ResolvedParticle<SyntheticSequence>,
     IResolvedSequence {
     override val mdlTerm: SyntheticSequence get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs

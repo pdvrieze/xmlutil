@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,7 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.types
+package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
@@ -30,10 +30,5 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 interface XSI_OpenAttrs {
     @XmlOtherAttributes
     val otherAttrs: Map<SerializableQName, String>
-
-    fun check(checkedTypes: MutableSet<QName>) {
-        val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI==XMLConstants.XSD_NS_URI }
-        check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
-    }
 }
 

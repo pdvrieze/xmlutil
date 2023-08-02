@@ -59,7 +59,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
             else -> null
         }
     }
-    open val id: VID? get() = rawPart.id
 
     val localType: XSIType?
         get() = rawPart.localType
@@ -67,8 +66,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     override val name: VNCName? get() = rawPart.name
 
     override val targetNamespace: VAnyURI? get() = rawPart.targetNamespace
-
-    open val annotation: XSAnnotation? get() = rawPart.annotation
 
     val alternatives: List<Nothing> get() = rawPart.alternatives
 
