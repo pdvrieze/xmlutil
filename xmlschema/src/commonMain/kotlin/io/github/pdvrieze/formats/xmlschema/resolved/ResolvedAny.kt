@@ -32,7 +32,7 @@ class ResolvedAny(
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs
-) : ResolvedParticle<ResolvedAny>, ResolvedPart, ResolvedBasicTerm {
+) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
     override val mdlMinOccurs: VNonNegativeInteger
         get() = minOccurs ?: VNonNegativeInteger.ONE
 

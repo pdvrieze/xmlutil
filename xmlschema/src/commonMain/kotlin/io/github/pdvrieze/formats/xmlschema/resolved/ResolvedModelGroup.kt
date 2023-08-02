@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
-    val schema: ResolvedSchemaLike
+    override val schema: ResolvedSchemaLike
     val mdlCompositor: Compositor
 
     override fun check(checkedTypes: MutableSet<QName>) {
