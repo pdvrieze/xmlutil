@@ -22,6 +22,10 @@ package io.github.pdvrieze.formats.xmlschema.model
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
+import io.github.pdvrieze.formats.xmlschema.resolved.IResolvedAll
+import io.github.pdvrieze.formats.xmlschema.resolved.IResolvedChoice
+import io.github.pdvrieze.formats.xmlschema.resolved.IResolvedSequence
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedGroupLikeTerm
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
@@ -33,11 +37,11 @@ interface ParticleModel<out T : Term> : IAnnotated {
 
     val effectiveTotalRange: AllNNIRange
         get() = when (val t = mdlTerm) {
-            is AllModel,
-            is SequenceModel<*> -> {
+            is IResolvedAll,
+            is IResolvedSequence -> {
                 var min: VNonNegativeInteger = VUnsignedLong.ZERO
                 var max: VAllNNI = VAllNNI.Value(0u)
-                for (particle in (t as GroupLikeTermBase).mdlParticles) {
+                for (particle in (t as ResolvedGroupLikeTerm).mdlParticles) {
                     val r = particle.effectiveTotalRange
                     min += r.start
                     max += r.endInclusive
@@ -45,7 +49,7 @@ interface ParticleModel<out T : Term> : IAnnotated {
                 AllNNIRange(mdlMinOccurs * min, mdlMaxOccurs * max)
             }
 
-            is ChoiceModel -> {
+            is IResolvedChoice -> {
                 var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
                 var maxMax: VAllNNI = VAllNNI.Value(0u)
                 for (particle in t.mdlParticles) {

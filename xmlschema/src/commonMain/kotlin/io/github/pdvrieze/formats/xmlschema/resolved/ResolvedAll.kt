@@ -36,7 +36,6 @@ class ResolvedAll private constructor(
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(schema),
     IResolvedAll,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedAll>,
-    ResolvedGroupLikeTerm,
     ResolvedGroupParticle<IResolvedAll> {
 
     constructor(

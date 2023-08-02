@@ -21,14 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKeyRef, IdentityConstraintModel.KeyRef {
+    ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKeyRef {
 
-    override val constraint: ResolvedIndirectKeyRef
-        get() = this
+    override val constraint: ResolvedIndirectKeyRef get() = this
 
     override val ref: ResolvedDirectKeyRef = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectKeyRef -> r
@@ -44,7 +42,7 @@ class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSch
 
     val referenced: ResolvedDirectKey get() = ref.referenced
 
-    override val mdlReferencedKey: IdentityConstraintModel.ReferenceableConstraint get() = ref.mdlReferencedKey
+    override val mdlReferencedKey: ResolvedReferenceableConstraint get() = ref.mdlReferencedKey
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)

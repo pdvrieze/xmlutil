@@ -21,10 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 
-interface ResolvedUnique : IdentityConstraintModel.Unique, ResolvedIdentityConstraint {
+interface ResolvedUnique : ResolvedReferenceableConstraint {
     override val rawPart: XSUnique
+
+    override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.UNIQUE
 
     companion object {
         operator fun invoke(
@@ -38,3 +39,4 @@ interface ResolvedUnique : IdentityConstraintModel.Unique, ResolvedIdentityConst
     }
 }
 
+interface ResolvedReferenceableConstraint : ResolvedIdentityConstraint

@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.OpenContentModel
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -37,7 +36,7 @@ import nl.adaptivity.xmlutil.qname
 sealed class ResolvedComplexType(
     final override val schema: ResolvedSchemaLike
 ) : ResolvedType,
-    ResolvedLocalAttribute.Parent,
+    VAttributeScope.Member,
     ResolvedLocalElement.Parent,
     ResolvedParticleParent,
     ComplexTypeModel {
@@ -48,14 +47,14 @@ sealed class ResolvedComplexType(
     protected abstract val model: Model
 
     override val mdlAbstract: Boolean get() = model.mdlAbstract
-    override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
-    override val mdlFinal: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
+    override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
+    override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
     override val mdlContentType: ResolvedContentType get() = model.mdlContentType
     override val mdlAttributeUses: Set<ResolvedAttribute> get() = model.mdlAttributeUses
     override val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
-    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     override fun validate(representation: VString) {
         when (val ct = mdlContentType) {
@@ -235,7 +234,8 @@ sealed class ResolvedComplexType(
         rawPart: XSIComplexType,
         schema: ResolvedSchemaLike
     ) : Model {
-        override val mdlAnnotations: AnnotationModel? = rawPart.annotation.models()
+        override val mdlAnnotations: ResolvedAnnotation? =
+            rawPart.annotation.models()
 
 
         override val mdlAttributeUses: Set<ResolvedAttribute> by lazy {

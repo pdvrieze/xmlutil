@@ -20,11 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.GroupMember
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedGroupMember : ResolvedGroupLikeTerm, GroupMember, ResolvedModelGroup {
+interface IResolvedGroupMember : ResolvedGroupLikeTerm, ResolvedModelGroup {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     val schema: ResolvedSchemaLike
 

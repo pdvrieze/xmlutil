@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.AnyModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
+import io.github.pdvrieze.formats.xmlschema.model.ParticleModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -34,14 +34,16 @@ class ResolvedAny(
     override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs
-) : ResolvedParticle<ResolvedAny>, ResolvedPart, AnyModel, ResolvedTerm, ResolvedAllMember {
+) : ResolvedParticle<ResolvedAny>, ResolvedPart, ResolvedTerm,
+    ResolvedAnnotated,
+    ResolvedBasicTerm {
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: VAllNNI
         get() = rawPart.maxOccurs ?: VAllNNI.ONE
 
-    override val mdlAnnotations: AnnotationModel?
+    override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
     override val annotation: XSAnnotation?
@@ -52,10 +54,10 @@ class ResolvedAny(
 
     override val mdlTerm: ResolvedAny get() = this
 
-    override val mdlNamespaceConstraint: Set<AnyModel.NamespaceConstraint>
+    val mdlNamespaceConstraint: Set<VNamespaceConstraint>
         get() = TODO("not implemented")
 
-    override val mdlProcessContents: VProcessContents
+    val mdlProcessContents: VProcessContents
         get() = processContents
 
     val notNamespace: VNotNamespaceList
