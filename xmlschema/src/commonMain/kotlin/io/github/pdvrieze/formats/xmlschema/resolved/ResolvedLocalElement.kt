@@ -41,8 +41,8 @@ class ResolvedLocalElement(
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     ResolvedParticle<ResolvedLocalElement>,
-    ResolvedComplexTypeContext,
-    ResolvedBasicTerm {
+    ResolvedComplexTypeContext {
+
     override val id: VID? get() = super<ResolvedElement>.id
 
     override val annotation: XSAnnotation? get() = super<ResolvedElement>.annotation

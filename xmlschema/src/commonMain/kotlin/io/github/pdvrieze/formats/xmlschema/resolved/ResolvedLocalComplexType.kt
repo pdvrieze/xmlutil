@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
@@ -34,7 +33,7 @@ class ResolvedLocalComplexType(
     override val mdlContext: ResolvedComplexTypeContext,
 ) : ResolvedComplexType(schema), ResolvedLocalType,
     ResolvedSimpleTypeContext,
-    IAnnotated {
+    ResolvedAnnotated {
     val mixed: Boolean? get() = rawPart.mixed
     val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
@@ -71,8 +70,8 @@ class ResolvedLocalComplexType(
     interface Foo {}
 //    interface Context {} /* : ComplexTypeContext*/
 
-    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext,
-        IAnnotated {
+    // TODO don't inherit simpleTypeContext
+    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext {
         val mdlContext: ResolvedComplexTypeContext
     }
 

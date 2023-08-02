@@ -23,13 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved.particles
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated, IAnnotated {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnnotated,
+    ResolvedAnnotated {
     override val rawPart: XSI_Particle
 
     /** Optional, default 1 */
@@ -46,7 +46,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
             is IResolvedSequence -> {
                 var min: VNonNegativeInteger = VUnsignedLong.ZERO
                 var max: VAllNNI = VAllNNI.Value(0u)
-                for (particle in (t as ResolvedGroupLikeTerm).mdlParticles) {
+                for (particle in (t as ResolvedModelGroup).mdlParticles) {
                     val r = particle.effectiveTotalRange
                     min += r.start
                     max += r.endInclusive
@@ -84,7 +84,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
             parent: ResolvedParticleParent,
             rawPart: XSI_AllParticle,
             schema: ResolvedSchemaLike
-        ): ResolvedParticle<ResolvedAllMember> = when (rawPart) {
+        ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSGroupRef -> ResolvedGroupRef(
                 rawPart,
@@ -98,7 +98,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, OldResolvedAnno
             parent: ResolvedParticleParent,
             rawPart: XSI_NestedParticle,
             schema: ResolvedSchemaLike
-        ): ResolvedParticle<ResolvedChoiceSeqMember> = when (rawPart) {
+        ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)

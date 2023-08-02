@@ -36,7 +36,6 @@ class ResolvedGlobalElement(
 ) : ResolvedElement(schema),
     NamedPart,
     ResolvedComplexTypeContext,
-    ResolvedTerm,
     INamedDecl,
     ResolvedTypeContext {
 
@@ -155,7 +154,7 @@ class ResolvedGlobalElement(
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     interface Model : ResolvedElement.Model, INamedDecl,
-        ResolvedTypeContext, IAnnotated {
+        ResolvedTypeContext {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         val mdlScope: IScope.Global
     }

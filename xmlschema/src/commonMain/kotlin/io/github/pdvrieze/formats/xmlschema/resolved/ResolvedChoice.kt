@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
-import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -30,14 +29,13 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedChoice private constructor(
     override val rawPart: XSChoice,
     schema: ResolvedSchemaLike,
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice,
     ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
-    ResolvedGroupParticle<IResolvedChoice>,
-    ResolvedAnnotated {
+    ResolvedGroupParticle<IResolvedChoice> {
 
     constructor(
         parent: ResolvedParticleParent,

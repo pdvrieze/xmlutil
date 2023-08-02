@@ -29,14 +29,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.model.IOptNamed
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart,
-    ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedTerm, IAnnotated, IOptNamed {
+    ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm,
+    ResolvedAnnotated, IOptNamed {
 
     abstract override val rawPart: XSIElement
 
