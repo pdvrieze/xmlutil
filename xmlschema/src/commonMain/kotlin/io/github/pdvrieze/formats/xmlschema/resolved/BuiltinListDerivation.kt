@@ -27,4 +27,5 @@ class BuiltinListDerivation(
 ) : ResolvedListDerivationBase(schema) {
     override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
     override val simpleType: Nothing? get() = null
+    override val mdlAnnotations: Nothing? get() = null
 }

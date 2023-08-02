@@ -38,7 +38,7 @@ sealed class ResolvedComplexType(
     ResolvedLocalElement.Parent,
     ResolvedParticleParent,
     ResolvedSimpleTypeContext,
-    ResolvedAnnotated {
+    ResolvedAnnotatedXX {
     abstract override val rawPart: XSComplexType
 
     abstract val content: ResolvedComplexTypeContent
@@ -210,14 +210,7 @@ sealed class ResolvedComplexType(
     }
 
 
-    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> : ResolvedParticle<T>  {
-        fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
-        override fun check(checkedTypes: MutableSet<QName>) {
-
-            super.check(checkedTypes)
-            check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
-
-        }
+    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> {
     }
 
     interface Model : ResolvedSimpleTypeContext {
@@ -372,7 +365,7 @@ sealed class ResolvedComplexType(
                     val baseParticle = (baseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
-                    val part: ResolvedDirectParticle<ResolvedModelGroup> = when {
+                    val part: ResolvedParticle<ResolvedModelGroup> = when {
                         baseParticle is ResolvedAll && explicitContent == null -> baseParticle
                         (baseTerm is ResolvedAll && effectiveContentTerm is ResolvedAll) -> {
                             val p = baseTerm.mdlParticles + effectiveContentTerm.mdlParticles
@@ -609,7 +602,7 @@ sealed class ResolvedComplexType(
 
     interface ResolvedSimpleContentType : ResolvedContentType,
         ResolvedSimpleTypeContext,
-        ResolvedAnnotated,
+        ResolvedAnnotatedXX,
         VContentType.Simple,
         VAttributeScope.Member{
         val mdlAttributeWildcard: ResolvedAny?

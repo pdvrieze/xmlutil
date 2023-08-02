@@ -21,13 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 
 sealed class ResolvedAttributeGroup(
     final override val schema: ResolvedSchemaLike
-) : ResolvedPart, XSI_Annotated {
+) : ResolvedAnnotated {
     abstract override val rawPart: XSAttributeGroup
-
+    override val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
 
     val attributeUses: Set<ResolvedAttribute>
         get() {

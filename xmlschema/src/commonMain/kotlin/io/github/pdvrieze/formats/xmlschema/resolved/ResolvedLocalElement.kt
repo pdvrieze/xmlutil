@@ -45,8 +45,6 @@ class ResolvedLocalElement(
 
     override val id: VID? get() = super<ResolvedElement>.id
 
-    override val annotation: XSAnnotation? get() = super<ResolvedElement>.annotation
-
     override val otherAttrs: Map<QName, String> get() = super<ResolvedParticle>.otherAttrs
 
     val ref: QName? get() = rawPart.ref

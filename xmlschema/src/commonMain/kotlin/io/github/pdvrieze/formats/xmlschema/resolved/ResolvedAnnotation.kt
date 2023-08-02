@@ -24,16 +24,21 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 
-class ResolvedAnnotation(val rawPart: XSAnnotation) : XSI_OpenAttrs {
+class ResolvedAnnotation(val rawPart: XSAnnotation) {
     val id: VID? = rawPart.id
 
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-    
+    val mdlOtherAttrs: Map<QName, String> get() = rawPart.otherAttrs
     val mdlApplicationInformation: List<XSAppInfo> get() = rawPart.appInfos
     val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
-    val mdlAttributes: Map<QName, String> get() = otherAttrs
+
+    fun check(checkedTypes: MutableSet<QName>) {
+        val xsAttrs = mdlOtherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }
+        check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
+    }
+
 }

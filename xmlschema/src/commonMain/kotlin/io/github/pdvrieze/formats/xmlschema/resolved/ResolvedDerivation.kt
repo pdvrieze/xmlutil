@@ -30,7 +30,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
     ResolvedPart {
     abstract override val rawPart: XSComplexContent.XSComplexDerivationBase
 
-    val term: ResolvedComplexType.ResolvedDirectParticle<*>? by lazy {
+    val term: ResolvedGroupParticle<ResolvedTerm>? by lazy {
         when (val t = rawPart.term) {
             is XSAll -> ResolvedAll(scope, t, schema)
             is XSChoice -> ResolvedChoice(scope, t, schema)

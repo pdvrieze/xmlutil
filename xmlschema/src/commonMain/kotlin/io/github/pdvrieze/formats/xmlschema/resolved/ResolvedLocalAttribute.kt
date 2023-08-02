@@ -38,7 +38,7 @@ class ResolvedLocalAttribute(
     ResolvedAttributeDecl,
     ResolvedAttribute.ResolvedScope,
     IScope.Local,
-    ResolvedAnnotated {
+    ResolvedAnnotatedXX {
     private val referenced: ResolvedAttribute? by lazy {
         rawPart.ref?.let {
             schema.attribute(

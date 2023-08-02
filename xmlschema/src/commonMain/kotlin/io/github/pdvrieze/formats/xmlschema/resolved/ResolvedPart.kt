@@ -20,12 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.types.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 
-interface ResolvedOpenAttrs : XSI_OpenAttrs {
+interface ResolvedOpenAttrs {
     val schema: ResolvedSchemaLike
-    override val otherAttrs: Map<QName, String>
+    val otherAttrs: Map<QName, String>
+
+    fun check(checkedTypes: MutableSet<QName>) {
+        val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }
+        check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
+    }
+
 }
 
 interface ResolvedPart : ResolvedOpenAttrs {

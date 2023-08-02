@@ -31,8 +31,7 @@ class SyntheticAll(
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
-) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>,
-    IResolvedAll {
+) : ResolvedParticle<SyntheticAll>, IResolvedAll {
 
     override val mdlTerm: SyntheticAll get() = this
     override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
