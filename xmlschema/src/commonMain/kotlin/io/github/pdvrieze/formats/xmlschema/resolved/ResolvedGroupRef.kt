@@ -33,8 +33,7 @@ class ResolvedGroupRef(
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
-    ResolvedGroupParticle<ResolvedModelGroup>,
-    ResolvedComplexType.ResolvedDirectParticle<ResolvedModelGroup> {
+    ResolvedGroupParticle<ResolvedModelGroup> {
 
     override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 

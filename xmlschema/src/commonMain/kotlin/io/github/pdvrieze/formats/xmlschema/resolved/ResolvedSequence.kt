@@ -33,8 +33,6 @@ class ResolvedSequence private constructor(
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
-    ResolvedComplexType.ResolvedDirectParticle<IResolvedSequence>,
-    ResolvedGroupParticle<IResolvedSequence>,
     IResolvedSequence {
 
     override val mdlTerm: ResolvedSequence get() = this
@@ -84,8 +82,7 @@ class ResolvedSequence private constructor(
 
 
     override fun check() {
-        super<IResolvedSequence>.check(mutableSetOf())
-        rawPart.check(mutableSetOf())
+        check(mutableSetOf())
     }
 
     override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): ResolvedSequence {
