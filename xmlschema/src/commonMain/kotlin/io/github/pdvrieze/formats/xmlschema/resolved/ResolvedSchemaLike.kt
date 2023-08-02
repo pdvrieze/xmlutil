@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -34,6 +35,8 @@ abstract class ResolvedSchemaLike {
     abstract val blockDefault: VBlockSet
     abstract val finalDefault: Set<VDerivationControl.Type>
     abstract val defaultOpenContent: XSDefaultOpenContent?
+    open val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
+    open val elementFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
 
     abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?
 
