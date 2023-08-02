@@ -157,10 +157,9 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
         return false //none of the 4 options is true
     }
 
-    sealed class Derivation(final override val schema: ResolvedSchemaLike) : OldResolvedAnnotated {
+    sealed class Derivation(final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
         final override val annotation: XSAnnotation? get() = rawPart.annotation
         final override val id: VID? get() = rawPart.id
-
         abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType
         abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)

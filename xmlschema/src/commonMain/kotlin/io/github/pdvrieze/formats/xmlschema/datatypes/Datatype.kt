@@ -41,7 +41,7 @@ import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 
@@ -99,7 +99,7 @@ sealed class ListDatatype protected constructor(
     targetNamespace: String,
     val itemType: Datatype,
     schemaLike: ResolvedSchemaLike,
-) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model, XSI_Annotated {
+) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
     abstract override val baseType: ResolvedType
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
@@ -233,6 +233,8 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
         override val base: QName get() = ErrorType.qName
         override val baseType: ErrorType get() = ErrorType
 
+        override val mdlAnnotations: Nothing? get() = null
+
         override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
 }
@@ -312,9 +314,11 @@ internal open class SimpleBuiltinRestriction(
 ) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()
     override val base: QName get() = baseType.qName
+    override val mdlAnnotations: Nothing? get() = null
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val simpleType: Nothing? get() = null
     override val otherContents: List<Nothing> get() = emptyList()
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
+    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
 }

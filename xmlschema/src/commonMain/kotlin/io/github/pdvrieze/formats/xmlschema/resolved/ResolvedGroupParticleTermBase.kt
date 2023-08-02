@@ -28,9 +28,9 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
     final override val schema: ResolvedSchemaLike
-): ResolvedParticle<T>, ResolvedPart,
-    OldResolvedAnnotated,
-    ResolvedAnnotated {
+): ResolvedGroupParticle<T>, ResolvedPart,
+    ResolvedAnnotated,
+    ResolvedAnnotatedXX {
 
     final override val mdlMinOccurs: VNonNegativeInteger
         get() = minOccurs ?: VNonNegativeInteger.ONE
@@ -43,7 +43,7 @@ sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
     final override val mdlAnnotations: ResolvedAnnotation? by lazy { rawPart.annotation.models() }
     abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<OldResolvedAnnotated>.check(checkedTypes)
+        super<ResolvedAnnotated>.check(checkedTypes)
         for (particle in mdlParticles) {
             particle.check(checkedTypes)
         }
@@ -53,7 +53,7 @@ sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
         parent: ResolvedComplexType,
         rawPart: XSExplicitGroup,
         schema: ResolvedSchemaLike
-    ): ResolvedParticle<ResolvedModelGroup> = when (rawPart) {
+    ): ResolvedGroupParticle<ResolvedModelGroup> = when (rawPart) {
         is XSAll -> ResolvedAll(parent, rawPart, schema)
         is XSChoice -> ResolvedChoice(parent, rawPart, schema)
         is XSSequence -> ResolvedSequence(parent, rawPart, schema)

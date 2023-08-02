@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import nl.adaptivity.xmlutil.QName
 
-interface T_AltType: XSI_Annotated {
+interface T_AltType {
     val simpleTypes: List<ResolvedSimpleType>
 
     val complexTypes: List<ResolvedComplexType>
