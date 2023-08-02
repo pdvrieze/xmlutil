@@ -32,8 +32,7 @@ class ResolvedLocalComplexType(
     schema: ResolvedSchemaLike,
     override val mdlContext: ResolvedComplexTypeContext,
 ) : ResolvedComplexType(schema), ResolvedLocalType,
-    ResolvedSimpleTypeContext,
-    ResolvedAnnotatedXX {
+    ResolvedSimpleTypeContext {
     val mixed: Boolean? get() = rawPart.mixed
     val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
