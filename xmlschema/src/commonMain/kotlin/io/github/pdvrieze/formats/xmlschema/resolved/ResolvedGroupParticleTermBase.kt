@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
-sealed class ResolvedGroupParticleTermBase<T: IResolvedGroupMember>(schema: ResolvedSchemaLike):
+sealed class ResolvedGroupParticleTermBase<T: IResolvedModelGroup>(schema: ResolvedSchemaLike):
     ResolvedGroupTermBase(schema),
     ResolvedParticle<T> {
 

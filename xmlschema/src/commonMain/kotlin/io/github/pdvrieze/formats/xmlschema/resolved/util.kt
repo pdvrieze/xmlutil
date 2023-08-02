@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName

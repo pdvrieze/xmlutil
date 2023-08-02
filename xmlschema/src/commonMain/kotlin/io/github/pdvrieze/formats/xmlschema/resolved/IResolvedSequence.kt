@@ -21,21 +21,20 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence: ResolvedAllMember,
-    IResolvedGroupMember, ResolvedAnnotated, ResolvedTerm {
+    IResolvedModelGroup, ResolvedAnnotated, ResolvedTerm {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedGroupMember>.check(checkedTypes)
+        super<IResolvedModelGroup>.check(checkedTypes)
     }
 
 

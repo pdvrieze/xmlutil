@@ -25,10 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.ElementModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
-import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
+import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -36,13 +33,17 @@ class ResolvedGlobalElement(
     override val rawPart: XSElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedElement(schema), NamedPart, ResolvedComplexTypeContext,
-    ElementModel.Global, ResolvedElement.Use {
+) : ResolvedElement(schema),
+    NamedPart,
+    ResolvedComplexTypeContext,
+    ResolvedTerm,
+    INamedDecl,
+    ResolvedTypeContext {
+
+    override val mdlName: VNCName get() = rawPart.name
 
     internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
-
-    override val mdlName: VNCName get() = rawPart.name
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
@@ -59,10 +60,10 @@ class ResolvedGlobalElement(
                 val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
                     is ResolvedComplexType -> t.mdlDerivationMethod
                     is ResolvedSimpleType -> when (t.mdlVariety) {
-                        SimpleTypeModel.Variety.ATOMIC -> VDerivationControl.RESTRICTION
-                        SimpleTypeModel.Variety.LIST -> VDerivationControl.LIST
-                        SimpleTypeModel.Variety.UNION -> VDerivationControl.UNION
-                        SimpleTypeModel.Variety.NIL -> null
+                        ResolvedSimpleType.Variety.ATOMIC -> VDerivationControl.RESTRICTION
+                        ResolvedSimpleType.Variety.LIST -> VDerivationControl.LIST
+                        ResolvedSimpleType.Variety.UNION -> VDerivationControl.UNION
+                        ResolvedSimpleType.Variety.NIL -> null
                     }
 
                     else -> null // shouldn't happen
@@ -125,8 +126,6 @@ class ResolvedGlobalElement(
         }
     }
 
-    override val scope: VScopeVariety get() = VScopeVariety.GLOBAL
-
     val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
@@ -151,17 +150,19 @@ class ResolvedGlobalElement(
 
     override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
-    override val mdlScope: ElementModel.Scope.Global get() = model.mdlScope
+    val mdlScope: IScope.Global get() = model.mdlScope
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    interface Model : ResolvedElement.Model, ElementModel.Global, ElementModel.Scope.Global {
+    interface Model : ResolvedElement.Model, INamedDecl,
+        ResolvedTypeContext, IAnnotated {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
+        val mdlScope: IScope.Global
     }
 
     private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
-        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
-        override val mdlScope: ElementModel.Scope.Global get() = this
+        ResolvedElement.ModelImpl(rawPart, schema, context), Model, IScope.Global {
+        override val mdlScope: IScope.Global get() = this
 
         override val mdlName: VNCName = rawPart.name
 
@@ -191,7 +192,7 @@ class ResolvedGlobalElement(
             group.toList()
         }
 
-        override val mdlTypeTable: ElementModel.TypeTable? = rawPart.alternatives.takeIf { it.isNotEmpty() }?.let {
+        override val mdlTypeTable: ITypeTable? = rawPart.alternatives.takeIf { it.isNotEmpty() }?.let {
 
             TODO()
         }

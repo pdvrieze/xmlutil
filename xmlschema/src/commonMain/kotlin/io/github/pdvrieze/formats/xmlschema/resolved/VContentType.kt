@@ -21,13 +21,29 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import nl.adaptivity.xmlutil.QName
 
-interface IResolvedGroupMember : ResolvedGroupLikeTerm, ResolvedModelGroup {
-    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
-    val schema: ResolvedSchemaLike
+interface VContentType {
+    val mdlVariety: ResolvedComplexType.Variety
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+    interface Empty : VContentType {
+        override val mdlVariety: ResolvedComplexType.Variety get() = ResolvedComplexType.Variety.EMPTY
+    }
+
+    interface Simple : VContentType {
+        override val mdlVariety: ResolvedComplexType.Variety get() = ResolvedComplexType.Variety.SIMPLE
+        val mdlSimpleTypeDefinition: ResolvedSimpleType
+    }
+
+    interface ElementBase : VContentType {
+        val mdlParticle: ResolvedParticle<ResolvedTerm>
+        val openContent: ResolvedOpenContent?
+    }
+
+    interface ElementOnly : ElementBase {
+        override val mdlVariety: ResolvedComplexType.Variety get() = ResolvedComplexType.Variety.ELEMENT_ONLY
+    }
+
+    interface Mixed : ElementBase {
+        override val mdlVariety: ResolvedComplexType.Variety get() = ResolvedComplexType.Variety.MIXED
     }
 }

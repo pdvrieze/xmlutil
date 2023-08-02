@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice

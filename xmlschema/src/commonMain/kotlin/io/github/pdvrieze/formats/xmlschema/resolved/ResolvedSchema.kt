@@ -27,8 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
-import io.github.pdvrieze.formats.xmlschema.model.qName
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice

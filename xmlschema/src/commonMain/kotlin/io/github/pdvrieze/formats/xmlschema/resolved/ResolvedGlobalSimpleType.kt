@@ -20,9 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
+    override val mdlName: VNCName get() = name
+
     companion object {
         operator fun invoke(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
             return ResolvedGlobalSimpleTypeImpl(rawPart, schema)

@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName

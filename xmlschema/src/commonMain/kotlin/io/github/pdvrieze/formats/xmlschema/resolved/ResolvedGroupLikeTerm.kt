@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
-import io.github.pdvrieze.formats.xmlschema.model.Term
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import nl.adaptivity.xmlutil.QName
 

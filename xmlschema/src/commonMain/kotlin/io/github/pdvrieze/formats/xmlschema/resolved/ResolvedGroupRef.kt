@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.model.GroupRefModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -34,14 +33,13 @@ class ResolvedGroupRef(
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
-    GroupRefModel,
     ResolvedGroupParticle<ResolvedGlobalGroup>,
     ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
 
     override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
+    val resolvedModelGroup: IResolvedModelGroup by lazy { schema.modelGroup(rawPart.ref).mdlModelGroup }
     override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
-
     val ref: QName get() = rawPart.ref
 
     override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
@@ -51,11 +49,11 @@ class ResolvedGroupRef(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticle>.check(checkedTypes)
-        mdlTerm.check(checkedTypes)
+        resolvedModelGroup.check(checkedTypes)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlTerm.collectConstraints(collector)
+        resolvedModelGroup.collectConstraints(collector)
     }
 
     override fun normalizeTerm(
@@ -71,7 +69,7 @@ class ResolvedGroupRef(
     }
 
     fun <T : ResolvedTerm> flattenToModelGroup(targetTerm: KClass<T>): ResolvedParticle<T> {
-        val normalizedParticle = mdlTerm.mdlModelGroup.normalize(mdlMinOccurs, mdlMaxOccurs)
+        val normalizedParticle = resolvedModelGroup.normalize(mdlMinOccurs, mdlMaxOccurs)
         check (targetTerm.isInstance(normalizedParticle.mdlTerm)) {
             "The model group is ${ref} is not valid when expecting $targetTerm"
         }

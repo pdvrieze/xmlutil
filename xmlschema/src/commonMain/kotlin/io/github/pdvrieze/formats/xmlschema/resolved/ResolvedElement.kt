@@ -29,21 +29,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
-import io.github.pdvrieze.formats.xmlschema.model.ElementModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
+import io.github.pdvrieze.formats.xmlschema.model.IOptNamed
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart, ElementModel,
-    ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedTerm {
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart,
+    ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedTerm, IAnnotated, IOptNamed {
 
     abstract override val rawPart: XSIElement
-
-    /**
-     * This can be done better with type checks
-     */
-    @Deprecated("Use is ResolvedGlobalElement or is ResolvedLocalElement")
-    abstract val scope: VScopeVariety
 
     val type: QName?
         get() = rawPart.type
@@ -85,15 +80,15 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     abstract val model: Model
 
-    override val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
-    override val mdlTypeTable: ElementModel.TypeTable? get() = model.mdlTypeTable
-    override val mdlNillable: Boolean get() = model.mdlNillable
-    override val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
-    override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
-    override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use> get() = model.mdlSubstitutionGroupAffiliations
-    override val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
-    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
-    override val mdlAbstract: Boolean get() = model.mdlAbstract
+    val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
+    val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
+    val mdlNillable: Boolean get() = model.mdlNillable
+    val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
+    val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
+    val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupAffiliations
+    val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
+    val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
+    val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     override val mdlName: VNCName get() = model.mdlName
     val mdlQName: QName get() = model.mdlQName
@@ -169,17 +164,23 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
 
-    interface Use : ElementModel.Use
-    interface Ref : ElementModel.Ref {
-        override val mdlTerm: ResolvedGlobalElement
+    interface Ref {
+        val mdlTerm: ResolvedGlobalElement
     }
 
-    interface Model : ElementModel {
-        override val mdlName: VNCName
+    interface Model {
+        val mdlAnnotations: ResolvedAnnotation?
+        val mdlName: VNCName
         val mdlQName: QName
-        override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
-        override val mdlTypeDefinition: ResolvedType
-        override val mdlSubstitutionGroupAffiliations: List<ElementModel.Use>
+        val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
+        val mdlTypeDefinition: ResolvedType
+        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+        val mdlTypeTable: ITypeTable?
+        val mdlNillable: Boolean
+        val mdlValueConstraint: ValueConstraintModel?
+        val mdlDisallowedSubstitutions: VBlockSet
+        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
+        val mdlAbstract: Boolean
     }
 
     protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
