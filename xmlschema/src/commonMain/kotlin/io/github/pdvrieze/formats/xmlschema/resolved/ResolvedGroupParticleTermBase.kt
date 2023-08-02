@@ -21,16 +21,42 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedGroupParticleTermBase<T: IResolvedModelGroup>(schema: ResolvedSchemaLike):
-    ResolvedGroupTermBase(schema),
-    ResolvedParticle<T> {
+sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
+    final override val schema: ResolvedSchemaLike
+): ResolvedParticle<T>, ResolvedPart,
+    OldResolvedAnnotated,
+    ResolvedAnnotated {
 
     final override val mdlMinOccurs: VNonNegativeInteger
         get() = minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: VAllNNI
         get() = maxOccurs ?: VAllNNI.ONE
+    abstract override val rawPart: XSI_Grouplike
+    val particles: List<XSI_Particle>
+        get() = rawPart.particles
+    final override val mdlAnnotations: ResolvedAnnotation? by lazy { rawPart.annotation.models() }
+    abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super<OldResolvedAnnotated>.check(checkedTypes)
+        for (particle in mdlParticles) {
+            particle.check(checkedTypes)
+        }
+    }
+
+    operator fun invoke(
+        parent: ResolvedComplexType,
+        rawPart: XSExplicitGroup,
+        schema: ResolvedSchemaLike
+    ): ResolvedParticle<ResolvedModelGroup> = when (rawPart) {
+        is XSAll -> ResolvedAll(parent, rawPart, schema)
+        is XSChoice -> ResolvedChoice(parent, rawPart, schema)
+        is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+        else -> error("Found unsupported group: $rawPart")
+    }
 }

@@ -23,20 +23,27 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
-interface ResolvedModelGroup : ResolvedTerm, ResolvedAnnotated {
+sealed interface ResolvedModelGroup : ResolvedTerm {
+    val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+    val schema: ResolvedSchemaLike
     val mdlCompositor: Compositor
 
-    val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+    override fun check(checkedTypes: MutableSet<QName>) {
+        for(particle in mdlParticles) {
+            particle.check(checkedTypes)
+        }
+    }
 
     fun check()
 
     fun normalize(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
         maxMultiplier: VAllNNI = VAllNNI.ONE
-    ): ResolvedParticle</*IResolvedGroupMember*/ResolvedTerm>
+    ): ResolvedParticle<ResolvedTerm>
 
-    fun restricts(general: ResolvedGroupLikeTerm): Boolean
+    fun restricts(general: ResolvedModelGroup): Boolean
 
     enum class Compositor { ALL, CHOICE, SEQUENCE }
 }

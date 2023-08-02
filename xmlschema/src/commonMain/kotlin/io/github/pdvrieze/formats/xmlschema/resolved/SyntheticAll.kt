@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 class SyntheticAll(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedComplexType.ResolvedDirectParticle<SyntheticAll>,
     IResolvedAll {

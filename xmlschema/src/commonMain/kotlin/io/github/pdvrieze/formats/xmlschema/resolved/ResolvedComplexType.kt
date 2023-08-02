@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -39,7 +38,7 @@ sealed class ResolvedComplexType(
     ResolvedLocalElement.Parent,
     ResolvedParticleParent,
     ResolvedSimpleTypeContext,
-    IAnnotated {
+    ResolvedAnnotated {
     abstract override val rawPart: XSComplexType
 
     abstract val content: ResolvedComplexTypeContent
@@ -54,7 +53,7 @@ sealed class ResolvedComplexType(
     val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
-    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     override fun validate(representation: VString) {
         when (val ct = mdlContentType) {
@@ -221,8 +220,7 @@ sealed class ResolvedComplexType(
         }
     }
 
-    interface Model : ResolvedSimpleTypeContext,
-        IAnnotated {
+    interface Model : ResolvedSimpleTypeContext {
         val mdlBaseTypeDefinition: ResolvedType
         val mdlFinal: Set<VDerivationControl.Complex>
         val mdlContentType: ResolvedContentType
@@ -231,6 +229,7 @@ sealed class ResolvedComplexType(
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlAttributeUses: Set<ResolvedAttribute>
+        val mdlAnnotations: ResolvedAnnotation?
     }
 
     protected abstract class ModelBase(
@@ -238,11 +237,9 @@ sealed class ResolvedComplexType(
         rawPart: XSIComplexType,
         schema: ResolvedSchemaLike
     ) : Model {
-        override val mdlAnnotations: ResolvedAnnotation? =
-            rawPart.annotation.models()
+        final override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
-
-        override val mdlAttributeUses: Set<ResolvedAttribute> by lazy {
+        final override val mdlAttributeUses: Set<ResolvedAttribute> by lazy {
             calculateAttributeUses(
                 schema,
                 rawPart,
@@ -338,7 +335,7 @@ sealed class ResolvedComplexType(
             val effectiveMixed = (content as? XSComplexContent)?.mixed?.also { require(rawPart.mixed==null || rawPart.mixed==it) } ?: rawPart.mixed ?: false
             val term = derivation.term
 
-            val explicitContent: ResolvedGroupParticle<ResolvedGroupLikeTerm>? = when {
+            val explicitContent: ResolvedGroupParticle<ResolvedModelGroup>? = when {
                 (term == null) ||
                         (term.maxOccurs == VAllNNI(0)) ||
                         ((term is XSAll && ! term.hasChildren()) || (term is XSSequence && !term.hasChildren())) ||
@@ -348,7 +345,7 @@ sealed class ResolvedComplexType(
                 else -> ResolvedGroupParticle.invoke(parent, term, schema)
             }
 
-            val effectiveContent: ResolvedParticle<ResolvedGroupLikeTerm>? = explicitContent ?: when {
+            val effectiveContent: ResolvedParticle<ResolvedModelGroup>? = explicitContent ?: when {
                 !effectiveMixed -> null
                 else -> ResolvedSequence(
                     parent,
@@ -375,7 +372,7 @@ sealed class ResolvedComplexType(
                     val baseParticle = (baseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
-                    val part: ResolvedDirectParticle<IResolvedModelGroup> = when {
+                    val part: ResolvedDirectParticle<ResolvedModelGroup> = when {
                         baseParticle is ResolvedAll && explicitContent == null -> baseParticle
                         (baseTerm is ResolvedAll && effectiveContentTerm is ResolvedAll) -> {
                             val p = baseTerm.mdlParticles + effectiveContentTerm.mdlParticles
@@ -390,11 +387,11 @@ sealed class ResolvedComplexType(
                         else -> {
                             require(baseParticle.mdlTerm !is ResolvedAll) { "All can not be part of a sequence" }
 
-                            val p: List<ResolvedParticle<ResolvedChoiceSeqMember>> =
+                            val p: List<ResolvedParticle<ResolvedTerm>> =
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
                                     .map {
-                                        check(it.mdlTerm is ResolvedChoiceSeqMember) { "${it.mdlTerm} is not valid inside a sequence" }
-                                        it as ResolvedParticle<ResolvedChoiceSeqMember>
+                                        check(it.mdlTerm is ResolvedTerm) { "${it.mdlTerm} is not valid inside a sequence" }
+                                        it as ResolvedParticle<ResolvedTerm>
                                     }
 
                             SyntheticSequence(
@@ -421,7 +418,7 @@ sealed class ResolvedComplexType(
             if (wildcardElement == null || wildcardElement.mode == VContentMode.NONE) {
                 mdlContentType = explicitContentType
             } else {
-                val particle: ResolvedParticle<ResolvedGroupLikeTerm> = (explicitContentType as? ResolvedElementBase)?.mdlParticle
+                val particle: ResolvedParticle<ResolvedModelGroup> = (explicitContentType as? ResolvedElementBase)?.mdlParticle
                     ?: SyntheticSequence(
                         mdlMinOccurs = VNonNegativeInteger.ONE,
                         mdlMaxOccurs = VAllNNI.ONE,
@@ -555,7 +552,7 @@ sealed class ResolvedComplexType(
     }
 
     interface ResolvedElementBase : ResolvedContentType, VContentType.ElementBase {
-        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>
+        override val mdlParticle: ResolvedParticle<ResolvedModelGroup>
         val mdlOpenContent: ResolvedOpenContent?
 
         /** Implementation of 3.4.6.4 */
@@ -577,7 +574,7 @@ sealed class ResolvedComplexType(
             ): List<ResolvedElement> {
                 when (term) {
                     is ResolvedElement -> target.add(term)
-                    is ResolvedGroupLikeTerm -> for (p in term.mdlParticles) {
+                    is ResolvedModelGroup -> for (p in term.mdlParticles) {
                         collectElements(p.mdlTerm, target)
                     }
                 }
@@ -597,14 +594,14 @@ sealed class ResolvedComplexType(
     }
 
     class MixedContentType(
-        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>,
+        override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : VContentType.Mixed, ResolvedElementBase {
         override val openContent: ResolvedOpenContent? get() = null
     }
 
     class ElementOnlyContentType(
-        override val mdlParticle: ResolvedParticle<ResolvedGroupLikeTerm>,
+        override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : VContentType.ElementOnly, ResolvedElementBase {
         override val openContent: ResolvedOpenContent? get() = null
@@ -612,7 +609,7 @@ sealed class ResolvedComplexType(
 
     interface ResolvedSimpleContentType : ResolvedContentType,
         ResolvedSimpleTypeContext,
-        IAnnotated ,
+        ResolvedAnnotated,
         VContentType.Simple,
         VAttributeScope.Member{
         val mdlAttributeWildcard: ResolvedAny?
@@ -634,7 +631,7 @@ sealed class ResolvedComplexType(
     companion object {
         internal fun contentType(
             effectiveMixed: Boolean,
-            particle: ResolvedParticle<ResolvedGroupLikeTerm>?
+            particle: ResolvedParticle<ResolvedModelGroup>?
         ): ResolvedContentType {
             return when {
                 particle == null -> EmptyContentType
