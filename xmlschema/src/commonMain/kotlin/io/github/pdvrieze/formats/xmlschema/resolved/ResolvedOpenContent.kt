@@ -21,23 +21,24 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
-import io.github.pdvrieze.formats.xmlschema.model.OpenContentModel
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
-class ResolvedOpenContent(val rawPart: XSOpenContent, schemaLike: ResolvedSchemaLike) : OpenContentModel {
+class ResolvedOpenContent(val rawPart: XSOpenContent, schemaLike: ResolvedSchemaLike) {
 
-    override val mdlMode: OpenContentModel.Mode = when(rawPart.mode) {
-        VContentMode.INTERLEAVE -> OpenContentModel.Mode.INTERLEAVE
-        VContentMode.SUFFIX -> OpenContentModel.Mode.SUFFIX
-        VContentMode.NONE -> OpenContentModel.Mode.NONE
+    val mdlMode: Mode = when(rawPart.mode) {
+        VContentMode.INTERLEAVE -> Mode.INTERLEAVE
+        VContentMode.SUFFIX -> Mode.SUFFIX
+        VContentMode.NONE -> Mode.NONE
     }
 
-    override val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schemaLike) }
+    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schemaLike) }
 
     init {
         when(mdlMode) {
-            OpenContentModel.Mode.NONE -> require(mdlWildCard==null)
+            Mode.NONE -> require(mdlWildCard==null)
             else -> requireNotNull(mdlWildCard)
         }
     }
+
+    enum class Mode { INTERLEAVE, SUFFIX, NONE }
 }

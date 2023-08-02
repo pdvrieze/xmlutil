@@ -20,10 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.Term
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedTerm : Term {
+interface ResolvedTerm {
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
 
     fun check(checkedTypes: MutableSet<QName>)

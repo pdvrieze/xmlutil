@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.ComplexTypeModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
@@ -32,7 +32,9 @@ class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
     override val mdlContext: ResolvedComplexTypeContext,
-) : ResolvedComplexType(schema), ResolvedLocalType, ComplexTypeModel.Local {
+) : ResolvedComplexType(schema), ResolvedLocalType,
+    ResolvedSimpleTypeContext,
+    IAnnotated {
     val mixed: Boolean? get() = rawPart.mixed
     val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
     override val annotation: XSAnnotation? get() = rawPart.annotation
@@ -69,15 +71,14 @@ class ResolvedLocalComplexType(
     interface Foo {}
 //    interface Context {} /* : ComplexTypeContext*/
 
-    interface Model : ResolvedComplexType.Model, ComplexTypeModel.Local
-
-    interface SimpleModel : Model, ComplexTypeModel.LocalSimpleContent, ResolvedSimpleContentType {
-        override val mdlContentType: ResolvedSimpleContentType
+    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext,
+        IAnnotated {
+        val mdlContext: ResolvedComplexTypeContext
     }
 
-    interface ComplexModel : Model, ComplexTypeModel.LocalComplexContent
-
-    interface ImplicitModel : Model, ComplexTypeModel.LocalImplicitContent
+    interface SimpleModel : Model, ResolvedSimpleContentType {
+        override val mdlContentType: ResolvedSimpleContentType
+    }
 
     private class SimpleModelImpl(
         rawPart: XSLocalComplexTypeSimple,
@@ -97,7 +98,8 @@ class ResolvedLocalComplexType(
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: ResolvedComplexTypeContext
-    ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
+    ) : ComplexModelBase(parent, rawPart, schema),
+        Model {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
@@ -110,7 +112,8 @@ class ResolvedLocalComplexType(
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: ResolvedComplexTypeContext
-    ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
+    ) : ComplexModelBase(parent, rawPart, schema),
+        Model {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
