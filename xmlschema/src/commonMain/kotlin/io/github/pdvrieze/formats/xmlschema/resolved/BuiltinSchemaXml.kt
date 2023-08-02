@@ -124,7 +124,6 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = delegate.defaultOpenContent
 
-
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = delegate.maybeSimpleType(typeName)
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? = delegate.maybeType(typeName)

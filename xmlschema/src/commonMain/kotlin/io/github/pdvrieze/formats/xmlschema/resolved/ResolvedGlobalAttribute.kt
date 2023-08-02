@@ -27,13 +27,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttribute(schema), NamedPart, ResolvedAttributeGlobal {
+) : ResolvedAttribute(schema), NamedPart,
+    IScope.Global {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -67,6 +69,13 @@ class ResolvedGlobalAttribute(
 
     override val mdlName: VNCName get() = name
 
+    override val mdlTargetNamespace: VAnyURI? by lazy {
+        targetNamespace ?: when(schema.attributeFormDefault) {
+            VFormChoice.QUALIFIED -> schema.targetNamespace
+
+            else -> null
+        }
+    }
     override val mdlTypeDefinition: ResolvedSimpleType =
         rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
             ?: rawPart.type?.let{ schema.simpleType(it) }
@@ -74,7 +83,7 @@ class ResolvedGlobalAttribute(
 
     override val mdlValueConstraint: Nothing? get() = null
 
-    override val mdlScope: ResolvedScope get() = this
+    override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAttribute>.check(checkedTypes)

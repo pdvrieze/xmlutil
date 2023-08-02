@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
