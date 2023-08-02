@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart {
-    abstract override val rawPart: XSIType
+    override val rawPart: XSIType
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
 

@@ -37,8 +37,7 @@ sealed class ResolvedComplexType(
     VAttributeScope.Member,
     ResolvedLocalElement.Parent,
     ResolvedParticleParent,
-    ResolvedSimpleTypeContext,
-    ResolvedAnnotatedXX {
+    ResolvedSimpleTypeContext {
     abstract override val rawPart: XSComplexType
 
     abstract val content: ResolvedComplexTypeContent
@@ -602,7 +601,6 @@ sealed class ResolvedComplexType(
 
     interface ResolvedSimpleContentType : ResolvedContentType,
         ResolvedSimpleTypeContext,
-        ResolvedAnnotatedXX,
         VContentType.Simple,
         VAttributeScope.Member{
         val mdlAttributeWildcard: ResolvedAny?

@@ -26,19 +26,14 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 
-interface ResolvedOpenAttrs {
+interface ResolvedPart {
+    val rawPart: XSI_OpenAttrs
     val schema: ResolvedSchemaLike
-    val otherAttrs: Map<QName, String>
+    val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     fun check(checkedTypes: MutableSet<QName>) {
         val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }
         check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
     }
 
-}
-
-interface ResolvedPart : ResolvedOpenAttrs {
-    val rawPart: XSI_OpenAttrs
-    override val schema: ResolvedSchemaLike
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 }

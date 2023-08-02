@@ -29,8 +29,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
     final override val schema: ResolvedSchemaLike
 ): ResolvedGroupParticle<T>, ResolvedPart,
-    ResolvedAnnotated,
-    ResolvedAnnotatedXX {
+    ResolvedAnnotated {
 
     final override val mdlMinOccurs: VNonNegativeInteger
         get() = minOccurs ?: VNonNegativeInteger.ONE

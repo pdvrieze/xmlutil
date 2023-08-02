@@ -24,14 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 
-interface ResolvedAnnotated : ResolvedPart, ResolvedAnnotatedXX {
+interface ResolvedAnnotated : ResolvedPart {
     override val rawPart: XSI_Annotated
 
     val annotation: XSAnnotation? get() = rawPart.annotation
 
-    override val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
+    val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
 
     val id: VID? get() = rawPart.id
-
-
 }
