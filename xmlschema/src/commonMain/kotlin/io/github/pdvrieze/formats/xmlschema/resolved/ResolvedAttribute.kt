@@ -28,15 +28,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
+import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedAnnotated, I_OptNamed, ResolvedSimpleTypeContext, ResolvedAttributeDecl {
+) : ResolvedAnnotated, I_OptNamed, ResolvedSimpleTypeContext, INamedDecl {
     abstract override val rawPart: XSAttribute
 
     abstract override val name: VNCName
@@ -63,24 +64,22 @@ sealed class ResolvedAttribute(
 
     val valueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
 
-    final override val mdlTargetNamespace: VAnyURI? by lazy {
-        targetNamespace ?: when {
-            ((rawPart as? XSLocalAttribute)?.form ?: (schema as ResolvedSchema)) == VFormChoice.QUALIFIED ->
-                schema.targetNamespace
-
-            else -> null
-        }
-    }
-
-
-    final override val mdlInheritable: Boolean
-        get() = rawPart.inheritable ?: false
-
     final override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
+
+    abstract override val mdlName: VNCName
+
+    abstract override val mdlTargetNamespace: VAnyURI?
+
+    final val mdlInheritable: Boolean
+        get() = rawPart.inheritable ?: false
+    abstract val mdlTypeDefinition: ResolvedSimpleType
+    abstract val mdlScope: VAttributeScope
+    abstract val mdlValueConstraint: ValueConstraintModel?
+
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+        super<ResolvedAnnotated>.check(checkedTypes)
 
         resolvedType.check(checkedTypes)
         check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
@@ -92,6 +91,5 @@ sealed class ResolvedAttribute(
         default?.let { resolvedType.validate(it) }
     }
 
-    interface ResolvedScope : IScope
 }
 
