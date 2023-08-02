@@ -33,10 +33,7 @@ class ResolvedAll private constructor(
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI.Value?,
-) : ResolvedGroupParticleTermBase<IResolvedAll>(schema),
-    IResolvedAll,
-    ResolvedComplexType.ResolvedDirectParticle<IResolvedAll>,
-    ResolvedGroupParticle<IResolvedAll> {
+) : ResolvedGroupParticleTermBase<IResolvedAll>(schema), IResolvedAll {
 
     constructor(
         parent: ResolvedParticleParent,
@@ -68,8 +65,7 @@ class ResolvedAll private constructor(
     }
 
     override fun check() {
-        super<IResolvedAll>.check(mutableSetOf())
-        rawPart.check(mutableSetOf())
+        check(mutableSetOf())
     }
 
     override fun normalizeTerm(

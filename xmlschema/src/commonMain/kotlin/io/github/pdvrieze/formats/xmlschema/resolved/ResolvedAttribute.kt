@@ -30,13 +30,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, XSI_Annotated, I_OptNamed, ResolvedSimpleTypeContext, ResolvedAttributeDecl {
+) : ResolvedAnnotated, I_OptNamed, ResolvedSimpleTypeContext, ResolvedAttributeDecl {
     abstract override val rawPart: XSAttribute
 
     abstract override val name: VNCName
@@ -76,11 +76,12 @@ sealed class ResolvedAttribute(
     final override val mdlInheritable: Boolean
         get() = rawPart.inheritable ?: false
 
-    final val mdlAnnotations: ResolvedAnnotation?
+    final override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedPart>.check(checkedTypes)
+        super.check(checkedTypes)
+
         resolvedType.check(checkedTypes)
         check (fixed==null || default==null) { "Attributes may not have both default and fixed values" }
         val use = (this as? ResolvedLocalAttribute)?.use

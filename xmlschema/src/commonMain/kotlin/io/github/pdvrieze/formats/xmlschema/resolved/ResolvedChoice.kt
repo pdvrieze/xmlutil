@@ -33,9 +33,7 @@ class ResolvedChoice private constructor(
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI?,
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
-    IResolvedChoice,
-    ResolvedComplexType.ResolvedDirectParticle<IResolvedChoice>,
-    ResolvedGroupParticle<IResolvedChoice> {
+    IResolvedChoice {
 
     constructor(
         parent: ResolvedParticleParent,
@@ -64,8 +62,7 @@ class ResolvedChoice private constructor(
 
 
     override fun check() {
-        super<IResolvedChoice>.check(mutableSetOf())
-        rawPart.check(mutableSetOf())
+        check(mutableSetOf())
     }
 
     override fun normalizeTerm(

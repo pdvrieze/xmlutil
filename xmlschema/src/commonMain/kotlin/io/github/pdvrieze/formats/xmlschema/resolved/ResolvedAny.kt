@@ -34,10 +34,10 @@ class ResolvedAny(
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs
 ) : ResolvedParticle<ResolvedAny>, ResolvedPart, ResolvedBasicTerm {
     override val mdlMinOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+        get() = minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: VAllNNI
-        get() = rawPart.maxOccurs ?: VAllNNI.ONE
+        get() = maxOccurs ?: VAllNNI.ONE
 
     override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()

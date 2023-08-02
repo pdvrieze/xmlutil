@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
