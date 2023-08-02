@@ -27,12 +27,12 @@ import io.github.pdvrieze.formats.xmlschema.model.TypeModel
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart, TypeModel,
+sealed interface ResolvedType : OldResolvedAnnotated, ResolvedPart, TypeModel,
     XSI_Annotated {
     abstract override val rawPart: XSIType
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAnnotated>.check(checkedTypes)
+        super<OldResolvedAnnotated>.check(checkedTypes)
         check(mutableSetOf(), SingleLinkedList())
     }
 

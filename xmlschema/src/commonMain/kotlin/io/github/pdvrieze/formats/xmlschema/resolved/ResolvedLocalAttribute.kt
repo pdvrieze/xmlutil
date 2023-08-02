@@ -26,13 +26,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
-import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
 import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute(
-    override val parent: Parent,
+    override val parent: VAttributeScope.Member,
     override val rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttribute(schema), ResolvedAttributeLocal {
@@ -116,5 +115,4 @@ class ResolvedLocalAttribute(
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
     }
 
-    interface Parent : AttributeModel.AttributeParentModel
 }

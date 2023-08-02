@@ -21,18 +21,20 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.ChoiceModel
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
+import io.github.pdvrieze.formats.xmlschema.model.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedChoice : ChoiceModel, ResolvedGroupLikeTerm, IResolvedGroupMember, ResolvedChoiceSeqMember {
+interface IResolvedChoice : IResolvedGroupMember, ResolvedChoiceSeqMember,
+    ResolvedAnnotated, ResolvedTerm {
+
     override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.CHOICE
+    override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedGroupLikeTerm>.check(checkedTypes)
+        super.check(checkedTypes)
         //TODO("not implemented")
     }
 

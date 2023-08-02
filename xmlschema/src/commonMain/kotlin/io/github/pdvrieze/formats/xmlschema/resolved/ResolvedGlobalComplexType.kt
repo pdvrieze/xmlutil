@@ -75,8 +75,8 @@ class ResolvedGlobalComplexType(
             }
 
     val abstract: Boolean get() = model.mdlAbstract
-    val final: Set<ComplexTypeModel.Derivation> get() = model.mdlFinal
-    val block: Set<ComplexTypeModel.Derivation> get() = model.mdlProhibitedSubstitutions
+    val final: Set<VDerivationControl.Complex> get() = model.mdlFinal
+    val block: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
 
     override val model: Model by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
@@ -127,7 +127,7 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
@@ -142,7 +142,7 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
@@ -157,7 +157,7 @@ class ResolvedGlobalComplexType(
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-        override val mdlProhibitedSubstitutions: Set<ComplexTypeModel.Derivation> =
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)

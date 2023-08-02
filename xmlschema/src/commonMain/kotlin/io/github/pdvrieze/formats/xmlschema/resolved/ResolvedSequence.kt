@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -36,8 +35,6 @@ class ResolvedSequence private constructor(
 ) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
     ResolvedComplexType.ResolvedDirectParticle<IResolvedSequence>,
     ResolvedGroupParticle<IResolvedSequence>,
-    ResolvedGroupLikeTerm,
-    ModelGroupModel,
     IResolvedSequence {
 
     override val mdlTerm: ResolvedSequence get() = this

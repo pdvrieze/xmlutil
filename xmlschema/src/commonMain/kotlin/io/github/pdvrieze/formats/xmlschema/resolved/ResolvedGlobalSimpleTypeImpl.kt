@@ -25,9 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
 import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeModel
 import io.github.pdvrieze.formats.xmlschema.model.TypeModel
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalSimpleTypeImpl internal constructor(
@@ -64,7 +64,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
             else -> error("unsupported derivation")
         }
 
-    val final: Set<TypeModel.Derivation>
+    val final: Set<VDerivationControl.Type>
         get() = rawPart.final
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
@@ -77,7 +77,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val model: Model by lazy { ModelImpl(rawPart, schema) }
 
-    override val mdlAnnotations: AnnotationModel? get() = model.mdlAnnotations
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     interface Model : ResolvedSimpleType.Model, SimpleTypeModel.Global
 
@@ -88,7 +88,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
         override val mdlName: VNCName = rawPart.name
         override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
-        override val mdlFinal: Set<TypeModel.Derivation> =
+        override val mdlFinal: Set<VDerivationControl.Type> =
             rawPart.final
 
     }

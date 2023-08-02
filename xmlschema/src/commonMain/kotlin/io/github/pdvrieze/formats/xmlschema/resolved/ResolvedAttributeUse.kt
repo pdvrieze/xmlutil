@@ -20,6 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
+import io.github.pdvrieze.formats.xmlschema.model.IAnnotated
+import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 
-interface ResolvedAttributeUse: AttributeModel.Use
+interface ResolvedAttributeUse: ResolvedAnnotated {
+    val mdlRequired: Boolean
+    val mdlAttributeDeclaration: ResolvedAttributeDecl
+    val mdlValueConstraint: ValueConstraintModel?
+    val mdlInheritable: Boolean
+}

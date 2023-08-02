@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import io.github.pdvrieze.formats.xmlschema.model.IdentityConstraintModel
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.qname
 
@@ -35,14 +34,11 @@ class ResolvedDirectKey(
 ): ResolvedNamedIdentityConstraint(schema, owner), ResolvedKey {
     override val name: VNCName = checkNotNull(rawPart.name)
 
-    val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
+    override val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
 
     override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
-
-    override val mdlIdentityConstraintCategory: IdentityConstraintModel.Category
-        get() = IdentityConstraintModel.Category.KEY
 
     override val constraint: ResolvedDirectKey
         get() = this

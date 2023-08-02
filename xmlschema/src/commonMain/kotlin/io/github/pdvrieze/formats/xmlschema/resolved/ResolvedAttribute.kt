@@ -28,9 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
-import io.github.pdvrieze.formats.xmlschema.model.AnnotationModel
-import io.github.pdvrieze.formats.xmlschema.model.AttributeModel
-import io.github.pdvrieze.formats.xmlschema.model.SimpleTypeContext
 import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.XSI_Annotated
@@ -39,7 +36,7 @@ import nl.adaptivity.xmlutil.qname
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, XSI_Annotated, I_OptNamed, SimpleTypeContext, ResolvedAttributeDecl {
+) : ResolvedPart, XSI_Annotated, I_OptNamed, ResolvedSimpleTypeContext, ResolvedAttributeDecl {
     abstract override val rawPart: XSAttribute
 
     abstract override val name: VNCName
@@ -79,7 +76,7 @@ sealed class ResolvedAttribute(
     final override val mdlInheritable: Boolean
         get() = rawPart.inheritable ?: false
 
-    final override val mdlAnnotations: AnnotationModel?
+    final val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -94,6 +91,6 @@ sealed class ResolvedAttribute(
         default?.let { resolvedType.validate(it) }
     }
 
-    interface ResolvedScope : AttributeModel.ScopeModel
+    interface ResolvedScope : IScope
 }
 

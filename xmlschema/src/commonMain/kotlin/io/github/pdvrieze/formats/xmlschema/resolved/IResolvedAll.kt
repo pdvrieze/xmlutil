@@ -21,22 +21,19 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.model.AllModel
-import io.github.pdvrieze.formats.xmlschema.model.ModelGroupModel
+import io.github.pdvrieze.formats.xmlschema.model.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedAll :
-    AllModel,
-    ResolvedGroupLikeTerm,
-    IResolvedGroupMember {
+interface IResolvedAll : IResolvedGroupMember, ResolvedAnnotated, ResolvedTerm {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>
-    override val mdlCompositor: ModelGroupModel.Compositor get() = ModelGroupModel.Compositor.ALL
+    override val mdlCompositor: Compositor get() = Compositor.ALL
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedGroupMember>.check(checkedTypes)
+        super.check(checkedTypes)
         for (particle in mdlParticles) {
             val maxOccurs = particle.mdlMaxOccurs
             check(maxOccurs <= VAllNNI(1uL)) {
