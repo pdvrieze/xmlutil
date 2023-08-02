@@ -601,8 +601,7 @@ sealed class ResolvedComplexType(
 
     interface ResolvedSimpleContentType : ResolvedContentType,
         ResolvedSimpleTypeContext,
-        VContentType.Simple,
-        VAttributeScope.Member{
+        VContentType.Simple {
         val mdlAttributeWildcard: ResolvedAny?
 
         val mdlContentType: ResolvedSimpleContentType

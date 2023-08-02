@@ -63,8 +63,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     override val defaultOpenContent: XSDefaultOpenContent?
         get() = rawPart.defaultOpenContent
 
-    val attributeFormDefault: VFormChoice
-        get() = rawPart.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+    override val attributeFormDefault: VFormChoice
+        get() = rawPart.attributeFormDefault ?: super.attributeFormDefault
 
     override val blockDefault: VBlockSet get() = rawPart.blockDefault ?: emptySet()
 
@@ -73,8 +73,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     val xPathDefaultNamespace: VXPathDefaultNamespace
         get() = rawPart.xpathDefaultNamespace ?: VXPathDefaultNamespace.LOCAL
 
-    val elementFormDefault: VFormChoice
-        get() = rawPart.elementFormDefault ?: VFormChoice.UNQUALIFIED
+    override val elementFormDefault: VFormChoice
+        get() = rawPart.elementFormDefault ?: super.elementFormDefault
 
     override val finalDefault: Set<VDerivationControl.Type>
         get() = rawPart.finalDefault ?: emptySet()

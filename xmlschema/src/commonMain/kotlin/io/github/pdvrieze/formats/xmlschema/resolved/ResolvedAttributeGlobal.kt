@@ -20,7 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-interface ResolvedAttributeGlobal :
-    ResolvedAttributeDecl,
-    ResolvedAttribute.ResolvedScope,
-    IScope.Global
+interface ResolvedAttributeGlobal

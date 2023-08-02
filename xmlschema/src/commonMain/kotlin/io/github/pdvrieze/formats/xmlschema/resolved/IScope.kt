@@ -36,7 +36,7 @@ interface IScope {
 }
 
 sealed class VAttributeScope : IScope {
-    class Global : VAttributeScope(), IScope.Global
+    object Global : VAttributeScope(), IScope.Global
 
     class Local(override val parent: Member) : VAttributeScope(), IScope.Local
 
@@ -44,7 +44,7 @@ sealed class VAttributeScope : IScope {
 }
 
 sealed class VElementScope : IScope {
-    class Global : VElementScope(), IScope.Global
+    object Global : VElementScope(), IScope.Global
 
     class Local(override val parent: Member) : VElementScope(), IScope.Local
 

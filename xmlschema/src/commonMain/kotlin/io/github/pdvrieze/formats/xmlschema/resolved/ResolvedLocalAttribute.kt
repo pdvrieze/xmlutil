@@ -35,8 +35,6 @@ class ResolvedLocalAttribute(
     override val rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttribute(schema),
-    ResolvedAttributeDecl,
-    ResolvedAttribute.ResolvedScope,
     IScope.Local {
     private val referenced: ResolvedAttribute? by lazy {
         rawPart.ref?.let {
@@ -74,8 +72,8 @@ class ResolvedLocalAttribute(
         get() = rawPart.use ?: XSAttrUse.OPTIONAL
 
     val inheritable: Boolean
-        get() = rawPart.inheritable  ?: false
-/*
+        get() = rawPart.inheritable ?: false
+    /*
 
     override val simpleType: XSLocalSimpleType?
         get() = rawPart.simpleType ?: referenced?.simpleType
@@ -84,18 +82,26 @@ class ResolvedLocalAttribute(
     override val mdlName: VNCName
         get() = name
 
-    override val mdlTypeDefinition: ResolvedSimpleType by lazy {
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?:
-        referenced?.mdlTypeDefinition ?:
-        schema.simpleType(requireNotNull(ref) { "Missing simple type for attribute $name" } )
+    override val mdlTargetNamespace: VAnyURI?  by lazy {
+        targetNamespace ?: when {
+            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                schema.targetNamespace
+
+            else -> null
+        }
     }
 
-    override val mdlScope: ResolvedScope get() = this
+    override val mdlTypeDefinition: ResolvedSimpleType by lazy {
+        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: referenced?.mdlTypeDefinition
+        ?: schema.simpleType(requireNotNull(ref) { "Missing simple type for attribute $name" })
+    }
+
+    override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
     val mdlRequired: Boolean
         get() = rawPart.use == XSAttrUse.REQUIRED
 
-    val mdlAttributeDeclaration: ResolvedAttributeDecl
+    val mdlAttributeDeclaration: ResolvedAttribute
         get() = when (ref) {
             null -> this
             else -> requireNotNull(referenced)
@@ -112,7 +118,7 @@ class ResolvedLocalAttribute(
         if (rawPart.ref != null) {
             val r = referenced
             require(r != null) { "If an attribute has a ref, it must also be resolvable" }
-            if (rawPart.fixed!=null && r.fixed!=null) {
+            if (rawPart.fixed != null && r.fixed != null) {
                 require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
             }
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
