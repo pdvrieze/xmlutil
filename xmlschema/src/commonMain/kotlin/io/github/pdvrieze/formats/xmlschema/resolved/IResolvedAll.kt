@@ -26,9 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedAll : IResolvedModelGroup, ResolvedAnnotated, ResolvedTerm {
+interface IResolvedAll : ResolvedModelGroup {
 
-    override val mdlParticles: List<ResolvedParticle<ResolvedAllMember>>
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.ALL
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -52,15 +52,15 @@ interface IResolvedAll : IResolvedModelGroup, ResolvedAnnotated, ResolvedTerm {
             newMax *= mdlMaxOccurs
         }
 
-        val newParticles = mutableListOf<ResolvedParticle<ResolvedAllMember>>()
+        val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
 
         for (particle in mdlParticles) {
             val cleanParticle = when (particle) {
-                is ResolvedGroupRef -> particle.flattenToModelGroup(ResolvedAllMember::class)
+                is ResolvedGroupRef -> particle.flattenToModelGroup()
                 else -> particle
             }
 
-            when (val term: ResolvedAllMember = cleanParticle.mdlTerm) {
+            when (val term: ResolvedTerm = cleanParticle.mdlTerm) {
                 is IResolvedAll -> {
                     for (child in term.mdlParticles) {
                         newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
@@ -74,7 +74,7 @@ interface IResolvedAll : IResolvedModelGroup, ResolvedAnnotated, ResolvedTerm {
 
     }
 
-    override fun restricts(general: ResolvedGroupLikeTerm): Boolean {
+    override fun restricts(general: ResolvedModelGroup): Boolean {
         // TODO be order independent
         if (general !is IResolvedAll) return false
         val specificParticles = mdlParticles.toList()

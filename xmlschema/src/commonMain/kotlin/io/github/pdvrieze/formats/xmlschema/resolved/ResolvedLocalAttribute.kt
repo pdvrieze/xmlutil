@@ -34,7 +34,11 @@ class ResolvedLocalAttribute(
     override val parent: VAttributeScope.Member,
     override val rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
-) : ResolvedAttribute(schema), ResolvedAttributeLocal {
+) : ResolvedAttribute(schema),
+    ResolvedAttributeDecl,
+    ResolvedAttribute.ResolvedScope,
+    IScope.Local,
+    ResolvedAnnotated {
     private val referenced: ResolvedAttribute? by lazy {
         rawPart.ref?.let {
             schema.attribute(
@@ -89,10 +93,10 @@ class ResolvedLocalAttribute(
 
     override val mdlScope: ResolvedScope get() = this
 
-    override val mdlRequired: Boolean
+    val mdlRequired: Boolean
         get() = rawPart.use == XSAttrUse.REQUIRED
 
-    override val mdlAttributeDeclaration: ResolvedAttributeDecl
+    val mdlAttributeDeclaration: ResolvedAttributeDecl
         get() = when (ref) {
             null -> this
             else -> requireNotNull(referenced)

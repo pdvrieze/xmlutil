@@ -33,13 +33,15 @@ class ResolvedGroupRef(
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedGroupBase,
-    ResolvedGroupParticle<ResolvedGlobalGroup>,
-    ResolvedComplexType.ResolvedDirectParticle<ResolvedGlobalGroup> {
+    ResolvedGroupParticle<ResolvedModelGroup>,
+    ResolvedComplexType.ResolvedDirectParticle<ResolvedModelGroup> {
 
-    override val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+    override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
-    val resolvedModelGroup: IResolvedModelGroup by lazy { schema.modelGroup(rawPart.ref).mdlModelGroup }
-    override val mdlTerm: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
+    override val mdlTerm: ResolvedModelGroup get() = referenced.mdlModelGroup
+
+    val referenced: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
+
     val ref: QName get() = rawPart.ref
 
     override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
@@ -49,17 +51,17 @@ class ResolvedGroupRef(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticle>.check(checkedTypes)
-        resolvedModelGroup.check(checkedTypes)
+        mdlTerm.check(checkedTypes)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        resolvedModelGroup.collectConstraints(collector)
+        mdlTerm.collectConstraints(collector)
     }
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: VAllNNI
-    ): ResolvedParticle<ResolvedGlobalGroup> {
+    ): ResolvedParticle<ResolvedModelGroup> {
         return ResolvedGroupRef(
             rawPart,
             schema,
@@ -68,12 +70,7 @@ class ResolvedGroupRef(
         )
     }
 
-    fun <T : ResolvedTerm> flattenToModelGroup(targetTerm: KClass<T>): ResolvedParticle<T> {
-        val normalizedParticle = resolvedModelGroup.normalize(mdlMinOccurs, mdlMaxOccurs)
-        check (targetTerm.isInstance(normalizedParticle.mdlTerm)) {
-            "The model group is ${ref} is not valid when expecting $targetTerm"
-        }
-        @Suppress("UNCHECKED_CAST")
-        return normalizedParticle as ResolvedParticle<T>
+    fun flattenToModelGroup(): ResolvedParticle<ResolvedTerm> {
+        return mdlTerm.normalize(mdlMinOccurs, mdlMaxOccurs)
     }
 }

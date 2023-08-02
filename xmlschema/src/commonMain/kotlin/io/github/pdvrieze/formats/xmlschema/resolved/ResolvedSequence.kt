@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedSequence private constructor(
     override val rawPart: XSSequence,
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>,
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger?,
     override val maxOccurs: VAllNNI?,
@@ -46,7 +46,7 @@ class ResolvedSequence private constructor(
     ) : this(
         rawPart,
         DelegateList(rawPart.particles) {
-            ResolvedParticle(parent, it, schema) as ResolvedParticle<ResolvedChoiceSeqMember>
+            ResolvedParticle(parent, it, schema) as ResolvedParticle<ResolvedTerm>
         },
         schema,
         rawPart.minOccurs,

@@ -26,10 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedChoice : IResolvedModelGroup, ResolvedChoiceSeqMember,
-    ResolvedAnnotated, ResolvedTerm {
+interface IResolvedChoice : ResolvedModelGroup {
 
-    override val mdlParticles: List<ResolvedParticle<ResolvedChoiceSeqMember>>
+    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -49,14 +48,14 @@ interface IResolvedChoice : IResolvedModelGroup, ResolvedChoiceSeqMember,
             newMax*=mdlMaxOccurs
         }
 
-        val newParticles = mutableListOf<ResolvedParticle<ResolvedChoiceSeqMember>>()
+        val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
         for (particle in mdlParticles) {
             val cleanParticle = when (particle) {
-                is ResolvedGroupRef -> particle.flattenToModelGroup(ResolvedChoiceSeqMember::class)
+                is ResolvedGroupRef -> particle.flattenToModelGroup()
                 else -> particle
             }
 
-            when (val term: ResolvedChoiceSeqMember = cleanParticle.mdlTerm) {
+            when (val term: ResolvedTerm = cleanParticle.mdlTerm) {
                 is IResolvedChoice ->
                     for (child in term.mdlParticles) {
                         newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
@@ -69,7 +68,7 @@ interface IResolvedChoice : IResolvedModelGroup, ResolvedChoiceSeqMember,
 
     }
 
-    override fun restricts(general: ResolvedGroupLikeTerm): Boolean {
+    override fun restricts(general: ResolvedModelGroup): Boolean {
         TODO("not implemented")
     }
 }
