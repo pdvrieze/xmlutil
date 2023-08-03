@@ -23,7 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedKeyRef : ResolvedIdentityConstraint {
+sealed interface ResolvedKeyRef : ResolvedIdentityConstraint, ResolvedPart {
+    override fun check(checkedTypes: MutableSet<QName>)
+
     override val rawPart: XSKeyRef
     val refer: QName?
 

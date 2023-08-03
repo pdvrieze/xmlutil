@@ -20,11 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-interface XSIElement : XSI_Annotated, I_OptNamed {
+interface XSIElement : XSI_Annotated {
     val default: VString?
 
     val fixed: VString?
@@ -47,4 +49,6 @@ interface XSIElement : XSI_Annotated, I_OptNamed {
     val form: VFormChoice?
 
     val ref: QName?
+    val name: VNCName?
+    val targetNamespace: VAnyURI?
 }

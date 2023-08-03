@@ -27,23 +27,26 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, ResolvedAnnotated, NamedPart, ResolvedParticleParent, INamedDecl {
+) : ResolvedGroupBase, ResolvedAnnotated, ResolvedParticleParent, NamedPart {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override val mdlName: VNCName
+    val mdlName: VNCName
         get() = rawPart.name
 
-    override val mdlTargetNamespace: VAnyURI?
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+
+    val mdlTargetNamespace: VAnyURI?
         get() = schema.targetNamespace
+
+    override val targetNamespace: VAnyURI? get() = mdlTargetNamespace
 
     val mdlModelGroup: ResolvedModelGroup by lazy {
         when (val c = rawPart.content) {
@@ -57,15 +60,12 @@ class ResolvedGlobalGroup(
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<NamedPart>.check(checkedTypes)
+        super<ResolvedAnnotated>.check(checkedTypes)
         mdlModelGroup.check()
     }
 
     override val name: VNCName
         get() = rawPart.name
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         for(p in mdlModelGroup.mdlParticles) {
@@ -100,7 +100,7 @@ class ResolvedGlobalGroup(
             // there are no minOccurs/maxOccurs
             val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
             for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE) as ResolvedParticle<ResolvedTerm>
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE)
                 when (normalized) {
                     is IResolvedAll -> newParticles.addAll(normalized.mdlParticles)
                     else -> newParticles.add(normalized)

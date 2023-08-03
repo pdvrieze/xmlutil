@@ -38,17 +38,17 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 
 abstract class Datatype(
     override val name: VNCName,
     override val targetNamespace: VAnyURI,
-) : I_Named {
+) : ResolvedBuiltinType {
+    final override val mdlQName: QName = name.toQname(schema.targetNamespace)
+
     abstract val baseType: ResolvedType
 
     constructor(name: String, targetNamespace: String) : this(VNCName(name), VAnyURI(targetNamespace))
@@ -64,23 +64,6 @@ class LexicalSpace()
 class DataFunction()
 
 sealed class ComplexDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace)
-
-class ExtensionComplexDatatype(name: String, targetNamespace: String, override val baseType: ResolvedType) :
-    ComplexDatatype(name, targetNamespace) {
-    init {
-        when (baseType) {
-            is ErrorType -> throw IllegalArgumentException("The error type can not be a base type")
-            /*
-                        is ListDatatype -> throw IllegalArgumentException("The list type can not be a base type")
-                        is UnionDatatype -> throw IllegalArgumentException("The union type can not be a base type")
-            */
-            else -> {} // no errors needed
-        }
-    }
-}
-
-class RestrictionComplexDatatype(name: String, targetNamespace: String, override val baseType: ResolvedComplexType) :
-    ComplexDatatype(name, targetNamespace)
 
 /**
  * Space separated for primitives. If the itemType is a Union the members of that union must be atomic.
@@ -100,15 +83,10 @@ sealed class ListDatatype protected constructor(
     val itemType: Datatype,
     schemaLike: ResolvedSchemaLike,
 ) : Datatype(name, targetNamespace), ResolvedBuiltinType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
+    override val rawPart: Nothing get() = throw UnsupportedOperationException("No raw part")
     abstract override val baseType: ResolvedType
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
-
-    override val name: VNCName
-        get() = super<Datatype>.name
-
-    override val targetNamespace: VAnyURI
-        get() = super<Datatype>.targetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         baseType.check(checkedTypes, inheritedTypes)
@@ -204,7 +182,6 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
     override val mdlBaseTypeDefinition: ErrorType get() = baseType
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
-    override val name: VNCName get() = super<Datatype>.name
 
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinType>.mdlFinal
@@ -215,8 +192,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
         get() = super<ResolvedBuiltinType>.mdlPrimitiveTypeDefinition
-    override val targetNamespace: VAnyURI
-        get() = super.targetNamespace
+
     override val model: ErrorType get() = this
     override val mdlAnnotations: Nothing? get() = null
 
@@ -230,7 +206,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
         override val simpleType: Nothing? get() = null
         override val facets: List<XSFacet> get() = emptyList()
         override val otherContents: List<Nothing> get() = emptyList()
-        override val base: QName get() = ErrorType.qName
+        override val base: QName get() = ErrorType.mdlQName
         override val baseType: ErrorType get() = ErrorType
 
         override val mdlAnnotations: Nothing? get() = null
@@ -242,13 +218,11 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE),
 object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE), ResolvedBuiltinType, ResolvedSimpleType.Model {
     override val baseType: AnyType get() = AnyType // No actual base type
 
-    override val name: VNCName get() = super<Datatype>.name
-
     override val mdlName: VNCName get() = name
     override val mdlAnnotations: Nothing? get() = null
-    override val mdlVariety: ResolvedSimpleType.Variety get() = super.mdlVariety
-    override val mdlFinal: Set<VDerivationControl.Type> get() = super.mdlFinal
-    override val mdlFundamentalFacets: FundamentalFacets get() = super.mdlFundamentalFacets
+    override val mdlVariety: ResolvedSimpleType.Variety get() = super<Datatype>.mdlVariety
+    override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
+    override val mdlFundamentalFacets: FundamentalFacets get() = super<Datatype>.mdlFundamentalFacets
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
@@ -280,10 +254,6 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
     override val baseType: AnyType get() = AnyType
 
-    override val name: VNCName get() = super<Datatype>.name
-    override val targetNamespace: VAnyURI
-        get() = super<Datatype>.targetNamespace
-
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = SimpleBuiltinRestriction(baseType)
 
@@ -293,7 +263,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val mdlPrimitiveTypeDefinition: Nothing? get() = null
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
-    override val mdlFinal: Set<VDerivationControl.Type> get() = super.mdlFinal
+    override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
     override val mdlFacets: FacetList get() = FacetList.EMPTY
     override val mdlAnnotations: Nothing? get() = null
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -313,7 +283,7 @@ internal open class SimpleBuiltinRestriction(
     override val facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()
-    override val base: QName get() = baseType.qName
+    override val base: QName get() = baseType.mdlQName
     override val mdlAnnotations: Nothing? get() = null
 
     override val simpleType: Nothing? get() = null

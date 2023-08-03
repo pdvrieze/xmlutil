@@ -22,8 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSISimpleType
+import nl.adaptivity.xmlutil.QName
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
+    override val rawPart: XSGlobalSimpleType
+
     override val mdlName: VNCName get() = name
 
     companion object {

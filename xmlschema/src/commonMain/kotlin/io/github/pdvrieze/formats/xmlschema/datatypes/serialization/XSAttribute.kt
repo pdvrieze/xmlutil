@@ -21,22 +21,25 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-sealed class XSAttribute : XSAnnotatedBase, I_OptNamed {
+sealed class XSAttribute : XSAnnotatedBase {
 
     val default: VString?
     val fixed: VString?
     val type: SerializableQName?
     val inheritable: Boolean?
     val simpleType: XSLocalSimpleType?
+    abstract val name: VNCName?
+    abstract val targetNamespace: VAnyURI?
 
     constructor(
         default: VString? = null,

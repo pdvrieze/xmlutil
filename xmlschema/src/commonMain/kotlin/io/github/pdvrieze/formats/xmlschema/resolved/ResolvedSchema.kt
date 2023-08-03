@@ -153,8 +153,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
                     ag.check(checkedTypes)
                 }
                 for (ic in data.identityConstraints.values) {
-                    check(icNames.add(ic.qName.let { QName(it.namespaceURI, it.localPart) })) {
-                        "Duplicate identity constraint ${ic.qName}"
+                    check(icNames.add(ic.mdlQName.let { QName(it.namespaceURI, it.localPart) })) {
+                        "Duplicate identity constraint ${ic.mdlQName}"
                     }
                 }
             }
@@ -257,7 +257,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
             }
             val map = HashMap<String, ResolvedIdentityConstraint>()
             for (c in identityConstraintList) {
-                require(map.put(c.qName.localPart, c)==null) { "Duplicate identity constraint: ${c.qName}" }
+                require(map.put(c.mdlQName.localPart, c)==null) { "Duplicate identity constraint: ${c.mdlQName}" }
             }
             map
         }
