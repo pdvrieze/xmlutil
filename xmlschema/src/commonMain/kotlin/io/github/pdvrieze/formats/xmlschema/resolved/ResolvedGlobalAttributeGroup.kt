@@ -37,7 +37,7 @@ class ResolvedGlobalAttributeGroup(
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    val attributes: List<ResolvedLocalAttribute> = DelegateList(rawPart.attributes) {
+    val attributes: List<IResolvedAttributeUse> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(this, it, schema)
     }
 
