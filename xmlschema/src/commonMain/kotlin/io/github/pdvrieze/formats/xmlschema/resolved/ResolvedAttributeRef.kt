@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -35,12 +36,13 @@ class ResolvedAttributeRef(
 ) : ResolvedAttribute(schema), IResolvedAttributeUse {
 
     init {
-        requireNotNull(rawPart.ref) { "Attribute references must have a value" }
-        require(rawPart.targetNamespace == null) { "Attribute references have no target namespace" }
+        invariant(rawPart.ref!=null) { "Attribute references must have a value" }
+        invariant(rawPart.use != XSAttrUse.PROHIBITED) { "Attribute references cannot have prohibited use" }
+
+        require(rawPart.targetNamespace == null) { "3.2.3(6.1) - Attribute references have no target namespace" }
         require(rawPart.simpleType == null) { "Attribute references cannot provide direct types" }
-        require(rawPart.type == null) { "Attribute references cannot provide type references" }
-        require(rawPart.form == null) { "Attribute references cannot specify form" }
-        require(rawPart.use != XSAttrUse.PROHIBITED) { "Attribute references cannot have prohibited use" }
+        require(rawPart.type == null) { "3.2.3(3.2) - Attribute references cannot provide type references" }
+        require(rawPart.form == null) { "3.2.3(3.2) - Attribute references cannot specify form" }
     }
 
     private val referenced: ResolvedAttributeDef by lazy {
