@@ -43,13 +43,9 @@ class ResolvedGlobalAttribute(
     internal constructor(rawPart: XSGlobalAttribute, schema: ResolvedSchemaLike) :
             this(rawPart, schema, "")
 
-    override val mdlTargetNamespace: VAnyURI? by lazy {
-        rawPart.targetNamespace ?: when(schema.attributeFormDefault) {
-            VFormChoice.QUALIFIED -> schema.targetNamespace
+    override val model: Model by lazy { Model(this, schema) }
 
-            else -> null
-        }
-    }
+    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
@@ -58,5 +54,14 @@ class ResolvedGlobalAttribute(
         get() = rawPart.otherAttrs
 
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
+
+    protected class Model(base: ResolvedAttributeDef, schema: ResolvedSchemaLike) : ResolvedAttributeDef.Model(base) {
+        val mdlTargetNamespace: VAnyURI? = when(schema.attributeFormDefault) {
+            VFormChoice.QUALIFIED -> schema.targetNamespace
+
+            else -> null
+        }
+
+    }
 }
 

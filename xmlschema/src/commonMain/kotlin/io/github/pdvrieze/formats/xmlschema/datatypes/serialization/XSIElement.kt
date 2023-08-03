@@ -39,16 +39,14 @@ interface XSIElement : XSI_Annotated {
 
     val localType: XSLocalType?
 
-    val alternatives: List<Nothing> get() = emptyList()
-
     val type: QName?
 
     val nillable: Boolean?
 
     val block: VBlockSet?
-    val form: VFormChoice?
+//    val form: VFormChoice?
+//    val ref: QName?
 
-    val ref: QName?
     val name: VNCName?
     val targetNamespace: VAnyURI?
 }

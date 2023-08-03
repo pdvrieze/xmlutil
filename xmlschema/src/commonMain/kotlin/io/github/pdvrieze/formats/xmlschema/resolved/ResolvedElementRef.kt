@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -31,7 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedLocalElement(
+class ResolvedElementRef(
     val parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
@@ -39,16 +40,20 @@ class ResolvedLocalElement(
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     IResolvedElementUse,
-    ResolvedParticle<ResolvedLocalElement>,
+    ResolvedParticle<ResolvedElementRef>,
     ResolvedComplexTypeContext {
 
-    val ref: QName? get() = rawPart.ref
+    val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
 
-    val referenced: ResolvedElement by lazy {
-        ref?.let { schema.element(it) } ?: this
+    init {
+        check(rawPart.name == null) { "XXX" }
     }
 
-    override val mdlElementDeclaration: ResolvedElement get() = this
+    val referenced: ResolvedGlobalElement get() = mdlElementDeclaration
+
+    override val mdlElementDeclaration: ResolvedGlobalElement by lazy {
+        schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
+    }
 
     override val mdlQName: QName = (rawPart.name ?: referenced.mdlName)
         .toQname(rawPart.targetNamespace ?: schema.targetNamespace)
@@ -63,7 +68,7 @@ class ResolvedLocalElement(
     override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
-    override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
+    override val mdlTerm: ResolvedElementRef get() = model.mdlTerm
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
     override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
     override val mdlMaxOccurs: VAllNNI get() = model.mdlMaxOccurs
@@ -94,9 +99,9 @@ class ResolvedLocalElement(
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: VAllNNI
-    ): ResolvedLocalElement = when {
+    ): ResolvedElementRef = when {
         minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
-            ResolvedLocalElement(
+            ResolvedElementRef(
                 parent,
                 rawPart,
                 schema,
@@ -122,20 +127,20 @@ class ResolvedLocalElement(
     interface Model : ResolvedElement.Model {
 
         /** Return this */
-        val mdlTerm: ResolvedLocalElement
+        val mdlTerm: ResolvedElementRef
         val mdlMinOccurs: VNonNegativeInteger
         val mdlMaxOccurs: VAllNNI
         val mdlTargetNamespace: VAnyURI?
     }
 
-    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
+    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedElementRef) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
         override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
 
         override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
 
-        override val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
+        override val mdlTerm: ResolvedElementRef get() = this@ResolvedElementRef
 
 
         override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE

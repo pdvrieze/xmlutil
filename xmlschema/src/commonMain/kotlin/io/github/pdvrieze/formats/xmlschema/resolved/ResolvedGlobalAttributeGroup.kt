@@ -62,7 +62,7 @@ class ResolvedGlobalAttributeGroup(
         get() = rawPart.otherAttrs
 
     override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.targetNamespace
+        get() = schema.targetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)

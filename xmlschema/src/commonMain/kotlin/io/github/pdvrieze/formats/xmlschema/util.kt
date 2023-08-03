@@ -23,6 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.impl
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+/**
+ * Assertion that should never fail, but is always checked
+ */
 @OptIn(ExperimentalContracts::class)
 inline fun invariant(value: Boolean) {
     contract {
@@ -31,8 +34,11 @@ inline fun invariant(value: Boolean) {
     invariant(value) { "Check failed." }
 }
 
+/**
+ * Assertion that should never fail, but is always checked
+ */
 @OptIn(ExperimentalContracts::class)
-fun invariant(value: Boolean, lazyMessage: () -> Any ) {
+inline fun invariant(value: Boolean, lazyMessage: () -> Any ) {
     contract {
         returns() implies value
     }
@@ -40,5 +46,33 @@ fun invariant(value: Boolean, lazyMessage: () -> Any ) {
         val message = lazyMessage()
         throw AssertionError(message.toString())
     }
+}
+
+/**
+ * Assertion that should never fail, but is always checked
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <T : Any> invariantNotNull(value: T?, lazyMessage: () -> Any): T {
+    contract {
+        returns() implies (value != null)
+    }
+
+    if (value == null) {
+        val message = lazyMessage()
+        throw AssertionError(message.toString())
+    } else {
+        return value
+    }
+}
+
+/**
+ * Assertion that should never fail, but is always checked
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <T : Any> invariantNotNull(value: T?): T {
+    contract {
+        returns() implies (value != null)
+    }
+    return invariantNotNull<T>(value) { "Check failed." }
 }
 

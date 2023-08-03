@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalElement(
     override val rawPart: XSElement,
@@ -35,8 +36,6 @@ class ResolvedGlobalElement(
 ) : ResolvedElement(schema),
     ResolvedComplexTypeContext,
     ResolvedTypeContext, NamedPart {
-
-    override val mdlName: VNCName get() = rawPart.name
 
     internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -106,19 +105,6 @@ class ResolvedGlobalElement(
     }
 
 
-    val typeTable: TypeTable? by lazy {
-        // TODO actually implement alternatives properly
-        when (rawPart.alternatives.size) {
-            0 -> null
-            else -> TypeTable(
-                alternatives = emptyList(),// rawPart.alternatives.filter { it.test != null },
-                default = rawPart.alternatives.lastOrNull()?.let {
-                    null //TODO actually use resolved types
-                } ?: null
-            )
-        }
-    }
-
     val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
         DelegateList(it) { schema.element(it) }
     } ?: emptyList()
@@ -143,26 +129,22 @@ class ResolvedGlobalElement(
 
     override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
-    val mdlScope: IScope.Global get() = model.mdlScope
+    override val mdlScope: VElementScope.Global get() = VElementScope.Global
 
-    val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+    val mdlTargetNamespace: VAnyURI get() = VAnyURI(mdlQName.namespaceURI)
+
+    override val mdlQName: QName = rawPart.name.toQname(rawPart.targetNamespace ?: schema.targetNamespace)
 
     interface Model : ResolvedElement.Model, ResolvedTypeContext {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
-        val mdlScope: IScope.Global
         val mdlTargetNamespace: VAnyURI?
     }
 
-    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
-        ResolvedElement.ModelImpl(rawPart, schema, context), Model, IScope.Global {
-        override val mdlScope: IScope.Global get() = this
-
-        override val mdlName: VNCName = rawPart.name
+    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
+        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
         override val mdlTargetNamespace: VAnyURI? =
             rawPart.targetNamespace ?: schema.targetNamespace
-
-        override val mdlQName: QName = QName(mdlTargetNamespace?.toString() ?: "", mdlName.toString())
 
         override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
@@ -170,7 +152,7 @@ class ResolvedGlobalElement(
         override val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
             // Has to be lazy due to initialization loop
 
-            val thisName: QName = context.qName!!
+            val thisName: QName = context.mdlQName
             checkSubstitutionGroupChain(thisName, mdlSubstitutionGroupAffiliations, SingleLinkedList.empty())
 
             val group = HashSet<ResolvedGlobalElement>()
@@ -185,10 +167,7 @@ class ResolvedGlobalElement(
             group.toList()
         }
 
-        override val mdlTypeTable: ITypeTable? = rawPart.alternatives.takeIf { it.isNotEmpty() }?.let {
-
-            TODO()
-        }
+        override val mdlTypeTable: ITypeTable? get() = null
 
         override val mdlValueConstraint: ValueConstraint?
             get() = TODO("not implemented")

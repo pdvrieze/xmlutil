@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
@@ -29,12 +30,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart,
+sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : ResolvedPart,
     ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm,
     ResolvedAnnotated {
 
     abstract override val rawPart: XSIElement
+
+    final override val id: VID? get() = rawPart.id
 
     val type: QName?
         get() = rawPart.type
@@ -59,11 +63,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     val localType: XSIType?
         get() = rawPart.localType
 
-    override val name: VNCName? get() = rawPart.name
-
-    override val targetNamespace: VAnyURI? get() = rawPart.targetNamespace
-
-    val alternatives: List<Nothing> get() = rawPart.alternatives
+    open val name: VNCName? get() = rawPart.name
 
     abstract val uniques: List<ResolvedUnique>
 
@@ -71,27 +71,32 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     abstract val keyrefs: List<ResolvedKeyRef>
 
-    abstract val model: Model
+    protected abstract val model: Model
+
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+    abstract val mdlQName: QName
+    @Deprecated("use mdlQName where appropriate")
+    val mdlName: VNCName get() = VNCName(mdlQName.localPart)
+
+    // target namespace just in the qName
 
     val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
     val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
+    val mdlValueConstraint: ValueConstraint? get() = valueConstraint
+
     val mdlNillable: Boolean get() = model.mdlNillable
-    val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
     val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupAffiliations
     val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
     val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     val mdlAbstract: Boolean get() = model.mdlAbstract
-    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
-    open val mdlName: VNCName get() = model.mdlName
-    val mdlQName: QName get() = model.mdlQName
 
     /**
      * disallowed substitutions
      */
     val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
 
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+    final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     protected fun checkSingleType() {
         require(rawPart.type == null || rawPart.localType == null) {
@@ -131,7 +136,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<OptNamedPart>.check(checkedTypes)
+        super<ResolvedPart>.check(checkedTypes)
         for (keyref in keyrefs) {
             keyref.check(checkedTypes)
             checkNotNull(keyref.mdlReferencedKey)
@@ -163,8 +168,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
 
     interface Model {
         val mdlAnnotations: ResolvedAnnotation?
-        val mdlName: VNCName
-        val mdlQName: QName
         val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
         val mdlTypeDefinition: ResolvedType
         val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
@@ -176,8 +179,11 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         val mdlAbstract: Boolean
     }
 
-    protected abstract class ModelImpl(rawPart: XSIElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
-        Model {
+    protected abstract class ModelImpl(
+        rawPart: XSIElement,
+        schema: ResolvedSchemaLike,
+        context: ResolvedElement
+    ) : Model {
 
         final override val mdlNillable: Boolean = rawPart.nillable ?: false
 
@@ -193,7 +199,21 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
                 rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
             }
 
+        override val mdlValueConstraint: ValueConstraint? = run {
+            val rawDefault = rawPart.default
+            val rawFixed = rawPart.fixed
+            when {
+                rawDefault != null && rawFixed != null ->
+                    throw IllegalArgumentException("An element ${rawPart.name} cannot have default and fixed attributes both")
+
+                rawDefault != null -> ValueConstraint.Default(rawDefault)
+                rawFixed != null -> ValueConstraint.Fixed(rawFixed)
+                else -> null
+            }
+            ValueConstraint(rawPart)
+        }
     }
 
+    abstract val mdlScope: VElementScope
 }
 
