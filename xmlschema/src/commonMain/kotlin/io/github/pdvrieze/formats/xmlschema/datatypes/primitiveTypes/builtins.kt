@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
