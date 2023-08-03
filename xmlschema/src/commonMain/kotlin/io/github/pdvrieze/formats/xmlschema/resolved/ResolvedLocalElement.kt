@@ -25,10 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.model.IOptNamedDecl
-import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -155,7 +153,7 @@ class ResolvedLocalElement(
         override val mdlTypeTable: ITypeTable
             get() = TODO("not implemented")
 
-        override val mdlValueConstraint: ValueConstraintModel
+        override val mdlValueConstraint: ValueConstraint
             get() = TODO("not implemented")
 
         override val mdlDisallowedSubstitutions: VBlockSet =
