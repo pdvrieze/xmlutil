@@ -113,8 +113,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
 
             is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-
-            else -> error("Unreachable case/compiler limitation")
+            else -> error("Compiler issue")
         }
 
         operator fun invoke(

@@ -31,6 +31,8 @@ class ResolvedIndirectUnique(
     override val constraint: ResolvedIndirectUnique
         get() = this
 
+    override val mdlQName: QName = name.toQname(schema.targetNamespace)
+
     override val ref: ResolvedDirectUnique = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
         is ResolvedDirectUnique -> r
         is ResolvedIndirectUnique -> r.ref

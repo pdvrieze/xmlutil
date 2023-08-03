@@ -26,9 +26,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.model.IOptNamedDecl
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement(
@@ -121,13 +123,14 @@ class ResolvedLocalElement(
         }
     }
 
-    interface Model : ResolvedElement.Model, IOptNamedDecl {
+    interface Model : ResolvedElement.Model {
         val mdlScope: IScope.Local
 
         /** Return this */
         val mdlTerm: ResolvedLocalElement
         val mdlMinOccurs: VNonNegativeInteger
         val mdlMaxOccurs: VAllNNI
+        val mdlTargetNamespace: VAnyURI?
     }
 
     private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :

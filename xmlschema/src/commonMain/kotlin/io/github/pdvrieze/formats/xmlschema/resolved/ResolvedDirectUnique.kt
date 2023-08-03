@@ -38,7 +38,7 @@ class ResolvedDirectUnique(
 
     override val name: VNCName = checkNotNull(rawPart.name)
 
-    override val qName: QName get() = qname(schema.targetNamespace?.value, name.xmlString)
+    override val mdlQName: QName get() = name.toQname(schema.targetNamespace)
 
     override val selector: XSSelector get() = rawPart.selector
 

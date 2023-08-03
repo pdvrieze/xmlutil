@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.*
 
-sealed interface XSISimpleType : XSI_Annotated {
+sealed interface XSISimpleType : XSIType {
     val simpleDerivation: XSSimpleDerivation
 }
 

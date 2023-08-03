@@ -22,16 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
-interface NamedPart : OptNamedPart, I_Named {
-    override val rawPart: XSI_OpenAttrs
-
-    override val name: VNCName
-
-    override val targetNamespace: VAnyURI?
-
-    override val qName: QName get() = QName(targetNamespace?.value ?: "", name.xmlString)
+/** Parent interface for global (named) definitions */
+interface NamedPart {
+     val rawPart: XSI_OpenAttrs
+     val name: VNCName
+     val targetNamespace: VAnyURI?
+     val mdlQName: QName //get() = QName(targetNamespace?.value ?: "", name.xmlString)
 }

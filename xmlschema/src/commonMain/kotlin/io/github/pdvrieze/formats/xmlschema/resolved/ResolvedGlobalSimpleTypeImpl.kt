@@ -37,6 +37,8 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
+    override val mdlQName: QName = name.toQname(schema.targetNamespace)
+
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
 
@@ -69,7 +71,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         require(name.isNotEmpty())
-        if (checkedTypes.add(qName)) {
+        if (checkedTypes.add(mdlQName)) {
             super.check(checkedTypes, inheritedTypes)
             requireNotNull(model)
         }

@@ -265,7 +265,7 @@ sealed class ResolvedComplexType(
                 is XSComplexContent -> {
                     derivation = content.derivation
                     val base = requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
-                    if ((parent as? ResolvedGlobalType)?.qName == base) {
+                    if ((parent as? ResolvedGlobalType)?.mdlQName == base) {
                         require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
 
                         baseTypeDefinition = schema.nestedComplexType(base)
@@ -281,7 +281,7 @@ sealed class ResolvedComplexType(
                             val b2 =
                                 (lastB.rawPart.content.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
                             b = b2?.let { b2Name ->
-                                if (lastB.qName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
+                                if (lastB.mdlQName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
 //                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
 //                                    val sa = SchemaAssociatedElement(lastB.schema.originalLocation, b3)
 //                                    ResolvedGlobalComplexType(sa, lastB.schema)

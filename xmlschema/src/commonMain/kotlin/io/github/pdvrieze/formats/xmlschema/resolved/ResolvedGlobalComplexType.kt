@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -33,11 +32,12 @@ class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema), INamedDecl,
-    ResolvedSimpleTypeContext {
+) : ResolvedGlobalType, ResolvedComplexType(schema), ResolvedSimpleTypeContext {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
+
+    override val mdlQName: QName = name.toQname(schema.targetNamespace)
 
     override val name: VNCName
         get() = rawPart.name
@@ -93,10 +93,10 @@ class ResolvedGlobalComplexType(
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        if (checkedTypes.add(qName)) {
+        if (checkedTypes.add(mdlQName)) {
             super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
             mdlContentType.check()
-            content.check(checkedTypes, inheritedTypes + qName)
+            content.check(checkedTypes, inheritedTypes + mdlQName)
         }
     }
 
@@ -104,8 +104,10 @@ class ResolvedGlobalComplexType(
         return "ComplexType{ name=${name}, base=${mdlBaseTypeDefinition} }"
     }
 
-    interface Model : ResolvedComplexType.Model, INamedDecl,
-        ResolvedSimpleTypeContext
+    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext {
+        val mdlTargetNamespace: VAnyURI?
+        val mdlName: VNCName
+    }
 
     interface SimpleModel : Model, ResolvedSimpleContentType {
         override val mdlContentType: ResolvedSimpleContentType
@@ -113,9 +115,9 @@ class ResolvedGlobalComplexType(
 
     interface ComplexBase: Model, ResolvedSimpleTypeContext
 
-    interface ComplexModel : ComplexBase, INamedDecl
+    interface ComplexModel : ComplexBase
 
-    interface ImplicitModel : ComplexBase, INamedDecl
+    interface ImplicitModel : ComplexBase
 
     private class SimpleModelImpl(
         parent: ResolvedComplexType,

@@ -41,6 +41,8 @@ class ResolvedIndirectKey(
     override val name: VNCName
         get() = rawPart.name ?: ref.name
 
+    override val mdlQName: QName = name.toQname(schema.targetNamespace)
+
     override val constraint: ResolvedIndirectKey
         get() = this
 
