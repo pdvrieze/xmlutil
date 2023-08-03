@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,67 +20,47 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XML_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XS_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.BooleanType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.QNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
-object BuiltinSchemaXml : ResolvedSchemaLike() {
+/**
+ * Built-in schema attribute declarations (3.2.7)
+ */
+object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     private val delegate: ResolvedSchema
 
     init {
         val rawSchema = XSSchema(
-            targetNamespace = VAnyURI(XML_NAMESPACE),
+            targetNamespace = VAnyURI(XmlSchemaConstants.XSI_NAMESPACE),
             attributeFormDefault = VFormChoice.QUALIFIED,
             attributes = listOf(
                 XSGlobalAttribute(
-                    name = VNCName("lang"),
-                    simpleType = XSLocalSimpleType(
-                        simpleDerivation = XSSimpleUnion(
-                            memberTypes = listOf(QName(XS_NAMESPACE, "language")),
-                            simpleTypes = listOf(
-                                XSLocalSimpleType(
-                                    simpleDerivation = XSSimpleRestriction(
-                                        base = QName(XS_NAMESPACE),
-                                        facets = listOf(XSEnumeration(VString("")))
-                                    )
-                                )
-                            )
-                        )
-                    ),
+                    name = VNCName("type"),
+                    type = QNameType.mdlQName
                 ),
                 XSGlobalAttribute(
-                    name = VNCName("space"), default = VString("preserve"),
+                    name = VNCName("nil"),
+                    type = BooleanType.mdlQName
+                ),
+                XSGlobalAttribute(
+                    name = VNCName("schemaLocation"),
                     simpleType = XSLocalSimpleType(
-                        simpleDerivation = XSSimpleRestriction(
-                            base = QName(XS_NAMESPACE, "NCName"),
-                            facets = listOf(
-                                XSEnumeration(VString("default")),
-                                XSEnumeration(VString("preserve")),
-                            ),
+                        XSSimpleList(
+                            itemTypeName = AnyURIType.mdlQName
                         )
                     )
                 ),
-                XSGlobalAttribute(name = VNCName("base"), type = QName(XS_NAMESPACE, "anyURI")),
-                XSGlobalAttribute(name = VNCName("id"), type = QName(XS_NAMESPACE, "ID")),
-            ),
-            attributeGroups = listOf(
-                XSAttributeGroup(
-                    VNCName("specialAttrs"), attributes = listOf(
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "base")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "lang")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "space")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "id")),
-                    )
-                )
+                XSGlobalAttribute(name = VNCName("noNamespaceSchemaLocation"), type = AnyURIType.mdlQName),
             ),
         )
 
@@ -89,40 +69,40 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return maybeSimpleType(QName(XML_NAMESPACE, typeName))
+            return maybeSimpleType(QName(XmlSchemaConstants.XML_NAMESPACE, typeName))
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return maybeType(QName(XML_NAMESPACE, typeName))
+            return maybeType(QName(XmlSchemaConstants.XML_NAMESPACE, typeName))
         }
 
         override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
-            return maybeAttributeGroup(QName(XML_NAMESPACE, attributeGroupName))
+            return maybeAttributeGroup(QName(XmlSchemaConstants.XML_NAMESPACE, attributeGroupName))
         }
 
         override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
-            return maybeGroup(QName(XML_NAMESPACE, groupName))
+            return maybeGroup(QName(XmlSchemaConstants.XML_NAMESPACE, groupName))
         }
 
         override fun maybeElement(elementName: String): ResolvedGlobalElement? {
-            return maybeElement(QName(XML_NAMESPACE, elementName))
+            return maybeElement(QName(XmlSchemaConstants.XML_NAMESPACE, elementName))
         }
 
         override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
-            return maybeAttribute(QName(XML_NAMESPACE, attributeName))
+            return maybeAttribute(QName(XmlSchemaConstants.XML_NAMESPACE, attributeName))
         }
 
         override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
-            return maybeIdentityConstraint(QName(XML_NAMESPACE, constraintName))
+            return maybeIdentityConstraint(QName(XmlSchemaConstants.XML_NAMESPACE, constraintName))
         }
 
         override fun maybeNotation(notationName: String): ResolvedNotation? {
-            return maybeNotation(QName(XML_NAMESPACE, notationName))
+            return maybeNotation(QName(XmlSchemaConstants.XML_NAMESPACE, notationName))
         }
     }
 
 
-    override val targetNamespace: VAnyURI get() = delegate.targetNamespace
+    override val targetNamespace: VAnyURI get() = VAnyURI(XmlSchemaConstants.XSI_NAMESPACE)
 
     override val blockDefault: VBlockSet get() = delegate.blockDefault
 
@@ -151,4 +131,5 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> =
         delegate.substitutionGroupMembers(headName)
+
 }
