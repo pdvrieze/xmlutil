@@ -37,6 +37,8 @@ class ResolvedGlobalAttributeGroup(
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+
     val attributes: List<IResolvedAttributeUse> = DelegateList(rawPart.attributes) {
         ResolvedLocalAttribute(this, it, schema)
     }
@@ -63,7 +65,7 @@ class ResolvedGlobalAttributeGroup(
         get() = rawPart.targetNamespace ?: schema.targetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<NamedPart>.check(checkedTypes)
+        super.check(checkedTypes)
         for (a in attributes) { a.check(checkedTypes)
         }
         for (ag in attributeGroups) { ag.check(checkedTypes)

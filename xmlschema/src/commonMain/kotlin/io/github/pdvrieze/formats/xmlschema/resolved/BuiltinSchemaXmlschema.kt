@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
-import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -64,7 +63,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     }
 
     private val typeMap: Map<String, ResolvedGlobalSimpleType> by lazy {
-        simpleTypes.associateBy { it.qName.localPart }
+        simpleTypes.associateBy { it.mdlQName.localPart }
     }
 
     override val blockDefault: Set<Nothing>

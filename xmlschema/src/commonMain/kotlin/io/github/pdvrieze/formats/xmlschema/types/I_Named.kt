@@ -20,8 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 
-interface I_Named : I_OptNamed {
-    override val name: VNCName
+@Deprecated("Useless marker, remove")
+interface I_Named {
+    val name: VNCName
+    val targetNamespace: VAnyURI?
 }

@@ -52,7 +52,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
     final val openContent: XSOpenContent? get() = rawPart.openContent
 
     val baseType: ResolvedGlobalType by lazy {
-        schema.type(base ?: AnyType.qName)
+        schema.type(base ?: AnyType.mdlQName)
     }
 
     open fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {

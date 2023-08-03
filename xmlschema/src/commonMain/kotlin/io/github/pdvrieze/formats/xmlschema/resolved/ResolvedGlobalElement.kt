@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
-import io.github.pdvrieze.formats.xmlschema.model.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -34,10 +33,8 @@ class ResolvedGlobalElement(
     schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedElement(schema),
-    NamedPart,
     ResolvedComplexTypeContext,
-    INamedDecl,
-    ResolvedTypeContext {
+    ResolvedTypeContext, NamedPart {
 
     override val mdlName: VNCName get() = rawPart.name
 
@@ -47,7 +44,7 @@ class ResolvedGlobalElement(
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
         checkSingleType()
-        checkSubstitutionGroupChain(SingleLinkedList(qName))
+        checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
         typeDef.check(checkedTypes, SingleLinkedList())
         if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
@@ -77,15 +74,15 @@ class ResolvedGlobalElement(
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
         for (substitutionGroupHead in substitutionGroups) {
-            require(substitutionGroupHead.qName !in seenElements) {
-                "Recursive subsitution group: $qName"
+            require(substitutionGroupHead.mdlQName !in seenElements) {
+                "Recursive subsitution group: $mdlQName"
             }
-            substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
+            substitutionGroupHead.checkSubstitutionGroupChain(seenElements + mdlQName)
         }
     }
 
     override fun toString(): String {
-        return "ResolvedGlobalElement($qName, typeDef=$typeDef)"
+        return "ResolvedGlobalElement($mdlQName, typeDef=$typeDef)"
     }
 
     val substitutionGroups: List<ResolvedGlobalElement> =
@@ -98,9 +95,6 @@ class ResolvedGlobalElement(
     override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
 
     override val name: VNCName get() = rawPart.name
-
-    override val qName: QName
-        get() = name.toQname(targetNamespace)
 
     val typeDef: ResolvedType by lazy {
         rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
@@ -151,12 +145,12 @@ class ResolvedGlobalElement(
 
     val mdlScope: IScope.Global get() = model.mdlScope
 
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+    val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
-    interface Model : ResolvedElement.Model, INamedDecl,
-        ResolvedTypeContext {
+    interface Model : ResolvedElement.Model, ResolvedTypeContext {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         val mdlScope: IScope.Global
+        val mdlTargetNamespace: VAnyURI?
     }
 
     private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedElement) :
@@ -218,7 +212,7 @@ class ResolvedGlobalElement(
             seenElements: SingleLinkedList<QName>
         ) {
             for (substitutionGroupHead in substitutionGroups) {
-                require(substitutionGroupHead.qName !in seenElements) {
+                require(substitutionGroupHead.mdlQName !in seenElements) {
                     "Recursive subsitution group: $qName"
                 }
                 substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)

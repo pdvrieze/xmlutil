@@ -28,8 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.model.INamedDecl
-import io.github.pdvrieze.formats.xmlschema.types.I_OptNamed
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAttribute : ResolvedAnnotated {
@@ -44,7 +42,7 @@ sealed interface IResolvedAttributeUse : IResolvedAttribute {
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : IResolvedAttribute, ResolvedAnnotated, I_OptNamed, ResolvedSimpleTypeContext, INamedDecl {
+) : IResolvedAttribute, ResolvedAnnotated, ResolvedSimpleTypeContext {
     abstract override val rawPart: XSAttribute
 
     override val id: VID?
@@ -58,7 +56,7 @@ sealed class ResolvedAttribute(
         get() = QName(mdlTargetNamespace?.value ?: "", mdlName.xmlString)
 
     open val type: QName? // TODO make abstract
-        get() = (resolvedType as? ResolvedGlobalSimpleType)?.qName
+        get() = (resolvedType as? ResolvedGlobalSimpleType)?.mdlQName
 
     final override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -80,15 +78,17 @@ sealed class ResolvedAttribute(
         get() = rawPart.annotation.models()
 
 
-    abstract override val mdlName: VNCName
+    abstract val mdlName: VNCName
 
-    abstract override val mdlTargetNamespace: VAnyURI?
+    abstract val mdlTargetNamespace: VAnyURI?
 
     final override val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
 
     abstract val mdlTypeDefinition: ResolvedSimpleType
     abstract val mdlScope: VAttributeScope
     abstract val mdlValueConstraint: ValueConstraint?
+    abstract val name: VNCName?
+    abstract val targetNamespace: VAnyURI?
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAnnotated>.check(checkedTypes)

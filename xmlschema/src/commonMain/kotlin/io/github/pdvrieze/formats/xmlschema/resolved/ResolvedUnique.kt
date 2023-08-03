@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 
-interface ResolvedUnique : ResolvedReferenceableConstraint {
+interface ResolvedUnique : ResolvedReferenceableConstraint, ResolvedPart {
     override val rawPart: XSUnique
 
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.UNIQUE
