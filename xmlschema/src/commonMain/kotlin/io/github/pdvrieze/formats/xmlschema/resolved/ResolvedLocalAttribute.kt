@@ -21,68 +21,36 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
-import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedLocalAttribute(
-    override val parent: VAttributeScope.Member,
+class ResolvedLocalAttribute private constructor(
+    parent: VAttributeScope.Member,
     override val rawPart: XSLocalAttribute,
-    schema: ResolvedSchemaLike
-) : ResolvedAttribute(schema),
-    IScope.Local {
-    private val referenced: ResolvedAttribute? by lazy {
-        rawPart.ref?.let {
-            schema.attribute(
-                it
-            )
-        }
+    schema: ResolvedSchemaLike,
+    dummy: Boolean
+) : ResolvedAttributeDef(rawPart, schema), IResolvedAttributeUse {
+
+    init {
+        require(rawPart.ref == null)
+        require(rawPart.use != XSAttrUse.PROHIBITED) { "Prohibited attributes are not attributes proper" }
     }
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val default: VString?
-        get() = rawPart.default ?: referenced?.default
-
-    override val fixed: VString?
-        get() = rawPart.fixed ?: referenced?.fixed
 
     val form: VFormChoice?
         get() = rawPart.form
 
-    override val name: VNCName
-        get() = rawPart.name ?: referenced?.name ?: error("An attribute requires a name, either direct or referenced")
-
-    val ref: QName?
-        get() = rawPart.ref
-
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-    override val type: QName?
-        get() = rawPart.type ?: referenced?.type
 
     val use: XSAttrUse
         get() = rawPart.use ?: XSAttrUse.OPTIONAL
 
     val inheritable: Boolean
         get() = rawPart.inheritable ?: false
-    /*
 
-    override val simpleType: XSLocalSimpleType?
-        get() = rawPart.simpleType ?: referenced?.simpleType
-*/
-
-    override val mdlName: VNCName
-        get() = name
-
-    override val mdlTargetNamespace: VAnyURI?  by lazy {
+    override val mdlTargetNamespace: VAnyURI? by lazy {
         targetNamespace ?: when {
             (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
                 schema.targetNamespace
@@ -91,32 +59,25 @@ class ResolvedLocalAttribute(
         }
     }
 
-    override val mdlTypeDefinition: ResolvedSimpleType by lazy {
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: referenced?.mdlTypeDefinition
-        ?: schema.simpleType(requireNotNull(ref) { "Missing simple type for attribute $name" })
-    }
-
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
-    val mdlRequired: Boolean
+    val parent: VAttributeScope.Member get() = mdlScope.parent
+
+    override val mdlRequired: Boolean
         get() = rawPart.use == XSAttrUse.REQUIRED
 
-    val mdlAttributeDeclaration: ResolvedAttribute
-        get() = when (ref) {
-            null -> this
-            else -> requireNotNull(referenced)
-        }
+    override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
 
-    override val mdlValueConstraint: ValueConstraintModel?
-        get() = TODO("Implement local attribute value constraint")
+    override val mdlValueConstraint: ValueConstraint?
+        get() = null//TODO("Implement local attribute value constraint")
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAttribute>.check(checkedTypes)
+        super<ResolvedAttributeDef>.check(checkedTypes)
 //        if (rawPart.use!=XSAttrUse.PROHIBITED) {
 //            check(type!=null) { "Attributes must have a type if their use is not prohibited" }
 //        }
         if (rawPart.ref != null) {
-            val r = referenced
+            val r = null as ResolvedLocalAttribute?
             require(r != null) { "If an attribute has a ref, it must also be resolvable" }
             if (rawPart.fixed != null && r.fixed != null) {
                 require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
@@ -124,4 +85,21 @@ class ResolvedLocalAttribute(
         } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
     }
 
+    companion object {
+        operator fun invoke(
+            parent: VAttributeScope.Member,
+            rawPart: XSLocalAttribute,
+            schema: ResolvedSchemaLike
+        ): IResolvedAttributeUse {
+            return when (rawPart.use) {
+                XSAttrUse.PROHIBITED -> ResolvedProhibitedAttribute(parent, rawPart, schema)
+                else -> when (rawPart.ref) {
+                    null -> ResolvedLocalAttribute(parent, rawPart, schema, false)
+                    else -> ResolvedAttributeRef(parent, rawPart, schema)
+                }
+            }
+        }
+    }
+
 }
+

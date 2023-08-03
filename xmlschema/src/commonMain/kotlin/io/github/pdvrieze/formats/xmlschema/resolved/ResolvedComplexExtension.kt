@@ -30,7 +30,7 @@ class ResolvedComplexExtension(
     schema: ResolvedSchemaLike
 ) : ResolvedDerivation(scope, schema) {
 
-    override val attributes: List<ResolvedLocalAttribute> =
+    override val attributes: List<IResolvedAttributeUse> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
 
     override val attributeGroups: List<ResolvedAttributeGroupRef> =

@@ -42,7 +42,7 @@ class ResolvedComplexShorthandContent(
     }
 
     val asserts: List<XSIAssertCommon> get() = rawPart.asserts
-    val attributes: List<ResolvedLocalAttribute> =
+    val attributes: List<IResolvedAttributeUse> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
     val attributeGroups: List<ResolvedAttributeGroupRef> =
         DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }

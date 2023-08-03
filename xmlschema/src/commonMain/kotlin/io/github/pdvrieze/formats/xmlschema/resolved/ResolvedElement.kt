@@ -21,16 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.model.IOptNamed
-import io.github.pdvrieze.formats.xmlschema.model.ValueConstraintModel
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -80,7 +77,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
     val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
     val mdlNillable: Boolean get() = model.mdlNillable
-    val mdlValueConstraint: ValueConstraintModel? get() = model.mdlValueConstraint
+    val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
     val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupAffiliations
     val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
@@ -107,7 +104,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
 
         val vc = mdlValueConstraint // subsume 4.2
-        if (vc is ValueConstraintModel.Fixed && (specific.mdlValueConstraint as? ValueConstraintModel.Fixed) != vc.mdlValue) {
+        if (vc is ValueConstraint.Fixed && (specific.mdlValueConstraint as? ValueConstraint.Fixed)?.value != vc.value) {
             return false
         }
 
@@ -174,7 +171,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
         val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
         val mdlTypeTable: ITypeTable?
         val mdlNillable: Boolean
-        val mdlValueConstraint: ValueConstraintModel?
+        val mdlValueConstraint: ValueConstraint?
         val mdlDisallowedSubstitutions: VBlockSet
         val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
         val mdlAbstract: Boolean

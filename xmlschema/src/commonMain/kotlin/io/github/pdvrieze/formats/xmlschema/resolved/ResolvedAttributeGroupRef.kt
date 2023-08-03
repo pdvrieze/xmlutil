@@ -34,7 +34,7 @@ class ResolvedAttributeGroupRef(
 
     override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
-    val attributes: List<ResolvedLocalAttribute>
+    val attributes: List<IResolvedAttributeUse>
         get() = resolvedGroup.attributes
 
     val attributeGroups: List<ResolvedAttributeGroupRef>
