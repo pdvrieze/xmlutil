@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 
@@ -32,10 +33,23 @@ sealed class ValueConstraint(val value: VString) {
         operator fun invoke(attr: XSAttribute): ValueConstraint? {
             return when {
                 attr.default != null -> {
-                    check((attr as? XSLocalAttribute)?.use != null); Default(attr.default)
+                    check(attr.fixed == null) { "Attributes may not have both default and fixed values" }
+                    if (attr is XSLocalAttribute) {
+                        check(attr.use == null || attr.use == XSAttrUse.OPTIONAL) {
+                            "For attributes with default and use must have optional as use value. Has ${attr.use}"
+                        }
+                    }
+                    Default(attr.default)
                 }
 
-                attr.fixed != null -> Fixed(attr.fixed)
+                attr.fixed != null -> {
+                    if (attr is XSLocalAttribute) {
+                        check(attr.use == null || attr.use == XSAttrUse.REQUIRED) {
+                            "For attributes with fixed and use must have required as use value. Has ${attr.use}"
+                        }
+                    }
+                    Fixed(attr.fixed)
+                }
                 else -> null
             }
         }

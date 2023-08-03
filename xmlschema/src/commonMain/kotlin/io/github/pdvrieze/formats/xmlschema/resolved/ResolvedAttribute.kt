@@ -30,19 +30,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedAttribute : ResolvedAnnotated {
-    val mdlInheritable: Boolean
-}
-
-sealed interface IResolvedAttributeUse : IResolvedAttribute {
-    val mdlRequired: Boolean
-    val mdlAttributeDeclaration: ResolvedAttributeDef
-    val mdlValueConstraint: ValueConstraint?
-}
-
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : IResolvedAttribute, ResolvedAnnotated, ResolvedSimpleTypeContext {
+) : ResolvedAnnotated, ResolvedSimpleTypeContext {
     abstract override val rawPart: XSAttribute
 
     override val id: VID?
@@ -64,15 +54,13 @@ sealed class ResolvedAttribute(
 
     val resolvedType: ResolvedSimpleType by lazy {
         rawPart.type?.let {
-            require(rawPart.simpleType == null) { "both simpletype and type attribute present" }; schema.simpleType(
-            it
-        )
-        }
-            ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
-            ?: AnySimpleType
+            require(rawPart.simpleType == null) { "both simpletype and type attribute present" }
+            schema.simpleType(it)
+        } ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
+        ?: AnySimpleType
     }
 
-    val valueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
+    val valueConstraint: ValueConstraint? get() = mdlValueConstraint
 
     final override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
@@ -82,25 +70,20 @@ sealed class ResolvedAttribute(
 
     abstract val mdlTargetNamespace: VAnyURI?
 
-    final override val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
+    final val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
 
     abstract val mdlTypeDefinition: ResolvedSimpleType
     abstract val mdlScope: VAttributeScope
-    abstract val mdlValueConstraint: ValueConstraint?
+    val mdlValueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
     abstract val name: VNCName?
     abstract val targetNamespace: VAnyURI?
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAnnotated>.check(checkedTypes)
+        super.check(checkedTypes)
 
         resolvedType.check(checkedTypes)
-        check(fixed == null || default == null) { "Attributes may not have both default and fixed values" }
-        val use = (this as? ResolvedLocalAttribute)?.use
-        check(default == null || use == null || use == XSAttrUse.OPTIONAL) {
-            "For attributes with default and use must have optional as use value"
-        }
-        fixed?.let { resolvedType.validate(it) }
-        default?.let { resolvedType.validate(it) }
+
+        valueConstraint?.let { resolvedType.validate(it.value)}
     }
 
 }

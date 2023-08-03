@@ -99,9 +99,6 @@ class ResolvedAttributeRef(
     override val mdlAttributeDeclaration: ResolvedAttributeDef
         get() = requireNotNull(referenced)
 
-    override val mdlValueConstraint: ValueConstraint?
-        get() = TODO("Implement local attribute value constraint")
-
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAttribute>.check(checkedTypes)
 
@@ -109,6 +106,8 @@ class ResolvedAttributeRef(
         if (rawPart.fixed != null && r.fixed != null) {
             require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
         }
+        r.check(checkedTypes)
+
     }
 
 }
