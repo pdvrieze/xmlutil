@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -36,13 +35,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
     abstract override val rawPart: XSElement
 
     final override val id: VID? get() = rawPart.id
-
-    val type: QName?
-        get() = rawPart.type
-    val nillable: Boolean get() = rawPart.nillable ?: false
-
-    val default: VString? get() = rawPart.default
-    val fixed: VString? get() = rawPart.fixed
 
     val valueConstraint: ValueConstraint? by lazy {
         val rawDefault = rawPart.default
@@ -68,7 +60,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
 
     val keyrefs: List<ResolvedKeyRef> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKeyRef>()
 
-    protected abstract val model: Model
+    protected abstract val model: ModelImpl
 
     override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     abstract val mdlQName: QName
@@ -86,7 +78,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
     val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupAffiliations
     val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
     val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
-    val mdlAbstract: Boolean get() = model.mdlAbstract
+
 
     /**
      * disallowed substitutions
@@ -138,14 +130,15 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
             keyref.check(checkedTypes)
             checkNotNull(keyref.mdlReferencedKey)
         }
-        default?.let { d ->
-            check(fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
+        // Remove as it is in mdlValueConstraint
+        rawPart.default?.let { d ->
+            check(rawPart.fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
             check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
                 "ID types can not have fixed values"
             }
             mdlTypeDefinition.validate(d)
         }
-        fixed?.let { f ->
+        rawPart.fixed?.let { f ->
             check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
                 "ID types can not have fixed values"
             }
@@ -164,37 +157,25 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
     }
 
     interface Model {
-        val mdlAnnotations: ResolvedAnnotation?
-        val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
-        val mdlTypeDefinition: ResolvedType
-        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
-        val mdlTypeTable: ITypeTable?
-        val mdlNillable: Boolean
-        val mdlValueConstraint: ValueConstraint?
-        val mdlDisallowedSubstitutions: VBlockSet
-        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
-        val mdlAbstract: Boolean
     }
 
     protected abstract class ModelImpl(
         rawPart: XSElement,
         schema: ResolvedSchemaLike,
         context: ResolvedElement
-    ) : Model {
+    ) {
 
-        final override val mdlNillable: Boolean = rawPart.nillable ?: false
+        final val mdlNillable: Boolean = rawPart.nillable ?: false
 
-        final override val mdlAbstract: Boolean = (rawPart as? XSGlobalElement)?.abstract ?: false
-
-        final override val mdlAnnotations: ResolvedAnnotation? =
+        final val mdlAnnotations: ResolvedAnnotation? =
             rawPart.annotation.models()
 
-        final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
+        final val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
             rawPart.identityConstraints.mapTo(HashSet<ResolvedIdentityConstraint>()) {
                 ResolvedIdentityConstraint(it, schema, context)
             }
 
-        override val mdlValueConstraint: ValueConstraint? = run {
+        val mdlValueConstraint: ValueConstraint? = run {
             val rawDefault = rawPart.default
             val rawFixed = rawPart.fixed
             when {
@@ -207,6 +188,11 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
             }
             ValueConstraint(rawPart)
         }
+        abstract val mdlTypeDefinition: ResolvedType
+        abstract val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+        abstract val mdlTypeTable: ITypeTable?
+        abstract val mdlDisallowedSubstitutions: VBlockSet
+        abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     }
 
     abstract val mdlScope: VElementScope

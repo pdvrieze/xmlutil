@@ -55,7 +55,7 @@ class ResolvedLocalElement(
 
     val form: VFormChoice? get() = rawPart.form
 
-    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
+    override val model: ModelImpl by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
     override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
@@ -69,7 +69,7 @@ class ResolvedLocalElement(
             referenced// Don't check as that would already be done at top level
             check(name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
-            check(type == null) { "Local element references cannot have the type attribute specified" }
+            check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
             check(rawPart.nillable == null) {
                 "Local element references cannot have the nillable attribute specified"
             }
@@ -114,33 +114,35 @@ class ResolvedLocalElement(
         }
     }
 
-    interface Model : ResolvedElement.Model {
+    interface Model {
 
         /** Return this */
         val mdlTerm: ResolvedLocalElement
         val mdlMinOccurs: VNonNegativeInteger
         val mdlMaxOccurs: VAllNNI
         val mdlTargetNamespace: VAnyURI?
+        val mdlTypeDefinition: ResolvedType
+        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+        val mdlTypeTable: ITypeTable?
+        val mdlDisallowedSubstitutions: VBlockSet
+        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     }
 
-    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
-        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
+    protected inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
+        ResolvedElement.ModelImpl(rawPart, schema, context) {
 
         override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
 
-        override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
+        val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
 
-        override val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
+        val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
 
 
-        override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+        val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-        override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
+        val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
 
         override val mdlTypeTable: ITypeTable
-            get() = TODO("not implemented")
-
-        override val mdlValueConstraint: ValueConstraint
             get() = TODO("not implemented")
 
         override val mdlDisallowedSubstitutions: VBlockSet =
