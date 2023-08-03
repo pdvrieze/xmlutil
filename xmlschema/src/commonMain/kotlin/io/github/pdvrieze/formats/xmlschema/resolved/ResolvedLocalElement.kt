@@ -55,11 +55,6 @@ class ResolvedLocalElement(
 
     val form: VFormChoice? get() = rawPart.form
 
-
-    override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
-    override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
-    override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
-
     override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)

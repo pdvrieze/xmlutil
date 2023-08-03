@@ -24,8 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -37,7 +35,7 @@ class XSOverride : XSAnnotatedBase {
     val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
     val attributeGroups: List<XSAttributeGroup>
-    val elements: List<XSElement>
+    val elements: List<XSGlobalElement>
     val attributes: List<XSGlobalAttribute>
     val notations: List<XSNotation>
 
@@ -47,7 +45,7 @@ class XSOverride : XSAnnotatedBase {
         complexTypes: List<XSGlobalComplexType> = emptyList(),
         groups: List<XSGroup> = emptyList(),
         attributeGroups: List<XSAttributeGroup> = emptyList(),
-        elements: List<XSElement> = emptyList(),
+        elements: List<XSGlobalElement> = emptyList(),
         attributes: List<XSGlobalAttribute> = emptyList(),
         notations: List<XSNotation> = emptyList(),
         id: VID? = null,

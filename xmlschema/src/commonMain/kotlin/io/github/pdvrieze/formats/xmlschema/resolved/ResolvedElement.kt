@@ -20,14 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
@@ -36,7 +33,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
     ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm,
     ResolvedAnnotated {
 
-    abstract override val rawPart: XSIElement
+    abstract override val rawPart: XSElement
 
     final override val id: VID? get() = rawPart.id
 
@@ -65,11 +62,11 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
 
     open val name: VNCName? get() = rawPart.name
 
-    abstract val uniques: List<ResolvedUnique>
+    val uniques: List<ResolvedUnique> get() = mdlIdentityConstraints.filterIsInstance<ResolvedUnique>()
 
-    abstract val keys: List<ResolvedKey>
+    val keys: List<ResolvedKey> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKey>()
 
-    abstract val keyrefs: List<ResolvedKeyRef>
+    val keyrefs: List<ResolvedKeyRef> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKeyRef>()
 
     protected abstract val model: Model
 
@@ -180,23 +177,21 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
     }
 
     protected abstract class ModelImpl(
-        rawPart: XSIElement,
+        rawPart: XSElement,
         schema: ResolvedSchemaLike,
         context: ResolvedElement
     ) : Model {
 
         final override val mdlNillable: Boolean = rawPart.nillable ?: false
 
-        final override val mdlAbstract: Boolean = (rawPart as? XSElement)?.abstract ?: false
+        final override val mdlAbstract: Boolean = (rawPart as? XSGlobalElement)?.abstract ?: false
 
         final override val mdlAnnotations: ResolvedAnnotation? =
             rawPart.annotation.models()
 
         final override val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
-            mutableSetOf<ResolvedIdentityConstraint>().also { set ->
-                rawPart.keys.mapTo(set) { ResolvedKey(it, schema, context) }
-                rawPart.uniques.mapTo(set) { ResolvedUnique(it, schema, context) }
-                rawPart.keyrefs.mapTo(set) { ResolvedKeyRef(it, schema, context) }
+            rawPart.identityConstraints.mapTo(HashSet<ResolvedIdentityConstraint>()) {
+                ResolvedIdentityConstraint(it, schema, context)
             }
 
         override val mdlValueConstraint: ValueConstraint? = run {
