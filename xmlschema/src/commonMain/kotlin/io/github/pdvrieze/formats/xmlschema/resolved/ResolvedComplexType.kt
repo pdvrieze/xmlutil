@@ -48,7 +48,7 @@ sealed class ResolvedComplexType(
     val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
     val mdlContentType: ResolvedContentType get() = model.mdlContentType
-    val mdlAttributeUses: Set<ResolvedAttribute> get() = model.mdlAttributeUses
+    val mdlAttributeUses: Set<IResolvedAttributeUse> get() = model.mdlAttributeUses
     val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
@@ -220,7 +220,7 @@ sealed class ResolvedComplexType(
         val mdlAttributeWildcard: ResolvedAny?
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Set<ResolvedAttribute>
+        val mdlAttributeUses: Set<IResolvedAttributeUse>
         val mdlAnnotations: ResolvedAnnotation?
     }
 
@@ -231,7 +231,7 @@ sealed class ResolvedComplexType(
     ) : Model {
         final override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
-        final override val mdlAttributeUses: Set<ResolvedAttribute> by lazy {
+        final override val mdlAttributeUses: Set<IResolvedAttributeUse> by lazy {
             calculateAttributeUses(
                 schema,
                 rawPart,
@@ -613,7 +613,7 @@ sealed class ResolvedComplexType(
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlFinal: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Set<ResolvedAttribute>
+        val mdlAttributeUses: Set<IResolvedAttributeUse>
         val mdlDerivationMethod: VDerivationControl.Complex
 
     }
@@ -634,20 +634,20 @@ sealed class ResolvedComplexType(
             schema: ResolvedSchemaLike,
             rawPart: XSIComplexType,
             parent: ResolvedComplexType
-        ): Set<ResolvedAttribute> {
+        ): Set<IResolvedAttributeUse> {
             val defaultAttributeGroup = (schema as? ResolvedSchema)?.defaultAttributes
                 ?.takeIf { rawPart.defaultAttributesApply != false }
 
             val prohibitedAttrs = mutableSetOf<QName>()
 
-            val attributes = buildMap<QName, ResolvedAttribute> {
+            val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
                 for (attr in rawPart.content.derivation.attributes) {
                     val resolvedAttribute = ResolvedLocalAttribute(parent, attr, schema)
-                    when (resolvedAttribute.use) {
-                        XSAttrUse.PROHIBITED -> prohibitedAttrs.add(resolvedAttribute.mdlQName)
+                    when (resolvedAttribute) {
+                        is ResolvedProhibitedAttribute -> prohibitedAttrs.add(resolvedAttribute.mdlQName)
                         else ->
-                            put(resolvedAttribute.mdlQName, resolvedAttribute)?.also {
+                            put(resolvedAttribute.mdlAttributeDeclaration.mdlQName, resolvedAttribute)?.also {
                                 error("Duplicate attribute $it on type $parent")
                             }
                     }
@@ -662,7 +662,7 @@ sealed class ResolvedComplexType(
                     val groupAttributeUses = group.attributeUses
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
-                    groupAttributeUses.associateByTo(this) { it.mdlQName }
+                    groupAttributeUses.associateByTo(this) { it.mdlAttributeDeclaration.mdlQName }
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
@@ -670,13 +670,14 @@ sealed class ResolvedComplexType(
                 when (t?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
                         for (a in t.mdlAttributeUses) {
-                            require(put(a.mdlQName, a) == null) { "Duplicate attribute $a" }
+                            require(put(a.mdlAttributeDeclaration.mdlQName, a) == null) { "Duplicate attribute $a" }
                         }
 
                     VDerivationControl.RESTRICTION ->
                         for (a in t.mdlAttributeUses) {
-                            if (a.mdlQName !in prohibitedAttrs) {
-                                getOrPut(a.mdlQName) { a }
+                            val qName = a.mdlAttributeDeclaration.mdlQName
+                            if (qName !in prohibitedAttrs) {
+                                getOrPut(qName) { a }
                             }
                         }
 
