@@ -48,7 +48,7 @@ class XSLocalAttribute : XSAttribute {
     @XmlElement(false)
     val use: XSAttrUse?
 
-    override val targetNamespace: VAnyURI?
+    val targetNamespace: VAnyURI?
 
 
     constructor(
