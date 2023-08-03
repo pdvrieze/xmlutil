@@ -32,83 +32,46 @@ import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSLocalElement(
-    @XmlBefore("type")
-    override val name: VNCName? = null, // can be determined from ref
-    @Serializable(AllDerivationSerializer::class)
-    override val block: VBlockSet? = null,
-    override val default: VString? = null,
-    override val fixed: VString? = null,
+class XSLocalElement : XSElement, XSI_AllParticle {
+
+    override val name: VNCName?
+
     @XmlElement(false)
-    val form: VFormChoice? = null,
-    @XmlId
-    override val id: VID? = null,
-    override val maxOccurs: VAllNNI? = null,
-    override val minOccurs: VNonNegativeInteger? = null,
-    override val nillable: Boolean? = null,
+    val form: VFormChoice?
+
+    override val minOccurs: VNonNegativeInteger?
+
+    override val maxOccurs: VAllNNI?
+
     @XmlElement(false)
-    val ref: QName? = null,
-    override val targetNamespace: VAnyURI? = null,
-    @XmlElement(false)
-    override val type: QName? = null,
+    val ref: QName?
 
-    override val annotation: XSAnnotation? = null,
-    override val localType: XSLocalType? = null,
-    override val uniques: List<XSUnique> = emptyList(),
-    override val keys: List<XSKey> = emptyList(),
-    override val keyrefs: List<XSKeyRef> = emptyList(),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSIElement, XSI_AllParticle {
+    val targetNamespace: VAnyURI?
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as XSLocalElement
-
-        if (name != other.name) return false
-        if (block != other.block) return false
-        if (default != other.default) return false
-        if (fixed != other.fixed) return false
-        if (form != other.form) return false
-        if (id != other.id) return false
-        if (maxOccurs != other.maxOccurs) return false
-        if (minOccurs != other.minOccurs) return false
-        if (nillable != other.nillable) return false
-        if (ref != other.ref) return false
-        if (targetNamespace != other.targetNamespace) return false
-        if (type != other.type) return false
-        if (annotation != other.annotation) return false
-        if (localType != other.localType) return false
-        if (uniques != other.uniques) return false
-        if (keys != other.keys) return false
-        if (keyrefs != other.keyrefs) return false
-        if (otherAttrs != other.otherAttrs) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name?.hashCode() ?: 0
-        result = 31 * result + (block?.hashCode() ?: 0)
-        result = 31 * result + (default?.hashCode() ?: 0)
-        result = 31 * result + (fixed?.hashCode() ?: 0)
-        result = 31 * result + (form?.hashCode() ?: 0)
-        result = 31 * result + (id?.hashCode() ?: 0)
-        result = 31 * result + maxOccurs.hashCode()
-        result = 31 * result + minOccurs.hashCode()
-        result = 31 * result + (nillable?.hashCode() ?: 0)
-        result = 31 * result + (ref?.hashCode() ?: 0)
-        result = 31 * result + (targetNamespace?.hashCode() ?: 0)
-        result = 31 * result + (type?.hashCode() ?: 0)
-        result = 31 * result + (annotation?.hashCode() ?: 0)
-        result = 31 * result + (localType?.hashCode() ?: 0)
-        result = 31 * result + uniques.hashCode()
-        result = 31 * result + keys.hashCode()
-        result = 31 * result + keyrefs.hashCode()
-        result = 31 * result + otherAttrs.hashCode()
-        return result
+    constructor(
+        block: VBlockSet? = null,
+        default: VString? = null,
+        fixed: VString? = null,
+        form: VFormChoice? = null,
+        id: VID? = null,
+        maxOccurs: VAllNNI? = null,
+        minOccurs: VNonNegativeInteger? = null,
+        name: VNCName? = null,
+        nillable: Boolean? = null,
+        ref: QName? = null,
+        targetNamespace: VAnyURI? = null,
+        type: QName? = null,
+        annotation: XSAnnotation? = null,
+        localType: XSLocalType? = null,
+        identityConstraints: List<XSIdentityConstraint> = emptyList(),
+        otherAttrs: Map<QName, String> = emptyMap()
+    ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints, otherAttrs) {
+        this.name = name
+        this.form = form
+        this.minOccurs = minOccurs
+        this.maxOccurs = maxOccurs
+        this.ref = ref
+        this.targetNamespace = targetNamespace
     }
 
     override fun toString(): String = buildString {
@@ -127,11 +90,31 @@ class XSLocalElement(
         if (type != null) append(", type=$type")
         if (annotation != null) append(", annotation=$annotation")
         if (localType != null) append(", localType=$localType")
-        if (uniques.isNotEmpty()) append(", uniques=$uniques")
-        if (keys.isNotEmpty()) append(", keys=$keys")
-        if (keyrefs.isNotEmpty()) append(", keyrefs=$keyrefs")
+        if (identityConstraints.isNotEmpty()) append(", identityConstraints=$identityConstraints")
         if (otherAttrs.isNotEmpty()) append(", otherAttrs=$otherAttrs")
         append(")")
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XSLocalElement
+
+        if (form != other.form) return false
+        if (ref != other.ref) return false
+        if (targetNamespace != other.targetNamespace) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (form?.hashCode() ?: 0)
+        result = 31 * result + (ref?.hashCode() ?: 0)
+        result = 31 * result + (targetNamespace?.hashCode() ?: 0)
+        return result
     }
 
 

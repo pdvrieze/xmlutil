@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,52 +18,70 @@
  * under the License.
  */
 
-@file:UseSerializers(QNameSerializer::class)
-
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlId
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
-@XmlSerialName("element", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-data class XSElement(
-    override val name: VNCName,
+sealed class XSElement : XSI_Annotated {
     @Serializable(AllDerivationSerializer::class)
-    override val block: VBlockSet? = null,
-    override val default: VString? = null,
-    override val fixed: VString? = null,
+    val block: Set<T_BlockSetValues>?
+    val default: VString?
+    val fixed: VString?
     @XmlId
-    override val id: VID? = null,
-    override val nillable: Boolean? = null,
-    @XmlElement(false)
-    override val type: QName? = null,
-    val abstract: Boolean? = null,
+    final override val id: VID?
+    abstract val name: VNCName?
 
-    @XmlElement(false) val substitutionGroup: List<QName>? = null,
+    val nillable: Boolean?
+
     @XmlElement(false)
-    @Serializable(ComplexDerivationSerializer::class) val final: Set<@Contextual VDerivationControl.Complex>? = null,
+    val type: SerializableQName?
+
     @XmlBefore("*")
-    override val annotation: XSAnnotation? = null,
-    override val localType: XSLocalType? = null,
-    override val uniques: List<XSUnique> = emptyList(),
-    override val keys: List<XSKey> = emptyList(),
-    override val keyrefs: List<XSKeyRef> = emptyList(),
-    @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSIElement {
+    final override val annotation: XSAnnotation?
+    val localType: XSLocalType?
 
-    override val targetNamespace: VAnyURI? get() = null
+    val identityConstraints: List<XSIdentityConstraint>
+
+    @XmlOtherAttributes
+    final override val otherAttrs: Map<SerializableQName, String>
+
+    // alternative
+    constructor(
+        block: VBlockSet?,
+        default: VString?,
+        fixed: VString?,
+        id: VID?,
+        name: VNCName?,
+        nillable: Boolean?,
+        type: SerializableQName?,
+        annotation: XSAnnotation?,
+        localType: XSLocalType?,
+        identityConstraints: List<XSIdentityConstraint>,
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) {
+        this.block = block
+        this.default = default
+        this.fixed = fixed
+        this.id = id
+        this.nillable = nillable
+        this.type = type
+        this.annotation = annotation
+        this.localType = localType
+        this.identityConstraints = identityConstraints
+        this.otherAttrs = otherAttrs
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -71,42 +89,32 @@ data class XSElement(
 
         other as XSElement
 
-        if (name != other.name) return false
         if (block != other.block) return false
         if (default != other.default) return false
         if (fixed != other.fixed) return false
         if (id != other.id) return false
+        if (name != other.name) return false
         if (nillable != other.nillable) return false
         if (type != other.type) return false
-        if (abstract != other.abstract) return false
-        if (substitutionGroup != other.substitutionGroup) return false
-        if (final != other.final) return false
         if (annotation != other.annotation) return false
         if (localType != other.localType) return false
-        if (uniques != other.uniques) return false
-        if (keys != other.keys) return false
-        if (keyrefs != other.keyrefs) return false
+        if (identityConstraints != other.identityConstraints) return false
         if (otherAttrs != other.otherAttrs) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + (block?.hashCode() ?: 0)
+        var result = block?.hashCode() ?: 0
         result = 31 * result + (default?.hashCode() ?: 0)
         result = 31 * result + (fixed?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (nillable?.hashCode() ?: 0)
         result = 31 * result + (type?.hashCode() ?: 0)
-        result = 31 * result + abstract.hashCode()
-        result = 31 * result + substitutionGroup.hashCode()
-        result = 31 * result + final.hashCode()
         result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (localType?.hashCode() ?: 0)
-        result = 31 * result + uniques.hashCode()
-        result = 31 * result + keys.hashCode()
-        result = 31 * result + keyrefs.hashCode()
+        result = 31 * result + identityConstraints.hashCode()
         result = 31 * result + otherAttrs.hashCode()
         return result
     }

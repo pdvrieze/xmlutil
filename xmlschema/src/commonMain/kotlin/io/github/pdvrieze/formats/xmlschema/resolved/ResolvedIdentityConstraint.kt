@@ -22,8 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 sealed interface ResolvedIdentityConstraint : NamedPart {
     val selector: XSSelector
@@ -43,6 +42,16 @@ sealed interface ResolvedIdentityConstraint : NamedPart {
     override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     companion object {
+        operator fun invoke(
+            rawPart: XSIdentityConstraint,
+            schema: ResolvedSchemaLike,
+            context: ResolvedElement
+        ): ResolvedIdentityConstraint = when (rawPart) {
+            is XSKey -> ResolvedKey(rawPart, schema, context)
+            is XSUnique -> ResolvedUnique(rawPart, schema, context)
+            is XSKeyRef -> ResolvedKeyRef(rawPart, schema, context)
+        }
+
         fun Ref(
             owner: ResolvedElement,
             constraint: ResolvedIdentityConstraint

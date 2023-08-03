@@ -43,8 +43,8 @@ object AGAttrUseDefaults {
     val expectedSchema = XSSchema(
         targetNamespace = VAnyURI(ns),
         elements = listOf(
-            XSElement(name = VNCName("root")),
-            XSElement(
+            XSGlobalElement(name = VNCName("root")),
+            XSGlobalElement(
                 name = VNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(

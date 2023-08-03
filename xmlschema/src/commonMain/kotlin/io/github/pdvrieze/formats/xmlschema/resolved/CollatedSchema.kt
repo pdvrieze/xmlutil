@@ -36,7 +36,7 @@ internal class CollatedSchema(
     val namespace: String = baseSchema.targetNamespace?.value ?: "",
     includedUrls: MutableList<Pair<String, VAnyURI>> = mutableListOf(Pair(namespace, resolver.baseUri))
 ) {
-    val elements: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSElement>>> = mutableMapOf()
+    val elements: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalElement>>> = mutableMapOf()
     val attributes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalAttribute>>> =
         mutableMapOf()
     val simpleTypes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalSimpleType>>> =

@@ -74,7 +74,7 @@ class XSSchema : XSOpenAttrsBase {
     val simpleTypes: List<XSGlobalSimpleType>
     val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
-    val elements: List<XSElement>
+    val elements: List<XSGlobalElement>
     val attributes: List<XSGlobalAttribute>
     val attributeGroups: List<XSAttributeGroup>
     val notations: List<XSNotation>
@@ -99,7 +99,7 @@ class XSSchema : XSOpenAttrsBase {
         simpleTypes: List<XSGlobalSimpleType> = emptyList(),
         complexTypes: List<XSGlobalComplexType> = emptyList(),
         groups: List<XSGroup> = emptyList(),
-        elements: List<XSElement> = emptyList(),
+        elements: List<XSGlobalElement> = emptyList(),
         attributes: List<XSGlobalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroup> = emptyList(),
         notations: List<XSNotation> = emptyList(),
