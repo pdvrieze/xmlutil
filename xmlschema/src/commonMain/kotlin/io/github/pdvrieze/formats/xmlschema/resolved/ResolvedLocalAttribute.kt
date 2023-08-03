@@ -68,11 +68,14 @@ class ResolvedLocalAttribute private constructor(
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
 
-    override val mdlValueConstraint: ValueConstraint?
-        get() = null//TODO("Implement local attribute value constraint")
-
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAttributeDef>.check(checkedTypes)
+
+        val use = use
+        check(default == null || use == null || use == XSAttrUse.OPTIONAL) {
+            "For attributes with default and use must have optional as use value"
+        }
+
 //        if (rawPart.use!=XSAttrUse.PROHIBITED) {
 //            check(type!=null) { "Attributes must have a type if their use is not prohibited" }
 //        }

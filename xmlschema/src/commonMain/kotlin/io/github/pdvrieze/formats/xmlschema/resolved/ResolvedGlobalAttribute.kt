@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -53,12 +54,6 @@ class ResolvedGlobalAttribute(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val mdlValueConstraint: Nothing? get() = null
-
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAttributeDef>.check(checkedTypes)
-    }
 }
 
