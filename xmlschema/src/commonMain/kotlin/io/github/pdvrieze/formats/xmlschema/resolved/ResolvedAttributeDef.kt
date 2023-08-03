@@ -41,9 +41,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
 
     final override val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
 
-
-
-    private val model: Model by lazy { Model(this) }
+    protected abstract val model: Model
 
     init {
         mdlName = requireNotNull(rawPart.name) { "3.2.3(3.1) - Attribute definitions require names" }
@@ -58,7 +56,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         }
     }
 
-    private class Model(base: ResolvedAttributeDef) {
+    protected open class Model(base: ResolvedAttributeDef) {
         val mdlTypeDefinition: ResolvedSimpleType =
             base.rawPart.simpleType?.let { ResolvedLocalSimpleType(it, base.schema, base) }
                 ?: base.rawPart.type?.let { base.schema.simpleType(it) }
