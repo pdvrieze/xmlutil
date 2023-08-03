@@ -39,7 +39,6 @@ sealed class XSAttribute : XSAnnotatedBase {
     val inheritable: Boolean?
     val simpleType: XSLocalSimpleType?
     abstract val name: VNCName?
-    abstract val targetNamespace: VAnyURI?
 
     constructor(
         default: VString? = null,

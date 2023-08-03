@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("attributeGroup", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAttributeGroup(
-    override val name: VNCName,
+    val name: VNCName,
     @XmlId
     override val id: VID? = null,
     val attributes: List<XSLocalAttribute> = emptyList(),
@@ -48,9 +48,7 @@ class XSAttributeGroup(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : I_Named, XSI_Annotated {
-
-    override val targetNamespace: Nothing? get() = null
+) : XSI_Annotated {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

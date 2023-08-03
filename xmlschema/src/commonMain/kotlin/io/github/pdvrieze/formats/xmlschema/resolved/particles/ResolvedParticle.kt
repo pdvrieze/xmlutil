@@ -89,7 +89,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
 
     companion object {
         fun allMember(
-            parent: ResolvedParticleParent,
+            parent: VElementScope.Member,
             rawPart: XSI_AllParticle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
@@ -103,7 +103,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         }
 
         fun choiceSeqMember(
-            parent: ResolvedParticleParent,
+            parent: VElementScope.Member,
             rawPart: XSI_NestedParticle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
@@ -117,7 +117,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         }
 
         operator fun invoke(
-            parent: ResolvedParticleParent,
+            parent: VElementScope.Member,
             rawPart: XSI_Particle,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
@@ -136,7 +136,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
         }
 
         operator fun invoke(
-            parent: ResolvedParticleParent,
+            parent: VElementScope.Member,
             rawPart: XSExplicitGroup,
             schema: ResolvedSchemaLike
         ): ResolvedParticle<*> = when (rawPart) {

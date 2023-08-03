@@ -38,7 +38,7 @@ class ResolvedSequence private constructor(
     override val mdlTerm: ResolvedSequence get() = this
 
     constructor(
-        parent: ResolvedParticleParent,
+        parent: VElementScope.Member,
         rawPart: XSSequence,
         schema: ResolvedSchemaLike
     ) : this(

@@ -36,12 +36,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("attribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSGlobalAttribute : XSAttribute, I_Named {
+class XSGlobalAttribute : XSAttribute {
 
     @XmlBefore("type")
     override val name: VNCName
-
-    override val targetNamespace: Nothing? get() = null
 
     constructor(
         name: VNCName,

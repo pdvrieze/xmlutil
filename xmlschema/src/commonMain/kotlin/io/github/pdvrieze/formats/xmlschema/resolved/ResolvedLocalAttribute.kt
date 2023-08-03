@@ -52,6 +52,8 @@ class ResolvedLocalAttribute private constructor(
         }
     }
 
+    override val model: Model by lazy { Model(this) }
+
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
 

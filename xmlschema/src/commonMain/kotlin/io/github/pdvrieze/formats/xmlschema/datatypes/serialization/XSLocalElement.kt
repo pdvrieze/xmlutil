@@ -40,14 +40,14 @@ class XSLocalElement(
     override val default: VString? = null,
     override val fixed: VString? = null,
     @XmlElement(false)
-    override val form: VFormChoice? = null,
+    val form: VFormChoice? = null,
     @XmlId
     override val id: VID? = null,
     override val maxOccurs: VAllNNI? = null,
     override val minOccurs: VNonNegativeInteger? = null,
     override val nillable: Boolean? = null,
     @XmlElement(false)
-    override val ref: QName? = null,
+    val ref: QName? = null,
     override val targetNamespace: VAnyURI? = null,
     @XmlElement(false)
     override val type: QName? = null,
@@ -81,7 +81,6 @@ class XSLocalElement(
         if (type != other.type) return false
         if (annotation != other.annotation) return false
         if (localType != other.localType) return false
-        if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
         if (keys != other.keys) return false
         if (keyrefs != other.keyrefs) return false
@@ -105,7 +104,6 @@ class XSLocalElement(
         result = 31 * result + (type?.hashCode() ?: 0)
         result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (localType?.hashCode() ?: 0)
-        result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()
         result = 31 * result + keys.hashCode()
         result = 31 * result + keyrefs.hashCode()
@@ -129,7 +127,6 @@ class XSLocalElement(
         if (type != null) append(", type=$type")
         if (annotation != null) append(", annotation=$annotation")
         if (localType != null) append(", localType=$localType")
-        if (alternatives.isNotEmpty()) append(", alternatives=$alternatives")
         if (uniques.isNotEmpty()) append(", uniques=$uniques")
         if (keys.isNotEmpty()) append(", keys=$keys")
         if (keyrefs.isNotEmpty()) append(", keyrefs=$keyrefs")

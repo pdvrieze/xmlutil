@@ -36,7 +36,7 @@ class ResolvedChoice private constructor(
     IResolvedChoice {
 
     constructor(
-        parent: ResolvedParticleParent,
+        parent: VElementScope.Member,
         rawPart: XSChoice,
         schema: ResolvedSchemaLike,
     ) : this(

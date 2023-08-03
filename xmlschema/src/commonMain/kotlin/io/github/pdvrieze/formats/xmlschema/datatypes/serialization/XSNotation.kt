@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("notation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSNotation(
-    override val name: VNCName,
+    val name: VNCName,
     val public: VToken,
     val system: VAnyURI? = null,
     @XmlId
@@ -47,7 +47,6 @@ class XSNotation(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : XSI_Annotated, I_Named {
-    override val targetNamespace: Nothing?
-        get() = null
+) : XSI_Annotated {
+
 }

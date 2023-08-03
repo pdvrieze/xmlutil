@@ -50,10 +50,8 @@ sealed class XSGlobalComplexType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSComplexType, XSGlobalType, XSI_Annotated, I_Named {
+) : XSComplexType, XSGlobalType, XSI_Annotated {
     abstract override val content: XSI_ComplexContent
-
-    override val targetNamespace: Nothing? get() = null
 
     protected abstract fun toSerialDelegate(): SerialDelegate
 

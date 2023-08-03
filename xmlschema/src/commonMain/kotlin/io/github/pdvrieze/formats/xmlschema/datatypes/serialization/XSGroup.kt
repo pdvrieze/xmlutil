@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSGroup(
-    override val name: VNCName,
+    val name: VNCName,
     @XmlId
     override val id: VID? = null,
     val content: XSGroupElement,
@@ -46,9 +46,7 @@ class XSGroup(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
-) : XSI_Annotated, I_Named {
-
-    override val targetNamespace: Nothing? get() = null
+) : XSI_Annotated {
 
     @Serializable
     sealed class XSGroupElement : XSI_Annotated {

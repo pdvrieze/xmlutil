@@ -33,8 +33,8 @@ import kotlinx.serialization.encoding.encodeStructure
 
 sealed interface XSIType: XSI_Annotated
 
-sealed interface XSGlobalType: XSIType, I_Named {
-    override val name: VNCName
+sealed interface XSGlobalType: XSIType {
+    val name: VNCName
 }
 
 @Serializable(XSLocalType.Serializer::class)
