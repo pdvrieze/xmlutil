@@ -32,7 +32,7 @@ class ResolvedProhibitedAttribute(
 ) : IResolvedAttributeUse {
 
     init {
-        require(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }
+        check(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }
     }
 
     override val mdlInheritable: Boolean get() = false
@@ -50,7 +50,7 @@ class ResolvedProhibitedAttribute(
 
                 else -> ""
             }
-            val name = requireNotNull(rawPart.name) { "name is required if ref is mising" }.xmlString
+            val name = checkNotNull(rawPart.name) { "3.2.3(3.1) - name is required if ref is mising" }.xmlString
             QName(targetNS, name)
         }
     }

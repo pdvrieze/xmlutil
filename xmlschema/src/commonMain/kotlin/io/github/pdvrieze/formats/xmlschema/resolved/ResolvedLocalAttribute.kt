@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -35,18 +36,19 @@ class ResolvedLocalAttribute private constructor(
 ) : ResolvedAttributeDef(rawPart, schema), IResolvedAttributeUse {
 
     init {
-        require(rawPart.ref == null)
-        require(rawPart.use != XSAttrUse.PROHIBITED) { "Prohibited attributes are not attributes proper" }
-        require(rawPart.targetNamespace == null || rawPart.form == null) { "When an attribute has a target namespace it may not have a form" }
+        invariant(rawPart.ref == null)
+        invariant(rawPart.use != XSAttrUse.PROHIBITED) { "Prohibited attributes are not attributes proper" }
+
+        require(rawPart.targetNamespace == null || rawPart.form == null) { "3.2.3(6.2) - When an attribute has a target namespace it may not have a form" }
 
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
             error("XXX. Canary. Remove once verified")
-            check(parent is ResolvedComplexType) { "3.2.3 - 6.3.1: Attribute with non-matchin namespace must have complex type ancestor"}
+            check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
             val content = parent.content
             check(content is ResolvedComplexContent)
             val derivation = content.derivation
             check(derivation is ResolvedComplexRestriction)
-            check(derivation.base != AnyType.mdlQName) { "3.2.3 - 6.3.2 restriction isn't anytype"}
+            check(derivation.base != AnyType.mdlQName) { "3.2.3(6.3.2) - Restriction isn't anytype"}
         }
     }
 

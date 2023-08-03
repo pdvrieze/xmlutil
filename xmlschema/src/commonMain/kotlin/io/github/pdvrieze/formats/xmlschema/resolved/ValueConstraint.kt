@@ -33,10 +33,10 @@ sealed class ValueConstraint(val value: VString) {
         operator fun invoke(attr: XSAttribute): ValueConstraint? {
             return when {
                 attr.default != null -> {
-                    check(attr.fixed == null) { "Attributes may not have both default and fixed values" }
+                    check(attr.fixed == null) { "3.2.3(1) - Attributes may not have both default and fixed values" }
                     if (attr is XSLocalAttribute) {
                         check(attr.use == null || attr.use == XSAttrUse.OPTIONAL) {
-                            "For attributes with default and use must have optional as use value. Has ${attr.use}"
+                            "3.2.3(2) - For attributes with default and use must have optional as use value. Has ${attr.use}"
                         }
                     }
                     Default(attr.default)
@@ -45,7 +45,7 @@ sealed class ValueConstraint(val value: VString) {
                 attr.fixed != null -> {
                     if (attr is XSLocalAttribute) {
                         check(attr.use != XSAttrUse.PROHIBITED) {
-                            "Attributes with fixed and use members must not have prohibited as use value. Has ${attr.use}"
+                            "3.2.3(5) - Attributes with fixed and use members must not have prohibited as use value. Has ${attr.use}"
                         }
                     }
                     Fixed(attr.fixed)

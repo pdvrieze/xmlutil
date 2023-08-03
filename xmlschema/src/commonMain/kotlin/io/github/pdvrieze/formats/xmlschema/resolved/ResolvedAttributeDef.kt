@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -44,16 +45,23 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
 
     private val model: Model by lazy { Model(this) }
 
+    init {
+        mdlName = requireNotNull(rawPart.name) { "3.2.3(3.1) - Attribute definitions require names" }
+
+        require(mdlName.xmlString != "xmlns") { "3.2.6.3 - Declaring xmlns attributes is forbidden" }
+    }
+
+    override fun check(checkedTypes: MutableSet<QName>) {
+        super.check(checkedTypes)
+        require(mdlQName.getNamespaceURI()!= XmlSchemaConstants.XSI_NAMESPACE) {
+            "3.2.6.4 - Attributes may not have the XSI namespace as their target namespace"
+        }
+    }
+
     private class Model(base: ResolvedAttributeDef) {
         val mdlTypeDefinition: ResolvedSimpleType =
             base.rawPart.simpleType?.let { ResolvedLocalSimpleType(it, base.schema, base) }
                 ?: base.rawPart.type?.let { base.schema.simpleType(it) }
                 ?: AnySimpleType
-    }
-
-    init {
-        mdlName = requireNotNull(rawPart.name) { "Attribute definitions require names" }
-
-        require(mdlName.xmlString != "xmlns") { "Declaring xmlns attributes is forbidden" }
     }
 }
