@@ -47,20 +47,18 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
         return maybeSimpleType(typeName)
     }
 
-    private val simpleTypes: List<ResolvedGlobalSimpleType> by lazy {
-        listOf(
-            AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
-            DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
-            IntType, ShortType, ByteType, NonNegativeIntegerType, PositiveIntegerType,
-            UnsignedLongType, UnsignedIntType, UnsignedShortType, UnsignedByteType,
-            NonPositiveIntegerType, NegativeIntegerType, DoubleType, DurationType,
-            DayTimeDurationType, YearMonthDurationType, FloatType, GDayType, GMonthType,
-            GMonthDayType, GYearType, GYearMonthType, HexBinaryType, NotationType, QNameType,
-            StringType, NormalizedStringType, TokenType, LanguageType, NameType, NCNameType,
-            EntityType, IDType, IDRefType, NMTokenType, TimeType, EntitiesType, IDRefsType,
-            NMTokensType
-        )
-    }
+    private val simpleTypes: List<ResolvedGlobalSimpleType> get() = listOf(
+        AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
+        DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
+        IntType, ShortType, ByteType, NonNegativeIntegerType, PositiveIntegerType,
+        UnsignedLongType, UnsignedIntType, UnsignedShortType, UnsignedByteType,
+        NonPositiveIntegerType, NegativeIntegerType, DoubleType, DurationType,
+        DayTimeDurationType, YearMonthDurationType, FloatType, GDayType, GMonthType,
+        GMonthDayType, GYearType, GYearMonthType, HexBinaryType, NotationType, QNameType,
+        StringType, NormalizedStringType, TokenType, LanguageType, NameType, NCNameType,
+        EntityType, IDType, IDRefType, NMTokenType, TimeType, EntitiesType, IDRefsType,
+        NMTokensType
+    )
 
     private val typeMap: Map<String, ResolvedGlobalSimpleType> by lazy {
         simpleTypes.associateBy { it.mdlQName.localPart }

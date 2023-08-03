@@ -40,6 +40,9 @@ class ResolvedGlobalAttribute(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
+    internal constructor(rawPart: XSGlobalAttribute, schema: ResolvedSchemaLike) :
+            this(rawPart, schema, "")
+
     override val mdlTargetNamespace: VAnyURI? by lazy {
         rawPart.targetNamespace ?: when(schema.attributeFormDefault) {
             VFormChoice.QUALIFIED -> schema.targetNamespace

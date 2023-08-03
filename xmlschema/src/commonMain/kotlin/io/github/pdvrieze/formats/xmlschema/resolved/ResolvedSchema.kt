@@ -46,6 +46,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         nestedData[targetNamespace.value] = NestedData(targetNamespace, collatedSchema)
         // Use getOrPut to ensure uniqueness
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
+        nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
         if (rawPart.targetNamespace?.value!=XMLConstants.XML_NS_URI &&
             XMLConstants.XML_NS_URI in collatedSchema.importedNamespaces &&
             ! collatedSchema.importedSchemas.containsKey(XMLConstants.XML_NS_URI)) {
