@@ -24,20 +24,20 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalElement(
-    override val rawPart: XSElement,
+    override val rawPart: XSGlobalElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedElement(schema),
     ResolvedComplexTypeContext,
     ResolvedTypeContext, NamedPart {
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSElement>, schema: ResolvedSchemaLike) :
+    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -111,17 +111,6 @@ class ResolvedGlobalElement(
 
     val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupMembers
 
-    val identityConstraints: List<ResolvedIdentityConstraint> by lazy {
-        @Suppress("UNCHECKED_CAST")
-        (keys + uniques + keyrefs) as List<ResolvedIdentityConstraint> // TODO make resolved versions
-    }
-
-    override val uniques: List<ResolvedUnique> = DelegateList(rawPart.uniques) { ResolvedUnique(it, schema, this) }
-
-    override val keys: List<ResolvedKey> = DelegateList(rawPart.keys) { ResolvedKey(it, schema, this) }
-
-    override val keyrefs: List<ResolvedKeyRef> = DelegateList(rawPart.keyrefs) { ResolvedKeyRef(it, schema, this) }
-
     val substitutionGroup: List<QName>?
         get() = rawPart.substitutionGroup
 
@@ -133,18 +122,17 @@ class ResolvedGlobalElement(
 
     val mdlTargetNamespace: VAnyURI get() = VAnyURI(mdlQName.namespaceURI)
 
-    override val mdlQName: QName = rawPart.name.toQname(rawPart.targetNamespace ?: schema.targetNamespace)
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     interface Model : ResolvedElement.Model, ResolvedTypeContext {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         val mdlTargetNamespace: VAnyURI?
     }
 
-    private class ModelImpl(rawPart: XSElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
+    private class ModelImpl(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
-        override val mdlTargetNamespace: VAnyURI? =
-            rawPart.targetNamespace ?: schema.targetNamespace
+        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
 
         override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
@@ -181,7 +169,7 @@ class ResolvedGlobalElement(
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
-                ?: (rawPart as? XSElement)?.substitutionGroup?.firstOrNull()
+                ?: (rawPart as? XSGlobalElement)?.substitutionGroup?.firstOrNull()
                     ?.let { schema.element(it).mdlTypeDefinition }
                 ?: AnyType
 

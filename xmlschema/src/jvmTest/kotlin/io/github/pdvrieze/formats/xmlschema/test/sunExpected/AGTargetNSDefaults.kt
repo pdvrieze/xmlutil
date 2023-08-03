@@ -46,9 +46,9 @@ object AGTargetNSDefaults {
     val expectedSchema = XSSchema(
         targetNamespace = VAnyURI(ns),
         elements = listOf(
-            XSElement(name = VNCName("root")),
+            XSGlobalElement(name = VNCName("root")),
 
-            XSElement(
+            XSGlobalElement(
                 name = VNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(
