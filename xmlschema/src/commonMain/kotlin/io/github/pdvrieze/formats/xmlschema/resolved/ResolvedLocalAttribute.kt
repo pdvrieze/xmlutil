@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
@@ -36,10 +37,18 @@ class ResolvedLocalAttribute private constructor(
     init {
         require(rawPart.ref == null)
         require(rawPart.use != XSAttrUse.PROHIBITED) { "Prohibited attributes are not attributes proper" }
-    }
+        require(rawPart.targetNamespace == null || rawPart.form == null) { "When an attribute has a target namespace it may not have a form" }
 
-    val form: VFormChoice?
-        get() = rawPart.form
+        if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
+            error("XXX. Canary. Remove once verified")
+            check(parent is ResolvedComplexType) { "3.2.3 - 6.3.1: Attribute with non-matchin namespace must have complex type ancestor"}
+            val content = parent.content
+            check(content is ResolvedComplexContent)
+            val derivation = content.derivation
+            check(derivation is ResolvedComplexRestriction)
+            check(derivation.base != AnyType.mdlQName) { "3.2.3 - 6.3.2 restriction isn't anytype"}
+        }
+    }
 
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
@@ -67,26 +76,6 @@ class ResolvedLocalAttribute private constructor(
         get() = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAttributeDef>.check(checkedTypes)
-
-        val use = use
-        check(default == null || use == null || use == XSAttrUse.OPTIONAL) {
-            "For attributes with default and use must have optional as use value"
-        }
-
-//        if (rawPart.use!=XSAttrUse.PROHIBITED) {
-//            check(type!=null) { "Attributes must have a type if their use is not prohibited" }
-//        }
-        if (rawPart.ref != null) {
-            val r = null as ResolvedLocalAttribute?
-            require(r != null) { "If an attribute has a ref, it must also be resolvable" }
-            if (rawPart.fixed != null && r.fixed != null) {
-                require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
-            }
-        } else if (rawPart.name == null) error("Attributes must either have a reference or a name")
-    }
 
     companion object {
         operator fun invoke(

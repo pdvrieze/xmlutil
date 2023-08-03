@@ -44,8 +44,8 @@ sealed class ValueConstraint(val value: VString) {
 
                 attr.fixed != null -> {
                     if (attr is XSLocalAttribute) {
-                        check(attr.use == null || attr.use == XSAttrUse.REQUIRED) {
-                            "For attributes with fixed and use must have required as use value. Has ${attr.use}"
+                        check(attr.use != XSAttrUse.PROHIBITED) {
+                            "Attributes with fixed and use members must not have prohibited as use value. Has ${attr.use}"
                         }
                     }
                     Fixed(attr.fixed)

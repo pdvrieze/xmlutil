@@ -70,7 +70,7 @@ sealed class ResolvedAttribute(
 
     abstract val mdlTargetNamespace: VAnyURI?
 
-    final val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
+    val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
 
     abstract val mdlTypeDefinition: ResolvedSimpleType
     abstract val mdlScope: VAttributeScope
