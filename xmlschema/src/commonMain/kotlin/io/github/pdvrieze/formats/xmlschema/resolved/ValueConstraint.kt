@@ -52,7 +52,7 @@ sealed class ValueConstraint(val value: VString) {
             }
         }
 
-        operator fun invoke(elem: XSIElement): ValueConstraint? {
+        operator fun invoke(elem: XSElement): ValueConstraint? {
             val default = elem.default
             val fixed = elem.fixed
             return when {
