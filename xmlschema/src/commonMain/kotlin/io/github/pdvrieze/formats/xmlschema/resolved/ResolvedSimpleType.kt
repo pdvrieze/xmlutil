@@ -42,7 +42,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
-    override val rawPart: XSIType
+    override val rawPart: XSISimpleType
 
     val simpleDerivation: Derivation
 
@@ -194,6 +194,9 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
         init {
             val typeName =
                 (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
+
+            checkRecursiveTypes(context)
+
             val simpleDerivation = rawPart.simpleDerivation
 
             mdlBaseTypeDefinition = when {
@@ -208,7 +211,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
                     )
                 }
 
-                simpleDerivation.base?.isEquivalent(AnySimpleType.qName) == true -> AnySimpleType
+                simpleDerivation.base?.isEquivalent(AnySimpleType.mdlQName) == true -> AnySimpleType
 
                 else -> simpleDerivation.base?.let {
                     require(typeName == null || !it.isEquivalent(typeName))
@@ -220,8 +223,8 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
             mdlVariety = when (simpleDerivation) {
                 is XSSimpleList -> Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
-                    when (it) {
-                        AnySimpleType -> {
+                    when {
+                        it is AnySimpleType -> {
                             require(schema.targetNamespace?.value == XmlSchemaConstants.XS_NAMESPACE) {
                                 "Direct inheritance of AnySimpleType is only allowed in the XMLSchema namespace"
                             }
@@ -357,27 +360,50 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
 
         protected companion object {
 
+            fun checkRecursiveTypes(startType: ResolvedSimpleType, seenTypes: SingleLinkedList<ResolvedSimpleType> = SingleLinkedList(), container: QName? = null) {
+                val name: QName? = (startType as? ResolvedGlobalSimpleType)?.mdlQName
+                if (startType in seenTypes) error("Indirect recursive use of simple base types: $name in $container")
+
+                val simpleDerivation = startType.simpleDerivation
+                when {
+                    startType is ResolvedBuiltinType -> return // can't recurse
+
+                    simpleDerivation is ResolvedUnionDerivation -> {
+                        val newSeen = seenTypes + startType
+/*
+                        for(childName in simpleDerivation.rawPart.memberTypes ?: emptyList()) {
+                            // inline simple types have no names, so don't need checking
+                            if (childName in seenTypes) error("Indirect recursive use of simple base types: $childName in $name")
+                        }
+*/
+                        for (child in simpleDerivation.resolvedMembers) {
+                            checkRecursiveTypes(child, newSeen, name ?: container)
+                        }
+                    }
+
+                    simpleDerivation is ResolvedListDerivation -> {
+                        val newSeen = seenTypes + startType//name?.let { seenTypes + it } ?: seenTypes
+                        checkRecursiveTypes(simpleDerivation.itemType, newSeen, name ?: container)
+                        checkRecursiveTypes(simpleDerivation.baseType, newSeen, name ?: container)
+                    }
+
+                    else -> {
+                        val newSeen = seenTypes + startType//name?.let { seenTypes + it } ?: seenTypes
+                        checkRecursiveTypes(simpleDerivation.baseType, newSeen, name ?: container)
+                    }
+                }
+            }
+
             fun <R> recurseBaseType(
                 startType: ResolvedSimpleType,
-                seenTypes: SingleLinkedList<ResolvedSimpleType> = SingleLinkedList(),
                 valueFun: (ResolvedSimpleType) -> R
-            ): R {
-                when {
-                    startType is ResolvedBuiltinType -> return valueFun(startType)
-                    startType in seenTypes -> throw IllegalArgumentException("Loop in base type definition")
-                    startType.simpleDerivation is ResolvedUnionDerivation -> return valueFun(startType)
-                    startType.simpleDerivation is ResolvedListDerivationBase -> return valueFun(startType)
-                    else -> {}
-                }
-
-                val newSeen: SingleLinkedList<ResolvedSimpleType> = seenTypes + startType
-
-                return when (val base = startType.mdlBaseTypeDefinition) {
-                    AnySimpleType -> return valueFun(base)
-                    !is ResolvedSimpleType -> error("Recursing should not go to anytype")
-                    else -> {
-                        recurseBaseType(base, newSeen, valueFun)
-                    }
+            ): R = when {
+                startType is ResolvedBuiltinType -> valueFun(startType)
+                startType.simpleDerivation is ResolvedUnionDerivation -> valueFun(startType)
+                startType.simpleDerivation is ResolvedListDerivationBase -> valueFun(startType)
+                else -> when (val base = startType.mdlBaseTypeDefinition) {
+                    AnySimpleType -> valueFun(base)
+                    else -> recurseBaseType(base, valueFun)
                 }
             }
         }

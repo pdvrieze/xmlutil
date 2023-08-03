@@ -30,7 +30,7 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
         when (type.mdlVariety) {
             ResolvedSimpleType.Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {
                 null -> error("Length is not supported on simple types not deriving from a primitive")
-                else -> error("Length is not supported for type ${primitive.qName}")
+                else -> error("Length is not supported for type ${primitive.mdlQName}")
             }
 
             ResolvedSimpleType.Variety.LIST -> {} // fine
@@ -51,7 +51,7 @@ sealed class ResolvedLengthBase(schema: ResolvedSchemaLike) : ResolvedFacet(sche
                     is QNameType,
                     is NotationType -> Unit
 
-                    else -> error("Unsupported primitive type ${primitive?.qName} for simple type restriction")
+                    else -> error("Unsupported primitive type ${primitive?.mdlQName} for simple type restriction")
                 }
             }
 

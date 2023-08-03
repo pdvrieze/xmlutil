@@ -60,8 +60,8 @@ class ResolvedUnionDerivation(
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
             (m as? ResolvedGlobalType)?.let {
-                require(it.qName !in inheritedTypes) { "Recursive presence of ${it.qName}" }
-                if (it.qName !in checkedTypes) {
+                require(it.mdlQName !in inheritedTypes) { "Recursive presence of ${it.mdlQName}" }
+                if (it.mdlQName !in checkedTypes) {
                     m.check(checkedTypes, inheritedTypes)
                 }
             }

@@ -27,13 +27,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
-import io.github.pdvrieze.formats.xmlschema.model.IOptNamed
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : OptNamedPart,
     ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm,
-    ResolvedAnnotated, IOptNamed {
+    ResolvedAnnotated {
 
     abstract override val rawPart: XSIElement
 
@@ -84,7 +83,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Op
     val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
     val mdlAbstract: Boolean get() = model.mdlAbstract
     override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
-    override val mdlName: VNCName get() = model.mdlName
+    open val mdlName: VNCName get() = model.mdlName
     val mdlQName: QName get() = model.mdlQName
 
     /**
