@@ -30,15 +30,15 @@ import nl.adaptivity.xmlutil.serialization.*
 @Serializable
 @XmlSerialName("simpleType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSLocalSimpleType(
+    /** restriction or list or union */
+    @XmlAfter("annotation")
+    override val simpleDerivation: XSSimpleDerivation,
     @XmlId
     override val id: VID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
-    /** restriction or list or union */
-    @XmlAfter("annotation")
-    override val simpleDerivation: XSSimpleDerivation,
 
     @XmlOtherAttributes
-    override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
+    override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap(),
 ) : XSLocalType(), XSISimpleType
 
