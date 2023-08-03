@@ -40,7 +40,7 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
 
     override val refer: QName get() = requireNotNull(rawPart.refer)
 
-    override val qName: QName get() = qname(schema.targetNamespace?.value, mdlName.xmlString)
+    override val mdlQName: QName get() = name.toQname(schema.targetNamespace)
 
     override val selector: XSSelector get() = rawPart.selector
 
@@ -60,9 +60,9 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
         }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
+        super.check(checkedTypes)
         checkNotNull(rawPart.name)
-        check(referenced.fields.size == fields.size) { "Key(${referenced.qName}) and keyrefs(${qName}) must have equal field counts" }
+        check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${mdlQName}) must have equal field counts" }
     }
 
 }

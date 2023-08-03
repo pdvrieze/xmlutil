@@ -73,6 +73,8 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
         override fun plus(other: T): SingleLinkedList<T> = Head(other)
 
         final override fun isEmpty(): Boolean = true
+
+        override fun toString(): String = "[]"
     }
 
     private object EmptyImpl: Empty<Nothing>()
@@ -80,6 +82,8 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
     sealed class ValuedElement<T>(val elem: T): SingleLinkedList<T>() {
         override fun plus(other: T): SingleLinkedList<T> = Tail(this, other)
         final override fun isEmpty(): Boolean = false
+
+        abstract fun toString(appendable: StringBuilder)
     }
 
     class Head<T>(elem: T) : ValuedElement<T>(elem) {
@@ -142,6 +146,13 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
             return listOf(elem).subList(fromIndex, toIndex)
         }
 
+        override fun toString(appendable: StringBuilder) {
+            appendable.append(elem)
+        }
+
+        override fun toString(): String {
+            return "$elem"
+        }
     }
 
     class Tail<T>(val pred: ValuedElement<T>, elem: T) : ValuedElement<T>(elem) {
@@ -227,6 +238,15 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
 
         override fun subList(fromIndex: Int, toIndex: Int): List<T> {
             return regularList().subList(fromIndex, toIndex)
+        }
+
+        override fun toString(appendable: StringBuilder) {
+            pred.toString(appendable)
+            appendable.append(", ").append(elem)
+        }
+
+        override fun toString(): String {
+            return buildString { append('['); toString(this); append("]") }
         }
     }
 

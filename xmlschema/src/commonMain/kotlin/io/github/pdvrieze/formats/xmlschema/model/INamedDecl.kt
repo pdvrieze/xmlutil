@@ -20,16 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.model
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
-
-interface INamedDecl : IOptNamedDecl, INamed {
-    override val mdlTargetNamespace: VAnyURI?
+@Deprecated("Don't use")
+interface INamedDecl {
 }
 
-interface IOptNamedDecl : IOptNamed {
-    val mdlTargetNamespace: VAnyURI?
-}
-
-val INamedDecl.qName: QName get() = qname(mdlTargetNamespace?.value, mdlName.xmlString)

@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 
 sealed interface ResolvedIdentityConstraint : NamedPart {
     val selector: XSSelector
+    val schema: ResolvedSchemaLike
 
     /**
      * At least 1 if selector is present
