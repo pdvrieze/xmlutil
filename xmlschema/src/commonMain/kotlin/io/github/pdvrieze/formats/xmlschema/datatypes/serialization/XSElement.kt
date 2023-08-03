@@ -61,10 +61,8 @@ data class XSElement(
     override val keyrefs: List<XSKeyRef> = emptyList(),
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
-) : XSIElement, I_Named {
+) : XSIElement {
 
-    override val ref: Nothing? get() = null
-    override val form: Nothing? get() = null
     override val targetNamespace: VAnyURI? get() = null
 
     override fun equals(other: Any?): Boolean {
@@ -85,7 +83,6 @@ data class XSElement(
         if (final != other.final) return false
         if (annotation != other.annotation) return false
         if (localType != other.localType) return false
-        if (alternatives != other.alternatives) return false
         if (uniques != other.uniques) return false
         if (keys != other.keys) return false
         if (keyrefs != other.keyrefs) return false
@@ -107,7 +104,6 @@ data class XSElement(
         result = 31 * result + final.hashCode()
         result = 31 * result + (annotation?.hashCode() ?: 0)
         result = 31 * result + (localType?.hashCode() ?: 0)
-        result = 31 * result + alternatives.hashCode()
         result = 31 * result + uniques.hashCode()
         result = 31 * result + keys.hashCode()
         result = 31 * result + keyrefs.hashCode()

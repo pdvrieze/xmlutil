@@ -36,7 +36,7 @@ sealed class ResolvedComplexType(
 ) : ResolvedType,
     VAttributeScope.Member,
     ResolvedLocalElement.Parent,
-    ResolvedParticleParent,
+    VElementScope.Member,
     ResolvedSimpleTypeContext {
     abstract override val rawPart: XSComplexType
 

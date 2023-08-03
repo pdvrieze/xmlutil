@@ -36,7 +36,7 @@ class ResolvedAll private constructor(
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(schema), IResolvedAll {
 
     constructor(
-        parent: ResolvedParticleParent,
+        parent: VElementScope.Member,
         rawPart: XSAll,
         schema: ResolvedSchemaLike,
     ) : this(

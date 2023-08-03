@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-import nl.adaptivity.xmlutil.QName
 
 /**
  * Base interface for all group-like resolved types: all, seq, choice, group
@@ -35,7 +34,7 @@ sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexTy
     companion object {
 
         operator fun invoke(
-            parent: ResolvedParticleParent,
+            parent: VElementScope.Member,
             term: XSComplexContent.XSIDerivationParticle,
             schema: ResolvedSchemaLike
         ): ResolvedGroupParticle<ResolvedModelGroup> = when (term) {
