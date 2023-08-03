@@ -22,38 +22,30 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.qname
 
 class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttribute(schema), NamedPart,
-    IScope.Global {
+) : ResolvedAttributeDef(rawPart, schema), IScope.Global {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override val id: VID?
-        get() = rawPart.id
+    override val mdlTargetNamespace: VAnyURI? by lazy {
+        targetNamespace ?: when(schema.attributeFormDefault) {
+            VFormChoice.QUALIFIED -> schema.targetNamespace
 
-    override val default: VString?
-        get() = rawPart.default
-
-    override val fixed: VString?
-        get() = rawPart.fixed
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val type: QName?
-        get() = rawPart.type
+            else -> null
+        }
+    }
 
     val inheritable: Boolean?
         get() = rawPart.inheritable
@@ -67,25 +59,12 @@ class ResolvedGlobalAttribute(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val mdlName: VNCName get() = name
-
-    override val mdlTargetNamespace: VAnyURI? by lazy {
-        targetNamespace ?: when(schema.attributeFormDefault) {
-            VFormChoice.QUALIFIED -> schema.targetNamespace
-
-            else -> null
-        }
-    }
-    override val mdlTypeDefinition: ResolvedSimpleType =
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
-            ?: rawPart.type?.let{ schema.simpleType(it) }
-            ?: AnySimpleType
-
     override val mdlValueConstraint: Nothing? get() = null
 
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAttribute>.check(checkedTypes)
+        super.check(checkedTypes)
     }
 }
+

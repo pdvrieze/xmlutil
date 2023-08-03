@@ -45,7 +45,7 @@ class ResolvedComplexRestriction(
     val otherContents: List<CompactFragment>
         get() = rawPart.otherContents
 
-    override val attributes: List<ResolvedLocalAttribute> =
+    override val attributes: List<IResolvedAttributeUse> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
 
     override val attributeGroups: List<ResolvedAttributeGroupRef> =

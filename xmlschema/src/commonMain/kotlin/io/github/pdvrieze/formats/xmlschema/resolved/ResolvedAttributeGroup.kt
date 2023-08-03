@@ -29,7 +29,7 @@ sealed class ResolvedAttributeGroup(
     abstract override val rawPart: XSAttributeGroup
     override val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
 
-    val attributeUses: Set<ResolvedAttribute>
+    val attributeUses: Set<IResolvedAttributeUse>
         get() {
             return buildSet {
 

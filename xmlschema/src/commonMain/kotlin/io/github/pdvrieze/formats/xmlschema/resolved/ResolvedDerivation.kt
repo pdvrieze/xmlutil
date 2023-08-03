@@ -42,7 +42,7 @@ sealed class ResolvedDerivation(scope: ResolvedComplexType, override val schema:
     }
 
     final val asserts: List<XSIAssertCommon> get() = rawPart.asserts
-    abstract val attributes: List<ResolvedLocalAttribute>
+    abstract val attributes: List<IResolvedAttributeUse>
     abstract val attributeGroups: List<ResolvedAttributeGroupRef>
     final val anyAttribute: XSAnyAttribute? get() = rawPart.anyAttribute
     final val annotation: XSAnnotation? get() = rawPart.annotation

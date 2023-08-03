@@ -196,7 +196,7 @@ class ResolvedGlobalElement(
             TODO()
         }
 
-        override val mdlValueConstraint: ValueConstraintModel?
+        override val mdlValueConstraint: ValueConstraint?
             get() = TODO("not implemented")
 
         override val mdlDisallowedSubstitutions: VBlockSet =
