@@ -97,7 +97,7 @@ class ResolvedGlobalElement(
 
     val typeDef: ResolvedType by lazy {
         rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
-            ?: type?.let {
+            ?: rawPart.type?.let {
                 schema.type(it)
             }
             ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
@@ -114,9 +114,9 @@ class ResolvedGlobalElement(
     val substitutionGroup: List<QName>?
         get() = rawPart.substitutionGroup
 
-    val abstract: Boolean get() = rawPart.abstract ?: false
+    val mdlAbstract: Boolean get() = rawPart.abstract ?: false
 
-    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
+    override val model: ModelImpl by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: VElementScope.Global get() = VElementScope.Global
 
@@ -124,12 +124,21 @@ class ResolvedGlobalElement(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    interface Model : ResolvedElement.Model, ResolvedTypeContext {
+    interface Model : ResolvedTypeContext {
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         val mdlTargetNamespace: VAnyURI?
+        val mdlAnnotations: ResolvedAnnotation?
+        val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
+        val mdlTypeDefinition: ResolvedType
+        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+        val mdlTypeTable: ITypeTable?
+        val mdlNillable: Boolean
+        val mdlValueConstraint: ValueConstraint?
+        val mdlDisallowedSubstitutions: VBlockSet
+        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     }
 
-    private class ModelImpl(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
+    protected class ModelImpl(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
         ResolvedElement.ModelImpl(rawPart, schema, context), Model {
 
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
@@ -156,9 +165,6 @@ class ResolvedGlobalElement(
         }
 
         override val mdlTypeTable: ITypeTable? get() = null
-
-        override val mdlValueConstraint: ValueConstraint?
-            get() = TODO("not implemented")
 
         override val mdlDisallowedSubstitutions: VBlockSet =
             (rawPart.block ?: schema.blockDefault)

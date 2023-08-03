@@ -35,12 +35,11 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedElementRef(
     val parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
-    schema: ResolvedSchemaLike,
+    override val schema: ResolvedSchemaLike,
     override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
-) : ResolvedElement(schema),
-    IResolvedElementUse,
-    ResolvedParticle<ResolvedElementRef>,
+) : IResolvedElementUse,
+    ResolvedParticle<ResolvedElement>,
     ResolvedComplexTypeContext {
 
     val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
@@ -51,30 +50,28 @@ class ResolvedElementRef(
 
     val referenced: ResolvedGlobalElement get() = mdlElementDeclaration
 
-    override val mdlElementDeclaration: ResolvedGlobalElement by lazy {
-        schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
-    }
+    override val mdlElementDeclaration: ResolvedGlobalElement get() = model.mdlElementDeclaration
 
-    override val mdlQName: QName = (rawPart.name ?: referenced.mdlName)
-        .toQname(rawPart.targetNamespace ?: schema.targetNamespace)
+    val mdlQName: QName = mdlElementDeclaration.mdlQName
 
     val form: VFormChoice? get() = rawPart.form
 
-    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
+    private val model: Model by lazy { Model(rawPart, schema, this) }
 
-    override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
-    override val mdlTerm: ResolvedElementRef get() = model.mdlTerm
+    val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
+
+    override val mdlTerm: ResolvedGlobalElement get() = mdlElementDeclaration
+
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
-    override val mdlMaxOccurs: VAllNNI get() = model.mdlMaxOccurs
+    override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+    override val mdlMaxOccurs: VAllNNI get() = rawPart.maxOccurs ?: VAllNNI.ONE
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedElement>.check(checkedTypes)
         if (rawPart.ref != null) {
             referenced// Don't check as that would already be done at top level
-            check(name == null) { "Local elements can not have both a name and ref attribute specified" }
+            check(rawPart.name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
-            check(type == null) { "Local element references cannot have the type attribute specified" }
+            check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
             check(rawPart.nillable == null) {
                 "Local element references cannot have the nillable attribute specified"
             }
@@ -82,13 +79,8 @@ class ResolvedElementRef(
             check(rawPart.fixed == null) { "Local element references cannot have the default attribute specified" }
             check(rawPart.form == null) { "Local element references cannot have the default attribute specified" }
         } else {
-            check(name != null) { "Missing name for local (non-referencing) element" }
-            checkSingleType()
+            check(rawPart.name != null) { "Missing name for local (non-referencing) element" }
         }
-
-        keyrefs.forEach { it.check(checkedTypes) }
-        uniques.forEach { it.check(checkedTypes) }
-        keys.forEach { it.check(checkedTypes) }
     }
 
     override fun normalizeTerm(
@@ -111,7 +103,7 @@ class ResolvedElementRef(
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalElement(")
-            append("mdlName=$mdlName, ")
+            append("mdlName=$mdlQName, ")
             if (minOccurs != null) append("minOccurs=$minOccurs, ")
             if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
             append("type=${referenced.mdlTypeDefinition}")
@@ -119,45 +111,34 @@ class ResolvedElementRef(
         }
     }
 
-    interface Model : ResolvedElement.Model {
+    protected inner class Model(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedElementRef) {
 
-        /** Return this */
-        val mdlTerm: ResolvedElementRef
-        val mdlMinOccurs: VNonNegativeInteger
-        val mdlMaxOccurs: VAllNNI
-        val mdlTargetNamespace: VAnyURI?
-    }
+        val mdlElementDeclaration: ResolvedGlobalElement =
+            schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
 
-    private inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedElementRef) :
-        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
+        val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
 
-        override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
-
-        override val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-        override val mdlTerm: ResolvedElementRef get() = this@ResolvedElementRef
+        val mdlTerm: ResolvedElementRef get() = this@ResolvedElementRef
 
 
-        override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
+        val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
-        override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
+        val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
 
-        override val mdlTypeTable: ITypeTable
+        val mdlTypeTable: ITypeTable
             get() = TODO("not implemented")
 
-        override val mdlValueConstraint: ValueConstraint
-            get() = TODO("not implemented")
-
-        override val mdlDisallowedSubstitutions: VBlockSet =
+        val mdlDisallowedSubstitutions: VBlockSet =
             (rawPart.block ?: schema.blockDefault)
 
-        override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
             schema.finalDefault.filterIsInstanceTo(HashSet())
 
-        override val mdlTypeDefinition: ResolvedType =
+        val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
                 ?: AnyType
+
     }
 
     interface Parent
