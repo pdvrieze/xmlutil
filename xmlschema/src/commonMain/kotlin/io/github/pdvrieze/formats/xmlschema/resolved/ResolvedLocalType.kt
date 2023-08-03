@@ -28,7 +28,6 @@ sealed interface ResolvedLocalType : ResolvedType {
     val mdlContext: ResolvedTypeContext
 
     companion object {
-        @Deprecated("This is unsafe")
         operator fun invoke(rawPart: XSLocalType, schema: ResolvedSchemaLike, context: ResolvedTypeContext): ResolvedLocalType {
             return when (rawPart) {
                 is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context as ResolvedComplexTypeContext)
