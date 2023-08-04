@@ -48,8 +48,6 @@ class ResolvedLocalElement(
         invariantNotNull(rawPart.name)
     }
 
-    override val mdlElementDeclaration: ResolvedElement get() = this
-
     override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
             rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
                 VFormChoice.QUALIFIED -> schema.targetNamespace
@@ -62,7 +60,7 @@ class ResolvedLocalElement(
     override val model: ModelImpl by lazy { ModelImpl(rawPart, schema, this) }
 
     override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
-    override val mdlTerm: ResolvedLocalElement get() = model.mdlTerm
+    override val mdlTerm: ResolvedLocalElement get() = this
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
     override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
     override val mdlMaxOccurs: VAllNNI get() = model.mdlMaxOccurs
