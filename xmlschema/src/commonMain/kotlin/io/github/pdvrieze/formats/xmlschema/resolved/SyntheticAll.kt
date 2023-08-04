@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -34,8 +33,6 @@ class SyntheticAll(
 ) : ResolvedParticle<SyntheticAll>, IResolvedAll {
 
     override val mdlTerm: SyntheticAll get() = this
-    override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
-    override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: ResolvedAnnotation? get() = null

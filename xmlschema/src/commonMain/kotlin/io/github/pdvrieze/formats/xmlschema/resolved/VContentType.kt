@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
-
 interface VContentType {
     val mdlVariety: ResolvedComplexType.Variety
 

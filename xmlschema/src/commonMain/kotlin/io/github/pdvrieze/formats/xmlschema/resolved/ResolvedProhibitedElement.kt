@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2023.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You should have received a copy of the license with the source distribution.
+ * Alternatively, you may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package io.github.pdvrieze.formats.xmlschema.resolved
+
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import nl.adaptivity.xmlutil.QName
+
+class ResolvedProhibitedElement(
+    override val rawPart: XSLocalElement,
+    override val schema: ResolvedSchemaLike
+) : IResolvedElementUse {
+
+    override val mdlQName: QName by lazy {
+        when (val n = rawPart.name) {
+            null -> schema.element(requireNotNull(rawPart.ref)).mdlQName
+            else -> n.toQname(
+                rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
+                    VFormChoice.QUALIFIED -> schema.targetNamespace
+                    else -> null
+                }
+            )
+        }
+    }
+
+    init {
+        invariant(rawPart.minOccurs == VNonNegativeInteger.ZERO)
+        invariant(rawPart.maxOccurs == VNonNegativeInteger.ZERO)
+        require(rawPart.name != null || rawPart.ref != null)
+    }
+
+    override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
+
+    override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO
+
+    override val mdlTerm: Nothing
+        get() = throw UnsupportedOperationException("Prohibited elements have no terms")
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: VAllNNI
+    ): ResolvedProhibitedElement = this
+}

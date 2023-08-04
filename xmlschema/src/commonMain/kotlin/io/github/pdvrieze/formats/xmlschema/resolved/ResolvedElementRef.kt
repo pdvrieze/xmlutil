@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
@@ -35,8 +34,8 @@ class ResolvedElementRef(
     val parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
     override val schema: ResolvedSchemaLike,
-    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
+    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : IResolvedElementUse,
     ResolvedParticle<ResolvedElement>,
     ResolvedComplexTypeContext {
@@ -47,7 +46,7 @@ class ResolvedElementRef(
         check(rawPart.name == null) { "XXX" }
     }
 
-    val mdlQName: QName get() = mdlTerm.mdlQName
+    override val mdlQName: QName get() = mdlTerm.mdlQName
 
     private val model: Model by lazy { Model(rawPart, schema, this) }
 
@@ -56,8 +55,6 @@ class ResolvedElementRef(
     override val mdlTerm: ResolvedGlobalElement get() = model.mdlElementDeclaration
 
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-    override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-    override val mdlMaxOccurs: VAllNNI get() = rawPart.maxOccurs ?: VAllNNI.ONE
 
     override fun check(checkedTypes: MutableSet<QName>) {
         if (rawPart.ref != null) {
@@ -85,8 +82,8 @@ class ResolvedElementRef(
                 parent,
                 rawPart,
                 schema,
-                minOccurs?.times(minMultiplier) ?: minMultiplier,
-                maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+                mdlMinOccurs * minMultiplier,
+                mdlMaxOccurs * maxMultiplier,
             )
         }
 
@@ -97,8 +94,8 @@ class ResolvedElementRef(
         return buildString {
             append("ResolvedLocalElement(")
             append("mdlName=$mdlQName, ")
-            if (minOccurs != null) append("minOccurs=$minOccurs, ")
-            if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
+            if (rawPart.minOccurs != null) append("minOccurs=${rawPart.minOccurs}, ")
+            if (rawPart.maxOccurs != null) append("maxOccurs=${rawPart.maxOccurs}, ")
             append("type=${mdlTerm.mdlTypeDefinition}")
             append(")")
         }

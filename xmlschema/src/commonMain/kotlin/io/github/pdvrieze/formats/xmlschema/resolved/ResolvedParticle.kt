@@ -18,12 +18,11 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved.particles
+package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -32,11 +31,6 @@ import nl.adaptivity.xmlutil.QName
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated {
     override val rawPart: XSI_Particle
 
-    /** Optional, default 1 */
-    val minOccurs: VNonNegativeInteger?
-
-    /** Optional, default 1 */
-    val maxOccurs: VAllNNI?
     val mdlMinOccurs: VNonNegativeInteger
     val mdlMaxOccurs: VAllNNI
     val mdlTerm: T
