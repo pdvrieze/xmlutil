@@ -43,17 +43,11 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
     override val id: VID?
         get() = rawPart.id
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
 
     override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
