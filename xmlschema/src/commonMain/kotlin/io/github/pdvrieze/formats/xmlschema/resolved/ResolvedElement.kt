@@ -21,73 +21,58 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
 
-sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : ResolvedPart,
+sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) : ResolvedPart,
     ResolvedSimpleTypeContext, ResolvedTypeContext, ResolvedBasicTerm,
     ResolvedAnnotated {
 
-    abstract override val rawPart: XSElement
+    init {
+        require(rawPart.type == null || rawPart.localType == null) {
+            "3.3.3(3) - Elements may not have both a type attribute and an inline type definition"
+        }
+
+        rawPart.alternatives.dropLast(1).forEach {
+            requireNotNull(it.test) {
+                "3.3.3(5) check that they have a test attribute (except the last where it is optional)"
+            }
+        }
+
+    }
 
     final override val id: VID? get() = rawPart.id
 
-    val valueConstraint: ValueConstraint? by lazy {
-        val rawDefault = rawPart.default
-        val rawFixed = rawPart.fixed
-        when {
-            rawDefault != null && rawFixed != null ->
-                throw IllegalArgumentException("An element ${rawPart.name} cannot have default and fixed attributes both")
+    abstract override val rawPart: XSElement
 
-            rawDefault != null -> ValueConstraint.Default(rawDefault)
-            rawFixed != null -> ValueConstraint.Fixed(rawFixed)
-            else -> null
-        }
-    }
+    protected abstract val model: Model
 
-    val localType: XSIType?
-        get() = rawPart.localType
-
-    open val name: VNCName? get() = rawPart.name
-
-    val keyrefs: List<ResolvedKeyRef> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKeyRef>()
-
-    protected abstract val model: ModelImpl
-
-    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     abstract val mdlQName: QName
-    @Deprecated("use mdlQName where appropriate")
-    val mdlName: VNCName get() = VNCName(mdlQName.localPart)
 
     // target namespace just in the qName
 
     val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
+
     val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
-    val mdlValueConstraint: ValueConstraint? get() = valueConstraint
 
-    val mdlNillable: Boolean get() = model.mdlNillable
+    val mdlNillable: Boolean get() = rawPart.nillable ?: false
+
+    val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
+
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
-    val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupAffiliations
-    val mdlDisallowedSubstitutions: VBlockSet get() = model.mdlDisallowedSubstitutions
-    val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> get() = model.mdlSubstitutionGroupExclusions
 
+    val mdlDisallowedSubstitutions: VBlockSet get() = (rawPart.block ?: schema.blockDefault)
 
-    /**
-     * disallowed substitutions
-     */
-    val block: Set<T_BlockSetValues> get() = rawPart.block ?: schema.blockDefault
+    abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
+
+    abstract val mdlAbstract: Boolean
+
+    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+
 
     final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-
-    protected fun checkSingleType() {
-        require(rawPart.type == null || rawPart.localType == null) {
-            "Types can only be specified in one way"
-        }
-    }
 
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
@@ -125,69 +110,37 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
         for (constraint in mdlIdentityConstraints) {
             constraint.check(checkedTypes)
         }
-        // Remove as it is in mdlValueConstraint
-        rawPart.default?.let { d ->
-            check(rawPart.fixed == null) { "fixed and default can not both be present on element: ${name ?: (this as Ref).mdlTerm.mdlName}" }
+        mdlValueConstraint?.let {
+            mdlTypeDefinition.validate(it.value)
             check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
                 "ID types can not have fixed values"
             }
-            mdlTypeDefinition.validate(d)
         }
-        rawPart.fixed?.let { f ->
-            check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
-                "ID types can not have fixed values"
-            }
-            mdlTypeDefinition.validate(f)
-        }
-
+        mdlTypeDefinition.check(checkedTypes)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         collector.addAll(mdlIdentityConstraints)
-//        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
 
-    interface Ref {
-        val mdlTerm: ResolvedGlobalElement
-    }
-
-    interface Model {
-    }
-
-    protected abstract class ModelImpl(
+    protected abstract class Model(
         rawPart: XSElement,
         schema: ResolvedSchemaLike,
         context: ResolvedElement
     ) {
 
-        final val mdlNillable: Boolean = rawPart.nillable ?: false
+        abstract val mdlTypeDefinition: ResolvedType
 
-        final val mdlAnnotations: ResolvedAnnotation? =
-            rawPart.annotation.models()
+        abstract val mdlTypeTable: ITypeTable?
 
-        final val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
-            rawPart.identityConstraints.mapTo(HashSet<ResolvedIdentityConstraint>()) {
+        val mdlValueConstraint: ValueConstraint? = ValueConstraint(rawPart)
+
+        val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> =
+            rawPart.identityConstraints.mapTo(HashSet()) {
                 ResolvedIdentityConstraint(it, schema, context)
             }
 
-        val mdlValueConstraint: ValueConstraint? = run {
-            val rawDefault = rawPart.default
-            val rawFixed = rawPart.fixed
-            when {
-                rawDefault != null && rawFixed != null ->
-                    throw IllegalArgumentException("An element ${rawPart.name} cannot have default and fixed attributes both")
-
-                rawDefault != null -> ValueConstraint.Default(rawDefault)
-                rawFixed != null -> ValueConstraint.Fixed(rawFixed)
-                else -> null
-            }
-            ValueConstraint(rawPart)
-        }
-        abstract val mdlTypeDefinition: ResolvedType
-        abstract val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
-        abstract val mdlTypeTable: ITypeTable?
-        abstract val mdlDisallowedSubstitutions: VBlockSet
-        abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
+        val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
     }
 
     abstract val mdlScope: VElementScope

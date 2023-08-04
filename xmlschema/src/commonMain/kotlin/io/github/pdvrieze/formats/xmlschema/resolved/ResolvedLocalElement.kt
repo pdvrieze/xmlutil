@@ -28,57 +28,70 @@ import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedLocalElement(
-    val parent: VElementScope.Member,
+class ResolvedLocalElement private constructor(
+    parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
-) : ResolvedElement(schema),
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: VAllNNI,
+) : ResolvedElement(rawPart, schema),
     IResolvedElementUse,
     ResolvedComplexTypeContext {
 
     init {
         invariant(rawPart.ref == null)
-        invariantNotNull(rawPart.name)
+        requireNotNull(rawPart.name) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified"}
+
+        require(mdlMinOccurs <= mdlMaxOccurs) { "XXX minOccurs must be smaller or equal to maxOccurs" }
+
+        if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
+            error("XXX. Canary. Remove once verified")
+            check(parent is ResolvedComplexType) { "3.3.3(4.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
+            val content = parent.content
+            check(content is ResolvedComplexContent)
+            val derivation = content.derivation
+            check(derivation is ResolvedComplexRestriction)
+            check(derivation.base != AnyType.mdlQName) { "3.3.3(4.3.2) - Restriction isn't anytype"}
+        }
+
     }
 
+    override val model: Model by lazy { Model(rawPart, schema, this) }
+
     override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
-            rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
+        rawPart.targetNamespace?.also { require(rawPart.form==null) { "3.3.3(4.2) - If targetNamespace is present form must not be" } }
+            ?: when (rawPart.form ?: schema.elementFormDefault) {
                 VFormChoice.QUALIFIED -> schema.targetNamespace
-                VFormChoice.UNQUALIFIED -> VAnyURI("")
+                else -> null
             }
-        )
+    )
 
-    val form: VFormChoice? get() = rawPart.form
+    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+        schema.finalDefault.filterIsInstanceTo(HashSet())
 
-    override val model: ModelImpl by lazy { ModelImpl(rawPart, schema, this) }
+    override val mdlScope: VElementScope.Local = VElementScope.Local(parent)
 
-    override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
     override val mdlTerm: ResolvedLocalElement get() = this
-    val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
+
+    override val mdlAbstract: Boolean get() = false
+
+    constructor(
+        parent: VElementScope.Member,
+        rawPart: XSLocalElement,
+        schema: ResolvedSchemaLike,
+    ) : this(
+        parent,
+        rawPart,
+        schema,
+        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        rawPart.maxOccurs ?: VAllNNI.ONE,
+    )
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
-        if (rawPart.ref != null) {
-            // Don't check as that would already be done at top level
-            check(name == null) { "Local elements can not have both a name and ref attribute specified" }
-            check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
-            check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
-            check(rawPart.nillable == null) {
-                "Local element references cannot have the nillable attribute specified"
-            }
-            check(rawPart.default == null) { "Local element references cannot have the default attribute specified" }
-            check(rawPart.fixed == null) { "Local element references cannot have the default attribute specified" }
-            check(rawPart.form == null) { "Local element references cannot have the default attribute specified" }
-        } else {
-            check(name != null) { "Missing name for local (non-referencing) element" }
-            checkSingleType()
-        }
 
         mdlIdentityConstraints.forEach { it.check(checkedTypes) }
     }
@@ -89,7 +102,7 @@ class ResolvedLocalElement(
     ): ResolvedLocalElement = when {
         minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
             ResolvedLocalElement(
-                parent,
+                mdlScope.parent,
                 rawPart,
                 schema,
                 mdlMinOccurs.times(minMultiplier),
@@ -111,28 +124,11 @@ class ResolvedLocalElement(
         }
     }
 
-    interface Model {
-
-        /** Return this */
-        val mdlTerm: ResolvedLocalElement
-        val mdlMinOccurs: VNonNegativeInteger
-        val mdlMaxOccurs: VAllNNI
-        val mdlTargetNamespace: VAnyURI?
-        val mdlTypeDefinition: ResolvedType
-        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
-        val mdlTypeTable: ITypeTable?
-        val mdlDisallowedSubstitutions: VBlockSet
-        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
-    }
-
-    protected inner class ModelImpl(
+    protected inner class Model(
         rawPart: XSLocalElement,
         schema: ResolvedSchemaLike,
         context: ResolvedLocalElement
-    ) :
-        ResolvedElement.ModelImpl(rawPart, schema, context) {
-
-        override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()
+    ) : ResolvedElement.Model(rawPart, schema, context) {
 
         val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
 
@@ -145,12 +141,6 @@ class ResolvedLocalElement(
 
         override val mdlTypeTable: ITypeTable
             get() = TODO("not implemented")
-
-        override val mdlDisallowedSubstitutions: VBlockSet =
-            (rawPart.block ?: schema.blockDefault)
-
-        override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
-            schema.finalDefault.filterIsInstanceTo(HashSet())
 
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }

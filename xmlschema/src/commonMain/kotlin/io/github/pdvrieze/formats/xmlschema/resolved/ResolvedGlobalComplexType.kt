@@ -37,10 +37,7 @@ class ResolvedGlobalComplexType(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override val mdlQName: QName = name.toQname(schema.targetNamespace)
-
-    override val name: VNCName
-        get() = rawPart.name
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -101,7 +98,7 @@ class ResolvedGlobalComplexType(
     }
 
     override fun toString(): String {
-        return "ComplexType{ name=${name}, base=${mdlBaseTypeDefinition} }"
+        return "ComplexType{ name=$mdlQName, base=$mdlBaseTypeDefinition }"
     }
 
     interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext {

@@ -55,9 +55,6 @@ class ResolvedGlobalAttributeGroup(
     override val id: VID?
         get() = rawPart.id
 
-    override val name: VNCName
-        get() = rawPart.name
-
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
@@ -66,9 +63,7 @@ class ResolvedGlobalAttributeGroup(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)
-        for (a in attributes) { a.check(checkedTypes)
-        }
-        for (ag in attributeGroups) { ag.check(checkedTypes)
-        }
+        for (a in attributes) { a.check(checkedTypes) }
+        for (ag in attributeGroups) { ag.check(checkedTypes) }
     }
 }
