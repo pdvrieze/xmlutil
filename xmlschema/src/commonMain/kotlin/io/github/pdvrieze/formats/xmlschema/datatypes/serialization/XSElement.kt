@@ -54,6 +54,9 @@ sealed class XSElement : XSI_Annotated {
 
     val identityConstraints: List<XSIdentityConstraint>
 
+    /** TODO support alternatives */
+    val alternatives: List<XSAlternative> get() = emptyList()
+
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>
 

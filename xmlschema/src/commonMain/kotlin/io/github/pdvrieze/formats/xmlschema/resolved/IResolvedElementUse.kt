@@ -35,17 +35,13 @@ sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<Resol
             parent: VElementScope.Member,
             rawPart: XSLocalElement,
             schema: ResolvedSchemaLike,
-        ): IResolvedElementUse {
-            val minOccurs =rawPart.minOccurs ?: VNonNegativeInteger.ONE
-            val maxOccurs = rawPart.maxOccurs ?: VAllNNI.ONE
+        ): IResolvedElementUse = when {
+            rawPart.minOccurs == VNonNegativeInteger.ZERO &&
+                    rawPart.maxOccurs == VNonNegativeInteger.ZERO ->
+                ResolvedProhibitedElement(rawPart, schema)
 
-            return when {
-                minOccurs == VNonNegativeInteger.ZERO && maxOccurs == VNonNegativeInteger.ZERO ->
-                    ResolvedProhibitedElement(rawPart, schema)
-
-                rawPart.ref == null -> ResolvedLocalElement(parent, rawPart, schema, minOccurs, maxOccurs)
-                else -> ResolvedElementRef(parent, rawPart, schema, minOccurs, maxOccurs)
-            }
+            rawPart.ref == null -> ResolvedLocalElement(parent, rawPart, schema)
+            else -> ResolvedElementRef(parent, rawPart, schema)
         }
     }
 }

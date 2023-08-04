@@ -47,7 +47,12 @@ class ResolvedProhibitedElement(
     init {
         invariant(rawPart.minOccurs == VNonNegativeInteger.ZERO)
         invariant(rawPart.maxOccurs == VNonNegativeInteger.ZERO)
-        require(rawPart.name != null || rawPart.ref != null)
+        if (rawPart.targetNamespace!=null) {
+            requireNotNull(rawPart.name) { "3.3.3(4.1) - If an element specifies a target namespace it must have a name" }
+            require(rawPart.form==null) { "3.3.3(4.2) - If an element specifies a target namespace it may nothave a form" }
+        } else {
+            require(rawPart.name != null || rawPart.ref != null)
+        }
     }
 
     override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO

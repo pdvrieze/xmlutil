@@ -32,6 +32,10 @@ private fun VNCName.toQName(schema: XSSchema): QName {
     return toQname(schema.targetNamespace)
 }
 
+/**
+ * TODO do this smarter, as 3.15.2.
+ * - Element annotations include identity constraint annotations (3.3.2.1)
+ */
 fun XSAnnotation?.models(): ResolvedAnnotation? = when (this){
     null -> null
     else -> ResolvedAnnotation(this)
