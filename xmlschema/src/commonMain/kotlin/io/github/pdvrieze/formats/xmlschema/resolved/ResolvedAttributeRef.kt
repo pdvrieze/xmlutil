@@ -20,9 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -45,72 +42,46 @@ class ResolvedAttributeRef(
         require(rawPart.form == null) { "3.2.3(3.2) - Attribute references cannot specify form" }
     }
 
-    private val referenced: ResolvedAttributeDef by lazy {
-        schema.attribute(
-            requireNotNull(rawPart.ref) { "Missing ref for attributeRef" }
-        )
-    }
-
-    override val default: VString?
-        get() = rawPart.default ?: referenced?.default
-
-    override val fixed: VString?
-        get() = rawPart.fixed ?: referenced?.fixed
-
-    val form: VFormChoice?
-        get() = rawPart.form
-
-    override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-    override val type: QName?
-        get() = rawPart.type ?: referenced?.type
-
-    val use: XSAttrUse
-        get() = rawPart.use ?: XSAttrUse.OPTIONAL
-
-    val inheritable: Boolean
-        get() = rawPart.inheritable ?: false
-    /*
-
-    override val simpleType: XSLocalSimpleType?
-        get() = rawPart.simpleType ?: referenced?.simpleType
-*/
-
-    override val mdlName: VNCName
-        get() = VNCName(mdlQName.getLocalPart())
-
-    override val mdlTargetNamespace: VAnyURI? by lazy {
-        targetNamespace ?: when {
-            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                schema.targetNamespace
-
-            else -> null
-        }
-    }
-
-    override val mdlTypeDefinition: ResolvedSimpleType by lazy {
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: referenced?.mdlTypeDefinition
-        ?: schema.simpleType(requireNotNull(rawPart.ref) { "Missing simple type for attribute $mdlQName" })
-    }
-
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
-    override val mdlRequired: Boolean
-        get() = rawPart.use == XSAttrUse.REQUIRED
+    override val mdlRequired: Boolean get() = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedAttributeDef
-        get() = requireNotNull(referenced)
+        get() = model.mdlAttributeDeclaration
+
+    override val model: Model by lazy { Model(rawPart, schema, this) }
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAttribute>.check(checkedTypes)
 
         val r = mdlAttributeDeclaration
-        if (rawPart.fixed != null && r.fixed != null) {
-            require(rawPart.fixed == r.fixed) { "If an attribute reference has a fixed value it must be the same as the original" }
+        val vc = r.mdlValueConstraint
+        if (rawPart.fixed != null && vc is ValueConstraint.Fixed) {
+            require(rawPart.fixed == vc.value) { "If an attribute reference has a fixed value it must be the same as the original" }
         }
         r.check(checkedTypes)
 
+    }
+
+    protected class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, context: ResolvedAttributeRef) :
+        ResolvedAttribute.Model(context, schema) {
+
+        override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
+            val ns = rawPart.targetNamespace ?: when {
+                (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                    schema.targetNamespace
+
+                else -> null
+            }
+
+            requireNotNull(rawPart.name).toQname(ns)
+        }
+
+        val mdlAttributeDeclaration: ResolvedAttributeDef = schema.attribute(
+            requireNotNull(rawPart.ref) { "Missing ref for attributeRef" }
+        )
+
+        override val mdlTypeDefinition: ResolvedSimpleType get() = mdlAttributeDeclaration.mdlTypeDefinition
     }
 
 }

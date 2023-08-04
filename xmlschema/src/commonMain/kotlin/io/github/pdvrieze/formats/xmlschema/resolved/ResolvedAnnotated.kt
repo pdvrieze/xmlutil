@@ -27,9 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
 interface ResolvedAnnotated : ResolvedPart {
     override val rawPart: XSI_Annotated
 
-    val annotation: XSAnnotation? get() = rawPart.annotation
-
-    val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
+    val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
     val id: VID? get() = rawPart.id
 }

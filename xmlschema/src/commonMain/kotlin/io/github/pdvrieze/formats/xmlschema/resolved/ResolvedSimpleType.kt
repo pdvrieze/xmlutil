@@ -158,7 +158,6 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedSimpleTypeContext {
     }
 
     sealed class Derivation(final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
-        final override val annotation: XSAnnotation? get() = rawPart.annotation
         final override val id: VID? get() = rawPart.id
         abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType

@@ -170,7 +170,6 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
 
     override val baseType: ErrorType get() = ErrorType
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
-    override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
