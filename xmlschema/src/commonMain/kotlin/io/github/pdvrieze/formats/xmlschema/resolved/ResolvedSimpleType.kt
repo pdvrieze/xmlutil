@@ -279,7 +279,7 @@ sealed interface ResolvedSimpleType : ResolvedType,
 
         final override val mdlFacets: FacetList = when (val d = rawPart.simpleDerivation) {
             is XSSimpleRestriction -> {
-                mdlBaseTypeDefinition.mdlFacets.override(FacetList(d.facets, schema, mdlPrimitiveTypeDefinition))
+                mdlBaseTypeDefinition.mdlFacets.overlay(FacetList(d.facets, schema, mdlPrimitiveTypeDefinition))
             }
 
             is XSSimpleList -> FacetList(
@@ -419,6 +419,9 @@ sealed interface ResolvedSimpleType : ResolvedType,
             }
             return this
         }
+    }
+
+    companion object {
     }
 
 
