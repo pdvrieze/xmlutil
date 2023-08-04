@@ -57,7 +57,7 @@ class ResolvedGlobalElement(
     override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
         (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
 
-    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> 
+    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         get() = model.mdlSubstitutionGroupMembers
 
     override val mdlAbstract: Boolean get() = rawPart.abstract ?: false
@@ -76,6 +76,10 @@ class ResolvedGlobalElement(
         }
 
         val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
+        for (member in mdlSubstitutionGroupMembers) {
+            require(member.isSubstitutableFor(this))
+        }
+
         if (mdlSubstitutionGroupMembers.isNotEmpty() && otherExcluded.isNotEmpty()) {
             for (substGroupMember in mdlSubstitutionGroupMembers) {
                 val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
@@ -95,6 +99,15 @@ class ResolvedGlobalElement(
 
             }
         }
+    }
+
+    /** Implements substitutable as define in 3.3.6.3 */
+    private fun isSubstitutableFor(head: ResolvedGlobalElement): Boolean {
+        if (this == head) return true
+        // skip disallowed substitutions as that has already been checked
+        // check complex type chain complex
+
+        return true // TODO("not implemented")
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
