@@ -23,10 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedIdentityConstraint : NamedPart {
+sealed interface ResolvedIdentityConstraint : ResolvedPart {
     val selector: XSSelector
-    val schema: ResolvedSchemaLike
+    override val schema: ResolvedSchemaLike
+
+    val mdlQName: QName?
 
     /**
      * At least 1 if selector is present
@@ -38,8 +41,6 @@ sealed interface ResolvedIdentityConstraint : NamedPart {
     val mdlIdentityConstraintCategory: Category
     val mdlSelector: XPathExpression
     val mdlFields: List<XPathExpression>
-
-    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     companion object {
         operator fun invoke(

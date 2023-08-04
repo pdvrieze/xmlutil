@@ -47,9 +47,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         // Use getOrPut to ensure uniqueness
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
         nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
-        if (rawPart.targetNamespace?.value!=XMLConstants.XML_NS_URI &&
+        if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
             XMLConstants.XML_NS_URI in collatedSchema.importedNamespaces &&
-            ! collatedSchema.importedSchemas.containsKey(XMLConstants.XML_NS_URI)) {
+            !collatedSchema.importedSchemas.containsKey(XMLConstants.XML_NS_URI)
+        ) {
             nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
         }
 
@@ -102,9 +103,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         maybeType(it)
     }
 
-    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? = withQName(attributeGroupName) {
-        maybeAttributeGroup(it)
-    }
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
+        withQName(attributeGroupName) {
+            maybeAttributeGroup(it)
+        }
 
     override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = withQName(groupName) {
         maybeGroup(it)
@@ -118,9 +120,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         maybeAttribute(it)
     }
 
-    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? = withQName(constraintName) {
-        maybeIdentityConstraint(it)
-    }
+    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? =
+        withQName(constraintName) {
+            maybeIdentityConstraint(it)
+        }
 
     override fun maybeNotation(notationName: QName): ResolvedNotation? = withQName(notationName) {
         maybeNotation(it)
@@ -154,8 +157,11 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
                     ag.check(checkedTypes)
                 }
                 for (ic in data.identityConstraints.values) {
-                    check(icNames.add(ic.mdlQName.let { QName(it.namespaceURI, it.localPart) })) {
-                        "Duplicate identity constraint ${ic.mdlQName}"
+                    val name = ic.mdlQName?.let { QName(it.namespaceURI, it.localPart) }
+                    if (name != null) {
+                        check(icNames.add(name)) {
+                            "Duplicate identity constraint ${ic.mdlQName}"
+                        }
                     }
                 }
             }
@@ -177,7 +183,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         fun resolve(relativeUri: VAnyURI): VAnyURI
     }
 
-    object DummyResolver: Resolver {
+    object DummyResolver : Resolver {
         override val baseUri: VAnyURI = VAnyURI("")
 
         override fun readSchema(schemaLocation: VAnyURI): XSSchema {
@@ -258,7 +264,12 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
             }
             val map = HashMap<String, ResolvedIdentityConstraint>()
             for (c in identityConstraintList) {
-                require(map.put(c.mdlQName.localPart, c)==null) { "Duplicate identity constraint: ${c.mdlQName}" }
+                val qName = c.mdlQName
+                if (qName!=null) {
+                    require(map.put(qName.localPart, c) == null) {
+                        "Duplicate identity constraint: $qName"
+                    }
+                }
             }
             map
         }

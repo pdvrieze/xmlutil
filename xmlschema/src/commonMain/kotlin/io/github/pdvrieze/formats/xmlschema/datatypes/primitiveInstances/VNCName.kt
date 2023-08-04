@@ -26,6 +26,7 @@ import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmName
 
 @Serializable(VNCName.Serializer::class)
 interface VNCName : VName {
@@ -53,5 +54,7 @@ interface VNCName : VName {
 
     companion object {
         operator fun invoke(value: String): VNCName = Inst(value)
+        @JvmName("invokeNullable")
+        operator fun invoke(value: String?): VNCName? = value?.let { Inst(it) }
     }
 }

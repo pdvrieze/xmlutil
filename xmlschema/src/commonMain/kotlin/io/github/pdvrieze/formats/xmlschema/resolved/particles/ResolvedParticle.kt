@@ -99,7 +99,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
                 schema
             )
 
-            is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
         }
 
         fun choiceSeqMember(
@@ -111,7 +111,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
 
-            is XSLocalElement -> ResolvedLocalElement(parent, rawPart, schema)
+            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
             else -> error("Compiler issue")
         }
@@ -131,7 +131,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
 
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
-            is XSLocalElement -> ResolvedLocalElement(requireNotNull(parent), rawPart, schema)
+            is XSLocalElement -> IResolvedElementUse(requireNotNull(parent), rawPart, schema)
             XSI_Particle.DUMMY -> error("Dummy cannot be resolved")
         }
 

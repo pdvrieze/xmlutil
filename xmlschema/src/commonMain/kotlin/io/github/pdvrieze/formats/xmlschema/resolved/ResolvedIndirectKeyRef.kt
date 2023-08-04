@@ -34,7 +34,7 @@ class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSch
         else -> throw IllegalArgumentException("Keyref's ref property ${rawPart.ref} does not refer to a keyref")
     }
 
-    override val mdlQName: QName = name.toQname(schema.targetNamespace)
+    override val mdlQName: QName? = rawPart.name?.toQname(schema.targetNamespace)
 
     override val refer: Nothing? get() = null
 
@@ -48,6 +48,7 @@ class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSch
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)
+        checkNotNull(mdlReferencedKey)
         checkNotNull(rawPart.name)
         check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${ref.mdlQName}) must have equal field counts" }
     }
