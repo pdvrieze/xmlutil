@@ -24,23 +24,23 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
+import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedNamedIdentityConstraint(schema, owner), ResolvedKeyRef {
-    override val name: VNCName = requireNotNull(rawPart.name)
 
     override val constraint: ResolvedDirectKeyRef
         get() = this
 
     init {
         require(rawPart.ref == null) { "A key reference can either have a name or ref" }
+        requireNotNull(rawPart.refer)
     }
 
-    override val refer: QName get() = requireNotNull(rawPart.refer)
+    override val refer: QName get() = invariantNotNull(rawPart.refer)
 
-    override val mdlQName: QName get() = name.toQname(schema.targetNamespace)
+    override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
     override val selector: XSSelector get() = rawPart.selector
 
