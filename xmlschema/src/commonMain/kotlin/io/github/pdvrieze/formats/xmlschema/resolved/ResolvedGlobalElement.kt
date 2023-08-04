@@ -23,26 +23,54 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalElement(
     override val rawPart: XSGlobalElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedElement(schema),
+) : ResolvedElement(rawPart, schema),
     ResolvedComplexTypeContext,
     ResolvedTypeContext, NamedPart {
+
+    private val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+        get() = model.mdlSubstitutionGroupAffiliations
+
+    override val model: Model by lazy { Model(rawPart, schema, this) }
+
+    override val mdlQName: QName =
+        rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
+
+    val typeDef: ResolvedType by lazy {
+        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
+            ?: rawPart.type?.let {
+                schema.type(it)
+            }
+            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
+            ?: AnyType
+    }
+
+    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+        (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
+
+    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> 
+        get() = model.mdlSubstitutionGroupMembers
+    
+    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
+
+    override val mdlAbstract: Boolean get() = rawPart.abstract ?: false
+
+    override val mdlScope: VElementScope.Global get() = VElementScope.Global
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedElement>.check(checkedTypes)
-        checkSingleType()
+        super.check(checkedTypes)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
         typeDef.check(checkedTypes, SingleLinkedList())
         if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
@@ -72,7 +100,7 @@ class ResolvedGlobalElement(
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
-        for (substitutionGroupHead in substitutionGroups) {
+        for (substitutionGroupHead in mdlSubstitutionGroupAffiliations) {
             require(substitutionGroupHead.mdlQName !in seenElements) {
                 "Recursive subsitution group: $mdlQName"
             }
@@ -84,69 +112,15 @@ class ResolvedGlobalElement(
         return "ResolvedGlobalElement($mdlQName, typeDef=$typeDef)"
     }
 
-    val substitutionGroups: List<ResolvedGlobalElement> =
-        DelegateList(rawPart.substitutionGroup ?: emptyList()) { schema.element(it) }
+    protected class Model(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
+        ResolvedElement.Model(rawPart, schema, context) {
 
-    /** Substitution group exclusions */
-    val final: Set<VDerivationControl.Complex>
-        get() = rawPart.final ?: schema.finalDefault.toDerivationSet()
+        val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
 
-    override val targetNamespace: VAnyURI? /*get()*/ = schema.targetNamespace
-
-    override val name: VNCName get() = rawPart.name
-
-    val typeDef: ResolvedType by lazy {
-        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
-            ?: rawPart.type?.let {
-                schema.type(it)
-            }
-            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
-            ?: AnyType
-    }
-
-
-    val affiliatedSubstitutionGroups: List<ResolvedGlobalElement> = rawPart.substitutionGroup?.let {
-        DelegateList(it) { schema.element(it) }
-    } ?: emptyList()
-
-    val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> get() = model.mdlSubstitutionGroupMembers
-
-    val substitutionGroup: List<QName>?
-        get() = rawPart.substitutionGroup
-
-    val mdlAbstract: Boolean get() = rawPart.abstract ?: false
-
-    override val model: ModelImpl by lazy { ModelImpl(rawPart, schema, this) }
-
-    override val mdlScope: VElementScope.Global get() = VElementScope.Global
-
-    val mdlTargetNamespace: VAnyURI get() = VAnyURI(mdlQName.namespaceURI)
-
-    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
-
-    interface Model : ResolvedTypeContext {
-        val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
-        val mdlTargetNamespace: VAnyURI?
-        val mdlAnnotations: ResolvedAnnotation?
-        val mdlIdentityConstraints: Set<ResolvedIdentityConstraint>
-        val mdlTypeDefinition: ResolvedType
-        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
-        val mdlTypeTable: ITypeTable?
-        val mdlNillable: Boolean
-        val mdlValueConstraint: ValueConstraint?
-        val mdlDisallowedSubstitutions: VBlockSet
-        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
-    }
-
-    protected class ModelImpl(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
-        ResolvedElement.ModelImpl(rawPart, schema, context), Model {
-
-        override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
-
-        override val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
+        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
             rawPart.substitutionGroup?.map { schema.element(it) } ?: emptyList()
 
-        override val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
+        val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
             // Has to be lazy due to initialization loop
 
             val thisName: QName = context.mdlQName
@@ -166,18 +140,13 @@ class ResolvedGlobalElement(
 
         override val mdlTypeTable: ITypeTable? get() = null
 
-        override val mdlDisallowedSubstitutions: VBlockSet =
-            (rawPart.block ?: schema.blockDefault)
-
-        override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
-            (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
-
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
-                ?: (rawPart as? XSGlobalElement)?.substitutionGroup?.firstOrNull()
+                ?: rawPart.substitutionGroup?.firstOrNull()
                     ?.let { schema.element(it).mdlTypeDefinition }
                 ?: AnyType
+
 
         private fun checkSubstitutionGroupChain(
             qName: QName,

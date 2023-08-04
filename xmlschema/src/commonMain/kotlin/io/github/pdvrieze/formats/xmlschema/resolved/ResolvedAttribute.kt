@@ -75,7 +75,6 @@ sealed class ResolvedAttribute(
     abstract val mdlTypeDefinition: ResolvedSimpleType
     abstract val mdlScope: VAttributeScope
     val mdlValueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
-    abstract val name: VNCName?
     abstract val targetNamespace: VAnyURI?
 
     override fun check(checkedTypes: MutableSet<QName>) {
