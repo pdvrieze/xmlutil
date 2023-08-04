@@ -45,7 +45,7 @@ class XSLocalComplexTypeShorthand(
     otherAttrs
 ), XSComplexType.Shorthand {
 
-    override val content: XSLocalComplexTypeShorthand get() = this
+    override val simpleContent: XSLocalComplexTypeShorthand get() = this
     override val derivation: XSLocalComplexTypeShorthand get() = this
 
     override val base: Nothing? get() = null

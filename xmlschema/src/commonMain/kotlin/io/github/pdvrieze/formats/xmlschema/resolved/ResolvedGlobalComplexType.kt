@@ -38,15 +38,15 @@ class ResolvedGlobalComplexType(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    override val mdlScope: VComplexTypeScope.Global
-        get() = VComplexTypeScope.Global
+    val mdlAbstract: Boolean = rawPart.abstract ?: false
+    override val mdlScope: VComplexTypeScope.Global get() = VComplexTypeScope.Global
 
     val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 
     override val content: ResolvedComplexTypeContent
             by lazy {
-                when (val c = rawPart.content) {
+                when (val c = rawPart.simpleContent) {
                     is XSComplexContent -> ResolvedComplexContent(this, c, schema)
                     is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
                         this,
@@ -59,11 +59,11 @@ class ResolvedGlobalComplexType(
                 }
             }
 
-    override val model: Model by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    override val model: Model<out XSGlobalComplexType> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
-            is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
-            is XSGlobalComplexTypeShorthand -> ShorthandModelImpl(this, r, schema)
-            is XSGlobalComplexTypeSimple -> SimpleModelImpl(this, r, schema)
+            is XSGlobalComplexTypeComplex -> ComplexModel(this, r, schema)
+            is XSGlobalComplexTypeShorthand -> ShorthandModel(this, r, schema)
+            is XSGlobalComplexTypeSimple -> SimpleModel(this, r, schema)
         }
 
     }
@@ -80,43 +80,40 @@ class ResolvedGlobalComplexType(
         return "ComplexType{ name=$mdlQName, base=$mdlBaseTypeDefinition }"
     }
 
-    interface Model : ResolvedComplexType.Model {
+    interface Model<R : XSIComplexType> : ResolvedComplexType.Model<R> {
         val mdlTargetNamespace: VAnyURI?
         val mdlName: VNCName
+
+        override fun calculateProhibitedSubstitutions(
+            rawPart: R,
+            schema: ResolvedSchemaLike
+        ): Set<VDerivationControl.Complex> {
+            return (rawPart as XSGlobalComplexType).block ?: schema.blockDefault.filterIsInstanceTo(HashSet())
+        }
     }
 
-    interface SimpleModel : Model, ResolvedSimpleContentType {
-        override val mdlContentType: ResolvedSimpleContentType
-    }
-
-    interface ComplexBase: Model
-
-    interface ComplexModel : ComplexBase
-
-    interface ImplicitModel : ComplexBase
-
-    private class SimpleModelImpl(
+    private class SimpleModel(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeSimple,
         schema: ResolvedSchemaLike,
-    ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
+    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, rawPart, schema),
+        Model<XSGlobalComplexTypeSimple> {
         override val mdlName: VNCName = rawPart.name
-        override val mdlContext: VComplexTypeScope.Member
-            get() = TODO("not implemented")
+        override val mdlContext: VComplexTypeScope.Member = parent
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
-
     }
 
-    private class ShorthandModelImpl(
+    private class ShorthandModel(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
-    ) : ComplexModelBase(parent, rawPart, schema), ImplicitModel {
+    ) : ComplexModelBase<XSGlobalComplexTypeShorthand>(parent, rawPart, schema),
+        Model<XSGlobalComplexTypeShorthand> {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
@@ -124,14 +121,14 @@ class ResolvedGlobalComplexType(
             calcProhibitedSubstitutions(rawPart, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(rawPart, schema)
-
     }
 
-    private class ComplexModelImpl(
+    private class ComplexModel(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeComplex,
         schema: ResolvedSchemaLike
-    ) : ComplexModelBase(parent, rawPart, schema), ComplexModel {
+    ) : ComplexModelBase<XSGlobalComplexTypeComplex>(parent, rawPart, schema),
+        Model<XSGlobalComplexTypeComplex> {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace

@@ -29,31 +29,32 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
-    override val mdlContext: VComplexTypeScope.Member,
+    context: VComplexTypeScope.Member,
 ) : ResolvedComplexType(schema), ResolvedLocalType,
     VSimpleTypeScope.Member {
 
-    override val mdlScope: VComplexTypeScope.Local
-        get() = VComplexTypeScope.Local(mdlContext)
+    override val mdlScope: VComplexTypeScope.Local = VComplexTypeScope.Local(context)
+    override val mdlContext: VComplexTypeScope.Member get() = mdlScope.parent
 
     override val content: ResolvedComplexTypeContent by lazy {
-        when (val c = rawPart.content) {
+        when (val c = rawPart.simpleContent) {
             is XSComplexContent -> ResolvedComplexContent(this, c, schema)
             is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
                 this,
                 c,
                 schema
             )
+
             is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
             else -> error("unsupported content")
         }
     }
 
-    override val model: Model by lazy {
+    override val model: Model<*> by lazy {
         when (val raw = rawPart) {
-            is XSLocalComplexTypeComplex -> ComplexModelImpl(raw, schema, this, mdlContext)
-            is XSLocalComplexTypeShorthand -> ShorthandModelImpl(raw, schema, this, mdlContext)
-            is XSLocalComplexTypeSimple -> SimpleModelImpl(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeComplex -> ComplexModel(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeShorthand -> ShorthandModel(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeSimple -> SimpleModel(raw, schema, this, mdlContext)
             else -> error("XSLocalComplexType should be sealed")
         }
     }
@@ -67,20 +68,25 @@ class ResolvedLocalComplexType(
 //    interface Context {} /* : ComplexTypeContext*/
 
     // TODO don't inherit simpleTypeContext
-    interface Model : ResolvedComplexType.Model {
+    interface Model<R : XSLocalComplexType> : ResolvedComplexType.Model<R> {
         val mdlContext: VComplexTypeScope.Member
+
+        override fun calculateProhibitedSubstitutions(
+            rawPart: R,
+            schema: ResolvedSchemaLike
+        ): Set<VDerivationControl.Complex> {
+            return schema.blockDefault.filterIsInstanceTo(HashSet())
+        }
+
     }
 
-    interface SimpleModel : Model, ResolvedSimpleContentType {
-        override val mdlContentType: ResolvedSimpleContentType
-    }
-
-    private class SimpleModelImpl(
+    private class SimpleModel(
         rawPart: XSLocalComplexTypeSimple,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: VComplexTypeScope.Member
-    ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
+    ) : SimpleModelBase<XSLocalComplexTypeSimple>(parent, rawPart, schema),
+        Model<XSLocalComplexTypeSimple> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
@@ -88,13 +94,13 @@ class ResolvedLocalComplexType(
             schema.finalDefault.toDerivationSet()
     }
 
-    private class ShorthandModelImpl(
+    private class ShorthandModel(
         rawPart: XSLocalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: VComplexTypeScope.Member
-    ) : ComplexModelBase(parent, rawPart, schema),
-        Model {
+    ) : ComplexModelBase<XSLocalComplexTypeShorthand>(parent, rawPart, schema),
+        Model<XSLocalComplexTypeShorthand> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
@@ -102,13 +108,13 @@ class ResolvedLocalComplexType(
             schema.finalDefault.toDerivationSet()
     }
 
-    private class ComplexModelImpl(
+    private class ComplexModel(
         rawPart: XSLocalComplexTypeComplex,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: VComplexTypeScope.Member
-    ) : ComplexModelBase(parent, rawPart, schema),
-        Model {
+    ) : ComplexModelBase<XSLocalComplexTypeComplex>(parent, rawPart, schema),
+        Model<XSLocalComplexTypeComplex> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             schema.blockDefault.toDerivationSet()
