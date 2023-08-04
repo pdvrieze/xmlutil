@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
@@ -31,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -100,12 +100,8 @@ sealed interface IDecimalType : ResolvedBuiltinSimpleType {
     fun value(representation: VString): VDecimal
 }
 
-sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace),
+sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace, BuiltinSchemaXmlschema),
     ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
-
-    override val name: VNCName get() = super<Datatype>.name
-    override val targetNamespace: VAnyURI
-        get() = super<Datatype>.targetNamespace
 
     override val model: AtomicDatatype get() = this
 
@@ -120,7 +116,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
 
     final override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
 
-    override fun toString(): String = "Builtin:$name"
+    override fun toString(): String = "Builtin:${mdlQName.localPart}"
 
 }
 

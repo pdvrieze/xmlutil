@@ -58,7 +58,7 @@ class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, pr
     }
 
     override fun containsValue(value: V): Boolean {
-        return delegate.containsKey(QName(targetNamespace, value.name.xmlString))
+        return delegate.containsKey(QName(targetNamespace, value.mdlQName.localPart))
     }
 
     override val keys: Set<String>

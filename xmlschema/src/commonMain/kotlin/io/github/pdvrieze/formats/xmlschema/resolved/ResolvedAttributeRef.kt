@@ -60,9 +60,6 @@ class ResolvedAttributeRef(
     val form: VFormChoice?
         get() = rawPart.form
 
-    override val name: VNCName
-        get() = rawPart.name ?: referenced?.name ?: error("An attribute requires a name, either direct or referenced")
-
     override val targetNamespace: VAnyURI?
         get() = rawPart.targetNamespace ?: schema.targetNamespace
 
@@ -81,7 +78,7 @@ class ResolvedAttributeRef(
 */
 
     override val mdlName: VNCName
-        get() = name
+        get() = VNCName(mdlQName.getLocalPart())
 
     override val mdlTargetNamespace: VAnyURI? by lazy {
         targetNamespace ?: when {
@@ -94,7 +91,7 @@ class ResolvedAttributeRef(
 
     override val mdlTypeDefinition: ResolvedSimpleType by lazy {
         rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) } ?: referenced?.mdlTypeDefinition
-        ?: schema.simpleType(requireNotNull(rawPart.ref) { "Missing simple type for attribute $name" })
+        ?: schema.simpleType(requireNotNull(rawPart.ref) { "Missing simple type for attribute $mdlQName" })
     }
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)

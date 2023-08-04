@@ -37,7 +37,11 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override val mdlQName: QName = name.toQname(schema.targetNamespace)
+    init {
+        check(rawPart.name.isNotEmpty()) { "Empty names are forbidden" }
+    }
+
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     override val annotation: XSAnnotation?
         get() = rawPart.annotation
@@ -47,11 +51,6 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
-
-    override val name: VNCName
-        get() = rawPart.name
-
-    override val mdlName: VNCName get() = name
 
     override val targetNamespace: VAnyURI?
         get() = schema.targetNamespace
@@ -70,7 +69,6 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
         get() = rawPart.final
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        require(name.isNotEmpty())
         if (checkedTypes.add(mdlQName)) {
             super.check(checkedTypes, inheritedTypes)
             requireNotNull(model)
