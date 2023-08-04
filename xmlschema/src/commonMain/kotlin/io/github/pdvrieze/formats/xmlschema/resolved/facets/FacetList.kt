@@ -60,7 +60,8 @@ class FacetList(
         return this
     }
 
-    fun override(newList: FacetList): FacetList {
+    /** Overlay according to 3.16.6.4 */
+    fun overlay(newList: FacetList): FacetList {
         val otherFacets = mutableListOf<ResolvedFacet>().apply { addAll(otherFacets) }
         val assertions = mutableListOf<ResolvedAssertionFacet>().apply { addAll(assertions) }
         val enumeration = mutableListOf<ResolvedEnumeration>().apply { addAll(enumeration) }
