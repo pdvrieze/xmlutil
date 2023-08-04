@@ -48,6 +48,7 @@ sealed class ResolvedComplexType(
     //name (provided in ResolvedGlobalType) for globals
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
+    abstract override val mdlScope: VComplexTypeScope
     // context (only for local, not for global)
     // TODO determine this on content type
     val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod

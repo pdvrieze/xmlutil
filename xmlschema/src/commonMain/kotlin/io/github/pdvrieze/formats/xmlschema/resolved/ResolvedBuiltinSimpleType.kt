@@ -36,6 +36,9 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinType>.mdlFinal
 
+    override val mdlScope: VSimpleTypeScope.Global
+        get() = super<ResolvedBuiltinType>.mdlScope
+
     override val mdlAnnotations: Nothing? get() = null
 
     override val mdlFacets: FacetList

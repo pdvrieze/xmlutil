@@ -28,8 +28,11 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike,
-    override val mdlContext: VSimpleTypeScope.Member,
+    context: VSimpleTypeScope.Member,
 ) : ResolvedLocalType, ResolvedSimpleType {
+
+    override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
+    override val mdlContext: VTypeScope.MemberBase get() = mdlScope.parent
 
     override val id: VID?
         get() = rawPart.id
@@ -45,7 +48,7 @@ class ResolvedLocalSimpleType(
             else -> error("Derivations must be union, list or restriction")
         }
 
-    override val model: Model by lazy { ModelImpl(rawPart, schema, mdlContext) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, context) }
 
     interface Model: ResolvedSimpleType.Model {
         val mdlContext: VSimpleTypeScope.Member
