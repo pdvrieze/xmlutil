@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType {
+    override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw parts")
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema

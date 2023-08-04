@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
 class SyntheticSimpleType(
-    val mdlContext: VSimpleTypeScope.Member,
+    context: VSimpleTypeScope.Member,
     override val mdlBaseTypeDefinition: ResolvedSimpleType,
     override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,
@@ -41,6 +41,8 @@ class SyntheticSimpleType(
     override val simpleDerivation: Nothing get() = error("Not supported")
     override val model: SyntheticSimpleType get() = this
     override val rawPart: Nothing get() = error("Not supported")
+
+    override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
 
     override fun validate(representation: VString) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)

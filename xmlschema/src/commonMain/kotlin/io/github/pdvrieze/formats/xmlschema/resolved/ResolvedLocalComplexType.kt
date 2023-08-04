@@ -33,6 +33,9 @@ class ResolvedLocalComplexType(
 ) : ResolvedComplexType(schema), ResolvedLocalType,
     VSimpleTypeScope.Member {
 
+    override val mdlScope: VComplexTypeScope.Local
+        get() = VComplexTypeScope.Local(mdlContext)
+
     override val content: ResolvedComplexTypeContent by lazy {
         when (val c = rawPart.content) {
             is XSComplexContent -> ResolvedComplexContent(this, c, schema)

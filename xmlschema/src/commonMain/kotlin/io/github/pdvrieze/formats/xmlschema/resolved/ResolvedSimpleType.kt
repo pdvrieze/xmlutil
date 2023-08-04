@@ -45,6 +45,8 @@ sealed interface ResolvedSimpleType : ResolvedType,
     VSimpleTypeScope.Member {
     override val rawPart: XSISimpleType
 
+    override val mdlScope: VSimpleTypeScope
+
     val simpleDerivation: Derivation
 
     val model: Model

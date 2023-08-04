@@ -38,6 +38,9 @@ class ResolvedGlobalComplexType(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
+    override val mdlScope: VComplexTypeScope.Global
+        get() = VComplexTypeScope.Global
+
     val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 

@@ -86,6 +86,9 @@ sealed class ListDatatype protected constructor(
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
+    override val mdlScope: VSimpleTypeScope.Global
+        get() = super<Datatype>.mdlScope
+
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         baseType.check(checkedTypes, inheritedTypes)
     }
@@ -179,6 +182,9 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val mdlBaseTypeDefinition: ErrorType get() = baseType
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
+
+    override val mdlScope: VSimpleTypeScope.Global
+        get() = super<Datatype>.mdlScope
 
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinType>.mdlFinal

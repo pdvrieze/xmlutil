@@ -25,35 +25,36 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 sealed interface ResolvedLocalType : ResolvedType {
     override val rawPart: XSLocalType
 
+    override val mdlScope: VTypeScope.Local
     val mdlContext: VTypeScope.MemberBase
 
     companion object {
         operator fun invoke(
             rawPart: XSLocalType,
             schema: ResolvedSchemaLike,
-            context: VTypeScope.Member
+            scope: VTypeScope.Member
         ): ResolvedLocalType {
             return when (rawPart) {
                 is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    context as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member
                 )
 
                 is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    context as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member
                 )
 
                 is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    context as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member
                 )
 
                 is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema,
-                    context as VSimpleTypeScope.Member
+                    scope as VSimpleTypeScope.Member
                 )
             }
         }
@@ -61,20 +62,20 @@ sealed interface ResolvedLocalType : ResolvedType {
         operator fun invoke(
             rawPart: XSLocalSimpleType,
             schema: ResolvedSchemaLike,
-            context: VSimpleTypeScope.Member
+            scope: VSimpleTypeScope.Member
         ): ResolvedLocalType {
-            return ResolvedLocalSimpleType(rawPart, schema, context)
+            return ResolvedLocalSimpleType(rawPart, schema, scope)
         }
 
         operator fun invoke(
             rawPart: XSLocalComplexType,
             schema: ResolvedSchemaLike,
-            context: VComplexTypeScope.Member
+            scope: VComplexTypeScope.Member
         ): ResolvedLocalType {
             return when (rawPart) {
-                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, context)
-                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, context)
-                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, context)
+                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, scope)
+                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, scope)
+                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, scope)
             }
         }
     }
