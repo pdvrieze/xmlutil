@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -33,8 +32,6 @@ class SyntheticChoice(
     override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticChoice>, IResolvedChoice {
     override val mdlTerm: SyntheticChoice get() = this
-    override val minOccurs: VNonNegativeInteger get() = mdlMinOccurs
-    override val maxOccurs: VAllNNI get() = mdlMaxOccurs
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
     override val mdlAnnotations: ResolvedAnnotation? get() = null
@@ -53,6 +50,6 @@ class SyntheticChoice(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: VAllNNI
     ): SyntheticChoice {
-        return SyntheticChoice(minOccurs*minMultiplier, maxOccurs*maxMultiplier, mdlParticles, schema)
+        return SyntheticChoice(mdlMinOccurs*minMultiplier, mdlMaxOccurs*maxMultiplier, mdlParticles, schema)
     }
 }

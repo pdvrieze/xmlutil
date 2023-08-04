@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -30,8 +29,8 @@ class ResolvedSequence private constructor(
     override val rawPart: XSSequence,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     schema: ResolvedSchemaLike,
-    override val minOccurs: VNonNegativeInteger?,
-    override val maxOccurs: VAllNNI?,
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: VAllNNI,
 ) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
     IResolvedSequence {
 
@@ -47,8 +46,8 @@ class ResolvedSequence private constructor(
             ResolvedParticle(parent, it, schema) as ResolvedParticle<ResolvedTerm>
         },
         schema,
-        rawPart.minOccurs,
-        rawPart.maxOccurs
+        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        rawPart.maxOccurs ?: VAllNNI.ONE
     )
 
     /*
@@ -90,16 +89,16 @@ class ResolvedSequence private constructor(
             rawPart,
             mdlParticles,
             schema,
-            minOccurs?.times(minMultiplier) ?: minMultiplier,
-            maxOccurs?.times(maxMultiplier)?: maxMultiplier
+            mdlMinOccurs.times(minMultiplier),
+            mdlMaxOccurs.times(maxMultiplier)
         )
     }
 
     override fun toString(): String {
         return buildString {
             append("ResolvedSequence(")
-            if (minOccurs!=null) append("minOccurs=$minOccurs, ")
-            if (maxOccurs!=null) append("maxOccurs=$maxOccurs, ")
+            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
+            if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
             append(mdlParticles)
             append(")")
         }

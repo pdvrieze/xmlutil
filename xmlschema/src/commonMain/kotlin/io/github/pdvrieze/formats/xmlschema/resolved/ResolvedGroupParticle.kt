@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 
 /**
  * Base interface for all group-like resolved types: all, seq, choice, group
