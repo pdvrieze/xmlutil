@@ -28,6 +28,8 @@ import nl.adaptivity.xmlutil.QName
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
     override val rawPart: XSGlobalSimpleType
 
+    override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
+
     companion object {
         operator fun invoke(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
             return ResolvedGlobalSimpleTypeImpl(rawPart, schema)

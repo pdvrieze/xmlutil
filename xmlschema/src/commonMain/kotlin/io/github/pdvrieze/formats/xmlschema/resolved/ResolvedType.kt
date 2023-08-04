@@ -31,6 +31,7 @@ sealed interface ResolvedType : ResolvedAnnotated {
     override val rawPart: XSIType
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
+    val mdlScope: VTypeScope
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)
