@@ -24,12 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchemaLike) : ResolvedAttribute(schema) {
-    final override val name: VNCName get() = mdlName
 
     final override val default: VString? get() = rawPart.default
 

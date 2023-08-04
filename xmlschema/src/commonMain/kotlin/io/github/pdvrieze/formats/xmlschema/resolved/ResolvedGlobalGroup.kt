@@ -62,9 +62,6 @@ class ResolvedGlobalGroup(
         mdlModelGroup.check()
     }
 
-    override val name: VNCName
-        get() = rawPart.name
-
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         for(p in mdlModelGroup.mdlParticles) {
             if (p is ResolvedTerm) p.collectConstraints(collector)

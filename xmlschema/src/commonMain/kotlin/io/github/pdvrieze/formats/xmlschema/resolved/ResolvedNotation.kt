@@ -31,8 +31,6 @@ class ResolvedNotation(
     val schema: ResolvedSchemaLike,
     val location: String,
 ) : NamedPart {
-    override val name: VNCName get() = rawPart.name
-
     override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
