@@ -21,9 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeGroupRef(
@@ -39,9 +37,6 @@ class ResolvedAttributeGroupRef(
 
     val attributeGroups: List<ResolvedAttributeGroupRef>
         get() = resolvedGroup.attributeGroups
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
 
     override val id: VID?
         get() = rawPart.id

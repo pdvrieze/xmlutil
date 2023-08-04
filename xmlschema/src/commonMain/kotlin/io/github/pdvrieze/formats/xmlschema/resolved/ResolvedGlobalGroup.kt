@@ -44,8 +44,6 @@ class ResolvedGlobalGroup(
     val mdlTargetNamespace: VAnyURI?
         get() = schema.targetNamespace
 
-    override val targetNamespace: VAnyURI? get() = mdlTargetNamespace
-
     val mdlModelGroup: ResolvedModelGroup by lazy {
         when (val c = rawPart.content) {
             is XSGroup.All -> AllImpl(this, c, schema)

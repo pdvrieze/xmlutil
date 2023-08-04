@@ -31,9 +31,6 @@ class ResolvedLocalSimpleType(
     override val mdlContext: ResolvedSimpleTypeContext,
 ) : ResolvedLocalType, ResolvedSimpleType {
 
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
     override val id: VID?
         get() = rawPart.id
 

@@ -59,8 +59,6 @@ class ResolvedGlobalElement(
 
     val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> 
         get() = model.mdlSubstitutionGroupMembers
-    
-    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     override val mdlAbstract: Boolean get() = rawPart.abstract ?: false
 

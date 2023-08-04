@@ -20,16 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedGlobalAttribute(
     override val rawPart: XSGlobalAttribute,
@@ -45,22 +38,17 @@ class ResolvedGlobalAttribute(
 
     override val model: Model by lazy { Model(this, schema) }
 
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
 
-    protected class Model(base: ResolvedAttributeDef, schema: ResolvedSchemaLike) : ResolvedAttributeDef.Model(base) {
-        val mdlTargetNamespace: VAnyURI? = when(schema.attributeFormDefault) {
-            VFormChoice.QUALIFIED -> schema.targetNamespace
+    protected class Model(base: ResolvedGlobalAttribute, schema: ResolvedSchemaLike) :
+        ResolvedAttributeDef.Model(base, schema) {
+        override val mdlQName: QName = base.rawPart.name.toQname(
+            when (schema.attributeFormDefault) {
+                VFormChoice.QUALIFIED -> schema.targetNamespace
 
-            else -> null
-        }
+                else -> null
+            }
+        )
 
     }
 }

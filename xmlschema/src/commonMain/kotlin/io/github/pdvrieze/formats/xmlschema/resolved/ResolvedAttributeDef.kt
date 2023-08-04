@@ -29,22 +29,12 @@ import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchemaLike) : ResolvedAttribute(schema) {
 
-    final override val default: VString? get() = rawPart.default
-
-    final override val fixed: VString? get() = rawPart.fixed
-
-    final override val type: QName? get() = rawPart.type
-
-    final override val mdlName: VNCName
-
-    final override val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
-
-    protected abstract val model: Model
+    abstract override val model: Model
 
     init {
-        mdlName = requireNotNull(rawPart.name) { "3.2.3(3.1) - Attribute definitions require names" }
+        val name = requireNotNull(rawPart.name) { "3.2.3(3.1) - Attribute definitions require names" }
 
-        require(mdlName.xmlString != "xmlns") { "3.2.6.3 - Declaring xmlns attributes is forbidden" }
+        require(name.xmlString != "xmlns") { "3.2.6.3 - Declaring xmlns attributes is forbidden" }
     }
 
     override fun check(checkedTypes: MutableSet<QName>) {
@@ -54,10 +44,15 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         }
     }
 
-    protected open class Model(base: ResolvedAttributeDef) {
-        val mdlTypeDefinition: ResolvedSimpleType =
-            base.rawPart.simpleType?.let { ResolvedLocalSimpleType(it, base.schema, base) }
-                ?: base.rawPart.type?.let { base.schema.simpleType(it) }
-                ?: AnySimpleType
+    protected abstract class Model(base: ResolvedAttributeDef, schema: ResolvedSchemaLike):
+        ResolvedAttribute.Model(base, schema) {
+
+        override val mdlTypeDefinition: ResolvedSimpleType =
+            base.rawPart.simpleType?.let {
+                require(base.rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
+                ResolvedLocalSimpleType(it, base.schema, base)
+            } ?: base.rawPart.type?.let { base.schema.simpleType(it) }
+            ?: AnySimpleType
+
     }
 }

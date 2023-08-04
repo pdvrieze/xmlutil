@@ -29,7 +29,6 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType {
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw parts")
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
-    override val annotation: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: Nothing? get() = null

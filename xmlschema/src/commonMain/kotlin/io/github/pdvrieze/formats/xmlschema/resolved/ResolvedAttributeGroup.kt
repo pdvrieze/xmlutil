@@ -27,7 +27,6 @@ sealed class ResolvedAttributeGroup(
     final override val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated {
     abstract override val rawPart: XSAttributeGroup
-    override val mdlAnnotations: ResolvedAnnotation? get() = annotation.models()
 
     val attributeUses: Set<IResolvedAttributeUse>
         get() {

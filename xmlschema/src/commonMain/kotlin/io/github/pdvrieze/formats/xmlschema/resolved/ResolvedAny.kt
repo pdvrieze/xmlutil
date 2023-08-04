@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -35,9 +34,6 @@ class ResolvedAny(
 
     override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
-
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
 
     val namespace: VNamespaceList
         get() = rawPart.namespace ?: VNamespaceList.ANY

@@ -21,12 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
@@ -34,55 +29,35 @@ sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated, ResolvedSimpleTypeContext {
     abstract override val rawPart: XSAttribute
+    protected abstract val model: Model
 
-    override val id: VID?
-        get() = rawPart.id
-
-    abstract val default: VString?
-
-    abstract val fixed: VString?
-
-    val mdlQName: QName
-        get() = QName(mdlTargetNamespace?.value ?: "", mdlName.xmlString)
-
-    open val type: QName? // TODO make abstract
-        get() = (resolvedType as? ResolvedGlobalSimpleType)?.mdlQName
-
-    final override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
-
-    val resolvedType: ResolvedSimpleType by lazy {
-        rawPart.type?.let {
-            require(rawPart.simpleType == null) { "3.2.3(4) both simpletype and type attribute present" }
-            schema.simpleType(it)
-        } ?: rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, this) }
-        ?: AnySimpleType
-    }
-
-    val valueConstraint: ValueConstraint? get() = mdlValueConstraint
-
-    final override val mdlAnnotations: ResolvedAnnotation?
-        get() = rawPart.annotation.models()
-
-
-    abstract val mdlName: VNCName
-
-    abstract val mdlTargetNamespace: VAnyURI?
+    override val id: VID? get() = rawPart.id
 
     val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
 
-    abstract val mdlTypeDefinition: ResolvedSimpleType
     abstract val mdlScope: VAttributeScope
-    val mdlValueConstraint: ValueConstraint? by lazy { ValueConstraint(rawPart) }
-    abstract val targetNamespace: VAnyURI?
+
+    val mdlQName: QName get() = model.mdlQName
+    val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
+    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+    val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)
 
-        resolvedType.check(checkedTypes)
+        mdlTypeDefinition.check(checkedTypes)
 
-        valueConstraint?.let { resolvedType.validate(it.value)}
+        mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value)}
+    }
+
+    protected abstract class Model(base: ResolvedAttribute, schema: ResolvedSchemaLike) {
+        abstract val mdlQName: QName
+
+        abstract val mdlTypeDefinition: ResolvedSimpleType
+
+        val mdlValueConstraint: ValueConstraint? = ValueConstraint(base.rawPart)
+
+        val mdlAnnotations: ResolvedAnnotation? = base.rawPart.annotation.models()
     }
 
 }

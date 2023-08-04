@@ -25,8 +25,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
+import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
@@ -52,34 +54,27 @@ class ResolvedLocalAttribute private constructor(
         }
     }
 
-    override val model: Model by lazy { Model(this) }
-
-    override val targetNamespace: VAnyURI?
-        get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-    val use: XSAttrUse
-        get() = rawPart.use ?: XSAttrUse.OPTIONAL
-
-    val inheritable: Boolean
-        get() = rawPart.inheritable ?: false
-
-    override val mdlTargetNamespace: VAnyURI? by lazy {
-        targetNamespace ?: when {
-            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                schema.targetNamespace
-
-            else -> null
-        }
-    }
+    override val model: Model by lazy { Model(this, schema) }
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
-
-    val parent: VAttributeScope.Member get() = mdlScope.parent
 
     override val mdlRequired: Boolean
         get() = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
+
+    protected class Model(base: ResolvedLocalAttribute, schema: ResolvedSchemaLike) :
+        ResolvedAttributeDef.Model(base, schema) {
+
+        override val mdlQName = invariantNotNull(base.rawPart.name).toQname(
+            base.rawPart.targetNamespace ?: when {
+                (base.rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                    schema.targetNamespace
+
+                else -> null
+            }
+        )
+    }
 
     companion object {
         operator fun invoke(
