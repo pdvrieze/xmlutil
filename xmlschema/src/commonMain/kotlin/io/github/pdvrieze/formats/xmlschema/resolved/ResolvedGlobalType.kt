@@ -27,10 +27,6 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
 
 sealed interface ResolvedGlobalType : ResolvedType, NamedPart {
-    val mdlTargetNamespace: VAnyURI?
-
     override val rawPart: XSGlobalType
-
-    val mdlName: VNCName get() = VNCName(mdlQName.localPart)
 }
 
