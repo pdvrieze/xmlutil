@@ -57,23 +57,12 @@ sealed class ValueConstraint(val value: VString) {
             val fixed = elem.fixed
             return when {
                 default != null -> {
-                    check(fixed == null) { "3.2.3(1) - Attributes may not have both default and fixed values" }
-                    if (elem is XSLocalElement) {
-//                        check(elem.use == null || elem.use == XSAttrUse.OPTIONAL) {
-//                            "3.2.3(2) - For attributes with default and use must have optional as use value. Has ${elem.use}"
-//                        }
-                    }
+                    check(fixed == null) { "3.3.3(1) - Elements may not have both default and fixed values" }
                     Default(default)
                 }
 
-                fixed != null -> {
-                    if (elem is XSLocalElement) {
-//                        check(elem.use != XSAttrUse.PROHIBITED) {
-//                            "3.2.3(5) - Attributes with fixed and use members must not have prohibited as use value. Has ${elem.use}"
-//                        }
-                    }
-                    Fixed(fixed)
-                }
+                fixed != null -> Fixed(fixed)
+
                 else -> null
             }
         }
