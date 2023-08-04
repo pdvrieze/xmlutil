@@ -96,13 +96,17 @@ interface VNonNegativeInteger : VInteger {
     }
 
     companion object {
-        val ONE = invoke(1)
+        val ONE = VUnsignedInt(1u)
+        val ZERO = VUnsignedInt(0u)
 
         operator fun invoke(charSequence: CharSequence) =
             invoke(rawValue = charSequence.toString())
 
         operator fun invoke(rawValue: String): VNonNegativeInteger = when {
             rawValue.length > MAXLONG.length -> Inst(rawValue)
+
+            rawValue == "0" -> ZERO
+            rawValue == "1" -> ONE
 
             rawValue.length == MAXLONG.length && (rawValue[0] == '0' || rawValue[0] == '1')
                     && rawValue.substring(1).toLong() <= MAXNONSIGNDIGITS ->
