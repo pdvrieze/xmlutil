@@ -36,22 +36,28 @@ sealed class ResolvedComplexType(
     VAttributeScope.Member,
     ResolvedLocalElement.Parent,
     VElementScope.Member,
-    ResolvedSimpleTypeContext {
+    VTypeScope.Member {
     abstract override val rawPart: XSComplexType
 
     abstract val content: ResolvedComplexTypeContent
 
     protected abstract val model: Model
 
-    val mdlAbstract: Boolean get() = model.mdlAbstract
-    val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
+    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+    // TODO use better way to determine this
+    //name (provided in ResolvedGlobalType) for globals
+    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
-    val mdlContentType: ResolvedContentType get() = model.mdlContentType
+    // context (only for local, not for global)
+    // TODO determine this on content type
+    val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
+    val mdlAbstract: Boolean get() = model.mdlAbstract
     val mdlAttributeUses: Set<IResolvedAttributeUse> get() = model.mdlAttributeUses
     val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
-    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
-    val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
-    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
+    val mdlContentType: ResolvedContentType get() = model.mdlContentType
+    val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
+    /** TODO tidy this one up */
+    val mdlAssertions: List<XSIAssertCommon> get() = rawPart.content.derivation.asserts
 
     override fun validate(representation: VString) {
         when (val ct = mdlContentType) {
@@ -179,7 +185,7 @@ sealed class ResolvedComplexType(
 
                 ct is EmptyContentType -> {
                     when (bt) {
-                        is ResolvedElementBase -> {
+                        is ElementContentType -> {
                             check(bt.mdlParticle.mdlIsEmptiable())
                         }
                         !is EmptyContentType -> error("Invalid derivation of ${bt?.mdlVariety} by empty")
@@ -187,7 +193,7 @@ sealed class ResolvedComplexType(
                 }
 
                 ct is ElementOnlyContentType -> {
-                    check(bt is ResolvedElementBase) { "ElementOnly content type can only derive elementOnly or mixed" }
+                    check(bt is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
                     check(ct.restricts(bt)||true) // TODO do check
                 }
 
@@ -211,7 +217,7 @@ sealed class ResolvedComplexType(
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm> {
     }
 
-    interface Model : ResolvedSimpleTypeContext {
+    interface Model {
         val mdlBaseTypeDefinition: ResolvedType
         val mdlFinal: Set<VDerivationControl.Complex>
         val mdlContentType: ResolvedContentType
@@ -360,7 +366,7 @@ sealed class ResolvedComplexType(
 
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> {
-                    val baseParticle = (baseTypeDefinition.mdlContentType as ResolvedElementBase).mdlParticle
+                    val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
                     val part: ResolvedParticle<ResolvedModelGroup> = when {
@@ -409,7 +415,7 @@ sealed class ResolvedComplexType(
             if (wildcardElement == null || wildcardElement.mode == VContentMode.NONE) {
                 mdlContentType = explicitContentType
             } else {
-                val particle: ResolvedParticle<ResolvedModelGroup> = (explicitContentType as? ResolvedElementBase)?.mdlParticle
+                val particle: ResolvedParticle<ResolvedModelGroup> = (explicitContentType as? ElementContentType)?.mdlParticle
                     ?: SyntheticSequence(
                         mdlMinOccurs = VNonNegativeInteger.ONE,
                         mdlMaxOccurs = VAllNNI.ONE,
@@ -542,12 +548,12 @@ sealed class ResolvedComplexType(
         override fun check() {}
     }
 
-    interface ResolvedElementBase : ResolvedContentType, VContentType.ElementBase {
+    interface ElementContentType : ResolvedContentType, VContentType.ElementBase {
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>
         val mdlOpenContent: ResolvedOpenContent?
 
         /** Implementation of 3.4.6.4 */
-        fun restricts(base: ResolvedElementBase): Boolean {
+        fun restricts(base: ElementContentType): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
             val normalized = mdlParticle.normalizeTerm()
@@ -587,19 +593,19 @@ sealed class ResolvedComplexType(
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
         override val mdlOpenContent: ResolvedOpenContent? = null
-    ) : VContentType.Mixed, ResolvedElementBase {
+    ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
     }
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
         override val mdlOpenContent: ResolvedOpenContent? = null
-    ) : VContentType.ElementOnly, ResolvedElementBase {
+    ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,
-        ResolvedSimpleTypeContext,
+        VSimpleTypeScope.Member,
         VContentType.Simple {
         val mdlAttributeWildcard: ResolvedAny?
 
@@ -608,7 +614,7 @@ sealed class ResolvedComplexType(
         override val mdlSimpleTypeDefinition: ResolvedSimpleType
 
         val mdlBaseTypeDefinition: ResolvedType
-        val mdlContext: ResolvedComplexTypeContext
+        val mdlContext: VComplexTypeScope.Member
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlFinal: Set<VDerivationControl.Complex>

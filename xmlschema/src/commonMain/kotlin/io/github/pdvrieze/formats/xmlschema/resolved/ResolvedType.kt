@@ -27,13 +27,13 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedType : ResolvedAnnotated, ResolvedPart {
+sealed interface ResolvedType : ResolvedAnnotated {
     override val rawPart: XSIType
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAnnotated>.check(checkedTypes)
+        super.check(checkedTypes)
         check(mutableSetOf(), SingleLinkedList())
     }
 

@@ -20,14 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
     override val schema: ResolvedSchemaLike
-) : ResolvedAnnotated, ResolvedSimpleTypeContext {
+) : ResolvedAnnotated, VSimpleTypeScope.Member {
     abstract override val rawPart: XSAttribute
     protected abstract val model: Model
 
