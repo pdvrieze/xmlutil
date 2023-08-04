@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSNotation
-import io.github.pdvrieze.formats.xmlschema.types.I_Named
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedNotation(
@@ -31,7 +28,6 @@ class ResolvedNotation(
     val schema: ResolvedSchemaLike,
     val location: String,
 ) : NamedPart {
-    override val targetNamespace: VAnyURI? get() = schema.targetNamespace
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 

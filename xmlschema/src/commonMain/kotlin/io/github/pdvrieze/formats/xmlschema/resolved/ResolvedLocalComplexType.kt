@@ -35,7 +35,6 @@ class ResolvedLocalComplexType(
     ResolvedSimpleTypeContext {
     val mixed: Boolean? get() = rawPart.mixed
     val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
-    override val annotation: XSAnnotation? get() = rawPart.annotation
     override val id: VID? get() = rawPart.id
     override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
