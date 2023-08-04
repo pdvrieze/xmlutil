@@ -29,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
-import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedElementRef(
@@ -48,15 +47,13 @@ class ResolvedElementRef(
         check(rawPart.name == null) { "XXX" }
     }
 
-    override val mdlElementDeclaration: ResolvedGlobalElement get() = model.mdlElementDeclaration
-
-    val mdlQName: QName get() = mdlElementDeclaration.mdlQName
+    val mdlQName: QName get() = mdlTerm.mdlQName
 
     private val model: Model by lazy { Model(rawPart, schema, this) }
 
     val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
 
-    override val mdlTerm: ResolvedGlobalElement get() = mdlElementDeclaration
+    override val mdlTerm: ResolvedGlobalElement get() = model.mdlElementDeclaration
 
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
     override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
@@ -64,7 +61,7 @@ class ResolvedElementRef(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         if (rawPart.ref != null) {
-            mdlElementDeclaration// Don't check as that would already be done at top level
+            // Don't check as that would already be done at top level
             check(rawPart.name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
             check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
@@ -102,7 +99,7 @@ class ResolvedElementRef(
             append("mdlName=$mdlQName, ")
             if (minOccurs != null) append("minOccurs=$minOccurs, ")
             if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
-            append("type=${mdlElementDeclaration.mdlTypeDefinition}")
+            append("type=${mdlTerm.mdlTypeDefinition}")
             append(")")
         }
     }
