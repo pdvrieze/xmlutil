@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.QNameSerializer
 class XSLocalComplexTypeComplex(
     mixed: Boolean? = null,
     defaultAttributesApply: Boolean? = null,
-    override val content: XSComplexContent,
+    override val simpleContent: XSComplexContent,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
@@ -44,7 +44,7 @@ class XSLocalComplexTypeComplex(
         return SerialDelegate(
             mixed = mixed,
             defaultAttributesApply = defaultAttributesApply,
-            complexContent = content,
+            complexContent = simpleContent,
             id = id,
             annotation = annotation,
             otherAttrs = otherAttrs
@@ -58,14 +58,14 @@ class XSLocalComplexTypeComplex(
 
         other as XSLocalComplexTypeComplex
 
-        if (content != other.content) return false
+        if (simpleContent != other.simpleContent) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + content.hashCode()
+        result = 31 * result + simpleContent.hashCode()
         return result
     }
 
