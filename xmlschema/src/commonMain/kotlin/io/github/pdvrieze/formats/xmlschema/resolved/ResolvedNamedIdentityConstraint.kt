@@ -22,13 +22,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
 
 sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
 
-    abstract override val name: VNCName
+    val mdlName: VNCName get() = VNCName(mdlQName.localPart)
 
-    val mdlName: VNCName get() = name
+    abstract override val mdlQName: QName
 
     final override val mdlSelector: XPathExpression
         get() = XPathExpression(rawPart.selector.xpath.xmlString)

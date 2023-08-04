@@ -48,13 +48,9 @@ class ResolvedElementRef(
         check(rawPart.name == null) { "XXX" }
     }
 
-    val referenced: ResolvedGlobalElement get() = mdlElementDeclaration
-
     override val mdlElementDeclaration: ResolvedGlobalElement get() = model.mdlElementDeclaration
 
-    val mdlQName: QName = mdlElementDeclaration.mdlQName
-
-    val form: VFormChoice? get() = rawPart.form
+    val mdlQName: QName get() = mdlElementDeclaration.mdlQName
 
     private val model: Model by lazy { Model(rawPart, schema, this) }
 
@@ -68,7 +64,7 @@ class ResolvedElementRef(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         if (rawPart.ref != null) {
-            referenced// Don't check as that would already be done at top level
+            mdlElementDeclaration// Don't check as that would already be done at top level
             check(rawPart.name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
             check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
@@ -106,7 +102,7 @@ class ResolvedElementRef(
             append("mdlName=$mdlQName, ")
             if (minOccurs != null) append("minOccurs=$minOccurs, ")
             if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
-            append("type=${referenced.mdlTypeDefinition}")
+            append("type=${mdlElementDeclaration.mdlTypeDefinition}")
             append(")")
         }
     }
