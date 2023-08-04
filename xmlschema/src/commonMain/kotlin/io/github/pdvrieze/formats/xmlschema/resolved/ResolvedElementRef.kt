@@ -20,22 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedElementRef(
+class ResolvedElementRef private constructor(
     val parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
     override val schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: VAllNNI,
 ) : IResolvedElementUse,
     ResolvedParticle<ResolvedElement>,
     ResolvedComplexTypeContext {
@@ -43,35 +39,38 @@ class ResolvedElementRef(
     val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
 
     init {
-        check(rawPart.name == null) { "XXX" }
+        require(rawPart.name == null) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified" }
+        require(rawPart.block==null) { "3.3.3(2.2) - References may not specify block" }
+        require(rawPart.default==null) { "3.3.3(2.2) - References may not specify default" }
+        require(rawPart.fixed==null) { "3.3.3(2.2) - References may not specify fixed" }
+        require(rawPart.form==null) { "3.3.3(2.2) - References may not specify form" }
+        require(rawPart.nillable==null) { "3.3.3(2.2) - References may not specify nillable" }
+        require(rawPart.targetNamespace==null) { "3.3.3(2.2) - References may not specify target namespace" }
+        require(rawPart.type==null) { "3.3.3(2.2) - References may not specify type" }
+        require(rawPart.localType==null) { "3.3.3(2.2) - References may not specify inline type" }
+        require(rawPart.identityConstraints.isEmpty()) { "3.3.3(2.2) - References may not specify identity constraints" }
+        require(rawPart.alternatives.isEmpty()) { "3.3.3(2.2) - References may not specify alternatives" }
     }
 
     override val mdlQName: QName get() = mdlTerm.mdlQName
 
-    private val model: Model by lazy { Model(rawPart, schema, this) }
-
-    val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
-
-    override val mdlTerm: ResolvedGlobalElement get() = model.mdlElementDeclaration
-
-    val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        if (rawPart.ref != null) {
-            // Don't check as that would already be done at top level
-            check(rawPart.name == null) { "Local elements can not have both a name and ref attribute specified" }
-            check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
-            check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
-            check(rawPart.nillable == null) {
-                "Local element references cannot have the nillable attribute specified"
-            }
-            check(rawPart.default == null) { "Local element references cannot have the default attribute specified" }
-            check(rawPart.fixed == null) { "Local element references cannot have the default attribute specified" }
-            check(rawPart.form == null) { "Local element references cannot have the default attribute specified" }
-        } else {
-            check(rawPart.name != null) { "Missing name for local (non-referencing) element" }
-        }
+    override val mdlTerm: ResolvedGlobalElement by lazy {
+        schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
     }
+
+    constructor(
+        parent: VElementScope.Member,
+        rawPart: XSLocalElement,
+        schema: ResolvedSchemaLike,
+    ) : this(
+        parent,
+        rawPart,
+        schema,
+        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        rawPart.maxOccurs ?: VAllNNI.ONE,
+    )
+
+    override fun check(checkedTypes: MutableSet<QName>) {}
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
@@ -100,37 +99,5 @@ class ResolvedElementRef(
             append(")")
         }
     }
-
-    protected inner class Model(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedElementRef) {
-
-        val mdlElementDeclaration: ResolvedGlobalElement =
-            schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
-
-        val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-        val mdlTerm: ResolvedElementRef get() = this@ResolvedElementRef
-
-
-        val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-
-        val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
-
-        val mdlTypeTable: ITypeTable
-            get() = TODO("not implemented")
-
-        val mdlDisallowedSubstitutions: VBlockSet =
-            (rawPart.block ?: schema.blockDefault)
-
-        val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
-            schema.finalDefault.filterIsInstanceTo(HashSet())
-
-        val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
-                ?: rawPart.type?.let { schema.type(it) }
-                ?: AnyType
-
-    }
-
-    interface Parent
 
 }
