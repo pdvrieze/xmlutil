@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedDirectUnique(
     override val rawPart: XSUnique,
@@ -36,9 +35,7 @@ class ResolvedDirectUnique(
     override val constraint: ResolvedDirectUnique
         get() = this
 
-    override val name: VNCName = checkNotNull(rawPart.name)
-
-    override val mdlQName: QName get() = name.toQname(schema.targetNamespace)
+    override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
     override val selector: XSSelector get() = rawPart.selector
 
@@ -46,7 +43,6 @@ class ResolvedDirectUnique(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
-        checkNotNull(rawPart.name)
     }
 
 }

@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
@@ -53,10 +54,6 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
         get() = rawPart.localType
 
     open val name: VNCName? get() = rawPart.name
-
-    val uniques: List<ResolvedUnique> get() = mdlIdentityConstraints.filterIsInstance<ResolvedUnique>()
-
-    val keys: List<ResolvedKey> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKey>()
 
     val keyrefs: List<ResolvedKeyRef> get() = mdlIdentityConstraints.filterIsInstance<ResolvedKeyRef>()
 
@@ -126,9 +123,8 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedPart>.check(checkedTypes)
-        for (keyref in keyrefs) {
-            keyref.check(checkedTypes)
-            checkNotNull(keyref.mdlReferencedKey)
+        for (constraint in mdlIdentityConstraints) {
+            constraint.check(checkedTypes)
         }
         // Remove as it is in mdlValueConstraint
         rawPart.default?.let { d ->
@@ -149,7 +145,7 @@ sealed class ResolvedElement(final override val schema: ResolvedSchemaLike) : Re
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         collector.addAll(mdlIdentityConstraints)
-        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
+//        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
 
     interface Ref {
