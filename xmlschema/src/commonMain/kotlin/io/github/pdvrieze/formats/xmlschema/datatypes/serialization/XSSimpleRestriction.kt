@@ -57,5 +57,11 @@ class XSSimpleRestriction : XSSimpleDerivation, XSI_Annotated {
         this.facets = facets
         this.otherContents = otherContents
     }
+
+    // Requires an embedded restriction
+    constructor(
+        simpleType: XSLocalSimpleType?,
+        facets: List<XSFacet>,
+    ) : this(base = null, simpleType = simpleType, facets = facets)
 }
 
