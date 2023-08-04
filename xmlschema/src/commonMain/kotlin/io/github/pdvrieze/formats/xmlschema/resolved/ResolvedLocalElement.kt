@@ -24,6 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
+import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -39,19 +41,21 @@ class ResolvedLocalElement(
     override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
 ) : ResolvedElement(schema),
     IResolvedElementUse,
-    ResolvedParticle<ResolvedLocalElement>,
     ResolvedComplexTypeContext {
 
-    val ref: QName? get() = rawPart.ref
-
-    val referenced: ResolvedElement by lazy {
-        ref?.let { schema.element(it) } ?: this
+    init {
+        invariant(rawPart.ref == null)
+        invariantNotNull(rawPart.name)
     }
 
     override val mdlElementDeclaration: ResolvedElement get() = this
 
-    override val mdlQName: QName = (rawPart.name ?: referenced.mdlName)
-        .toQname(rawPart.targetNamespace ?: schema.targetNamespace)
+    override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
+            rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
+                VFormChoice.QUALIFIED -> schema.targetNamespace
+                VFormChoice.UNQUALIFIED -> VAnyURI("")
+            }
+        )
 
     val form: VFormChoice? get() = rawPart.form
 
@@ -66,7 +70,7 @@ class ResolvedLocalElement(
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
         if (rawPart.ref != null) {
-            referenced// Don't check as that would already be done at top level
+            // Don't check as that would already be done at top level
             check(name == null) { "Local elements can not have both a name and ref attribute specified" }
             check(rawPart.block.isNullOrEmpty()) { "Local element references cannot have the block attribute specified: $rawPart" }
             check(rawPart.type == null) { "Local element references cannot have the type attribute specified" }
@@ -81,9 +85,7 @@ class ResolvedLocalElement(
             checkSingleType()
         }
 
-        keyrefs.forEach { it.check(checkedTypes) }
-        uniques.forEach { it.check(checkedTypes) }
-        keys.forEach { it.check(checkedTypes) }
+        mdlIdentityConstraints.forEach { it.check(checkedTypes) }
     }
 
     override fun normalizeTerm(
@@ -109,7 +111,7 @@ class ResolvedLocalElement(
             append("mdlName=$mdlName, ")
             if (minOccurs != null) append("minOccurs=$minOccurs, ")
             if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
-            append("type=${referenced.mdlTypeDefinition}")
+            append("type=${this@ResolvedLocalElement.mdlTypeDefinition}")
             append(")")
         }
     }
@@ -128,7 +130,11 @@ class ResolvedLocalElement(
         val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
     }
 
-    protected inner class ModelImpl(rawPart: XSLocalElement, schema: ResolvedSchemaLike, context: ResolvedLocalElement) :
+    protected inner class ModelImpl(
+        rawPart: XSLocalElement,
+        schema: ResolvedSchemaLike,
+        context: ResolvedLocalElement
+    ) :
         ResolvedElement.ModelImpl(rawPart, schema, context) {
 
         override val mdlSubstitutionGroupAffiliations: List<Nothing> get() = emptyList()

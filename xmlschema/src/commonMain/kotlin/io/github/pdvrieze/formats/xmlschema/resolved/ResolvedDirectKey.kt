@@ -25,16 +25,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.qname
 
 class ResolvedDirectKey(
     override val rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedNamedIdentityConstraint(schema, owner), ResolvedKey {
-    override val name: VNCName = checkNotNull(rawPart.name)
 
-    override val mdlQName: QName get() = name.toQname(schema.targetNamespace)
+    override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 
     override val selector: XSSelector get() = rawPart.selector
 
@@ -45,7 +43,6 @@ class ResolvedDirectKey(
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
-        checkNotNull(rawPart.name)
     }
 
 }
