@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
@@ -37,8 +36,8 @@ class ResolvedLocalElement(
     val parent: VElementScope.Member,
     override val rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
-    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
+    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedElement(schema),
     IResolvedElementUse,
     ResolvedComplexTypeContext {
@@ -62,8 +61,6 @@ class ResolvedLocalElement(
     override val mdlScope: VElementScope.Local get() = VElementScope.Local(parent)
     override val mdlTerm: ResolvedLocalElement get() = this
     val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-    override val mdlMinOccurs: VNonNegativeInteger get() = model.mdlMinOccurs
-    override val mdlMaxOccurs: VAllNNI get() = model.mdlMaxOccurs
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedElement>.check(checkedTypes)
@@ -95,8 +92,8 @@ class ResolvedLocalElement(
                 parent,
                 rawPart,
                 schema,
-                minOccurs?.times(minMultiplier) ?: minMultiplier,
-                maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+                mdlMinOccurs.times(minMultiplier),
+                mdlMaxOccurs.times(maxMultiplier),
             )
         }
 
@@ -106,9 +103,9 @@ class ResolvedLocalElement(
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalElement(")
-            append("mdlName=$mdlName, ")
-            if (minOccurs != null) append("minOccurs=$minOccurs, ")
-            if (maxOccurs != null) append("maxOccurs=$maxOccurs, ")
+            append("mdlQName=$mdlQName, ")
+            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
+            if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
             append("type=${this@ResolvedLocalElement.mdlTypeDefinition}")
             append(")")
         }

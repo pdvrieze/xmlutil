@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -31,8 +30,8 @@ class ResolvedAll private constructor(
     override val rawPart: XSAll,
     schema: ResolvedSchemaLike,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val minOccurs: VNonNegativeInteger?,
-    override val maxOccurs: VAllNNI.Value?,
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: VAllNNI.Value,
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(schema), IResolvedAll {
 
     constructor(
@@ -45,15 +44,15 @@ class ResolvedAll private constructor(
         DelegateList(rawPart.particles) {
             ResolvedParticle.allMember(parent, it, schema)
         },
-        rawPart.minOccurs,
-        rawPart.maxOccurs
+        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        rawPart.maxOccurs ?: VAllNNI.ONE,
     )
 
     override val mdlTerm: ResolvedAll get() = this
 
     init {
-        require(mdlMinOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs" }
-        require(mdlMaxOccurs.let { it is VAllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $maxOccurs" }
+        require(mdlMinOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $mdlMinOccurs" }
+        require(mdlMaxOccurs.let { it is VAllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $mdlMaxOccurs" }
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -76,8 +75,8 @@ class ResolvedAll private constructor(
             rawPart,
             schema,
             mdlParticles,
-            minOccurs?.times(minMultiplier) ?: minMultiplier,
-            (maxOccurs?.times(maxMultiplier) ?: maxMultiplier) as? VAllNNI.Value
+            mdlMinOccurs * minMultiplier,
+            (mdlMaxOccurs * maxMultiplier) as? VAllNNI.Value ?: mdlMaxOccurs // ignore unbounded
         )
     }
 }
