@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -32,21 +31,12 @@ class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema), ResolvedSimpleTypeContext {
+) : ResolvedGlobalType, ResolvedComplexType(schema) {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
-
-    override val id: VID?
-        get() = rawPart.id
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
-
-    val mixed: Boolean?
-        get() = rawPart.mixed
 
     val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
@@ -66,10 +56,6 @@ class ResolvedGlobalComplexType(
                 }
             }
 
-    val abstract: Boolean get() = model.mdlAbstract
-    val final: Set<VDerivationControl.Complex> get() = model.mdlFinal
-    val block: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
-
     override val model: Model by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
             is XSGlobalComplexTypeComplex -> ComplexModelImpl(this, r, schema)
@@ -78,10 +64,6 @@ class ResolvedGlobalComplexType(
         }
 
     }
-
-    override val mdlName: VNCName get() = model.mdlName
-
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         if (checkedTypes.add(mdlQName)) {
@@ -95,7 +77,7 @@ class ResolvedGlobalComplexType(
         return "ComplexType{ name=$mdlQName, base=$mdlBaseTypeDefinition }"
     }
 
-    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext {
+    interface Model : ResolvedComplexType.Model {
         val mdlTargetNamespace: VAnyURI?
         val mdlName: VNCName
     }
@@ -104,7 +86,7 @@ class ResolvedGlobalComplexType(
         override val mdlContentType: ResolvedSimpleContentType
     }
 
-    interface ComplexBase: Model, ResolvedSimpleTypeContext
+    interface ComplexBase: Model
 
     interface ComplexModel : ComplexBase
 
@@ -116,7 +98,7 @@ class ResolvedGlobalComplexType(
         schema: ResolvedSchemaLike,
     ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlName: VNCName = rawPart.name
-        override val mdlContext: ResolvedComplexTypeContext
+        override val mdlContext: VComplexTypeScope.Member
             get() = TODO("not implemented")
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
         override val mdlTargetNamespace: VAnyURI? = schema.targetNamespace

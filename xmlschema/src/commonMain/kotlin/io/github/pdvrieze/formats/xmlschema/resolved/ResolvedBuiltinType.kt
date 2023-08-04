@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -34,7 +33,6 @@ interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType {
     override val mdlAnnotations: Nothing? get() = null
     override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.ATOMIC
     override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
-    override val mdlTargetNamespace: VAnyURI? get() = BuiltinSchemaXmlschema.targetNamespace
     override val mdlBaseTypeDefinition: ResolvedSimpleType
     override val mdlItemTypeDefinition: ResolvedSimpleType?
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>

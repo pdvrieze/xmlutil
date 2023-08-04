@@ -49,8 +49,6 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
 
-    override val mdlTargetNamespace: VAnyURI? get() = model.mdlTargetNamespace
-
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {
             is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)

@@ -33,8 +33,7 @@ class ResolvedElementRef private constructor(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
 ) : IResolvedElementUse,
-    ResolvedParticle<ResolvedElement>,
-    ResolvedComplexTypeContext {
+    ResolvedParticle<ResolvedElement> {
 
     val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
 

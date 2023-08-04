@@ -38,8 +38,7 @@ class ResolvedLocalElement private constructor(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
 ) : ResolvedElement(rawPart, schema),
-    IResolvedElementUse,
-    ResolvedComplexTypeContext {
+    IResolvedElementUse {
 
     init {
         invariant(rawPart.ref == null)
