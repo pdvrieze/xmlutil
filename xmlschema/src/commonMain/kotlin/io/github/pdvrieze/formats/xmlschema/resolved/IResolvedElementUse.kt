@@ -21,49 +21,32 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.impl.invariant
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<ResolvedElement> {
+
+    /** Name of the used element */
+    val mdlQName: QName
 
     companion object {
         operator fun invoke(
             parent: VElementScope.Member,
             rawPart: XSLocalElement,
             schema: ResolvedSchemaLike,
-            minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-            maxOccurs: VAllNNI? = rawPart.maxOccurs,
-        ): IResolvedElementUse = when (rawPart.ref) {
-            null -> ResolvedLocalElement(parent, rawPart, schema, minOccurs, maxOccurs)
-            else -> ResolvedElementRef(parent, rawPart, schema, minOccurs, maxOccurs)
+        ): IResolvedElementUse {
+            val minOccurs =rawPart.minOccurs ?: VNonNegativeInteger.ONE
+            val maxOccurs = rawPart.maxOccurs ?: VAllNNI.ONE
+
+            return when {
+                minOccurs == VNonNegativeInteger.ZERO && maxOccurs == VNonNegativeInteger.ZERO ->
+                    ResolvedProhibitedElement(rawPart, schema)
+
+                rawPart.ref == null -> ResolvedLocalElement(parent, rawPart, schema, minOccurs, maxOccurs)
+                else -> ResolvedElementRef(parent, rawPart, schema, minOccurs, maxOccurs)
+            }
         }
     }
 }
 
-class ResolvedProhibitedElement(
-    override val rawPart: XSLocalElement,
-    override val schema: ResolvedSchemaLike
-) : IResolvedElementUse {
-
-    init {
-        invariant(rawPart.minOccurs == VNonNegativeInteger.ZERO)
-        invariant(rawPart.maxOccurs == VNonNegativeInteger.ZERO)
-    }
-
-    override val minOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
-    override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
-
-    override val maxOccurs: VAllNNI get() = VAllNNI.ZERO
-    override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO
-
-    override val mdlTerm: Nothing
-        get() = throw UnsupportedOperationException("Prohibited elements have no terms")
-
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedProhibitedElement = this
-}

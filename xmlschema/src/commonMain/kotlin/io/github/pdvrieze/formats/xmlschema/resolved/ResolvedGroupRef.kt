@@ -22,16 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
-import kotlin.reflect.KClass
 
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
     override val schema: ResolvedSchemaLike,
-    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: VAllNNI? = rawPart.maxOccurs,
+    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupBase,
     ResolvedGroupParticle<ResolvedModelGroup> {
 
@@ -42,11 +40,6 @@ class ResolvedGroupRef(
     val referenced: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
 
     val ref: QName get() = rawPart.ref
-
-    override val mdlMinOccurs: VNonNegativeInteger get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-
-    override val mdlMaxOccurs: VAllNNI get() = rawPart.maxOccurs ?: VAllNNI.ONE
-
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedGroupParticle>.check(checkedTypes)
@@ -64,8 +57,8 @@ class ResolvedGroupRef(
         return ResolvedGroupRef(
             rawPart,
             schema,
-            minOccurs?.times(minMultiplier) ?: minMultiplier,
-            maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+            mdlMinOccurs * minMultiplier,
+            mdlMaxOccurs * maxMultiplier,
         )
     }
 
