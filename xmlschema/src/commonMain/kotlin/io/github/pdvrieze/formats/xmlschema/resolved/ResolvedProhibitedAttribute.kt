@@ -37,21 +37,20 @@ class ResolvedProhibitedAttribute(
 
     override val mdlInheritable: Boolean get() = false
     override val mdlRequired: Boolean get() = false
-    override val mdlAttributeDeclaration: Nothing
-        get() = throw UnsupportedOperationException("Prohibited attribute have no declaration")
-    override val mdlValueConstraint: ValueConstraint?
-        get() = null
+    override val mdlAttributeDeclaration: Nothing get() = throw UnsupportedOperationException("Prohibited attribute have no declaration")
+
+    override val mdlValueConstraint: ValueConstraint? get() = null
 
     val mdlQName: QName by lazy {
         rawPart.ref ?: run {
 
-            val targetNS = rawPart.targetNamespace?.value ?: when (schema.attributeFormDefault) {
-                VFormChoice.QUALIFIED -> schema.targetNamespace?.value ?: ""
+            val targetNS = rawPart.targetNamespace ?: when (schema.attributeFormDefault) {
+                VFormChoice.QUALIFIED -> schema.targetNamespace
 
-                else -> ""
+                else -> null
             }
-            val name = checkNotNull(rawPart.name) { "3.2.3(3.1) - name is required if ref is mising" }.xmlString
-            QName(targetNS, name)
+            checkNotNull(rawPart.name) { "3.2.3(3.1) - name is required if ref is mising" }
+                .toQname(targetNS)
         }
     }
 }

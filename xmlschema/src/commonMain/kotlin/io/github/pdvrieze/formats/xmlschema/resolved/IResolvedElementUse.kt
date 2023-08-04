@@ -21,13 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
-sealed interface IResolvedElementUse: ResolvedAnnotated, ResolvedParticle<ResolvedElement> {
-
-    val mdlElementDeclaration: ResolvedElement
+sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<ResolvedElement> {
 
     companion object {
         operator fun invoke(
@@ -43,3 +43,27 @@ sealed interface IResolvedElementUse: ResolvedAnnotated, ResolvedParticle<Resolv
     }
 }
 
+class ResolvedProhibitedElement(
+    override val rawPart: XSLocalElement,
+    override val schema: ResolvedSchemaLike
+) : IResolvedElementUse {
+
+    init {
+        invariant(rawPart.minOccurs == VNonNegativeInteger.ZERO)
+        invariant(rawPart.maxOccurs == VNonNegativeInteger.ZERO)
+    }
+
+    override val minOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
+    override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
+
+    override val maxOccurs: VAllNNI get() = VAllNNI.ZERO
+    override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO
+
+    override val mdlTerm: Nothing
+        get() = throw UnsupportedOperationException("Prohibited elements have no terms")
+
+    override fun normalizeTerm(
+        minMultiplier: VNonNegativeInteger,
+        maxMultiplier: VAllNNI
+    ): ResolvedProhibitedElement = this
+}

@@ -98,7 +98,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
     companion object Serializer: KSerializer<VAllNNI> {
 
-        val ONE = invoke(1)
+        val ONE = Value(VNonNegativeInteger.ONE)
+
+        val ZERO = Value(VNonNegativeInteger.ZERO)
 
         operator fun invoke(v: Int): Value = Value(v.toULong())
 
@@ -110,7 +112,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI", PrimitiveKind.STRING)
 
-        override fun deserialize(decoder: Decoder): VAllNNI = when (val v= decoder.decodeString()) {
+        override fun deserialize(decoder: Decoder): VAllNNI = when (val v = decoder.decodeString()) {
             "unbounded" -> UNBOUNDED
             else -> Value(VNonNegativeInteger(v))
         }
