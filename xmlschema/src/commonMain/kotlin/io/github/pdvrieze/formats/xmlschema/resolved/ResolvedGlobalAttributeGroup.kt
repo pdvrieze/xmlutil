@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
 import nl.adaptivity.xmlutil.QName
@@ -49,17 +46,11 @@ class ResolvedGlobalAttributeGroup(
     val anyAttribute: XSAnyAttribute?
         get() = rawPart.anyAttribute
 
-    override val annotation: XSAnnotation?
-        get() = rawPart.annotation
-
     override val id: VID?
         get() = rawPart.id
 
     override val otherAttrs: Map<QName, String>
         get() = rawPart.otherAttrs
-
-    override val targetNamespace: VAnyURI?
-        get() = schema.targetNamespace
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)
