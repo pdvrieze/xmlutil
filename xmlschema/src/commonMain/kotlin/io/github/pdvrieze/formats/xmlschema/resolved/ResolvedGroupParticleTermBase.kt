@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -31,11 +30,12 @@ sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
 ): ResolvedGroupParticle<T>, ResolvedPart,
     ResolvedAnnotated {
 
-    final override val mdlMinOccurs: VNonNegativeInteger
-        get() = minOccurs ?: VNonNegativeInteger.ONE
+    override val mdlMinOccurs: VNonNegativeInteger
+        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
 
     override val mdlMaxOccurs: VAllNNI
-        get() = maxOccurs ?: VAllNNI.ONE
+        get() = rawPart.maxOccurs ?: VAllNNI.ONE
+
     abstract override val rawPart: XSI_Grouplike
     val particles: List<XSI_Particle>
         get() = rawPart.particles

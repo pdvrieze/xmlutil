@@ -23,21 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAny(
     override val rawPart: XSAny,
     override val schema: ResolvedSchemaLike,
-    override val minOccurs: VNonNegativeInteger? = rawPart.minOccurs,
-    override val maxOccurs: VAllNNI? = rawPart.maxOccurs
+    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
-    override val mdlMinOccurs: VNonNegativeInteger
-        get() = minOccurs ?: VNonNegativeInteger.ONE
-
-    override val mdlMaxOccurs: VAllNNI
-        get() = maxOccurs ?: VAllNNI.ONE
 
     override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
@@ -80,8 +74,8 @@ class ResolvedAny(
                 ResolvedAny(
                     rawPart,
                     schema,
-                    minOccurs?.times(minMultiplier) ?: minMultiplier,
-                    maxOccurs?.times(maxMultiplier) ?: maxMultiplier,
+                    mdlMinOccurs * minMultiplier,
+                    mdlMaxOccurs * maxMultiplier,
                 )
             }
 

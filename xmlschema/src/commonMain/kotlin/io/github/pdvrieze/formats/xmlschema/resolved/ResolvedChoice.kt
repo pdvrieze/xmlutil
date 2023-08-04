@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
-import io.github.pdvrieze.formats.xmlschema.resolved.particles.ResolvedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -30,8 +29,8 @@ class ResolvedChoice private constructor(
     override val rawPart: XSChoice,
     schema: ResolvedSchemaLike,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val minOccurs: VNonNegativeInteger?,
-    override val maxOccurs: VAllNNI?,
+    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMaxOccurs: VAllNNI,
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
     IResolvedChoice {
 
@@ -45,8 +44,8 @@ class ResolvedChoice private constructor(
         DelegateList(rawPart.particles) {
             ResolvedParticle.choiceSeqMember(parent, it, schema)
         },
-        rawPart.minOccurs,
-        rawPart.maxOccurs
+        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        rawPart.maxOccurs ?: VAllNNI.ONE,
     )
 
 
@@ -73,8 +72,8 @@ class ResolvedChoice private constructor(
             rawPart,
             schema,
             mdlParticles,
-            minOccurs?.times(minMultiplier) ?: minMultiplier,
-            maxOccurs?.times(maxMultiplier) ?: maxMultiplier
+            mdlMinOccurs * minMultiplier,
+            mdlMaxOccurs * maxMultiplier
         )
     }
 
