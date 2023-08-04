@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -30,13 +29,9 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
-    override val mdlContext: ResolvedComplexTypeContext,
+    override val mdlContext: VComplexTypeScope.Member,
 ) : ResolvedComplexType(schema), ResolvedLocalType,
-    ResolvedSimpleTypeContext {
-    val mixed: Boolean? get() = rawPart.mixed
-    val defaultAttributesApply: Boolean? get() = rawPart.defaultAttributesApply
-    override val id: VID? get() = rawPart.id
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
+    VSimpleTypeScope.Member {
 
     override val content: ResolvedComplexTypeContent by lazy {
         when (val c = rawPart.content) {
@@ -69,8 +64,8 @@ class ResolvedLocalComplexType(
 //    interface Context {} /* : ComplexTypeContext*/
 
     // TODO don't inherit simpleTypeContext
-    interface Model : ResolvedComplexType.Model, ResolvedSimpleTypeContext {
-        val mdlContext: ResolvedComplexTypeContext
+    interface Model : ResolvedComplexType.Model {
+        val mdlContext: VComplexTypeScope.Member
     }
 
     interface SimpleModel : Model, ResolvedSimpleContentType {
@@ -81,7 +76,7 @@ class ResolvedLocalComplexType(
         rawPart: XSLocalComplexTypeSimple,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
-        override val mdlContext: ResolvedComplexTypeContext
+        override val mdlContext: VComplexTypeScope.Member
     ) : SimpleModelBase(parent, rawPart, schema), SimpleModel {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
@@ -94,7 +89,7 @@ class ResolvedLocalComplexType(
         rawPart: XSLocalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
-        override val mdlContext: ResolvedComplexTypeContext
+        override val mdlContext: VComplexTypeScope.Member
     ) : ComplexModelBase(parent, rawPart, schema),
         Model {
         override val mdlAbstract: Boolean get() = false
@@ -108,7 +103,7 @@ class ResolvedLocalComplexType(
         rawPart: XSLocalComplexTypeComplex,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
-        override val mdlContext: ResolvedComplexTypeContext
+        override val mdlContext: VComplexTypeScope.Member
     ) : ComplexModelBase(parent, rawPart, schema),
         Model {
         override val mdlAbstract: Boolean get() = false

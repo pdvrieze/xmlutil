@@ -31,5 +31,5 @@ sealed interface XSI_ComplexDerivation : XSComplexType.Derivation, XSI_Annotated
     val term: XSComplexContent.XSIDerivationParticle?
     val openContent: XSOpenContent?
     val base: QName?
-    val asserts: List<XSIAssertCommon>
+    override val asserts: List<XSIAssertCommon>
 }

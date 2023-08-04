@@ -50,3 +50,28 @@ sealed class VElementScope : IScope {
 
     interface Member
 }
+
+sealed interface VTypeScope : IScope {
+    interface Global : VTypeScope, IScope.Global
+
+    interface Local : VTypeScope, IScope.Local
+
+    sealed interface MemberBase
+    interface Member : VComplexTypeScope.Member, VSimpleTypeScope.Member
+}
+
+sealed class VComplexTypeScope : VTypeScope {
+    object Global : VComplexTypeScope(), VTypeScope.Global
+
+    class Local(override val parent: Member) : VComplexTypeScope(), VTypeScope.Local
+
+    interface Member: VTypeScope.MemberBase
+}
+
+sealed class VSimpleTypeScope : VTypeScope {
+    object Global : VSimpleTypeScope(), VTypeScope.Global
+
+    class Local(override val parent: Member) : VSimpleTypeScope(), VTypeScope.Local
+
+    interface Member : VTypeScope.MemberBase
+}

@@ -41,6 +41,7 @@ sealed interface XSComplexType : XSIComplexType {
         val attributes: List<XSLocalAttribute>
         val attributeGroups: List<XSAttributeGroupRef>
         val anyAttribute: XSAnyAttribute?
+        val asserts: List<XSIAssertCommon>
     }
 
     sealed interface ComplexBase : XSIComplexType {

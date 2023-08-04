@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 
 class SyntheticSimpleType(
-    val mdlContext: ResolvedSimpleTypeContext,
+    val mdlContext: VSimpleTypeScope.Member,
     override val mdlBaseTypeDefinition: ResolvedSimpleType,
     override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,

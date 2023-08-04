@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike,
-    override val mdlContext: ResolvedSimpleTypeContext,
+    override val mdlContext: VSimpleTypeScope.Member,
 ) : ResolvedLocalType, ResolvedSimpleType {
 
     override val id: VID?
@@ -48,13 +48,13 @@ class ResolvedLocalSimpleType(
     override val model: Model by lazy { ModelImpl(rawPart, schema, mdlContext) }
 
     interface Model: ResolvedSimpleType.Model {
-        val mdlContext: ResolvedSimpleTypeContext
+        val mdlContext: VSimpleTypeScope.Member
     }
 
     private inner class ModelImpl(
         rawPart: XSLocalSimpleType,
         schema: ResolvedSchemaLike,
-        override val mdlContext: ResolvedSimpleTypeContext
+        override val mdlContext: VSimpleTypeScope.Member
     ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), Model {
 
         override val mdlFinal: Set<VDerivationControl.Type> =

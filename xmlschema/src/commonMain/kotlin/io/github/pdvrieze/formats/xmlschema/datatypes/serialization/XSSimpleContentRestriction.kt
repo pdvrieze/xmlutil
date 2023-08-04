@@ -43,11 +43,11 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
-        assertions: List<XSAssert> = emptyList(),
+        asserts: List<XSAssert> = emptyList(),
         annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
+    ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
         this.base = base
         this.simpleType = simpleType
         this.facets = facets

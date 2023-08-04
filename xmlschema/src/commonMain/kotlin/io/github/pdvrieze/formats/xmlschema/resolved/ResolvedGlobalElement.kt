@@ -33,9 +33,7 @@ class ResolvedGlobalElement(
     override val rawPart: XSGlobalElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedElement(rawPart, schema),
-    ResolvedComplexTypeContext,
-    ResolvedTypeContext, NamedPart {
+) : ResolvedElement(rawPart, schema), NamedPart {
 
     private val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
         get() = model.mdlSubstitutionGroupAffiliations

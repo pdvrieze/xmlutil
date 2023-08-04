@@ -38,10 +38,10 @@ class XSSimpleContentExtension : XSSimpleContentDerivation {
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
-        assertions: List<XSAssert> = emptyList(),
+        asserts: List<XSAssert> = emptyList(),
         annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, attributes, attributeGroups, anyAttribute, assertions, annotation, otherAttrs) {
+    ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
         this.base = base
     }
 
