@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 sealed class ResolvedNamedIdentityConstraint(
     rawPart: XSIdentityConstraint,
@@ -34,5 +35,4 @@ sealed class ResolvedNamedIdentityConstraint(
 
     final override val mdlFields: List<XPathExpression>
         get() = rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
-
 }
