@@ -68,12 +68,12 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedPart,
+    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, val schema: ResolvedSchemaLike):
         ResolvedAttrContainer {
 
         final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-        abstract override val rawPart: XSGroup.XSGroupElement
+        abstract val rawPart: XSGroup.XSGroupElement
         abstract fun check(checkedTypes: MutableSet<QName>)
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>

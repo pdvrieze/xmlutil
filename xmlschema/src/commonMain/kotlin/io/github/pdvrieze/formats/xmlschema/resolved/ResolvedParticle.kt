@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPart {
     override val rawPart: XSI_Particle
 
     val mdlMinOccurs: VNonNegativeInteger

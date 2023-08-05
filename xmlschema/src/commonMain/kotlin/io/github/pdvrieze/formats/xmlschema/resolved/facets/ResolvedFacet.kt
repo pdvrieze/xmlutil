@@ -30,10 +30,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) : ResolvedPart,
+sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     ResolvedAttrContainer {
 
-    abstract override val rawPart: XSFacet
+    abstract val rawPart: XSFacet
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 

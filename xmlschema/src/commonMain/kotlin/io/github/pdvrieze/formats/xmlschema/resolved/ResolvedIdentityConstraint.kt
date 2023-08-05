@@ -24,10 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedIdentityConstraint : ResolvedPart,
-    ResolvedAttrContainer {
+sealed interface ResolvedIdentityConstraint : ResolvedAttrContainer {
     val selector: XSSelector
-    override val schema: ResolvedSchemaLike
+    val schema: ResolvedSchemaLike
+    val rawPart: XSIdentityConstraint
 
     val mdlQName: QName?
 
