@@ -23,13 +23,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttributeGroup(
     override val rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(rawPart, schema), NamedPart, VAttributeScope.Member {
+) : ResolvedAttributeGroup(rawPart, schema), ResolvedAnnotated, NamedPart, VAttributeScope.Member {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -49,8 +50,8 @@ class ResolvedGlobalAttributeGroup(
     override val id: VID?
         get() = rawPart.id
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        for (a in attributes) { a.check(checkedTypes) }
-        for (ag in attributeGroups) { ag.check(checkedTypes) }
+    fun checkAttributeGroup(checkHelper: CheckHelper) {
+        for (a in attributes) { a.checkUse(checkHelper) }
+        for (ag in attributeGroups) { ag.checkRef(checkHelper) }
     }
 }

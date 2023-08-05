@@ -20,9 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+
 sealed interface IResolvedAttributeUse : ResolvedAnnotated, ResolvedPart {
     val mdlRequired: Boolean
     val mdlAttributeDeclaration: ResolvedAttributeDef
     val mdlValueConstraint: ValueConstraint?
     val mdlInheritable: Boolean
+
+    fun checkUse(checkHelper: CheckHelper)
 }

@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -45,11 +46,9 @@ class SyntheticSequence(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedSequence>.check(checkedTypes)
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super<IResolvedSequence>.checkTerm(checkHelper)
     }
-
-    override fun check() {}
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,

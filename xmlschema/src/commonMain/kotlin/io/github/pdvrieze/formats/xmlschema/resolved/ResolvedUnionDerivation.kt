@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -54,15 +55,11 @@ class ResolvedUnionDerivation(
 
     }
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
         require(resolvedMembers.isNotEmpty()) { "Union without elements" }
         for (m in resolvedMembers) {
-            (m as? ResolvedGlobalType)?.let {
-                require(it.mdlQName !in inheritedTypes) { "Recursive presence of ${it.mdlQName}" }
-                if (it.mdlQName !in checkedTypes) {
-                    m.check(checkedTypes, inheritedTypes)
-                }
-            }
+            checkHelper.checkType(m, inheritedTypes)
+
             check(VDerivationControl.UNION !in m.mdlFinal) {
                 "$m is final for union, and can not be put in a union"
             }

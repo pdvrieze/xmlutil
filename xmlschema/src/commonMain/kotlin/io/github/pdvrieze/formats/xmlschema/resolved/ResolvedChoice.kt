@@ -55,15 +55,6 @@ class ResolvedChoice private constructor(
         mdlParticles
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedGroupParticleTermBase>.check(checkedTypes)
-    }
-
-
-    override fun check() {
-        check(mutableSetOf())
-    }
-
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: VAllNNI

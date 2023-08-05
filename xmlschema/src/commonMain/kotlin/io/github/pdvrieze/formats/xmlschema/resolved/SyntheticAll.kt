@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -40,12 +41,9 @@ class SyntheticAll(
     override val mdlAnnotations: ResolvedAnnotation? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedAll>.check(checkedTypes)
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super<IResolvedAll>.checkTerm(checkHelper)
         // TODO implement something
-    }
-
-    override fun check() {
     }
 
     override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): SyntheticAll {

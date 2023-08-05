@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFac
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
@@ -84,13 +85,12 @@ sealed class ListDatatype(
     override val rawPart: Nothing get() = throw UnsupportedOperationException("No raw part")
     abstract override val baseType: ResolvedType
 
+    override val mdlScope: VSimpleTypeScope.Global get() = super<Datatype>.mdlScope
+
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
-    override val mdlScope: VSimpleTypeScope.Global
-        get() = super<Datatype>.mdlScope
-
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        baseType.check(checkedTypes, inheritedTypes)
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+        baseType.checkType(checkHelper, inheritedTypes)
     }
 
     override val model: ListDatatype
@@ -177,13 +177,11 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
     override val mdlFacets: FacetList get() = FacetList.EMPTY
+    override val mdlScope: VSimpleTypeScope.Global get() = super<Datatype>.mdlScope
 
     override val mdlBaseTypeDefinition: ErrorType get() = baseType
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
-
-    override val mdlScope: VSimpleTypeScope.Global
-        get() = super<Datatype>.mdlScope
 
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinSimpleType>.mdlFinal
@@ -213,9 +211,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
 
         override val mdlAnnotations: Nothing? get() = null
 
-        override fun check(checkedTypes: MutableSet<QName>) = Unit
-
-        override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+        override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
 }
 
@@ -293,6 +289,5 @@ internal open class SimpleBuiltinRestriction(
     override val otherContents: List<Nothing> get() = emptyList()
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 
-    override fun check(checkedTypes: MutableSet<QName>) = Unit
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
 }

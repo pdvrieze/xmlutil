@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationTyp
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
@@ -71,18 +72,12 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = model.mdlFinal
 
-    override fun check(
-        checkedTypes: MutableSet<QName>,
+    override fun checkType(
+        checkHelper: CheckHelper,
         inheritedTypes: SingleLinkedList<QName>
     ) { // TODO maybe move to toplevel
-
-        when (val qName = (this as? ResolvedGlobalType)?.mdlQName) {
-            null -> simpleDerivation.check(checkedTypes, inheritedTypes)
-            else -> {
-                checkedTypes.add(qName)
-                simpleDerivation.check(checkedTypes, inheritedTypes + qName)
-            }
-        }
+        val inherited = (this as? ResolvedGlobalType)?.run { inheritedTypes + mdlQName } ?: inheritedTypes
+        simpleDerivation.checkDerivation(checkHelper, inherited)
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for (enum in mdlFacets.enumeration) {
@@ -164,11 +159,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType
 
-        override fun check(checkedTypes: MutableSet<QName>) {
-            check(checkedTypes, SingleLinkedList.empty())
-        }
-
-        abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
+        abstract fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>)
     }
 
     interface Model {

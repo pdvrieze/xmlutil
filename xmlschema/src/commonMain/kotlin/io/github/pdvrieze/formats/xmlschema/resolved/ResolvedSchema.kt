@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
@@ -27,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -134,27 +136,28 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
     }
 
     fun check() {
+        val checkHelper = CheckHelper(this)
         val checkedTypes = HashSet<QName>()
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
             if (data is NestedData) {
-                for (s in data.elements.values) {
-                    s.check(checkedTypes)
+                for (e in data.elements.values) {
+                    checkHelper.checkElement(e)
                 }
                 for (a in data.attributes.values) {
-                    a.check(checkedTypes)
+                    checkHelper.checkAttribute(a)
                 }
                 for (t in data.simpleTypes.values) {
-                    t.check(checkedTypes)
+                    checkHelper.checkType(t, SingleLinkedList())
                 }
                 for (t in data.complexTypes.values) {
-                    t.check(checkedTypes)
+                    checkHelper.checkType(t, SingleLinkedList())
                 }
                 for (g in data.groups.values) {
-                    g.check(checkedTypes)
+                    checkHelper.checkGroup(g)
                 }
                 for (ag in data.attributeGroups.values) {
-                    ag.check(checkedTypes)
+                    checkHelper.checkAttributeGroup(ag)
                 }
                 for (ic in data.identityConstraints.values) {
                     val name = ic.mdlQName?.let { QName(it.namespaceURI, it.localPart) }
@@ -163,6 +166,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
                             "Duplicate identity constraint ${ic.mdlQName}"
                         }
                     }
+                    checkHelper.checkConstraint(ic)
                 }
             }
         }

@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -87,12 +88,6 @@ class ResolvedLocalElement private constructor(
         rawPart.minOccurs ?: VNonNegativeInteger.ONE,
         rawPart.maxOccurs ?: VAllNNI.ONE,
     )
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedElement>.check(checkedTypes)
-
-        mdlIdentityConstraints.forEach { it.check(checkedTypes) }
-    }
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,

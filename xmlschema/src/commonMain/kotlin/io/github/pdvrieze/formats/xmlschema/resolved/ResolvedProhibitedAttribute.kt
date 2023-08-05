@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -56,7 +57,7 @@ class ResolvedProhibitedAttribute(
         }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkUse(checkHelper: CheckHelper) {
         checkNotNull(mdlQName)
     }
 }

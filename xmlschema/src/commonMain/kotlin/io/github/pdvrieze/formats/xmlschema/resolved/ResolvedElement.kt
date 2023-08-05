@@ -23,12 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) :
     VTypeScope.Member,
-    ResolvedBasicTerm {
+    ResolvedBasicTerm, ResolvedAnnotated {
 
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
@@ -106,9 +107,9 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
         return true
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkTerm(checkHelper: CheckHelper) {
         for (constraint in mdlIdentityConstraints) {
-            constraint.check(checkedTypes)
+            checkHelper.checkConstraint(constraint)
         }
         mdlValueConstraint?.let {
             mdlTypeDefinition.validate(it.value)
@@ -116,7 +117,7 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
                 "ID types can not have fixed values"
             }
         }
-        mdlTypeDefinition.check(checkedTypes)
+        mdlTypeDefinition.checkType(checkHelper)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

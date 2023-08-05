@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -31,7 +32,7 @@ class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, VElementScope.Member, NamedPart {
+) : ResolvedGroupBase, ResolvedAnnotated, VElementScope.Member, NamedPart {
 
     override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
@@ -57,8 +58,8 @@ class ResolvedGlobalGroup(
     override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        mdlModelGroup.check()
+    fun checkGroup(checkHelper: CheckHelper) {
+        mdlModelGroup.checkTerm(checkHelper)
     }
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
@@ -67,13 +68,12 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike):
-        ResolvedAnnotated {
+    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedTerm {
 
         final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
         abstract override val rawPart: XSGroup.XSGroupElement
-        abstract override fun check(checkedTypes: MutableSet<QName>)
+        abstract override fun checkTerm(checkHelper: CheckHelper)
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     }
@@ -112,13 +112,10 @@ class ResolvedGlobalGroup(
             return SyntheticAll(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
-        override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+        override fun checkTerm(checkHelper: CheckHelper) {
+            super.checkTerm(checkHelper)
         }
 
-        override fun check() {
-            check(mutableSetOf())
-        }
     }
 
     private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
@@ -153,13 +150,10 @@ class ResolvedGlobalGroup(
             return SyntheticChoice(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
-        override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+        override fun checkTerm(checkHelper: CheckHelper) {
+            super.checkTerm(checkHelper)
         }
 
-        override fun check() {
-            check(mutableSetOf())
-        }
     }
 
     private class SequenceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
@@ -177,13 +171,10 @@ class ResolvedGlobalGroup(
             }
         }
 
-        override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+        override fun checkTerm(checkHelper: CheckHelper) {
+            super.checkTerm(checkHelper)
         }
 
-        override fun check() {
-            check(mutableSetOf())
-        }
     }
 }
 

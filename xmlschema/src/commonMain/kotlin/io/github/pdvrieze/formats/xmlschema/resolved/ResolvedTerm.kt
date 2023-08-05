@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedTerm : ResolvedAnnotated {
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+    fun checkTerm(checkHelper: CheckHelper)
 
 //    override fun check(checkedTypes: MutableSet<QName>)
 }

@@ -21,21 +21,19 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val schema: ResolvedSchemaLike
     val mdlCompositor: Compositor
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkTerm(checkHelper: CheckHelper) {
         for(particle in mdlParticles) {
-            particle.check(checkedTypes)
+            particle.checkParticle(checkHelper)
         }
     }
-
-    fun check()
 
     fun normalize(
         minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,

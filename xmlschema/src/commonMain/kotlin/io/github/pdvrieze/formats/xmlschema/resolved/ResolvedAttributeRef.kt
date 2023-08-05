@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -51,16 +52,14 @@ class ResolvedAttributeRef(
 
     override val model: Model by lazy { Model(rawPart, schema, this) }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-
+    override fun checkUse(checkHelper: CheckHelper) {
         val r = mdlAttributeDeclaration
         val vc = r.mdlValueConstraint
         if (rawPart.fixed != null && vc is ValueConstraint.Fixed) {
             require(rawPart.fixed == vc.value) { "If an attribute reference has a fixed value it must be the same as the original" }
         }
-        r.check(checkedTypes)
 
+        checkHelper.checkAttribute(r)
     }
 
     protected class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, context: ResolvedAttributeRef) :

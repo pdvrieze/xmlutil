@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
@@ -44,12 +45,6 @@ sealed class ResolvedAttribute(
     val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
     final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        mdlTypeDefinition.check(checkedTypes)
-
-        mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value)}
-    }
 
     protected abstract class Model(base: ResolvedAttribute, schema: ResolvedSchemaLike) {
         abstract val mdlQName: QName
