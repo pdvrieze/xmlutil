@@ -20,7 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleDerivation
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedSimpleDerivationBase(
@@ -30,6 +32,4 @@ abstract class ResolvedSimpleDerivationBase(
     abstract override val rawPart: XSSimpleDerivation
 
     abstract override val baseType: ResolvedSimpleType
-    override fun check(checkedTypes: MutableSet<QName>) {
-    }
 }

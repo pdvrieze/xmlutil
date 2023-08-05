@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
+sealed interface ResolvedIdentityConstraint : ResolvedCheckable {
     val selector: XSSelector
     override val schema: ResolvedSchemaLike
     override val rawPart: XSIdentityConstraint

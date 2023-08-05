@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -69,8 +70,8 @@ class ResolvedSequence private constructor(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedGroupParticleTermBase>.check(checkedTypes)
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
         val names = mutableSetOf<QName>()
         for (elem in mdlParticles) {
             if (elem is ResolvedLocalElement) {
@@ -79,10 +80,6 @@ class ResolvedSequence private constructor(
         }
     }
 
-
-    override fun check() {
-        check(mutableSetOf())
-    }
 
     override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): ResolvedSequence {
         return ResolvedSequence(

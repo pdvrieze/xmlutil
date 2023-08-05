@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchemaLike) :
     ResolvedAttribute(rawPart, schema) {
@@ -36,8 +36,9 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         require(name.xmlString != "xmlns") { "3.2.6.3 - Declaring xmlns attributes is forbidden" }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+    open fun checkAttribute(checkHelper: CheckHelper) {
+        mdlTypeDefinition.checkType(checkHelper)
+        mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value) }
         require(mdlQName.getNamespaceURI()!= XmlSchemaConstants.XSI_NAMESPACE) {
             "3.2.6.4 - Attributes may not have the XSI namespace as their target namespace"
         }

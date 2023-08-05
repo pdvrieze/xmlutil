@@ -59,14 +59,6 @@ class ResolvedAll private constructor(
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<IResolvedAll>.check(checkedTypes)
-    }
-
-    override fun check() {
-        check(mutableSetOf())
-    }
-
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,
         maxMultiplier: VAllNNI
