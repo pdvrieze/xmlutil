@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(VQNameList.Serializer::class)
-class VQNameList(val values: List<VQNameList.Elem>): List<VQNameList.Elem> by values {
+class VQNameList(val values: List<Elem>): List<VQNameList.Elem> by values {
 
     constructor() : this(listOf())
 

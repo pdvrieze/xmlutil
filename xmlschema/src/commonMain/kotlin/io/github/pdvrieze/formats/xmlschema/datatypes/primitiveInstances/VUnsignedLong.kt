@@ -43,7 +43,7 @@ interface VUnsignedLong : VNonNegativeInteger {
 
         override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {
             if (other !is VUnsignedLong) return other.plus(this)
-            return VUnsignedLong.Inst(value + other.toULong())
+            return Inst(value + other.toULong())
         }
 
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {

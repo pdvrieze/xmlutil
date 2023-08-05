@@ -43,7 +43,7 @@ class ResolvedSequence private constructor(
     ) : this(
         rawPart,
         DelegateList(rawPart.particles) {
-            ResolvedParticle(parent, it, schema) as ResolvedParticle<ResolvedTerm>
+            ResolvedParticle(parent, it, schema)
         },
         schema,
         rawPart.minOccurs ?: VNonNegativeInteger.ONE,

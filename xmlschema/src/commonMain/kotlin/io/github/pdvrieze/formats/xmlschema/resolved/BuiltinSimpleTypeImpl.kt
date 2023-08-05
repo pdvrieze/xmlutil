@@ -58,6 +58,6 @@ abstract class BuiltinSimpleTypeImpl(schemaLike: ResolvedSchemaLike) : ResolvedB
 
      */
 
-    open override val mdlFundamentalFacets: FundamentalFacets get() = mdlBaseTypeDefinition.mdlFundamentalFacets
+    override val mdlFundamentalFacets: FundamentalFacets get() = mdlBaseTypeDefinition.mdlFundamentalFacets
 
 }

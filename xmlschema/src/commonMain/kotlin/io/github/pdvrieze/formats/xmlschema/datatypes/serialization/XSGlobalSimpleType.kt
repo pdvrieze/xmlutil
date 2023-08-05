@@ -51,5 +51,4 @@ class XSGlobalSimpleType(
 
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : XSISimpleType, XSGlobalType {
-}
+) : XSISimpleType, XSGlobalType
