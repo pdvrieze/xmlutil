@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import nl.adaptivity.xmlutil.QName
 
 interface ResolvedAnnotated : ResolvedPart {
     override val rawPart: XSI_Annotated
@@ -30,4 +30,6 @@ interface ResolvedAnnotated : ResolvedPart {
     val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
     val id: VID? get() = rawPart.id
+    fun check(checkedTypes: MutableSet<QName>) {
+    }
 }

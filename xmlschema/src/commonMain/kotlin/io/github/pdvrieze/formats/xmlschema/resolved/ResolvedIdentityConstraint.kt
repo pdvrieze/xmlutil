@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
@@ -62,4 +61,6 @@ sealed interface ResolvedIdentityConstraint : ResolvedPart {
     }
 
     enum class Category { KEY, KEYREF, UNIQUE }
+
+    fun check(checkedTypes: MutableSet<QName>)
 }
