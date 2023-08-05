@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedUnique : ResolvedReferenceableConstraint {
     override val rawPart: XSUnique
@@ -39,7 +39,7 @@ interface ResolvedUnique : ResolvedReferenceableConstraint {
         }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkConstraint(checkHelper: CheckHelper) {
     }
 }
 

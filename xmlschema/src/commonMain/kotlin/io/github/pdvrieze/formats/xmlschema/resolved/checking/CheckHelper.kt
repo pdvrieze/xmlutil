@@ -92,14 +92,14 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
 
     fun checkConstraint(name: QName) {
         if (checkedConstraints.add(name)) {
-            schema.identityConstraint(name).check(mutableSetOf())
+            schema.identityConstraint(name).checkConstraint(this)
         }
     }
 
     fun checkConstraint(constraint: ResolvedIdentityConstraint) {
         val name = constraint.mdlQName
         if (name == null || checkedConstraints.add(name)) {
-            constraint.check(mutableSetOf())
+            constraint.checkConstraint(this)
         }
     }
 
