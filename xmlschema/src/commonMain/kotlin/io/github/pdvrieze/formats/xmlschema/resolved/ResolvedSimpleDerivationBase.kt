@@ -26,8 +26,10 @@ import nl.adaptivity.xmlutil.QName
 abstract class ResolvedSimpleDerivationBase(
     rawPart: XSSimpleDerivation,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleType.Derivation(rawPart, schema), ResolvedPart {
+) : ResolvedSimpleType.Derivation(rawPart, schema) {
     abstract override val rawPart: XSSimpleDerivation
 
     abstract override val baseType: ResolvedSimpleType
+    override fun check(checkedTypes: MutableSet<QName>) {
+    }
 }

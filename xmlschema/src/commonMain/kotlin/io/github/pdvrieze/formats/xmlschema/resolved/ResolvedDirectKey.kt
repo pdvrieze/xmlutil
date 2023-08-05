@@ -41,7 +41,7 @@ class ResolvedDirectKey(
         get() = this
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
+        super.check(checkedTypes)
     }
 
 }
