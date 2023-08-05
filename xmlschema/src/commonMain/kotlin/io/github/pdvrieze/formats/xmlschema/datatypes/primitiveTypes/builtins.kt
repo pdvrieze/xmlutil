@@ -255,7 +255,7 @@ object BooleanType : PrimitiveDatatype("boolean", XmlSchemaConstants.XS_NAMESPAC
     }
 }
 
-interface FiniteDateType : ResolvedBuiltinType
+interface FiniteDateType : ResolvedBuiltinSimpleType
 
 object DateType : PrimitiveDatatype("date", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType

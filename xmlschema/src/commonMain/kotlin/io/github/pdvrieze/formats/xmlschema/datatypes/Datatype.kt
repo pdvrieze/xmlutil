@@ -47,7 +47,7 @@ abstract class Datatype(
     name: VNCName,
     schema: ResolvedSchemaLike,
     targetNamespace: VAnyURI? = schema.targetNamespace,
-) : ResolvedBuiltinType {
+) : ResolvedBuiltinSimpleType {
     final override val mdlQName: QName = name.toQname(targetNamespace)
 
     abstract val baseType: ResolvedType
@@ -80,7 +80,7 @@ sealed class ListDatatype protected constructor(
     targetNamespace: String,
     val itemType: Datatype,
     schema: ResolvedSchemaLike,
-) : Datatype(name, targetNamespace, schema), ResolvedBuiltinType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
+) : Datatype(name, targetNamespace, schema), ResolvedBuiltinSimpleType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
     override val rawPart: Nothing get() = throw UnsupportedOperationException("No raw part")
     abstract override val baseType: ResolvedType
 
@@ -168,7 +168,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String, schema: Resolv
 
 object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSchemaXmlschema),
     ResolvedGlobalSimpleType,
-    ResolvedBuiltinType,
+    ResolvedBuiltinSimpleType,
     ResolvedSimpleType.Model {
 
     override val baseType: ErrorType get() = ErrorType
@@ -187,14 +187,14 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
         get() = super<Datatype>.mdlScope
 
     override val mdlFinal: Set<VDerivationControl.Type>
-        get() = super<ResolvedBuiltinType>.mdlFinal
+        get() = super<ResolvedBuiltinSimpleType>.mdlFinal
 
-    override val mdlFundamentalFacets: FundamentalFacets get() = super<ResolvedBuiltinType>.mdlFundamentalFacets
+    override val mdlFundamentalFacets: FundamentalFacets get() = super<ResolvedGlobalSimpleType>.mdlFundamentalFacets
 
-    override val mdlVariety: ResolvedSimpleType.Variety get() = super<ResolvedBuiltinType>.mdlVariety
+    override val mdlVariety: ResolvedSimpleType.Variety get() = super<ResolvedBuiltinSimpleType>.mdlVariety
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
-        get() = super<ResolvedBuiltinType>.mdlPrimitiveTypeDefinition
+        get() = super<ResolvedGlobalSimpleType>.mdlPrimitiveTypeDefinition
 
     override val model: ErrorType get() = this
     override val mdlAnnotations: Nothing? get() = null
@@ -224,7 +224,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val mdlAnnotations: Nothing? get() = null
     override val mdlVariety: ResolvedSimpleType.Variety get() = super<Datatype>.mdlVariety
     override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
-    override val mdlFundamentalFacets: FundamentalFacets get() = super<Datatype>.mdlFundamentalFacets
+    override val mdlFundamentalFacets: Nothing get() = throw UnsupportedOperationException("Any is not simple, and has no facets")
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(AnyType)
