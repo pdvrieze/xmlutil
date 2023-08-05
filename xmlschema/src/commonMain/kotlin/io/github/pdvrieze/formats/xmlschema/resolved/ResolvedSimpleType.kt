@@ -165,6 +165,11 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         final override val id: VID? get() = rawPart.id
         abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType
+
+        override fun check(checkedTypes: MutableSet<QName>) {
+            check(checkedTypes, SingleLinkedList.empty())
+        }
+
         abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
     }
 

@@ -48,7 +48,6 @@ class ResolvedAttributeGroupRef(
         get() = rawPart.ref
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
         checkNotNull(resolvedGroup) // force resolve
     }
 }

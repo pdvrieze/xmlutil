@@ -213,6 +213,8 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
 
         override val mdlAnnotations: Nothing? get() = null
 
+        override fun check(checkedTypes: MutableSet<QName>) = Unit
+
         override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
     }
 }
@@ -291,5 +293,6 @@ internal open class SimpleBuiltinRestriction(
     override val otherContents: List<Nothing> get() = emptyList()
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 
+    override fun check(checkedTypes: MutableSet<QName>) = Unit
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
 }

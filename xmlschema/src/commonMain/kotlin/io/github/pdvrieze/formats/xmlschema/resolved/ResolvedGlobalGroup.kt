@@ -58,7 +58,6 @@ class ResolvedGlobalGroup(
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
         mdlModelGroup.check()
     }
 

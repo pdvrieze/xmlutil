@@ -34,7 +34,6 @@ sealed interface ResolvedType : ResolvedAnnotated {
     val mdlScope: VTypeScope
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
         check(mutableSetOf(), SingleLinkedList())
     }
 

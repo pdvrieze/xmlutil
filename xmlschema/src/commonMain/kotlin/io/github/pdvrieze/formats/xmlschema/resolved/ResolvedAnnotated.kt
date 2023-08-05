@@ -33,6 +33,5 @@ interface ResolvedAnnotated : ResolvedAttrContainer {
     val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
     val id: VID? get() = rawPart.id
-    fun check(checkedTypes: MutableSet<QName>) {
-    }
+    fun check(checkedTypes: MutableSet<QName>)
 }

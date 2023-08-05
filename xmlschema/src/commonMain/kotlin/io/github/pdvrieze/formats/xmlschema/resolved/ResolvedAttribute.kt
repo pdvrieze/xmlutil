@@ -46,8 +46,6 @@ sealed class ResolvedAttribute(
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-
         mdlTypeDefinition.check(checkedTypes)
 
         mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value)}
