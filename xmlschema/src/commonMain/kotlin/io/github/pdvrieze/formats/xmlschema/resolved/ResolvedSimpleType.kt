@@ -41,7 +41,7 @@ import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
-sealed interface ResolvedSimpleType : ResolvedType,
+sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
     VSimpleTypeScope.Member {
     override val rawPart: XSISimpleType
 
