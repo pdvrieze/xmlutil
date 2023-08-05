@@ -55,4 +55,8 @@ class ResolvedProhibitedAttribute(
                 .toQname(targetNS)
         }
     }
+
+    override fun check(checkedTypes: MutableSet<QName>) {
+        checkNotNull(mdlQName)
+    }
 }
