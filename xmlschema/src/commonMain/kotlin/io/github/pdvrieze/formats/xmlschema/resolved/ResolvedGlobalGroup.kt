@@ -68,7 +68,8 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedPart {
+    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedPart,
+        ResolvedAttrContainer {
 
         final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 

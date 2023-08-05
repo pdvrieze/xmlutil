@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2021.
  *
  * This file is part of xmlutil.
  *
@@ -18,18 +18,20 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.resolved.facets
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttrContainer
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedPart
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 
-interface IResolvedMaxLength : ResolvedPart, ResolvedAttrContainer {
-    val value: ULong
-    val fixed: Boolean?
-    fun checkLength(resolvedLength: Int, repr: String)
-    fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
-    fun check(type: ResolvedSimpleType)
-    fun check(checkedTypes: MutableSet<QName>)
+interface ResolvedAttrContainer {
+    val otherAttrs: Map<QName, String>
+}
+
+fun XSI_OpenAttrs.resolvedOtherAttrs(): Map<QName, String> {
+    val xsAttrs = otherAttrs.keys.filter { it.prefix == "" || it.namespaceURI == XMLConstants.XSD_NS_URI }
+    check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
+    return otherAttrs
 }
