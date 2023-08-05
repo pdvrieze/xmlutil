@@ -20,11 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttrContainer
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedPart
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedMinLength : ResolvedPart {
+interface IResolvedMinLength : ResolvedPart, ResolvedAttrContainer {
     val value: ULong
     val fixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
