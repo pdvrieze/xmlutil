@@ -61,7 +61,7 @@ abstract class Datatype(
     val orderFunction: DataFunction? get() = null
 }
 
-class DataFunction()
+class DataFunction
 
 /**
  * Space separated for primitives. If the itemType is a Union the members of that union must be atomic.
@@ -75,7 +75,7 @@ class DataFunction()
  * - whiteSpace
  * - assertions
  */
-sealed class ListDatatype protected constructor(
+sealed class ListDatatype(
     name: String,
     targetNamespace: String,
     val itemType: Datatype,
