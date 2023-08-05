@@ -44,7 +44,7 @@ class ResolvedGroupRef(
     val ref: QName get() = rawPart.ref
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedGroupParticle>.check(checkedTypes)
+        super.check(checkedTypes)
         mdlTerm.check(checkedTypes)
     }
 

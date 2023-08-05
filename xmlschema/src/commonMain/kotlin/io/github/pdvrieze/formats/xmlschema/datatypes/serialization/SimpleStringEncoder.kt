@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
-class SimpleStringEncoder(override val serializersModule: SerializersModule = EmptySerializersModule): Encoder, List<String> {
+class SimpleStringEncoder(override val serializersModule: SerializersModule = EmptySerializersModule()): Encoder, List<String> {
     private val _strings = mutableListOf<String>()
     val strings: List<String> get() = _strings
 

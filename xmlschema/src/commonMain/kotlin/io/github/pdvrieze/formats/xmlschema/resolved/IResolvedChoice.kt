@@ -30,11 +30,6 @@ interface IResolvedChoice : ResolvedModelGroup {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-        //TODO("not implemented")
-    }
-
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,

@@ -31,10 +31,6 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-    }
-
 
     override fun normalize(
         minMultiplier: VNonNegativeInteger,

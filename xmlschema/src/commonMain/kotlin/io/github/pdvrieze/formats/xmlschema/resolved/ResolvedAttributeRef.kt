@@ -52,7 +52,7 @@ class ResolvedAttributeRef(
     override val model: Model by lazy { Model(rawPart, schema, this) }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAttribute>.check(checkedTypes)
+        super.check(checkedTypes)
 
         val r = mdlAttributeDeclaration
         val vc = r.mdlValueConstraint

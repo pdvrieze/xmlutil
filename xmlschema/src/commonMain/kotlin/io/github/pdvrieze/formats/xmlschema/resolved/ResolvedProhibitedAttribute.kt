@@ -31,7 +31,7 @@ class ResolvedProhibitedAttribute(
     override val schema: ResolvedSchemaLike
 ) : IResolvedAttributeUse {
 
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     init {
         check(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }

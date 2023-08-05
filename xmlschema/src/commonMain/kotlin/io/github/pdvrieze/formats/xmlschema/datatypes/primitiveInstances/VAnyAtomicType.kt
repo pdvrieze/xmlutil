@@ -20,6 +20,4 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-interface VAnyAtomicType : VAnySimpleType {
-
-}
+interface VAnyAtomicType : VAnySimpleType
