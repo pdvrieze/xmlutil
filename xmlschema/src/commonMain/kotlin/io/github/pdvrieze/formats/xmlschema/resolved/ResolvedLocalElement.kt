@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
@@ -49,11 +50,9 @@ class ResolvedLocalElement private constructor(
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
             error("XXX. Canary. Remove once verified")
             check(parent is ResolvedComplexType) { "3.3.3(4.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
-            val content = parent.content
-            check(content is ResolvedComplexContent)
-            val derivation = content.derivation
-            check(derivation is ResolvedComplexRestriction)
-            check(derivation.base != AnyType.mdlQName) { "3.3.3(4.3.2) - Restriction isn't anytype"}
+            check(parent.mdlContentType is ResolvedComplexType.ElementContentType)
+            check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
+            check(parent.mdlBaseTypeDefinition != AnyType) { "3.3.3(4.3.2) - Restriction isn't anytype" }
         }
 
     }

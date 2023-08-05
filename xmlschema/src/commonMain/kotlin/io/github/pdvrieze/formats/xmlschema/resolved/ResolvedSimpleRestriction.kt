@@ -32,7 +32,7 @@ class ResolvedSimpleRestriction(
     override val rawPart: XSSimpleRestriction,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType
-) : ResolvedSimpleRestrictionBase(schema) {
+) : ResolvedSimpleRestrictionBase(rawPart, schema) {
     override val simpleType: ResolvedLocalSimpleType? by lazy {
         rawPart.simpleType?.let {
             ResolvedLocalSimpleType(it, schema, context)

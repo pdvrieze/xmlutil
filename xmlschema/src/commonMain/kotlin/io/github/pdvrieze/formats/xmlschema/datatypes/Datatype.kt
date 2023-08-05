@@ -174,7 +174,6 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val baseType: ErrorType get() = ErrorType
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
     override val id: Nothing? get() = null
-    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
     override val mdlFacets: FacetList get() = FacetList.EMPTY
@@ -203,7 +202,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
         TODO("not implemented")
     }
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart, BuiltinSchemaXmlschema) {
         override val rawPart: Nothing get() = throw UnsupportedOperationException()
 
         override val simpleType: Nothing? get() = null
@@ -283,7 +282,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 internal open class SimpleBuiltinRestriction(
     override val baseType: ResolvedBuiltinType,
     override val facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
-) : ResolvedSimpleRestrictionBase(BuiltinSchemaXmlschema) {
+) : ResolvedSimpleRestrictionBase(null, BuiltinSchemaXmlschema) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()
     override val base: QName get() = baseType.mdlQName
     override val mdlAnnotations: Nothing? get() = null

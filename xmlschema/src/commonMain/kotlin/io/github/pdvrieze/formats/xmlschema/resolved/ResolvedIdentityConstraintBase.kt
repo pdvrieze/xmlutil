@@ -25,11 +25,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
+import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedIdentityConstraintBase(
+    rawPart: XSIdentityConstraint,
     override val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
 ) : ResolvedPart {
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     abstract override val rawPart: XSIdentityConstraint
     val id: VID? get() = rawPart.id
 

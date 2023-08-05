@@ -31,7 +31,9 @@ class ResolvedGlobalGroup(
     override val rawPart: XSGroup,
     override val schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedGroupBase, ResolvedAnnotated, VElementScope.Member, NamedPart {
+) : ResolvedGroupBase, VElementScope.Member, NamedPart {
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -56,7 +58,7 @@ class ResolvedGlobalGroup(
         get() = rawPart.annotation.models()
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedAnnotated>.check(checkedTypes)
+        super.check(checkedTypes)
         mdlModelGroup.check()
     }
 
@@ -66,14 +68,21 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(val schema: ResolvedSchemaLike) {
-        abstract val rawPart: XSGroup.XSGroupElement
+    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedPart {
+
+        final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
+        abstract override val rawPart: XSGroup.XSGroupElement
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     }
 
-    private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(schema),
-        IResolvedAll {
+    private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(
+        rawPart,
+        schema
+    ), IResolvedAll {
+
+
         override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
             ResolvedParticle.allMember(parent, it, schema)
         }
@@ -103,7 +112,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+            super<IResolvedAll>.check(checkedTypes)
         }
 
         override fun check() {
@@ -112,7 +121,7 @@ class ResolvedGlobalGroup(
     }
 
     private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
-        ModelGroupBase(schema),
+        ModelGroupBase(rawPart, schema),
         IResolvedChoice {
 
         override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
@@ -144,7 +153,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+            super<IResolvedChoice>.check(checkedTypes)
         }
 
         override fun check() {
@@ -153,7 +162,7 @@ class ResolvedGlobalGroup(
     }
 
     private class SequenceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
-        ModelGroupBase(schema),
+        ModelGroupBase(rawPart, schema),
         IResolvedSequence {
         override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
             ResolvedParticle.choiceSeqMember(parent, it, schema)
@@ -168,11 +177,11 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super.check(checkedTypes)
+            super<IResolvedSequence>.check(checkedTypes)
         }
 
         override fun check() {
-            super.check(mutableSetOf())
+            check(mutableSetOf())
         }
     }
 }

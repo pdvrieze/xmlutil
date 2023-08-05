@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import nl.adaptivity.xmlutil.QName
 
 class SyntheticSimpleType(
     context: VSimpleTypeScope.Member,
@@ -37,6 +38,9 @@ class SyntheticSimpleType(
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedSimpleType, ResolvedSimpleType.Model {
+
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
     override val mdlAnnotations: Nothing? get() = null
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")

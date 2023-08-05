@@ -26,7 +26,7 @@ class ResolvedListDerivation(
     override val rawPart: XSSimpleList,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType,
-) : ResolvedListDerivationBase(schema) {
+) : ResolvedListDerivationBase(rawPart, schema) {
     override val simpleType: ResolvedLocalSimpleType? by lazy {
         rawPart.simpleType?.let { st ->
             ResolvedLocalSimpleType(st, schema, context)

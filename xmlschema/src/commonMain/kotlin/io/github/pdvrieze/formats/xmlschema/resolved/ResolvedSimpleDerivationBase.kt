@@ -24,11 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleDeri
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedSimpleDerivationBase(
+    rawPart: XSSimpleDerivation,
     schema: ResolvedSchemaLike
-): ResolvedSimpleType.Derivation(schema), ResolvedPart {
+) : ResolvedSimpleType.Derivation(rawPart, schema), ResolvedPart {
     abstract override val rawPart: XSSimpleDerivation
 
     abstract override val baseType: ResolvedSimpleType
-
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 }

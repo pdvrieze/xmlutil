@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
@@ -31,7 +30,7 @@ class ResolvedSimpleContentExtension(
     scope: ResolvedComplexType,
     override val rawPart: XSSimpleContentExtension,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleContentDerivation(schema) {
+) : ResolvedSimpleContentDerivation(rawPart, schema) {
     val asserts: List<XSIAssertCommon> get() = rawPart.asserts
     val attributes: List<IResolvedAttributeUse> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
@@ -41,21 +40,10 @@ class ResolvedSimpleContentExtension(
 
     override val id: VID? get() = rawPart.id
 
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-
     val base: QName get() = rawPart.base
 
     override val baseType: ResolvedType by lazy {
         schema.type(base)
     }
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        val b = base
-
-        if (b !in checkedTypes) {
-            val inherited = (baseType as? OptNamedPart)?.qName ?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-            baseType.check(checkedTypes, inherited)
-            // Recursion is allowed
-        }
-    }
 }

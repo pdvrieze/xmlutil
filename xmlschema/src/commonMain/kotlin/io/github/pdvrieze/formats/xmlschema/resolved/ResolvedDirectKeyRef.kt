@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
@@ -28,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedNamedIdentityConstraint(schema, owner), ResolvedKeyRef {
+    ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedKeyRef {
 
     override val constraint: ResolvedDirectKeyRef
         get() = this

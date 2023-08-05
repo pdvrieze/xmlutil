@@ -25,10 +25,13 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
+sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
+    rawPart: XSI_Grouplike,
     final override val schema: ResolvedSchemaLike
-): ResolvedGroupParticle<T>, ResolvedPart,
+) : ResolvedGroupParticle<T>, ResolvedPart,
     ResolvedAnnotated {
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     override val mdlMinOccurs: VNonNegativeInteger
         get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
@@ -41,6 +44,7 @@ sealed class ResolvedGroupParticleTermBase<T: ResolvedModelGroup>(
         get() = rawPart.particles
     final override val mdlAnnotations: ResolvedAnnotation? by lazy { rawPart.annotation.models() }
     abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+
     override fun check(checkedTypes: MutableSet<QName>) {
         super<ResolvedAnnotated>.check(checkedTypes)
         for (particle in mdlParticles) {

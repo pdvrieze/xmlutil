@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-sealed class ResolvedMinBoundFacet(schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(schema)
+sealed class ResolvedMinBoundFacet(rawPart: XSFacet, schema: ResolvedSchemaLike) : ResolvedBoundBaseFacet(rawPart, schema)

@@ -31,7 +31,7 @@ class ResolvedChoice private constructor(
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
-) : ResolvedGroupParticleTermBase<IResolvedChoice>(schema),
+) : ResolvedGroupParticleTermBase<IResolvedChoice>(rawPart, schema),
     IResolvedChoice {
 
     constructor(

@@ -32,6 +32,8 @@ class ResolvedProhibitedElement(
     override val schema: ResolvedSchemaLike
 ) : IResolvedElementUse {
 
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     override val mdlQName: QName by lazy {
         when (val n = rawPart.name) {
             null -> schema.element(requireNotNull(rawPart.ref)).mdlQName

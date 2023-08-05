@@ -30,7 +30,7 @@ class ResolvedMaxExclusive(
     override val rawPart: XSMaxExclusive,
     schema: ResolvedSchemaLike,
     primitiveDatatype: PrimitiveDatatype?
-) : ResolvedMaxBoundFacet(schema) {
+) : ResolvedMaxBoundFacet(schema, rawPart) {
     override val isInclusive: Boolean get() = false
 
     override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
