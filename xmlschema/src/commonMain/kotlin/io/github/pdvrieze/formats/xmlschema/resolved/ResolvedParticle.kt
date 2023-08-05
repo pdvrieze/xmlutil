@@ -66,10 +66,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
         }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-
-        super.check(checkedTypes)
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
-
     }
 
     fun normalizeTerm(

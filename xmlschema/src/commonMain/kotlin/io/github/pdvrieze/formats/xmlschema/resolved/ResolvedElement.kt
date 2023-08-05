@@ -107,7 +107,6 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
     }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
         for (constraint in mdlIdentityConstraints) {
             constraint.check(checkedTypes)
         }
