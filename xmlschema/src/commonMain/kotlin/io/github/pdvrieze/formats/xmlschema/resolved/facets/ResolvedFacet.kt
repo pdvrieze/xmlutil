@@ -30,16 +30,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
-    ResolvedAttrContainer {
+sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) :
+    ResolvedAnnotated {
 
-    abstract val rawPart: XSFacet
+    abstract override val rawPart: XSFacet
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     val fixed get() = rawPart.fixed
 
-    val id: VID? get() = rawPart.id
+    override val id: VID? get() = rawPart.id
     val annotation: XSAnnotation? get() = rawPart.annotation
 
     open fun check(type: ResolvedSimpleType) {}
@@ -49,7 +49,7 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     open fun validate(float: VFloat) {}
 
     open fun validate(float: VDouble) {}
-    open fun check(checkedTypes: MutableSet<QName>) {}
+    override fun check(checkedTypes: MutableSet<QName>) {}
 
     companion object {
         operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype?): ResolvedFacet = when (rawPart) {
