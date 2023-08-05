@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectUnique(
@@ -39,8 +40,7 @@ class ResolvedIndirectUnique(
         else -> throw IllegalArgumentException("Unique's ref property ${rawPart.ref} does not refer to a unique")
     }
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+    override fun checkConstraint(checkHelper: CheckHelper) {
         check(rawPart.name == null)
     }
 

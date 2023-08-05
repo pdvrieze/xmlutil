@@ -22,9 +22,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedIdentityConstraint : ResolvedCheckable {
+sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
     val selector: XSSelector
     override val schema: ResolvedSchemaLike
     override val rawPart: XSIdentityConstraint
@@ -63,5 +64,5 @@ sealed interface ResolvedIdentityConstraint : ResolvedCheckable {
 
     enum class Category { KEY, KEYREF, UNIQUE }
 
-    override fun check(checkedTypes: MutableSet<QName>)
+    fun checkConstraint(checkHelper: CheckHelper)
 }

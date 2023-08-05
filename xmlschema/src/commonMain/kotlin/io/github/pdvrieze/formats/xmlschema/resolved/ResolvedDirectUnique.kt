@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectUnique(
@@ -39,9 +40,4 @@ class ResolvedDirectUnique(
     override val selector: XSSelector get() = rawPart.selector
 
     override val fields: List<XSField> get() = rawPart.fields
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-    }
-
 }

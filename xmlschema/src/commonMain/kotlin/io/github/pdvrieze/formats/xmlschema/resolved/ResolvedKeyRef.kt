@@ -21,10 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedKeyRef : ResolvedIdentityConstraint {
-    override fun check(checkedTypes: MutableSet<QName>)
+    override fun checkConstraint(checkHelper: CheckHelper)
 
     override val rawPart: XSKeyRef
     val refer: QName?
