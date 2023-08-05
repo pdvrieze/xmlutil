@@ -22,10 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedAnnotated : ResolvedPart, ResolvedAttrContainer {
-    override val rawPart: XSI_Annotated
+interface ResolvedAnnotated : ResolvedAttrContainer {
+    val rawPart: XSI_Annotated
+
+    val schema: ResolvedSchemaLike
 
     val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 
