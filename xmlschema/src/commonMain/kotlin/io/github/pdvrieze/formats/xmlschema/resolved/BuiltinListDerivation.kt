@@ -20,10 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import nl.adaptivity.xmlutil.QName
+
 class BuiltinListDerivation(
     schema: ResolvedSchemaLike
 ) : ResolvedListDerivationBase(null, schema) {
     override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
     override val simpleType: Nothing? get() = null
     override val mdlAnnotations: Nothing? get() = null
+    override fun check(checkedTypes: MutableSet<QName>) = Unit
 }
