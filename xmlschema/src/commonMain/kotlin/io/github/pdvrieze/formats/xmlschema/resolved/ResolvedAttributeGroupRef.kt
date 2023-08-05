@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedAttributeGroupRef(
     override val rawPart: XSAttributeGroupRef,
     override val schema: ResolvedSchemaLike
-) : ResolvedAnnotated {
+) : ResolvedAnnotated, ResolvedPart {
 
     override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
