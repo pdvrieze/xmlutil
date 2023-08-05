@@ -227,8 +227,7 @@ sealed class ResolvedComplexType(
     }
 
 
-    sealed interface ResolvedDirectParticle<out T : ResolvedTerm> {
-    }
+    sealed interface ResolvedDirectParticle<out T : ResolvedTerm>
 
     interface Model<R : XSIComplexType> {
         fun calculateProhibitedSubstitutions(rawPart: R, schema: ResolvedSchemaLike): Set<VDerivationControl.Complex>
@@ -415,7 +414,7 @@ sealed class ResolvedComplexType(
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
                                     .map {
                                         check(it.mdlTerm is ResolvedTerm) { "${it.mdlTerm} is not valid inside a sequence" }
-                                        it as ResolvedParticle<ResolvedTerm>
+                                        it
                                     }
 
                             SyntheticSequence(
@@ -455,7 +454,7 @@ sealed class ResolvedComplexType(
                 val w = wildcardElement.any ?: XSAny()
                 val openContent = ResolvedOpenContent(
                     XSOpenContent(
-                        mode = wildcardElement.mode ?: VContentMode.INTERLEAVE,
+                        mode = wildcardElement.mode,
                         any = w
                     ), schema
                 )

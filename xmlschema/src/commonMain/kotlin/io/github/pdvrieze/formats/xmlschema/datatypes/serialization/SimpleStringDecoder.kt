@@ -34,7 +34,7 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
 @OptIn(ExperimentalSerializationApi::class)
-class SimpleStringDecoder constructor(
+class SimpleStringDecoder(
     val value: String,
     override val serializersModule: SerializersModule = EmptySerializersModule()
 ) : Decoder {
@@ -53,7 +53,7 @@ class SimpleStringDecoder constructor(
         }
     }
 
-    private inner class SealedDecoder() : AbstractDecoder() {
+    private inner class SealedDecoder : AbstractDecoder() {
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             val s = decodeString()
             return (0 until descriptor.elementsCount).first { descriptor.getElementName(it) == s }
@@ -85,7 +85,7 @@ class SimpleStringDecoder constructor(
     }
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return (0 until enumDescriptor.elementsCount).firstOrNull() { enumDescriptor.getElementName(it) == value }
+        return (0 until enumDescriptor.elementsCount).firstOrNull { enumDescriptor.getElementName(it) == value }
             ?: throw SerializationException("Could not find enum constant for ${enumDescriptor.serialName}.$value")
     }
 
@@ -107,9 +107,9 @@ class SimpleStringDecoder constructor(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-class SimpleStringListDecoder constructor(
+class SimpleStringListDecoder(
     val values: List<String>,
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 ) : Decoder {
     private var pos: Int = 0
 
@@ -152,7 +152,7 @@ class SimpleStringListDecoder constructor(
         throw UnsupportedOperationException("List need to be decoded as lists, not elements")
 
     @ExperimentalSerializationApi
-    override fun decodeNull(): Nothing? =
+    override fun decodeNull(): Nothing =
         throw UnsupportedOperationException("List need to be decoded as lists, not elements")
 
     override fun decodeShort(): Short =

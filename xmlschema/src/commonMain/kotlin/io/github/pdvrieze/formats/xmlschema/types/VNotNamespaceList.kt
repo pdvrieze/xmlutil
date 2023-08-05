@@ -30,7 +30,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(VNotNamespaceList.Serializer::class)
-class VNotNamespaceList(private val values: List<VNotNamespaceList.Elem>) : List<VNotNamespaceList.Elem> by values {
+class VNotNamespaceList(private val values: List<Elem>) : List<VNotNamespaceList.Elem> by values {
 
     constructor() : this(emptyList())
 

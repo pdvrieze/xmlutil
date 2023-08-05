@@ -23,5 +23,4 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 /**
  * Either resolved element or resolved any
  */
-sealed interface ResolvedBasicTerm : ResolvedTerm {
-}
+sealed interface ResolvedBasicTerm : ResolvedTerm

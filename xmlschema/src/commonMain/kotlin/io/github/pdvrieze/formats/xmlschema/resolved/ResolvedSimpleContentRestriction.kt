@@ -35,7 +35,7 @@ class ResolvedSimpleContentRestriction(
 ) : ResolvedSimpleContentDerivation(rawPart, schema) {
     val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
-    val base: QName? get() = rawPart.base
+    val base: QName get() = rawPart.base
 
     val facets: List<XSFacet> get() = rawPart.facets
 

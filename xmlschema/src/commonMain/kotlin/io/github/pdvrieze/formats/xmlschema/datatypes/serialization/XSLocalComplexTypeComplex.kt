@@ -58,9 +58,7 @@ class XSLocalComplexTypeComplex(
 
         other as XSLocalComplexTypeComplex
 
-        if (simpleContent != other.simpleContent) return false
-
-        return true
+        return simpleContent == other.simpleContent
     }
 
     override fun hashCode(): Int {

@@ -91,8 +91,7 @@ interface VNonNegativeInteger : VInteger {
             encoder.encodeString(value.xmlString)
         }
 
-        companion object {
-        }
+        companion object
     }
 
     companion object {

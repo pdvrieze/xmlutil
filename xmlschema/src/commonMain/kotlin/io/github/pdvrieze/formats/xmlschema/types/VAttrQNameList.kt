@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(VAttrQNameList.Serializer::class)
-class VAttrQNameList(val values: List<VAttrQNameList.Elem>): List<VAttrQNameList.Elem> by values {
+class VAttrQNameList(val values: List<Elem>): List<VAttrQNameList.Elem> by values {
     sealed class Elem
     object DEFINED: Elem()
     class Name(val qName: QName): Elem()

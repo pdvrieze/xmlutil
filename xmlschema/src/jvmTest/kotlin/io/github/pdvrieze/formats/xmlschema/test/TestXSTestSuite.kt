@@ -61,9 +61,9 @@ class TestXSTestSuite {
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
-                .filter { false || it.href.contains("sunMeta/suntest") }
+//                .filter { false || it.href.contains("sunMeta/suntest") }
 //                .filter { false || (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-//                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/").any { m -> it.href.contains(m) } }
+                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/").any { m -> it.href.contains(m) } }
 //                .filter { false || (it.href.contains("msMeta/Additional") /*&& it.href.contains("CType")*/) }
                 .map { setRef ->
 

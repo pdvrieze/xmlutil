@@ -33,7 +33,7 @@ class ResolvedGlobalGroup(
     val location: String,
 ) : ResolvedGroupBase, VElementScope.Member, NamedPart {
 
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -113,7 +113,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super<IResolvedAll>.check(checkedTypes)
+            super.check(checkedTypes)
         }
 
         override fun check() {
@@ -144,7 +144,7 @@ class ResolvedGlobalGroup(
             // there are no minOccurs/maxOccurs
             val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
             for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE) as ResolvedParticle<ResolvedTerm>
+                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE)
                 when (normalized) {
                     is IResolvedChoice -> newParticles.addAll(normalized.mdlParticles)
                     else -> newParticles.add(normalized)
@@ -154,7 +154,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super<IResolvedChoice>.check(checkedTypes)
+            super.check(checkedTypes)
         }
 
         override fun check() {
@@ -178,7 +178,7 @@ class ResolvedGlobalGroup(
         }
 
         override fun check(checkedTypes: MutableSet<QName>) {
-            super<IResolvedSequence>.check(checkedTypes)
+            super.check(checkedTypes)
         }
 
         override fun check() {
