@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKey(
@@ -41,7 +42,7 @@ class ResolvedIndirectKey(
     override val constraint: ResolvedIndirectKey
         get() = this
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkConstraint(checkHelper: CheckHelper) {
         check(rawPart.name == null)
     }
 

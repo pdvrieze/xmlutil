@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
@@ -46,7 +47,7 @@ class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSch
 
     override val mdlReferencedKey: ResolvedReferenceableConstraint get() = ref.mdlReferencedKey
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkConstraint(checkHelper: CheckHelper) {
         checkNotNull(mdlReferencedKey)
         checkNotNull(rawPart.name)
         check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${ref.mdlQName}) must have equal field counts" }

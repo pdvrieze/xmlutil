@@ -33,7 +33,3 @@ interface ResolvedAnnotated : ResolvedAttrContainer {
 
     val id: VID? get() = rawPart.id
 }
-
-interface ResolvedCheckable : ResolvedAnnotated {
-    fun check(checkedTypes: MutableSet<QName>)
-}
