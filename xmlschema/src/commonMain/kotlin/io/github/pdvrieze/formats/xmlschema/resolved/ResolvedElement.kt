@@ -26,9 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) : ResolvedPart,
-    VTypeScope.Member, ResolvedBasicTerm,
-    ResolvedAnnotated {
+sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) :
+    VTypeScope.Member,
+    ResolvedBasicTerm {
 
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
@@ -107,7 +107,7 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
     }
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedPart>.check(checkedTypes)
+        super.check(checkedTypes)
         for (constraint in mdlIdentityConstraints) {
             constraint.check(checkedTypes)
         }

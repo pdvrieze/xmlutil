@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotated {
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     override val rawPart: XSI_Particle
 
     val mdlMinOccurs: VNonNegativeInteger
@@ -67,7 +67,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedPart, ResolvedAnnotat
 
     override fun check(checkedTypes: MutableSet<QName>) {
 
-        super<ResolvedPart>.check(checkedTypes)
+        super.check(checkedTypes)
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
 
     }

@@ -42,7 +42,7 @@ class ResolvedIndirectKey(
         get() = this
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedIndirectIdentityConstraint>.check(checkedTypes)
+        super.check(checkedTypes)
         check(rawPart.name == null)
     }
 

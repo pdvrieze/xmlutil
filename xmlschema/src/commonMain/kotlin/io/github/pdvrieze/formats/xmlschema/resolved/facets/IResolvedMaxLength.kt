@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedPart
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedMaxLength : ResolvedPart {
     val value: ULong
@@ -29,4 +30,5 @@ interface IResolvedMaxLength : ResolvedPart {
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
     fun check(type: ResolvedSimpleType)
+    fun check(checkedTypes: MutableSet<QName>)
 }
