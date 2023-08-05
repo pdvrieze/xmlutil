@@ -65,8 +65,7 @@ class XSGroup(
         override val id: VID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
-    ) : XSGroupElement() {
-    }
+    ) : XSGroupElement()
 
     @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     @Serializable

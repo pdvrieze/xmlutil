@@ -39,18 +39,6 @@ class CombiningList<T>(private vararg val parts: List<T>): AbstractList<T>() {
 
     override fun contains(element: T): Boolean = parts.any { it.contains(element) }
 
-    override fun containsAll(elements: Collection<T>): Boolean {
-        return super.containsAll(elements)
-    }
-
-    override fun indexOf(element: T): Int {
-        return super.indexOf(element)
-    }
-
-    override fun lastIndexOf(element: T): Int {
-        return super.lastIndexOf(element)
-    }
-
     override fun iterator(): Iterator<T> {
         return listIterator(0)
     }

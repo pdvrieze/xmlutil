@@ -133,8 +133,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         if (sd is ResolvedUnionDerivation) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
             val members = sd.transitiveMembership()//2.2.4.2
-            if (members.none { m -> isValidlyDerivedFrom(m) }) return false
-            return true
+            return !members.none { m -> isValidlyDerivedFrom(m) }
         }
         return false //none of the 4 options is true
     }
@@ -153,8 +152,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         if (sd is ResolvedUnionDerivation) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
             val members = sd.transitiveMembership()//2.2.4.2
-            if (members.none { m -> isValidlyDerivedFrom(m) }) return false
-            return true
+            return !members.none { m -> isValidlyDerivedFrom(m) }
         }
         return false //none of the 4 options is true
     }
@@ -427,8 +425,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         }
     }
 
-    companion object {
-    }
+    companion object
 
 
 }
