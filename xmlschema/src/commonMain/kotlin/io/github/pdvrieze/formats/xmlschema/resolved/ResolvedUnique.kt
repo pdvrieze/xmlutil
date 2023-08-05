@@ -21,8 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
+import nl.adaptivity.xmlutil.QName
 
-interface ResolvedUnique : ResolvedReferenceableConstraint, ResolvedPart {
+interface ResolvedUnique : ResolvedReferenceableConstraint {
     override val rawPart: XSUnique
 
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.UNIQUE
@@ -36,6 +37,9 @@ interface ResolvedUnique : ResolvedReferenceableConstraint, ResolvedPart {
             null -> ResolvedIndirectUnique(rawPart, schema, owner)
             else -> ResolvedDirectUnique(rawPart, schema, owner)
         }
+    }
+
+    override fun check(checkedTypes: MutableSet<QName>) {
     }
 }
 

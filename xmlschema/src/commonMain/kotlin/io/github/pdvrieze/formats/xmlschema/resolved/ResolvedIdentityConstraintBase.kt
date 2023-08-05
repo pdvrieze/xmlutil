@@ -48,5 +48,6 @@ sealed class ResolvedIdentityConstraintBase(
     abstract val constraint: ResolvedIdentityConstraint
     abstract val mdlSelector: XPathExpression
     abstract val mdlFields: List<XPathExpression>
+    open fun check(checkedTypes: MutableSet<QName>) {}
 
 }
