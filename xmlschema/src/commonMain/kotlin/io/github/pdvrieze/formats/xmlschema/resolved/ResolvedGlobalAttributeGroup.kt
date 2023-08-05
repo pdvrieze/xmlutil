@@ -29,7 +29,7 @@ class ResolvedGlobalAttributeGroup(
     override val rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(schema), NamedPart, VAttributeScope.Member {
+) : ResolvedAttributeGroup(rawPart, schema), NamedPart, VAttributeScope.Member {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -48,9 +48,6 @@ class ResolvedGlobalAttributeGroup(
 
     override val id: VID?
         get() = rawPart.id
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)

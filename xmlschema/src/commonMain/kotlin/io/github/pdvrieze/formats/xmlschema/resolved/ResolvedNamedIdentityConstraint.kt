@@ -20,17 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 
-sealed class ResolvedNamedIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
-
-    val mdlName: VNCName get() = VNCName(mdlQName.localPart)
-
-    abstract override val mdlQName: QName
+sealed class ResolvedNamedIdentityConstraint(
+    rawPart: XSIdentityConstraint,
+    schema: ResolvedSchemaLike,
+    owner: ResolvedElement
+) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
     final override val mdlSelector: XPathExpression
         get() = XPathExpression(rawPart.selector.xpath.xmlString)

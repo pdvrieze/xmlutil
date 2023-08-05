@@ -32,6 +32,8 @@ class ResolvedAny(
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 

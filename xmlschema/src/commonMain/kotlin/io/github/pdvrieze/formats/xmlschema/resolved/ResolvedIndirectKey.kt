@@ -20,17 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
 
 class ResolvedIndirectKey(
     override val rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKey {
+): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedKey {
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = super.mdlIdentityConstraintCategory
 
     override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
