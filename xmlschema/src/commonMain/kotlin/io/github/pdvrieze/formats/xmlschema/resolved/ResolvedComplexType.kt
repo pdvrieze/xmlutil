@@ -215,7 +215,7 @@ sealed class ResolvedComplexType(
     }
 
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        content.collectConstraints(collector)
+        (mdlContentType as? ElementContentType)?.run { mdlParticle.mdlTerm.collectConstraints(collector) }
     }
 
 
