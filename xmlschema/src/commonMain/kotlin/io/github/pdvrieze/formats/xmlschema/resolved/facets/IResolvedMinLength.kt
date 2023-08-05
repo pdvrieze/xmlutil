@@ -20,20 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAttrContainer
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedPart
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
-interface IResolvedMinLength : ResolvedAttrContainer {
+interface IResolvedMinLength : ResolvedAnnotated {
     val value: ULong
     val fixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
-    fun check(type: ResolvedSimpleType)
-    fun check(checkedTypes: MutableSet<QName>)
-    val rawPart: XSI_OpenAttrs
-    val schema: ResolvedSchemaLike
+    override fun check(checkedTypes: MutableSet<QName>)
+    override val rawPart: XSI_Annotated
 }

@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     rawPart: XSI_Grouplike,
     final override val schema: ResolvedSchemaLike
-) : ResolvedGroupParticle<T>, ResolvedAttrContainer {
+) : ResolvedGroupParticle<T>, ResolvedAnnotated {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
@@ -45,7 +45,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+        super<ResolvedGroupParticle>.check(checkedTypes)
         for (particle in mdlParticles) {
             particle.check(checkedTypes)
         }

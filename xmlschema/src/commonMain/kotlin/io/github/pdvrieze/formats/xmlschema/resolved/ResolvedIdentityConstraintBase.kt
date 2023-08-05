@@ -29,25 +29,24 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedIdentityConstraintBase(
     rawPart: XSIdentityConstraint,
-    val schema: ResolvedSchemaLike,
+    override val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
-) : ResolvedAttrContainer {
+) : ResolvedAnnotated {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    abstract val rawPart: XSIdentityConstraint
-    val id: VID? get() = rawPart.id
+    abstract override val rawPart: XSIdentityConstraint
+    override val id: VID? get() = rawPart.id
 
     val annotation: XSAnnotation? get() = rawPart.annotation
 
     val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
 
-    val mdlAnnotations: ResolvedAnnotation?
+    override val mdlAnnotations: ResolvedAnnotation?
         get() = rawPart.annotation.models()
 
     abstract val constraint: ResolvedIdentityConstraint
     abstract val mdlSelector: XPathExpression
     abstract val mdlFields: List<XPathExpression>
-    open fun check(checkedTypes: MutableSet<QName>) {}
 
 }

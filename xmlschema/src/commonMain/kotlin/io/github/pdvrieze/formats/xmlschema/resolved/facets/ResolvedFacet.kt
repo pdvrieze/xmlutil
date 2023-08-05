@@ -42,7 +42,7 @@ sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchema
     override val id: VID? get() = rawPart.id
     val annotation: XSAnnotation? get() = rawPart.annotation
 
-    open fun check(type: ResolvedSimpleType) {}
+    open fun checkFacetValid(type: ResolvedSimpleType) {}
 
     open fun validate(type: PrimitiveDatatype, decimal: VDecimal) {}
 
