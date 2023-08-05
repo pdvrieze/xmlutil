@@ -29,13 +29,13 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedIdentityConstraintBase(
     rawPart: XSIdentityConstraint,
-    override val schema: ResolvedSchemaLike,
+    val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
-) : ResolvedPart, ResolvedAttrContainer {
+) : ResolvedAttrContainer {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    abstract override val rawPart: XSIdentityConstraint
+    abstract val rawPart: XSIdentityConstraint
     val id: VID? get() = rawPart.id
 
     val annotation: XSAnnotation? get() = rawPart.annotation

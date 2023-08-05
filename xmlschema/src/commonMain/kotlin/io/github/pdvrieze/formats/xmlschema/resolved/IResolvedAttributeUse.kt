@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-sealed interface IResolvedAttributeUse : ResolvedAnnotated {
+sealed interface IResolvedAttributeUse : ResolvedAnnotated, ResolvedPart {
     val mdlRequired: Boolean
     val mdlAttributeDeclaration: ResolvedAttributeDef
     val mdlValueConstraint: ValueConstraint?
