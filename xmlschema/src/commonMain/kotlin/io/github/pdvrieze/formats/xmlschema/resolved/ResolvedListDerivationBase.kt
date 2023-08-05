@@ -27,15 +27,16 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedListDerivationBase(
+    rawPart: XSSimpleList?,
     schema: ResolvedSchemaLike
-) : ResolvedSimpleType.Derivation(schema) {
+) : ResolvedSimpleType.Derivation(rawPart, schema) {
     abstract override val rawPart: XSSimpleList
 
     val itemTypeName: QName? get() = rawPart.itemTypeName
     abstract val simpleType: ResolvedLocalSimpleType?
 
     val itemType: ResolvedSimpleType by lazy {
-        val itemTypeName = rawPart.itemTypeName
+        val itemTypeName = rawPart?.itemTypeName
         when {
             itemTypeName != null -> schema.simpleType(itemTypeName)
             else -> {

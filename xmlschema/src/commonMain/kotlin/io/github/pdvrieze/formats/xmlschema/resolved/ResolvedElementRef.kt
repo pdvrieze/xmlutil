@@ -35,6 +35,8 @@ class ResolvedElementRef private constructor(
 ) : IResolvedElementUse,
     ResolvedParticle<ResolvedElement> {
 
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
 
     init {

@@ -32,6 +32,8 @@ class SyntheticAll(
     override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticAll>, IResolvedAll {
 
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
     override val mdlTerm: SyntheticAll get() = this
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY

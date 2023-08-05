@@ -29,7 +29,7 @@ class ResolvedEnumeration(
     override val rawPart: XSEnumeration,
     schema: ResolvedSchemaLike,
     primitiveDatatype: PrimitiveDatatype?
-) : ResolvedFacet(schema) {
+) : ResolvedFacet(rawPart, schema) {
     val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun equals(other: Any?): Boolean {

@@ -76,10 +76,9 @@ sealed interface ResolvedSimpleType : ResolvedType,
         inheritedTypes: SingleLinkedList<QName>
     ) { // TODO maybe move to toplevel
 
-        when (val n = (this as? OptNamedPart)?.name) {
+        when (val qName = (this as? ResolvedGlobalType)?.mdlQName) {
             null -> simpleDerivation.check(checkedTypes, inheritedTypes)
             else -> {
-                val qName = n.toQname(schema.targetNamespace)
                 checkedTypes.add(qName)
                 simpleDerivation.check(checkedTypes, inheritedTypes + qName)
             }
@@ -160,7 +159,9 @@ sealed interface ResolvedSimpleType : ResolvedType,
         return false //none of the 4 options is true
     }
 
-    sealed class Derivation(final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
+    sealed class Derivation(rawPart: XSSimpleDerivation?, final override val schema: ResolvedSchemaLike) : ResolvedAnnotated {
+        override val otherAttrs: Map<QName, String> = rawPart?.resolvedOtherAttrs() ?: emptyMap()
+
         final override val id: VID? get() = rawPart.id
         abstract override val rawPart: XSSimpleDerivation
         abstract val baseType: ResolvedSimpleType
