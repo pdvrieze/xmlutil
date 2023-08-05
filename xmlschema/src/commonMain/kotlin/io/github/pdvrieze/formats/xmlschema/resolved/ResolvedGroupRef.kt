@@ -43,11 +43,6 @@ class ResolvedGroupRef(
 
     val ref: QName get() = rawPart.ref
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-        mdlTerm.check(checkedTypes)
-    }
-
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlTerm.collectConstraints(collector)
     }

@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class BuiltinListDerivation(
@@ -28,5 +30,5 @@ class BuiltinListDerivation(
     override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
     override val simpleType: Nothing? get() = null
     override val mdlAnnotations: Nothing? get() = null
-    override fun check(checkedTypes: MutableSet<QName>) = Unit
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
 }

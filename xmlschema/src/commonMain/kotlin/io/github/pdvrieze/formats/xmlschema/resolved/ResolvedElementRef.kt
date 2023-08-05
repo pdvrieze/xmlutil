@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -71,7 +72,9 @@ class ResolvedElementRef private constructor(
         rawPart.maxOccurs ?: VAllNNI.ONE,
     )
 
-    override fun check(checkedTypes: MutableSet<QName>) {}
+    override fun checkParticle(checkHelper: CheckHelper) {
+        checkHelper.checkElement(mdlTerm)
+    }
 
     override fun normalizeTerm(
         minMultiplier: VNonNegativeInteger,

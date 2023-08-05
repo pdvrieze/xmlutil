@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -58,13 +59,6 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     val final: Set<VDerivationControl.Type>
         get() = rawPart.final
-
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        if (checkedTypes.add(mdlQName)) {
-            super.check(checkedTypes, inheritedTypes)
-            requireNotNull(model)
-        }
-    }
 
     override val model: Model by lazy { ModelImpl(rawPart, schema) }
 

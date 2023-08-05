@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -63,9 +65,8 @@ class ResolvedLocalSimpleType(
             schema.finalDefault
     }
 
-
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedLocalType>.check(checkedTypes)
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+        super<ResolvedSimpleType>.checkType(checkHelper, inheritedTypes)
         checkNotNull(model)
     }
 }

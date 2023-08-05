@@ -30,6 +30,5 @@ interface IResolvedMinLength : ResolvedAnnotated {
     val fixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
-    override fun check(checkedTypes: MutableSet<QName>)
     override val rawPart: XSI_Annotated
 }

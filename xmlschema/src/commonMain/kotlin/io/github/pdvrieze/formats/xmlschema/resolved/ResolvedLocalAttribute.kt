@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
@@ -62,6 +63,11 @@ class ResolvedLocalAttribute private constructor(
         get() = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
+
+    override fun checkUse(checkHelper: CheckHelper) {
+        // inline, doesn't need checkHelper
+        checkAttribute(checkHelper)
+    }
 
     protected class Model(base: ResolvedLocalAttribute, schema: ResolvedSchemaLike) :
         ResolvedAttributeDef.Model(base, schema) {

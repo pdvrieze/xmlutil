@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -59,7 +60,7 @@ class ResolvedAny(
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 
-    override fun check(checkedTypes: MutableSet<QName>) {
+    override fun checkTerm(checkHelper: CheckHelper) {
 //        TODO("not implemented")
     }
 

@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeGroupRef(
@@ -47,7 +48,7 @@ class ResolvedAttributeGroupRef(
     val ref: QName
         get() = rawPart.ref
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        checkNotNull(resolvedGroup) // force resolve
+    fun checkRef(checkHelper: CheckHelper) {
+        checkHelper.checkAttributeGroup(resolvedGroup)
     }
 }

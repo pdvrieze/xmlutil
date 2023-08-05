@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -65,10 +66,10 @@ class ResolvedGlobalElement(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
-        typeDef.check(checkedTypes, SingleLinkedList())
+        typeDef.checkType(checkHelper, SingleLinkedList())
         if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }

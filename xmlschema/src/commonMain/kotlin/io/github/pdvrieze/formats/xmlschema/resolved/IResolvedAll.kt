@@ -22,17 +22,18 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll : ResolvedModelGroup {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.ALL
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
+    override fun checkTerm(checkHelper: CheckHelper) {
+        // super just calls check on the particles
         for (particle in mdlParticles) {
+            particle.checkParticle(checkHelper)
             val maxOccurs = particle.mdlMaxOccurs
             check(maxOccurs <= VAllNNI(1uL)) {
                 "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
@@ -82,7 +83,7 @@ interface IResolvedAll : ResolvedModelGroup {
         var thisPos = 0
 
         for (generalPos in generalParticles.indices) {
-            if (thisPos>=specificParticles.size) { // the particle must be ignorable
+            if (thisPos >= specificParticles.size) { // the particle must be ignorable
                 if (!generalParticles[generalPos].mdlIsEmptiable()) return false
             } else {
                 if (specificParticles[thisPos] != generalParticles[generalPos]) {
@@ -93,7 +94,7 @@ interface IResolvedAll : ResolvedModelGroup {
             }
         }
         for (tailIdx in thisPos until specificParticles.size) {
-            if(!specificParticles[tailIdx].mdlIsEmptiable()) return false
+            if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
         }
         return true
     }

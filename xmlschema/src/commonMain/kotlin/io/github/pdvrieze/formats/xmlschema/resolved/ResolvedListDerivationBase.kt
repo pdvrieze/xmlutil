@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -47,9 +48,9 @@ abstract class ResolvedListDerivationBase(
 
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        simpleType?.check(checkedTypes, inheritedTypes)
-        itemType.check(checkedTypes, inheritedTypes)
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+        simpleType?.checkType(checkHelper, inheritedTypes)
+        itemType.checkType(checkHelper, inheritedTypes)
 
         check(VDerivationControl.LIST !in itemType.mdlFinal) {
             "$baseType is final for list, and can not be put in a list"

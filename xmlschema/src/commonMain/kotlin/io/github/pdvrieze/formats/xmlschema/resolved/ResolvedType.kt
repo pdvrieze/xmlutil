@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType : ResolvedAnnotated {
@@ -33,11 +33,7 @@ sealed interface ResolvedType : ResolvedAnnotated {
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        check(mutableSetOf(), SingleLinkedList())
-    }
-
-    fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
+    fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName> = SingleLinkedList())
 
     fun validate(representation: VString)
 
