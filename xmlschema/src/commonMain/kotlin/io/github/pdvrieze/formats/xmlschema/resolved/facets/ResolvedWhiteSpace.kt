@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.Whitesp
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedWhiteSpace(override val rawPart: XSWhiteSpace, schema: ResolvedSchemaLike) : ResolvedFacet(schema) {
+class ResolvedWhiteSpace(override val rawPart: XSWhiteSpace, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
     val value: WhitespaceValue get() = rawPart.value
 
     override fun equals(other: Any?): Boolean {

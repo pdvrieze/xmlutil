@@ -33,6 +33,8 @@ class ResolvedGroupRef(
 ) : ResolvedGroupBase,
     ResolvedGroupParticle<ResolvedModelGroup> {
 
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
     override val mdlTerm: ResolvedModelGroup get() = referenced.mdlModelGroup

@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExp
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedExplicitTimezone(override val rawPart: XSExplicitTimezone, schema: ResolvedSchemaLike) :
-    ResolvedFacet(schema) {
+    ResolvedFacet(rawPart, schema) {
 
     val value: XSExplicitTimezone.Value get() = rawPart.value
 

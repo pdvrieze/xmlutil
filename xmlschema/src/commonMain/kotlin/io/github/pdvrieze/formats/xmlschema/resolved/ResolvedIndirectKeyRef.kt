@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIndirectIdentityConstraint(schema, owner), ResolvedKeyRef {
+    ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedKeyRef {
 
     override val constraint: ResolvedIndirectKeyRef get() = this
 

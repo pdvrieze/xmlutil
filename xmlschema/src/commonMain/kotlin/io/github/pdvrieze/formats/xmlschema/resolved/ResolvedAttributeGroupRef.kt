@@ -28,6 +28,9 @@ class ResolvedAttributeGroupRef(
     override val rawPart: XSAttributeGroupRef,
     override val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated {
+
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
     val resolvedGroup: ResolvedGlobalAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
 
     override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
@@ -43,9 +46,6 @@ class ResolvedAttributeGroupRef(
 
     val ref: QName
         get() = rawPart.ref
-
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
 
     override fun check(checkedTypes: MutableSet<QName>) {
         super.check(checkedTypes)

@@ -31,15 +31,18 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
+    rawPart: XSComplexType,
     final override val schema: ResolvedSchemaLike
 ) : ResolvedType,
     VAttributeScope.Member,
     ResolvedLocalElement.Parent,
     VElementScope.Member,
     VTypeScope.Member {
-    abstract override val rawPart: XSComplexType
 
-    abstract val content: ResolvedComplexTypeContent
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
+    abstract override val rawPart: XSComplexType
 
     protected abstract val model: Model<*>
 
@@ -84,8 +87,8 @@ sealed class ResolvedComplexType(
     /** 3.3.4.2 for complex types */
     override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
         return when (other) {
-            is ResolvedComplexType -> return isValidlyDerivedFrom(other)
-            is ResolvedSimpleType -> return isValidlyDerivedFrom(other)
+            is ResolvedComplexType -> isValidlyDerivedFrom(other)
+            is ResolvedSimpleType -> isValidlyDerivedFrom(other)
             else -> error("Unreachable")
         }
     }
@@ -124,7 +127,12 @@ sealed class ResolvedComplexType(
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
-        mdlContentType.check()
+        for (attrUse in mdlAttributeUses) {
+            attrUse.check(checkedTypes)
+        }
+
+        mdlContentType.check(this, checkedTypes, inheritedTypes)
+
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
             if (baseType is ResolvedComplexType) {
@@ -238,7 +246,7 @@ sealed class ResolvedComplexType(
     }
 
     protected abstract class ModelBase<R : XSIComplexType>(
-        parent: ResolvedComplexType,
+        context: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike
     ) : Model<R> {
@@ -248,7 +256,7 @@ sealed class ResolvedComplexType(
             calculateAttributeUses(
                 schema,
                 rawPart,
-                parent
+                context
             )
         }
 
@@ -554,15 +562,39 @@ sealed class ResolvedComplexType(
 
         }
 
-        override fun check() {}
+        override fun check(
+            complexType: ResolvedComplexType,
+            checkedTypes: MutableSet<QName>,
+            inheritedTypes: SingleLinkedList<QName>
+        ) {
+
+            val inherited =
+                (complexType as? ResolvedGlobalComplexType)?.mdlQName?.let { inheritedTypes + it } ?: inheritedTypes
+
+            val b = mdlBaseTypeDefinition
+            if (b !is ResolvedGlobalType || b.mdlQName !in checkedTypes) {
+                b.check(checkedTypes, inherited)
+            }
+
+
+        }
     }
 
     interface ResolvedContentType : VContentType {
-        fun check()
+        fun check(
+            complexType: ResolvedComplexType,
+            checkedTypes: MutableSet<QName>,
+            inheritedTypes: SingleLinkedList<QName>
+        )
     }
 
     object EmptyContentType : VContentType.Empty, ResolvedContentType {
-        override fun check() {}
+        override fun check(
+            complexType: ResolvedComplexType,
+            checkedTypes: MutableSet<QName>,
+            inheritedTypes: SingleLinkedList<QName>
+        ) {
+        }
     }
 
     interface ElementContentType : ResolvedContentType, VContentType.ElementBase {
@@ -581,7 +613,11 @@ sealed class ResolvedComplexType(
             return true
         }
 
-        override fun check() {
+        override fun check(
+            complexType: ResolvedComplexType,
+            checkedTypes: MutableSet<QName>,
+            inheritedTypes: SingleLinkedList<QName>
+        ) {
             fun collectElements(
                 term: ResolvedTerm,
                 target: MutableList<ResolvedElement> = mutableListOf()
@@ -596,6 +632,7 @@ sealed class ResolvedComplexType(
             }
 
             val elements = mutableMapOf<QName, ResolvedType>()
+            mdlParticle.check(checkedTypes)
             for (particle in collectElements(mdlParticle.mdlTerm)) {
                 val qName = particle.mdlQName
                 val old = elements.put(qName, particle.mdlTypeDefinition)

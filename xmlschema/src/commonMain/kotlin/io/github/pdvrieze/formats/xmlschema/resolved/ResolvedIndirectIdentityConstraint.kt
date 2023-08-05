@@ -20,16 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 
-sealed class ResolvedIndirectIdentityConstraint(schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIdentityConstraintBase(schema, owner), ResolvedIdentityConstraint {
+sealed class ResolvedIndirectIdentityConstraint(
+    rawPart: XSIdentityConstraint,
+    schema: ResolvedSchemaLike,
+    owner: ResolvedElement
+) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
     abstract val ref: ResolvedNamedIdentityConstraint
 

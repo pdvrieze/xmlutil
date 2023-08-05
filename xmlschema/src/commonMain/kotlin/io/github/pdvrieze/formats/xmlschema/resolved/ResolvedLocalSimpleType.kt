@@ -37,8 +37,7 @@ class ResolvedLocalSimpleType(
     override val id: VID?
         get() = rawPart.id
 
-    override val otherAttrs: Map<QName, String>
-        get() = rawPart.otherAttrs
+    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     override val simpleDerivation: ResolvedSimpleType.Derivation
         get() = when (val raw = rawPart.simpleDerivation) {

@@ -30,6 +30,10 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
     VTypeScope.Member, ResolvedBasicTerm,
     ResolvedAnnotated {
 
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
+
     init {
         require(rawPart.type == null || rawPart.localType == null) {
             "3.3.3(3) - Elements may not have both a type attribute and an inline type definition"
@@ -70,9 +74,6 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
     abstract val mdlAbstract: Boolean
 
     override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
-
-
-    final override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1

@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFra
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedFractionDigits(override val rawPart: XSFractionDigits, schema: ResolvedSchemaLike) :
-    ResolvedFacet(schema) {
+    ResolvedFacet(rawPart, schema) {
 
     val value: ULong get() = rawPart.value
 

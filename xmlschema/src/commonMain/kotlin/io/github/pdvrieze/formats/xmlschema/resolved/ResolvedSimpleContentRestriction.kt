@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import nl.adaptivity.xmlutil.QName
@@ -33,7 +32,7 @@ class ResolvedSimpleContentRestriction(
     context: ResolvedComplexType,
     override val rawPart: XSSimpleContentRestriction,
     schema: ResolvedSchemaLike,
-) : ResolvedSimpleContentDerivation(schema) {
+) : ResolvedSimpleContentDerivation(rawPart, schema) {
     val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
     val base: QName? get() = rawPart.base
@@ -46,16 +45,4 @@ class ResolvedSimpleContentRestriction(
 
     override val baseType: ResolvedType by lazy { base?.let{ schema.type(it) } ?: checkNotNull(simpleType) }
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        val b = base
-        if (b == null) {
-            requireNotNull(simpleType) { "A simple content restriction must have at least a base type or a simpletype child" }
-        }
-        check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
-        if (b !in checkedTypes) {
-            val inherited = (baseType as? OptNamedPart)?.qName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-            baseType.check(checkedTypes, inherited)
-            // Recursion is allowed
-        }
-    }
 }

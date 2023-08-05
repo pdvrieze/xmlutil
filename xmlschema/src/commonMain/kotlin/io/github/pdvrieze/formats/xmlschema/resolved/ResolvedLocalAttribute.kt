@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
@@ -45,12 +46,11 @@ class ResolvedLocalAttribute private constructor(
 
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
             error("XXX. Canary. Remove once verified")
-            check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
-            val content = parent.content
-            check(content is ResolvedComplexContent)
-            val derivation = content.derivation
-            check(derivation is ResolvedComplexRestriction)
-            check(derivation.base != AnyType.mdlQName) { "3.2.3(6.3.2) - Restriction isn't anytype"}
+            check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matching namespace must have complex type ancestor"}
+            check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
+            val contentType = parent.mdlContentType
+            check(contentType is ResolvedComplexType.ElementContentType)
+            check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
     }
 

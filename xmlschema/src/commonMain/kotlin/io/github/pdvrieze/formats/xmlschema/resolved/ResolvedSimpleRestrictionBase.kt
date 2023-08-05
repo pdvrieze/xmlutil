@@ -26,7 +26,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFac
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : ResolvedSimpleType.Derivation(schema) {
+abstract class ResolvedSimpleRestrictionBase(rawPart: XSSimpleRestriction?, schema: ResolvedSchemaLike) :
+    ResolvedSimpleType.Derivation(rawPart, schema) {
 
     abstract override val rawPart: XSSimpleRestriction
 
@@ -51,7 +52,7 @@ abstract class ResolvedSimpleRestrictionBase(schema: ResolvedSchemaLike) : Resol
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
         if (b !in checkedTypes) {
-            val inherited = (baseType as? OptNamedPart)?.qName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+            val inherited = (baseType as? ResolvedGlobalType)?.mdlQName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
             baseType.check(checkedTypes, inherited)
             // Recursion is allowed
         }

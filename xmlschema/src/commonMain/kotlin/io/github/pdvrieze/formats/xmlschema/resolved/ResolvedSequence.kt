@@ -31,7 +31,7 @@ class ResolvedSequence private constructor(
     schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
-) : ResolvedGroupParticleTermBase<IResolvedSequence>(schema),
+) : ResolvedGroupParticleTermBase<IResolvedSequence>(rawPart, schema),
     IResolvedSequence {
 
     override val mdlTerm: ResolvedSequence get() = this

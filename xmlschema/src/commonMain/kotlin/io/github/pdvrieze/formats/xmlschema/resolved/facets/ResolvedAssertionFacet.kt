@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAss
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) :
-    ResolvedFacet(schema) {
+    ResolvedFacet(rawPart, schema) {
     val test get() = rawPart.test
     val xPathDefaultNamespace get() = rawPart.xPathDefaultNamespace
 

@@ -31,7 +31,7 @@ class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
-) : ResolvedGlobalType, ResolvedComplexType(schema) {
+) : ResolvedGlobalType, ResolvedComplexType(rawPart, schema) {
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalComplexType>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
@@ -44,21 +44,6 @@ class ResolvedGlobalComplexType(
     val defaultAttributesApply: Boolean?
         get() = rawPart.defaultAttributesApply
 
-    override val content: ResolvedComplexTypeContent
-            by lazy {
-                when (val c = rawPart.simpleContent) {
-                    is XSComplexContent -> ResolvedComplexContent(this, c, schema)
-                    is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
-                        this,
-                        c,
-                        schema
-                    )
-
-                    is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
-                    else -> error("unsupported content")
-                }
-            }
-
     override val model: Model<out XSGlobalComplexType> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
             is XSGlobalComplexTypeComplex -> ComplexModel(this, r, schema)
@@ -69,10 +54,9 @@ class ResolvedGlobalComplexType(
     }
 
     override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+        // Have a check for adding here as the parent doesn't have a name
         if (checkedTypes.add(mdlQName)) {
             super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
-            mdlContentType.check()
-            content.check(checkedTypes, inheritedTypes + mdlQName)
         }
     }
 

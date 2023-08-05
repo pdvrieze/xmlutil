@@ -20,35 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
-import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
     context: VComplexTypeScope.Member,
-) : ResolvedComplexType(schema), ResolvedLocalType,
+) : ResolvedComplexType(rawPart, schema), ResolvedLocalType,
     VSimpleTypeScope.Member {
 
     override val mdlScope: VComplexTypeScope.Local = VComplexTypeScope.Local(context)
     override val mdlContext: VComplexTypeScope.Member get() = mdlScope.parent
-
-    override val content: ResolvedComplexTypeContent by lazy {
-        when (val c = rawPart.simpleContent) {
-            is XSComplexContent -> ResolvedComplexContent(this, c, schema)
-            is XSComplexType.Shorthand -> ResolvedComplexShorthandContent(
-                this,
-                c,
-                schema
-            )
-
-            is XSSimpleContent -> ResolvedSimpleContent(this, c, schema)
-            else -> error("unsupported content")
-        }
-    }
 
     override val model: Model<*> by lazy {
         when (val raw = rawPart) {
@@ -58,14 +42,6 @@ class ResolvedLocalComplexType(
             else -> error("XSLocalComplexType should be sealed")
         }
     }
-
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
-        content.check(checkedTypes, inheritedTypes) // there is no name here
-    }
-
-    interface Foo {}
-//    interface Context {} /* : ComplexTypeContext*/
 
     // TODO don't inherit simpleTypeContext
     interface Model<R : XSLocalComplexType> : ResolvedComplexType.Model<R> {

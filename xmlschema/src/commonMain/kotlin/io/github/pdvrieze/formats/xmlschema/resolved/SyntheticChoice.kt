@@ -31,6 +31,9 @@ class SyntheticChoice(
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticChoice>, IResolvedChoice {
+
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
     override val mdlTerm: SyntheticChoice get() = this
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY

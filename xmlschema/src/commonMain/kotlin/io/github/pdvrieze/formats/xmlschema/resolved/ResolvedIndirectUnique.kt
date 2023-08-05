@@ -27,7 +27,7 @@ class ResolvedIndirectUnique(
     override val rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(schema, owner), ResolvedUnique {
+): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedUnique {
     override val constraint: ResolvedIndirectUnique
         get() = this
 

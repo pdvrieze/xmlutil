@@ -32,7 +32,7 @@ class ResolvedAll private constructor(
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI.Value,
-) : ResolvedGroupParticleTermBase<IResolvedAll>(schema), IResolvedAll {
+) : ResolvedGroupParticleTermBase<IResolvedAll>(rawPart, schema), IResolvedAll {
 
     constructor(
         parent: VElementScope.Member,
