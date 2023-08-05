@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -51,13 +52,6 @@ class ResolvedGlobalComplexType(
             is XSGlobalComplexTypeSimple -> SimpleModel(this, r, schema)
         }
 
-    }
-
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
-        // Have a check for adding here as the parent doesn't have a name
-        if (checkedTypes.add(mdlQName)) {
-            super<ResolvedComplexType>.check(checkedTypes, inheritedTypes)
-        }
     }
 
     override fun toString(): String {

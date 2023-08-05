@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -125,13 +126,13 @@ sealed class ResolvedComplexType(
         }
     }
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
         checkNotNull(model)
         for (attrUse in mdlAttributeUses) {
-            attrUse.check(checkedTypes)
+            attrUse.checkUse(checkHelper)
         }
 
-        mdlContentType.check(this, checkedTypes, inheritedTypes)
+        mdlContentType.check(this, checkHelper, inheritedTypes)
 
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
@@ -563,18 +564,14 @@ sealed class ResolvedComplexType(
 
         override fun check(
             complexType: ResolvedComplexType,
-            checkedTypes: MutableSet<QName>,
+            checkHelper: CheckHelper,
             inheritedTypes: SingleLinkedList<QName>
         ) {
 
             val inherited =
                 (complexType as? ResolvedGlobalComplexType)?.mdlQName?.let { inheritedTypes + it } ?: inheritedTypes
 
-            val b = mdlBaseTypeDefinition
-            if (b !is ResolvedGlobalType || b.mdlQName !in checkedTypes) {
-                b.check(checkedTypes, inherited)
-            }
-
+            checkHelper.checkType(mdlBaseTypeDefinition, inherited)
 
         }
     }
@@ -582,7 +579,7 @@ sealed class ResolvedComplexType(
     interface ResolvedContentType : VContentType {
         fun check(
             complexType: ResolvedComplexType,
-            checkedTypes: MutableSet<QName>,
+            checkHelper: CheckHelper,
             inheritedTypes: SingleLinkedList<QName>
         )
     }
@@ -590,7 +587,7 @@ sealed class ResolvedComplexType(
     object EmptyContentType : VContentType.Empty, ResolvedContentType {
         override fun check(
             complexType: ResolvedComplexType,
-            checkedTypes: MutableSet<QName>,
+            checkHelper: CheckHelper,
             inheritedTypes: SingleLinkedList<QName>
         ) {
         }
@@ -614,7 +611,7 @@ sealed class ResolvedComplexType(
 
         override fun check(
             complexType: ResolvedComplexType,
-            checkedTypes: MutableSet<QName>,
+            checkHelper: CheckHelper,
             inheritedTypes: SingleLinkedList<QName>
         ) {
             fun collectElements(
@@ -631,7 +628,7 @@ sealed class ResolvedComplexType(
             }
 
             val elements = mutableMapOf<QName, ResolvedType>()
-            mdlParticle.check(checkedTypes)
+            mdlParticle.checkParticle(checkHelper)
             for (particle in collectElements(mdlParticle.mdlTerm)) {
                 val qName = particle.mdlQName
                 val old = elements.put(qName, particle.mdlTypeDefinition)

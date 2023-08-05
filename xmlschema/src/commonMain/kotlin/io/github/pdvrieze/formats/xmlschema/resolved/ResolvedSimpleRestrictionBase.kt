@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
@@ -43,7 +44,7 @@ abstract class ResolvedSimpleRestrictionBase(rawPart: XSSimpleRestriction?, sche
         base?.let{ schema.simpleType(it) } ?: checkNotNull(simpleType)
     }
 
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
         val b = base
         if (b == null) {
             requireNotNull(simpleType)
@@ -51,10 +52,7 @@ abstract class ResolvedSimpleRestrictionBase(rawPart: XSSimpleRestriction?, sche
             require(simpleType == null)
         }
         check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
-        if (b !in checkedTypes) {
-            val inherited = (baseType as? ResolvedGlobalType)?.mdlQName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-            baseType.check(checkedTypes, inherited)
-            // Recursion is allowed
-        }
+        val inherited = (baseType as? ResolvedGlobalType)?.mdlQName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
+        baseType.checkType(checkHelper, inherited)
     }
 }
