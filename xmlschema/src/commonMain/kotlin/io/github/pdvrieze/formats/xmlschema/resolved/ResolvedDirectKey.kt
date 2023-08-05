@@ -40,8 +40,6 @@ class ResolvedDirectKey(
     override val constraint: ResolvedDirectKey
         get() = this
 
-    override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
-    }
+    override fun check(checkedTypes: MutableSet<QName>) {}
 
 }
