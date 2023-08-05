@@ -31,11 +31,6 @@ interface ResolvedPart {
     val schema: ResolvedSchemaLike
     val otherAttrs: Map<QName, String>
 
-    fun check(checkedTypes: MutableSet<QName>) {
-        val xsAttrs = otherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }
-        check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
-    }
-
 }
 
 fun XSI_OpenAttrs.resolvedOtherAttrs(): Map<QName, String> {

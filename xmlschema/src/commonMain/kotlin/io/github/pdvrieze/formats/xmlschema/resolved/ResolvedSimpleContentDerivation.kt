@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedSimpleContentDerivation(
     rawPart: XSSimpleContentDerivation,
     override val schema: ResolvedSchemaLike
-) : ResolvedPart, ResolvedAnnotated {
+) : ResolvedAnnotated {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
@@ -37,4 +37,6 @@ sealed class ResolvedSimpleContentDerivation(
     abstract val baseType: ResolvedType
 
     override val id: VID? get() = rawPart.id
+    override fun check(checkedTypes: MutableSet<QName>) {
+    }
 }
