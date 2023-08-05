@@ -50,7 +50,6 @@ class ResolvedGlobalAttributeGroup(
         get() = rawPart.id
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super.check(checkedTypes)
         for (a in attributes) { a.check(checkedTypes) }
         for (ag in attributeGroups) { ag.check(checkedTypes) }
     }
