@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,20 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
 
 interface ResolvedPart {
     val rawPart: XSI_OpenAttrs
     val schema: ResolvedSchemaLike
-    val otherAttrs: Map<QName, String>
-
-}
-
-fun XSI_OpenAttrs.resolvedOtherAttrs(): Map<QName, String> {
-    val xsAttrs = otherAttrs.keys.filter { it.prefix == "" || it.namespaceURI == XMLConstants.XSD_NS_URI }
-    check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
-    return otherAttrs
 }
