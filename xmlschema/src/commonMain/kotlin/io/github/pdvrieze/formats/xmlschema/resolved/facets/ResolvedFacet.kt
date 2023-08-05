@@ -27,13 +27,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedPart
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
-import io.github.pdvrieze.formats.xmlschema.resolved.resolvedOtherAttrs
+import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) : ResolvedPart {
+sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) : ResolvedPart,
+    ResolvedAttrContainer {
 
     abstract override val rawPart: XSFacet
 
