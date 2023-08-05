@@ -49,7 +49,6 @@ sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchema
     open fun validate(float: VFloat) {}
 
     open fun validate(float: VDouble) {}
-    override fun check(checkedTypes: MutableSet<QName>) {}
 
     companion object {
         operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype?): ResolvedFacet = when (rawPart) {

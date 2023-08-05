@@ -21,13 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType {
     override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw parts")
-    override fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()

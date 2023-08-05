@@ -37,6 +37,4 @@ sealed class ResolvedSimpleContentDerivation(
     abstract val baseType: ResolvedType
 
     override val id: VID? get() = rawPart.id
-    override fun check(checkedTypes: MutableSet<QName>) {
-    }
 }
