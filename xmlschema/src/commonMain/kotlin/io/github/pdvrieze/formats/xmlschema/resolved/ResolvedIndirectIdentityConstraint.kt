@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
@@ -34,10 +35,6 @@ sealed class ResolvedIndirectIdentityConstraint(
 ) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
     abstract val ref: ResolvedNamedIdentityConstraint
-
-    open val mdlName: VNCName?
-        get() = VNCName(mdlQName?.localPart)
-
 
     final override val selector: XSSelector
         get() = ref.selector

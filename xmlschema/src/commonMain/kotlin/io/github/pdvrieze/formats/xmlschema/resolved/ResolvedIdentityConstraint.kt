@@ -24,10 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathEx
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import nl.adaptivity.xmlutil.QName
 
-sealed interface ResolvedIdentityConstraint : ResolvedAttrContainer {
+sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
     val selector: XSSelector
-    val schema: ResolvedSchemaLike
-    val rawPart: XSIdentityConstraint
+    override val schema: ResolvedSchemaLike
+    override val rawPart: XSIdentityConstraint
 
     val mdlQName: QName?
 
@@ -63,5 +63,5 @@ sealed interface ResolvedIdentityConstraint : ResolvedAttrContainer {
 
     enum class Category { KEY, KEYREF, UNIQUE }
 
-    fun check(checkedTypes: MutableSet<QName>)
+    override fun check(checkedTypes: MutableSet<QName>)
 }

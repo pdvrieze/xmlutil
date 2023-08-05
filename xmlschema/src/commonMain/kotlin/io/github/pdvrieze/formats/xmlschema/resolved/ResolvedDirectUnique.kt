@@ -41,7 +41,7 @@ class ResolvedDirectUnique(
     override val fields: List<XSField> get() = rawPart.fields
 
     override fun check(checkedTypes: MutableSet<QName>) {
-        super<ResolvedNamedIdentityConstraint>.check(checkedTypes)
+        super.check(checkedTypes)
     }
 
 }
