@@ -32,6 +32,10 @@ class SyntheticSequence(
     override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticSequence>,
     IResolvedSequence {
+
+
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
     override val mdlTerm: SyntheticSequence get() = this
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY

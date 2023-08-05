@@ -30,7 +30,7 @@ class ResolvedUnionDerivation(
     override val rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType
-) : ResolvedSimpleDerivationBase(schema) {
+) : ResolvedSimpleDerivationBase(rawPart, schema) {
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
     val simpleTypes: List<ResolvedLocalSimpleType> =
@@ -40,8 +40,6 @@ class ResolvedUnionDerivation(
         get() = rawPart.memberTypes
 
     val resolvedMembers: List<ResolvedSimpleType>
-
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
 
     init {
         val mt = rawPart.memberTypes

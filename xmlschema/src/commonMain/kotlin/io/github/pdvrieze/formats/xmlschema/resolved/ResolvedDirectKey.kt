@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
@@ -30,7 +29,7 @@ class ResolvedDirectKey(
     override val rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedNamedIdentityConstraint(schema, owner), ResolvedKey {
+): ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedKey {
 
     override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 

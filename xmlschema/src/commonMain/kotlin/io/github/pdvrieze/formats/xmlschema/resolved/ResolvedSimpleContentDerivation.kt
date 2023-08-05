@@ -20,21 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentDerivation
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedSimpleContentDerivation(override val schema: ResolvedSchemaLike) :
-    ResolvedPart, ResolvedAnnotated {
+sealed class ResolvedSimpleContentDerivation(
+    rawPart: XSSimpleContentDerivation,
+    override val schema: ResolvedSchemaLike
+) : ResolvedPart, ResolvedAnnotated {
+
+    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+
+
     abstract override val rawPart: XSSimpleContentDerivation
 
     abstract val baseType: ResolvedType
 
     override val id: VID? get() = rawPart.id
-
-    override val otherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-
-    abstract fun check(checkedTypes: MutableSet<QName>, inheritedTypes: SingleLinkedList<QName>)
-
 }
