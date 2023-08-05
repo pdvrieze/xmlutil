@@ -31,7 +31,7 @@ sealed class ResolvedIdentityConstraintBase(
     rawPart: XSIdentityConstraint,
     override val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
-) : ResolvedPart {
+) : ResolvedPart, ResolvedAttrContainer {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 

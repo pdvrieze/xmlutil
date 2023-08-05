@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedAnnotated : ResolvedPart {
+interface ResolvedAnnotated : ResolvedPart, ResolvedAttrContainer {
     override val rawPart: XSI_Annotated
 
     val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()

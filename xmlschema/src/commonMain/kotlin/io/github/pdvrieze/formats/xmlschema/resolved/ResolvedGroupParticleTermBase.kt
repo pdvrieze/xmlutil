@@ -29,7 +29,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     rawPart: XSI_Grouplike,
     final override val schema: ResolvedSchemaLike
 ) : ResolvedGroupParticle<T>, ResolvedPart,
-    ResolvedAnnotated {
+    ResolvedAnnotated, ResolvedAttrContainer {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
