@@ -63,6 +63,12 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             }
         }
 
+/*
+        override operator fun compareTo(other: VAllNNI.Value): Int {
+            return toULong().compareTo(other.toULong())
+        }
+*/
+
         override operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger = when (other) {
             is Value -> Value(value + other.value)
             else -> Value(value + other)

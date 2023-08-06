@@ -151,7 +151,7 @@ sealed class SingleLinkedList<T> private constructor(dummy: Unit = Unit): List<T
         }
 
         override fun toString(): String {
-            return "$elem"
+            return "[$elem]"
         }
     }
 

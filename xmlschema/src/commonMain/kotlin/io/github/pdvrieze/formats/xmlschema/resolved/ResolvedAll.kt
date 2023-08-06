@@ -23,53 +23,25 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 
-class ResolvedAll private constructor(
+class ResolvedAll(
+    parent: VElementScope.Member,
     override val rawPart: XSAll,
-    schema: ResolvedSchemaLike,
-    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: VAllNNI.Value,
-) : ResolvedGroupParticleTermBase<IResolvedAll>(rawPart, schema), IResolvedAll {
-
-    constructor(
-        parent: VElementScope.Member,
-        rawPart: XSAll,
-        schema: ResolvedSchemaLike,
-    ) : this(
-        rawPart,
-        schema,
-        DelegateList(rawPart.particles) {
-            ResolvedParticle.allMember(parent, it, schema)
-        },
-        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-        rawPart.maxOccurs ?: VAllNNI.ONE,
-    )
+    schema: ResolvedSchemaLike
+) : ResolvedGroupParticleTermBase<IResolvedAll>(
+    parent,
+    rawPart,
+    schema,
+    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    rawPart.maxOccurs ?: VAllNNI.ONE,
+), IResolvedAll {
 
     override val mdlTerm: ResolvedAll get() = this
-
-    init {
-        require(mdlMinOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $mdlMinOccurs" }
-        require(mdlMaxOccurs.let { it is VAllNNI.Value && it.toUInt() <= 1.toUInt() }) { "maxOccurs must be 0 or 1, but was $mdlMaxOccurs" }
-    }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedParticle<IResolvedAll> {
-        return ResolvedAll(
-            rawPart,
-            schema,
-            mdlParticles,
-            mdlMinOccurs * minMultiplier,
-            (mdlMaxOccurs * maxMultiplier) as? VAllNNI.Value ?: mdlMaxOccurs // ignore unbounded
-        )
-    }
 }
 

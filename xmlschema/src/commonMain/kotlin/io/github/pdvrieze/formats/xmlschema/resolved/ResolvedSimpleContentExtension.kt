@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
@@ -29,8 +30,10 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedSimpleContentExtension(
     scope: ResolvedComplexType,
     override val rawPart: XSSimpleContentExtension,
-    schema: ResolvedSchemaLike
+    schema: ResolvedSchemaLike,
+    inheritedTypes: SingleLinkedList<ResolvedType>,
 ) : ResolvedSimpleContentDerivation(rawPart, schema) {
+    override val model: Model by lazy { Model(rawPart, schema, inheritedTypes) }
     val asserts: List<XSIAssertCommon> get() = rawPart.asserts
     val attributes: List<IResolvedAttributeUse> =
         DelegateList(rawPart.attributes) { ResolvedLocalAttribute(scope, it, schema) }
@@ -42,8 +45,13 @@ class ResolvedSimpleContentExtension(
 
     val base: QName get() = rawPart.base
 
-    override val baseType: ResolvedType by lazy {
-        schema.type(base)
+
+    class Model(
+        rawPart: XSSimpleContentExtension,
+        schema: ResolvedSchemaLike,
+        inheritedTypes: SingleLinkedList<ResolvedType>
+    ) : ResolvedSimpleContentDerivation.Model(rawPart, schema) {
+        override val baseType: ResolvedType = schema.type(rawPart.base, inheritedTypes)
     }
 
 }

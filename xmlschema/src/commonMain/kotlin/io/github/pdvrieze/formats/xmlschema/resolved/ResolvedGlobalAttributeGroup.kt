@@ -32,26 +32,32 @@ class ResolvedGlobalAttributeGroup(
     val location: String,
 ) : ResolvedAttributeGroup(rawPart, schema), ResolvedAnnotated, NamedPart, VAttributeScope.Member {
 
+    override val model: Model by lazy { Model(this, rawPart, schema) }
+
     internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    val attributes: List<IResolvedAttributeUse> = DelegateList(rawPart.attributes) {
-        ResolvedLocalAttribute(this, it, schema)
-    }
+    val attributes: List<IResolvedAttributeUse> get() = model.attributes
 
-    val attributeGroups: List<ResolvedAttributeGroupRef>
-        get() = DelegateList(rawPart.attributeGroups) { ResolvedAttributeGroupRef(it, schema) }
+    val attributeGroups: List<ResolvedAttributeGroupRef> get() = model.attributeGroups
 
-    val anyAttribute: XSAnyAttribute?
-        get() = rawPart.anyAttribute
-
-    override val id: VID?
-        get() = rawPart.id
+    val anyAttribute: XSAnyAttribute? = rawPart.anyAttribute
 
     fun checkAttributeGroup(checkHelper: CheckHelper) {
         for (a in attributes) { a.checkUse(checkHelper) }
         for (ag in attributeGroups) { ag.checkRef(checkHelper) }
+    }
+
+    class Model(parent: ResolvedGlobalAttributeGroup, rawPart: XSAttributeGroup, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
+
+        val attributes: List<IResolvedAttributeUse> = rawPart.attributes.map {
+            ResolvedLocalAttribute(parent, it, schema)
+        }
+
+        val attributeGroups: List<ResolvedAttributeGroupRef> = rawPart.attributeGroups.map {
+            ResolvedAttributeGroupRef(it, schema)
+        }
     }
 }

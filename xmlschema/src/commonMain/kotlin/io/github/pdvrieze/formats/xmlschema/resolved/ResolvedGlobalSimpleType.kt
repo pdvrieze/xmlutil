@@ -20,10 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSISimpleType
-import nl.adaptivity.xmlutil.QName
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
     override val rawPart: XSGlobalSimpleType
@@ -31,11 +29,19 @@ interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
     override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
 
     companion object {
-        operator fun invoke(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
-            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
+        operator fun invoke(
+            rawPart: XSGlobalSimpleType,
+            schema: ResolvedSchemaLike,
+            inheritedTypes: SingleLinkedList<ResolvedType>
+        ): ResolvedGlobalSimpleType {
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema, inheritedTypes)
         }
-        internal operator fun invoke(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike): ResolvedGlobalSimpleType {
-            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
+        internal operator fun invoke(
+            rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
+            schema: ResolvedSchemaLike,
+            inheritedTypes: SingleLinkedList<ResolvedType>
+        ): ResolvedGlobalSimpleType {
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema, inheritedTypes)
         }
     }
 }

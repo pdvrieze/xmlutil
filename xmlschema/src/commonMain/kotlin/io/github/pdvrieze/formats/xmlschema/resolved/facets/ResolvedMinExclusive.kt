@@ -30,8 +30,8 @@ class ResolvedMinExclusive(
     override val rawPart: XSMinExclusive,
     schema: ResolvedSchemaLike,
     primitiveDatatype: PrimitiveDatatype?
-) :
-    ResolvedMinBoundFacet(rawPart, schema) {
+) : ResolvedMinBoundFacet(rawPart, schema) {
+
     override val isInclusive: Boolean get() = false
 
     override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value

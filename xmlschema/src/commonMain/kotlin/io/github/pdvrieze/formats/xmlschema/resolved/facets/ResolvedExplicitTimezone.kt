@@ -21,12 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExplicitTimezone
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedExplicitTimezone(override val rawPart: XSExplicitTimezone, schema: ResolvedSchemaLike) :
     ResolvedFacet(rawPart, schema) {
+    override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    val value: XSExplicitTimezone.Value get() = rawPart.value
+    val value: XSExplicitTimezone.Value = rawPart.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

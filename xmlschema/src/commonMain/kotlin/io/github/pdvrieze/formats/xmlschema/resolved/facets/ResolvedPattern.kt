@@ -21,13 +21,15 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
-    val value: String get() = rawPart.value
-    val regex: Regex by lazy {
-        Regex(rawPart.value.convertToKtRegex())
-    }
+    override val model: Model by lazy { Model(rawPart) }
+
+    val value: String = rawPart.value
+
+    val regex: Regex get() = model.regex
 
     override fun toString(): String = "Pattern('$value')"
 
@@ -42,6 +44,10 @@ class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLik
 
     override fun hashCode(): Int {
         return value.hashCode()
+    }
+
+    class Model(rawPart: XSPattern): ResolvedAnnotated.Model(rawPart) {
+        val regex: Regex = Regex(rawPart.value.convertToKtRegex())
     }
 
 }

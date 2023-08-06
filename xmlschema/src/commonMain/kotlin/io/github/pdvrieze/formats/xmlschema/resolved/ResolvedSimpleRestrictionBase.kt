@@ -20,39 +20,100 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-abstract class ResolvedSimpleRestrictionBase(rawPart: XSSimpleRestriction?, schema: ResolvedSchemaLike) :
-    ResolvedSimpleType.Derivation(rawPart, schema) {
-
+abstract class ResolvedSimpleRestrictionBase(
+    rawPart: XSSimpleRestriction?,
+    schema: ResolvedSchemaLike,
+    inheritedTypes: SingleLinkedList<ResolvedType>
+) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
     abstract override val rawPart: XSSimpleRestriction
+    abstract override val model: IModel
 
-    open val otherContents: List<CompactFragment> get() = rawPart.otherContents
+    override val baseType: ResolvedSimpleType get() = model.baseType
 
-    open val base: QName? get() = rawPart.base
+    open val otherContents: List<CompactFragment> get() = model.otherContents
 
-    open val facets: List<XSFacet> get() = rawPart.facets
-
-    abstract val simpleType: ResolvedLocalSimpleType?
-
-    override val baseType: ResolvedSimpleType by lazy {
-        base?.let{ schema.simpleType(it) } ?: checkNotNull(simpleType)
-    }
-
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
-        val b = base
-        if (b == null) {
-            requireNotNull(simpleType)
-        } else {
-            require(simpleType == null)
+    init {
+        if (rawPart != null) {
+            if (rawPart.base == null) {
+                requireNotNull(rawPart.simpleType)
+            } else {
+                require(rawPart.simpleType == null)
+            }
         }
-        check(b !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $b in ${inheritedTypes.last()}"}
-        val inherited = (baseType as? ResolvedGlobalType)?.mdlQName?.let(::SingleLinkedList) ?: SingleLinkedList.empty()
-        baseType.checkType(checkHelper, inherited)
     }
+
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
+        val baseName = (baseType as? ResolvedGlobalType)?.mdlQName
+        check(baseType !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $baseName in ${inheritedTypes.last()}"}
+
+        checkHelper.checkType(baseType, inheritedTypes)
+    }
+
+    interface IModel: ResolvedAnnotated.IModel {
+        val baseType: ResolvedSimpleType
+        val facets: FacetList
+        val otherContents: List<CompactFragment>
+    }
+
+    class Model: ResolvedAnnotated.Model, IModel {
+        override val baseType: ResolvedSimpleType
+        override val facets: FacetList
+
+        override val otherContents: List<CompactFragment>
+
+        constructor(
+            baseType: ResolvedSimpleType = AnySimpleType,
+            facets: FacetList = FacetList.EMPTY,
+            otherContents: List<CompactFragment> = emptyList(),
+            id: VID? = null,
+            annotations: List<ResolvedAnnotation> = emptyList(),
+            otherAttrs: Map<QName, String> = emptyMap(),
+        ) : super(annotations, id, otherAttrs) {
+            this.baseType = baseType
+            this.otherContents = otherContents
+            this.facets = facets
+        }
+
+        constructor(
+            rawPart: XSSimpleRestriction,
+            schema: ResolvedSchemaLike,
+            baseType: ResolvedSimpleType,
+            annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart.annotation.models())
+        ) : super(rawPart, annotations) {
+            this.baseType = baseType
+            this.otherContents = rawPart.otherContents
+            this.facets = FacetList(rawPart.facets, schema, baseType.mdlPrimitiveTypeDefinition)
+        }
+
+        constructor(
+            rawPart: XSSimpleRestriction,
+            schema: ResolvedSchemaLike,
+            annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart.annotation.models()),
+            context: ResolvedSimpleType,
+            inheritedTypes: SingleLinkedList<ResolvedType>,
+        ) : this(
+            rawPart,
+            schema,
+            rawPart.base?.let {
+                require(rawPart.simpleType == null) { "Restriction can only specify base or simpleType, not both" }
+                schema.simpleType(it, inheritedTypes)
+            } ?: ResolvedLocalSimpleType(
+                requireNotNull(rawPart.simpleType) { "Restrictions must have a base" },
+                schema,
+                context,
+                inheritedTypes
+            ),
+            annotations)
+
+    }
+
 }

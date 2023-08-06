@@ -34,26 +34,14 @@ class SyntheticSequence(
 ) : ResolvedParticle<SyntheticSequence>,
     IResolvedSequence {
 
-
-    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticSequence get() = this
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
-    override val mdlAnnotations: ResolvedAnnotation? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super<IResolvedSequence>.checkTerm(checkHelper)
-    }
-
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): SyntheticSequence {
-        return SyntheticSequence(mdlMinOccurs * minMultiplier, mdlMaxOccurs * maxMultiplier, mdlParticles, schema)
-    }
 }

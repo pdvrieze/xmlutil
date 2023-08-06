@@ -32,7 +32,7 @@ class ResolvedProhibitedAttribute(
     override val schema: ResolvedSchemaLike
 ) : IResolvedAttributeUse {
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val model: ResolvedAnnotated.IModel = ResolvedAnnotated.Model(rawPart)
 
     init {
         check(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }

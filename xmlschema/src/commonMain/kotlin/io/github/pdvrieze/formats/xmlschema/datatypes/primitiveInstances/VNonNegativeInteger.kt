@@ -59,6 +59,8 @@ interface VNonNegativeInteger : VInteger {
         else -> toULong().compareTo(other.toULong())
     }
 
+    operator fun compareTo(other: VAllNNI.Value): Int = toULong().compareTo(other.toULong())
+
     private class Inst(override val xmlString: String) : VNonNegativeInteger {
         override fun toLong(): Long = xmlString.toLong()
 

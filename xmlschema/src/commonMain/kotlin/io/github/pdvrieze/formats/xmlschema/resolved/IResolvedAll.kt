@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -39,39 +38,6 @@ interface IResolvedAll : ResolvedModelGroup {
                 "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
             }
         }
-    }
-
-    override fun normalize(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): SyntheticAll {
-        var newMin: VNonNegativeInteger = minMultiplier
-        var newMax: VAllNNI = maxMultiplier
-        if (this is ResolvedParticle<*>) {
-            newMin *= mdlMinOccurs
-            newMax *= mdlMaxOccurs
-        }
-
-        val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
-
-        for (particle in mdlParticles) {
-            val cleanParticle = when (particle) {
-                is ResolvedGroupRef -> particle.flattenToModelGroup()
-                else -> particle
-            }
-
-            when (val term: ResolvedTerm = cleanParticle.mdlTerm) {
-                is IResolvedAll -> {
-                    for (child in term.mdlParticles) {
-                        newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
-                    }
-                }
-
-                else -> newParticles.add(particle.normalizeTerm())
-            }
-        }
-        return SyntheticAll(newMin, newMax, newParticles, schema)
-
     }
 
     override fun restricts(general: ResolvedModelGroup): Boolean {

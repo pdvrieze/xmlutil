@@ -62,8 +62,8 @@ class ResolvedAttributeRef(
         checkHelper.checkAttribute(r)
     }
 
-    protected class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, context: ResolvedAttributeRef) :
-        ResolvedAttribute.Model(context, schema) {
+    class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, context: ResolvedAttributeRef) :
+        ResolvedAttribute.Model(rawPart) {
 
         override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
             val ns = rawPart.targetNamespace ?: when {

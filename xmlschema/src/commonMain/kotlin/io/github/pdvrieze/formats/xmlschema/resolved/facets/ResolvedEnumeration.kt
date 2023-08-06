@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedEnumeration(
@@ -30,6 +31,8 @@ class ResolvedEnumeration(
     schema: ResolvedSchemaLike,
     primitiveDatatype: PrimitiveDatatype?
 ) : ResolvedFacet(rawPart, schema) {
+    override val model by lazy { ResolvedAnnotated.Model(rawPart) }
+
     val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
 
     override fun equals(other: Any?): Boolean {

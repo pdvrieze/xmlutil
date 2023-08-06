@@ -33,13 +33,11 @@ class ResolvedAny(
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
+    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
+
     override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    override val mdlAnnotations: ResolvedAnnotation?
-        get() = rawPart.annotation.models()
-
-    val namespace: VNamespaceList
-        get() = rawPart.namespace ?: VNamespaceList.ANY
+    val namespace: VNamespaceList = rawPart.namespace ?: VNamespaceList.ANY
 
     override val mdlTerm: ResolvedAny get() = this
 
@@ -64,21 +62,4 @@ class ResolvedAny(
 //        TODO("not implemented")
     }
 
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedAny {
-        return when {
-            minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
-                ResolvedAny(
-                    rawPart,
-                    schema,
-                    mdlMinOccurs * minMultiplier,
-                    mdlMaxOccurs * maxMultiplier,
-                )
-            }
-
-            else -> this
-        }
-    }
 }
