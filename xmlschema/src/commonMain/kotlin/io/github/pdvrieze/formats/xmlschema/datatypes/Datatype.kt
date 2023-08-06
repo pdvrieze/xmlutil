@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -89,8 +88,8 @@ sealed class ListDatatype(
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
-        baseType.checkType(checkHelper, inheritedTypes)
+    override fun checkType(checkHelper: CheckHelper) {
+        checkHelper.checkType(baseType)
     }
 
     override val model: ListDatatype
@@ -129,22 +128,20 @@ abstract class ConstructedListDatatype : ListDatatype {
         targetNamespace: String,
         itemType: AtomicDatatype,
         schemaLike: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : super(name, targetNamespace, itemType, schemaLike) {
-        simpleDerivation = BuiltinListDerivation(BuiltinSchemaXmlschema, itemType, inheritedTypes)
+        simpleDerivation = BuiltinListDerivation(itemType)
     }
 
     constructor(
         name: String,
         targetNamespace: String,
         itemType: UnionDatatype,
-        schemaLike: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
-    ) : super(name, targetNamespace, itemType, schemaLike) {
+        schema: ResolvedSchemaLike,
+    ) : super(name, targetNamespace, itemType, schema) {
         if (itemType.members.any { it !is AtomicDatatype }) {
             throw IllegalArgumentException("Union item types of a list must only have atomic members")
         }
-        simpleDerivation = BuiltinListDerivation(BuiltinSchemaXmlschema, itemType, inheritedTypes)
+        simpleDerivation = BuiltinListDerivation(itemType)
     }
 
     override val baseType: ResolvedType
@@ -206,12 +203,10 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
         TODO("not implemented")
     }
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart, BuiltinSchemaXmlschema, SingleLinkedList()) {
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart) {
         override val rawPart: Nothing get() = throw UnsupportedOperationException()
 
         override val model: IModel = Model(ErrorType)
-
-        override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
     }
 }
 
@@ -281,10 +276,8 @@ internal open class SimpleBuiltinRestriction(
     baseType: ResolvedBuiltinType,
     schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
-) : ResolvedSimpleRestrictionBase(null, BuiltinSchemaXmlschema, SingleLinkedList()) {
+) : ResolvedSimpleRestrictionBase(null) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()
 
     override val model: IModel = Model(baseType, FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition))
-
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
 }
