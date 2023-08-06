@@ -23,24 +23,17 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
-import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) :
     ResolvedAnnotated {
+    abstract override val model: ResolvedAnnotated.IModel
 
     abstract override val rawPart: XSFacet
 
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    val fixed get() = rawPart.fixed
-
-    override val id: VID? get() = rawPart.id
-    val annotation: XSAnnotation? get() = rawPart.annotation
+    val mdlFixed = rawPart.fixed
 
     open fun checkFacetValid(type: ResolvedSimpleType) {}
 

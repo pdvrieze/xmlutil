@@ -21,12 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -89,23 +89,6 @@ class ResolvedLocalElement private constructor(
         rawPart.maxOccurs ?: VAllNNI.ONE,
     )
 
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedLocalElement = when {
-        minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
-            ResolvedLocalElement(
-                mdlScope.parent,
-                rawPart,
-                schema,
-                mdlMinOccurs.times(minMultiplier),
-                mdlMaxOccurs.times(maxMultiplier),
-            )
-        }
-
-        else -> this
-    }
-
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalElement(")
@@ -117,7 +100,7 @@ class ResolvedLocalElement private constructor(
         }
     }
 
-    protected inner class Model(
+    inner class Model(
         rawPart: XSLocalElement,
         schema: ResolvedSchemaLike,
         context: ResolvedLocalElement
@@ -136,7 +119,7 @@ class ResolvedLocalElement private constructor(
             get() = TODO("not implemented")
 
         override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context, SingleLinkedList()) }
                 ?: rawPart.type?.let { schema.type(it) }
                 ?: AnyType
     }

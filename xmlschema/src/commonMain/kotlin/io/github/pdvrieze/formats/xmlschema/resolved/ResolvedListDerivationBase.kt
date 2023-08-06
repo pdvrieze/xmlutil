@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -29,27 +30,16 @@ import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedListDerivationBase(
     rawPart: XSSimpleList?,
-    schema: ResolvedSchemaLike
-) : ResolvedSimpleType.Derivation(rawPart, schema) {
-    abstract override val rawPart: XSSimpleList
+    schema: ResolvedSchemaLike,
+    inheritedTypes: SingleLinkedList<ResolvedType>
+) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
+    abstract override val model: IModel
 
-    val itemTypeName: QName? get() = rawPart.itemTypeName
-    abstract val simpleType: ResolvedLocalSimpleType?
+    final override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    val itemType: ResolvedSimpleType by lazy {
-        val itemTypeName = rawPart?.itemTypeName
-        when {
-            itemTypeName != null -> schema.simpleType(itemTypeName)
-            else -> {
-                simpleType ?: error("Item type is not specified, either by name or member")
-            }
-        }
-    }
+    val itemType: ResolvedSimpleType get() = model.itemType
 
-    override val baseType: ResolvedSimpleType get() = AnySimpleType
-
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
-        simpleType?.checkType(checkHelper, inheritedTypes)
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
         itemType.checkType(checkHelper, inheritedTypes)
 
         check(VDerivationControl.LIST !in itemType.mdlFinal) {
@@ -58,6 +48,41 @@ abstract class ResolvedListDerivationBase(
         check(itemType.mdlVariety != ResolvedSimpleType.Variety.LIST) {
             "The item in a list must be of variety atomic or union"
         }
+    }
+
+    interface IModel : ResolvedAnnotated.IModel {
+        val itemType: ResolvedSimpleType
+    }
+
+    protected class Model : ResolvedAnnotated.Model, IModel {
+
+        override val itemType: ResolvedSimpleType
+
+        constructor(
+            rawPart: XSSimpleList?,
+            schema: ResolvedSchemaLike,
+            context: ResolvedSimpleType,
+            inheritedTypes: SingleLinkedList<ResolvedType>,
+        ) : super(rawPart) {
+            val itemTypeName = rawPart?.itemTypeName
+            itemType = when {
+                itemTypeName != null -> schema.simpleType(itemTypeName, inheritedTypes)
+                else -> {
+                    val simpleTypeDef = rawPart?.simpleType ?: error("Item type is not specified, either by name or member")
+                    ResolvedLocalSimpleType(rawPart.simpleType, schema, context, inheritedTypes)
+                }
+            }
+        }
+
+        constructor(
+            itemType: ResolvedSimpleType,
+            id: VID? = null,
+            annotations: List<ResolvedAnnotation> = emptyList(),
+            otherAttrs: Map<QName, String> = emptyMap(),
+        ) : super(annotations, id, otherAttrs) {
+            this.itemType = itemType
+        }
+
     }
 
 }

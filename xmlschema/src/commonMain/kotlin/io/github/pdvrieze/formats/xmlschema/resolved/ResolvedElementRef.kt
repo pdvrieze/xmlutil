@@ -27,70 +27,35 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedElementRef private constructor(
-    val parent: VElementScope.Member,
+class ResolvedElementRef constructor(
     override val rawPart: XSLocalElement,
     override val schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: VAllNNI,
-) : IResolvedElementUse,
-    ResolvedParticle<ResolvedElement> {
+    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
+) : IResolvedElementUse, ResolvedParticle<ResolvedElement> {
+    override val model: Model by lazy { Model(rawPart, schema) }
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    val ref: QName = invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
+    override val mdlQName: QName get() = mdlTerm.mdlQName
+    override val mdlTerm: ResolvedGlobalElement get() = model.term
 
     init {
+        invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
         require(rawPart.name == null) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified" }
-        require(rawPart.block==null) { "3.3.3(2.2) - References may not specify block" }
-        require(rawPart.default==null) { "3.3.3(2.2) - References may not specify default" }
-        require(rawPart.fixed==null) { "3.3.3(2.2) - References may not specify fixed" }
-        require(rawPart.form==null) { "3.3.3(2.2) - References may not specify form" }
-        require(rawPart.nillable==null) { "3.3.3(2.2) - References may not specify nillable" }
-        require(rawPart.targetNamespace==null) { "3.3.3(2.2) - References may not specify target namespace" }
-        require(rawPart.type==null) { "3.3.3(2.2) - References may not specify type" }
-        require(rawPart.localType==null) { "3.3.3(2.2) - References may not specify inline type" }
+        require(rawPart.block == null) { "3.3.3(2.2) - References may not specify block" }
+        require(rawPart.default == null) { "3.3.3(2.2) - References may not specify default" }
+        require(rawPart.fixed == null) { "3.3.3(2.2) - References may not specify fixed" }
+        require(rawPart.form == null) { "3.3.3(2.2) - References may not specify form" }
+        require(rawPart.nillable == null) { "3.3.3(2.2) - References may not specify nillable" }
+        require(rawPart.targetNamespace == null) { "3.3.3(2.2) - References may not specify target namespace" }
+        require(rawPart.type == null) { "3.3.3(2.2) - References may not specify type" }
+        require(rawPart.localType == null) { "3.3.3(2.2) - References may not specify inline type" }
         require(rawPart.identityConstraints.isEmpty()) { "3.3.3(2.2) - References may not specify identity constraints" }
         require(rawPart.alternatives.isEmpty()) { "3.3.3(2.2) - References may not specify alternatives" }
     }
 
-    override val mdlQName: QName get() = mdlTerm.mdlQName
-
-    override val mdlTerm: ResolvedGlobalElement by lazy {
-        schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
-    }
-
-    constructor(
-        parent: VElementScope.Member,
-        rawPart: XSLocalElement,
-        schema: ResolvedSchemaLike,
-    ) : this(
-        parent,
-        rawPart,
-        schema,
-        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-        rawPart.maxOccurs ?: VAllNNI.ONE,
-    )
 
     override fun checkParticle(checkHelper: CheckHelper) {
         checkHelper.checkElement(mdlTerm)
-    }
-
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedElementRef = when {
-        minMultiplier != VNonNegativeInteger.ONE || maxMultiplier != VAllNNI.ONE -> {
-            ResolvedElementRef(
-                parent,
-                rawPart,
-                schema,
-                mdlMinOccurs * minMultiplier,
-                mdlMaxOccurs * maxMultiplier,
-            )
-        }
-
-        else -> this
     }
 
     override fun toString(): String {
@@ -101,6 +66,15 @@ class ResolvedElementRef private constructor(
             if (rawPart.maxOccurs != null) append("maxOccurs=${rawPart.maxOccurs}, ")
             append("type=${mdlTerm.mdlTypeDefinition}")
             append(")")
+        }
+    }
+
+    class Model: ResolvedAnnotated.Model {
+
+        val term: ResolvedGlobalElement
+
+        constructor(rawPart: XSLocalElement, schema: ResolvedSchemaLike) : super(rawPart) {
+            term = schema.element(invariantNotNull(rawPart.ref) { "Element references must have a ref property" })
         }
     }
 

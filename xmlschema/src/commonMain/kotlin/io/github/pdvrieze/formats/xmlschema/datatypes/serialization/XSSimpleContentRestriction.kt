@@ -38,7 +38,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
     constructor(
         simpleType: XSLocalSimpleType? = null,
         facets: List<XSFacet> = emptyList(),
-        base: QName,
+        base: QName? = null,
         id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -54,7 +54,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         this.otherContents = otherContents
     }
 
-    override val base: SerializableQName
+    override val base: SerializableQName?
 
     override val simpleType: XSLocalSimpleType?
 

@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 class ResolvedGroupRef(
     override val rawPart: XSGroupRef,
@@ -32,34 +31,15 @@ class ResolvedGroupRef(
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupBase,
     ResolvedGroupParticle<ResolvedModelGroup> {
+    override val model: Model by lazy { Model(rawPart, schema) }
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
-
-    override val mdlTerm: ResolvedModelGroup get() = referenced.mdlModelGroup
-
-    val referenced: ResolvedGlobalGroup by lazy { schema.modelGroup(rawPart.ref) }
-
-    val ref: QName get() = rawPart.ref
+    override val mdlTerm: ResolvedModelGroup get() = model.referenced.mdlModelGroup
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlTerm.collectConstraints(collector)
     }
 
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedParticle<ResolvedModelGroup> {
-        return ResolvedGroupRef(
-            rawPart,
-            schema,
-            mdlMinOccurs * minMultiplier,
-            mdlMaxOccurs * maxMultiplier,
-        )
-    }
-
-    fun flattenToModelGroup(): ResolvedParticle<ResolvedTerm> {
-        return mdlTerm.normalize(mdlMinOccurs, mdlMaxOccurs)
+    class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
+        val referenced = schema.modelGroup(rawPart.ref)
     }
 }

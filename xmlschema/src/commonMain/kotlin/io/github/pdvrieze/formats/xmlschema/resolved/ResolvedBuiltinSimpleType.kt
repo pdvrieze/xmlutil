@@ -31,15 +31,17 @@ import nl.adaptivity.xmlutil.QName
 interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType, ResolvedSimpleType.Model {
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no types")
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+
+    override val mdlScope: VSimpleTypeScope.Global get() = super<ResolvedBuiltinType>.mdlScope
+
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
 
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinType>.mdlFinal
 
-    override val mdlScope: VSimpleTypeScope.Global
-        get() = super<ResolvedBuiltinType>.mdlScope
-
-    override val mdlAnnotations: Nothing? get() = null
+    override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
     override val mdlFacets: FacetList
 

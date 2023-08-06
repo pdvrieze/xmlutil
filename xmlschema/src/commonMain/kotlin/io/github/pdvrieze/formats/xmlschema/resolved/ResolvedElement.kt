@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -48,21 +47,19 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
 
     }
 
-    final override val id: VID? get() = rawPart.id
-
     abstract override val rawPart: XSElement
 
-    protected abstract val model: Model
+    abstract override val model: Model
 
     abstract val mdlQName: QName
 
     // target namespace just in the qName
 
+    val mdlNillable: Boolean = rawPart.nillable ?: false
+
     val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
 
     val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
-
-    val mdlNillable: Boolean get() = rawPart.nillable ?: false
 
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
@@ -73,8 +70,6 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
     abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
 
     abstract val mdlAbstract: Boolean
-
-    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
@@ -124,11 +119,11 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
         collector.addAll(mdlIdentityConstraints)
     }
 
-    protected abstract class Model(
+    abstract class Model(
         rawPart: XSElement,
         schema: ResolvedSchemaLike,
         context: ResolvedElement
-    ) {
+    ) : ResolvedAnnotated.Model(rawPart) {
 
         abstract val mdlTypeDefinition: ResolvedType
 
@@ -140,8 +135,6 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
             rawPart.identityConstraints.mapTo(HashSet()) {
                 ResolvedIdentityConstraint(it, schema, context)
             }
-
-        val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
     }
 
     abstract val mdlScope: VElementScope

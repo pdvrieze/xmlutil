@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
 class CheckHelper(private val schema: ResolvedSchemaLike) {
-    private val checkedTypes: MutableSet<QName> = HashSet()
+    private val checkedTypes: MutableSet<ResolvedType> = HashSet()
     private val checkedElements: MutableSet<QName> = HashSet()
     private val checkedAttributes: MutableSet<QName> = HashSet()
     private val checkedAttributeGroups: MutableSet<QName> = HashSet()
@@ -35,17 +35,16 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkHelper get() = this
 
     fun checkType(name: QName) {
-        if (checkedTypes.add(name)) {
-            schema.type(name).checkType(this)
-        }
+        checkType(schema.type(name), SingleLinkedList())
     }
 
-    fun checkType(type: ResolvedType, inheritedTypes: SingleLinkedList<QName>) {
+    fun checkType(type: ResolvedType, inheritedTypes: SingleLinkedList<ResolvedType>) {
         when (type) {
             is ResolvedGlobalType -> {
-                val name = type.mdlQName
-                if (checkedTypes.add(name)) {
-                    require(name !in inheritedTypes) { "Recursive presence of $name" }
+                if (checkedTypes.add(type)) {
+                    require(type !in inheritedTypes) {
+                        "Recursive presence of ${type.mdlQName}"
+                    }
                     type.checkType(this, inheritedTypes)
                 }
             }

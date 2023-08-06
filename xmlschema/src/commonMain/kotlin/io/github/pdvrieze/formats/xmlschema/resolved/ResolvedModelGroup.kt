@@ -35,11 +35,6 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
         }
     }
 
-    fun normalize(
-        minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
-        maxMultiplier: VAllNNI = VAllNNI.ONE
-    ): ResolvedParticle<ResolvedTerm>
-
     fun restricts(general: ResolvedModelGroup): Boolean
 
     enum class Compositor { ALL, CHOICE, SEQUENCE }

@@ -22,14 +22,48 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedAnnotated : ResolvedAttrContainer {
+interface ResolvedAnnotated {
+    @Deprecated("Not needed")
     val rawPart: XSI_Annotated
 
+    @Deprecated("Not needed")
     val schema: ResolvedSchemaLike
 
-    val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
+    val model: IModel
 
-    val id: VID? get() = rawPart.id
+    val mdlAnnotations: List<ResolvedAnnotation> get() = model.annotations
+    val id: VID? get() = model.id
+    val otherAttrs: Map<QName, String> get() = model.otherAttrs
+
+    interface IModel {
+        val annotations: List<ResolvedAnnotation>
+        val id: VID?
+        val otherAttrs: Map<QName, String>
+    }
+
+    object Empty: EmptyModel()
+
+    open class EmptyModel : IModel {
+        override val annotations: List<Nothing> get() = emptyList()
+        override val id: Nothing? get() = null
+        override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    }
+
+    open class Model(
+        final override val annotations: List<ResolvedAnnotation> = emptyList(),
+        final override val id: VID? = null,
+        final override val otherAttrs: Map<QName, String> = emptyMap()
+    ) : IModel {
+        constructor(
+            rawPart: XSI_Annotated?,
+            annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart?.annotation.models())
+        ) : this(
+            annotations,
+            rawPart?.id,
+            rawPart?.resolvedOtherAttrs() ?: emptyMap()
+        )
+    }
 }

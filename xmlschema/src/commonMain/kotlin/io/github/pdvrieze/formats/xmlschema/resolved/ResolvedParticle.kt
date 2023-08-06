@@ -71,13 +71,12 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
         mdlTerm.checkTerm(checkHelper)
     }
 
-    fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger = VNonNegativeInteger.ONE,
-        maxMultiplier: VAllNNI = VAllNNI.ONE
-    ): ResolvedParticle<T>
-
     fun mdlIsEmptiable(): Boolean {
         return effectiveTotalRange.start.toUInt() == 0u
+    }
+
+    fun normalizeTerm(): ResolvedParticle<T> {
+        return this
     }
 
     companion object {

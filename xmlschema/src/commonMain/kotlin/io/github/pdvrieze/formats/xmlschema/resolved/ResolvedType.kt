@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType : ResolvedAnnotated {
     override val rawPart: XSIType
@@ -33,7 +32,7 @@ sealed interface ResolvedType : ResolvedAnnotated {
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
 
-    fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName> = SingleLinkedList())
+    fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType> = SingleLinkedList())
 
     fun validate(representation: VString)
 

@@ -25,39 +25,26 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
 
 class ResolvedUnionDerivation(
     override val rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
-    context: ResolvedSimpleType
-) : ResolvedSimpleDerivationBase(rawPart, schema) {
+    context: ResolvedSimpleType,
+    inheritedTypes: SingleLinkedList<ResolvedType>,
+) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
+
+    private val _model: Model by lazy {
+        Model(rawPart, schema, context, inheritedTypes)
+    }
+    override val model: ResolvedAnnotated.IModel get() = _model
+
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    val simpleTypes: List<ResolvedLocalSimpleType> =
-        DelegateList(rawPart.simpleTypes) { ResolvedLocalSimpleType(it, schema, context) }
+    val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes
 
-    val memberTypes: List<QName>?
-        get() = rawPart.memberTypes
-
-    val resolvedMembers: List<ResolvedSimpleType>
-
-    init {
-        val mt = rawPart.memberTypes
-        resolvedMembers = when {
-            mt == null -> simpleTypes
-            rawPart.simpleTypes.isEmpty() -> DelegateList(mt) { schema.simpleType(it) }
-            else -> CombiningList(
-                simpleTypes,
-                DelegateList(mt) { schema.simpleType(it) }
-            )
-        }
-
-    }
-
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
-        require(resolvedMembers.isNotEmpty()) { "Union without elements" }
-        for (m in resolvedMembers) {
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
+        require(memberTypes.isNotEmpty()) { "Union without elements" }
+        for (m in memberTypes) {
             checkHelper.checkType(m, inheritedTypes)
 
             check(VDerivationControl.UNION !in m.mdlFinal) {
@@ -69,7 +56,7 @@ class ResolvedUnionDerivation(
     }
 
     fun transitiveMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
-        for (m in resolvedMembers) {
+        for (m in memberTypes) {
             val d = m.simpleDerivation
             if (d is ResolvedUnionDerivation) {
                 d.transitiveMembership(collector)
@@ -78,5 +65,28 @@ class ResolvedUnionDerivation(
             }
         }
         return collector
+    }
+
+    private class Model(
+        rawPart: XSSimpleUnion,
+        schema: ResolvedSchemaLike,
+        context: ResolvedSimpleType,
+        inheritedTypes: SingleLinkedList<ResolvedType>
+    ) : ResolvedAnnotated.Model(rawPart) {
+        val memberTypes: List<ResolvedSimpleType>
+
+        init {
+            val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it, schema, context, inheritedTypes) }
+
+            val mt = rawPart.memberTypes?.map {
+                schema.simpleType(it, inheritedTypes)
+            }
+
+            memberTypes = when {
+                mt.isNullOrEmpty() -> simpleTypes
+                rawPart.simpleTypes.isEmpty() -> mt
+                else -> mt + simpleTypes
+            }
+        }
     }
 }

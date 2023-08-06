@@ -40,17 +40,15 @@ sealed class ResolvedComplexType(
     VElementScope.Member,
     VTypeScope.Member {
 
-
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
     abstract override val rawPart: XSComplexType
 
-    protected abstract val model: Model<*>
+    abstract override val model: Model<*>
 
     // TODO use better way to determine this
     //name (provided in ResolvedGlobalType) for globals
     override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
+
     abstract override val mdlScope: VComplexTypeScope
 
     // context (only for local, not for global)
@@ -65,7 +63,6 @@ sealed class ResolvedComplexType(
 
     /** TODO tidy this one up */
     val mdlAssertions: List<XSIAssertCommon> get() = model.mdlAssertions
-    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
 
     override fun validate(representation: VString) {
         when (val ct = mdlContentType) {
@@ -77,7 +74,7 @@ sealed class ResolvedComplexType(
             }
 
             is MixedContentType -> {
-                check(ct.mdlParticle.mdlIsEmptiable()) { "($rawPart) Defaults ($representation) are only valid for mixed content if the particle is emptiable" }
+                check(ct.mdlParticle.mdlIsEmptiable()) { "Defaults ($representation) are only valid for mixed content if the particle is emptiable" }
             }
 
             else -> error("The value ${representation} is not valid in an element-only complex type")
@@ -126,7 +123,7 @@ sealed class ResolvedComplexType(
         }
     }
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
         checkNotNull(model)
         for (attrUse in mdlAttributeUses) {
             attrUse.checkUse(checkHelper)
@@ -230,7 +227,7 @@ sealed class ResolvedComplexType(
 
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm>
 
-    interface Model<R : XSIComplexType> {
+    interface Model<R : XSIComplexType>: ResolvedAnnotated.IModel {
         fun calculateProhibitedSubstitutions(rawPart: R, schema: ResolvedSchemaLike): Set<VDerivationControl.Complex>
 
         val mdlAssertions: List<XSIAssertCommon>
@@ -249,7 +246,7 @@ sealed class ResolvedComplexType(
         context: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike
-    ) : Model<R> {
+    ) : ResolvedAnnotated.Model(rawPart), Model<R> {
         final override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
         final override val mdlAttributeUses: Set<IResolvedAttributeUse> by lazy {
@@ -278,6 +275,7 @@ sealed class ResolvedComplexType(
         parent: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike,
+        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : ModelBase<R>(parent, rawPart, schema) {
 
         final override val mdlContentType: ResolvedContentType
@@ -291,6 +289,8 @@ sealed class ResolvedComplexType(
             val content: XSI_ComplexContent = rawPart.simpleContent
             val derivation: XSI_ComplexDerivation
 
+            val newInheritedTypes = inheritedTypes + parent
+
             when (content) {
                 is XSComplexContent -> {
                     derivation = content.derivation
@@ -303,7 +303,7 @@ sealed class ResolvedComplexType(
 
                         val seenTypes = mutableSetOf<QName>()
                         seenTypes.add(base)
-                        val baseType = schema.type(base)
+                        val baseType = schema.type(base, newInheritedTypes)
 
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
                         while (b != null) {
@@ -318,7 +318,7 @@ sealed class ResolvedComplexType(
                                     lastB.schema.nestedComplexType(b2Name)
                                 } else {
                                     require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
-                                    schema.type(b2) as? ResolvedGlobalComplexType
+                                    schema.type(b2, newInheritedTypes) as? ResolvedGlobalComplexType
                                 }
                             }
                         }
@@ -478,12 +478,13 @@ sealed class ResolvedComplexType(
     protected abstract class SimpleModelBase<R : XSComplexType.Simple>(
         context: ResolvedComplexType,
         rawPart: R,
-        schema: ResolvedSchemaLike
+        schema: ResolvedSchemaLike,
+        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : ModelBase<R>(context, rawPart, schema),
         ResolvedSimpleContentType {
 
         final override val mdlBaseTypeDefinition: ResolvedType =
-            rawPart.simpleContent.derivation.base?.let { schema.type(it) } ?: AnyType
+            rawPart.simpleContent.derivation.base?.let { schema.type(it, inheritedTypes + context) } ?: AnyType
 
         override val mdlDerivationMethod: VDerivationControl.Complex =
             rawPart.simpleContent.derivation.derivationMethod
@@ -495,6 +496,8 @@ sealed class ResolvedComplexType(
         final override val mdlSimpleTypeDefinition: ResolvedSimpleType
 
         init {
+
+            val newInheritedTypes = inheritedTypes + context
 
             val derivation = rawPart.simpleContent.derivation
 
@@ -518,7 +521,7 @@ sealed class ResolvedComplexType(
                 complexBaseContentType is ResolvedSimpleContentType &&
                         derivation is XSSimpleContentRestriction -> { // 1
                     val b: ResolvedSimpleType =
-                        derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) } //1.1
+                        derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context, newInheritedTypes) } //1.1
                             ?: complexBaseContentType.mdlSimpleTypeDefinition // 1.2
 
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
@@ -546,7 +549,8 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = ResolvedLocalSimpleType( // simply add facets
                         XSLocalSimpleType(XSSimpleRestriction(sb, derivation.facets)),
                         schema,
-                        context
+                        context,
+                        newInheritedTypes
                     )
                 }
 
@@ -565,11 +569,11 @@ sealed class ResolvedComplexType(
         override fun check(
             complexType: ResolvedComplexType,
             checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<QName>
+            inheritedTypes: SingleLinkedList<ResolvedType>
         ) {
 
             val inherited =
-                (complexType as? ResolvedGlobalComplexType)?.mdlQName?.let { inheritedTypes + it } ?: inheritedTypes
+                (complexType as? ResolvedGlobalComplexType)?.let { inheritedTypes + it } ?: inheritedTypes
 
             checkHelper.checkType(mdlBaseTypeDefinition, inherited)
 
@@ -580,7 +584,7 @@ sealed class ResolvedComplexType(
         fun check(
             complexType: ResolvedComplexType,
             checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<QName>
+            inheritedTypes: SingleLinkedList<ResolvedType>
         )
     }
 
@@ -588,7 +592,7 @@ sealed class ResolvedComplexType(
         override fun check(
             complexType: ResolvedComplexType,
             checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<QName>
+            inheritedTypes: SingleLinkedList<ResolvedType>
         ) {
         }
     }
@@ -612,7 +616,7 @@ sealed class ResolvedComplexType(
         override fun check(
             complexType: ResolvedComplexType,
             checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<QName>
+            inheritedTypes: SingleLinkedList<ResolvedType>
         ) {
             fun collectElements(
                 term: ResolvedTerm,

@@ -36,19 +36,38 @@ class ResolvedGlobalAttribute(
     internal constructor(rawPart: XSGlobalAttribute, schema: ResolvedSchemaLike) :
             this(rawPart, schema, "")
 
-    override val model: Model by lazy { Model(this, schema) }
+    override val model: Model by lazy { Model(rawPart, schema, this) }
 
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
 
-    protected class Model(base: ResolvedGlobalAttribute, schema: ResolvedSchemaLike) :
-        ResolvedAttributeDef.Model(base, schema) {
-        override val mdlQName: QName = base.rawPart.name.toQname(
-            when (schema.attributeFormDefault) {
-                VFormChoice.QUALIFIED -> schema.targetNamespace
+    class Model : ResolvedAttributeDef.Model {
 
-                else -> null
-            }
-        )
+
+        constructor(base: ResolvedGlobalAttribute, schema: ResolvedSchemaLike) : super(base) {
+            this.mdlQName = base.rawPart.name.toQname(
+                when (schema.attributeFormDefault) {
+                    VFormChoice.QUALIFIED -> schema.targetNamespace
+
+                    else -> null
+                }
+            )
+        }
+
+        constructor(
+            rawPart: XSGlobalAttribute,
+            schema: ResolvedSchemaLike,
+            typeContext: VSimpleTypeScope.Member
+        ) : super(rawPart, schema, typeContext) {
+            this.mdlQName = rawPart.name.toQname(
+                when (schema.attributeFormDefault) {
+                    VFormChoice.QUALIFIED -> schema.targetNamespace
+
+                    else -> null
+                }
+            )
+        }
+
+        override val mdlQName: QName
 
     }
 }

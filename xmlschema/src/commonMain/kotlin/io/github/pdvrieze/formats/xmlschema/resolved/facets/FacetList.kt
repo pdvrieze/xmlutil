@@ -42,19 +42,19 @@ class FacetList(
 ) {
 
     private fun <T : ResolvedFacet> T.checkNotFixed(facet: ResolvedFacet?): T {
-        check(this == facet || facet?.fixed != true) {
+        check(this == facet || facet?.mdlFixed != true) {
             "Fixed facet $facet cannot be overridden"
         }
         return this
     }
 
     private fun <T : IResolvedMinLength> T.checkNotFixed(facet: IResolvedMinLength?): T {
-        check(this == facet || facet?.fixed != true) { "Fixed facet ${facet} cannot be overridden" }
+        check(this == facet || facet?.mdlFixed != true) { "Fixed facet ${facet} cannot be overridden" }
         return this
     }
 
     private fun <T : IResolvedMaxLength> T.checkNotFixed(facet: IResolvedMaxLength?): T {
-        check(this == facet || facet?.fixed != true) {
+        check(this == facet || facet?.mdlFixed != true) {
             "Fixed facet ${facet} cannot be overridden"
         }
         return this

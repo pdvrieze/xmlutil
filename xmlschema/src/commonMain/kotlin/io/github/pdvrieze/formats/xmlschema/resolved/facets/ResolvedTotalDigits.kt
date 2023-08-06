@@ -21,11 +21,13 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSTotalDigits
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedTotalDigits(override val rawPart: XSTotalDigits, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
+    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    val value: ULong get() = rawPart.value
+    val value: ULong = rawPart.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

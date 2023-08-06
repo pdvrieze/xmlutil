@@ -21,22 +21,23 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val rawPart: XSGlobalSimpleType,
     override val schema: ResolvedSchemaLike,
+    inheritedTypes: SingleLinkedList<ResolvedType>,
     val location: String = "",
 ) : ResolvedGlobalSimpleType {
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalSimpleType>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
+    internal constructor(
+        rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
+        schema: ResolvedSchemaLike,
+        inheritedTypes: SingleLinkedList<ResolvedType>
+    ) : this(rawPart.element, schema, inheritedTypes, rawPart.schemaLocation)
 
     init {
         check(rawPart.name.isNotEmpty()) { "Empty names are forbidden" }
@@ -44,40 +45,32 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    override val id: VID?
-        get() = rawPart.id
+    override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
-            is XSSimpleList -> ResolvedListDerivation(raw, schema, this)
-            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this)
-            else -> error("unsupported derivation")
-        }
-
-    val final: Set<VDerivationControl.Type>
-        get() = rawPart.final
-
-    override val model: Model by lazy { ModelImpl(rawPart, schema) }
-
-    override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
-
-    interface Model : ResolvedSimpleType.Model {
-        val mdlTargetNamespace: VAnyURI?
-        val mdlName: VNCName
+    override val simpleDerivation: ResolvedSimpleType.Derivation = when (val raw = rawPart.simpleDerivation) {
+        is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this, inheritedTypes + this)
+        is XSSimpleList -> ResolvedListDerivation(raw, schema, this, inheritedTypes + this)
+        is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this, inheritedTypes + this)
+        else -> error("unsupported derivation")
     }
 
-    private inner class ModelImpl(rawPart: XSGlobalSimpleType, schema: ResolvedSchemaLike) :
-        ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedGlobalSimpleTypeImpl),
-        Model {
+    override val model: Model by lazy { ModelImpl(rawPart, schema, this, inheritedTypes) }
 
-        override val mdlName: VNCName = rawPart.name
-        override val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
+    override fun toString(): String = "simpleType($mdlQName)"
 
-        override val mdlFinal: Set<VDerivationControl.Type> =
-            rawPart.final
+    interface Model : ResolvedSimpleType.Model {
+    }
+
+    private class ModelImpl(
+        rawPart: XSGlobalSimpleType,
+        schema: ResolvedSchemaLike,
+        context: ResolvedGlobalSimpleTypeImpl,
+        inheritedTypes: SingleLinkedList<ResolvedType>
+    ) : ResolvedSimpleType.ModelBase(rawPart, schema, context, inheritedTypes), Model {
+
+        init {
+            check(true) 
+        }
 
     }
 }

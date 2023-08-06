@@ -22,10 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedWhiteSpace(override val rawPart: XSWhiteSpace, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
-    val value: WhitespaceValue get() = rawPart.value
+    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
+
+    val value: WhitespaceValue = rawPart.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

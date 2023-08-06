@@ -26,45 +26,21 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedSequence private constructor(
-    override val rawPart: XSSequence,
-    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: VAllNNI,
-) : ResolvedGroupParticleTermBase<IResolvedSequence>(rawPart, schema),
-    IResolvedSequence {
+class ResolvedSequence(
+    parent: VElementScope.Member,
+    rawPart: XSSequence,
+    schema: ResolvedSchemaLike
+) : ResolvedGroupParticleTermBase<IResolvedSequence>(
+    parent,
+    rawPart,
+    schema,
+    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    rawPart.maxOccurs ?: VAllNNI.ONE
+), IResolvedSequence {
+
+    override val rawPart: XSSequence = rawPart
 
     override val mdlTerm: ResolvedSequence get() = this
-
-    constructor(
-        parent: VElementScope.Member,
-        rawPart: XSSequence,
-        schema: ResolvedSchemaLike
-    ) : this(
-        rawPart,
-        DelegateList(rawPart.particles) {
-            ResolvedParticle(parent, it, schema)
-        },
-        schema,
-        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-        rawPart.maxOccurs ?: VAllNNI.ONE
-    )
-
-    /*
-        override val choices: List<ResolvedChoice> =
-            DelegateList(rawPart.choices) { ResolvedChoice(parent, it, schema) }
-
-        override val sequences: List<ResolvedSequence> =
-            DelegateList(rawPart.sequences) { ResolvedSequence(parent, it, schema) }
-    */
-
-    /*
-        init {
-            require(minOccurs.toUInt() <= 1.toUInt()) { "minOccurs must be 0 or 1, but was $minOccurs"}
-            require(maxOccurs.toUInt() <= 1.toUInt()) { "maxOccurs must be 0 or 1, but was $maxOccurs"}
-        }
-    */
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
@@ -80,16 +56,6 @@ class ResolvedSequence private constructor(
         }
     }
 
-
-    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): ResolvedSequence {
-        return ResolvedSequence(
-            rawPart,
-            mdlParticles,
-            schema,
-            mdlMinOccurs.times(minMultiplier),
-            mdlMaxOccurs.times(maxMultiplier)
-        )
-    }
 
     override fun toString(): String {
         return buildString {

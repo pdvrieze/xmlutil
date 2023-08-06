@@ -21,12 +21,16 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) :
     ResolvedFacet(rawPart, schema) {
-    val test get() = rawPart.test
-    val xPathDefaultNamespace get() = rawPart.xPathDefaultNamespace
+
+    override val model by lazy { ResolvedAnnotated.Model(rawPart) }
+
+    val test = rawPart.test
+    val xPathDefaultNamespace = rawPart.xPathDefaultNamespace
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

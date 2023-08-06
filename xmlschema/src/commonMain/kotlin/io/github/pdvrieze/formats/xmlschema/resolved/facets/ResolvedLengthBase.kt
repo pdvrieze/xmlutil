@@ -22,11 +22,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 
 sealed class ResolvedLengthBase(rawPart: XSFacet, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
+    override val model by lazy { ResolvedAnnotated.Model(rawPart) }
+
     abstract val value: ULong
+
     override fun checkFacetValid(type: ResolvedSimpleType) {
         when (type.mdlVariety) {
             ResolvedSimpleType.Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {

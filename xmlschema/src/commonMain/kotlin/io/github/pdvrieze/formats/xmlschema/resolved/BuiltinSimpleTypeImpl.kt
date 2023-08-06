@@ -41,10 +41,8 @@ abstract class BuiltinSimpleTypeImpl(schemaLike: ResolvedSchemaLike) : ResolvedB
             is ResolvedListDerivationBase -> FacetList(
                 whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), schema)
             )
-            is ResolvedUnionDerivation -> TODO()
-
-            is ResolvedSimpleDerivationBase -> d.baseType.mdlFacets
-            is ResolvedSimpleRestrictionBase -> FacetList(d.facets, schemaLike, primitiveType = this as? PrimitiveDatatype)
+            is ResolvedUnionDerivation -> d.baseType.mdlFacets
+            is ResolvedSimpleRestrictionBase -> FacetList(d.rawPart.facets, schemaLike, primitiveType = this as? PrimitiveDatatype)
         }
     }
 

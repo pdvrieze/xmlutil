@@ -51,8 +51,6 @@ class XSGroup(
     @Serializable
     sealed class XSGroupElement : XSI_Annotated {
         abstract val particles: List<XSI_NestedParticle>
-        val minOccurs: Nothing? get() = null
-        val maxOccurs: Nothing? get() = null
     }
 
     @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)

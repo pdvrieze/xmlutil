@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
@@ -33,7 +33,7 @@ sealed class ResolvedAttribute(
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     abstract override val rawPart: XSAttribute
-    protected abstract val model: Model
+    abstract override val model: Model
 
     override val id: VID? get() = rawPart.id
 
@@ -43,17 +43,32 @@ sealed class ResolvedAttribute(
 
     val mdlQName: QName get() = model.mdlQName
     val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
-    final override val mdlAnnotations: ResolvedAnnotation? get() = model.mdlAnnotations
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
-    protected abstract class Model(base: ResolvedAttribute, schema: ResolvedSchemaLike) {
+    abstract class Model: ResolvedAnnotated.Model {
+
         abstract val mdlQName: QName
 
         abstract val mdlTypeDefinition: ResolvedSimpleType
 
-        val mdlValueConstraint: ValueConstraint? = ValueConstraint(base.rawPart)
+        val mdlValueConstraint: ValueConstraint?
 
-        val mdlAnnotations: ResolvedAnnotation? = base.rawPart.annotation.models()
+        constructor(
+            rawPart: XSAttribute,
+            annotations: List<ResolvedAnnotation> = emptyList()
+        ) : super(rawPart) {
+            mdlValueConstraint = ValueConstraint(rawPart)
+        }
+
+        constructor(
+            base: ResolvedAttribute,
+            annotations: List<ResolvedAnnotation> = base.mdlAnnotations,
+            id: VID? = null,
+            otherAttrs: Map<QName, String> = emptyMap()
+        ) : super(annotations, id, otherAttrs) {
+            mdlValueConstraint = ValueConstraint(base.rawPart)
+        }
+
     }
 
 }
