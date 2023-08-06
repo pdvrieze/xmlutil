@@ -26,6 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
  * Base class for any resolved group related type
  */
 sealed interface ResolvedGroupBase : ResolvedAnnotated {
-    abstract override val rawPart: XSI_Annotated
+    abstract val rawPart: XSI_Annotated
+
+    @Deprecated("Not needed")
+    val schema: ResolvedSchemaLike
 
 }

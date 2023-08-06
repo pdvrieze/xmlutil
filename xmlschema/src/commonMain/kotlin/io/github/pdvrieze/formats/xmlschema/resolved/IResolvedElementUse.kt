@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import nl.adaptivity.xmlutil.QName
 

@@ -22,15 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedAnnotated {
-    @Deprecated("Not needed")
-    val rawPart: XSI_Annotated
-
-    @Deprecated("Not needed")
-    val schema: ResolvedSchemaLike
 
     val model: IModel
 
