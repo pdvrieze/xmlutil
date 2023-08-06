@@ -25,11 +25,11 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
     rawPart: XSAttributeGroup,
-    final override val schema: ResolvedSchemaLike
+    final val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated {
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    abstract override val rawPart: XSAttributeGroup
+    abstract val rawPart: XSAttributeGroup
 
     val attributeUses: Set<IResolvedAttributeUse>
         get() {

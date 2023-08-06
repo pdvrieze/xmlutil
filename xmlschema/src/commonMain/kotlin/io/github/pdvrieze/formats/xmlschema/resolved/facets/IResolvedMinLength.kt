@@ -28,5 +28,8 @@ interface IResolvedMinLength : ResolvedAnnotated {
     val mdlFixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
-    override val rawPart: XSI_Annotated
+    val rawPart: XSI_Annotated
+
+    @Deprecated("Not needed")
+    val schema: ResolvedSchemaLike
 }

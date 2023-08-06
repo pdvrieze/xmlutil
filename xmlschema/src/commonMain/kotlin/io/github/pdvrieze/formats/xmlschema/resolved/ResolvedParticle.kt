@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPart {
@@ -65,6 +64,9 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
 
             else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
+
+    @Deprecated("Not needed")
+    override val schema: ResolvedSchemaLike
 
     fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }

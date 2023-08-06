@@ -148,7 +148,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
     sealed class Derivation(
         rawPart: XSSimpleDerivation?,
-        final override val schema: ResolvedSchemaLike,
+        schema: ResolvedSchemaLike,
         inheritedTypes: SingleLinkedList<ResolvedType>
     ) :
         ResolvedAnnotated {
@@ -156,6 +156,9 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
         abstract val baseType: ResolvedSimpleType
+
+        @Deprecated("Not needed")
+        abstract val rawPart: XSI_Annotated
 
         abstract fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>)
 
