@@ -31,19 +31,16 @@ class ResolvedProhibitedElement(
     override val rawPart: XSLocalElement,
     override val schema: ResolvedSchemaLike
 ) : IResolvedElementUse {
+    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    override val mdlQName: QName by lazy {
-        when (val n = rawPart.name) {
-            null -> schema.element(requireNotNull(rawPart.ref)).mdlQName
-            else -> n.toQname(
-                rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
-                    VFormChoice.QUALIFIED -> schema.targetNamespace
-                    else -> null
-                }
-            )
-        }
+    override val mdlQName: QName = when (val n = rawPart.name) {
+        null -> requireNotNull(rawPart.ref)
+        else -> n.toQname(
+            rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {
+                VFormChoice.QUALIFIED -> schema.targetNamespace
+                else -> null
+            }
+        )
     }
 
     init {
@@ -64,8 +61,4 @@ class ResolvedProhibitedElement(
     override val mdlTerm: Nothing
         get() = throw UnsupportedOperationException("Prohibited elements have no terms")
 
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedProhibitedElement = this
 }

@@ -20,29 +20,27 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
+    parent: VElementScope.Member,
     rawPart: XSI_Grouplike,
-    final override val schema: ResolvedSchemaLike
+    final override val schema: ResolvedSchemaLike,
+    final override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    final override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupParticle<T>, ResolvedTerm {
 
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    override val mdlMinOccurs: VNonNegativeInteger
-        get() = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-
-    override val mdlMaxOccurs: VAllNNI
-        get() = rawPart.maxOccurs ?: VAllNNI.ONE
+    final override val model: Model by lazy {
+        Model(parent, rawPart, schema)
+    }
 
     abstract override val rawPart: XSI_Grouplike
-    val particles: List<XSI_Particle>
-        get() = rawPart.particles
-    final override val mdlAnnotations: ResolvedAnnotation? by lazy { rawPart.annotation.models() }
-    abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+
+    val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
     operator fun invoke(
         parent: ResolvedComplexType,
@@ -53,5 +51,26 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
         is XSChoice -> ResolvedChoice(parent, rawPart, schema)
         is XSSequence -> ResolvedSequence(parent, rawPart, schema)
         else -> error("Found unsupported group: $rawPart")
+    }
+
+    class Model : ResolvedAnnotated.Model {
+        val particles: List<ResolvedParticle<ResolvedTerm>>
+
+        constructor(
+            particles: List<ResolvedParticle<ResolvedTerm>>,
+            annotations: List<ResolvedAnnotation> = emptyList(),
+            id: VID? = null,
+            otherAttrs: Map<QName, String> = emptyMap(),
+        ) : super(annotations, id, otherAttrs) {
+            this.particles = particles
+        }
+
+        constructor(
+            parent: VElementScope.Member,
+            rawPart: XSI_Grouplike,
+            schema: ResolvedSchemaLike,
+        ) : super(rawPart) {
+            particles = rawPart.particles.map { ResolvedParticle(parent, it, schema) }
+        }
     }
 }

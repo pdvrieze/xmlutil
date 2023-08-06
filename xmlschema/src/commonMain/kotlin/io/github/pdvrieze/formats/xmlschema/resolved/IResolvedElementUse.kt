@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<ResolvedElement> {
@@ -41,7 +40,7 @@ sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<Resol
                 ResolvedProhibitedElement(rawPart, schema)
 
             rawPart.ref == null -> ResolvedLocalElement(parent, rawPart, schema)
-            else -> ResolvedElementRef(parent, rawPart, schema)
+            else -> ResolvedElementRef(rawPart, schema)
         }
     }
 }

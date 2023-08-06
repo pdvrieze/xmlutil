@@ -22,10 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
@@ -33,30 +32,20 @@ class ResolvedGlobalGroup(
     override val schema: ResolvedSchemaLike,
     val location: String,
 ) : ResolvedGroupBase, ResolvedAnnotated, VElementScope.Member, NamedPart {
+    override val model: ResolvedAnnotated.Model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
     internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
-    val mdlName: VNCName
-        get() = rawPart.name
-
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    val mdlTargetNamespace: VAnyURI?
-        get() = schema.targetNamespace
-
-    val mdlModelGroup: ResolvedModelGroup by lazy {
-        when (val c = rawPart.content) {
-            is XSGroup.All -> AllImpl(this, c, schema)
-            is XSGroup.Choice -> ChoiceImpl(this, c, schema)
-            is XSGroup.Sequence -> SequenceImpl(this, c, schema)
-        }
+    val mdlModelGroup: ResolvedModelGroup = when (val c = rawPart.content) {
+        is XSGroup.All -> AllImpl(this, c, schema)
+        is XSGroup.Choice -> ChoiceImpl(this, c, schema)
+        is XSGroup.Sequence -> SequenceImpl(this, c, schema)
     }
-
-    override val mdlAnnotations: ResolvedAnnotation?
-        get() = rawPart.annotation.models()
 
     fun checkGroup(checkHelper: CheckHelper) {
         mdlModelGroup.checkTerm(checkHelper)
@@ -68,25 +57,37 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedTerm {
+    class Model(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
 
-        final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+        constructor(parent: ResolvedGlobalGroup, rawPart: XSGroup, schema: ResolvedSchemaLike) :
+                this(parent, rawPart.content, schema)
+
+        val modelGroup: ResolvedModelGroup = when (val c = rawPart) {
+            is XSGroup.All -> AllImpl(parent, c, schema)
+            is XSGroup.Choice -> ChoiceImpl(parent, c, schema)
+            is XSGroup.Sequence -> SequenceImpl(parent, c, schema)
+        }
+    }
+
+    private sealed class ModelGroupBase(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedTerm {
+        override val model: Model by lazy { Model(parent, rawPart, schema) }
+        val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
         abstract override val rawPart: XSGroup.XSGroupElement
         abstract override fun checkTerm(checkHelper: CheckHelper)
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
+
+        class Model(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
+            val particles = rawPart.particles.map { ResolvedParticle(parent, it, schema) }
+        }
     }
 
     private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(
+        parent,
         rawPart,
         schema
     ), IResolvedAll {
-
-
-        override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
-            ResolvedParticle.allMember(parent, it, schema)
-        }
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
@@ -94,22 +95,6 @@ class ResolvedGlobalGroup(
                     p.collectConstraints(collector)
                 }
             }
-        }
-
-        override fun normalize(
-            minMultiplier: VNonNegativeInteger,
-            maxMultiplier: VAllNNI
-        ): SyntheticAll {
-            // there are no minOccurs/maxOccurs
-            val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
-            for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE)
-                when (normalized) {
-                    is IResolvedAll -> newParticles.addAll(normalized.mdlParticles)
-                    else -> newParticles.add(normalized)
-                }
-            }
-            return SyntheticAll(minMultiplier, maxMultiplier, newParticles, schema)
         }
 
         override fun checkTerm(checkHelper: CheckHelper) {
@@ -119,12 +104,8 @@ class ResolvedGlobalGroup(
     }
 
     private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
-        ModelGroupBase(rawPart, schema),
+        ModelGroupBase(parent, rawPart, schema),
         IResolvedChoice {
-
-        override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
-            ResolvedParticle.choiceSeqMember(parent, it, schema)
-        }
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
@@ -134,34 +115,16 @@ class ResolvedGlobalGroup(
             }
         }
 
-        override fun normalize(
-            minMultiplier: VNonNegativeInteger,
-            maxMultiplier: VAllNNI
-        ): SyntheticChoice {
-            // there are no minOccurs/maxOccurs
-            val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
-            for (particle in this.mdlParticles) {
-                val normalized = particle.normalizeTerm(VNonNegativeInteger.ONE, VAllNNI.ONE)
-                when (normalized) {
-                    is IResolvedChoice -> newParticles.addAll(normalized.mdlParticles)
-                    else -> newParticles.add(normalized)
-                }
-            }
-            return SyntheticChoice(minMultiplier, maxMultiplier, newParticles, schema)
-        }
-
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)
         }
 
     }
 
-    private class SequenceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike) :
-        ModelGroupBase(rawPart, schema),
-        IResolvedSequence {
-        override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> = rawPart.particles.map {
-            ResolvedParticle.choiceSeqMember(parent, it, schema)
-        }
+    private class SequenceImpl(
+        parent: ResolvedGlobalGroup,
+        override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
+    ) : ModelGroupBase(parent, rawPart, schema), IResolvedSequence {
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {

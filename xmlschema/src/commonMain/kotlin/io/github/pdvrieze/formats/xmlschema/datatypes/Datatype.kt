@@ -89,7 +89,7 @@ sealed class ListDatatype(
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
         baseType.checkType(checkHelper, inheritedTypes)
     }
 
@@ -98,7 +98,7 @@ sealed class ListDatatype(
 
     final override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.LIST
 
-    final override val mdlAnnotations: Nothing? get() = null
+    final override val annotations: List<ResolvedAnnotation> get() = emptyList()
     final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
     final override val mdlFacets: FacetList = FacetList(
         minLength = ResolvedMinLength(XSMinLength(1u), schema),
@@ -129,17 +129,22 @@ abstract class ConstructedListDatatype : ListDatatype {
         targetNamespace: String,
         itemType: AtomicDatatype,
         schemaLike: ResolvedSchemaLike,
-    ) : super(name, targetNamespace, itemType, schemaLike)
+        inheritedTypes: SingleLinkedList<ResolvedType>,
+    ) : super(name, targetNamespace, itemType, schemaLike) {
+        simpleDerivation = BuiltinListDerivation(BuiltinSchemaXmlschema, itemType, inheritedTypes)
+    }
 
     constructor(
         name: String,
         targetNamespace: String,
         itemType: UnionDatatype,
         schemaLike: ResolvedSchemaLike,
+        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : super(name, targetNamespace, itemType, schemaLike) {
         if (itemType.members.any { it !is AtomicDatatype }) {
             throw IllegalArgumentException("Union item types of a list must only have atomic members")
         }
+        simpleDerivation = BuiltinListDerivation(BuiltinSchemaXmlschema, itemType, inheritedTypes)
     }
 
     override val baseType: ResolvedType
@@ -150,8 +155,7 @@ abstract class ConstructedListDatatype : ListDatatype {
 
     override val simpleType: Nothing? get() = null
 
-    override val simpleDerivation: BuiltinListDerivation
-        get() = BuiltinListDerivation(BuiltinSchemaXmlschema)
+    final override val simpleDerivation: BuiltinListDerivation
 }
 
 /**
@@ -175,7 +179,9 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
     override val id: Nothing? get() = null
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
-    override val simpleDerivation: ResolvedSimpleType.Derivation get() = ERRORDERIVATION
+    override val simpleDerivation: ResolvedSimpleType.Derivation
+
+        get() = ERRORDERIVATION
     override val mdlFacets: FacetList get() = FacetList.EMPTY
     override val mdlScope: VSimpleTypeScope.Global get() = super<Datatype>.mdlScope
 
@@ -194,31 +200,25 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
         get() = super<ResolvedGlobalSimpleType>.mdlPrimitiveTypeDefinition
 
     override val model: ErrorType get() = this
-    override val mdlAnnotations: Nothing? get() = null
+    override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
     override fun validate(representation: VString) {
         TODO("not implemented")
     }
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart, BuiltinSchemaXmlschema) {
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart, BuiltinSchemaXmlschema, SingleLinkedList()) {
         override val rawPart: Nothing get() = throw UnsupportedOperationException()
 
-        override val simpleType: Nothing? get() = null
-        override val facets: List<XSFacet> get() = emptyList()
-        override val otherContents: List<Nothing> get() = emptyList()
-        override val base: QName get() = ErrorType.mdlQName
-        override val baseType: ErrorType get() = ErrorType
+        override val model: IModel = Model(ErrorType)
 
-        override val mdlAnnotations: Nothing? get() = null
-
-        override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
+        override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
     }
 }
 
 object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinType, ResolvedSimpleType.Model {
     override val baseType: AnyType get() = AnyType // No actual base type
 
-    override val mdlAnnotations: Nothing? get() = null
+    override val annotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlVariety: ResolvedSimpleType.Variety get() = super<Datatype>.mdlVariety
     override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
     override val mdlFundamentalFacets: Nothing get() = throw UnsupportedOperationException("Any is not simple, and has no facets")
@@ -264,7 +264,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
     override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
     override val mdlFacets: FacetList get() = FacetList.EMPTY
-    override val mdlAnnotations: Nothing? get() = null
+    override val annotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,
         bounded = false,
@@ -278,16 +278,12 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 }
 
 internal open class SimpleBuiltinRestriction(
-    override val baseType: ResolvedBuiltinType,
-    override val facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
-) : ResolvedSimpleRestrictionBase(null, BuiltinSchemaXmlschema) {
+    baseType: ResolvedBuiltinType,
+    facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
+) : ResolvedSimpleRestrictionBase(null, BuiltinSchemaXmlschema, SingleLinkedList()) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()
-    override val base: QName get() = baseType.mdlQName
-    override val mdlAnnotations: Nothing? get() = null
 
-    override val simpleType: Nothing? get() = null
-    override val otherContents: List<Nothing> get() = emptyList()
-    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val model: IModel = Model(baseType, FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition))
 
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
 }

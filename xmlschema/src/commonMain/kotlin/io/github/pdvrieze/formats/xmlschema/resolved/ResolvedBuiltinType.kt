@@ -28,11 +28,11 @@ import nl.adaptivity.xmlutil.QName
 interface ResolvedBuiltinType : ResolvedGlobalType, ResolvedSimpleType {
     override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
     override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw parts")
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) = Unit
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
     override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
-    override val mdlAnnotations: Nothing? get() = null
+    override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.ATOMIC
     override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
     override val mdlBaseTypeDefinition: ResolvedSimpleType

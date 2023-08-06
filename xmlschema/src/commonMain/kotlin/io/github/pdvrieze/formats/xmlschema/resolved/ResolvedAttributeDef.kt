@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
@@ -44,15 +45,21 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         }
     }
 
-    protected abstract class Model(base: ResolvedAttributeDef, schema: ResolvedSchemaLike):
-        ResolvedAttribute.Model(base, schema) {
+    abstract class Model : ResolvedAttribute.Model {
 
-        override val mdlTypeDefinition: ResolvedSimpleType =
-            base.rawPart.simpleType?.let {
-                require(base.rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
-                ResolvedLocalSimpleType(it, base.schema, base)
-            } ?: base.rawPart.type?.let { base.schema.simpleType(it) }
-            ?: AnySimpleType
+        final override val mdlTypeDefinition: ResolvedSimpleType
+
+        constructor(base: ResolvedAttributeDef) : super(base) {
+            this.mdlTypeDefinition = base.mdlTypeDefinition
+        }
+
+        constructor(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) : super(rawPart) {
+            this.mdlTypeDefinition = rawPart.simpleType?.let {
+                require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
+                ResolvedLocalSimpleType(it, schema, typeContext, SingleLinkedList())
+            } ?: rawPart.type?.let { schema.simpleType(it) }
+                    ?: AnySimpleType
+        }
 
     }
 }

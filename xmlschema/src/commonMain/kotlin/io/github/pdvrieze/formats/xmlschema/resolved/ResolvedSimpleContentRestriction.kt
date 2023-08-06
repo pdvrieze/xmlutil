@@ -20,10 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentRestriction
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.util.CompactFragment
 
 /**
  * Restriction is used for simple types.
@@ -32,17 +30,28 @@ class ResolvedSimpleContentRestriction(
     context: ResolvedComplexType,
     override val rawPart: XSSimpleContentRestriction,
     schema: ResolvedSchemaLike,
+    inheritedTypes: SingleLinkedList<ResolvedType>,
 ) : ResolvedSimpleContentDerivation(rawPart, schema) {
-    val otherContents: List<CompactFragment> get() = rawPart.otherContents
 
-    val base: QName get() = rawPart.base
-
-    val facets: List<XSFacet> get() = rawPart.facets
-
-    val simpleType: ResolvedLocalSimpleType? by lazy {
-        rawPart.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) }
+    init {
+        if (rawPart.base!=null) {
+            require(rawPart.simpleType==null) { "Restriction cannot specify both base and simpleType" }
+        } else {
+            requireNotNull(rawPart.simpleType) { "Restriction must specify either a base or contain a simpleType child" }
+        }
     }
 
-    override val baseType: ResolvedType by lazy { base?.let{ schema.type(it) } ?: checkNotNull(simpleType) }
+
+    override val model: Model by lazy { Model(rawPart, schema, context, inheritedTypes) }
+
+    class Model(
+        rawPart: XSSimpleContentRestriction,
+        schema: ResolvedSchemaLike,
+        context: ResolvedComplexType,
+        inheritedTypes: SingleLinkedList<ResolvedType>
+    ) : ResolvedSimpleContentDerivation.Model(rawPart, schema) {
+        override val baseType: ResolvedType = rawPart.base?.let { schema.type(it, inheritedTypes) }
+            ?: ResolvedLocalSimpleType(requireNotNull(rawPart.simpleType), schema, context, inheritedTypes)
+    }
 
 }

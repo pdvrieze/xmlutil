@@ -31,41 +31,35 @@ class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
     override val schema: ResolvedSchemaLike,
     context: VSimpleTypeScope.Member,
+    inheritedTypes: SingleLinkedList<ResolvedType>,
 ) : ResolvedLocalType, ResolvedSimpleType {
 
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
     override val mdlContext: VTypeScope.MemberBase get() = mdlScope.parent
+    override val mdlFinal: Set<VDerivationControl.Type> = schema.finalDefault
 
-    override val id: VID?
-        get() = rawPart.id
+    override val simpleDerivation: ResolvedSimpleType.Derivation = when (val raw = rawPart.simpleDerivation) {
+        is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this, inheritedTypes)
+        is XSSimpleList -> ResolvedListDerivation(raw, schema, this, inheritedTypes)
+        is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this, inheritedTypes)
+        else -> error("Derivations must be union, list or restriction")
+    }
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val model: Model by lazy { ModelImpl(rawPart, schema, context, inheritedTypes) }
 
-    override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = when (val raw = rawPart.simpleDerivation) {
-            is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
-            is XSSimpleList -> ResolvedListDerivation(raw, schema, this)
-            is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this)
-            else -> error("Derivations must be union, list or restriction")
-        }
-
-    override val model: Model by lazy { ModelImpl(rawPart, schema, context) }
-
-    interface Model: ResolvedSimpleType.Model {
+    interface Model : ResolvedSimpleType.Model {
         val mdlContext: VSimpleTypeScope.Member
     }
 
     private inner class ModelImpl(
         rawPart: XSLocalSimpleType,
         schema: ResolvedSchemaLike,
-        override val mdlContext: VSimpleTypeScope.Member
-    ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType), Model {
-
-        override val mdlFinal: Set<VDerivationControl.Type> =
-            schema.finalDefault
+        override val mdlContext: VSimpleTypeScope.Member,
+        inheritedTypes: SingleLinkedList<ResolvedType>,
+    ) : ResolvedSimpleType.ModelBase(rawPart, schema, this@ResolvedLocalSimpleType, inheritedTypes), Model {
     }
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<QName>) {
+    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
         super<ResolvedSimpleType>.checkType(checkHelper, inheritedTypes)
         checkNotNull(model)
     }
