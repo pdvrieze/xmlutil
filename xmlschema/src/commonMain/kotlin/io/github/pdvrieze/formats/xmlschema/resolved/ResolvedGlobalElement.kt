@@ -45,11 +45,11 @@ class ResolvedGlobalElement(
         rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
 
     val typeDef: ResolvedType by lazy {
-        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
+        rawPart.localType?.let { ResolvedLocalType(it, schema, this, SingleLinkedList()) }
             ?: rawPart.type?.let {
                 schema.type(it)
             }
-            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).typeDef }
+            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
             ?: AnyType
     }
 
@@ -69,7 +69,7 @@ class ResolvedGlobalElement(
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
-        typeDef.checkType(checkHelper, SingleLinkedList())
+        mdlTypeDefinition.checkType(checkHelper, SingleLinkedList())
         if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }
@@ -119,10 +119,10 @@ class ResolvedGlobalElement(
     }
 
     override fun toString(): String {
-        return "ResolvedGlobalElement($mdlQName, typeDef=$typeDef)"
+        return "ResolvedGlobalElement($mdlQName, type=${mdlTypeDefinition})"
     }
 
-    protected class Model(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
+    class Model(rawPart: XSGlobalElement, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
         ResolvedElement.Model(rawPart, schema, context) {
 
         val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
@@ -151,7 +151,7 @@ class ResolvedGlobalElement(
         override val mdlTypeTable: ITypeTable? get() = null
 
         override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context, SingleLinkedList()) }
                 ?: rawPart.type?.let { schema.type(it) }
                 ?: rawPart.substitutionGroup?.firstOrNull()
                     ?.let { schema.element(it).mdlTypeDefinition }

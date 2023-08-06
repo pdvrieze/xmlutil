@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import nl.adaptivity.xmlutil.QName
@@ -38,13 +38,14 @@ class SyntheticSimpleType(
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedSimpleType, ResolvedSimpleType.Model {
+    override val model: ResolvedSimpleType.Model get() = this
 
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
-
-    override val mdlAnnotations: Nothing? get() = null
+    override val annotations: List<ResolvedAnnotation> get() = emptyList()
+    override val id: VID? get() = null
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")
-    override val model: SyntheticSimpleType get() = this
+
     override val rawPart: Nothing get() = error("Not supported")
 
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
@@ -52,4 +53,5 @@ class SyntheticSimpleType(
     override fun validate(representation: VString) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
+
 }

@@ -246,10 +246,13 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
                 DelegateMap(targetNamespace.value, source.attributes) { (s, v) -> ResolvedGlobalAttribute(v, s) }
 
             simpleTypes =
-                DelegateMap(targetNamespace.value, source.simpleTypes) { (s, v) -> ResolvedGlobalSimpleType(v, s) }
+                DelegateMap(targetNamespace.value, source.simpleTypes) { (s, v) ->
+                    ResolvedGlobalSimpleType(v, s, SingleLinkedList())
+                }
 
             complexTypes =
-                DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) -> ResolvedGlobalComplexType(v, s) }
+                DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) ->
+                    ResolvedGlobalComplexType(v, s, SingleLinkedList()) }
 
             groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
 

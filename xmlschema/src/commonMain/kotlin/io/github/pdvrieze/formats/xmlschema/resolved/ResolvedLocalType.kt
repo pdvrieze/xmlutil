@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 sealed interface ResolvedLocalType : ResolvedType {
@@ -32,29 +33,35 @@ sealed interface ResolvedLocalType : ResolvedType {
         operator fun invoke(
             rawPart: XSLocalType,
             schema: ResolvedSchemaLike,
-            scope: VTypeScope.Member
+            scope: VTypeScope.Member,
+            inheritedTypes: SingleLinkedList<ResolvedType>
         ): ResolvedLocalType {
             return when (rawPart) {
                 is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    scope as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member,
+                    inheritedTypes
                 )
 
                 is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    scope as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member,
+                    inheritedTypes
                 )
 
                 is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(
                     rawPart,
                     schema,
-                    scope as VComplexTypeScope.Member
+                    scope as VComplexTypeScope.Member,
+                    inheritedTypes
                 )
 
-                is XSLocalSimpleType -> ResolvedLocalSimpleType(rawPart, schema,
-                    scope as VSimpleTypeScope.Member
+                is XSLocalSimpleType -> ResolvedLocalSimpleType(
+                    rawPart, schema,
+                    scope as VSimpleTypeScope.Member,
+                    inheritedTypes
                 )
             }
         }
@@ -62,20 +69,22 @@ sealed interface ResolvedLocalType : ResolvedType {
         operator fun invoke(
             rawPart: XSLocalSimpleType,
             schema: ResolvedSchemaLike,
-            scope: VSimpleTypeScope.Member
+            scope: VSimpleTypeScope.Member,
+            inheritedTypes: SingleLinkedList<ResolvedType>,
         ): ResolvedLocalType {
-            return ResolvedLocalSimpleType(rawPart, schema, scope)
+            return ResolvedLocalSimpleType(rawPart, schema, scope, inheritedTypes)
         }
 
         operator fun invoke(
             rawPart: XSLocalComplexType,
             schema: ResolvedSchemaLike,
-            scope: VComplexTypeScope.Member
+            scope: VComplexTypeScope.Member,
+            inheritedTypes: SingleLinkedList<ResolvedType>,
         ): ResolvedLocalType {
             return when (rawPart) {
-                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, scope)
-                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, scope)
-                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, scope)
+                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, scope, inheritedTypes)
+                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, scope, inheritedTypes)
+                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, scope, inheritedTypes)
             }
         }
     }

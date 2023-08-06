@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -30,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
@@ -55,7 +53,7 @@ class ResolvedLocalAttribute private constructor(
         }
     }
 
-    override val model: Model by lazy { Model(this, schema) }
+    override val model: Model by lazy { Model(rawPart, schema, this) }
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
@@ -69,17 +67,35 @@ class ResolvedLocalAttribute private constructor(
         checkAttribute(checkHelper)
     }
 
-    protected class Model(base: ResolvedLocalAttribute, schema: ResolvedSchemaLike) :
-        ResolvedAttributeDef.Model(base, schema) {
+    class Model : ResolvedAttributeDef.Model {
 
-        override val mdlQName = invariantNotNull(base.rawPart.name).toQname(
-            base.rawPart.targetNamespace ?: when {
-                (base.rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                    schema.targetNamespace
+        override val mdlQName: QName
 
-                else -> null
-            }
-        )
+        constructor(
+            rawPart: XSLocalAttribute,
+            schema: ResolvedSchemaLike,
+            typeContext: VSimpleTypeScope.Member
+        ) : super(rawPart, schema, typeContext) {
+            this.mdlQName = invariantNotNull(rawPart.name).toQname(
+                rawPart.targetNamespace ?: when {
+                    (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                        schema.targetNamespace
+
+                    else -> null
+                }
+            )
+        }
+
+        constructor(base: ResolvedLocalAttribute, schema: ResolvedSchemaLike) : super(base) {
+            this.mdlQName = invariantNotNull(base.rawPart.name).toQname(
+                base.rawPart.targetNamespace ?: when {
+                    (base.rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                        schema.targetNamespace
+
+                    else -> null
+                }
+            )
+        }
     }
 
     companion object {

@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence : ResolvedModelGroup {
 
@@ -31,37 +28,6 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
-
-    override fun normalize(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): SyntheticSequence {
-        var newMin: VNonNegativeInteger = minMultiplier
-        var newMax: VAllNNI = maxMultiplier
-        if (this is ResolvedParticle<*>) {
-            newMin *= mdlMinOccurs
-            newMax *= mdlMaxOccurs
-        }
-
-        val newParticles = mutableListOf<ResolvedParticle<ResolvedTerm>>()
-        for (particle in mdlParticles) {
-            val cleanParticle = when (particle) {
-                is ResolvedGroupRef -> particle.flattenToModelGroup()
-                else -> particle
-            }
-
-            when (val term: ResolvedTerm = cleanParticle.mdlTerm) {
-                is IResolvedSequence ->
-                    for (child in term.mdlParticles) {
-                        newParticles.add(child.normalizeTerm(particle.mdlMinOccurs, particle.mdlMaxOccurs))
-                    }
-
-                else -> newParticles.add(particle.normalizeTerm())
-            }
-        }
-        return SyntheticSequence(newMin, newMax, newParticles, schema)
-
-    }
 
     override fun restricts(general: ResolvedModelGroup): Boolean {
         if (general !is IResolvedSequence) return false

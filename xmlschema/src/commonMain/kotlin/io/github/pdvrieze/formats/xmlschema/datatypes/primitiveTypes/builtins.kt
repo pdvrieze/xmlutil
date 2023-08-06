@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
@@ -1442,7 +1443,10 @@ object QNameType : PrimitiveDatatype("QName", XmlSchemaConstants.XS_NAMESPACE) {
 object StringType : PrimitiveDatatype("string", XmlSchemaConstants.XS_NAMESPACE), IStringType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(baseType, listOf(XSWhiteSpace(WhitespaceValue.PRESERVE, fixed = false)))
+        get() = SimpleBuiltinRestriction(
+            baseType,
+            listOf(XSWhiteSpace(WhitespaceValue.PRESERVE, fixed = false))
+        )
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.PRESERVE), BuiltinSchemaXmlschema),
@@ -1793,7 +1797,13 @@ object TimeType : PrimitiveDatatype("time", XmlSchemaConstants.XS_NAMESPACE) {
 }
 
 object EntitiesType :
-    ConstructedListDatatype("ENTITIES", XmlSchemaConstants.XS_NAMESPACE, EntityType, BuiltinSchemaXmlschema) {
+    ConstructedListDatatype(
+        "ENTITIES",
+        XmlSchemaConstants.XS_NAMESPACE,
+        EntityType,
+        BuiltinSchemaXmlschema,
+        SingleLinkedList(),
+    ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = EntityType
 
@@ -1805,7 +1815,13 @@ object EntitiesType :
 }
 
 object IDRefsType :
-    ConstructedListDatatype("IDREFS", XmlSchemaConstants.XS_NAMESPACE, EntityType, BuiltinSchemaXmlschema) {
+    ConstructedListDatatype(
+        "IDREFS",
+        XmlSchemaConstants.XS_NAMESPACE,
+        EntityType,
+        BuiltinSchemaXmlschema,
+        SingleLinkedList()
+    ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = IDRefType
 
@@ -1817,7 +1833,13 @@ object IDRefsType :
 }
 
 object NMTokensType :
-    ConstructedListDatatype("NMTOKENS", XmlSchemaConstants.XS_NAMESPACE, EntityType, BuiltinSchemaXmlschema) {
+    ConstructedListDatatype(
+        "NMTOKENS",
+        XmlSchemaConstants.XS_NAMESPACE,
+        EntityType,
+        BuiltinSchemaXmlschema,
+        SingleLinkedList()
+    ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = NMTokenType
 
