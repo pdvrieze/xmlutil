@@ -27,9 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedProhibitedAttribute(
-    parent: VAttributeScope.Member,
-    override val rawPart: XSLocalAttribute,
-    override val schema: ResolvedSchemaLike
+    rawPart: XSLocalAttribute,
+    schema: ResolvedSchemaLike
 ) : IResolvedAttributeUse {
 
     override val model: ResolvedAnnotated.IModel = ResolvedAnnotated.Model(rawPart)
