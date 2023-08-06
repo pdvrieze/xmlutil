@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
 class ResolvedUnionDerivation(
-    override val rawPart: XSSimpleUnion,
+    rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType,
 ) : ResolvedSimpleType.Derivation() {
@@ -49,8 +49,6 @@ class ResolvedUnionDerivation(
                 "$m is final for union, and can not be put in a union"
             }
         }
-
-
     }
 
     fun transitiveMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {

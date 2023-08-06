@@ -24,7 +24,4 @@ class BuiltinListDerivation(
     itemType: ResolvedSimpleType
 ) : ResolvedListDerivationBase() {
     override val model: IModel = Model(itemType)
-
-    override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
-
 }

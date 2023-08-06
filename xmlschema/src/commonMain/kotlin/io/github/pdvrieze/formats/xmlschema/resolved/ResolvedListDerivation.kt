@@ -23,13 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 
 class ResolvedListDerivation(
-    override val rawPart: XSSimpleList,
+    rawPart: XSSimpleList,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType,
 ) : ResolvedListDerivationBase() {
-    override val model: IModel by lazy {
-        Model(rawPart, schema, context)
-    }
-
+    override val model: IModel by lazy { Model(rawPart, schema, context) }
 }
 

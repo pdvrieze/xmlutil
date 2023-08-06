@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
-    override val schema: ResolvedSchemaLike
+
     val mdlCompositor: Compositor
 
     override fun checkTerm(checkHelper: CheckHelper) {

@@ -28,8 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedElementRef constructor(
-    override val rawPart: XSLocalElement,
-    override val schema: ResolvedSchemaLike,
+    rawPart: XSLocalElement,
+    schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : IResolvedElementUse, ResolvedParticle<ResolvedElement> {
@@ -62,8 +62,8 @@ class ResolvedElementRef constructor(
         return buildString {
             append("ResolvedLocalElement(")
             append("mdlName=$mdlQName, ")
-            if (rawPart.minOccurs != null) append("minOccurs=${rawPart.minOccurs}, ")
-            if (rawPart.maxOccurs != null) append("maxOccurs=${rawPart.maxOccurs}, ")
+            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
+            if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
             append("type=${mdlTerm.mdlTypeDefinition}")
             append(")")
         }

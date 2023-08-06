@@ -25,10 +25,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedTerm : ResolvedAnnotated {
     @Deprecated("Not needed")
-    val rawPart: XSI_Annotated
+    val rawPart: Any? get() = null
 
     @Deprecated("Not needed")
-    val schema: ResolvedSchemaLike
+    val schema: Any? get() = null
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper)
 

@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
-sealed interface IResolvedAttributeUse : ResolvedAnnotated, ResolvedPart {
+sealed interface IResolvedAttributeUse : ResolvedAnnotated {
     val mdlRequired: Boolean
     val mdlAttributeDeclaration: ResolvedAttributeDef
     val mdlValueConstraint: ValueConstraint?

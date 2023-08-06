@@ -28,8 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedProhibitedElement(
-    override val rawPart: XSLocalElement,
-    override val schema: ResolvedSchemaLike
+    rawPart: XSLocalElement,
+    schema: ResolvedSchemaLike
 ) : IResolvedElementUse {
     override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 

@@ -43,16 +43,6 @@ class ResolvedGlobalAttribute(
     class Model : ResolvedAttributeDef.Model {
 
 
-        constructor(base: ResolvedGlobalAttribute, schema: ResolvedSchemaLike) : super(base) {
-            this.mdlQName = base.rawPart.name.toQname(
-                when (schema.attributeFormDefault) {
-                    VFormChoice.QUALIFIED -> schema.targetNamespace
-
-                    else -> null
-                }
-            )
-        }
-
         constructor(
             rawPart: XSGlobalAttribute,
             schema: ResolvedSchemaLike,
