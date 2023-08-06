@@ -23,49 +23,25 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
-class ResolvedChoice private constructor(
-    override val rawPart: XSChoice,
-    schema: ResolvedSchemaLike,
-    override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val mdlMinOccurs: VNonNegativeInteger,
-    override val mdlMaxOccurs: VAllNNI,
-) : ResolvedGroupParticleTermBase<IResolvedChoice>(rawPart, schema),
-    IResolvedChoice {
+class ResolvedChoice(
+    parent: VElementScope.Member,
+    rawPart: XSChoice,
+    schema: ResolvedSchemaLike
+) : ResolvedGroupParticleTermBase<IResolvedChoice>(
+    parent,
+    rawPart,
+    schema,
+    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    rawPart.maxOccurs ?: VAllNNI.ONE,
+), IResolvedChoice {
 
-    constructor(
-        parent: VElementScope.Member,
-        rawPart: XSChoice,
-        schema: ResolvedSchemaLike,
-    ) : this(
-        rawPart,
-        schema,
-        DelegateList(rawPart.particles) {
-            ResolvedParticle.choiceSeqMember(parent, it, schema)
-        },
-        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-        rawPart.maxOccurs ?: VAllNNI.ONE,
-    )
-
+    override val rawPart: XSChoice = rawPart
 
     override val mdlTerm: ResolvedChoice get() = this
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles
-    }
-
-    override fun normalizeTerm(
-        minMultiplier: VNonNegativeInteger,
-        maxMultiplier: VAllNNI
-    ): ResolvedChoice {
-        return ResolvedChoice(
-            rawPart,
-            schema,
-            mdlParticles,
-            mdlMinOccurs * minMultiplier,
-            mdlMaxOccurs * maxMultiplier
-        )
     }
 
     override fun toString(): String {

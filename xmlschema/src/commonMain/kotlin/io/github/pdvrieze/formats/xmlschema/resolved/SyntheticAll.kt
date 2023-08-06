@@ -32,21 +32,12 @@ class SyntheticAll(
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
     override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticAll>, IResolvedAll {
-
-    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticAll get() = this
 
     override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
-    override val mdlAnnotations: ResolvedAnnotation? get() = null
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super<IResolvedAll>.checkTerm(checkHelper)
-        // TODO implement something
-    }
 
-    override fun normalizeTerm(minMultiplier: VNonNegativeInteger, maxMultiplier: VAllNNI): SyntheticAll {
-        return SyntheticAll(mdlMinOccurs*minMultiplier, mdlMaxOccurs*maxMultiplier, mdlParticles, schema)
-    }
 }

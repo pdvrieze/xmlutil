@@ -34,12 +34,11 @@ class ResolvedDirectKey(
 
     override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 
-    override val selector: XSSelector get() = rawPart.selector
+    override val selector: XSSelector = rawPart.selector
 
-    override val fields: List<XSField> get() = rawPart.fields
+    override val fields: List<XSField> = rawPart.fields
 
-    override val constraint: ResolvedDirectKey
-        get() = this
+    override val constraint: ResolvedDirectKey get() = this
 
     override fun checkConstraint(checkHelper: CheckHelper) {
     }

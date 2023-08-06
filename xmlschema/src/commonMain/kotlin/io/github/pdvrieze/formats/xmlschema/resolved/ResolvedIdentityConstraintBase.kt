@@ -33,17 +33,9 @@ sealed class ResolvedIdentityConstraintBase(
     val owner: ResolvedElement
 ) : ResolvedAnnotated {
 
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
     abstract override val rawPart: XSIdentityConstraint
-    override val id: VID? get() = rawPart.id
-
-    val annotation: XSAnnotation? get() = rawPart.annotation
-
-    val mdlTargetNamespace: VAnyURI? get() = schema.targetNamespace
-
-    override val mdlAnnotations: ResolvedAnnotation?
-        get() = rawPart.annotation.models()
 
     abstract val constraint: ResolvedIdentityConstraint
     abstract val mdlSelector: XPathExpression

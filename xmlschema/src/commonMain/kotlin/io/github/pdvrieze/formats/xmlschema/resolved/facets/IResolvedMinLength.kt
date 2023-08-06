@@ -21,13 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 import io.github.pdvrieze.formats.xmlschema.resolved.*
-import nl.adaptivity.xmlutil.QName
 
 interface IResolvedMinLength : ResolvedAnnotated {
     val value: ULong
-    val fixed: Boolean?
+    val mdlFixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
     override val rawPart: XSI_Annotated

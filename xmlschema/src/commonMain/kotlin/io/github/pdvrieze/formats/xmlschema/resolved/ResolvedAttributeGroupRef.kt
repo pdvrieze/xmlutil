@@ -20,35 +20,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeGroupRef(
     override val rawPart: XSAttributeGroupRef,
     override val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated, ResolvedPart {
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val model: Model by lazy { Model(rawPart, schema) }
 
-    val resolvedGroup: ResolvedGlobalAttributeGroup by lazy { schema.attributeGroup(rawPart.ref) }
-
-    override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
-
-    val attributes: List<IResolvedAttributeUse>
-        get() = resolvedGroup.attributes
-
-    val attributeGroups: List<ResolvedAttributeGroupRef>
-        get() = resolvedGroup.attributeGroups
-
-    override val id: VID?
-        get() = rawPart.id
-
-    val ref: QName
-        get() = rawPart.ref
+    val resolvedGroup: ResolvedGlobalAttributeGroup
+        get() = model.resolvedGroup
 
     fun checkRef(checkHelper: CheckHelper) {
         checkHelper.checkAttributeGroup(resolvedGroup)
+    }
+
+    class Model(rawPart: XSAttributeGroupRef, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
+        val resolvedGroup = schema.attributeGroup(rawPart.ref)
     }
 }
