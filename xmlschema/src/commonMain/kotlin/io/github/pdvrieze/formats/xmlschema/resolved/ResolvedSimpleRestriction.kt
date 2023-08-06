@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
  * Restriction is used for simple types.
  */
 class ResolvedSimpleRestriction(
-    override val rawPart: XSSimpleRestriction,
+    rawPart: XSSimpleRestriction,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType
 ) : ResolvedSimpleRestrictionBase(rawPart) {

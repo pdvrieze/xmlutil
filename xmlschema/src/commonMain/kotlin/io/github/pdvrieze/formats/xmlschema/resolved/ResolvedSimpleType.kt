@@ -39,7 +39,7 @@ import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.*
 
-sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
+sealed interface ResolvedSimpleType : ResolvedType,
     VSimpleTypeScope.Member {
     override val rawPart: XSISimpleType
 
@@ -149,9 +149,6 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
         abstract val baseType: ResolvedSimpleType
-
-        @Deprecated("Not needed")
-        abstract val rawPart: XSI_Annotated
 
         open fun checkDerivation(checkHelper: CheckHelper) {}
 

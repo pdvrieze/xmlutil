@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     parent: VElementScope.Member,
     rawPart: XSI_Grouplike,
-    final override val schema: ResolvedSchemaLike,
+    schema: ResolvedSchemaLike,
     final override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     final override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupParticle<T>, ResolvedTerm {
@@ -37,8 +37,6 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     final override val model: Model by lazy {
         Model(parent, rawPart, schema)
     }
-
-    abstract override val rawPart: XSI_Grouplike
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 

@@ -204,8 +204,6 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     }
 
     private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart) {
-        override val rawPart: Nothing get() = throw UnsupportedOperationException()
-
         override val model: IModel = Model(ErrorType)
     }
 }
@@ -277,7 +275,5 @@ internal open class SimpleBuiltinRestriction(
     schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(null) {
-    override val rawPart: Nothing get() = throw UnsupportedOperationException()
-
     override val model: IModel = Model(baseType, FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition))
 }

@@ -31,12 +31,9 @@ sealed class ResolvedAttribute(
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    abstract val rawPart: XSAttribute
     abstract override val model: Model
 
-    override val id: VID? get() = rawPart.id
-
-    val mdlInheritable: Boolean get() = rawPart.inheritable ?: false
+    val mdlInheritable: Boolean = rawPart.inheritable ?: false
 
     abstract val mdlScope: VAttributeScope
 
@@ -44,29 +41,13 @@ sealed class ResolvedAttribute(
     val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
-    abstract class Model: ResolvedAnnotated.Model {
+    abstract class Model(rawPart: XSAttribute) : ResolvedAnnotated.Model(rawPart) {
 
         abstract val mdlQName: QName
 
         abstract val mdlTypeDefinition: ResolvedSimpleType
 
-        val mdlValueConstraint: ValueConstraint?
-
-        constructor(
-            rawPart: XSAttribute,
-            annotations: List<ResolvedAnnotation> = emptyList()
-        ) : super(rawPart) {
-            mdlValueConstraint = ValueConstraint(rawPart)
-        }
-
-        constructor(
-            base: ResolvedAttribute,
-            annotations: List<ResolvedAnnotation> = base.mdlAnnotations,
-            id: VID? = null,
-            otherAttrs: Map<QName, String> = emptyMap()
-        ) : super(annotations, id, otherAttrs) {
-            mdlValueConstraint = ValueConstraint(base.rawPart)
-        }
+        val mdlValueConstraint: ValueConstraint? = ValueConstraint(rawPart)
 
     }
 
