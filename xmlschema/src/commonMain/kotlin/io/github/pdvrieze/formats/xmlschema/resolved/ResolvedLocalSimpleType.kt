@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
 class ResolvedLocalSimpleType(
     override val rawPart: XSLocalSimpleType,
-    override val schema: ResolvedSchemaLike,
+    schema: ResolvedSchemaLike,
     context: VSimpleTypeScope.Member,
 ) : ResolvedLocalType, ResolvedSimpleType {
 

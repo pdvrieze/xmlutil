@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -314,7 +314,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
         override fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> {
             return elements.values.filterTo(HashSet<ResolvedGlobalElement>()) { elem ->
-                elem.rawPart.substitutionGroup?.any {
+                elem.substitutionGroups?.any {
                     targetNamespace.value == it.namespaceURI && it.localPart == headName
                 } == true
             }

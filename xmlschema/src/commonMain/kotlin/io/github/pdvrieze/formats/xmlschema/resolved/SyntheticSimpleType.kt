@@ -36,7 +36,6 @@ class SyntheticSimpleType(
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
     override val mdlItemTypeDefinition: ResolvedSimpleType?,
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
-    override val schema: ResolvedSchemaLike,
 ) : ResolvedSimpleType, ResolvedSimpleType.Model {
     override val model: ResolvedSimpleType.Model get() = this
 

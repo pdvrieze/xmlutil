@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectKey(
-    override val rawPart: XSKey,
+    rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedKey {

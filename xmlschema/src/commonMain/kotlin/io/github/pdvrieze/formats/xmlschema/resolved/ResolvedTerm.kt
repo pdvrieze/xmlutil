@@ -24,11 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedTerm : ResolvedAnnotated {
-    @Deprecated("Not needed")
-    val rawPart: Any? get() = null
 
-    @Deprecated("Not needed")
-    val schema: Any? get() = null
     fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper)
 

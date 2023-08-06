@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.checking
 
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
 
 class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkedTypes: MutableSet<ResolvedType> = HashSet()
@@ -30,6 +31,7 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkedAttributeGroups: MutableSet<QName> = HashSet()
     private val checkedConstraints: MutableSet<QName> = HashSet()
     private val checkedGroups: MutableSet<QName> = HashSet()
+    private val notations: MutableSet<QName> = HashSet()
 
     private val checkHelper get() = this
 
@@ -107,6 +109,12 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     fun checkGroup(name: QName) {
         if (checkedGroups.add(name)) {
             schema.modelGroup(name).checkGroup(this)
+        }
+    }
+
+    fun checkNotation(name: SerializableQName) {
+        if (notations.add(name)) {
+            schema.notation(name).check()
         }
     }
 }

@@ -25,10 +25,13 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectUnique(
-    override val rawPart: XSUnique,
+    rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedUnique {
+    init {
+        check(rawPart.name == null)
+    }
     override val constraint: ResolvedIndirectUnique
         get() = this
 
@@ -41,7 +44,6 @@ class ResolvedIndirectUnique(
     }
 
     override fun checkConstraint(checkHelper: CheckHelper) {
-        check(rawPart.name == null)
     }
 
 }

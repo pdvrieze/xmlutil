@@ -31,8 +31,6 @@ sealed class ResolvedIdentityConstraintBase(
 
     override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    abstract val rawPart: XSIdentityConstraint
-
     abstract val constraint: ResolvedIdentityConstraint
     abstract val mdlSelector: XPathExpression
     abstract val mdlFields: List<XPathExpression>

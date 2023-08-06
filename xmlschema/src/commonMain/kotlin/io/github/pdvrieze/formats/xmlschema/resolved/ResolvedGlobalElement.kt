@@ -31,15 +31,17 @@ import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalElement(
-    override val rawPart: XSGlobalElement,
+    rawPart: XSGlobalElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedElement(rawPart, schema), NamedPart {
 
-    private val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
+    val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
         get() = model.mdlSubstitutionGroupAffiliations
 
     override val model: Model by lazy { Model(rawPart, schema, this) }
+
+    internal val substitutionGroups: List<QName>? = rawPart.substitutionGroup
 
     override val mdlQName: QName =
         rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
@@ -59,7 +61,7 @@ class ResolvedGlobalElement(
     val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>
         get() = model.mdlSubstitutionGroupMembers
 
-    override val mdlAbstract: Boolean get() = rawPart.abstract ?: false
+    override val mdlAbstract: Boolean = rawPart.abstract ?: false
 
     override val mdlScope: VElementScope.Global get() = VElementScope.Global
 

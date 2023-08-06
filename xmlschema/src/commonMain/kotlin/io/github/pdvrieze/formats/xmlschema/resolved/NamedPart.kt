@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -29,6 +29,5 @@ import nl.adaptivity.xmlutil.namespaceURI
 
 /** Parent interface for global (named) definitions */
 interface NamedPart {
-    val rawPart: XSI_OpenAttrs
     val mdlQName: QName //get() = QName(targetNamespace?.value ?: "", name.xmlString)
 }

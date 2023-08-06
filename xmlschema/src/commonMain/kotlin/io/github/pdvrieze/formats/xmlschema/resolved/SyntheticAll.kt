@@ -22,21 +22,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 class SyntheticAll(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticAll>, IResolvedAll {
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticAll get() = this
-
-    override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 

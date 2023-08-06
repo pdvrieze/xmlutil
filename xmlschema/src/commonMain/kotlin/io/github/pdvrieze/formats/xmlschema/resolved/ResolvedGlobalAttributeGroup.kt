@@ -26,10 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttributeGroup(
-    override val rawPart: XSAttributeGroup,
+    rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(rawPart, schema), ResolvedAnnotated, NamedPart, VAttributeScope.Member {
+) : ResolvedAttributeGroup(rawPart), ResolvedAnnotated, NamedPart, VAttributeScope.Member {
 
     override val model: Model by lazy { Model(this, rawPart, schema) }
 

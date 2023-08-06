@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -126,7 +126,7 @@ sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDa
 
     abstract override val baseType: ResolvedBuiltinType
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(baseType, schema = schema)
+        get() = SimpleBuiltinRestriction(baseType, schema = BuiltinSchemaXmlschema)
 
     final override val mdlBaseTypeDefinition: ResolvedBuiltinType get() = baseType
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = this
@@ -135,7 +135,7 @@ sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDa
 object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnySimpleType get() = AnySimpleType
     override val simpleDerivation: ResolvedSimpleRestrictionBase =
-        SimpleBuiltinRestriction(AnySimpleType, schema = schema)
+        SimpleBuiltinRestriction(AnySimpleType, schema = BuiltinSchemaXmlschema)
 
     override val mdlBaseTypeDefinition: AnySimpleType get() = baseType
 
@@ -1444,7 +1444,7 @@ object StringType : PrimitiveDatatype("string", XmlSchemaConstants.XS_NAMESPACE)
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(
             baseType,
-            schema,
+            BuiltinSchemaXmlschema,
             listOf(XSWhiteSpace(WhitespaceValue.PRESERVE, fixed = false))
         )
 

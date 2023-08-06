@@ -23,10 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxLength
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMaxLength(override val rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
+class ResolvedMaxLength(rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
     IResolvedMaxLength {
 
-    override val value: ULong get() = rawPart.value
+    override val value: ULong = rawPart.value
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength <= value.toInt()) { "length($resolvedLength) of ${repr} is not at most $value" }
     }

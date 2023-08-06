@@ -54,7 +54,11 @@ class ResolvedGlobalGroup(
         }
     }
 
-    class Model(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
+    class Model(
+        parent: ResolvedGlobalGroup,
+        rawPart: XSGroup.XSGroupElement,
+        schema: ResolvedSchemaLike
+    ) : ResolvedAnnotated.Model(rawPart) {
 
         constructor(parent: ResolvedGlobalGroup, rawPart: XSGroup, schema: ResolvedSchemaLike) :
                 this(parent, rawPart.content, schema)
@@ -66,11 +70,14 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private sealed class ModelGroupBase(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, override val schema: ResolvedSchemaLike): ResolvedTerm {
+    private sealed class ModelGroupBase(
+        parent: ResolvedGlobalGroup,
+        rawPart: XSGroup.XSGroupElement,
+        schema: ResolvedSchemaLike
+    ): ResolvedTerm {
         override val model: Model by lazy { Model(parent, rawPart, schema) }
         val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-        abstract override val rawPart: XSGroup.XSGroupElement
         abstract override fun checkTerm(checkHelper: CheckHelper)
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
@@ -80,11 +87,8 @@ class ResolvedGlobalGroup(
         }
     }
 
-    private class AllImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.All, schema: ResolvedSchemaLike) : ModelGroupBase(
-        parent,
-        rawPart,
-        schema
-    ), IResolvedAll {
+    private class AllImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.All, schema: ResolvedSchemaLike) :
+        ModelGroupBase(parent, rawPart, schema), IResolvedAll {
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
@@ -100,7 +104,7 @@ class ResolvedGlobalGroup(
 
     }
 
-    private class ChoiceImpl(parent: ResolvedGlobalGroup, override val rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
+    private class ChoiceImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
         ModelGroupBase(parent, rawPart, schema),
         IResolvedChoice {
 
@@ -120,7 +124,7 @@ class ResolvedGlobalGroup(
 
     private class SequenceImpl(
         parent: ResolvedGlobalGroup,
-        override val rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
+        rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
     ) : ModelGroupBase(parent, rawPart, schema), IResolvedSequence {
 
         override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

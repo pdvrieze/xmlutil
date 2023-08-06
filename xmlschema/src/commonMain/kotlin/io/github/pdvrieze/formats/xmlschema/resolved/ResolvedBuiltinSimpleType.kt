@@ -21,6 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSISimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
@@ -28,17 +32,11 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType, ResolvedSimpleType.Model {
-    override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no types")
-
+    override val rawPart: Nothing? get() = null
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 
     override val mdlScope: VSimpleTypeScope.Global get() = super<ResolvedBuiltinType>.mdlScope
-
-    override fun checkType(checkHelper: CheckHelper) = Unit
-
-    override val mdlFinal: Set<VDerivationControl.Type>
-        get() = super<ResolvedBuiltinType>.mdlFinal
 
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
