@@ -30,15 +30,13 @@ class SyntheticSequence(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    override val schema: ResolvedSchemaLike,
+    schema: ResolvedSchemaLike,
 ) : ResolvedParticle<SyntheticSequence>,
     IResolvedSequence {
 
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticSequence get() = this
-
-    override val rawPart: XSI_Particle get() = XSI_Particle.DUMMY
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }

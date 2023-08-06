@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPat
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedPattern(override val rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
+class ResolvedPattern(rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
     override val model: Model by lazy { Model(rawPart) }
 
     val value: String = rawPart.value

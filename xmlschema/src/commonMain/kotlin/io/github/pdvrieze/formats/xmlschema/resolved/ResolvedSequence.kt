@@ -38,8 +38,6 @@ class ResolvedSequence(
     rawPart.maxOccurs ?: VAllNNI.ONE
 ), IResolvedSequence {
 
-    override val rawPart: XSSequence = rawPart
-
     override val mdlTerm: ResolvedSequence get() = this
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

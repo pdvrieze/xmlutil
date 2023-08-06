@@ -26,8 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
 
-class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
+class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedKeyRef {
 
     override val constraint: ResolvedDirectKeyRef
@@ -38,13 +39,13 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
         requireNotNull(rawPart.refer)
     }
 
-    override val refer: QName get() = invariantNotNull(rawPart.refer)
+    override val refer: SerializableQName = invariantNotNull(rawPart.refer)
 
     override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
-    override val selector: XSSelector get() = rawPart.selector
+    override val selector: XSSelector = rawPart.selector
 
-    override val fields: List<XSField> get() = rawPart.fields
+    override val fields: List<XSField> = rawPart.fields
 
     val referenced: ResolvedDirectKey by lazy {
         schema.identityConstraint(refer) as? ResolvedDirectKey
@@ -60,7 +61,6 @@ class ResolvedDirectKeyRef(override val rawPart: XSKeyRef, schema: ResolvedSchem
         }
 
     override fun checkConstraint(checkHelper: CheckHelper) {
-        checkNotNull(rawPart.name)
         check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${mdlQName}) must have equal field counts" }
     }
 
