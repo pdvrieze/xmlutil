@@ -31,8 +31,6 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     ResolvedAnnotated {
     abstract override val model: ResolvedAnnotated.IModel
 
-    abstract val rawPart: Any?
-
     val mdlFixed = rawPart.fixed
 
     open fun checkFacetValid(type: ResolvedSimpleType) {}

@@ -27,8 +27,6 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
 
 sealed interface ResolvedGlobalType : ResolvedType, NamedPart {
-    override val rawPart: XSGlobalType
-
     override val mdlScope: VTypeScope.Global
 }
 

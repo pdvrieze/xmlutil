@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedEnumeration(
-    override val rawPart: XSEnumeration,
+    rawPart: XSEnumeration,
     schema: ResolvedSchemaLike,
     primitiveDatatype: PrimitiveDatatype?
 ) : ResolvedFacet(rawPart, schema) {

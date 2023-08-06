@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val rawPart: XSGlobalSimpleType,
-    override val schema: ResolvedSchemaLike,
+    schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedGlobalSimpleType {
 

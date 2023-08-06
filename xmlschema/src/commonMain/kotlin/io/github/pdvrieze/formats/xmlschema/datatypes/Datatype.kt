@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -81,7 +81,7 @@ sealed class ListDatatype(
     val itemType: Datatype,
     schema: ResolvedSchemaLike,
 ) : Datatype(name, targetNamespace, schema), ResolvedBuiltinSimpleType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
-    override val rawPart: Nothing get() = throw UnsupportedOperationException("No raw part")
+
     abstract override val baseType: ResolvedType
 
     override val mdlScope: VSimpleTypeScope.Global get() = super<Datatype>.mdlScope
@@ -173,9 +173,8 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     ResolvedSimpleType.Model {
 
     override val baseType: ErrorType get() = ErrorType
-    override val rawPart: Nothing get() = throw UnsupportedOperationException("Builtins have no raw part")
-    override val id: Nothing? get() = null
-    override val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
+
+    val schema: ResolvedSchemaLike get() = BuiltinSchemaXmlschema
     override val simpleDerivation: ResolvedSimpleType.Derivation
 
         get() = ERRORDERIVATION
@@ -217,7 +216,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val mdlFundamentalFacets: Nothing get() = throw UnsupportedOperationException("Any is not simple, and has no facets")
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(AnyType, schema = schema)
+        get() = SimpleBuiltinRestriction(AnyType, schema = BuiltinSchemaXmlschema)
 
     override val mdlFacets: FacetList get() = FacetList.EMPTY
 
@@ -247,7 +246,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val baseType: AnyType get() = AnyType
 
     override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = SimpleBuiltinRestriction(baseType, schema = schema)
+        get() = SimpleBuiltinRestriction(baseType, schema = BuiltinSchemaXmlschema)
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val model: AnySimpleType get() = this

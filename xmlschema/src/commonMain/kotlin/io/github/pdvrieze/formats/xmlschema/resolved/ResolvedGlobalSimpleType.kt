@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
-    override val rawPart: XSGlobalSimpleType
 
     override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
 

@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -34,7 +33,7 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement private constructor(
     parent: VElementScope.Member,
-    override val rawPart: XSLocalElement,
+    rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
@@ -99,20 +98,13 @@ class ResolvedLocalElement private constructor(
         }
     }
 
-    inner class Model(
+    class Model(
         rawPart: XSLocalElement,
         schema: ResolvedSchemaLike,
         context: ResolvedLocalElement
     ) : ResolvedElement.Model(rawPart, schema, context) {
 
-        val mdlTargetNamespace: VAnyURI? get() = rawPart.targetNamespace ?: schema.targetNamespace
-
-        val mdlTerm: ResolvedLocalElement get() = this@ResolvedLocalElement
-
-
-        val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE
-
-        val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
+        val mdlTerm: ResolvedLocalElement = context
 
         override val mdlTypeTable: ITypeTable
             get() = TODO("not implemented")

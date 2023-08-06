@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,12 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeG
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttributeGroup(
-    rawPart: XSAttributeGroup,
-    final val schema: ResolvedSchemaLike
+    rawPart: XSAttributeGroup
 ) : ResolvedAnnotated {
-    final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
-
-    abstract val rawPart: XSAttributeGroup
 
     val attributeUses: Set<IResolvedAttributeUse>
         get() {

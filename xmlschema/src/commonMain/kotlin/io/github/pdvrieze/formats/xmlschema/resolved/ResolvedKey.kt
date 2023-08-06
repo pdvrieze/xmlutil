@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKey
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedKey : ResolvedReferenceableConstraint {
-    override val rawPart: XSKey
 
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.KEY
 
