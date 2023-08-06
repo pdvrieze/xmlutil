@@ -22,17 +22,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
     rawPart: XSAttribute,
-    override val schema: ResolvedSchemaLike
+    val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated, VSimpleTypeScope.Member {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    abstract override val rawPart: XSAttribute
+    abstract val rawPart: XSAttribute
     abstract override val model: Model
 
     override val id: VID? get() = rawPart.id

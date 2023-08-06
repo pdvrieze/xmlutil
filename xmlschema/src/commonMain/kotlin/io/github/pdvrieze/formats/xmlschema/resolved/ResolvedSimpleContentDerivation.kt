@@ -20,19 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleContentDerivation
-import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedSimpleContentDerivation(
     rawPart: XSSimpleContentDerivation,
-    override val schema: ResolvedSchemaLike
+    val schema: ResolvedSchemaLike
 ) : ResolvedAnnotated {
 
     override abstract val model: Model
 
-    abstract override val rawPart: XSSimpleContentDerivation
+    abstract val rawPart: XSSimpleContentDerivation
 
     val baseType: ResolvedType get() = model.baseType
 

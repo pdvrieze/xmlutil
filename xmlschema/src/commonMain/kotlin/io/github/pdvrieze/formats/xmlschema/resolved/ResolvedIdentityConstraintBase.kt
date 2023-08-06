@@ -20,22 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
-import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedIdentityConstraintBase(
     rawPart: XSIdentityConstraint,
-    override val schema: ResolvedSchemaLike,
+    val schema: ResolvedSchemaLike,
     val owner: ResolvedElement
 ) : ResolvedAnnotated {
 
     override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    abstract override val rawPart: XSIdentityConstraint
+    abstract val rawPart: XSIdentityConstraint
 
     abstract val constraint: ResolvedIdentityConstraint
     abstract val mdlSelector: XPathExpression
