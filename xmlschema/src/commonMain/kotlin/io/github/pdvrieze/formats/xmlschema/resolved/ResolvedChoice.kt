@@ -36,8 +36,6 @@ class ResolvedChoice(
     rawPart.maxOccurs ?: VAllNNI.ONE,
 ), IResolvedChoice {
 
-    override val rawPart: XSChoice = rawPart
-
     override val mdlTerm: ResolvedChoice get() = this
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {

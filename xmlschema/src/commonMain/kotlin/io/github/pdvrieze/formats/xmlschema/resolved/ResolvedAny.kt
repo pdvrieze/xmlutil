@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAny(
-    override val rawPart: XSAny,
-    override val schema: ResolvedSchemaLike,
+    rawPart: XSAny,
+    schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
@@ -47,14 +47,12 @@ class ResolvedAny(
     val mdlProcessContents: VProcessContents
         get() = processContents
 
-    val notNamespace: VNotNamespaceList
-        get() = rawPart.notNamespace ?: VNotNamespaceList()
+    val notNamespace: VNotNamespaceList = rawPart.notNamespace ?: VNotNamespaceList()
 
     val notQName: VQNameList
         get() = VQNameList()
 
-    val processContents: VProcessContents
-        get() = rawPart.processContents ?: VProcessContents.STRICT
+    val processContents: VProcessContents = rawPart.processContents ?: VProcessContents.STRICT
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 

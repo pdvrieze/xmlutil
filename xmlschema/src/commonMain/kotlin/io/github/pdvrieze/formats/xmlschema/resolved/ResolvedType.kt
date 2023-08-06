@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -26,13 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
 sealed interface ResolvedType : ResolvedAnnotated {
-    val rawPart: XSIType
+    val rawPart: Any?
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
-
-    @Deprecated("Not needed")
-    val schema: ResolvedSchemaLike
 
     fun checkType(checkHelper: CheckHelper)
 

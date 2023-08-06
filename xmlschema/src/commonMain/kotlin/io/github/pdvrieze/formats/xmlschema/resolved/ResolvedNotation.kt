@@ -24,15 +24,18 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSNotation
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedNotation(
-    override val rawPart: XSNotation,
+    rawPart: XSNotation,
     val schema: ResolvedSchemaLike,
     val location: String,
 ) : NamedPart {
+    fun check() {
+        //TODO add checks
+    }
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    val public get() = rawPart.public
-    val system get() = rawPart.system
+    val public = rawPart.public
+    val system = rawPart.system
 
     internal constructor(rawPart: SchemaAssociatedElement<XSNotation>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)

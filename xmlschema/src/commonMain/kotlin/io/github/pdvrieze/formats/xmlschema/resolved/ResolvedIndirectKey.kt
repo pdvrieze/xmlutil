@@ -25,10 +25,15 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKey(
-    override val rawPart: XSKey,
+    rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedKey {
+
+    init {
+        check(rawPart.name == null)
+    }
+
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = super.mdlIdentityConstraintCategory
 
     override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
@@ -43,7 +48,6 @@ class ResolvedIndirectKey(
         get() = this
 
     override fun checkConstraint(checkHelper: CheckHelper) {
-        check(rawPart.name == null)
     }
 
 }

@@ -27,8 +27,6 @@ import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
     val selector: XSSelector
-    val schema: ResolvedSchemaLike
-    val rawPart: XSIdentityConstraint
 
     val mdlQName: QName?
 

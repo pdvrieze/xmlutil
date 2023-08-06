@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedUnique : ResolvedReferenceableConstraint {
-    override val rawPart: XSUnique
 
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = ResolvedIdentityConstraint.Category.UNIQUE
 

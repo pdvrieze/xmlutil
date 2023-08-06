@@ -24,12 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSLen
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedLength(override val rawPart: XSLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
+class ResolvedLength(rawPart: XSLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
     IResolvedMinLength, IResolvedMaxLength {
 
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    override val value: ULong get() = rawPart.value
+    override val value: ULong = rawPart.value
     override fun checkLength(resolvedLength: Int, repr: String) {
         check(resolvedLength == value.toInt()) { "length($resolvedLength) of ${repr} is not $value" }
     }

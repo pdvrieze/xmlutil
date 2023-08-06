@@ -28,6 +28,4 @@ interface IResolvedMaxLength : ResolvedAnnotated {
     val mdlFixed: Boolean?
     fun checkLength(resolvedLength: Int, repr: String)
     fun validate(type: ResolvedSimpleType, representation: String): Result<Unit>
-    val rawPart: XSI_Annotated
-    val schema: ResolvedSchemaLike
 }

@@ -32,7 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
-    final override val schema: ResolvedSchemaLike
+    val schema: ResolvedSchemaLike
 ) : ResolvedType,
     VAttributeScope.Member,
     ResolvedLocalElement.Parent,
@@ -399,8 +399,7 @@ sealed class ResolvedComplexType(
                             SyntheticAll(
                                 mdlMinOccurs = effectiveContent.mdlMinOccurs,
                                 mdlMaxOccurs = VAllNNI(1),
-                                mdlParticles = p,
-                                schema = schema
+                                mdlParticles = p
                             )
                         }
 
@@ -525,8 +524,7 @@ sealed class ResolvedComplexType(
                         b.mdlVariety.notNil(),
                         b.mdlPrimitiveTypeDefinition,
                         b.mdlItemTypeDefinition,
-                        b.mdlMemberTypeDefinitions,
-                        schema
+                        b.mdlMemberTypeDefinitions
                     )
                 }
 

@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttribute(
-    override val rawPart: XSGlobalAttribute,
+    rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike,
     val location: String,
 ) : ResolvedAttributeDef(rawPart, schema), IScope.Global, NamedPart {

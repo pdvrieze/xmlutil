@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -29,12 +29,12 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 
-class ResolvedAnnotation(val rawPart: XSAnnotation) {
+class ResolvedAnnotation(rawPart: XSAnnotation) {
     val id: VID? = rawPart.id
 
-    val mdlOtherAttrs: Map<QName, String> get() = rawPart.otherAttrs
-    val mdlApplicationInformation: List<XSAppInfo> get() = rawPart.appInfos
-    val mdlUserInformation: List<XSDocumentation> get() = rawPart.documentationElements
+    val mdlOtherAttrs: Map<QName, String> = rawPart.otherAttrs
+    val mdlApplicationInformation: List<XSAppInfo> = rawPart.appInfos
+    val mdlUserInformation: List<XSDocumentation> = rawPart.documentationElements
 
     fun check(checkedTypes: MutableSet<QName>) {
         val xsAttrs = mdlOtherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }

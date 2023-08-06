@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAss
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedAssertionFacet(override val rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) :
+class ResolvedAssertionFacet(rawPart: XSAssertionFacet, schema: ResolvedSchemaLike) :
     ResolvedFacet(rawPart, schema) {
 
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }

@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectUnique(
-    override val rawPart: XSUnique,
+    rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedUnique {
@@ -37,7 +37,7 @@ class ResolvedDirectUnique(
 
     override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
-    override val selector: XSSelector get() = rawPart.selector
+    override val selector: XSSelector = rawPart.selector
 
-    override val fields: List<XSField> get() = rawPart.fields
+    override val fields: List<XSField> = rawPart.fields
 }
