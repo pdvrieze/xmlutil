@@ -67,11 +67,9 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
     override val mdlFinal: Set<VDerivationControl.Type>
 
     override fun checkType(
-        checkHelper: CheckHelper,
-        inheritedTypes: SingleLinkedList<ResolvedType>
+        checkHelper: CheckHelper
     ) { // TODO maybe move to toplevel
-        val inherited = (this as? ResolvedGlobalType)?.run { inheritedTypes + this } ?: inheritedTypes
-        simpleDerivation.checkDerivation(checkHelper, inherited)
+        simpleDerivation.checkDerivation(checkHelper)
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for (enum in mdlFacets.enumeration) {
@@ -146,12 +144,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         return false //none of the 4 options is true
     }
 
-    sealed class Derivation(
-        rawPart: XSSimpleDerivation?,
-        schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) :
-        ResolvedAnnotated {
+    sealed class Derivation() : ResolvedAnnotated {
         abstract override val model: ResolvedAnnotated.IModel
 
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
@@ -160,7 +153,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         @Deprecated("Not needed")
         abstract val rawPart: XSI_Annotated
 
-        abstract fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>)
+        open fun checkDerivation(checkHelper: CheckHelper) {}
 
     }
 
@@ -177,8 +170,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
     sealed class ModelBase(
         rawPart: XSISimpleType,
         protected val schema: ResolvedSchemaLike,
-        context: ResolvedSimpleType,
-        inheritedTypes: SingleLinkedList<ResolvedType>
+        context: ResolvedSimpleType
     ) : ResolvedAnnotated.Model(rawPart), Model {
 
         final override val mdlBaseTypeDefinition: ResolvedSimpleType
@@ -188,7 +180,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
         final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
 
         init {
-            val newInheritedTypes = inheritedTypes + context
+            val newInheritedTypes = SingleLinkedList<ResolvedType>()
 
             val typeName =
                 (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
@@ -205,8 +197,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
                     require(schema is CollatedSchema.RedefineWrapper) { "Only redefines can have 'self-referencing types'" }
                     ResolvedGlobalSimpleType(
                         schema.originalSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
-                        schema,
-                        newInheritedTypes
+                        schema
                     )
                 }
 
@@ -214,8 +205,8 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
                 else -> simpleDerivation.base?.let {
                     require(typeName == null || !it.isEquivalent(typeName))
-                    schema.simpleType(it, newInheritedTypes)
-                } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context, newInheritedTypes)
+                    schema.simpleType(it)
+                } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
             }
 
 
@@ -241,8 +232,8 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
             mdlItemTypeDefinition = when (mdlVariety) {
                 Variety.LIST -> when (mdlBaseTypeDefinition) {
-                    AnySimpleType -> (simpleDerivation as XSSimpleList).itemTypeName?.let { schema.simpleType(it, newInheritedTypes) }
-                        ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context, newInheritedTypes)
+                    AnySimpleType -> (simpleDerivation as XSSimpleList).itemTypeName?.let { schema.simpleType(it) }
+                        ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
 
                     else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlItemTypeDefinition }
                 }
@@ -253,9 +244,9 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
             mdlMemberTypeDefinitions = when {
                 simpleDerivation !is XSSimpleUnion -> emptyList()
                 mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map {
-                    schema.simpleType(it, newInheritedTypes)
+                    schema.simpleType(it)
                 } ?: simpleDerivation.simpleTypes.map {
-                        ResolvedLocalSimpleType(it, schema, context, newInheritedTypes)
+                        ResolvedLocalSimpleType(it, schema, context)
                     }
 
                 else -> recurseBaseType(
@@ -388,7 +379,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
                             checkRecursiveTypes(schema.simpleType(childName), newSeen, schema, name ?: container)
                         }
                         for (rawChild in simpleDerivation.simpleTypes) {
-                            val child = ResolvedLocalSimpleType(rawChild, schema, startType, SingleLinkedList())
+                            val child = ResolvedLocalSimpleType(rawChild, schema, startType)
                             checkRecursiveTypes(child, newSeen, schema, name ?: container)
                         }
                     }
@@ -404,7 +395,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
                             schema.simpleType(itemName)
                         } else {
                             val localItem = requireNotNull(simpleDerivation.simpleType) { "Lists must have itemType xor SimpleType" }
-                            ResolvedLocalSimpleType(localItem, schema, startType, SingleLinkedList())
+                            ResolvedLocalSimpleType(localItem, schema, startType)
                         }
                         checkRecursiveTypes(itemType, newSeen, schema, name ?: container)
                     }
@@ -423,7 +414,7 @@ sealed interface ResolvedSimpleType : ResolvedType, ResolvedPart,
 
                         } else {
                             val baseItem = requireNotNull(simpleDerivation.simpleType) { "Restrictions must have base xor SimpleType" }
-                            val child = ResolvedLocalSimpleType(baseItem, schema, startType, SingleLinkedList())
+                            val child = ResolvedLocalSimpleType(baseItem, schema, startType)
                             checkRecursiveTypes(child, newSeen, schema, name ?: container)
                         }
                     }
