@@ -224,7 +224,7 @@ object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     override val mdlFundamentalFacets: Nothing get() = throw UnsupportedOperationException("Any is not simple, and has no facets")
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(AnyType)
+        get() = SimpleBuiltinRestriction(AnyType, schema = schema)
 
     override val mdlFacets: FacetList get() = FacetList.EMPTY
 
@@ -254,7 +254,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
     override val baseType: AnyType get() = AnyType
 
     override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = SimpleBuiltinRestriction(baseType)
+        get() = SimpleBuiltinRestriction(baseType, schema = schema)
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val model: AnySimpleType get() = this
@@ -279,6 +279,7 @@ object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE
 
 internal open class SimpleBuiltinRestriction(
     baseType: ResolvedBuiltinType,
+    schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(null, BuiltinSchemaXmlschema, SingleLinkedList()) {
     override val rawPart: Nothing get() = throw UnsupportedOperationException()

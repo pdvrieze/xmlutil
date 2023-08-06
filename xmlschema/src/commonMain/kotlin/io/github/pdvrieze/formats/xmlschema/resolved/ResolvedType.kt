@@ -27,10 +27,13 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
 sealed interface ResolvedType : ResolvedAnnotated {
-    override val rawPart: XSIType
+    val rawPart: XSIType
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
+
+    @Deprecated("Not needed")
+    val schema: ResolvedSchemaLike
 
     fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType> = SingleLinkedList())
 
