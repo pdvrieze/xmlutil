@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 abstract class ResolvedSimpleRestrictionBase(
     rawPart: XSSimpleRestriction?
 ) : ResolvedSimpleType.Derivation() {
-    abstract override val rawPart: XSSimpleRestriction
+
     abstract override val model: IModel
 
     override val baseType: ResolvedSimpleType get() = model.baseType

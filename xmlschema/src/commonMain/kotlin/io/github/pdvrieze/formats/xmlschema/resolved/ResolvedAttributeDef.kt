@@ -48,11 +48,9 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
 
         final override val mdlTypeDefinition: ResolvedSimpleType
 
-        constructor(base: ResolvedAttributeDef) : super(base) {
-            this.mdlTypeDefinition = base.mdlTypeDefinition
-        }
-
-        constructor(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) : super(rawPart) {
+        constructor(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) : super(
+            rawPart
+        ) {
             this.mdlTypeDefinition = rawPart.simpleType?.let {
                 require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
                 ResolvedLocalSimpleType(it, schema, typeContext)
