@@ -20,17 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 
 class ResolvedListDerivation(
     override val rawPart: XSSimpleList,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType,
-    inheritedTypes: SingleLinkedList<ResolvedType>,
-) : ResolvedListDerivationBase(rawPart, schema, inheritedTypes) {
+) : ResolvedListDerivationBase() {
     override val model: IModel by lazy {
-        Model(rawPart, schema, context, inheritedTypes)
+        Model(rawPart, schema, context)
     }
 
 }

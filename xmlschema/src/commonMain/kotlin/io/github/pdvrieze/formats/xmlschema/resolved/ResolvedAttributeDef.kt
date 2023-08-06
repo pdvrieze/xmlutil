@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
@@ -38,7 +37,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
     }
 
     open fun checkAttribute(checkHelper: CheckHelper) {
-        mdlTypeDefinition.checkType(checkHelper)
+        checkHelper.checkType(mdlTypeDefinition)
         mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value) }
         require(mdlQName.getNamespaceURI()!= XmlSchemaConstants.XSI_NAMESPACE) {
             "3.2.6.4 - Attributes may not have the XSI namespace as their target namespace"
@@ -56,7 +55,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         constructor(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) : super(rawPart) {
             this.mdlTypeDefinition = rawPart.simpleType?.let {
                 require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
-                ResolvedLocalSimpleType(it, schema, typeContext, SingleLinkedList())
+                ResolvedLocalSimpleType(it, schema, typeContext)
             } ?: rawPart.type?.let { schema.simpleType(it) }
                     ?: AnySimpleType
         }

@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
@@ -1803,7 +1802,6 @@ object EntitiesType :
         XmlSchemaConstants.XS_NAMESPACE,
         EntityType,
         BuiltinSchemaXmlschema,
-        SingleLinkedList(),
     ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = EntityType
@@ -1820,8 +1818,7 @@ object IDRefsType :
         "IDREFS",
         XmlSchemaConstants.XS_NAMESPACE,
         EntityType,
-        BuiltinSchemaXmlschema,
-        SingleLinkedList()
+        BuiltinSchemaXmlschema
     ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = IDRefType
@@ -1838,8 +1835,7 @@ object NMTokensType :
         "NMTOKENS",
         XmlSchemaConstants.XS_NAMESPACE,
         EntityType,
-        BuiltinSchemaXmlschema,
-        SingleLinkedList()
+        BuiltinSchemaXmlschema
     ) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = NMTokenType

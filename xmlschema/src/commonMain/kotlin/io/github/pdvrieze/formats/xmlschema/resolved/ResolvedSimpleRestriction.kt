@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -31,16 +30,15 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 class ResolvedSimpleRestriction(
     override val rawPart: XSSimpleRestriction,
     schema: ResolvedSchemaLike,
-    context: ResolvedSimpleType,
-    inheritedTypes: SingleLinkedList<ResolvedType>
-) : ResolvedSimpleRestrictionBase(rawPart, schema, inheritedTypes) {
+    context: ResolvedSimpleType
+) : ResolvedSimpleRestrictionBase(rawPart) {
 
     override val model: IModel by lazy {
-        Model(rawPart, schema, context = context, inheritedTypes = inheritedTypes)
+        Model(rawPart, schema, context = context)
     }
 
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
-        super.checkDerivation(checkHelper, inheritedTypes)
+    override fun checkDerivation(checkHelper: CheckHelper) {
+        super.checkDerivation(checkHelper)
         check(VDerivationControl.RESTRICTION !in baseType.mdlFinal) {
             "$baseType is final for restriction, and can not be restricted"
         }

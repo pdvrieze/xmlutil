@@ -21,26 +21,21 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
-abstract class ResolvedListDerivationBase(
-    rawPart: XSSimpleList?,
-    schema: ResolvedSchemaLike,
-    inheritedTypes: SingleLinkedList<ResolvedType>
-) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
+abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
     abstract override val model: IModel
 
     final override val baseType: ResolvedSimpleType get() = AnySimpleType
 
     val itemType: ResolvedSimpleType get() = model.itemType
 
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
-        itemType.checkType(checkHelper, inheritedTypes)
+    override fun checkDerivation(checkHelper: CheckHelper) {
+        checkHelper.checkType(itemType)
 
         check(VDerivationControl.LIST !in itemType.mdlFinal) {
             "$baseType is final for list, and can not be put in a list"
@@ -62,14 +57,15 @@ abstract class ResolvedListDerivationBase(
             rawPart: XSSimpleList?,
             schema: ResolvedSchemaLike,
             context: ResolvedSimpleType,
-            inheritedTypes: SingleLinkedList<ResolvedType>,
         ) : super(rawPart) {
             val itemTypeName = rawPart?.itemTypeName
             itemType = when {
-                itemTypeName != null -> schema.simpleType(itemTypeName, inheritedTypes)
+                itemTypeName != null -> schema.simpleType(itemTypeName)
                 else -> {
-                    val simpleTypeDef = rawPart?.simpleType ?: error("Item type is not specified, either by name or member")
-                    ResolvedLocalSimpleType(rawPart.simpleType, schema, context, inheritedTypes)
+                    val simpleTypeDef = requireNotNull(rawPart?.simpleType) {
+                        "Item type is not specified, either by name or member"
+                    }
+                    ResolvedLocalSimpleType(simpleTypeDef, schema, context)
                 }
             }
         }
