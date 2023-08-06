@@ -27,11 +27,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 
-sealed class ResolvedFacet(rawPart: XSFacet, override val schema: ResolvedSchemaLike) :
+sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     ResolvedAnnotated {
     abstract override val model: ResolvedAnnotated.IModel
 
-    abstract override val rawPart: XSFacet
+    abstract val rawPart: XSFacet
 
     val mdlFixed = rawPart.fixed
 

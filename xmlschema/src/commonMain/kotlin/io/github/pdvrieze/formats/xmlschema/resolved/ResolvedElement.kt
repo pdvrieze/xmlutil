@@ -27,8 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) :
-    VTypeScope.Member,
-    ResolvedBasicTerm, ResolvedAnnotated {
+    VTypeScope.Member, ResolvedBasicTerm, ResolvedAnnotated {
 
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
