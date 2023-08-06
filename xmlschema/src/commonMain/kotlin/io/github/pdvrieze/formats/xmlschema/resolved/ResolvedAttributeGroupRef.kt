@@ -24,9 +24,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeG
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 class ResolvedAttributeGroupRef(
-    override val rawPart: XSAttributeGroupRef,
-    override val schema: ResolvedSchemaLike
-) : ResolvedAnnotated, ResolvedPart {
+    rawPart: XSAttributeGroupRef,
+    schema: ResolvedSchemaLike
+) : ResolvedAnnotated {
 
     override val model: Model by lazy { Model(rawPart, schema) }
 

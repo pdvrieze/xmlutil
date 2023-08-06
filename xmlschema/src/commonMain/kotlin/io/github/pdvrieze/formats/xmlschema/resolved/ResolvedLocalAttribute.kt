@@ -32,9 +32,8 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
-    override val rawPart: XSLocalAttribute,
-    schema: ResolvedSchemaLike,
-    dummy: Boolean
+    rawPart: XSLocalAttribute,
+    schema: ResolvedSchemaLike
 ) : ResolvedAttributeDef(rawPart, schema), IResolvedAttributeUse {
 
     init {
@@ -57,8 +56,7 @@ class ResolvedLocalAttribute private constructor(
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
-    override val mdlRequired: Boolean
-        get() = rawPart.use == XSAttrUse.REQUIRED
+    override val mdlRequired: Boolean = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
 
@@ -67,35 +65,18 @@ class ResolvedLocalAttribute private constructor(
         checkAttribute(checkHelper)
     }
 
-    class Model : ResolvedAttributeDef.Model {
+    class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
+        ResolvedAttributeDef.Model(rawPart, schema, typeContext) {
 
-        override val mdlQName: QName
+        override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
+            rawPart.targetNamespace ?: when {
+                (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                    schema.targetNamespace
 
-        constructor(
-            rawPart: XSLocalAttribute,
-            schema: ResolvedSchemaLike,
-            typeContext: VSimpleTypeScope.Member
-        ) : super(rawPart, schema, typeContext) {
-            this.mdlQName = invariantNotNull(rawPart.name).toQname(
-                rawPart.targetNamespace ?: when {
-                    (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                        schema.targetNamespace
+                else -> null
+            }
+        )
 
-                    else -> null
-                }
-            )
-        }
-
-        constructor(base: ResolvedLocalAttribute, schema: ResolvedSchemaLike) : super(base) {
-            this.mdlQName = invariantNotNull(base.rawPart.name).toQname(
-                base.rawPart.targetNamespace ?: when {
-                    (base.rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                        schema.targetNamespace
-
-                    else -> null
-                }
-            )
-        }
     }
 
     companion object {
@@ -105,9 +86,9 @@ class ResolvedLocalAttribute private constructor(
             schema: ResolvedSchemaLike
         ): IResolvedAttributeUse {
             return when (rawPart.use) {
-                XSAttrUse.PROHIBITED -> ResolvedProhibitedAttribute(parent, rawPart, schema)
+                XSAttrUse.PROHIBITED -> ResolvedProhibitedAttribute(rawPart, schema)
                 else -> when (rawPart.ref) {
-                    null -> ResolvedLocalAttribute(parent, rawPart, schema, false)
+                    null -> ResolvedLocalAttribute(parent, rawPart, schema)
                     else -> ResolvedAttributeRef(parent, rawPart, schema)
                 }
             }

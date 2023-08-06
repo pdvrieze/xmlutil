@@ -23,6 +23,4 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
 
 interface ResolvedPart {
-    val rawPart: XSI_OpenAttrs
-    val schema: ResolvedSchemaLike
 }

@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 class ResolvedAll(
     parent: VElementScope.Member,
-    override val rawPart: XSAll,
+    rawPart: XSAll,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(
     parent,

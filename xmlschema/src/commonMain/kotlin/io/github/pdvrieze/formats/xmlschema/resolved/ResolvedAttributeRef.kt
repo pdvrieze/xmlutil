@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedAttributeRef(
     parent: VAttributeScope.Member,
-    override val rawPart: XSLocalAttribute,
+    rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
 ) : ResolvedAttribute(rawPart, schema), IResolvedAttributeUse {
 
@@ -45,24 +45,18 @@ class ResolvedAttributeRef(
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
-    override val mdlRequired: Boolean get() = rawPart.use == XSAttrUse.REQUIRED
+    override val mdlRequired: Boolean = rawPart.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedAttributeDef
         get() = model.mdlAttributeDeclaration
 
-    override val model: Model by lazy { Model(rawPart, schema, this) }
+    override val model: Model by lazy { Model(rawPart, schema) }
 
     override fun checkUse(checkHelper: CheckHelper) {
-        val r = mdlAttributeDeclaration
-        val vc = r.mdlValueConstraint
-        if (rawPart.fixed != null && vc is ValueConstraint.Fixed) {
-            require(rawPart.fixed == vc.value) { "If an attribute reference has a fixed value it must be the same as the original" }
-        }
-
-        checkHelper.checkAttribute(r)
+        checkHelper.checkAttribute(mdlAttributeDeclaration)
     }
 
-    class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, context: ResolvedAttributeRef) :
+    class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike) :
         ResolvedAttribute.Model(rawPart) {
 
         override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
@@ -79,6 +73,13 @@ class ResolvedAttributeRef(
         val mdlAttributeDeclaration: ResolvedAttributeDef = schema.attribute(
             requireNotNull(rawPart.ref) { "Missing ref for attributeRef" }
         )
+
+        init {
+            val vc = mdlAttributeDeclaration.mdlValueConstraint
+            if (rawPart.fixed != null && vc is ValueConstraint.Fixed) {
+                require(rawPart.fixed == vc.value) { "If an attribute reference has a fixed value it must be the same as the original" }
+            }
+        }
 
         override val mdlTypeDefinition: ResolvedSimpleType get() = mdlAttributeDeclaration.mdlTypeDefinition
     }

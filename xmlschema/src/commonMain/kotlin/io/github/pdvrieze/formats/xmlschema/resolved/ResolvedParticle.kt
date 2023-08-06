@@ -28,8 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
-interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPart {
-    override val rawPart: XSI_Particle
+interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     val mdlMinOccurs: VNonNegativeInteger
     val mdlMaxOccurs: VAllNNI
@@ -65,9 +64,6 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
             else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
 
-    @Deprecated("Not needed")
-    override val schema: ResolvedSchemaLike
-
     fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         mdlTerm.checkTerm(checkHelper)
@@ -82,33 +78,6 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
     }
 
     companion object {
-        fun allMember(
-            parent: VElementScope.Member,
-            rawPart: XSI_AllParticle,
-            schema: ResolvedSchemaLike
-        ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
-            is XSAny -> ResolvedAny(rawPart, schema)
-            is XSGroupRef -> ResolvedGroupRef(
-                rawPart,
-                schema
-            )
-
-            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
-        }
-
-        fun choiceSeqMember(
-            parent: VElementScope.Member,
-            rawPart: XSI_NestedParticle,
-            schema: ResolvedSchemaLike
-        ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
-            is XSChoice -> ResolvedChoice(parent, rawPart, schema)
-            is XSAny -> ResolvedAny(rawPart, schema)
-            is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
-
-            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
-            is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-            else -> error("Compiler issue")
-        }
 
         operator fun invoke(
             parent: VElementScope.Member,
@@ -118,11 +87,6 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated, ResolvedPa
             is XSAll -> ResolvedAll(parent, rawPart, schema)
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-            is XSGroupRef -> ResolvedGroupRef(
-                rawPart,
-                schema
-            )
-
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> IResolvedElementUse(requireNotNull(parent), rawPart, schema)
