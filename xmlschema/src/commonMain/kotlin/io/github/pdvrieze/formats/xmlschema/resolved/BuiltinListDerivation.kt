@@ -20,18 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-
 class BuiltinListDerivation(
-    schema: ResolvedSchemaLike,
-    itemType: ResolvedSimpleType,
-    inheritedTypes: SingleLinkedList<ResolvedType>
-) : ResolvedListDerivationBase(null, schema, inheritedTypes) {
+    itemType: ResolvedSimpleType
+) : ResolvedListDerivationBase() {
     override val model: IModel = Model(itemType)
 
     override val rawPart : Nothing get() = throw UnsupportedOperationException("Not available for builtins")
-
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
 
 }

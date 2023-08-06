@@ -32,7 +32,6 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
-    rawPart: XSComplexType,
     final override val schema: ResolvedSchemaLike
 ) : ResolvedType,
     VAttributeScope.Member,
@@ -123,13 +122,13 @@ sealed class ResolvedComplexType(
         }
     }
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
+    override fun checkType(checkHelper: CheckHelper) {
         checkNotNull(model)
         for (attrUse in mdlAttributeUses) {
             attrUse.checkUse(checkHelper)
         }
 
-        mdlContentType.check(this, checkHelper, inheritedTypes)
+        mdlContentType.check(this, checkHelper)
 
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
@@ -275,7 +274,6 @@ sealed class ResolvedComplexType(
         parent: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : ModelBase<R>(parent, rawPart, schema) {
 
         final override val mdlContentType: ResolvedContentType
@@ -289,7 +287,7 @@ sealed class ResolvedComplexType(
             val content: XSI_ComplexContent = rawPart.simpleContent
             val derivation: XSI_ComplexDerivation
 
-            val newInheritedTypes = inheritedTypes + parent
+            val newInheritedTypes = SingleLinkedList<ResolvedType>()
 
             when (content) {
                 is XSComplexContent -> {
@@ -303,7 +301,7 @@ sealed class ResolvedComplexType(
 
                         val seenTypes = mutableSetOf<QName>()
                         seenTypes.add(base)
-                        val baseType = schema.type(base, newInheritedTypes)
+                        val baseType = schema.type(base)
 
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
                         while (b != null) {
@@ -312,13 +310,11 @@ sealed class ResolvedComplexType(
                                 (lastB.rawPart.simpleContent.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
                             b = b2?.let { b2Name ->
                                 if (lastB.mdlQName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
-//                                    val b3 = lastB.schema.originalSchema.complexTypes.single { it.name.xmlString == b2Name.localPart }
-//                                    val sa = SchemaAssociatedElement(lastB.schema.originalLocation, b3)
-//                                    ResolvedGlobalComplexType(sa, lastB.schema)
+
                                     lastB.schema.nestedComplexType(b2Name)
                                 } else {
                                     require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
-                                    schema.type(b2, newInheritedTypes) as? ResolvedGlobalComplexType
+                                    schema.type(b2) as? ResolvedGlobalComplexType
                                 }
                             }
                         }
@@ -479,12 +475,11 @@ sealed class ResolvedComplexType(
         context: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
     ) : ModelBase<R>(context, rawPart, schema),
         ResolvedSimpleContentType {
 
         final override val mdlBaseTypeDefinition: ResolvedType =
-            rawPart.simpleContent.derivation.base?.let { schema.type(it, inheritedTypes + context) } ?: AnyType
+            rawPart.simpleContent.derivation.base?.let { schema.type(it) } ?: AnyType
 
         override val mdlDerivationMethod: VDerivationControl.Complex =
             rawPart.simpleContent.derivation.derivationMethod
@@ -496,8 +491,6 @@ sealed class ResolvedComplexType(
         final override val mdlSimpleTypeDefinition: ResolvedSimpleType
 
         init {
-
-            val newInheritedTypes = inheritedTypes + context
 
             val derivation = rawPart.simpleContent.derivation
 
@@ -521,7 +514,7 @@ sealed class ResolvedComplexType(
                 complexBaseContentType is ResolvedSimpleContentType &&
                         derivation is XSSimpleContentRestriction -> { // 1
                     val b: ResolvedSimpleType =
-                        derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context, newInheritedTypes) } //1.1
+                        derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) } //1.1
                             ?: complexBaseContentType.mdlSimpleTypeDefinition // 1.2
 
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
@@ -549,8 +542,7 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = ResolvedLocalSimpleType( // simply add facets
                         XSLocalSimpleType(XSSimpleRestriction(sb, derivation.facets)),
                         schema,
-                        context,
-                        newInheritedTypes
+                        context
                     )
                 }
 
@@ -568,31 +560,23 @@ sealed class ResolvedComplexType(
 
         override fun check(
             complexType: ResolvedComplexType,
-            checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            checkHelper: CheckHelper
         ) {
-
-            val inherited =
-                (complexType as? ResolvedGlobalComplexType)?.let { inheritedTypes + it } ?: inheritedTypes
-
-            checkHelper.checkType(mdlBaseTypeDefinition, inherited)
-
+            checkHelper.checkType(mdlBaseTypeDefinition)
         }
     }
 
     interface ResolvedContentType : VContentType {
         fun check(
             complexType: ResolvedComplexType,
-            checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            checkHelper: CheckHelper
         )
     }
 
     object EmptyContentType : VContentType.Empty, ResolvedContentType {
         override fun check(
             complexType: ResolvedComplexType,
-            checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            checkHelper: CheckHelper
         ) {
         }
     }
@@ -615,8 +599,7 @@ sealed class ResolvedComplexType(
 
         override fun check(
             complexType: ResolvedComplexType,
-            checkHelper: CheckHelper,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            checkHelper: CheckHelper
         ) {
             fun collectElements(
                 term: ResolvedTerm,

@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
 
 interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
@@ -31,17 +30,16 @@ interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
     companion object {
         operator fun invoke(
             rawPart: XSGlobalSimpleType,
-            schema: ResolvedSchemaLike,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            schema: ResolvedSchemaLike
         ): ResolvedGlobalSimpleType {
-            return ResolvedGlobalSimpleTypeImpl(rawPart, schema, inheritedTypes)
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
         }
+
         internal operator fun invoke(
             rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
-            schema: ResolvedSchemaLike,
-            inheritedTypes: SingleLinkedList<ResolvedType>
+            schema: ResolvedSchemaLike
         ): ResolvedGlobalSimpleType {
-            return ResolvedGlobalSimpleTypeImpl(rawPart, schema, inheritedTypes)
+            return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
         }
     }
 }

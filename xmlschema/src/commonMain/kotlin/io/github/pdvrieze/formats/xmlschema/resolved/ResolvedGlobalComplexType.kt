@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
@@ -30,15 +29,13 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGlobalComplexType(
     override val rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
-    val location: String,
-    inheritedTypes: SingleLinkedList<ResolvedType>
-) : ResolvedGlobalType, ResolvedComplexType(rawPart, schema) {
+    val location: String
+) : ResolvedGlobalType, ResolvedComplexType(schema) {
 
     internal constructor(
         rawPart: SchemaAssociatedElement<XSGlobalComplexType>,
-        schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) : this(rawPart.element, schema, rawPart.schemaLocation, inheritedTypes)
+        schema: ResolvedSchemaLike
+    ) : this(rawPart.element, schema, rawPart.schemaLocation)
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
@@ -50,9 +47,9 @@ class ResolvedGlobalComplexType(
 
     override val model: Model<out XSGlobalComplexType> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
-            is XSGlobalComplexTypeComplex -> ComplexModel(this, r, schema, inheritedTypes)
-            is XSGlobalComplexTypeShorthand -> ShorthandModel(this, r, schema, inheritedTypes)
-            is XSGlobalComplexTypeSimple -> SimpleModel(this, r, schema, inheritedTypes)
+            is XSGlobalComplexTypeComplex -> ComplexModel(this, r, schema)
+            is XSGlobalComplexTypeShorthand -> ShorthandModel(this, r, schema)
+            is XSGlobalComplexTypeSimple -> SimpleModel(this, r, schema)
         }
 
     }
@@ -77,8 +74,7 @@ class ResolvedGlobalComplexType(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeSimple,
         schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
-    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, rawPart, schema, inheritedTypes),
+    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, rawPart, schema),
         Model<XSGlobalComplexTypeSimple> {
         override val mdlName: VNCName = rawPart.name
         override val mdlContext: VComplexTypeScope.Member = parent
@@ -94,8 +90,7 @@ class ResolvedGlobalComplexType(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
-    ) : ComplexModelBase<XSGlobalComplexTypeShorthand>(parent, rawPart, schema, inheritedTypes),
+    ) : ComplexModelBase<XSGlobalComplexTypeShorthand>(parent, rawPart, schema),
         Model<XSGlobalComplexTypeShorthand> {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false
@@ -110,8 +105,7 @@ class ResolvedGlobalComplexType(
         parent: ResolvedComplexType,
         rawPart: XSGlobalComplexTypeComplex,
         schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
-    ) : ComplexModelBase<XSGlobalComplexTypeComplex>(parent, rawPart, schema, inheritedTypes),
+    ) : ComplexModelBase<XSGlobalComplexTypeComplex>(parent, rawPart, schema),
         Model<XSGlobalComplexTypeComplex> {
         override val mdlName: VNCName = rawPart.name
         override val mdlAbstract: Boolean = rawPart.abstract ?: false

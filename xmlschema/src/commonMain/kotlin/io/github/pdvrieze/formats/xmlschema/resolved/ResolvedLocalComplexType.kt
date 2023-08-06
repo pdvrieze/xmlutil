@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -29,8 +28,7 @@ class ResolvedLocalComplexType(
     override val rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
     context: VComplexTypeScope.Member,
-    inheritedTypes: SingleLinkedList<ResolvedType>,
-) : ResolvedComplexType(rawPart, schema), ResolvedLocalType,
+) : ResolvedComplexType(schema), ResolvedLocalType,
     VSimpleTypeScope.Member {
 
     override val mdlScope: VComplexTypeScope.Local = VComplexTypeScope.Local(context)
@@ -38,9 +36,9 @@ class ResolvedLocalComplexType(
 
     override val model: Model<*> by lazy {
         when (val raw = rawPart) {
-            is XSLocalComplexTypeComplex -> ComplexModel(raw, schema, this, mdlContext, inheritedTypes)
-            is XSLocalComplexTypeShorthand -> ShorthandModel(raw, schema, this, mdlContext, inheritedTypes)
-            is XSLocalComplexTypeSimple -> SimpleModel(raw, schema, this, mdlContext, inheritedTypes)
+            is XSLocalComplexTypeComplex -> ComplexModel(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeShorthand -> ShorthandModel(raw, schema, this, mdlContext)
+            is XSLocalComplexTypeSimple -> SimpleModel(raw, schema, this, mdlContext)
             else -> error("XSLocalComplexType should be sealed")
         }
     }
@@ -63,8 +61,7 @@ class ResolvedLocalComplexType(
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
         override val mdlContext: VComplexTypeScope.Member,
-        inheritedTypes: SingleLinkedList<ResolvedType>,
-    ) : SimpleModelBase<XSLocalComplexTypeSimple>(parent, rawPart, schema, inheritedTypes),
+    ) : SimpleModelBase<XSLocalComplexTypeSimple>(parent, rawPart, schema),
         Model<XSLocalComplexTypeSimple> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
@@ -77,9 +74,8 @@ class ResolvedLocalComplexType(
         rawPart: XSLocalComplexTypeShorthand,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
-        override val mdlContext: VComplexTypeScope.Member,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) : ComplexModelBase<XSLocalComplexTypeShorthand>(parent, rawPart, schema, inheritedTypes),
+        override val mdlContext: VComplexTypeScope.Member
+    ) : ComplexModelBase<XSLocalComplexTypeShorthand>(parent, rawPart, schema),
         Model<XSLocalComplexTypeShorthand> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
@@ -92,9 +88,8 @@ class ResolvedLocalComplexType(
         rawPart: XSLocalComplexTypeComplex,
         schema: ResolvedSchemaLike,
         parent: ResolvedComplexType,
-        override val mdlContext: VComplexTypeScope.Member,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) : ComplexModelBase<XSLocalComplexTypeComplex>(parent, rawPart, schema, inheritedTypes),
+        override val mdlContext: VComplexTypeScope.Member
+    ) : ComplexModelBase<XSLocalComplexTypeComplex>(parent, rawPart, schema),
         Model<XSLocalComplexTypeComplex> {
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =

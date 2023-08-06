@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -36,7 +35,7 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
 
     override val mdlScope: VSimpleTypeScope.Global get() = super<ResolvedBuiltinType>.mdlScope
 
-    override fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) = Unit
+    override fun checkType(checkHelper: CheckHelper) = Unit
 
     override val mdlFinal: Set<VDerivationControl.Type>
         get() = super<ResolvedBuiltinType>.mdlFinal

@@ -111,7 +111,7 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
                 "ID types can not have fixed values"
             }
         }
-        mdlTypeDefinition.checkType(checkHelper)
+        checkHelper.checkType(mdlTypeDefinition)
     }
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
