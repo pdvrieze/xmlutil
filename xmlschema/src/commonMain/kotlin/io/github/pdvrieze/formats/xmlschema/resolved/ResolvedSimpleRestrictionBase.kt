@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -30,10 +29,8 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 abstract class ResolvedSimpleRestrictionBase(
-    rawPart: XSSimpleRestriction?,
-    schema: ResolvedSchemaLike,
-    inheritedTypes: SingleLinkedList<ResolvedType>
-) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
+    rawPart: XSSimpleRestriction?
+) : ResolvedSimpleType.Derivation() {
     abstract override val rawPart: XSSimpleRestriction
     abstract override val model: IModel
 
@@ -51,11 +48,8 @@ abstract class ResolvedSimpleRestrictionBase(
         }
     }
 
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
-        val baseName = (baseType as? ResolvedGlobalType)?.mdlQName
-        check(baseType !in inheritedTypes.dropLastOrEmpty()) { "Indirect recursive use of simple base types: $baseName in ${inheritedTypes.last()}"}
-
-        checkHelper.checkType(baseType, inheritedTypes)
+    override fun checkDerivation(checkHelper: CheckHelper) {
+        checkHelper.checkType(baseType)
     }
 
     interface IModel: ResolvedAnnotated.IModel {
@@ -99,18 +93,16 @@ abstract class ResolvedSimpleRestrictionBase(
             schema: ResolvedSchemaLike,
             annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart.annotation.models()),
             context: ResolvedSimpleType,
-            inheritedTypes: SingleLinkedList<ResolvedType>,
         ) : this(
             rawPart,
             schema,
             rawPart.base?.let {
                 require(rawPart.simpleType == null) { "Restriction can only specify base or simpleType, not both" }
-                schema.simpleType(it, inheritedTypes)
+                schema.simpleType(it)
             } ?: ResolvedLocalSimpleType(
                 requireNotNull(rawPart.simpleType) { "Restrictions must have a base" },
                 schema,
-                context,
-                inheritedTypes
+                context
             ),
             annotations)
 

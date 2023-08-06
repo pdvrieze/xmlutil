@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -30,11 +29,10 @@ class ResolvedUnionDerivation(
     override val rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
     context: ResolvedSimpleType,
-    inheritedTypes: SingleLinkedList<ResolvedType>,
-) : ResolvedSimpleType.Derivation(rawPart, schema, inheritedTypes) {
+) : ResolvedSimpleType.Derivation() {
 
     private val _model: Model by lazy {
-        Model(rawPart, schema, context, inheritedTypes)
+        Model(rawPart, schema, context)
     }
     override val model: ResolvedAnnotated.IModel get() = _model
 
@@ -42,10 +40,10 @@ class ResolvedUnionDerivation(
 
     val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes
 
-    override fun checkDerivation(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType>) {
+    override fun checkDerivation(checkHelper: CheckHelper) {
         require(memberTypes.isNotEmpty()) { "Union without elements" }
         for (m in memberTypes) {
-            checkHelper.checkType(m, inheritedTypes)
+            checkHelper.checkType(m)
 
             check(VDerivationControl.UNION !in m.mdlFinal) {
                 "$m is final for union, and can not be put in a union"
@@ -70,16 +68,15 @@ class ResolvedUnionDerivation(
     private class Model(
         rawPart: XSSimpleUnion,
         schema: ResolvedSchemaLike,
-        context: ResolvedSimpleType,
-        inheritedTypes: SingleLinkedList<ResolvedType>
+        context: ResolvedSimpleType
     ) : ResolvedAnnotated.Model(rawPart) {
         val memberTypes: List<ResolvedSimpleType>
 
         init {
-            val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it, schema, context, inheritedTypes) }
+            val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it, schema, context) }
 
             val mt = rawPart.memberTypes?.map {
-                schema.simpleType(it, inheritedTypes)
+                schema.simpleType(it)
             }
 
             memberTypes = when {

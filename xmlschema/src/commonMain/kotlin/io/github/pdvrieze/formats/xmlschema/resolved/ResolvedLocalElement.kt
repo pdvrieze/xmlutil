@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
@@ -119,7 +118,7 @@ class ResolvedLocalElement private constructor(
             get() = TODO("not implemented")
 
         override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context, SingleLinkedList()) }
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
                 ?: AnyType
     }

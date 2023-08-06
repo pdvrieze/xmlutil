@@ -45,7 +45,7 @@ class ResolvedGlobalElement(
         rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
 
     val typeDef: ResolvedType by lazy {
-        rawPart.localType?.let { ResolvedLocalType(it, schema, this, SingleLinkedList()) }
+        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
             ?: rawPart.type?.let {
                 schema.type(it)
             }
@@ -69,7 +69,8 @@ class ResolvedGlobalElement(
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
-        mdlTypeDefinition.checkType(checkHelper, SingleLinkedList())
+        checkHelper.checkType(mdlTypeDefinition)
+
         if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }
@@ -151,7 +152,7 @@ class ResolvedGlobalElement(
         override val mdlTypeTable: ITypeTable? get() = null
 
         override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context, SingleLinkedList()) }
+            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
                 ?: rawPart.substitutionGroup?.firstOrNull()
                     ?.let { schema.element(it).mdlTypeDefinition }

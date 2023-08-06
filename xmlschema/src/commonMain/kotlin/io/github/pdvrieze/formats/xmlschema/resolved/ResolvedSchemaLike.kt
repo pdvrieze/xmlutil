@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
@@ -55,12 +54,6 @@ abstract class ResolvedSchemaLike {
 
     abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
-    fun simpleType(typeName: QName, inheritedTypes: SingleLinkedList<ResolvedType>) : ResolvedGlobalSimpleType {
-        return simpleType(typeName).also {
-            require(it !in inheritedTypes) { "Recursive derivation of type $typeName" }
-        }
-    }
-
     fun simpleType(typeName: QName): ResolvedGlobalSimpleType = when (typeName.namespaceURI) {
         XmlSchemaConstants.XS_NAMESPACE -> maybeSimpleType(typeName)
             ?: BuiltinSchemaXmlschema.maybeSimpleType(typeName)
@@ -68,12 +61,6 @@ abstract class ResolvedSchemaLike {
         targetNamespace?.value -> maybeSimpleType(typeName)
         else -> maybeSimpleType(typeName)
     } ?: throw NoSuchElementException("No simple type with name $typeName found")
-
-    fun type(typeName: QName, inheritedTypes: SingleLinkedList<ResolvedType>) : ResolvedGlobalType {
-        return type(typeName).also {
-            require(it !in inheritedTypes) { "Recursive derivation of type $typeName" }
-        }
-    }
 
     fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {
         targetNamespace?.value -> when (typeName.namespaceURI) {

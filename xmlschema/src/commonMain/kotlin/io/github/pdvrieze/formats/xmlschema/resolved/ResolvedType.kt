@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIType
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -35,7 +34,7 @@ sealed interface ResolvedType : ResolvedAnnotated {
     @Deprecated("Not needed")
     val schema: ResolvedSchemaLike
 
-    fun checkType(checkHelper: CheckHelper, inheritedTypes: SingleLinkedList<ResolvedType> = SingleLinkedList())
+    fun checkType(checkHelper: CheckHelper)
 
     fun validate(representation: VString)
 

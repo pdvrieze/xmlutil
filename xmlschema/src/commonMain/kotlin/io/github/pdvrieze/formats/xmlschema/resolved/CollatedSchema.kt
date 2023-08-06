@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
@@ -305,7 +304,7 @@ internal class CollatedSchema(
             val localName = typeName.localPart
             return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
                 val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalSimpleType(sa, base, SingleLinkedList())
+                ResolvedGlobalSimpleType(sa, base)
             } ?: nestedRedefine?.nestedSimpleType(typeName)
             ?: error("Nested simple type with name $typeName could not be found")
         }
@@ -316,7 +315,7 @@ internal class CollatedSchema(
             val localName = typeName.localPart
             return originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
                 val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalComplexType(sa, nestedRedefine ?: base, SingleLinkedList())
+                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
             } ?: nestedRedefine?.nestedComplexType(typeName)
             ?: error("No nested complex type with name $typeName")
         }
@@ -328,10 +327,10 @@ internal class CollatedSchema(
             val localName = typeName.localPart
             return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
                 val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalSimpleType(sa, base, SingleLinkedList())
+                ResolvedGlobalSimpleType(sa, base)
             } ?: originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
                 val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalComplexType(sa, nestedRedefine ?: base, SingleLinkedList())
+                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
             } ?: nestedRedefine?.nestedType(typeName)
             ?: error("No nested type with name $typeName")
         }

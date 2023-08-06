@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
@@ -148,10 +147,10 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
                     checkHelper.checkAttribute(a)
                 }
                 for (t in data.simpleTypes.values) {
-                    checkHelper.checkType(t, SingleLinkedList())
+                    checkHelper.checkType(t)
                 }
                 for (t in data.complexTypes.values) {
-                    checkHelper.checkType(t, SingleLinkedList())
+                    checkHelper.checkType(t)
                 }
                 for (g in data.groups.values) {
                     checkHelper.checkGroup(g)
@@ -247,12 +246,12 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
             simpleTypes =
                 DelegateMap(targetNamespace.value, source.simpleTypes) { (s, v) ->
-                    ResolvedGlobalSimpleType(v, s, SingleLinkedList())
+                    ResolvedGlobalSimpleType(v, s)
                 }
 
             complexTypes =
                 DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) ->
-                    ResolvedGlobalComplexType(v, s, SingleLinkedList()) }
+                    ResolvedGlobalComplexType(v, s) }
 
             groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
 

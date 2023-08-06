@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.checking
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 
@@ -35,21 +34,18 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkHelper get() = this
 
     fun checkType(name: QName) {
-        checkType(schema.type(name), SingleLinkedList())
+        checkType(schema.type(name))
     }
 
-    fun checkType(type: ResolvedType, inheritedTypes: SingleLinkedList<ResolvedType>) {
+    fun checkType(type: ResolvedType) {
         when (type) {
             is ResolvedGlobalType -> {
                 if (checkedTypes.add(type)) {
-                    require(type !in inheritedTypes) {
-                        "Recursive presence of ${type.mdlQName}"
-                    }
-                    type.checkType(this, inheritedTypes)
+                    type.checkType(this)
                 }
             }
 
-            else -> type.checkType(this, inheritedTypes)
+            else -> type.checkType(this)
         }
     }
 

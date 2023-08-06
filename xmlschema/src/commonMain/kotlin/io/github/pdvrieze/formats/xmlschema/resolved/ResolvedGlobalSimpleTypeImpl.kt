@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
@@ -29,15 +27,13 @@ import nl.adaptivity.xmlutil.QName
 class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val rawPart: XSGlobalSimpleType,
     override val schema: ResolvedSchemaLike,
-    inheritedTypes: SingleLinkedList<ResolvedType>,
     val location: String = "",
 ) : ResolvedGlobalSimpleType {
 
     internal constructor(
         rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
-        schema: ResolvedSchemaLike,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) : this(rawPart.element, schema, inheritedTypes, rawPart.schemaLocation)
+        schema: ResolvedSchemaLike
+    ) : this(rawPart.element, schema, rawPart.schemaLocation)
 
     init {
         check(rawPart.name.isNotEmpty()) { "Empty names are forbidden" }
@@ -48,13 +44,13 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final
 
     override val simpleDerivation: ResolvedSimpleType.Derivation = when (val raw = rawPart.simpleDerivation) {
-        is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this, inheritedTypes + this)
-        is XSSimpleList -> ResolvedListDerivation(raw, schema, this, inheritedTypes + this)
-        is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this, inheritedTypes + this)
+        is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
+        is XSSimpleList -> ResolvedListDerivation(raw, schema, this)
+        is XSSimpleRestriction -> ResolvedSimpleRestriction(raw, schema, this)
         else -> error("unsupported derivation")
     }
 
-    override val model: Model by lazy { ModelImpl(rawPart, schema, this, inheritedTypes) }
+    override val model: Model by lazy { ModelImpl(rawPart, schema, this) }
 
     override fun toString(): String = "simpleType($mdlQName)"
 
@@ -64,13 +60,6 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     private class ModelImpl(
         rawPart: XSGlobalSimpleType,
         schema: ResolvedSchemaLike,
-        context: ResolvedGlobalSimpleTypeImpl,
-        inheritedTypes: SingleLinkedList<ResolvedType>
-    ) : ResolvedSimpleType.ModelBase(rawPart, schema, context, inheritedTypes), Model {
-
-        init {
-            check(true) 
-        }
-
-    }
+        context: ResolvedGlobalSimpleTypeImpl
+    ) : ResolvedSimpleType.ModelBase(rawPart, schema, context), Model
 }
