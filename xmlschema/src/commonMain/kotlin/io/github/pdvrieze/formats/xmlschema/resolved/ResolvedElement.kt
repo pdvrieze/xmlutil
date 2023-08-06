@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
-sealed class ResolvedElement(rawPart: XSElement, final override val schema: ResolvedSchemaLike) :
+sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     VTypeScope.Member, ResolvedBasicTerm, ResolvedAnnotated {
 
 
@@ -46,8 +46,6 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
 
     }
 
-    abstract override val rawPart: XSElement
-
     abstract override val model: Model
 
     abstract val mdlQName: QName
@@ -64,7 +62,7 @@ sealed class ResolvedElement(rawPart: XSElement, final override val schema: Reso
 
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
 
-    val mdlDisallowedSubstitutions: VBlockSet get() = (rawPart.block ?: schema.blockDefault)
+    val mdlDisallowedSubstitutions: VBlockSet = (rawPart.block ?: schema.blockDefault)
 
     abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
 

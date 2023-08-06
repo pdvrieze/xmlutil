@@ -24,11 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFra
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedFractionDigits(override val rawPart: XSFractionDigits, schema: ResolvedSchemaLike) :
+class ResolvedFractionDigits(rawPart: XSFractionDigits, schema: ResolvedSchemaLike) :
     ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    val value: ULong get() = rawPart.value
+    val value: ULong = rawPart.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

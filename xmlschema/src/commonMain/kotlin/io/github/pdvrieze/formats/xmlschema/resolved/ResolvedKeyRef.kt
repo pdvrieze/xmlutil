@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.QName
 sealed interface ResolvedKeyRef : ResolvedIdentityConstraint {
     override fun checkConstraint(checkHelper: CheckHelper)
 
-    override val rawPart: XSKeyRef
     val refer: QName?
 
     val mdlReferencedKey: ResolvedReferenceableConstraint

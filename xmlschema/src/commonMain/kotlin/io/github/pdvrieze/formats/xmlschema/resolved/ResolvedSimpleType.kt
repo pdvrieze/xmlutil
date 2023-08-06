@@ -41,7 +41,7 @@ import nl.adaptivity.xmlutil.*
 
 sealed interface ResolvedSimpleType : ResolvedType,
     VSimpleTypeScope.Member {
-    override val rawPart: XSISimpleType
+    override val rawPart: XSISimpleType?
 
     override val mdlScope: VSimpleTypeScope
 
@@ -78,7 +78,8 @@ sealed interface ResolvedSimpleType : ResolvedType,
                     is VPrefixString -> v.toQName()
                     else -> QName(enum.value.xmlString)
                 }
-                schema.notation(name)
+                // TODO (have notations resolved
+                checkHelper.checkNotation(name)
             }
         }
 
@@ -363,7 +364,7 @@ sealed interface ResolvedSimpleType : ResolvedType,
 
 //                if (name in seenTypes) error("Indirect recursive use of simple base types: $name in $container")
 
-                val simpleDerivation: XSSimpleDerivation = startType.rawPart.simpleDerivation
+                val simpleDerivation: XSSimpleDerivation = startType.rawPart!!.simpleDerivation
                 when (simpleDerivation){
                     is XSSimpleUnion -> {
                         val newSeen = name?.let { seenTypes + it } ?: seenTypes
