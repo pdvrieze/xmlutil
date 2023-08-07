@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -41,12 +41,14 @@ sealed class VXPathDefaultNamespace {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("xpathDefaultNamespace", PrimitiveKind.STRING)
 
-        override fun serialize(encoder: Encoder, value: VXPathDefaultNamespace) = encoder.encodeString(when (value) {
-            DEFAULTNAMESPACE -> "##defaultNamespace"
-            TARGETNAMESPACE -> "##targetNamespace"
-            LOCAL -> "##local"
-            is Uri -> value.value.value
-        })
+        override fun serialize(encoder: Encoder, value: VXPathDefaultNamespace) = encoder.encodeString(
+            when (value) {
+                DEFAULTNAMESPACE -> "##defaultNamespace"
+                TARGETNAMESPACE -> "##targetNamespace"
+                LOCAL -> "##local"
+                is Uri -> value.value.value
+            }
+        )
 
         override fun deserialize(decoder: Decoder): VXPathDefaultNamespace = when (val str = decoder.decodeString()){
             "##defaultNamespace" -> DEFAULTNAMESPACE

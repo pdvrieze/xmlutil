@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
@@ -100,10 +100,10 @@ sealed interface ResolvedSimpleType : ResolvedType,
     }
 
     override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
-        when (other) {
-            is ResolvedSimpleType -> return isValidlyDerivedFrom(other)
-            is ResolvedComplexType -> return isValidlyDerivedFrom(other)
-            else -> return false
+        return when (other) {
+            is ResolvedSimpleType -> isValidlyDerivedFrom(other)
+            is ResolvedComplexType -> isValidlyDerivedFrom(other)
+            else -> error("unreachable")
         }
     }
 
@@ -178,7 +178,6 @@ sealed interface ResolvedSimpleType : ResolvedType,
         final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
 
         init {
-            val newInheritedTypes = SingleLinkedList<ResolvedType>()
 
             val typeName =
                 (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }

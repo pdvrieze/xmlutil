@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -62,12 +62,6 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
                 is Value -> toULong().compareTo(other.toULong())
             }
         }
-
-/*
-        override operator fun compareTo(other: VAllNNI.Value): Int {
-            return toULong().compareTo(other.toULong())
-        }
-*/
 
         override operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger = when (other) {
             is Value -> Value(value + other.value)

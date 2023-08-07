@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -33,16 +33,11 @@ import kotlinx.serialization.encoding.Encoder
 sealed class VNamespaceList {
     object ANY : VNamespaceList()
     object OTHER : VNamespaceList()
-    class Values(val values: List<Elem>) : VNamespaceList(), List<Elem> by values {
-/*
-        constructor(values: List<String>) : this(values.map { Elem.fromString(it) })
-        constructor(values: List<AnyURI>) : this(values.map { Uri(it) })
-*/
-    }
+    class Values(val values: List<Elem>) : VNamespaceList(), List<Elem> by values
 
     sealed class Elem {
         companion object {
-            fun fromString(string: String) = when (string) {
+            fun fromString(string: String): Elem = when (string) {
                 "##targetNamespace" -> TARGETNAMESPACE
                 "##local" -> LOCAL
                 else -> Uri(VAnyURI(string))
@@ -79,9 +74,9 @@ sealed class VNamespaceList {
                 "##other" -> OTHER
                 else -> {
                     Values(str.splitToSequence(' ')
-                               .filter { it.isNotEmpty() }
-                               .map { Elem.fromString(it) }
-                               .toList())
+                        .filter { it.isNotEmpty() }
+                        .map { Elem.fromString(it) }
+                        .toList())
                 }
             }
         }

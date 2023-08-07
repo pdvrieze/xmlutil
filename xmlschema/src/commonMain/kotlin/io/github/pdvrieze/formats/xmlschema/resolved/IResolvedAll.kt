@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 interface IResolvedAll : ResolvedModelGroup {
@@ -64,4 +65,20 @@ interface IResolvedAll : ResolvedModelGroup {
         }
         return true
     }
+
+    override fun flatten(range: AllNNIRange): FlattenedGroup.All {
+        val newParticles = mutableListOf<FlattenedParticle>()
+        for (p in mdlParticles) {
+            when (val t: ResolvedTerm = p.mdlTerm) {
+                is IResolvedAll -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+
+                is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
+
+                is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+            }
+
+        }
+        return FlattenedGroup.All(range, newParticles)
+    }
+
 }

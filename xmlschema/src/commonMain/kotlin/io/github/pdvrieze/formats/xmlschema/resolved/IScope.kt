@@ -65,7 +65,7 @@ sealed class VComplexTypeScope : VTypeScope {
 
     class Local(override val parent: Member) : VComplexTypeScope(), VTypeScope.Local
 
-    interface Member: VTypeScope.MemberBase
+    interface Member : VTypeScope.MemberBase
 }
 
 sealed class VSimpleTypeScope : VTypeScope {

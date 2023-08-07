@@ -21,12 +21,28 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 
 interface IResolvedChoice : ResolvedModelGroup {
 
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
+
+    override fun flatten(range: AllNNIRange): FlattenedGroup.Choice {
+        val newParticles = mutableListOf<FlattenedParticle>()
+        for (p in mdlParticles) {
+            when (val t: ResolvedTerm = p.mdlTerm) {
+                is IResolvedChoice -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+
+                is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
+
+                is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+            }
+
+        }
+        return FlattenedGroup.Choice(range, newParticles)
+    }
 
     override fun restricts(general: ResolvedModelGroup): Boolean {
         TODO("not implemented")

@@ -47,7 +47,6 @@ class ResolvedIndirectKey(
     override val constraint: ResolvedIndirectKey
         get() = this
 
-    override fun checkConstraint(checkHelper: CheckHelper) {
-    }
+    override fun checkConstraint(checkHelper: CheckHelper) {}
 
 }

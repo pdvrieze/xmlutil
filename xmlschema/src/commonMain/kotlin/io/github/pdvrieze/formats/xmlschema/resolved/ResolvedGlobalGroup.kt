@@ -25,8 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalGroup(
-    override val rawPart: XSGroup,
-    override val schema: ResolvedSchemaLike,
+    rawPart: XSGroup,
+    schema: ResolvedSchemaLike,
     val location: String,
 ) : ResolvedGroupBase, ResolvedAnnotated, VElementScope.Member, NamedPart {
     override val model: ResolvedAnnotated.Model by lazy { ResolvedAnnotated.Model(rawPart) }

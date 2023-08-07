@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -44,13 +44,12 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
         }
     }
 
-    abstract class Model : ResolvedAttribute.Model {
+    abstract class Model(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
+        ResolvedAttribute.Model(rawPart) {
 
         final override val mdlTypeDefinition: ResolvedSimpleType
 
-        constructor(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) : super(
-            rawPart
-        ) {
+        init {
             this.mdlTypeDefinition = rawPart.simpleType?.let {
                 require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
                 ResolvedLocalSimpleType(it, schema, typeContext)
