@@ -30,6 +30,14 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     abstract fun flatten(range: AllNNIRange): FlattenedGroup
 
+
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        mdlParticles.forEach { particle ->
+            particle.mdlTerm.takeIf { it!is ResolvedGlobalElement }?.collectConstraints(collector)
+        }
+    }
+
+
     override fun checkTerm(checkHelper: CheckHelper) {
         for(particle in mdlParticles) {
             particle.checkParticle(checkHelper)

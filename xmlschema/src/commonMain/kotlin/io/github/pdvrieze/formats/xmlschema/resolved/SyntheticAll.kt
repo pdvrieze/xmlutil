@@ -32,6 +32,4 @@ class SyntheticAll(
 
     override val mdlTerm: SyntheticAll get() = this
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
-
 }
