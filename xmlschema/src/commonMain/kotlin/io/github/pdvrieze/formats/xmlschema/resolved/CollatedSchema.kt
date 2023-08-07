@@ -77,8 +77,11 @@ internal class CollatedSchema(
                             require(! schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
                             ChameleonWrapper(schemaLike, schemaNamespace)
                         }
+
                         importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
+
                         importTargetNamespace.isEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
+
                         else -> {
                             require(importNamespace == importTargetNamespace) {
                                 "Renaming can only be done with an import with a null targetNamespace"
@@ -131,7 +134,7 @@ internal class CollatedSchema(
                     rawInclude,
                     relativeResolver,
                     chameleonSchema,
-                    chameleonNamespace.toString(),
+                    chameleonNamespace,
                     includedUrls
                 )
                 for ((_, nestedImport) in includedSchema.importedSchemas) {
