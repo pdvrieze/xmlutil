@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 class SyntheticAll(
@@ -33,6 +32,6 @@ class SyntheticAll(
 
     override val mdlTerm: SyntheticAll get() = this
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
 
 }
