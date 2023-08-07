@@ -112,7 +112,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         checkHelper.checkType(mdlTypeDefinition)
     }
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         collector.addAll(mdlIdentityConstraints)
         (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }

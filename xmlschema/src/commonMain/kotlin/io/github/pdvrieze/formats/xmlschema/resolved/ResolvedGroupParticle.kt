@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexType.ResolvedDirectParticle<T>,
     ResolvedParticle<T> {
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
 
     companion object {
 

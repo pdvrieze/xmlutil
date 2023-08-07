@@ -21,10 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 class SyntheticSequence(
     override val mdlMinOccurs: VNonNegativeInteger,
@@ -38,7 +35,7 @@ class SyntheticSequence(
 
     override val mdlTerm: SyntheticSequence get() = this
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
 

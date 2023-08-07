@@ -90,7 +90,7 @@ class ResolvedGlobalGroup(
     private class AllImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.All, schema: ResolvedSchemaLike) :
         ModelGroupBase(parent, rawPart, schema), IResolvedAll {
 
-        override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
                 if (p is ResolvedTerm) {
                     p.collectConstraints(collector)
@@ -108,7 +108,7 @@ class ResolvedGlobalGroup(
         ModelGroupBase(parent, rawPart, schema),
         IResolvedChoice {
 
-        override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
                 if (p is ResolvedTerm) {
                     p.collectConstraints(collector)
@@ -127,7 +127,7 @@ class ResolvedGlobalGroup(
         rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
     ) : ModelGroupBase(parent, rawPart, schema), IResolvedSequence {
 
-        override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
             for (p in mdlParticles) {
                 if (p is ResolvedTerm) {
                     p.collectConstraints(collector)
