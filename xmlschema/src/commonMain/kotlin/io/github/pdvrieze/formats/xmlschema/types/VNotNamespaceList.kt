@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -36,7 +36,7 @@ class VNotNamespaceList(private val values: List<Elem>) : List<VNotNamespaceList
 
     sealed class Elem {
         companion object {
-            fun fromString(string: String) = when (string) {
+            fun fromString(string: String): Elem = when (string) {
                 "##targetNamespace" -> TARGETNAMESPACE
                 "##local" -> LOCAL
                 else -> Uri(VAnyURI(string))

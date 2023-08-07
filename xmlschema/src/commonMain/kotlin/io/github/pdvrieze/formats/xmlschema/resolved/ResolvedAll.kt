@@ -42,6 +42,5 @@ class ResolvedAll(
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
     }
-
 }
 

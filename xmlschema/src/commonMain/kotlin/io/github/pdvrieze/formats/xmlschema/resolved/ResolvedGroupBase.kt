@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,15 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
-
 /**
  * Base class for any resolved group related type
  */
 sealed interface ResolvedGroupBase : ResolvedAnnotated {
-    abstract val rawPart: XSI_Annotated
-
-    @Deprecated("Not needed")
-    val schema: ResolvedSchemaLike
 
 }

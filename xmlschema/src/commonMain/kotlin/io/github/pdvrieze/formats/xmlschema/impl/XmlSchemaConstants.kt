@@ -19,7 +19,7 @@
  */
 
 
-package io.github.pdvrieze.formats.xmlschema
+package io.github.pdvrieze.formats.xmlschema.impl
 
 object XmlSchemaConstants {
     const val XPATH_FUNCTIONS_PREFIX="fn"

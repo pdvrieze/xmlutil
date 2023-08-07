@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
-class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : ResolvedSchemaLike() {
+class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
 
@@ -136,7 +136,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
     fun check() {
         val checkHelper = CheckHelper(this)
-        val checkedTypes = HashSet<QName>()
+
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
             if (data is NestedData) {
@@ -251,7 +251,8 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
 
             complexTypes =
                 DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) ->
-                    ResolvedGlobalComplexType(v, s) }
+                    ResolvedGlobalComplexType(v, s)
+                }
 
             groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
 
@@ -271,7 +272,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
             val map = HashMap<String, ResolvedIdentityConstraint>()
             for (c in identityConstraintList) {
                 val qName = c.mdlQName
-                if (qName!=null) {
+                if (qName != null) {
                     require(map.put(qName.localPart, c) == null) {
                         "Duplicate identity constraint: $qName"
                     }
@@ -313,7 +314,7 @@ class ResolvedSchema(val rawPart: XSSchema, private val resolver: Resolver) : Re
         }
 
         override fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> {
-            return elements.values.filterTo(HashSet<ResolvedGlobalElement>()) { elem ->
+            return elements.values.filterTo(HashSet()) { elem ->
                 elem.substitutionGroups?.any {
                     targetNamespace.value == it.namespaceURI && it.localPart == headName
                 } == true

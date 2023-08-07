@@ -52,12 +52,6 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
             is XSKeyRef -> ResolvedKeyRef(rawPart, schema, context)
         }
 
-        fun Ref(
-            owner: ResolvedElement,
-            constraint: ResolvedIdentityConstraint
-        ): ResolvedIdentityConstraint {
-            return constraint
-        }
     }
 
     enum class Category { KEY, KEYREF, UNIQUE }

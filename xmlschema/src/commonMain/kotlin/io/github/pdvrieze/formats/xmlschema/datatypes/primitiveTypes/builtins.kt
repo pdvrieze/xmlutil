@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
@@ -326,7 +326,7 @@ object DateTimeType : PrimitiveDatatype("dateTime", XmlSchemaConstants.XS_NAMESP
     override fun value(representation: VString): VDateTime {
         val s = representation.xmlString
         val tIndex = s.indexOf('T')
-        val zIndex = s.indexOf('Z', tIndex + 1)
+
         require(tIndex >= 0)
         val (year, month, day) = s.substring(0, tIndex).split('-').map { it.toInt() }
         val hour = s.substring(tIndex + 1, tIndex + 3).toUInt()

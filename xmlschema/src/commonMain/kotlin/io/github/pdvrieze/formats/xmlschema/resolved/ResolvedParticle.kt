@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
+    val range: AllNNIRange get() = AllNNIRange(mdlMinOccurs, mdlMaxOccurs)
     val mdlMinOccurs: VNonNegativeInteger
     val mdlMaxOccurs: VAllNNI
     val mdlTerm: T
@@ -89,7 +90,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
-            is XSLocalElement -> IResolvedElementUse(requireNotNull(parent), rawPart, schema)
+            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
             XSI_Particle.DUMMY -> error("Dummy cannot be resolved")
         }
 

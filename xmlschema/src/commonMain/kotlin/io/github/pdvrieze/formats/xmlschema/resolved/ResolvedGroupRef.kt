@@ -25,8 +25,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 class ResolvedGroupRef(
-    override val rawPart: XSGroupRef,
-    override val schema: ResolvedSchemaLike,
+    rawPart: XSGroupRef,
+    schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupBase,
@@ -40,6 +40,6 @@ class ResolvedGroupRef(
     }
 
     class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
-        val referenced = schema.modelGroup(rawPart.ref)
+        val referenced: ResolvedGlobalGroup = schema.modelGroup(rawPart.ref)
     }
 }
