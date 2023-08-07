@@ -54,6 +54,10 @@ class ResolvedProhibitedElement(
         }
     }
 
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        // no term
+    }
+
     override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
 
     override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO

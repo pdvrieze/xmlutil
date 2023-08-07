@@ -265,7 +265,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
         }
 
         val identityConstraints: Map<String, ResolvedIdentityConstraint> by lazy {
-            val identityConstraintList = mutableListOf<ResolvedIdentityConstraint>().also { collector ->
+            val identityConstraintList = mutableSetOf<ResolvedIdentityConstraint>().also { collector ->
                 elements.values.forEach { elem -> elem.collectConstraints(collector) }
                 complexTypes.values.forEach { type -> type.collectConstraints(collector) }
                 groups.values.forEach { group -> group.collectConstraints(collector) }
