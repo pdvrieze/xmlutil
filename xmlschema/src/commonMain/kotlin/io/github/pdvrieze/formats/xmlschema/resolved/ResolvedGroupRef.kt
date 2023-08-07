@@ -35,7 +35,7 @@ class ResolvedGroupRef(
 
     override val mdlTerm: ResolvedModelGroup get() = model.referenced.mdlModelGroup
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         // Do not collect as it is a reference
     }
 

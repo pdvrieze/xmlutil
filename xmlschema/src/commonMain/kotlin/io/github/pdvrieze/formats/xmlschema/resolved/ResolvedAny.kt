@@ -54,7 +54,7 @@ class ResolvedAny(
 
     val processContents: VProcessContents = rawPart.processContents ?: VProcessContents.STRICT
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
 
     override fun checkTerm(checkHelper: CheckHelper) {}
 

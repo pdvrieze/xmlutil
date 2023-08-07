@@ -220,7 +220,7 @@ sealed class ResolvedComplexType(
         }
     }
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         // a content type that can contain elements (not that it is an element only, this can be a group).
         (mdlContentType as? ElementContentType)?.run { mdlParticle.mdlTerm.collectConstraints(collector) }
     }
