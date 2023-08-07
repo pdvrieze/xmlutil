@@ -49,7 +49,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                             simpleTypes = listOf(
                                 XSLocalSimpleType(
                                     simpleDerivation = XSSimpleRestriction(
-                                        base = QName(XS_NAMESPACE),
+                                        base = QName(XS_NAMESPACE, "string"),
                                         facets = listOf(XSEnumeration(VString("")))
                                     )
                                 )
