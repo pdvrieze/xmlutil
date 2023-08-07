@@ -34,7 +34,7 @@ class ResolvedLocalComplexType(
     override val mdlScope: VComplexTypeScope.Local = VComplexTypeScope.Local(context)
     override val mdlContext: VComplexTypeScope.Member get() = mdlScope.parent
 
-    override val model: Model<*> by lazy {
+    override val model: Model<*> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val raw = rawPart) {
             is XSLocalComplexTypeComplex -> ComplexModel(raw, schema, this, mdlContext)
             is XSLocalComplexTypeShorthand -> ShorthandModel(raw, schema, this, mdlContext)

@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 interface XSIComplexType : XSIType {
-    val simpleContent: XSI_ComplexContent
+    val content: XSI_ComplexContent
 
     /**
      * May not have simpleContent child
@@ -45,21 +45,23 @@ sealed interface XSComplexType : XSIComplexType {
     }
 
     sealed interface ComplexBase : XSIComplexType {
-        override val simpleContent: XSI_ComplexContent
+        override val content: XSI_ComplexContent
     }
 
     sealed interface Complex : ComplexBase {
-        override val simpleContent: XSComplexContent
+        override val content: XSComplexContent
     }
 
     sealed interface Shorthand : ComplexBase, XSI_ComplexDerivation, XSI_ComplexContent {
-        override val simpleContent: Shorthand
+        override val derivation: Shorthand get() = this
+
+        override val content: Shorthand
 
         override val asserts: List<XSAssert>
     }
 
     interface Simple : XSIComplexType {
-        override val simpleContent: XSSimpleContent
+        override val content: XSSimpleContent
     }
 }
 

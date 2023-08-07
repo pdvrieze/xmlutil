@@ -22,12 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XSI_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
+import nl.adaptivity.xmlutil.*
 
 internal class CollatedSchema(
     baseSchema: XSSchema,
@@ -49,6 +49,13 @@ internal class CollatedSchema(
     val notations: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSNotation>>> = mutableMapOf()
     val importedNamespaces: MutableSet<String> = mutableSetOf()
     val importedSchemas: MutableMap<String, CollatedSchema> = mutableMapOf()
+
+    fun findType(name: QName) : Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>> {
+        simpleTypes[name]?.let { return it }
+        complexTypes[name]?.let { return it }
+        return importedSchemas[name.getNamespaceURI()]?.findType(name) ?:
+            throw IllegalArgumentException("No type with name $name found in schema")
+    }
 
 
     init {
@@ -74,7 +81,7 @@ internal class CollatedSchema(
                     val chameleonSchema = when {
                         importNamespace.isNullOrEmpty() && importTargetNamespace.isEmpty() -> {
                             val schemaNamespace = schemaLike.targetNamespace
-                            require(! schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
+                            require(!schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
                             ChameleonWrapper(schemaLike, schemaNamespace)
                         }
 
@@ -170,7 +177,118 @@ internal class CollatedSchema(
             addToCollation(collatedSchema)
         }
 
+        val verifiedSet = mutableSetOf<XSGlobalType>()
+        for(typeInfo in (simpleTypes.values + complexTypes.values)) {
+            if (typeInfo.second.element !in verifiedSet) { // skip already validated types
+                val chain = mutableSetOf<XSGlobalType>()
+                checkRecursiveTypes(typeInfo, verifiedSet, chain)
+                verifiedSet.addAll(chain)
+            }
+        }
     }
+
+    fun checkRecursiveTypes(
+        typeInfo: Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>>,
+        seenTypes: MutableSet<XSGlobalType>,
+        inheritanceChain: MutableSet<XSGlobalType>,
+    ) {
+        val (schema, x) = typeInfo
+        val (_, startType) = x
+        val name = (startType as? XSGlobalType)?.name?.toQname(schema.targetNamespace)
+        checkRecursiveTypes(startType, schema, seenTypes, inheritanceChain)
+    }
+
+    private fun checkRecursiveTypes(
+        startType: XSIType,
+        schema: ResolvedSchemaLike,
+        seenTypes: MutableSet<XSGlobalType>,
+        inheritanceChain: MutableSet<XSGlobalType>
+    ) {
+        require(startType !is XSGlobalType || inheritanceChain.add(startType)) {
+            "Recursive type use for ${(startType as XSGlobalType).name}: ${inheritanceChain.joinToString { it.name }}"
+        }
+        val refs: List<QName>
+        val locals: List<XSLocalType>
+        when (startType) {
+            is XSISimpleType -> {
+                when (val d = startType.simpleDerivation) {
+                    is XSSimpleList -> {
+                        refs = listOfNotNull(d.itemTypeName)
+                        locals = listOfNotNull(d.simpleType)
+                    }
+
+                    is XSSimpleRestriction -> {
+                        refs = listOfNotNull(d.base)
+                        locals = listOfNotNull(d.simpleType)
+                    }
+
+                    is XSSimpleUnion -> {
+                        refs = d.memberTypes ?: emptyList()
+                        locals = d.simpleTypes
+                    }
+                }
+            }
+
+            is XSComplexType.ComplexBase -> {
+                when (val c: XSI_ComplexContent = startType.content) {
+                    is XSComplexType.Shorthand -> {
+                        refs = listOfNotNull(c.base)
+                        locals = emptyList()
+
+                    }
+
+                    is XSComplexContent -> {
+                        refs = listOfNotNull(c.derivation.base)
+                        locals = emptyList()
+
+                    }
+
+                    is XSSimpleContent -> {
+                        refs = listOfNotNull(c.derivation.base)
+                        locals = emptyList()
+                    }
+                }
+            }
+
+            is XSComplexType.Simple -> {
+                val d = startType.content.derivation
+                refs = listOfNotNull(d.base)
+                locals = listOfNotNull((d as? XSSimpleContentRestriction)?.simpleType)
+            }
+
+            else -> throw AssertionError("Unreachable")
+        }
+        val finalRefs = refs.asSequence()
+            .filter { it.namespaceURI != XS_NAMESPACE && it.namespaceURI != XSI_NAMESPACE }
+            .toSet()
+        for (ref in finalRefs) {
+            if (schema is RedefineWrapper &&
+                schema.elementKind == Redefinable.TYPE &&
+                schema.elementName.isEquivalent(ref)
+            ) {
+                val type = schema.lookupRawType(ref)
+                when {
+                    type == null ->
+                        require(ref.namespaceURI == XS_NAMESPACE || ref.namespaceURI == XSI_NAMESPACE) {
+                            "Failure to find referenced (redefined) type $ref"
+                        }
+
+                    type !in seenTypes ->
+                        checkRecursiveTypes(type, schema.nestedRedefine ?: schema, seenTypes, inheritanceChain)
+                }
+            } else {
+                val typeInfo = findType(ref)
+                if (typeInfo.second.element !in seenTypes) checkRecursiveTypes(typeInfo, seenTypes, inheritanceChain)
+            }
+
+
+        }
+        for (local in locals) {
+            checkRecursiveTypes(local, schema, seenTypes, inheritanceChain)
+        }
+
+    }
+
 
     fun applyRedefines(
         redefine: XSRedefine,
@@ -197,7 +315,8 @@ internal class CollatedSchema(
 
         for (g in redefine.groups) {
             val name = QName(targetNamespace?.toString() ?: "", g.name.toString())
-            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
+            val schemaLike =
+                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
             val old = requireNotNull(groups[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
             groups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, g))
@@ -205,7 +324,8 @@ internal class CollatedSchema(
 
         for (ag in redefine.attributeGroups) {
             val name = QName(targetNamespace?.toString() ?: "", ag.name.toString())
-            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
+            val schemaLike =
+                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
             val old = requireNotNull(attributeGroups[name]) { "Redefine must override" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
             attributeGroups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ag))
@@ -281,7 +401,7 @@ internal class CollatedSchema(
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
 
         override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-            if (elementKind == Redefinable.TYPE && elementName==typeName) {
+            if (elementKind == Redefinable.TYPE && elementName == typeName) {
                 return nestedSimpleType(typeName)
             }
 
@@ -289,7 +409,7 @@ internal class CollatedSchema(
         }
 
         override fun maybeType(typeName: QName): ResolvedGlobalType? {
-            if (elementKind == Redefinable.TYPE && elementName==typeName) {
+            if (elementKind == Redefinable.TYPE && elementName == typeName) {
                 return nestedType(typeName)
             }
 
@@ -383,28 +503,28 @@ internal class CollatedSchema(
         }
 
         override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
-            if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName==attributeGroupName) {
+            if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName == attributeGroupName) {
                 return nestedAttributeGroup(attributeGroupName)
             }
             return base.maybeAttributeGroup(attributeGroupName)
         }
 
         override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
-            if (elementKind == Redefinable.GROUP && elementName==groupName) {
+            if (elementKind == Redefinable.GROUP && elementName == groupName) {
                 return nestedGroup(groupName)
             }
             return base.maybeGroup(groupName)
         }
 
         override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
-            if (elementKind == Redefinable.ELEMENT && this.elementName==elementName) {
+            if (elementKind == Redefinable.ELEMENT && this.elementName == elementName) {
                 return nestedElement(elementName)
             }
             return base.maybeElement(elementName)
         }
 
         override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
-            if (elementKind == Redefinable.ATTRIBUTE && elementName==attributeName) {
+            if (elementKind == Redefinable.ATTRIBUTE && elementName == attributeName) {
                 return nestedAttribute(attributeName)
             }
             return base.maybeAttribute(attributeName)
@@ -425,6 +545,15 @@ internal class CollatedSchema(
         fun withNestedRedefine(nestedRedefine: RedefineWrapper?): RedefineWrapper = when (nestedRedefine) {
             null -> this
             else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine, elementName, elementKind)
+        }
+
+        fun lookupRawType(name: QName): XSGlobalType? {
+            if ((targetNamespace?.value ?: "") != name.namespaceURI) return null
+
+            val targetLocalName = name.localPart
+            originalSchema.simpleTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let { return it }
+
+            return originalSchema.complexTypes.firstOrNull { it.name.xmlString == targetLocalName }
         }
     }
 
