@@ -92,7 +92,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
 
     private inline fun <R> withQName(name: QName, action: SchemaElementResolver.(String) -> R): R {
         val data = nestedData[name.namespaceURI]
-            ?: throw NoSuchElementException("The namespace ${name.namespaceURI} is not available")
+            ?: throw NoSuchElementException("The namespace '${name.namespaceURI}' is not available when resolving $name")
         return data.action(name.localPart)
     }
 
@@ -268,6 +268,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
             val identityConstraintList = mutableListOf<ResolvedIdentityConstraint>().also { collector ->
                 elements.values.forEach { elem -> elem.collectConstraints(collector) }
                 complexTypes.values.forEach { type -> type.collectConstraints(collector) }
+                groups.values.forEach { group -> group.collectConstraints(collector) }
             }
             val map = HashMap<String, ResolvedIdentityConstraint>()
             for (c in identityConstraintList) {

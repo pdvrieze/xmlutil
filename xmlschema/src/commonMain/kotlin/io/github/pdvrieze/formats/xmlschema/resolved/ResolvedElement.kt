@@ -114,6 +114,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
         collector.addAll(mdlIdentityConstraints)
+        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
     }
 
     abstract class Model(
