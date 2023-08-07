@@ -29,6 +29,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
+import nl.adaptivity.xmlutil.serialization.XmlDefault
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -42,8 +43,9 @@ class XSDocumentation : XSOpenAttrsBase {
     val lang: String?
 
     @XmlValue(true)
+//    @XmlDefault("")
     @Serializable(CompactFragmentSerializer::class)
-    val content: CompactFragment
+    var content: CompactFragment
 
     constructor(
         source: VAnyURI? = null,

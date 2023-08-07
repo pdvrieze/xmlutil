@@ -405,7 +405,7 @@ sealed interface ResolvedSimpleType : ResolvedType,
                         if (baseName != null) {
                             require(baseName !in seenTypes ||
                                     (schema is CollatedSchema.RedefineWrapper && schema.elementName == baseName)) {
-                                "Indirect recursive use of simple base types: $baseName in $name"
+                                "Indirect recursive use of simple base types context: $name: $baseName in $seenTypes"
                             }
                             checkRecursiveTypes(schema.simpleType(baseName), newSeen, schema, name ?: container)
 

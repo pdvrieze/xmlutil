@@ -90,14 +90,6 @@ class ResolvedGlobalGroup(
     private class AllImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.All, schema: ResolvedSchemaLike) :
         ModelGroupBase(parent, rawPart, schema), IResolvedAll {
 
-        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-            for (p in mdlParticles) {
-                if (p is ResolvedTerm) {
-                    p.collectConstraints(collector)
-                }
-            }
-        }
-
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)
         }
@@ -107,14 +99,6 @@ class ResolvedGlobalGroup(
     private class ChoiceImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
         ModelGroupBase(parent, rawPart, schema),
         IResolvedChoice {
-
-        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-            for (p in mdlParticles) {
-                if (p is ResolvedTerm) {
-                    p.collectConstraints(collector)
-                }
-            }
-        }
 
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)
@@ -126,14 +110,6 @@ class ResolvedGlobalGroup(
         parent: ResolvedGlobalGroup,
         rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
     ) : ModelGroupBase(parent, rawPart, schema), IResolvedSequence {
-
-        override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-            for (p in mdlParticles) {
-                if (p is ResolvedTerm) {
-                    p.collectConstraints(collector)
-                }
-            }
-        }
 
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)
