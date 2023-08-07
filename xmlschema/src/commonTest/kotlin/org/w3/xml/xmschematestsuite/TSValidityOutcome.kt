@@ -33,5 +33,8 @@ enum class TSValidityOutcome {
 
     @SerialName("notknown")
     NOTKNOWN,
+
+    @SerialName("indeterminate")
+    INDETERMINATE,
 }
 
