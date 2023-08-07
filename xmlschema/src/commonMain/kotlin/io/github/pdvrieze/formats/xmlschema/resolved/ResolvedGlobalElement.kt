@@ -156,8 +156,8 @@ class ResolvedGlobalElement(
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
-                ?: rawPart.substitutionGroup?.firstOrNull()
-                    ?.let { schema.element(it).mdlTypeDefinition }
+//                ?: rawPart.substitutionGroup?.firstOrNull()
+//                    ?.let { schema.element(it).mdlTypeDefinition }
                 ?: AnyType
 
 
