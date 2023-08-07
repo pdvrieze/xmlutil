@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
@@ -134,8 +135,8 @@ sealed class ResolvedComplexType(
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
             if (baseType is ResolvedComplexType) {
-                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "Final types cannot be extended" }
-                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "Base attribute uses must be a subset of the extension" }
+                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
+                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "Base attribute uses must be a subset of the extension: extension: ${mdlAttributeUses} - base: ${baseType.mdlAttributeUses}" }
                 val baseWc = baseType.mdlAttributeWildcard
                 if (baseWc != null) {
                     val wc = requireNotNull(mdlAttributeWildcard)
@@ -172,6 +173,9 @@ sealed class ResolvedComplexType(
             }
         } else { // restriction
             val b = mdlBaseTypeDefinition
+
+            require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
+
             val ct: ResolvedContentType = mdlContentType
 //            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
             val bt = (b as? ResolvedComplexType)?.mdlContentType
@@ -262,8 +266,8 @@ sealed class ResolvedComplexType(
             get() = null
 
         override val mdlAssertions: List<XSIAssertCommon> = buildList {
-            addAll(rawPart.simpleContent.derivation.asserts)
-            addAll(rawPart.simpleContent.derivation.asserts)
+            addAll(rawPart.content.derivation.asserts)
+            addAll(rawPart.content.derivation.asserts)
         }
 
 
@@ -283,7 +287,7 @@ sealed class ResolvedComplexType(
 
         init {
             val baseTypeDefinition: ResolvedType
-            val content: XSI_ComplexContent = rawPart.simpleContent
+            val content: XSI_ComplexContent = rawPart.content
             val derivation: XSI_ComplexDerivation
 
             when (content) {
@@ -300,6 +304,7 @@ sealed class ResolvedComplexType(
                         seenTypes.add(base)
                         val baseType = schema.type(base)
 
+/*
                         var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
                         while (b != null) {
                             val lastB = b
@@ -315,15 +320,9 @@ sealed class ResolvedComplexType(
                                 }
                             }
                         }
+*/
 
                         // Do this after recursion test (otherwise it causes a stack overflow)
-                        when (derivation) {
-                            is XSComplexContent.XSExtension ->
-                                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "Type $base is final for extension" }
-
-                            is XSComplexContent.XSRestriction ->
-                                require(VDerivationControl.RESTRICTION !in baseType.mdlFinal) { "Type $base is final for restriction" }
-                        }
 
                         baseTypeDefinition = baseType
                     }
@@ -471,10 +470,10 @@ sealed class ResolvedComplexType(
         ResolvedSimpleContentType {
 
         final override val mdlBaseTypeDefinition: ResolvedType =
-            rawPart.simpleContent.derivation.base?.let { schema.type(it) } ?: AnyType
+            rawPart.content.derivation.base?.let { schema.type(it) } ?: AnyType
 
         override val mdlDerivationMethod: VDerivationControl.Complex =
-            rawPart.simpleContent.derivation.derivationMethod
+            rawPart.content.derivation.derivationMethod
 
         override val mdlContentType: ResolvedSimpleContentType get() = this
 
@@ -484,7 +483,7 @@ sealed class ResolvedComplexType(
 
         init {
 
-            val derivation = rawPart.simpleContent.derivation
+            val derivation = rawPart.content.derivation
 
             val baseType: ResolvedType = mdlBaseTypeDefinition
 
@@ -678,7 +677,7 @@ sealed class ResolvedComplexType(
 
             val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
-                for (attr in rawPart.simpleContent.derivation.attributes) {
+                for (attr in rawPart.content.derivation.attributes) {
                     val resolvedAttribute = ResolvedLocalAttribute(parent, attr, schema)
                     when (resolvedAttribute) {
                         is ResolvedProhibitedAttribute -> prohibitedAttrs.add(resolvedAttribute.mdlQName)
@@ -692,7 +691,7 @@ sealed class ResolvedComplexType(
                 // Defined attribute group references (including the default one)
                 val groups = buildList {
                     defaultAttributeGroup?.let { ag -> add(schema.attributeGroup(ag)) }
-                    rawPart.simpleContent.derivation.attributeGroups.mapTo(this) { schema.attributeGroup(it.ref) }
+                    rawPart.content.derivation.attributeGroups.mapTo(this) { schema.attributeGroup(it.ref) }
                 }
                 for (group in groups) {
                     // TODO follow the standard
@@ -707,7 +706,12 @@ sealed class ResolvedComplexType(
                 when (t?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
                         for (a in t.mdlAttributeUses) {
-                            require(put(a.mdlAttributeDeclaration.mdlQName, a) == null) { "Duplicate attribute $a" }
+                            val existingAttr = get(a.mdlAttributeDeclaration.mdlQName)
+                            if (existingAttr!=null) {
+                                require(existingAttr is ResolvedProhibitedAttribute || existingAttr.mdlAttributeDeclaration.mdlTypeDefinition == a.mdlAttributeDeclaration.mdlTypeDefinition) {
+                                    "Invalid attribute extension $a of $existingAttr"
+                                }
+                            }
                         }
 
                     VDerivationControl.RESTRICTION ->
