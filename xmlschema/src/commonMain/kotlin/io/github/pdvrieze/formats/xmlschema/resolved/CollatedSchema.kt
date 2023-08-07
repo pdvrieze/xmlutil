@@ -177,8 +177,11 @@ internal class CollatedSchema(
             addToCollation(collatedSchema)
         }
 
+    }
+
+    fun checkRecursiveTypeDefinitions() {
         val verifiedSet = mutableSetOf<XSGlobalType>()
-        for(typeInfo in (simpleTypes.values + complexTypes.values)) {
+        for (typeInfo in (simpleTypes.values + complexTypes.values)) {
             if (typeInfo.second.element !in verifiedSet) { // skip already validated types
                 val chain = mutableSetOf<XSGlobalType>()
                 checkRecursiveTypes(typeInfo, verifiedSet, chain)
