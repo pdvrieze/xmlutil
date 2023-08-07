@@ -35,4 +35,10 @@ class SyntheticSequence(
 
     override val mdlTerm: SyntheticSequence get() = this
 
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        for (particle in mdlParticles) {
+            particle.collectConstraints(collector)
+        }
+    }
+
 }

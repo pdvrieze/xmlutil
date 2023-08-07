@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 class ResolvedGroupRef(
@@ -34,6 +35,15 @@ class ResolvedGroupRef(
     override val model: Model by lazy { Model(rawPart, schema) }
 
     override val mdlTerm: ResolvedModelGroup get() = model.referenced.mdlModelGroup
+
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        // global references should not collect
+    }
+
+    override fun checkParticle(checkHelper: CheckHelper) {
+        check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+        checkHelper.checkGroup(model.referenced)
+    }
 
     class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
         val referenced: ResolvedGlobalGroup = schema.modelGroup(rawPart.ref)

@@ -48,7 +48,7 @@ class ResolvedGlobalGroup(
         mdlModelGroup.checkTerm(checkHelper)
     }
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         for(p in mdlModelGroup.mdlParticles) {
             if (p is ResolvedTerm) p.collectConstraints(collector)
         }

@@ -78,6 +78,8 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         return this
     }
 
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
+
     companion object {
 
         operator fun invoke(

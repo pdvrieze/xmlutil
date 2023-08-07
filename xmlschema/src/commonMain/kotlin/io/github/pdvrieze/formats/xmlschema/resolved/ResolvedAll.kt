@@ -38,5 +38,9 @@ class ResolvedAll(
 ), IResolvedAll {
 
     override val mdlTerm: ResolvedAll get() = this
+
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        super.collectConstraints(collector)
+    }
 }
 

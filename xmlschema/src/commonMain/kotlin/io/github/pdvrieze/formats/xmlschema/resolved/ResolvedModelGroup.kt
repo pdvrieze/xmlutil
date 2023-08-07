@@ -33,7 +33,7 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle ->
-            particle.mdlTerm.takeIf { it!is ResolvedGlobalElement }?.collectConstraints(collector)
+            particle.collectConstraints(collector)
         }
     }
 

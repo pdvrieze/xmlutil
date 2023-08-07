@@ -40,6 +40,10 @@ class ResolvedSequence(
 
     override val mdlTerm: ResolvedSequence get() = this
 
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        super.collectConstraints(collector)
+    }
+
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         val names = mutableSetOf<QName>()
