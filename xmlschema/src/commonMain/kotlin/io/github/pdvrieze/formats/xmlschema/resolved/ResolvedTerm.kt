@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedTerm : ResolvedAnnotated {
 
-    fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>)
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper)
 
 }
