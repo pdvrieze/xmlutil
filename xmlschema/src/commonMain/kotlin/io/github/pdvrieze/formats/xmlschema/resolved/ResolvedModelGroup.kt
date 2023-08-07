@@ -20,14 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
     val mdlCompositor: Compositor
+
+    abstract fun flatten(range: AllNNIRange): FlattenedGroup
 
     override fun checkTerm(checkHelper: CheckHelper) {
         for(particle in mdlParticles) {

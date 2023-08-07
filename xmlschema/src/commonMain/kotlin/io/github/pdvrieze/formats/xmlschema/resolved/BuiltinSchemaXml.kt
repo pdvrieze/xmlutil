@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XML_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.XmlSchemaConstants.XS_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XML_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString

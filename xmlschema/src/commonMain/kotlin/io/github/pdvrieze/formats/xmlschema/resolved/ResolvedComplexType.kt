@@ -22,13 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VContentMode
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
@@ -264,9 +265,6 @@ sealed class ResolvedComplexType(
             addAll(rawPart.simpleContent.derivation.asserts)
         }
 
-        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
-            calculateProhibitedSubstitutions(rawPart, schema)
-
 
     }
 
@@ -286,8 +284,6 @@ sealed class ResolvedComplexType(
             val baseTypeDefinition: ResolvedType
             val content: XSI_ComplexContent = rawPart.simpleContent
             val derivation: XSI_ComplexDerivation
-
-            val newInheritedTypes = SingleLinkedList<ResolvedType>()
 
             when (content) {
                 is XSComplexContent -> {
@@ -408,10 +404,6 @@ sealed class ResolvedComplexType(
 
                             val p: List<ResolvedParticle<ResolvedTerm>> =
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
-                                    .map {
-                                        check(it.mdlTerm is ResolvedTerm) { "${it.mdlTerm} is not valid inside a sequence" }
-                                        it
-                                    }
 
                             SyntheticSequence(
                                 mdlMinOccurs = VNonNegativeInteger(1),
@@ -670,6 +662,9 @@ sealed class ResolvedComplexType(
             }
         }
 
+        /**
+         * This one isn't quire correct/ready
+         */
         fun calculateAttributeUses(
             schema: ResolvedSchemaLike,
             rawPart: XSIComplexType,
@@ -699,7 +694,8 @@ sealed class ResolvedComplexType(
                     rawPart.simpleContent.derivation.attributeGroups.mapTo(this) { schema.attributeGroup(it.ref) }
                 }
                 for (group in groups) {
-                    val groupAttributeUses = group.attributeUses
+                    // TODO follow the standard
+                    val groupAttributeUses = group.getAttributeUses()
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
                     groupAttributeUses.associateByTo(this) { it.mdlAttributeDeclaration.mdlQName }

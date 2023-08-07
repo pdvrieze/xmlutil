@@ -29,7 +29,27 @@ class ResolvedGlobalAttributeGroup(
     rawPart: XSAttributeGroup,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeGroup(rawPart), ResolvedAnnotated, NamedPart, VAttributeScope.Member {
+) : ResolvedAnnotated, NamedPart, VAttributeScope.Member {
+
+    fun getAttributeUses(): Collection<IResolvedAttributeUse> {
+        val uses = mutableMapOf<QName, IResolvedAttributeUse>()
+        val seenGroups = mutableSetOf<QName>(mdlQName)
+        val groups = ArrayDeque<ResolvedGlobalAttributeGroup>()
+        groups.add(this)
+        while (groups.isNotEmpty()) {
+            val group = groups.removeFirst()
+            for (a in group.attributes) {
+                uses.put(a.mdlAttributeDeclaration.mdlQName, a)
+            }
+            for (g in group.attributeGroups) {
+                val resolvedGroup = g.resolvedGroup
+                if (seenGroups.add(resolvedGroup.mdlQName)) {
+                    groups.add(resolvedGroup)
+                }
+            }
+        }
+        return uses.values
+    }
 
     override val model: Model by lazy { Model(this, rawPart, schema) }
 

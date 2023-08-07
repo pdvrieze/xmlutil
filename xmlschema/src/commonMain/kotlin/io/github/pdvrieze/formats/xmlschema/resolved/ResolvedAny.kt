@@ -56,8 +56,6 @@ class ResolvedAny(
 
     override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {}
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-//        TODO("not implemented")
-    }
+    override fun checkTerm(checkHelper: CheckHelper) {}
 
 }

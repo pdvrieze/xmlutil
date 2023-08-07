@@ -54,7 +54,6 @@ class FundamentalFacets(
         is BoundedFacet -> if (element.value == bounded) 1 else -1
         is CardinalityFacet -> if (element.value == cardinality) 2 else -1
         is NumericFacet -> if (element.value == numeric) 3 else -1
-        else -> -1
     }
 
     override fun lastIndexOf(element: FundamentalFacet): Int {
