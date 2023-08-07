@@ -20,12 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.toCName
-
 sealed interface ResolvedGlobalType : ResolvedType, NamedPart {
     override val mdlScope: VTypeScope.Global
 }
