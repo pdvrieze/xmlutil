@@ -65,6 +65,22 @@ class ResolvedLocalAttribute private constructor(
         checkAttribute(checkHelper)
     }
 
+    override fun toString(): String {
+        return buildString {
+            append("ResolvedLocalAttribute(name = ")
+            append(model.mdlQName)
+            append(", type =")
+            when (val t = model.mdlTypeDefinition) {
+                is ResolvedGlobalSimpleType -> append(t.mdlQName)
+                else -> append(t)
+            }
+            model.mdlValueConstraint?.let {
+                append(", valueConstraint = $it")
+            }
+            append(")")
+        }
+    }
+
     class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
         ResolvedAttributeDef.Model(rawPart, schema, typeContext) {
 

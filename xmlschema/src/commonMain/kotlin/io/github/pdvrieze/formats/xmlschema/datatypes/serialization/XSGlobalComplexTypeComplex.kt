@@ -34,7 +34,7 @@ class XSGlobalComplexTypeComplex(
     final: Set<VDerivationControl.Complex>?,
     block: Set<VDerivationControl.Complex>?,
     defaultAttributesApply: Boolean?,
-    override val simpleContent: XSComplexContent,
+    override val content: XSComplexContent,
     id: VID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
@@ -56,7 +56,7 @@ class XSGlobalComplexTypeComplex(
             abstract = abstract,
             final = final,
             block = block,
-            complexContent = simpleContent,
+            complexContent = content,
             id = id,
             defaultAttributesApply = defaultAttributesApply,
             annotation = annotation,

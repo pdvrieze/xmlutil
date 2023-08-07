@@ -20,16 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotation
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
@@ -37,7 +40,10 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType,
     VSimpleTypeScope.Member {
@@ -181,8 +187,6 @@ sealed interface ResolvedSimpleType : ResolvedType,
 
             val typeName =
                 (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
-
-            checkRecursiveTypes(context, schema = schema)
 
             val simpleDerivation = rawPart.simpleDerivation
 
@@ -350,73 +354,6 @@ sealed interface ResolvedSimpleType : ResolvedType,
         }
 
         protected companion object {
-
-            fun checkRecursiveTypes(
-                startType: ResolvedSimpleType,
-                seenTypes: SingleLinkedList<QName> = SingleLinkedList(),
-                schema: ResolvedSchemaLike,
-                container: QName? = null,
-            ) {
-                if (startType is ResolvedBuiltinType) return // ignore builtins
-
-                val name: QName? = (startType as? ResolvedGlobalSimpleType)?.mdlQName
-
-//                if (name in seenTypes) error("Indirect recursive use of simple base types: $name in $container")
-
-                val simpleDerivation: XSSimpleDerivation = startType.rawPart!!.simpleDerivation
-                when (simpleDerivation){
-                    is XSSimpleUnion -> {
-                        val newSeen = name?.let { seenTypes + it } ?: seenTypes
-                        for(childName in simpleDerivation.memberTypes ?: emptyList()) {
-                            // Check the members, but allow for redefine
-                            require(childName !in seenTypes ||
-                                        (schema is CollatedSchema.RedefineWrapper && schema.elementName == childName)) {
-                                "Indirect recursive use of simple base types: $childName in $name"
-                            }
-                            checkRecursiveTypes(schema.simpleType(childName), newSeen, schema, name ?: container)
-                        }
-                        for (rawChild in simpleDerivation.simpleTypes) {
-                            val child = ResolvedLocalSimpleType(rawChild, schema, startType)
-                            checkRecursiveTypes(child, newSeen, schema, name ?: container)
-                        }
-                    }
-
-                    is XSSimpleList -> {
-                        val newSeen = name?.let { seenTypes + it } ?: seenTypes
-                        val itemName = simpleDerivation.itemTypeName
-                        val itemType : ResolvedSimpleType = if (itemName!=null) {
-                            require(simpleDerivation.simpleType==null) { "Lists have itemType xor simpleType" }
-                            require (itemName !in newSeen || (schema is CollatedSchema.RedefineWrapper && schema.elementName == itemName)) {
-                                "Indirect recursive use of simple base types: ${simpleDerivation.itemTypeName} in $name"
-                            }
-                            schema.simpleType(itemName)
-                        } else {
-                            val localItem = requireNotNull(simpleDerivation.simpleType) { "Lists must have itemType xor SimpleType" }
-                            ResolvedLocalSimpleType(localItem, schema, startType)
-                        }
-                        checkRecursiveTypes(itemType, newSeen, schema, name ?: container)
-                    }
-
-                    is XSSimpleRestriction -> {
-
-                        val newSeen = name?.let { seenTypes + it } ?: seenTypes
-
-                        val baseName = simpleDerivation.base
-                        if (baseName != null) {
-                            require(baseName !in seenTypes ||
-                                    (schema is CollatedSchema.RedefineWrapper && schema.elementName == baseName)) {
-                                "Indirect recursive use of simple base types context: $name: $baseName in $seenTypes"
-                            }
-                            checkRecursiveTypes(schema.simpleType(baseName), newSeen, schema, name ?: container)
-
-                        } else {
-                            val baseItem = requireNotNull(simpleDerivation.simpleType) { "Restrictions must have base xor SimpleType" }
-                            val child = ResolvedLocalSimpleType(baseItem, schema, startType)
-                            checkRecursiveTypes(child, newSeen, schema, name ?: container)
-                        }
-                    }
-                }
-            }
 
             fun <R> recurseBaseType(
                 startType: ResolvedSimpleType,
