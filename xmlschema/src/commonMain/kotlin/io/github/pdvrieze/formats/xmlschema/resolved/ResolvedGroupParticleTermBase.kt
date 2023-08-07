@@ -40,6 +40,12 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
+    final override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
+        mdlParticles.forEach { particle ->
+            particle.mdlTerm.takeIf { it!is ResolvedGlobalElement }?.collectConstraints(collector)
+        }
+    }
+
     operator fun invoke(
         parent: ResolvedComplexType,
         rawPart: XSExplicitGroup,

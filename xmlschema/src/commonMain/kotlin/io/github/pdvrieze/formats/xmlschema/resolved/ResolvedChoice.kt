@@ -38,10 +38,6 @@ class ResolvedChoice(
 
     override val mdlTerm: ResolvedChoice get() = this
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlParticles
-    }
-
     override fun toString(): String {
         return buildString {
             append("ResolvedChoice(")

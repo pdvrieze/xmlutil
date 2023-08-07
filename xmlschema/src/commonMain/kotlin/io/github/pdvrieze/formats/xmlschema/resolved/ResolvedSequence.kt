@@ -40,10 +40,6 @@ class ResolvedSequence(
 
     override val mdlTerm: ResolvedSequence get() = this
 
-    override fun collectConstraints(collector: MutableList<ResolvedIdentityConstraint>) {
-        mdlParticles.forEach { particle -> particle.mdlTerm.collectConstraints(collector) }
-    }
-
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         val names = mutableSetOf<QName>()

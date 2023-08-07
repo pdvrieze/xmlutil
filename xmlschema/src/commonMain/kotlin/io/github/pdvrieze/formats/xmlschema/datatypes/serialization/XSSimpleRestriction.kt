@@ -23,9 +23,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
+import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
@@ -52,6 +54,9 @@ class XSSimpleRestriction : XSSimpleDerivation, XSI_Annotated {
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {
+        invariant(base == null || ':' !in base.localPart) {
+            "Invalid QName"
+        }
         this.base = base
         this.simpleType = simpleType
         this.facets = facets
