@@ -32,7 +32,7 @@ class ResolvedElementRef constructor(
     schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
-) : IResolvedElementUse, ResolvedParticle<ResolvedElement> {
+) : IResolvedElementUse {
     override val model: Model by lazy { Model(rawPart, schema) }
 
     override val mdlQName: QName get() = mdlTerm.mdlQName
@@ -53,8 +53,12 @@ class ResolvedElementRef constructor(
         require(rawPart.alternatives.isEmpty()) { "3.3.3(2.2) - References may not specify alternatives" }
     }
 
+    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        // References don't need collecting
+    }
 
     override fun checkParticle(checkHelper: CheckHelper) {
+        check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         checkHelper.checkElement(mdlTerm)
     }
 
