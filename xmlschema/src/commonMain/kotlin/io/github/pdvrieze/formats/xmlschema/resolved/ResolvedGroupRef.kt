@@ -35,10 +35,6 @@ class ResolvedGroupRef(
 
     override val mdlTerm: ResolvedModelGroup get() = model.referenced.mdlModelGroup
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        // Do not collect as it is a reference
-    }
-
     class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
         val referenced: ResolvedGlobalGroup = schema.modelGroup(rawPart.ref)
     }
