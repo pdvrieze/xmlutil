@@ -46,10 +46,13 @@ class ResolvedSequence(
 
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
-        val names = mutableSetOf<QName>()
-        for (elem in mdlParticles) {
-            if (elem is ResolvedLocalElement) {
-                check(names.add(elem.mdlQName)) { "Duplicate element with name ${elem.mdlQName} found in sequence" }
+        val existing = mutableMapOf<QName, ResolvedElement>()
+        for (term in mdlParticles.asSequence().filterIsInstance<IResolvedElementUse>().map { it.mdlTerm }) {
+            val old = existing.put(term.mdlQName, term)
+            if (old != null) {
+                require(old==term || old.mdlTypeDefinition == term.mdlTypeDefinition) {
+                    "Multiple occurence of a term in a sequence must be equal"
+                }
             }
         }
     }
