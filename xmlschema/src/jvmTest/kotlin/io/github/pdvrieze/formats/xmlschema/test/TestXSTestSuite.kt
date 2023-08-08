@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttr
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
+import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
@@ -106,7 +107,17 @@ class TestXSTestSuite {
                 assertTrue(schemaUrls.size > 0, "Expected at least 1 schema, found 0")
                 val schemas: Sequence<XSSchema> = schemaUrls.asSequence().map { url ->
                     url.withXmlReader { reader ->
-                        xml.decodeFromReader<XSSchema>(reader)
+                        xml.decodeFromReader<XSSchema>(reader).also {
+                            if(reader.eventType != EventType.END_DOCUMENT) {
+                                var e: EventType
+                                do {
+                                    e = reader.next()
+                                } while (e.isIgnorable && e != EventType.END_DOCUMENT)
+                                require(e == EventType.END_DOCUMENT) {
+                                    "Trailing content in document $reader"
+                                }
+                            }
+                        }
                     }
                 }
                 testPropertyPresences(schemas)
