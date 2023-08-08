@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
@@ -41,7 +40,7 @@ sealed class ResolvedComplexType(
     VElementScope.Member,
     VTypeScope.Member {
 
-    abstract override val model: Model<*>
+    abstract override val model: Model
 
     // TODO use better way to determine this
     //name (provided in ResolvedGlobalType) for globals
@@ -56,7 +55,7 @@ sealed class ResolvedComplexType(
 
     // abstract only in global types
     val mdlAttributeUses: Set<IResolvedAttributeUse> get() = model.mdlAttributeUses
-    val mdlAttributeWildcard: ResolvedAny? get() = model.mdlAttributeWildcard
+    val mdlAttributeWildcard: ResolvedAnyAttribute? get() = model.mdlAttributeWildcard
     val mdlContentType: ResolvedContentType get() = model.mdlContentType
     val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
 
@@ -93,7 +92,7 @@ sealed class ResolvedComplexType(
     /**
      * 3.4.6.5 Type derivation ok (complex)
      */
-    override fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean {
+    override fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean {
         if (this == simpleBase) return true // 2.1
         // check derivation method is not in blocking
         if (this == simpleBase) return true // 2.2
@@ -138,7 +137,6 @@ sealed class ResolvedComplexType(
                 val baseWc = baseType.mdlAttributeWildcard
                 if (baseWc != null) {
                     val wc = requireNotNull(mdlAttributeWildcard)
-                    // TODO apply 3.10.6.2 rules
                     require(wc.mdlNamespaceConstraint.containsAll(baseWc.mdlNamespaceConstraint))
                 }
 
@@ -230,33 +228,31 @@ sealed class ResolvedComplexType(
 
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm>
 
-    interface Model<R : XSIComplexType>: ResolvedAnnotated.IModel {
-        fun calculateProhibitedSubstitutions(rawPart: R, schema: ResolvedSchemaLike): Set<VDerivationControl.Complex>
+    interface Model : ResolvedAnnotated.IModel {
+        fun calculateProhibitedSubstitutions(rawPart: XSIComplexType, schema: ResolvedSchemaLike): Set<VDerivationControl.Complex>
 
         val mdlAssertions: List<XSIAssertCommon>
         val mdlBaseTypeDefinition: ResolvedType
         val mdlFinal: Set<VDerivationControl.Complex>
         val mdlContentType: ResolvedContentType
         val mdlDerivationMethod: VDerivationControl.Complex
-        val mdlAttributeWildcard: ResolvedAny?
+        val mdlAttributeWildcard: ResolvedAnyAttribute?
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlAttributeUses: Set<IResolvedAttributeUse>
-        val mdlAnnotations: ResolvedAnnotation?
     }
 
     protected abstract class ModelBase<R : XSIComplexType>(
         context: ResolvedComplexType,
         rawPart: R,
         schema: ResolvedSchemaLike
-    ) : ResolvedAnnotated.Model(rawPart), Model<R> {
-        final override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
+    ) : ResolvedAnnotated.Model(rawPart), Model {
 
         final override val mdlAttributeUses: Set<IResolvedAttributeUse> by lazy {
             calculateAttributeUses(schema, rawPart, context)
         }
 
-        override val mdlAttributeWildcard: ResolvedAny? // TODO do more
+        override val mdlAttributeWildcard: ResolvedAnyAttribute? // TODO do more
             get() = null
 
         override val mdlAssertions: List<XSIAssertCommon> = buildList {
@@ -628,7 +624,7 @@ sealed class ResolvedComplexType(
     interface ResolvedSimpleContentType : ResolvedContentType,
         VSimpleTypeScope.Member,
         VContentType.Simple {
-        val mdlAttributeWildcard: ResolvedAny?
+        val mdlAttributeWildcard: ResolvedAnyAttribute?
 
         val mdlContentType: ResolvedSimpleContentType
 
