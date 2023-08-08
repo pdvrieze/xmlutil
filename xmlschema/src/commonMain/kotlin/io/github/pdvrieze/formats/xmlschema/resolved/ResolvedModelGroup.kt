@@ -28,7 +28,7 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     val mdlCompositor: Compositor
 
-    abstract fun flatten(range: AllNNIRange): FlattenedGroup
+    fun flatten(range: AllNNIRange): FlattenedGroup
 
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
