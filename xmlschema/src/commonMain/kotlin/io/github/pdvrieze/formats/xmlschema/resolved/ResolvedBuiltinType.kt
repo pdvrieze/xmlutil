@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.QName
 
 interface ResolvedBuiltinType : ResolvedGlobalType {
     override fun checkType(checkHelper: CheckHelper) = Unit
+    val isSpecial: Boolean
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()

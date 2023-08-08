@@ -124,30 +124,53 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(complexBase)) return true //2.2.2
         val sd = simpleDerivation
         if (sd is ResolvedUnionDerivation) { //2.2.4.1
+/*
             // Facets should be unassignable in union -- 2.2.4.3
-            val members = sd.transitiveMembership()//2.2.4.2
+            val members = sd.transitiveUnionMembership()//2.2.4.2
             return !members.none { m -> isValidlyDerivedFrom(m) }
+*/
         }
         return false //none of the 4 options is true
     }
 
     /**
-     * 3.4.6.5
+     * 3.16.6.3
      */
     override fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean {
-        if (this == simpleBase) return true
-        if (VDerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //2.1.a
-        if (mdlBaseTypeDefinition == simpleBase) return true //2.2.1
-        if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //2.1.b
-        if (mdlVariety != Variety.ATOMIC && mdlBaseTypeDefinition == AnySimpleType) return true //2.2.3
-        if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(simpleBase)) return true //2.2.2
-        val sd = simpleDerivation
-        if (sd is ResolvedUnionDerivation) { //2.2.4.1
+        if (this === simpleBase) return true // 3.16.6.3(1)
+        if (simpleBase !is ResolvedSimpleType) return false // only anySimpletype derives from any
+        if (VDerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //3.16.6.3(2.1a)
+        if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //3.16.6.3(2.1.b)
+        if (mdlBaseTypeDefinition == simpleBase) return true //3.16.6.3(2.2.1)
+        if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(simpleBase)) return true //3.16.6.3(2.2.2)
+        if (mdlVariety != Variety.ATOMIC && simpleBase == AnySimpleType) return true //2.2.3
+        if (simpleBase.mdlVariety == Variety.UNION) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
-            val members = sd.transitiveMembership()//2.2.4.2
-            return !members.none { m -> isValidlyDerivedFrom(m) }
+            val members = simpleBase.transitiveUnionMembership() //2.2.4.2
+            return members.any { m -> isValidlyDerivedFrom(m) }
         }
         return false //none of the 4 options is true
+    }
+
+    fun transitiveUnionMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
+        if(mdlVariety != Variety.UNION) return collector
+        when(val d = simpleDerivation) {
+            is ResolvedUnionDerivation -> {
+                for (m in d.memberTypes) {
+                    when (m.mdlVariety) {
+                        Variety.UNION -> m.transitiveUnionMembership(collector)
+                        else -> collector.add(m)
+                    }
+                }
+            }
+            is ResolvedListDerivationBase -> {
+                throw IllegalStateException("list derivations should never have union variety")
+            }
+            is ResolvedSimpleRestrictionBase -> {
+                (d.baseType as? ResolvedSimpleType)?.transitiveUnionMembership(collector)
+            }
+        }
+        return collector
     }
 
     sealed class Derivation() : ResolvedAnnotated {
