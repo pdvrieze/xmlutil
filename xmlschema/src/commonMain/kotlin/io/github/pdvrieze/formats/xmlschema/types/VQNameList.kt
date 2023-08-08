@@ -34,17 +34,25 @@ import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
+open class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
+    interface IElem
+    sealed interface AttrElem : IElem
+    sealed class Elem : IElem
+    object DEFINED : Elem(), AttrElem
+    object DEFINEDSIBLING : Elem()
+    class Name(val qName: QName) : Elem(), AttrElem
+}
+
 @Serializable(VQNameList.Serializer::class)
-class VQNameList(val values: List<Elem>): List<VQNameList.Elem> by values {
+class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(values) {
 
     constructor() : this(listOf())
 
-    sealed class Elem
-    object DEFINED: Elem()
-    object DEFINEDSIBLING: Elem()
-    class Name(val qName: QName): Elem()
+    val DEFINED: DEFINED get() = VQNameListBase.DEFINED
 
-    object Serializer: KSerializer<VQNameList> {
+    val DEFINEDSIBLING: DEFINEDSIBLING get() = VQNameListBase.DEFINEDSIBLING
+
+    object Serializer : KSerializer<VQNameList> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor("List<QName>", PrimitiveKind.STRING)
 

@@ -23,36 +23,41 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
 
-class ResolvedAny(
-    rawPart: XSAny,
-    schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
-) : ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
+class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
-    override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
+    override val mdlMinOccurs: VNonNegativeInteger
+    override val mdlMaxOccurs: VAllNNI
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    constructor(
+        mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.Elem>,
+        mdlProcessContents: VProcessContents,
+        mdlMinOccurs: VNonNegativeInteger = VNonNegativeInteger.ONE,
+        mdlMaxOccurs: VAllNNI = VAllNNI.ONE,
+    ) : super(mdlNamespaceConstraint, mdlProcessContents) {
+        this.mdlMinOccurs = mdlMinOccurs
+        this.mdlMaxOccurs = mdlMaxOccurs
+    }
 
-    val namespace: VNamespaceList = rawPart.namespace ?: VNamespaceList.ANY
+    constructor(
+        rawPart: XSAny,
+        schema: ResolvedSchemaLike,
+        mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
+    ) : super(
+        rawPart,
+        rawPart.toConstraint(schema),
+        rawPart.processContents ?: VProcessContents.STRICT
+    ) {
+        this.mdlMinOccurs = mdlMinOccurs
+        this.mdlMaxOccurs = mdlMaxOccurs
+    }
 
     override val mdlTerm: ResolvedAny get() = this
-
-    val mdlNamespaceConstraint: Set<VNamespaceConstraint>
-        get() = TODO("not implemented")
-
-    val mdlProcessContents: VProcessContents
-        get() = processContents
-
-    val notNamespace: VNotNamespaceList = rawPart.notNamespace ?: VNotNamespaceList()
-
-    val notQName: VQNameList
-        get() = VQNameList()
-
-    val processContents: VProcessContents = rawPart.processContents ?: VProcessContents.STRICT
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
 

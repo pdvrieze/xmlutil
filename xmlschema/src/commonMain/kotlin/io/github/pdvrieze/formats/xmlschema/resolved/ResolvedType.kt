@@ -20,12 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType : ResolvedAnnotated {
     val mdlBaseTypeDefinition: ResolvedType
@@ -54,6 +51,6 @@ sealed interface ResolvedType : ResolvedAnnotated {
     /**
      * Defined by 3.4.6.5
      */
-    fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean
+    fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean
 }
 
