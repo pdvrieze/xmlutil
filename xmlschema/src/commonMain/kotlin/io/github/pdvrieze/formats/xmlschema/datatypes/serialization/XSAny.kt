@@ -38,7 +38,7 @@ class XSAny : XSAnyBase, XSI_AllParticle {
     override val minOccurs: VNonNegativeInteger?
     
     @XmlElement(false)
-    val notQName: VQNameList?
+    override val notQName: VQNameList?
 
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")

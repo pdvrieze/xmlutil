@@ -36,7 +36,7 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
 
-    override val mdlScope: VSimpleTypeScope.Global get() = super<ResolvedBuiltinType>.mdlScope
+    override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
 
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
@@ -44,9 +44,15 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
 
     override val mdlFundamentalFacets: FundamentalFacets
 
+    override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
+
     override val mdlVariety: ResolvedSimpleType.Variety
-        get() = super<ResolvedBuiltinType>.mdlVariety
+        get() = ResolvedSimpleType.Variety.ATOMIC
+    override val mdlBaseTypeDefinition: ResolvedType
+    override val mdlItemTypeDefinition: ResolvedSimpleType?
+    override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
 
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+    override fun checkType(checkHelper: CheckHelper) = Unit
 
 }

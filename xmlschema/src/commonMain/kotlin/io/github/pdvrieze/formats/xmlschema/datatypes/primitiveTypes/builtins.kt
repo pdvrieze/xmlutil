@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-fun builtinType(localName: String, targetNamespace: String): Datatype? {
+fun builtinType(localName: String, targetNamespace: String): ResolvedBuiltinType? {
     if (targetNamespace != XmlSchemaConstants.XS_NAMESPACE) return null
     return when (localName) {
         "anyType" -> AnyType

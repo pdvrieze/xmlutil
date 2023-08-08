@@ -34,7 +34,7 @@ abstract class ResolvedSimpleRestrictionBase(
 
     abstract override val model: IModel
 
-    override val baseType: ResolvedSimpleType get() = model.baseType
+    override val baseType: ResolvedType get() = model.baseType
 
     open val otherContents: List<CompactFragment> get() = model.otherContents
 
@@ -53,19 +53,19 @@ abstract class ResolvedSimpleRestrictionBase(
     }
 
     interface IModel: ResolvedAnnotated.IModel {
-        val baseType: ResolvedSimpleType
+        val baseType: ResolvedType
         val facets: FacetList
         val otherContents: List<CompactFragment>
     }
 
     class Model: ResolvedAnnotated.Model, IModel {
-        override val baseType: ResolvedSimpleType
+        override val baseType: ResolvedType
         override val facets: FacetList
 
         override val otherContents: List<CompactFragment>
 
         constructor(
-            baseType: ResolvedSimpleType = AnySimpleType,
+            baseType: ResolvedType = AnySimpleType,
             facets: FacetList = FacetList.EMPTY,
             otherContents: List<CompactFragment> = emptyList(),
             id: VID? = null,

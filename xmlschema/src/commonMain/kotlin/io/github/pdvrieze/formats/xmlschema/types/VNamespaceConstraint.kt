@@ -22,10 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 
-data class VNamespaceConstraint(
+data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
     val mdlVariety: Variety,
     val namespaces: Set<VAnyURI?>,
-    val disallowedNames: VAttrQNameList,
+    val disallowedNames: VQNameListBase<E>,
 ) {
+    fun containsAll(baseConstraint: VNamespaceConstraint<VQNameListBase.IElem>): Boolean {
+        TODO("apply 3.10.6.2 rules")
+    }
+
     enum class Variety { ANY, ENUMERATION, NOT}
 }
