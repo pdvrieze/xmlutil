@@ -23,8 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 sealed interface ResolvedLocalType : ResolvedType {
-    override val rawPart: XSLocalType
-
     override val mdlScope: VTypeScope.Local
     val mdlContext: VTypeScope.MemberBase
 

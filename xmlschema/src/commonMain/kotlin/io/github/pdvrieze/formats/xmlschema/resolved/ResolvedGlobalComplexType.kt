@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalComplexType(
-    override val rawPart: XSGlobalComplexType,
+    rawPart: XSGlobalComplexType,
     schema: ResolvedSchemaLike,
     val location: String
 ) : ResolvedGlobalType, ResolvedComplexType(schema) {
@@ -42,8 +42,7 @@ class ResolvedGlobalComplexType(
     val mdlAbstract: Boolean = rawPart.abstract ?: false
     override val mdlScope: VComplexTypeScope.Global get() = VComplexTypeScope.Global
 
-    val defaultAttributesApply: Boolean?
-        get() = rawPart.defaultAttributesApply
+    val defaultAttributesApply: Boolean? = rawPart.defaultAttributesApply
 
     override val model: Model<out XSGlobalComplexType> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         when (val r = rawPart) {
