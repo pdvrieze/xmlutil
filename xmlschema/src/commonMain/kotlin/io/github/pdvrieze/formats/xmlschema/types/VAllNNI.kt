@@ -155,4 +155,9 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
     operator fun times(other: AllNNIRange): AllNNIRange {
         return AllNNIRange(start * other.start, endInclusive * other.endInclusive)
     }
+
+    override fun toString(): String = when(endInclusive) {
+        VAllNNI.UNBOUNDED -> "[$start, →)"
+        else -> "[$start, $endInclusive]"
+    }
 }

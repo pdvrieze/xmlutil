@@ -28,14 +28,16 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(VAttrQNameList.Serializer::class)
 class VAttrQNameList(values: List<AttrElem>): VQNameListBase<VQNameListBase.AttrElem>(values) {
     val DEFINED: VQNameListBase.DEFINED get() = VQNameListBase.DEFINED
+
+    override fun contains(name: QName): Boolean {
+        return values.any { it is Name && it.qName.isEquivalent(name) }
+    }
 
     constructor() : this(emptyList())
 

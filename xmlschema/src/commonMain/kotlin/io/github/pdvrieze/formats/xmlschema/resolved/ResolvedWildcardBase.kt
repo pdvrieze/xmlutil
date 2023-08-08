@@ -26,9 +26,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribu
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyBase
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.types.*
+import nl.adaptivity.xmlutil.QName
 import kotlin.jvm.JvmStatic
 
 abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> : ResolvedAnnotated {
+    fun matches(name: QName): Boolean {
+        return mdlNamespaceConstraint.matches(name)
+    }
+
     val mdlNamespaceConstraint: VNamespaceConstraint<E>
     val mdlProcessContents: VProcessContents
 
