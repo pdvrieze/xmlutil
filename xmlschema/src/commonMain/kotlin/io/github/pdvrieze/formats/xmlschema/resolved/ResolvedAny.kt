@@ -39,6 +39,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         mdlMinOccurs: VNonNegativeInteger = VNonNegativeInteger.ONE,
         mdlMaxOccurs: VAllNNI = VAllNNI.ONE,
     ) : super(mdlNamespaceConstraint, mdlProcessContents) {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
         this.mdlMaxOccurs = mdlMaxOccurs
     }
@@ -53,6 +54,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         rawPart.toConstraint(schema),
         rawPart.processContents ?: VProcessContents.STRICT
     ) {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
         this.mdlMaxOccurs = mdlMaxOccurs
     }

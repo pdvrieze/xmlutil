@@ -34,6 +34,10 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     final override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupParticle<T>, ResolvedTerm {
 
+    init {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+    }
+
     final override val model: Model by lazy {
         Model(parent, rawPart, schema)
     }

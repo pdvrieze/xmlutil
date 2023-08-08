@@ -28,6 +28,11 @@ class SyntheticChoice(
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
 ) : ResolvedParticle<SyntheticChoice>, IResolvedChoice {
+
+    init {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+    }
+
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticChoice get() = this

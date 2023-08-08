@@ -93,7 +93,6 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
-            XSI_Particle.DUMMY -> error("Dummy cannot be resolved")
         }
 
         operator fun invoke(

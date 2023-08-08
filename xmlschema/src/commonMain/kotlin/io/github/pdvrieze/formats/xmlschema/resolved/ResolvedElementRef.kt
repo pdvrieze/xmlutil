@@ -38,8 +38,11 @@ class ResolvedElementRef constructor(
     override val mdlQName: QName get() = mdlTerm.mdlQName
     override val mdlTerm: ResolvedGlobalElement get() = model.term
 
+
     init {
         invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
+
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         require(rawPart.name == null) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified" }
         require(rawPart.block == null) { "3.3.3(2.2) - References may not specify block" }
         require(rawPart.default == null) { "3.3.3(2.2) - References may not specify default" }

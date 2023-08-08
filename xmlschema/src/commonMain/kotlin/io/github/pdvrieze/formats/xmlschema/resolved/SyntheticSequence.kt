@@ -27,9 +27,12 @@ class SyntheticSequence(
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>,
-    schema: ResolvedSchemaLike,
-) : ResolvedParticle<SyntheticSequence>,
-    IResolvedSequence {
+) : ResolvedParticle<SyntheticSequence>, IResolvedSequence {
+
+    init {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+    }
+
 
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 

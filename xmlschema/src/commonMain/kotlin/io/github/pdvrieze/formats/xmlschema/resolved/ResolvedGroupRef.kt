@@ -30,8 +30,12 @@ class ResolvedGroupRef(
     schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
-) : ResolvedGroupBase,
-    ResolvedGroupParticle<ResolvedModelGroup> {
+) : ResolvedGroupBase, ResolvedGroupParticle<ResolvedModelGroup> {
+
+    init {
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+    }
+
     override val model: Model by lazy { Model(rawPart, schema) }
 
     override val mdlTerm: ResolvedModelGroup get() = model.referenced.mdlModelGroup

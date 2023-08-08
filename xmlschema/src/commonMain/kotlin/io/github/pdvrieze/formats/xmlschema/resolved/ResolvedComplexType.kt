@@ -294,26 +294,6 @@ sealed class ResolvedComplexType(
                         seenTypes.add(base)
                         val baseType = schema.type(base)
 
-/*
-                        var b: ResolvedGlobalComplexType? = baseType as? ResolvedGlobalComplexType
-                        while (b != null) {
-                            val lastB = b
-                            val b2 =
-                                (lastB.rawPart.simpleContent.derivation as? XSComplexContent.XSComplexDerivationBase)?.base
-                            b = b2?.let { b2Name ->
-                                if (lastB.mdlQName == b2Name && lastB.schema is CollatedSchema.RedefineWrapper) {
-
-                                    lastB.schema.nestedComplexType(b2Name)
-                                } else {
-                                    require(seenTypes.add(b2)) { "Recursive type use in complex content: ${seenTypes.joinToString()}" }
-                                    schema.type(b2) as? ResolvedGlobalComplexType
-                                }
-                            }
-                        }
-*/
-
-                        // Do this after recursion test (otherwise it causes a stack overflow)
-
                         baseTypeDefinition = baseType
                     }
 
@@ -343,9 +323,15 @@ sealed class ResolvedComplexType(
 
             val explicitContent: ResolvedGroupParticle<ResolvedModelGroup>? = when {
                 (term == null) ||
-                        (term.maxOccurs == VAllNNI(0)) ||
                         ((term is XSAll && !term.hasChildren()) || (term is XSSequence && !term.hasChildren())) ||
-                        (term is XSChoice && term.minOccurs?.toUInt() == 0u && !term.hasChildren()) -> null
+                        (term is XSChoice && term.minOccurs == VNonNegativeInteger.ZERO && !term.hasChildren()) -> null
+
+                term.maxOccurs == VAllNNI.ZERO -> {
+                    require(term.minOccurs == VNonNegativeInteger.ZERO) {
+                        "Invalid range: ! ${term.minOccurs ?: "1"} <= ${term.maxOccurs ?: "1"}"
+                    }
+                    null
+                }
 
 
                 else -> ResolvedGroupParticle.invoke(parent, term, schema)
@@ -398,8 +384,7 @@ sealed class ResolvedComplexType(
                             SyntheticSequence(
                                 mdlMinOccurs = VNonNegativeInteger(1),
                                 mdlMaxOccurs = VAllNNI(1),
-                                mdlParticles = p,
-                                schema = schema
+                                mdlParticles = p
                             )
                         }
                     }
@@ -424,8 +409,7 @@ sealed class ResolvedComplexType(
                         ?: SyntheticSequence(
                             mdlMinOccurs = VNonNegativeInteger.ONE,
                             mdlMaxOccurs = VAllNNI.ONE,
-                            mdlParticles = emptyList(),
-                            schema = schema
+                            mdlParticles = emptyList()
                         )
 
                 // TODO Add wildcard union
