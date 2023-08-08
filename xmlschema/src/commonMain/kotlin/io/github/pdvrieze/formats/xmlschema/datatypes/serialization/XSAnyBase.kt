@@ -21,9 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.types.VNamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.VNotNamespaceList
-import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -31,6 +29,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 abstract class XSAnyBase : XSAnnotatedBase {
+    abstract val notQName: VQNameListBase<out VQNameListBase.IElem>?
+
     @XmlElement(false)
     val namespace: VNamespaceList?
 

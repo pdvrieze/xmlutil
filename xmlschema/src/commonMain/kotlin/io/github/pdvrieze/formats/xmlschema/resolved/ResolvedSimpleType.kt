@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -53,7 +52,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
     override val model: Model
 
-    override val mdlBaseTypeDefinition: ResolvedSimpleType get() = model.mdlBaseTypeDefinition
+    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
 
     val mdlFacets: FacetList get() = model.mdlFacets
 
@@ -89,9 +88,11 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
         if (mdlVariety == Variety.LIST) {
             mdlFacets.checkList()
-            if (mdlBaseTypeDefinition != AnySimpleType) {
-                check(mdlBaseTypeDefinition.mdlVariety == Variety.LIST)
-                check(VDerivationControl.RESTRICTION !in mdlBaseTypeDefinition.mdlFinal)
+            val baseTypeDef = mdlBaseTypeDefinition
+            require(baseTypeDef is ResolvedSimpleType) { "Only AnySimpleType can inherit from (complex) AnyType" }
+            if (baseTypeDef != AnySimpleType) {
+                check(baseTypeDef.mdlVariety == Variety.LIST)
+                check(VDerivationControl.RESTRICTION !in baseTypeDef.mdlFinal)
             }
         }
         mdlFacets.check(this.mdlPrimitiveTypeDefinition)
@@ -133,7 +134,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
     /**
      * 3.4.6.5
      */
-    override fun isValidlyDerivedFrom(simpleBase: ResolvedSimpleType): Boolean {
+    override fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean {
         if (this == simpleBase) return true
         if (VDerivationControl.RESTRICTION in simpleBase.mdlFinal) return false //2.1.a
         if (mdlBaseTypeDefinition == simpleBase) return true //2.2.1
@@ -153,7 +154,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         abstract override val model: ResolvedAnnotated.IModel
 
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
-        abstract val baseType: ResolvedSimpleType
+        abstract val baseType: ResolvedType
 
         open fun checkDerivation(checkHelper: CheckHelper) {}
 
@@ -162,7 +163,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
     interface Model : ResolvedAnnotated.IModel {
         val mdlItemTypeDefinition: ResolvedSimpleType?
         val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
-        val mdlBaseTypeDefinition: ResolvedSimpleType
+        val mdlBaseTypeDefinition: ResolvedType
         val mdlFacets: FacetList
         val mdlFundamentalFacets: FundamentalFacets
         val mdlVariety: Variety
@@ -361,8 +362,9 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 startType.simpleDerivation is ResolvedUnionDerivation -> valueFun(startType)
                 startType.simpleDerivation is ResolvedListDerivationBase -> valueFun(startType)
                 else -> when (val base = startType.mdlBaseTypeDefinition) {
-                    AnySimpleType -> valueFun(base)
-                    else -> recurseBaseType(base, valueFun)
+                    AnySimpleType -> valueFun(AnySimpleType)
+                    is ResolvedSimpleType -> recurseBaseType(base, valueFun)
+                    else -> error("Recursing non-simple base type ($base) of simple: ${startType}")
                 }
             }
         }

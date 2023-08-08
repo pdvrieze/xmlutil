@@ -28,17 +28,16 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(VAttrQNameList.Serializer::class)
-class VAttrQNameList(val values: List<Elem>): List<VAttrQNameList.Elem> by values {
-    sealed class Elem
-    object DEFINED: Elem()
-    class Name(val qName: QName): Elem()
+class VAttrQNameList(values: List<AttrElem>): VQNameListBase<VQNameListBase.AttrElem>(values) {
+    val DEFINED: VQNameListBase.DEFINED get() = VQNameListBase.DEFINED
+
+    constructor() : this(emptyList())
 
     object Serializer: KSerializer<VAttrQNameList> {
         override val descriptor: SerialDescriptor =

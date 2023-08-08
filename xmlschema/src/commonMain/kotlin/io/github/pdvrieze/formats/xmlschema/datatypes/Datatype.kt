@@ -20,26 +20,23 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
-import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
-import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 
@@ -167,7 +164,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String, schema: Resolv
     val members: List<Datatype> get() = TODO()
 }
 
-object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSchemaXmlschema),
+object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
     ResolvedGlobalSimpleType,
     ResolvedBuiltinSimpleType,
     ResolvedSimpleType.Model {
@@ -207,41 +204,61 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
     }
 }
 
-object AnyType : Datatype("anyType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinType, ResolvedSimpleType.Model {
-    override val baseType: AnyType get() = AnyType // No actual base type
-
+object AnyType : ResolvedGlobalComplexType(
+    mdlQName = QName(XS_NAMESPACE, "anyType"),
+    schema = BuiltinSchemaXmlschema,
+    modelFactory = { AnyModel },
+), ResolvedBuiltinType, ResolvedGlobalComplexType.Model {
+    override val id: Nothing? get() = null
+    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
+    override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
-    override val mdlVariety: ResolvedSimpleType.Variety get() = super<Datatype>.mdlVariety
-    override val mdlFinal: Set<VDerivationControl.Type> get() = super<Datatype>.mdlFinal
-    override val mdlFundamentalFacets: Nothing get() = throw UnsupportedOperationException("Any is not simple, and has no facets")
-
-    override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(AnyType, schema = BuiltinSchemaXmlschema)
-
-    override val mdlFacets: FacetList get() = FacetList.EMPTY
+    override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
 
     //    override val final: Set<Nothing> get() = emptySet()
-    override val model: AnyType get() = this
+    override val model: AnyModel get() = AnyModel
 
     override val mdlBaseTypeDefinition: AnyType get() = this
-
-    override val mdlPrimitiveTypeDefinition: Nothing? get() = null
-
-    override val mdlItemTypeDefinition: Nothing? get() = null
-
-    override val mdlMemberTypeDefinitions: List<Nothing>
-        get() = emptyList()
 
     override fun validate(representation: VString) {
 //        error("anyType cannot be directly implemented")
     }
 
+    override fun checkType(checkHelper: CheckHelper) {}
+
     override fun toString(): String = "xsd:anyType"
 
+    object AnyModel : ResolvedAnnotated.EmptyModel(), Model {
+        override val mdlBaseTypeDefinition: ResolvedType get() = AnyType
+        override val mdlAssertions: List<XSIAssertCommon> get() = emptyList()
 
+        override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
+        override val mdlContentType: ResolvedContentType = MixedContentType(
+            SyntheticSequence(
+                VNonNegativeInteger.ZERO, VAllNNI.UNBOUNDED,
+                listOf(
+                    ResolvedAny(
+                        VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VQNameList()),
+                        VProcessContents.LAX
+                    )
+                ), schema
+            )
+        )
+
+        override val mdlDerivationMethod: VDerivationControl.Complex get() = VDerivationControl.RESTRICTION
+
+        override val mdlAttributeWildcard: ResolvedAnyAttribute = ResolvedAnyAttribute(
+            VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VAttrQNameList()),
+            VProcessContents.LAX
+        )
+
+        override val mdlAbstract: Boolean get() = false
+        override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = emptySet()
+        override val mdlAttributeUses: Set<IResolvedAttributeUse> get() = emptySet()
+    }
 }
 
-object AnySimpleType : Datatype("anySimpleType", XmlSchemaConstants.XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
+object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
 
     override val baseType: AnyType get() = AnyType
 
@@ -274,5 +291,5 @@ internal open class SimpleBuiltinRestriction(
     schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(null) {
-    override val model: IModel = Model(baseType, FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition))
+    override val model: IModel = Model(baseType, FacetList(facets, schema, (baseType as? ResolvedBuiltinSimpleType)?.mdlPrimitiveTypeDefinition))
 }

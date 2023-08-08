@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("anyAttribute", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnyAttribute : XSAnyBase {
-    val notQName: VAttrQNameList?
+    override val notQName: VAttrQNameList?
 
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")
