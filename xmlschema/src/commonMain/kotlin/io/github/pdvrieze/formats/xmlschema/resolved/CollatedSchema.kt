@@ -66,6 +66,11 @@ internal class CollatedSchema(
 
 
     init {
+        val invalidAttrs = baseSchema.otherAttrs.keys.filter { it.namespaceURI in INVALID_NAMESPACES }
+        require(invalidAttrs.isEmpty()) {
+            "Found unsupported attributes in schema: ${invalidAttrs}"
+        }
+
         addToCollation(baseSchema, schemaLike, resolver.baseUri.toString(), namespace)
 
         // TODO this may need more indirection to ensure scoping
@@ -653,6 +658,8 @@ internal class CollatedSchema(
     }
 
     companion object {
+
+        private val INVALID_NAMESPACES: HashSet<String> = HashSet(listOf("", XS_NAMESPACE))
 
         private inline fun <T, K, M : MutableMap<in K, in T>> Iterable<Map.Entry<K, T>>.associateToUnique(
             destination: M
