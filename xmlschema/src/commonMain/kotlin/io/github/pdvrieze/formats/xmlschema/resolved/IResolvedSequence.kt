@@ -44,7 +44,7 @@ interface IResolvedSequence : ResolvedModelGroup {
 
                     is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
 
-                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(p.range * range, t))
                 }
             }
         }
