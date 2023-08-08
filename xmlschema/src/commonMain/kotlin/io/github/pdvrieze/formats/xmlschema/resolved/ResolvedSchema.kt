@@ -45,6 +45,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
     init {
         val collatedSchema = CollatedSchema(rawPart, resolver, schemaLike = this)
         collatedSchema.checkRecursiveTypeDefinitions()
+        collatedSchema.checkRecursiveSubstitutionGroups()
 
         nestedData[targetNamespace.value] = NestedData(targetNamespace, collatedSchema)
         // Use getOrPut to ensure uniqueness
