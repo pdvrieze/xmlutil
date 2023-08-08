@@ -33,7 +33,6 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(VAllNNI.Serializer::class)
 sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
-
     abstract operator fun plus(other: VAllNNI): VAllNNI
 
     abstract operator fun times(other: VAllNNI): VAllNNI
@@ -81,6 +80,20 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
 
         override fun toString(): String = value.toString()
+
+        override fun equals(other: Any?): Boolean {
+            if (this===other) return true
+            return when (other) {
+                is VNonNegativeInteger -> compareTo(other) == 0
+                is ULong -> toULong() == other
+                is UInt -> toULong() == other.toULong()
+                else -> false
+            }
+        }
+
+        override fun hashCode(): Int {
+            return value.hashCode()
+        }
 
         companion object Serializer : KSerializer<Value> {
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI.Value", PrimitiveKind.STRING)
