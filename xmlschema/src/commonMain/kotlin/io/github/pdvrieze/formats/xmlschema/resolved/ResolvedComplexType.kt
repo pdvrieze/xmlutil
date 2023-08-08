@@ -565,6 +565,8 @@ sealed class ResolvedComplexType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>
         val mdlOpenContent: ResolvedOpenContent?
 
+        val flattened : FlattenedGroup
+
         /** Implementation of 3.4.6.4 */
         fun restricts(base: ElementContentType): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
@@ -588,7 +590,9 @@ sealed class ResolvedComplexType(
                 when (term) {
                     is ResolvedElement -> target.add(term)
                     is ResolvedModelGroup -> for (p in term.mdlParticles) {
-                        collectElements(p.mdlTerm, target)
+                        if (p !is ResolvedProhibitedElement) {
+                            collectElements(p.mdlTerm, target)
+                        }
                     }
                 }
                 return target
@@ -612,6 +616,8 @@ sealed class ResolvedComplexType(
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
+
+        override val flattened: FlattenedGroup = mdlParticle.mdlTerm.flatten(mdlParticle.range)
     }
 
     class ElementOnlyContentType(
@@ -619,6 +625,8 @@ sealed class ResolvedComplexType(
         override val mdlOpenContent: ResolvedOpenContent? = null
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
+
+        override val flattened: FlattenedGroup = mdlParticle.mdlTerm.flatten(mdlParticle.range)
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,

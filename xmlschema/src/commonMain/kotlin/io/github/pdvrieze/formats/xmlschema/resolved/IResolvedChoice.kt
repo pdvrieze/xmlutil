@@ -32,14 +32,15 @@ interface IResolvedChoice : ResolvedModelGroup {
     override fun flatten(range: AllNNIRange): FlattenedGroup.Choice {
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            when (val t: ResolvedTerm = p.mdlTerm) {
-                is IResolvedChoice -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+            if (p !is ResolvedProhibitedElement) {
+                when (val t: ResolvedTerm = p.mdlTerm) {
+                    is IResolvedChoice -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
 
-                is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
+                    is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
 
-                is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+                }
             }
-
         }
         return FlattenedGroup.Choice(range, newParticles)
     }

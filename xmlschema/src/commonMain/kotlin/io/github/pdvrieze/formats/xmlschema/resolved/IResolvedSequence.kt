@@ -33,19 +33,20 @@ interface IResolvedSequence : ResolvedModelGroup {
     override fun flatten(range: AllNNIRange): FlattenedGroup.Sequence {
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            when (val t: ResolvedTerm = p.mdlTerm) {
-                is IResolvedSequence -> if (p.mdlMaxOccurs<= VAllNNI.ONE) {
-                    t.flatten(p.range).particles.mapTo(newParticles) { it * range }
-                } else if (p.mdlMinOccurs == p.mdlMaxOccurs) {
-                    val elems = t.flatten(p.range).particles
-                    repeat(p.mdlMinOccurs.toInt()) { newParticles.addAll(elems) }
+            if (p !is ResolvedProhibitedElement) {
+                when (val t: ResolvedTerm = p.mdlTerm) {
+                    is IResolvedSequence -> if (p.mdlMaxOccurs <= VAllNNI.ONE) {
+                        t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+                    } else if (p.mdlMinOccurs == p.mdlMaxOccurs) {
+                        val elems = t.flatten(p.range).particles
+                        repeat(p.mdlMinOccurs.toInt()) { newParticles.addAll(elems) }
+                    }
+
+                    is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
+
+                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
                 }
-
-                is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
-
-                is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
             }
-
         }
         return FlattenedGroup.Sequence(range, newParticles)
     }
