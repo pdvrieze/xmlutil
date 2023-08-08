@@ -126,15 +126,11 @@ class ResolvedGlobalElement(
             // Has to be lazy due to initialization loop
 
             val thisName: QName = context.mdlQName
-            checkSubstitutionGroupChain(thisName, mdlSubstitutionGroupAffiliations, SingleLinkedList.empty())
 
             val group = HashSet<ResolvedGlobalElement>()
             schema.substitutionGroupMembers(thisName).let { group.addAll(it) }
 
             for (child in group.toList()) {
-                for (m in child.mdlSubstitutionGroupMembers) {
-                    if (!group.add(m)) throw IllegalStateException("Substitution group is cyclic")
-                }
                 group.addAll(child.mdlSubstitutionGroupMembers)
             }
             group.toList()
@@ -150,17 +146,11 @@ class ResolvedGlobalElement(
                 ?: AnyType
 
 
-        private fun checkSubstitutionGroupChain(
+        private fun checkSubstitutionGroupChainRecursion(
             qName: QName,
             substitutionGroups: List<ResolvedGlobalElement>,
             seenElements: SingleLinkedList<QName>
         ) {
-            for (substitutionGroupHead in substitutionGroups) {
-                require(substitutionGroupHead.mdlQName !in seenElements) {
-                    "Recursive subsitution group: $qName"
-                }
-                substitutionGroupHead.checkSubstitutionGroupChain(seenElements + qName)
-            }
         }
 
     }
