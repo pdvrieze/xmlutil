@@ -125,6 +125,9 @@ sealed class FlattenedGroup(
                             require(lastAnys.none { it.intersects(startTerm.term) }) {
                                 "Non-deterministic choice group: choice${particles.joinToString()}"
                             }
+                            require(lastOptionals.none { startTerm.term.matches(it) }) {
+                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                            }
                         }
                     }
                 }
