@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
@@ -61,6 +62,11 @@ class ResolvedProhibitedElement(
     override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
 
     override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO
+
+    override fun checkParticle(checkHelper: CheckHelper) {
+        // override as there is no term to check.
+        check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+    }
 
     override val mdlTerm: Nothing
         get() = throw UnsupportedOperationException("Prohibited elements have no terms")

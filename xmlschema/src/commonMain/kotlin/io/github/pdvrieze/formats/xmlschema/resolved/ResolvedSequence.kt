@@ -47,7 +47,12 @@ class ResolvedSequence(
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         val existing = mutableMapOf<QName, ResolvedElement>()
-        for (term in mdlParticles.asSequence().filterIsInstance<IResolvedElementUse>().map { it.mdlTerm }) {
+        val terms = mdlParticles.asSequence()
+            .filterIsInstance<IResolvedElementUse>()
+            .filter { it !is ResolvedProhibitedElement }
+            .map { it.mdlTerm }
+
+        for (term in terms) {
             val old = existing.put(term.mdlQName, term)
             if (old != null) {
                 require(old==term || old.mdlTypeDefinition == term.mdlTypeDefinition) {
