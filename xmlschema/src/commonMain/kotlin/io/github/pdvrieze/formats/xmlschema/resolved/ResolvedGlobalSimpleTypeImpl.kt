@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalSimpleTypeImpl internal constructor(
-    override val rawPart: XSGlobalSimpleType,
+    rawPart: XSGlobalSimpleType,
     schema: ResolvedSchemaLike,
     val location: String = "",
 ) : ResolvedGlobalSimpleType {

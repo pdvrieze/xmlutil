@@ -202,7 +202,7 @@ object ErrorType : Datatype("error", XmlSchemaConstants.XS_NAMESPACE, BuiltinSch
         TODO("not implemented")
     }
 
-    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(rawPart) {
+    private object ERRORDERIVATION : ResolvedSimpleRestrictionBase(null) {
         override val model: IModel = Model(ErrorType)
     }
 }

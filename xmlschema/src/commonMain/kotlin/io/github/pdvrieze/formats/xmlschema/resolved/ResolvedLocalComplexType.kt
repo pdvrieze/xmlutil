@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 
 class ResolvedLocalComplexType(
-    override val rawPart: XSLocalComplexType,
+    rawPart: XSLocalComplexType,
     schema: ResolvedSchemaLike,
     context: VComplexTypeScope.Member,
 ) : ResolvedComplexType(schema), ResolvedLocalType,

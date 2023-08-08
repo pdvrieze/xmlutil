@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 sealed interface ResolvedType : ResolvedAnnotated {
-    val rawPart: Any?
     val mdlBaseTypeDefinition: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
