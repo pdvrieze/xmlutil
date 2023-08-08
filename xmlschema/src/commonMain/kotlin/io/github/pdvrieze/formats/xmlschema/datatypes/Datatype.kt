@@ -78,6 +78,7 @@ sealed class ListDatatype(
     val itemType: Datatype,
     schema: ResolvedSchemaLike,
 ) : Datatype(name, targetNamespace, schema), ResolvedBuiltinSimpleType, ResolvedGlobalSimpleType, ResolvedSimpleType.Model {
+    override val isSpecial: Boolean get() = false
 
     abstract override val baseType: ResolvedType
 
@@ -168,6 +169,7 @@ object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
     ResolvedGlobalSimpleType,
     ResolvedBuiltinSimpleType,
     ResolvedSimpleType.Model {
+    override val isSpecial: Boolean get() = false
 
     override val baseType: ErrorType get() = ErrorType
 
@@ -214,6 +216,7 @@ object AnyType : ResolvedGlobalComplexType(
     override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
+    override val isSpecial: Boolean get() = true
 
     //    override val final: Set<Nothing> get() = emptySet()
     override val model: AnyModel get() = AnyModel
@@ -259,6 +262,7 @@ object AnyType : ResolvedGlobalComplexType(
 }
 
 object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
+    override val isSpecial: Boolean get() = true
 
     override val baseType: AnyType get() = AnyType
 

@@ -79,14 +79,15 @@ class ResolvedGlobalElement(
 
         val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
         for (member in mdlSubstitutionGroupMembers) {
-            require(member.isSubstitutableFor(this))
+            require(member.isSubstitutableFor(this)) { "Element ${member.mdlQName} is not not substitutable for ${this.mdlQName}" }
         }
 
         if (mdlSubstitutionGroupMembers.isNotEmpty() && otherExcluded.isNotEmpty()) {
             for (substGroupMember in mdlSubstitutionGroupMembers) {
-                val deriv = when (val t = substGroupMember.mdlTypeDefinition) {
-                    is ResolvedComplexType -> t.mdlDerivationMethod
-                    is ResolvedSimpleType -> when (t.mdlVariety) {
+                val derivType = substGroupMember.mdlTypeDefinition
+                val derivMethod = when (derivType) {
+                    is ResolvedComplexType -> derivType.mdlDerivationMethod
+                    is ResolvedSimpleType -> when (derivType.mdlVariety) {
                         ResolvedSimpleType.Variety.ATOMIC -> VDerivationControl.RESTRICTION
                         ResolvedSimpleType.Variety.LIST -> VDerivationControl.LIST
                         ResolvedSimpleType.Variety.UNION -> VDerivationControl.UNION
@@ -95,21 +96,18 @@ class ResolvedGlobalElement(
 
                     else -> null // shouldn't happen
                 }
-                if (deriv != null) {
-                    check(deriv !in otherExcluded)
+                if (derivMethod != null) {
+                    check(derivMethod !in otherExcluded)
                 }
-
             }
         }
+
     }
 
     /** Implements substitutable as define in 3.3.6.3 */
     private fun isSubstitutableFor(head: ResolvedGlobalElement): Boolean {
-        if (this == head) return true
-        // skip disallowed substitutions as that has already been checked
-        // check complex type chain complex
-
-        return true // TODO("not implemented")
+        if (this === head) return true
+        return mdlTypeDefinition.isValidSubtitutionFor(head.mdlTypeDefinition)
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
