@@ -44,7 +44,7 @@ class ResolvedLocalElement private constructor(
         invariant(rawPart.ref == null)
         requireNotNull(rawPart.name) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified"}
 
-        require(mdlMinOccurs <= mdlMaxOccurs) { "XXX minOccurs must be smaller or equal to maxOccurs" }
+        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
 
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
             error("XXX. Canary. Remove once verified")

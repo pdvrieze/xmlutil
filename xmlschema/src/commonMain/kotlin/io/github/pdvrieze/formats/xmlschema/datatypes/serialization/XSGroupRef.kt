@@ -46,4 +46,8 @@ class XSGroupRef(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<SerializableQName, String>
-) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated
+) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated {
+    init {
+        require((minOccurs ?: VNonNegativeInteger.ONE) <= (maxOccurs ?: VAllNNI.ONE)) { "Invalid bounds: ! (${minOccurs}<=$maxOccurs)" }
+    }
+}

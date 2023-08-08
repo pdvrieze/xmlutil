@@ -241,7 +241,7 @@ object AnyType : ResolvedGlobalComplexType(
                         VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VQNameList()),
                         VProcessContents.LAX
                     )
-                ), schema
+                )
             )
         )
 
