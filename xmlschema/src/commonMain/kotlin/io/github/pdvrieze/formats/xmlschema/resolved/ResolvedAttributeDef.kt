@@ -30,6 +30,8 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
 
     abstract override val model: Model
 
+    override val mdlInheritable: Boolean = rawPart.inheritable ?: false
+
     init {
         val name = requireNotNull(rawPart.name) { "3.2.3(3.1) - Attribute definitions require names" }
 
