@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
@@ -55,6 +56,12 @@ internal class CollatedSchema(
         complexTypes[name]?.let { return it }
         return importedSchemas[name.getNamespaceURI()]?.findType(name) ?:
             throw IllegalArgumentException("No type with name $name found in schema")
+    }
+
+    fun findElement(name: QName) : XSGlobalElement {
+        elements[name]?.let { return it.second.element }
+        return importedSchemas[name.getNamespaceURI()]?.findElement(name) ?:
+            throw IllegalArgumentException("No element with name $name found in schema")
     }
 
 
@@ -177,6 +184,31 @@ internal class CollatedSchema(
             addToCollation(collatedSchema)
         }
 
+    }
+
+    fun checkRecursiveSubstitutionGroups() {
+        val verifiedHeads = mutableSetOf<QName>()
+
+        fun followChain(
+            elementName: QName,
+            seen: SingleLinkedList<QName>,
+            element: XSGlobalElement = findElement(elementName)
+        ) {
+            val newSeen = seen + elementName
+            val sg = element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return }
+            for (referenced in sg) {
+                if (referenced !in verifiedHeads) {
+                    require(referenced !in newSeen) { "Recursive substitution group (${newSeen.sortedBy { it.toString() }.joinToString()})" }
+                    followChain(referenced, newSeen)
+                }
+            }
+        }
+
+        for((name, elementInfo) in elements) {
+            if (name !in verifiedHeads) {
+                followChain(name, SingleLinkedList(), elementInfo.second.element)
+            }
+        }
     }
 
     fun checkRecursiveTypeDefinitions() {
