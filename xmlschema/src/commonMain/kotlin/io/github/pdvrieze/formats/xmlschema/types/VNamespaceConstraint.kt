@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
     val mdlVariety: Variety,
@@ -29,6 +31,30 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
 ) {
     fun containsAll(baseConstraint: VNamespaceConstraint<VQNameListBase.IElem>): Boolean {
         TODO("apply 3.10.6.2 rules")
+    }
+
+    fun matches(name: QName): Boolean = when (mdlVariety) {
+        Variety.ANY -> name !in disallowedNames
+        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && name !in disallowedNames
+        Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && name !in disallowedNames
+    }
+
+    fun intersects(other: VNamespaceConstraint<*>): Boolean = when(mdlVariety) {
+        Variety.ANY -> when(other.mdlVariety) {
+            Variety.ANY -> true
+            Variety.ENUMERATION -> true
+            Variety.NOT -> other.namespaces.containsAll(namespaces)
+        }
+        Variety.ENUMERATION -> when(other.mdlVariety) {
+            Variety.ANY -> true
+            Variety.ENUMERATION -> other.namespaces.toSet().let { ons -> namespaces.any { it in ons } }
+            Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons } }
+        }
+        Variety.NOT -> when(other.mdlVariety) {
+            Variety.ANY -> true
+            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns }}
+            Variety.NOT -> true
+        }
     }
 
     enum class Variety { ANY, ENUMERATION, NOT}
