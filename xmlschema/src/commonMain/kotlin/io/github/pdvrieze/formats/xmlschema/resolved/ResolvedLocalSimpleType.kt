@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 
 class ResolvedLocalSimpleType(
-    override val rawPart: XSLocalSimpleType,
+    rawPart: XSLocalSimpleType,
     schema: ResolvedSchemaLike,
     context: VSimpleTypeScope.Member,
 ) : ResolvedLocalType, ResolvedSimpleType {

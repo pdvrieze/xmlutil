@@ -45,8 +45,6 @@ class SyntheticSimpleType(
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")
 
-    override val rawPart: Nothing get() = error("Not supported")
-
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
 
     override fun validate(representation: VString) {
