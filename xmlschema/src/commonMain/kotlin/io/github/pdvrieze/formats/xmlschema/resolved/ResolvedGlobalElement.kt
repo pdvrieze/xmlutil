@@ -46,15 +46,6 @@ class ResolvedGlobalElement(
     override val mdlQName: QName =
         rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
 
-    val typeDef: ResolvedType by lazy {
-        rawPart.localType?.let { ResolvedLocalType(it, schema, this) }
-            ?: rawPart.type?.let {
-                schema.type(it)
-            }
-            ?: rawPart.substitutionGroup?.firstOrNull()?.let { schema.element(it).mdlTypeDefinition }
-            ?: AnyType
-    }
-
     override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
         (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
 
@@ -154,8 +145,8 @@ class ResolvedGlobalElement(
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
                 ?: rawPart.type?.let { schema.type(it) }
-//                ?: rawPart.substitutionGroup?.firstOrNull()
-//                    ?.let { schema.element(it).mdlTypeDefinition }
+                ?: rawPart.substitutionGroup?.firstOrNull()
+                    ?.let { schema.element(it).mdlTypeDefinition }
                 ?: AnyType
 
 
