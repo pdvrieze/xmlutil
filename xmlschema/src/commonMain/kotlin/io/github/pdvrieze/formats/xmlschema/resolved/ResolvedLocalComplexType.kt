@@ -44,11 +44,11 @@ class ResolvedLocalComplexType(
     }
 
     // TODO don't inherit simpleTypeContext
-    interface Model<R : XSLocalComplexType> : ResolvedComplexType.Model<R> {
+    interface Model<R : XSLocalComplexType> : ResolvedComplexType.Model {
         val mdlContext: VComplexTypeScope.Member
 
         override fun calculateProhibitedSubstitutions(
-            rawPart: R,
+            rawPart: XSIComplexType,
             schema: ResolvedSchemaLike
         ): Set<VDerivationControl.Complex> {
             return schema.blockDefault.filterIsInstanceTo(HashSet())

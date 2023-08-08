@@ -20,14 +20,25 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
 
-interface ResolvedBuiltinType : ResolvedGlobalType {
-    override fun checkType(checkHelper: CheckHelper) = Unit
-    override val id: Nothing? get() = null
-    override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
-    override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
-    override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
+class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
+
+    constructor(
+        mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.AttrElem>,
+        mdlProcessContents: VProcessContents,
+    ) : super(mdlNamespaceConstraint, mdlProcessContents)
+
+    constructor(
+        rawPart: XSAnyAttribute,
+        schema: ResolvedSchemaLike,
+    ) : super(
+        rawPart,
+        rawPart.toConstraint(schema),
+        rawPart.processContents ?: VProcessContents.STRICT
+    )
+
 }
