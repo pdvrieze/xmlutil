@@ -51,18 +51,6 @@ class ResolvedUnionDerivation(
         }
     }
 
-    fun transitiveMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
-        for (m in memberTypes) {
-            val d = m.simpleDerivation
-            if (d is ResolvedUnionDerivation) {
-                d.transitiveMembership(collector)
-            } else {
-                collector.add(m)
-            }
-        }
-        return collector
-    }
-
     private class Model(
         rawPart: XSSimpleUnion,
         schema: ResolvedSchemaLike,
@@ -81,6 +69,12 @@ class ResolvedUnionDerivation(
                 mt.isNullOrEmpty() -> simpleTypes
                 rawPart.simpleTypes.isEmpty() -> mt
                 else -> mt + simpleTypes
+            }
+
+            // Check 3.16.6.2
+            for (mt in memberTypes) {
+                require(mt!is ResolvedBuiltinType || !mt.isSpecial) { "3.16.6.2(3.1) - Unions cannot derive from special types" }
+                require(VDerivationControl.UNION !in mt.mdlFinal) { "3.16.6.2(3.2.1.1) - Member type is final for union"}
             }
         }
     }
