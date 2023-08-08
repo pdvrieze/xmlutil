@@ -39,19 +39,27 @@ sealed class FlattenedGroup(
 
         init {
             val seenNames = mutableSetOf<QName>()
-            for (startElem in particles.flatMap { it.startingElements() }) {
-                require(seenNames.add(startElem.term.mdlQName)) {
-                    "Non-deterministic all group: all{${particles.joinToString()}}"
+            val seenWildcards = mutableListOf<ResolvedAny>()
+            for (startElem in particles.flatMap { it.startingTerms() }) {
+                when (startElem) {
+                    is Element -> require(seenNames.add(startElem.term.mdlQName)) {
+                            "Non-deterministic all group: all{${particles.joinToString()}}"
+                        }
+
+                    is Wildcard -> require(seenWildcards.none { it.intersects(startElem.term) }) {
+                        "Non-deterministic all group: all${particles.joinToString()}"
+                    }
                 }
+                // alls don't care about wildcards (we don't check overlaps)
             }
         }
 
-        override fun startingElements(): List<Element> {
-            return particles.flatMap { it.startingElements() }
+        override fun startingTerms(): List<Term> {
+            return particles.flatMap { it.startingTerms() }
         }
 
-        override fun trailingElements(): List<Element> {
-            return particles.flatMap { it.trailingElements() }
+        override fun trailingTerms(): List<Term> {
+            return particles.flatMap { it.trailingTerms() }
         }
 
         override fun times(otherRange: AllNNIRange): All {
@@ -66,21 +74,28 @@ sealed class FlattenedGroup(
 
         init {
             val seenNames = mutableSetOf<QName>()
-            for (startElem in particles.flatMap { it.startingElements() }) {
-                require(seenNames.add(startElem.term.mdlQName)) {
-                    "Non-deterministic all group: choice(${particles.joinToString("| ")})"
+            val seenWildcards = mutableListOf<ResolvedAny>()
+            for (startElem in particles.flatMap { it.startingTerms() }) {
+                when (startElem) {
+                    is Element -> require(seenNames.add(startElem.term.mdlQName)) {
+                        "Non-deterministic choice group: choice(${particles.joinToString("| ")})"
+                    }
+
+                    is Wildcard -> require(seenWildcards.none { it.intersects(startElem.term) }) {
+                        "Non-deterministic choice group: choice${particles.joinToString()}"
+                    }
                 }
             }
         }
 
         override val particles: List<FlattenedParticle> = particles.sortedWith(particleComparator)
 
-        override fun startingElements(): List<Element> {
-            return particles.flatMap { it.startingElements() }
+        override fun startingTerms(): List<Term> {
+            return particles.flatMap { it.startingTerms() }
         }
 
-        override fun trailingElements(): List<Element> {
-            return particles.flatMap { it.trailingElements() }
+        override fun trailingTerms(): List<Term> {
+            return particles.flatMap { it.trailingTerms() }
         }
 
         override fun times(otherRange: AllNNIRange): Choice {
@@ -94,37 +109,65 @@ sealed class FlattenedGroup(
         FlattenedGroup(range) {
 
         init {
-            var lastOptionals: List<QName> = emptyList()
+            var lastOptionals: MutableList<QName> = mutableListOf()
+            var lastAnys: MutableList<ResolvedAny> = mutableListOf()
             for (p in particles) {
-                for (startTerm in p.startingElements()) {
-                    val startName = startTerm.term.mdlQName
-                    require(startName !in lastOptionals) {
-                        "Non-deterministic sequence: sequence${particles.joinToString()}"
+                for (startTerm in p.startingTerms()) {
+                    when(startTerm) {
+                        is Element -> {
+                            val startName = startTerm.term.mdlQName
+                            require(startName !in lastOptionals) {
+                                "Non-deterministic sequence: sequence${particles.joinToString()}"
+                            }
+                            require(lastAnys.none { it.matches(startName) })
+                        }
+                        is Wildcard -> {
+                            require(lastAnys.none { it.intersects(startTerm.term) }) {
+                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                            }
+                        }
                     }
                 }
 
-                lastOptionals = when {
-                    p.isVariable -> p.trailingElements().asSequence()
-                    else -> p.trailingElements().asSequence().filter { it.isVariable }
-                }.map { it.term.mdlQName }.toList()
+
+
+                lastOptionals = mutableListOf()
+                lastAnys = mutableListOf()
+
+                when {
+                    p.isVariable -> for (e in p.trailingTerms()) {
+                        when (e) {
+                            is Wildcard -> lastAnys.add(e.term)
+                            is Element -> lastOptionals.add(e.term.mdlQName)
+                        }
+                    }
+
+                    else -> for (e in p.trailingTerms()) {
+                        if (e.isVariable) when (e) {
+                            is Wildcard -> lastAnys.add(e.term)
+                            is Element -> lastOptionals.add(e.term.mdlQName)
+                        }
+                    }
+                }
+
             }
         }
 
-        override fun startingElements(): List<Element> {
-            return particles.firstOrNull()?.startingElements() ?: emptyList()
+        override fun startingTerms(): List<Term> {
+            return particles.firstOrNull()?.startingTerms() ?: emptyList()
         }
 
-        override fun trailingElements(): List<Element> {
-            val result = mutableListOf<Element>()
-            for(particle in particles.asReversed()) {
-                result.addAll(particle.trailingElements())
-                if (! particle.isOptional) return result
+        override fun trailingTerms(): List<Term> {
+            val result = mutableListOf<Term>()
+            for (particle in particles.asReversed()) {
+                result.addAll(particle.trailingTerms())
+                if (!particle.isOptional) return result
             }
             return result
         }
 
         override fun times(otherRange: AllNNIRange): Sequence {
-            return Sequence(range*otherRange, particles)
+            return Sequence(range * otherRange, particles)
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = ")")
@@ -143,14 +186,14 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     abstract operator fun times(otherRange: AllNNIRange): FlattenedParticle
 
-    abstract fun startingElements(): List<Element>
-    abstract fun trailingElements(): List<Element>
+    abstract fun startingTerms(): List<Term>
+    abstract fun trailingTerms(): List<Term>
 
     abstract class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
 
         companion object {
-            operator fun invoke(range: AllNNIRange, term: ResolvedBasicTerm): Term = when(term) {
+            operator fun invoke(range: AllNNIRange, term: ResolvedBasicTerm): Term = when (term) {
                 is ResolvedElement -> Element(range, term)
                 is ResolvedAny -> Wildcard(range, term)
             }
@@ -158,28 +201,29 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     }
 
     class Element(range: AllNNIRange, override val term: ResolvedElement) : Term(range) {
-        override fun startingElements(): List<Element> {
+        override fun startingTerms(): List<Element> {
             return listOf(this)
         }
 
-        override fun trailingElements(): List<Element> = listOf(this)
+        override fun trailingTerms(): List<Element> = listOf(this)
 
         override fun times(otherRange: AllNNIRange): Element {
-            return Element(range*otherRange, term)
+            return Element(range * otherRange, term)
         }
 
         override fun toString(): String = term.mdlQName.toString()
     }
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
-        override fun startingElements(): List<Element> {
-            return emptyList()
+
+        override fun startingTerms(): List<Wildcard> {
+            return listOf(this)
         }
 
-        override fun trailingElements(): List<Element> = emptyList()
+        override fun trailingTerms(): List<Wildcard> = listOf(this)
 
         override fun times(otherRange: AllNNIRange): Wildcard {
-            return Wildcard(range*otherRange, term)
+            return Wildcard(range * otherRange, term)
         }
 
         override fun toString(): String = "*"
@@ -194,13 +238,16 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                             is ResolvedAny -> 0
                             is ResolvedElement -> 1 // Any after element
                         }
+
                         is ResolvedElement -> when (val bt = b.term) {
                             is ResolvedAny -> 0
                             is ResolvedElement -> at.mdlQName.compareTo(bt.mdlQName)
                         }
                     }
+
                     is FlattenedGroup -> -1 // groups after terms
                 }
+
                 is FlattenedGroup -> when (b) {
                     is Term -> 1
                     is FlattenedGroup -> a.compareTo(b)
@@ -208,18 +255,19 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             }
         }
 
-        private val FlattenedGroup.kindKey: Int get() = when(this) {
-            is FlattenedGroup.All -> 0
-            is FlattenedGroup.Choice -> 1
-            is FlattenedGroup.Sequence -> 2
-        }
+        private val FlattenedGroup.kindKey: Int
+            get() = when (this) {
+                is FlattenedGroup.All -> 0
+                is FlattenedGroup.Choice -> 1
+                is FlattenedGroup.Sequence -> 2
+            }
 
         private operator fun FlattenedGroup.compareTo(other: FlattenedGroup): Int {
             val k = kindKey - other.kindKey
-            if (k!=0) return k
-            for(i in 0 until minOf(particles.size, other.particles.size)) {
+            if (k != 0) return k
+            for (i in 0 until minOf(particles.size, other.particles.size)) {
                 val c = particleComparator.compare(particles[i], other.particles[i])
-                if (c!=0) return c
+                if (c != 0) return c
             }
             return particles.size - other.particles.size
         }
