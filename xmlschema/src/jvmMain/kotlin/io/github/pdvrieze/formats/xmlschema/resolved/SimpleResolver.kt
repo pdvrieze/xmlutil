@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
@@ -34,7 +35,7 @@ internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver
 
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
         return baseURI.resolve(schemaLocation.value).withXmlReader { reader ->
-            return XML {
+            XML {
                 defaultPolicy {
                     autoPolymorphic = true
                     throwOnRepeatedElement = true
@@ -61,6 +62,17 @@ private inline fun <R> URI.withXmlReader(body: (XmlReader)->R): R {
 
 private inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
     return openStream().use { inStream ->
-        XmlStreaming.newReader(inStream, "UTF-8").use(body)
+        val reader = XmlStreaming.newReader(inStream, "UTF-8")
+        val r = reader.use(body)
+        if(reader.eventType != EventType.END_DOCUMENT) {
+            var e: EventType
+            do {
+                e = reader.next()
+            } while (e.isIgnorable && e != EventType.END_DOCUMENT)
+            require(e == EventType.END_DOCUMENT) {
+                "Trailing content in document $reader"
+            }
+        }
+        r
     }
 }
