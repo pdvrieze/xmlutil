@@ -33,13 +33,6 @@ sealed interface XSI_Particle : XSI_Annotated {
     /** Optional, default 1 */
     val maxOccurs: VAllNNI?
 
-    object DUMMY : XSI_Particle {
-        override val minOccurs: Nothing? get() = null
-        override val maxOccurs: Nothing? get() = null
-        override val annotation: Nothing? get() = null
-        override val id: Nothing? get() = null
-        override val otherAttrs: Map<QName, String> get() = emptyMap()
-    }
 }
 
 /**
