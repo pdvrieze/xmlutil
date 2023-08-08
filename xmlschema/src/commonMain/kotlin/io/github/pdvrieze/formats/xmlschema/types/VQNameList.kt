@@ -28,13 +28,13 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
-open class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
+abstract class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
+
+    abstract operator fun contains(name: QName): Boolean
+
     interface IElem
     sealed interface AttrElem : IElem
     sealed class Elem : IElem
@@ -45,6 +45,9 @@ open class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>) : L
 
 @Serializable(VQNameList.Serializer::class)
 class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(values) {
+    override fun contains(name: QName): Boolean {
+        return values.any { it is Name && it.qName.isEquivalent(name) }
+    }
 
     constructor() : this(listOf())
 

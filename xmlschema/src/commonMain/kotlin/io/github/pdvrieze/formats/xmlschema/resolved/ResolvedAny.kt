@@ -63,4 +63,9 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override fun checkTerm(checkHelper: CheckHelper) {}
 
+    fun intersects(other: ResolvedAny): Boolean = when (mdlMaxOccurs) {
+        VAllNNI.ZERO -> false
+        else -> this.mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
+    }
+
 }
