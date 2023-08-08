@@ -269,15 +269,15 @@ internal class CollatedSchema(
                 schema.elementKind == Redefinable.TYPE &&
                 schema.elementName.isEquivalent(ref)
             ) {
-                val type = schema.lookupRawType(ref)
+                val typeInfo = schema.lookupRawType(ref)
                 when {
-                    type == null ->
+                    typeInfo == null ->
                         require(ref.namespaceURI == XS_NAMESPACE || ref.namespaceURI == XSI_NAMESPACE) {
                             "Failure to find referenced (redefined) type $ref"
                         }
 
-                    type !in seenTypes ->
-                        checkRecursiveTypes(type, schema.nestedRedefine ?: schema, seenTypes, inheritanceChain)
+                    typeInfo.second.element !in seenTypes ->
+                        checkRecursiveTypes(typeInfo, seenTypes, inheritanceChain)
                 }
             } else {
                 val typeInfo = findType(ref)
@@ -550,13 +550,18 @@ internal class CollatedSchema(
             else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine, elementName, elementKind)
         }
 
-        fun lookupRawType(name: QName): XSGlobalType? {
+        fun lookupRawType(name: QName): Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>>? {
             if ((targetNamespace?.value ?: "") != name.namespaceURI) return null
 
             val targetLocalName = name.localPart
-            originalSchema.simpleTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let { return it }
+            originalSchema.simpleTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
+                return Pair(nestedRedefine?:this, SchemaAssociatedElement(originalLocation, it))
+            }
 
-            return originalSchema.complexTypes.firstOrNull { it.name.xmlString == targetLocalName }
+            originalSchema.complexTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
+                return Pair(nestedRedefine?:this, SchemaAssociatedElement(originalLocation, it))
+            }
+            return nestedRedefine?.lookupRawType(name)
         }
     }
 
