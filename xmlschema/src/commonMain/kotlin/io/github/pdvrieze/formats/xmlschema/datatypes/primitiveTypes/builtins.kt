@@ -121,6 +121,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
 }
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
+    final override val isSpecial: Boolean get() = false
     abstract fun value(representation: VString): VAnySimpleType
     abstract fun value(maybeValue: VAnySimpleType): VAnySimpleType
 
@@ -133,6 +134,7 @@ sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDa
 }
 
 object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAMESPACE) {
+    override val isSpecial: Boolean get() = true
     override val baseType: AnySimpleType get() = AnySimpleType
     override val simpleDerivation: ResolvedSimpleRestrictionBase =
         SimpleBuiltinRestriction(AnySimpleType, schema = BuiltinSchemaXmlschema)
