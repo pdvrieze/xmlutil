@@ -43,6 +43,8 @@ class ResolvedAttributeRef(
         require(rawPart.form == null) { "3.2.3(3.2) - Attribute references cannot specify form" }
     }
 
+    override val mdlInheritable: Boolean get() = model.mdlInheritable
+
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
     override val mdlRequired: Boolean = rawPart.use == XSAttrUse.REQUIRED
@@ -73,6 +75,8 @@ class ResolvedAttributeRef(
         val mdlAttributeDeclaration: ResolvedAttributeDef = schema.attribute(
             requireNotNull(rawPart.ref) { "Missing ref for attributeRef" }
         )
+
+        val mdlInheritable: Boolean = rawPart.inheritable ?: mdlAttributeDeclaration.mdlInheritable
 
         init {
             val vc = mdlAttributeDeclaration.mdlValueConstraint

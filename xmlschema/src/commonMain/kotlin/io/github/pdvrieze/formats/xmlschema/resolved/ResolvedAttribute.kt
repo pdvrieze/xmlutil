@@ -32,7 +32,7 @@ sealed class ResolvedAttribute(
 
     abstract override val model: Model
 
-    val mdlInheritable: Boolean = rawPart.inheritable ?: false
+    abstract val mdlInheritable: Boolean
 
     abstract val mdlScope: VAttributeScope
 

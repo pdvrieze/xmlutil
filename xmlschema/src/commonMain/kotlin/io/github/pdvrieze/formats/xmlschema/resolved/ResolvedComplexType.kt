@@ -679,12 +679,11 @@ sealed class ResolvedComplexType(
                 }
 
                 // Defined attribute group references (including the default one)
-                val groups = buildList {
+                val groups = buildSet {
                     defaultAttributeGroup?.let { ag -> add(schema.attributeGroup(ag)) }
                     rawPart.content.derivation.attributeGroups.mapTo(this) { schema.attributeGroup(it.ref) }
                 }
                 for (group in groups) {
-                    // TODO follow the standard
                     val groupAttributeUses = group.getAttributeUses()
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
@@ -692,20 +691,22 @@ sealed class ResolvedComplexType(
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
-                val t = parent.mdlBaseTypeDefinition as? ResolvedComplexType
-                when (t?.mdlDerivationMethod) {
+                val baseType = parent.mdlBaseTypeDefinition as? ResolvedComplexType
+                when (baseType?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
-                        for (a in t.mdlAttributeUses) {
-                            val existingAttr = get(a.mdlAttributeDeclaration.mdlQName)
-                            if (existingAttr!=null) {
-                                require(existingAttr is ResolvedProhibitedAttribute || existingAttr.mdlAttributeDeclaration.mdlTypeDefinition == a.mdlAttributeDeclaration.mdlTypeDefinition) {
-                                    "Invalid attribute extension $a of $existingAttr"
+                        for (a in baseType.mdlAttributeUses) {
+                            val attrName = a.mdlAttributeDeclaration.mdlQName
+//                            require(a.mdlInheritable) { "Only inheritable attributes can be inherited ($attrName)" }
+                            if (attrName !in prohibitedAttrs) {
+                                val existingAttr = get(attrName)
+                                if (existingAttr == null) {
+                                    put(attrName, a)
                                 }
                             }
                         }
 
                     VDerivationControl.RESTRICTION ->
-                        for (a in t.mdlAttributeUses) {
+                        for (a in baseType.mdlAttributeUses) {
                             val qName = a.mdlAttributeDeclaration.mdlQName
                             if (qName !in prohibitedAttrs) {
                                 getOrPut(qName) { a }
