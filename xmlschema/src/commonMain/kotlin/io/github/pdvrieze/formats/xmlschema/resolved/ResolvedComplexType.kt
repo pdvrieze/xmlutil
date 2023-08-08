@@ -41,8 +41,6 @@ sealed class ResolvedComplexType(
     VElementScope.Member,
     VTypeScope.Member {
 
-    abstract override val rawPart: XSComplexType
-
     abstract override val model: Model<*>
 
     // TODO use better way to determine this
@@ -255,11 +253,7 @@ sealed class ResolvedComplexType(
         final override val mdlAnnotations: ResolvedAnnotation? = rawPart.annotation.models()
 
         final override val mdlAttributeUses: Set<IResolvedAttributeUse> by lazy {
-            calculateAttributeUses(
-                schema,
-                rawPart,
-                context
-            )
+            calculateAttributeUses(schema, rawPart, context)
         }
 
         override val mdlAttributeWildcard: ResolvedAny? // TODO do more
