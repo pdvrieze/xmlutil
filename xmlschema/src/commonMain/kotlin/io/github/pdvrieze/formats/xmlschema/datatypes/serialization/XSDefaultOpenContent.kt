@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -30,7 +32,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("defaultOpenContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSDefaultOpenContent : XSOpenContentBase {
-    val appliesToEmpty: Boolean
+    @SerialName("appliesToEmpty")
+    private val _appliesToEmpty: VBoolean
+
+    val appliesToEmpty: Boolean get() = _appliesToEmpty.value
 
     constructor(
         appliesToEmpty: Boolean = false,
@@ -40,6 +45,6 @@ class XSDefaultOpenContent : XSOpenContentBase {
         annotation: XSAnnotation? = null,
         any: XSAny? = null
     ) : super(mode, any, id, annotation, otherAttrs) {
-        this.appliesToEmpty = appliesToEmpty
+        this._appliesToEmpty = VBoolean(appliesToEmpty)
     }
 }

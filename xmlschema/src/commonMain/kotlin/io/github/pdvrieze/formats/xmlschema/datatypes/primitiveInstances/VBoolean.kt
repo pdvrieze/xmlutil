@@ -20,9 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.jvm.JvmInline
 
 @JvmInline
+@Serializable(VBoolean.Companion::class)
 value class VBoolean(val value: Boolean): VAnyAtomicType {
     operator fun not(): VBoolean = VBoolean(!value)
 
@@ -30,9 +38,22 @@ value class VBoolean(val value: Boolean): VAnyAtomicType {
 
     override fun toString(): String = xmlString
 
-    companion object {
+    companion object : KSerializer<VBoolean> {
         val TRUE = VBoolean(true)
         val FALSE = VBoolean(false)
+
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xmlBoolean", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: VBoolean) = when (value.value) {
+            true -> encoder.encodeString("true")
+            else -> encoder.encodeString("false")
+        }
+
+        override fun deserialize(decoder: Decoder): VBoolean = when (val s = decoder.decodeString()) {
+            "0", "false" -> FALSE
+            "1", "true" -> TRUE
+            else -> throw NumberFormatException("Invalid boolean value: $s")
+        }
     }
 
 }

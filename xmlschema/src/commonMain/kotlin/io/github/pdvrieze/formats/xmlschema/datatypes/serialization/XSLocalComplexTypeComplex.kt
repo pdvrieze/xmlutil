@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -42,8 +43,8 @@ class XSLocalComplexTypeComplex(
 
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
-            mixed = mixed,
-            defaultAttributesApply = defaultAttributesApply,
+            mixed = mixed?.let(::VBoolean),
+            defaultAttributesApply = defaultAttributesApply?.let(::VBoolean),
             complexContent = content,
             id = id,
             annotation = annotation,

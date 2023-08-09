@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
@@ -57,10 +59,12 @@ sealed class XSFacet : XSI_Annotated {
 
     @Serializable
     sealed class Fixed : XSFacet {
-        final override val fixed: Boolean?
+        @SerialName("fixed")
+        private val _fixed: VBoolean?
+        final override val fixed: Boolean? get() = _fixed?.value
 
         constructor(fixed: Boolean?, id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs) {
-            this.fixed = fixed
+            this._fixed = fixed?.let(::VBoolean)
         }
     }
 

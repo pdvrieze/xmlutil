@@ -20,11 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.types.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
@@ -43,7 +41,9 @@ sealed class XSElement : XSI_Annotated {
     final override val id: VID?
     abstract val name: VNCName?
 
-    val nillable: Boolean?
+    @SerialName("nillable")
+    private val _nillable: VBoolean?
+    val nillable: Boolean? get() = _nillable?.value
 
     @XmlElement(false)
     val type: SerializableQName?
@@ -78,7 +78,7 @@ sealed class XSElement : XSI_Annotated {
         this.default = default
         this.fixed = fixed
         this.id = id
-        this.nillable = nillable
+        this._nillable = nillable?.let(::VBoolean)
         this.type = type
         this.annotation = annotation
         this.localType = localType
