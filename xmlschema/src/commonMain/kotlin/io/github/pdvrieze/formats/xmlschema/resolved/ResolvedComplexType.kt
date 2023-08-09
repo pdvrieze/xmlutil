@@ -27,9 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VContentMode
-import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
@@ -132,30 +130,34 @@ sealed class ResolvedComplexType(
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
             val baseType = mdlBaseTypeDefinition
             if (baseType is ResolvedComplexType) {
-                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
-                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "Base attribute uses must be a subset of the extension: extension: ${mdlAttributeUses} - base: ${baseType.mdlAttributeUses}" }
+                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
+                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: ${mdlAttributeUses} - base: ${baseType.mdlAttributeUses}" }
+
+                // 1.3
                 val baseWc = baseType.mdlAttributeWildcard
                 if (baseWc != null) {
-                    val wc = requireNotNull(mdlAttributeWildcard)
-                    require(wc.mdlNamespaceConstraint.containsAll(baseWc.mdlNamespaceConstraint))
+                    val wc = requireNotNull(mdlAttributeWildcard) { "3.4.6.2(1.3) - extension must have also one" }
+                    require(wc.mdlNamespaceConstraint.contains(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
                 }
 
                 when (val baseCType = baseType.mdlContentType) {
                     is ResolvedSimpleContentType ->
                         require(baseCType.mdlSimpleTypeDefinition == (mdlContentType as ResolvedSimpleContentType).mdlSimpleTypeDefinition) {
-                            "3.4.6.2 - 1.4.1 - Simple content types must have the same simple type definition"
+                            "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
                         }
 
-                    is EmptyContentType -> {}//require(mdlContentType is EmptyContentType)
+                    is EmptyContentType -> {}//1.4.2 / 1.4.3.2.1 can extend from empty
 
                     is MixedContentType -> {
-                        require(mdlContentType is MixedContentType)
+                        require(mdlContentType is MixedContentType) { "3.4.6.2(1.4.3.2.2.1) - mixed must be extended by mixed" }
                         // Ensure chcking particle extensions
                         val bot = baseCType.mdlOpenContent
                         val eot = (mdlContentType as MixedContentType).mdlOpenContent
-                        require(bot == null || eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE || (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX))
+                        require(bot == null || eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE || (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX)) {
+                            "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
+                        }
                         if (bot != null && eot != null) {
-                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.containsAll(bot.mdlWildCard!!.mdlNamespaceConstraint))
+                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.contains(bot.mdlWildCard!!.mdlNamespaceConstraint))
                         }
                     }
 
@@ -252,9 +254,6 @@ sealed class ResolvedComplexType(
             calculateAttributeUses(schema, rawPart, context)
         }
 
-        override val mdlAttributeWildcard: ResolvedAnyAttribute? // TODO do more
-            get() = null
-
         override val mdlAssertions: List<XSIAssertCommon> = buildList {
             addAll(rawPart.content.derivation.asserts)
             addAll(rawPart.content.derivation.asserts)
@@ -275,10 +274,14 @@ sealed class ResolvedComplexType(
 
         final override val mdlDerivationMethod: VDerivationControl.Complex
 
+        final override val mdlAttributeWildcard: ResolvedAnyAttribute?
+
+
         init {
             val baseTypeDefinition: ResolvedType
             val content: XSI_ComplexContent = rawPart.content
             val derivation: XSI_ComplexDerivation
+
 
             when (content) {
                 is XSComplexContent -> {
@@ -306,6 +309,35 @@ sealed class ResolvedComplexType(
                 }
 
                 else -> error("Should be unreachable (sealed type)")
+            }
+
+
+            // attribute wildcards according to 3.4.2.5
+/* -- It is not clear what this does (attribute groups are outside the wildcard)
+            val defaultAttrGroupRef = when {
+                rawPart.defaultAttributesApply!=false -> schema.defaultAttributes
+                else -> null
+            }
+*/
+
+            val completeWildcard = content.derivation.anyAttribute?.let { ResolvedAnyAttribute(it, schema) }
+
+            mdlAttributeWildcard = when {
+                // 2.1
+                derivation !is XSComplexContent.XSExtension -> completeWildcard
+                else -> { // extension
+                    // 2.2.1
+                    val baseWildcard = (baseTypeDefinition as? ResolvedComplexType)?.mdlAttributeWildcard
+
+                    when {
+                        baseWildcard == null -> completeWildcard
+                        completeWildcard == null -> baseWildcard
+                        else -> ResolvedAnyAttribute(
+                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint),
+                            mdlProcessContents = completeWildcard.mdlProcessContents
+                        )
+                    }
+                }
             }
 
             mdlBaseTypeDefinition = baseTypeDefinition
@@ -455,6 +487,8 @@ sealed class ResolvedComplexType(
 
         final override val mdlSimpleTypeDefinition: ResolvedSimpleType
 
+        final override val mdlAttributeWildcard: ResolvedAnyAttribute?
+
         init {
 
             val derivation = rawPart.content.derivation
@@ -471,6 +505,26 @@ sealed class ResolvedComplexType(
                 }
             }
 
+
+            val completeWildcard = rawPart.content.derivation.anyAttribute?.let { ResolvedAnyAttribute(it, schema) }
+
+            mdlAttributeWildcard = when {
+                // 2.1
+                derivation !is XSSimpleContentExtension -> completeWildcard
+                else -> { // extension
+                    // 2.2.1
+                    val baseWildcard = (baseType as? ResolvedComplexType)?.mdlAttributeWildcard
+
+                    when {
+                        baseWildcard == null -> completeWildcard
+                        completeWildcard == null -> baseWildcard
+                        else -> ResolvedAnyAttribute(
+                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint),
+                            mdlProcessContents = completeWildcard.mdlProcessContents
+                        )
+                    }
+                }
+            }
 
             val complexBaseContentType: ResolvedContentType? = (baseType as? ResolvedComplexType)?.mdlContentType
 

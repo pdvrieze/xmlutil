@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract class ResolvedSchemaLike {
+    abstract val defaultAttributes: QName?
     abstract val targetNamespace: VAnyURI?
 
     abstract val blockDefault: VBlockSet
