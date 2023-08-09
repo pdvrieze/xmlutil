@@ -72,6 +72,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             is UNBOUNDED -> UNBOUNDED
         }
 
+        operator fun plus(other: Value): Value = Value(value + other.value)
+
         override operator fun times(other: VAllNNI): VAllNNI = when (other) {
             is Value -> Value(value.toULong() * other.value.toULong())
             is UNBOUNDED -> UNBOUNDED
@@ -148,6 +150,10 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         else -> start <= value && value <= endInclusive
     }
 
+    operator fun contains(other: AllNNIRange): Boolean {
+        return start <= other.start && endInclusive >= other.endInclusive
+    }
+
     override fun isEmpty(): Boolean {
         return endInclusive !is VAllNNI.UNBOUNDED && start < endInclusive
     }
@@ -159,5 +165,9 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
     override fun toString(): String = when(endInclusive) {
         VAllNNI.UNBOUNDED -> "[$start, →)"
         else -> "[$start, $endInclusive]"
+    }
+
+    operator fun plus(other: AllNNIRange): AllNNIRange {
+        return AllNNIRange(start + other.start, endInclusive + other.endInclusive)
     }
 }

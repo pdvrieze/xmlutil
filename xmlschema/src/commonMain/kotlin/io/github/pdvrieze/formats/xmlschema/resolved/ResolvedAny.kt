@@ -23,10 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
-import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
-import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
+import io.github.pdvrieze.formats.xmlschema.types.*
 
 class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
@@ -60,6 +57,10 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     }
 
     override val mdlTerm: ResolvedAny get() = this
+
+    override fun flatten(range: AllNNIRange): FlattenedParticle.Wildcard {
+        return FlattenedParticle.Wildcard(range, this)
+    }
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
 

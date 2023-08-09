@@ -39,9 +39,12 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
         Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && name !in disallowedNames
     }
 
+    /**
+     * Determine whether there is any overlap between the two constraints (the intersection is not empty)
+     */
     fun intersects(other: VNamespaceConstraint<*>): Boolean = when(mdlVariety) {
         Variety.ANY -> when(other.mdlVariety) {
-            Variety.ANY -> true
+            Variety.ANY,
             Variety.ENUMERATION -> true
             Variety.NOT -> other.namespaces.containsAll(namespaces)
         }
@@ -51,9 +54,26 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
             Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons } }
         }
         Variety.NOT -> when(other.mdlVariety) {
-            Variety.ANY -> true
-            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns }}
+            Variety.ANY,
             Variety.NOT -> true
+            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns }}
+        }
+    }
+
+    /**
+     * Determine whether this namespace contains all values in the other namespace
+     */
+    fun contains(other: VNamespaceConstraint<*>) = when(mdlVariety) {
+        Variety.ANY -> true
+        Variety.ENUMERATION -> when(other.mdlVariety) {
+            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns } }
+            Variety.ANY,
+            Variety.NOT -> false
+        }
+        Variety.NOT -> when(other.mdlVariety) {
+            Variety.ANY -> false
+            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.none { it in ns }}
+            Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons }}
         }
     }
 

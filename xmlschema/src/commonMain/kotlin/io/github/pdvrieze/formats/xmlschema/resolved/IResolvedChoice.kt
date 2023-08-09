@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 interface IResolvedChoice : ResolvedModelGroup {
 
@@ -29,20 +30,28 @@ interface IResolvedChoice : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
 
-    override fun flatten(range: AllNNIRange): FlattenedGroup.Choice {
+    override fun flatten(range: AllNNIRange): FlattenedParticle {
+        if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
             if (p !is ResolvedProhibitedElement) {
-                when (val t: ResolvedTerm = p.mdlTerm) {
-                    is IResolvedChoice -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+                val f = p.flatten()
+                if (f.maxOccurs > VAllNNI.ZERO) {
+                    when (f) {
+                        is FlattenedGroup.Choice -> f.particles.asSequence()
+                            .filter { it.maxOccurs > VAllNNI.ZERO }
+                            .mapTo(newParticles) { it * range }
 
-                    is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
-
-                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+                        else -> newParticles.add(f)
+                    }
                 }
             }
         }
-        return FlattenedGroup.Choice(range, newParticles)
+        return when (newParticles.size) {
+            0 -> FlattenedGroup.EMPTY
+            1 -> newParticles.single() * range
+            else -> FlattenedGroup.Choice(range, newParticles)
+        }
     }
 
     override fun restricts(general: ResolvedModelGroup): Boolean {

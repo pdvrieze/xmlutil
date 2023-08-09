@@ -172,45 +172,45 @@ sealed class ResolvedComplexType(
 
             require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
 
-            val ct: ResolvedContentType = mdlContentType
+            val contentType: ResolvedContentType = mdlContentType
 //            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
-            val bt = (b as? ResolvedComplexType)?.mdlContentType
+            val baseContentType = (b as? ResolvedComplexType)?.mdlContentType
             when {
                 b == AnyType -> {} // Derivation is fine
 
-                ct is ResolvedSimpleContentType -> {
-                    when (bt) {
+                contentType is ResolvedSimpleContentType -> {
+                    when (baseContentType) {
                         is ResolvedSimpleContentType -> {
-                            val sb = bt.mdlSimpleTypeDefinition
-                            val st = ct.mdlSimpleTypeDefinition
+                            val sb = baseContentType.mdlSimpleTypeDefinition
+                            val st = contentType.mdlSimpleTypeDefinition
                             check(st.isValidlyDerivedFrom(sb)) { "For derivation, simple content models must validly derive" }
                         }
 
                         is MixedContentType ->
-                            check(bt.mdlParticle.mdlIsEmptiable()) { "Simple variety can only restrict emptiable mixed content type" }
+                            check(baseContentType.mdlParticle.mdlIsEmptiable()) { "Simple variety can only restrict emptiable mixed content type" }
 
-                        else -> throw IllegalArgumentException("Invalid derivation of ${bt?.mdlVariety} by simple")
+                        else -> throw IllegalArgumentException("Invalid derivation of ${baseContentType?.mdlVariety} by simple")
                     }
                 }
 
-                ct is EmptyContentType -> {
-                    when (bt) {
+                contentType is EmptyContentType -> {
+                    when (baseContentType) {
                         is ElementContentType -> {
-                            check(bt.mdlParticle.mdlIsEmptiable())
+                            check(baseContentType.mdlParticle.mdlIsEmptiable())
                         }
 
-                        !is EmptyContentType -> error("Invalid derivation of ${bt?.mdlVariety} by empty")
+                        !is EmptyContentType -> error("Invalid derivation of ${baseContentType?.mdlVariety} by empty")
                     }
                 }
 
-                ct is ElementOnlyContentType -> {
-                    check(bt is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(ct.restricts(bt) || true) // TODO do check
+                contentType is ElementOnlyContentType -> {
+                    check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
+                    check(contentType.restricts(baseContentType) || true) // TODO do check
                 }
 
-                ct is MixedContentType -> {
-                    check(bt is MixedContentType) { "Mixed content type can only derive from mixed content" }
-                    check(ct.restricts(bt) || true) // TODO do check
+                contentType is MixedContentType -> {
+                    check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
+                    check(contentType.restricts(baseContentType) || true) // TODO do check
                 }
             }
 
@@ -549,17 +549,20 @@ sealed class ResolvedComplexType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>
         val mdlOpenContent: ResolvedOpenContent?
 
-        val flattened : FlattenedGroup
+        val flattened: FlattenedParticle
 
         /** Implementation of 3.4.6.4 */
         fun restricts(base: ElementContentType): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
-            val normalized = mdlParticle.normalizeTerm()
-            val normalizedBase = base.mdlParticle.normalizeTerm()
-            if (normalizedBase.mdlMinOccurs > normalized.mdlMinOccurs) return false
-            if (normalizedBase.mdlMaxOccurs < normalized.mdlMaxOccurs) return false
-            if (!normalized.mdlTerm.restricts(normalizedBase.mdlTerm)) return false
+
+            // we use indirect access to term as that will give us groups.
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range)
+            val flattenedBase = base.mdlParticle.mdlTerm.flatten(base.mdlParticle.range)
+
+            if (flattenedBase.minOccurs > flattened.minOccurs) return false
+            if (flattenedBase.maxOccurs < flattened.maxOccurs) return false
+            if (!flattened.restricts(flattenedBase)) return false
             return true
         }
 
@@ -601,7 +604,7 @@ sealed class ResolvedComplexType(
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedGroup = mdlParticle.mdlTerm.flatten(mdlParticle.range)
+        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range)
     }
 
     class ElementOnlyContentType(
@@ -610,7 +613,7 @@ sealed class ResolvedComplexType(
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedGroup = mdlParticle.mdlTerm.flatten(mdlParticle.range)
+        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range)
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,

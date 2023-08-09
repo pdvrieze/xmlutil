@@ -55,6 +55,10 @@ class ResolvedProhibitedElement(
         }
     }
 
+    override fun flatten(): FlattenedParticle {
+        return FlattenedGroup.EMPTY
+    }
+
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         // no term
     }

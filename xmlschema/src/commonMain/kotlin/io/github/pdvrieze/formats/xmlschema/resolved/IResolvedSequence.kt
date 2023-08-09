@@ -31,24 +31,25 @@ interface IResolvedSequence : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
     override fun flatten(range: AllNNIRange): FlattenedGroup.Sequence {
+        if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
             if (p !is ResolvedProhibitedElement) {
-                when (val t: ResolvedTerm = p.mdlTerm) {
-                    is IResolvedSequence -> if (p.mdlMaxOccurs <= VAllNNI.ONE) {
-                        t.flatten(p.range).particles.mapTo(newParticles) { it * range }
-                    } else if (p.mdlMinOccurs == p.mdlMaxOccurs) {
-                        val elems = t.flatten(p.range).particles
-                        repeat(p.mdlMinOccurs.toInt()) { newParticles.addAll(elems) }
+                val f = p.flatten()
+                if (f.maxOccurs > VAllNNI.ZERO) {
+                    when (f) {
+                        is FlattenedGroup.Sequence -> if (f.range.endInclusive <= VAllNNI.ZERO) {
+                            f.particles.mapTo(newParticles) { it * range }
+                        } else {
+                            repeat(p.mdlMinOccurs.toInt()) { newParticles.addAll(f.particles) }
+                        }
+
+                        else -> newParticles.add(f)
                     }
-
-                    is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
-
-                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(p.range * range, t))
                 }
             }
         }
-        return FlattenedGroup.Sequence(range, newParticles)
+        return FlattenedGroup.Sequence(range, newParticles, false)
     }
 
 
@@ -60,7 +61,7 @@ interface IResolvedSequence : ResolvedModelGroup {
         var thisPos = 0
 
         for (generalPos in generalParticles.indices) {
-            if (thisPos>=specificParticles.size) { // the particle must be ignorable
+            if (thisPos >= specificParticles.size) { // the particle must be ignorable
                 if (!generalParticles[generalPos].mdlIsEmptiable()) return false
             } else {
                 if (specificParticles[thisPos] != generalParticles[generalPos]) {
@@ -71,7 +72,7 @@ interface IResolvedSequence : ResolvedModelGroup {
             }
         }
         for (tailIdx in thisPos until specificParticles.size) {
-            if(!specificParticles[tailIdx].mdlIsEmptiable()) return false
+            if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
         }
         return true
     }
