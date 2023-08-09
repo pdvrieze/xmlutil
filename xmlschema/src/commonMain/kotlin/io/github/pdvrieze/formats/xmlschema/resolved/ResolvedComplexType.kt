@@ -560,10 +560,7 @@ sealed class ResolvedComplexType(
             val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range)
             val flattenedBase = base.mdlParticle.mdlTerm.flatten(base.mdlParticle.range)
 
-            if (flattenedBase.minOccurs > flattened.minOccurs) return false
-            if (flattenedBase.maxOccurs < flattened.maxOccurs) return false
-            if (!flattened.restricts(flattenedBase)) return false
-            return true
+            return flattened.restricts(flattenedBase)
         }
 
         override fun check(
