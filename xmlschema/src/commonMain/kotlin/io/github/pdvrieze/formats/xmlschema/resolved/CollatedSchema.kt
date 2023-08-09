@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XSI_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
@@ -58,8 +57,8 @@ internal class CollatedSchema(
             throw IllegalArgumentException("No type with name $name found in schema")
     }
 
-    fun findElement(name: QName) : XSGlobalElement {
-        elements[name]?.let { return it.second.element }
+    fun findElement(name: QName) : Pair<ResolvedSchemaLike,XSGlobalElement> {
+        elements[name]?.let { return Pair(it.first, it.second.element) }
         return importedSchemas[name.getNamespaceURI()]?.findElement(name) ?:
             throw IllegalArgumentException("No element with name $name found in schema")
     }
@@ -197,10 +196,20 @@ internal class CollatedSchema(
         fun followChain(
             elementName: QName,
             seen: SingleLinkedList<QName>,
-            element: XSGlobalElement = findElement(elementName)
+            elementInfo: Pair<ResolvedSchemaLike, XSGlobalElement> = findElement(elementName)
         ) {
+            val (schema, element) = elementInfo
             val newSeen = seen + elementName
-            val sg = element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return }
+            val sg = (element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return })
+                .let {
+                    when (schema) {
+                        is ChameleonWrapper -> {
+                            val ns = schema.chameleonNamespace?.value ?: ""
+                            it.map { n -> QName(ns, n.localPart) }
+                        }
+                        else -> it
+                    }
+                }
             for (referenced in sg) {
                 if (referenced !in verifiedHeads) {
                     require(referenced !in newSeen) { "Recursive substitution group (${newSeen.sortedBy { it.toString() }.joinToString()})" }
@@ -211,7 +220,7 @@ internal class CollatedSchema(
 
         for((name, elementInfo) in elements) {
             if (name !in verifiedHeads) {
-                followChain(name, SingleLinkedList(), elementInfo.second.element)
+                followChain(name, SingleLinkedList(), Pair(elementInfo.first, elementInfo.second.element))
             }
         }
     }
@@ -300,7 +309,15 @@ internal class CollatedSchema(
         }
         val finalRefs = refs.asSequence()
             .filter { it.namespaceURI != XS_NAMESPACE && it.namespaceURI != XSI_NAMESPACE }
-            .toSet()
+            .let {
+                when (schema) {
+                    is ChameleonWrapper -> it.map {
+                        QName(schema.chameleonNamespace?.value ?: "", it.localPart)
+                    }
+
+                    else -> it
+                }
+            }.toSet()
         for (ref in finalRefs) {
             if (schema is RedefineWrapper &&
                 schema.elementKind == Redefinable.TYPE &&
