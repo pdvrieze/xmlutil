@@ -357,10 +357,13 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
         override fun restricts(reference: FlattenedParticle): Boolean = when (reference) {
             is Element -> when {
-                reference.maxOccurs < maxOccurs -> false
-                reference.minOccurs > minOccurs -> false
+                ! reference.range.contains(range) -> false
                 else -> reference.term.mdlQName.isEquivalent(term.mdlQName)
             }
+
+            is Wildcard -> reference.range.contains(range) && reference.term.matches(term.mdlQName)
+
+            is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range) }
 
             else -> false
         }
