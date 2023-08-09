@@ -28,9 +28,6 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     val mdlCompositor: Compositor
 
-    fun flatten(range: AllNNIRange): FlattenedGroup
-
-
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
         mdlParticles.forEach { particle ->
             particle.collectConstraints(collector)

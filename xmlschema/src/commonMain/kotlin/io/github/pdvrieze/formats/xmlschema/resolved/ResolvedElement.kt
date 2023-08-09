@@ -68,6 +68,10 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     abstract val mdlAbstract: Boolean
 
+    override fun flatten(range: AllNNIRange): FlattenedParticle.Element {
+        return FlattenedParticle.Element(range, this)
+    }
+
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
 
