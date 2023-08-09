@@ -638,10 +638,10 @@ internal open class XmlDecoderBase internal constructor(
             val nameMap = nameToMembers
 
             val normalizedName = name.normalize()
-            nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeat() }
+            nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
 
             polyMap[normalizedName]?.checkInputType()?.let {
-                return it.index.checkRepeat().apply {
+                return it.index.checkRepeatAndOrder(inputType).apply {
                     currentPolyInfo = it
                 }
             }
@@ -671,7 +671,7 @@ internal open class XmlDecoderBase internal constructor(
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
             if (containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
-                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeat() }
+                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
@@ -720,7 +720,47 @@ internal open class XmlDecoderBase internal constructor(
                 val desc = xmlDescriptor.getElementDescriptor(idx)
                 if (desc !is XmlListLikeDescriptor || !desc.isListEluded) {
                     config.policy.onElementRepeated(xmlDescriptor, idx)
-                    return idx
+                }
+            }
+        }
+
+        open protected fun Int.checkRepeatAndOrder(inputType: InputKind): Int = also { idx ->
+            checkRepeat()
+            if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
+                if (xmlDescriptor is XmlCompositeDescriptor) {
+                    val constraints = xmlDescriptor.childConstraints
+                    if (!constraints.isNullOrEmpty()) {
+                        val orderedBefore = BooleanArray(seenItems.size)
+                        val orderedAfter = BooleanArray(seenItems.size)
+                        for ((before, after) in constraints) {
+                            if (before == XmlOrderConstraint.OTHERS) orderedAfter[after] = true
+                            if (after == XmlOrderConstraint.OTHERS) orderedBefore[before] = true
+                        }
+                        for ((before, after) in constraints) {
+                            if (before == this) { // Check that there were no elements already expected
+                                if (after==XmlOrderConstraint.OTHERS) {
+                                    val seenSiblingIndex = seenItems.indices.indexOfFirst {
+                                        seenItems[it] &&
+                                                xmlDescriptor.getElementDescriptor(it).effectiveOutputKind == OutputKind.Element &&
+                                                (! orderedBefore[it])
+                                    }
+                                    if (seenSiblingIndex>=0) {
+                                        throw XmlSerialException("Found element ${xmlDescriptor.getElementDescriptor(seenSiblingIndex).tagName} before ${xmlDescriptor.getElementDescriptor(idx).tagName} in conflict with ordering constraints")
+                                    }
+                                } else if (seenItems[after]) {
+                                    throw XmlSerialException("Found element ${xmlDescriptor.getElementDescriptor(after).tagName} before ${xmlDescriptor.getElementDescriptor(idx).tagName} in conflict with ordering constraints")
+                                }
+                            }
+                            if (!orderedAfter[idx]) { // If this element is not ordered "last"
+                                val alreadySeenTrailingIndex = seenItems.indices.indexOfFirst { seenItems[it] && orderedAfter[it] }
+                                if (alreadySeenTrailingIndex>0) {
+                                    throw XmlSerialException("Found element ${xmlDescriptor.getElementDescriptor(idx).tagName} after ${xmlDescriptor.getElementDescriptor(alreadySeenTrailingIndex)} in conflict with ordering constraints")
+                                }
+                            }
+                        }
+                        // TODO verify order.
+
+                    }
                 }
             }
         }

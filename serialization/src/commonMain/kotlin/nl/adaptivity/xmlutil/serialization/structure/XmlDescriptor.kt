@@ -768,13 +768,17 @@ internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor =
         children[index]
 
-    public val childReorderMap: IntArray? by lazy {
+    private val childReorderInfo: Pair<Collection<XmlOrderConstraint>, IntArray>? by lazy {
         initialChildReorderInfo?.let {
             val newList = it.sequenceStarts(elementsCount)
 
             newList.fullFlatten(serialDescriptor, children)
         }
     }
+
+    public val childReorderMap: IntArray? get() = childReorderInfo?.second
+
+    public val childConstraints: Collection<XmlOrderConstraint>? get() = childReorderInfo?.first
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.apply {

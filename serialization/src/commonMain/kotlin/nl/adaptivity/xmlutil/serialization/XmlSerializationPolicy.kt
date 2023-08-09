@@ -40,6 +40,9 @@ public interface XmlSerializationPolicy {
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
+    @ExperimentalXmlUtilApi
+    public val verifyElementOrder: Boolean get() = false
+
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     public fun defaultOutputKind(serialKind: SerialKind): OutputKind =
@@ -297,6 +300,7 @@ public open class DefaultXmlSerializationPolicy
     public val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
     public val typeDiscriminatorName: QName? = null,
     public val throwOnRepeatedElement: Boolean = false,
+    public override val verifyElementOrder: Boolean = false,
 ) : XmlSerializationPolicy {
 
     @ExperimentalXmlUtilApi
@@ -305,8 +309,9 @@ public open class DefaultXmlSerializationPolicy
         typeDiscriminatorName: QName,
         encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
         unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-        throwOnRepeatedElement: Boolean = false
-    ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+        throwOnRepeatedElement: Boolean = false,
+        verifyElementOrder: Boolean = false,
+    ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName, throwOnRepeatedElement, verifyElementOrder)
 
     /**
      * Stable constructor that doesn't use experimental api.
@@ -355,7 +360,8 @@ public open class DefaultXmlSerializationPolicy
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
-        throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false
+        throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
+        verifyElementOrder = original?.verifyElementOrder ?: false,
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -365,7 +371,8 @@ public open class DefaultXmlSerializationPolicy
         encodeDefault = builder.encodeDefault,
         unknownChildHandler = builder.unknownChildHandler,
         typeDiscriminatorName = builder.typeDiscriminatorName,
-        throwOnRepeatedElement = builder.throwOnRepeatedElement
+        throwOnRepeatedElement = builder.throwOnRepeatedElement,
+        verifyElementOrder = builder.verifyElementOrder,
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -593,8 +600,9 @@ public open class DefaultXmlSerializationPolicy
                 parentDescriptor.getElementName(it)
             }
 
-        fun String.toChildIndex(): Int {
-            return nameToIdx[this]
+        fun String.toChildIndex(): Int = when (this) {
+            "*" -> XmlOrderConstraint.OTHERS
+            else -> nameToIdx[this]
                 ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
@@ -765,6 +773,7 @@ public open class DefaultXmlSerializationPolicy
         public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
         public var typeDiscriminatorName: QName? = null,
         public var throwOnRepeatedElement: Boolean = false,
+        public var verifyElementOrder: Boolean = false,
     ) {
         internal constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,

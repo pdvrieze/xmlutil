@@ -1,5 +1,10 @@
 # 0.86.2-SNAPSHOT
 Features:
+- Support wildcard (`*`) for `XmlBefore` and `XmlAfter`. These create a
+  partition in ordering. An element/attribute with wildcard before will
+  be ordered before/after elements that do not have this. Explicit order
+  relationships will be maintained.
+- Support checking ordering in reading.
 
 Fixes:
 - For attribute lists, make sure to collapse the whitespace.
