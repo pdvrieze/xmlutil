@@ -21,10 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 
 interface ResolvedTerm : ResolvedAnnotated {
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper)
+    fun flatten(range: AllNNIRange): FlattenedParticle
 
 }

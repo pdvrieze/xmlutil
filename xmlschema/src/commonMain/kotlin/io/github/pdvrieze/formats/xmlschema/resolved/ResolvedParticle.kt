@@ -80,6 +80,13 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
 
+    fun flatten(): FlattenedParticle {
+        return when(mdlMaxOccurs){
+            VAllNNI.ZERO -> FlattenedGroup.EMPTY
+            else ->mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs))
+        }
+    }
+
     companion object {
 
         operator fun invoke(
