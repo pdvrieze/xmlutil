@@ -22,12 +22,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -40,7 +42,9 @@ class XSGlobalElement : XSElement {
 
     override val name: VNCName
 
-    val abstract: Boolean?
+    @SerialName("abstract")
+    private val _abstract: VBoolean?
+    val abstract: Boolean? get() = _abstract?.value
 
     @XmlElement(false) @Serializable(ComplexDerivationSerializer::class)
     val final: Set<VDerivationControl.Complex>?
@@ -64,7 +68,7 @@ class XSGlobalElement : XSElement {
         identityConstraints: List<XSIdentityConstraint> = emptyList()
     ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints) {
         this.name = name
-        this.abstract = abstract
+        this._abstract = abstract?.let(::VBoolean)
         this.substitutionGroup = substitutionGroup
         this.final = final
     }

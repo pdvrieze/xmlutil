@@ -22,11 +22,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
 import io.github.pdvrieze.formats.xmlschema.types.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -40,13 +42,17 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 class XSComplexContent(
     @XmlId
     override val id: VID? = null,
-    val mixed: Boolean? = null,
+    @SerialName("mixed")
+    private val _mixed: VBoolean? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val derivation: XSComplexDerivationBase
 ) : XSI_ComplexContent {
+
+    val mixed: Boolean? get() = _mixed?.value
+
     @Serializable
     sealed class XSComplexDerivationBase : XSAnnotatedBase, XSI_ComplexDerivation {
         final override val term: XSIDerivationParticle?
