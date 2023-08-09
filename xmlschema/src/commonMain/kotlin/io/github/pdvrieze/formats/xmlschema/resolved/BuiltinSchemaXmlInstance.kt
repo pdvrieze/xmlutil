@@ -36,6 +36,7 @@ import nl.adaptivity.xmlutil.QName
  * Built-in schema attribute declarations (3.2.7)
  */
 object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
+    override val defaultAttributes: Nothing? get() = null
 
     private val delegate: ResolvedSchema
 
