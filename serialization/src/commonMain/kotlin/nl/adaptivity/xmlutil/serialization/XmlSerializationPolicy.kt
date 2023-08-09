@@ -346,7 +346,7 @@ public open class DefaultXmlSerializationPolicy
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
-        autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
+        autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
         unknownChildHandler = original?.let { orig -> // If there is an original, get from it
             (orig as? DefaultXmlSerializationPolicy)?.unknownChildHandler // take the existing one if present
