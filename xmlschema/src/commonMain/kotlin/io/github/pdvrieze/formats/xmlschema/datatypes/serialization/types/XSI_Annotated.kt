@@ -18,6 +18,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 
 /**
  * This type is extended by all types which allow annotation other than &lt;schema> itself
