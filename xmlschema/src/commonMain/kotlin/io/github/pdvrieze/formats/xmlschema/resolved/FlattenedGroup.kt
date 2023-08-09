@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
+import kotlin.jvm.JvmStatic
 
 sealed class FlattenedGroup(
     range: AllNNIRange,
@@ -177,12 +178,6 @@ sealed class FlattenedGroup(
         override fun toString(): String = particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
 
-    fun Sequence(range: AllNNIRange, particles: List<FlattenedParticle>): FlattenedParticle = when {
-        particles.isEmpty() -> EMPTY
-        particles.size == 1 -> particles.single()
-        else -> Sequence(range, particles, false)
-    }
-
     open class Sequence internal constructor(range: AllNNIRange, final override val particles: List<FlattenedParticle>, marker: Boolean) :
         FlattenedGroup(range) {
 
@@ -316,6 +311,15 @@ sealed class FlattenedGroup(
 
     }
 
+    companion object {
+        @JvmStatic
+        fun Sequence(range: AllNNIRange, particles: List<FlattenedParticle>): FlattenedParticle = when {
+            particles.isEmpty() -> EMPTY
+            particles.size == 1 -> particles.single()
+            else -> Sequence(range, particles, false)
+        }
+    }
+
 }
 
 sealed class FlattenedParticle(val range: AllNNIRange) {
@@ -363,9 +367,26 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
             is Wildcard -> reference.range.contains(range) && reference.term.matches(term.mdlQName)
 
+            is FlattenedGroup.Sequence -> restrictsSequence(reference)
+
+            is FlattenedGroup.All -> reference.particles.all { it.isOptional || this.restricts(it * reference.range) }
+
             is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range) }
 
             else -> false
+        }
+
+        private fun restrictsSequence(sequence: FlattenedGroup.Sequence): Boolean {
+            val it = sequence.particles.iterator()
+            var match : FlattenedParticle? = null
+            while (match == null && it.hasNext()) {
+                match = it.next().takeIf { this.restricts(it) }
+            }
+            if (match==null) return false
+            while(it.hasNext()) {
+                if (! it.next().isOptional) return false
+            }
+            return true
         }
 
         override fun times(otherRange: AllNNIRange): Element {
