@@ -116,12 +116,10 @@ kotlin {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
-                implementation("org.xmlunit:xmlunit-core:2.6.0")
-
                 implementation(kotlin("test-junit5"))
 
                 runtimeOnly(libs.junit5.engine)
-                runtimeOnly("com.fasterxml.woodstox:woodstox-core:5.1.0")
+                runtimeOnly(libs.woodstox)
             }
         }
         all {
