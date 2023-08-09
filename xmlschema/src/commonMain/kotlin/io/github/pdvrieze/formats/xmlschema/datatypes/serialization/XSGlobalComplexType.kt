@@ -65,13 +65,19 @@ sealed class XSGlobalComplexType(
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
         val block: Set<@Contextual VDerivationControl.Complex>? = null,
+        @XmlBefore("attributes", "attributeGroups")
         val complexContent: XSComplexContent? = null,
+        @XmlBefore("attributes", "attributeGroups")
         val simpleContent: XSSimpleContent? = null,
 //        @Serializable
+        @XmlBefore("attributes", "attributeGroups")
         val term: XSComplexContent.XSIDerivationParticle?/* = null*/,
         val asserts: List<XSAssert> = emptyList(),
-        val atributes: List<XSLocalAttribute> = emptyList(),
-        val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        @XmlBefore("anyAttribute")
+        val attributes: List<XSLocalAttribute> = emptyList(),
+        @XmlBefore("anyAttribute")
+        val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        @XmlBefore("asserts")
         val anyAttribute: XSAnyAttribute? = null,
         val openContent: XSOpenContent? = null,
         val defaultAttributesApply: Boolean? = null,
@@ -85,31 +91,54 @@ sealed class XSGlobalComplexType(
         fun toTopLevelComplexType(): XSGlobalComplexType {
             // TODO verify
             return when {
-                simpleContent != null -> XSGlobalComplexTypeSimple(
-                    name = name,
-                    mixed = mixed?.value,
-                    abstract = abstract?.value,
-                    final = final,
-                    block = block,
-                    defaultAttributesApply = defaultAttributesApply,
-                    content = simpleContent,
-                    id = id,
-                    annotation = annotation,
-                    otherAttrs = otherAttrs,
-                )
+                simpleContent != null -> {
+                    require(complexContent == null &&
+                            openContent == null &&
+                            term == null &&
+                            attributes.isEmpty() &&
+                            attributeGroups.isEmpty()
+                            && anyAttribute == null
+                            && asserts.isEmpty()) {
+                        "No shorthand content allowed if simple content is specified"
+                    }
 
-                complexContent != null -> XSGlobalComplexTypeComplex(
-                    name = name,
-                    mixed = mixed?.value,
-                    abstract = abstract?.value,
-                    final = final,
-                    block = block,
-                    defaultAttributesApply = defaultAttributesApply,
-                    content = complexContent,
-                    id = id,
-                    annotation = annotation,
-                    otherAttrs = otherAttrs,
-                )
+                    XSGlobalComplexTypeSimple(
+                        name = name,
+                        mixed = mixed?.value,
+                        abstract = abstract?.value,
+                        final = final,
+                        block = block,
+                        defaultAttributesApply = defaultAttributesApply,
+                        content = simpleContent,
+                        id = id,
+                        annotation = annotation,
+                        otherAttrs = otherAttrs,
+                    )
+                }
+
+                complexContent != null -> {
+                    // simpleContent is null by inference
+                    require(openContent == null &&
+                            term == null &&
+                            attributes.isEmpty() &&
+                            attributeGroups.isEmpty()
+                            && anyAttribute == null
+                            && asserts.isEmpty()) {
+                        "No shorthand content allowed if simple content is specified"
+                    }
+                    XSGlobalComplexTypeComplex(
+                        name = name,
+                        mixed = mixed?.value,
+                        abstract = abstract?.value,
+                        final = final,
+                        block = block,
+                        defaultAttributesApply = defaultAttributesApply,
+                        content = complexContent,
+                        id = id,
+                        annotation = annotation,
+                        otherAttrs = otherAttrs,
+                    )
+                }
 
                 else -> XSGlobalComplexTypeShorthand(
                     name = name,
@@ -120,8 +149,8 @@ sealed class XSGlobalComplexType(
                     defaultAttributesApply = defaultAttributesApply,
                     term = term,
                     asserts = asserts,
-                    attributes = atributes,
-                    attributeGroups = atributeGroups,
+                    attributes = attributes,
+                    attributeGroups = attributeGroups,
                     anyAttribute = anyAttribute,
                     openContent = openContent,
                     id = id,
