@@ -111,8 +111,8 @@ sealed class ResolvedComplexType(
     fun isValidlyDerivedFrom(complexBase: ResolvedComplexType): Boolean {
         if (this == complexBase) return true // 2.1
         // check derivation method is not in blocking
-        if (this == complexBase) return true // 2.2
         val btd = mdlBaseTypeDefinition
+        if (btd == complexBase) return true // 2.2
         if (btd == AnyType) return false // 2.3.1
         return when (btd) {
             is ResolvedComplexType -> btd.isValidlyDerivedFrom(complexBase)
