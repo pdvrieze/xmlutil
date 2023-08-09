@@ -20,14 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.*
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -59,8 +57,8 @@ sealed class XSGlobalComplexType(
     @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     class SerialDelegate(
         val name: VNCName,
-        val mixed: Boolean? = null,
-        val abstract: Boolean? = null,
+        val mixed: VBoolean? = null,
+        val abstract: VBoolean? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
         val final: Set<@Contextual VDerivationControl.Complex>? = null,
@@ -89,8 +87,8 @@ sealed class XSGlobalComplexType(
             return when {
                 simpleContent != null -> XSGlobalComplexTypeSimple(
                     name = name,
-                    mixed = mixed,
-                    abstract = abstract,
+                    mixed = mixed?.value,
+                    abstract = abstract?.value,
                     final = final,
                     block = block,
                     defaultAttributesApply = defaultAttributesApply,
@@ -102,8 +100,8 @@ sealed class XSGlobalComplexType(
 
                 complexContent != null -> XSGlobalComplexTypeComplex(
                     name = name,
-                    mixed = mixed,
-                    abstract = abstract,
+                    mixed = mixed?.value,
+                    abstract = abstract?.value,
                     final = final,
                     block = block,
                     defaultAttributesApply = defaultAttributesApply,
@@ -115,8 +113,8 @@ sealed class XSGlobalComplexType(
 
                 else -> XSGlobalComplexTypeShorthand(
                     name = name,
-                    mixed = mixed,
-                    abstract = abstract,
+                    mixed = mixed?.value,
+                    abstract = abstract?.value,
                     final = final,
                     block = block,
                     defaultAttributesApply = defaultAttributesApply,
