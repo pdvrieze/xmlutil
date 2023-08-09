@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -300,6 +300,7 @@ internal open class XmlDecoderBase internal constructor(
         attrIndex: Int/* = -1*/,
         override val typeDiscriminatorName: QName?
     ) : XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
+        private var notNullChecked = false
 
         public var tagIdHolder: TagIdHolder? = null
 
@@ -315,6 +316,19 @@ internal open class XmlDecoderBase internal constructor(
                 tagIdHolder?.run { tagId = value }
             }
             return value
+        }
+
+        override fun decodeNotNullMark(): Boolean {
+            notNullChecked = true
+            return super.decodeNotNullMark()
+        }
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            return when {
+                notNullChecked -> deserializer.deserialize(this)
+                else -> super.decodeSerializableValue(deserializer)
+            }
+            //return deserializer.deserialize(this) // Revert to default
         }
 
         @ExperimentalSerializationApi
@@ -584,6 +598,8 @@ internal open class XmlDecoderBase internal constructor(
             if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
                 (xmlDescriptor.getValueChild() == index)
             ) {
+                // handle missing compact fragments
+                if (nulledItemsIdx>=0) return (CompactFragment("") as T)
 //                input.require(EventType.START_ELEMENT, null)
                 return input.siblingsToFragment().let {
                     input.pushBackCurrent() // Make the closing tag again be the next read.

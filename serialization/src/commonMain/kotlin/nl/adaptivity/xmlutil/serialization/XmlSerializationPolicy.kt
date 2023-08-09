@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
@@ -601,7 +602,10 @@ private constructor(
     ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
             "javax.xml.namespace.QName?",
-            "javax.xml.namespace.QName" -> XmlQNameSerializer
+            "javax.xml.namespace.QName" -> when {
+                serializerParent.elementSerialDescriptor.isNullable -> XmlQNameSerializer.nullable
+                else -> XmlQNameSerializer
+            }
 
             else -> null
         }
