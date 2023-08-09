@@ -456,6 +456,7 @@ internal class CollatedSchema(
         override val blockDefault: VBlockSet get() = originalSchema.blockDefault ?: emptySet()
         override val finalDefault: Set<VDerivationControl.Type> get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
+        override val defaultAttributes: QName? get() = originalSchema.defaultAttributes
 
         override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
             if (elementKind == Redefinable.TYPE && elementName == typeName) {
@@ -629,6 +630,7 @@ internal class CollatedSchema(
             get() = base.finalDefault
         override val defaultOpenContent: XSDefaultOpenContent?
             get() = base.defaultOpenContent
+        override val defaultAttributes: QName? get() = base.defaultAttributes
 
         private fun QName.extend(): QName {
             return when {
