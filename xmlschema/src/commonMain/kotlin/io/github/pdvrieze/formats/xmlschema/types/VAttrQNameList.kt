@@ -35,6 +35,22 @@ import nl.adaptivity.xmlutil.serialization.XML
 class VAttrQNameList(values: List<AttrElem>): VQNameListBase<VQNameListBase.AttrElem>(values) {
     val DEFINED: VQNameListBase.DEFINED get() = VQNameListBase.DEFINED
 
+    override fun union(other: VQNameListBase<AttrElem>): VAttrQNameList {
+
+        val newElems = values.toMutableSet()
+        newElems.addAll(other.values)
+
+        return VAttrQNameList(newElems.toList())
+    }
+
+    override fun intersection(other: VQNameListBase<AttrElem>): VAttrQNameList {
+
+        val newElems = values.toMutableSet()
+        newElems.retainAll(other.values)
+
+        return VAttrQNameList(newElems.toList())
+    }
+
     override fun contains(name: QName): Boolean {
         return values.any { it is Name && it.qName.isEquivalent(name) }
     }

@@ -24,13 +24,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
-data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
+data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     val mdlVariety: Variety,
     val namespaces: Set<VAnyURI?>,
     val disallowedNames: VQNameListBase<E>,
 ) {
-    fun containsAll(baseConstraint: VNamespaceConstraint<VQNameListBase.IElem>): Boolean {
-        TODO("apply 3.10.6.2 rules")
+
+    fun matches(elem: E): Boolean = when (elem) {
+        is VQNameListBase.Name -> matches(elem.qName)
+        else -> elem !in disallowedNames
     }
 
     fun matches(name: QName): Boolean = when (mdlVariety) {
@@ -42,7 +44,7 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
     /**
      * Determine whether there is any overlap between the two constraints (the intersection is not empty)
      */
-    fun intersects(other: VNamespaceConstraint<*>): Boolean = when(mdlVariety) {
+    fun intersects(other: VNamespaceConstraint<E>): Boolean = when(mdlVariety) {
         Variety.ANY -> when(other.mdlVariety) {
             Variety.ANY,
             Variety.ENUMERATION -> true
@@ -63,7 +65,7 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
     /**
      * Determine whether this namespace contains all values in the other namespace
      */
-    fun contains(other: VNamespaceConstraint<*>) = when(mdlVariety) {
+    fun contains(other: VNamespaceConstraint<E>) = when(mdlVariety) {
         Variety.ANY -> true
         Variety.ENUMERATION -> when(other.mdlVariety) {
             Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns } }
@@ -77,5 +79,59 @@ data class VNamespaceConstraint<out E : VQNameListBase.IElem>(
         }
     }
 
+    /* Determined by 3.10.6.3 (for attributes) */
+    fun union(other: VNamespaceConstraint<E>): VNamespaceConstraint<E> {
+        // TODO resolve the "special" values
+        val newDisallowed: VQNameListBase<E> = run {
+            val newDisallowed = mutableListOf<E>()
+            for (c in disallowedNames) {
+                if (!other.matches(c)) newDisallowed.add(c)
+            }
+            for (c in other.disallowedNames) {
+                if (!matches(c)) newDisallowed.add(c)
+            }
+            @Suppress("UNCHECKED_CAST")
+            VQNameList(newDisallowed as List<VQNameListBase.Elem>) as VQNameListBase<E>
+        }
+
+
+
+        if (mdlVariety == Variety.ANY || other.mdlVariety == Variety.ANY) {
+            return VNamespaceConstraint(Variety.ANY, emptySet(), newDisallowed)
+        }
+        if (mdlVariety == other.mdlVariety && namespaces.isContentEqual(other.namespaces)) return this
+        if (mdlVariety == Variety.ENUMERATION && other.mdlVariety == Variety.ENUMERATION) {
+            return VNamespaceConstraint(Variety.ENUMERATION, namespaces.union(other.namespaces), newDisallowed)
+        }
+        if (mdlVariety == Variety.NOT && other.mdlVariety == Variety.NOT) {
+            val intersection = namespaces.toMutableSet().apply { retainAll(other.namespaces) }
+            return when {
+                intersection.isEmpty() -> VNamespaceConstraint(Variety.ANY, emptySet(), newDisallowed)
+                else -> VNamespaceConstraint(Variety.NOT, intersection, newDisallowed)
+            }
+        }
+
+        // Case 5 must be true (as they are unequal)
+        val notNs: Set<VAnyURI?>
+        val enumNs: Set<VAnyURI?>
+        if (mdlVariety == Variety.NOT) {
+            notNs = namespaces
+            enumNs = other.namespaces
+        } else {
+            notNs = other.namespaces
+            enumNs = namespaces
+        }
+        val newNs = notNs.toMutableSet().apply { removeAll(enumNs) }
+        return when {
+            newNs.isEmpty() -> VNamespaceConstraint(Variety.ANY, emptySet(), newDisallowed)
+            else -> VNamespaceConstraint(Variety.NOT, newNs, newDisallowed)
+        }
+    }
+
     enum class Variety { ANY, ENUMERATION, NOT}
+}
+
+internal fun <T> Collection<T>.isContentEqual(other: Collection<T>): Boolean = when(size) {
+    other.size -> all { other.contains(it) }
+    else -> false
 }

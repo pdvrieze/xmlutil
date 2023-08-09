@@ -74,7 +74,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
 
     override val blockDefault: VBlockSet get() = rawPart.blockDefault ?: emptySet()
 
-    val defaultAttributes: QName? get() = rawPart.defaultAttributes
+    override val defaultAttributes: QName? = rawPart.defaultAttributes
 
     val xPathDefaultNamespace: VXPathDefaultNamespace
         get() = rawPart.xpathDefaultNamespace ?: VXPathDefaultNamespace.LOCAL

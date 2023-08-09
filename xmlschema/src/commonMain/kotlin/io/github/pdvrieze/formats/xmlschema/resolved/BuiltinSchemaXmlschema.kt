@@ -31,8 +31,8 @@ import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
-    override val defaultOpenContent: Nothing?
-        get() = null
+    override val defaultOpenContent: Nothing? get() = null
+    override val defaultAttributes: Nothing? get() = null
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {

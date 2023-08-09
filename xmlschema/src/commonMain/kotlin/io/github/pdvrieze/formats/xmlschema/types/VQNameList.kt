@@ -31,9 +31,11 @@ import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
-abstract class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
+abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
 
     abstract operator fun contains(name: QName): Boolean
+    abstract fun union(other: VQNameListBase<E>): VQNameListBase<E>
+    abstract fun intersection(other: VQNameListBase<E>): VQNameListBase<E>
 
     interface IElem
     sealed interface AttrElem : IElem
@@ -47,6 +49,20 @@ abstract class VQNameListBase<out E : VQNameListBase.IElem>(val values: List<E>)
 class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(values) {
     override fun contains(name: QName): Boolean {
         return values.any { it is Name && it.qName.isEquivalent(name) }
+    }
+
+    override fun union(other: VQNameListBase<Elem>): VQNameList {
+        val newElems = values.toMutableSet()
+        newElems.addAll(other.values)
+
+        return VQNameList(newElems.toList())
+    }
+
+    override fun intersection(other: VQNameListBase<Elem>): VQNameList {
+        val newElems = values.toMutableSet()
+        newElems.retainAll(other.values)
+
+        return VQNameList(newElems.toList())
     }
 
     constructor() : this(listOf())

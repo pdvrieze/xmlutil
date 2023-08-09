@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
+    override val defaultAttributes: Nothing? get() = null
 
     private val delegate: ResolvedSchema
 
