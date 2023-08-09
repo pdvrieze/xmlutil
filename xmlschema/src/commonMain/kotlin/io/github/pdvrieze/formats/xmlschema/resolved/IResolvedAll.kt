@@ -66,20 +66,29 @@ interface IResolvedAll : ResolvedModelGroup {
         return true
     }
 
-    override fun flatten(range: AllNNIRange): FlattenedGroup.All {
+    override fun flatten(range: AllNNIRange): FlattenedParticle {
+        if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
             if (p !is ResolvedProhibitedElement) {
-                when (val t: ResolvedTerm = p.mdlTerm) {
-                    is IResolvedAll -> t.flatten(p.range).particles.mapTo(newParticles) { it * range }
+                val f = p.flatten()
+                if (f.maxOccurs > VAllNNI.ZERO) {
+                    when (f) {
+                        is FlattenedGroup.All ->
+                            f.particles.asSequence()
+                                .filter { it.maxOccurs > VAllNNI.ZERO }
+                                .mapTo(newParticles) { it * range }
 
-                    is ResolvedModelGroup -> newParticles.add(t.flatten(p.range))
-
-                    is ResolvedBasicTerm -> newParticles.add(FlattenedParticle.Term(range, t))
+                        else -> newParticles.add(f)
+                    }
                 }
             }
         }
-        return FlattenedGroup.All(range, newParticles)
+        return when (newParticles.size) {
+            0 -> FlattenedGroup.EMPTY
+            1 -> newParticles.single() * range
+            else -> FlattenedGroup.All(range, newParticles)
+        }
     }
 
 }

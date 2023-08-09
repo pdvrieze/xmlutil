@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -60,6 +61,9 @@ interface VNonNegativeInteger : VInteger {
     }
 
     operator fun compareTo(other: VAllNNI.Value): Int = toULong().compareTo(other.toULong())
+
+    operator fun rangeTo(end: VAllNNI): AllNNIRange =
+        AllNNIRange(this, end)
 
     private class Inst(override val xmlString: String) : VNonNegativeInteger {
         override fun toLong(): Long = xmlString.toLong()
