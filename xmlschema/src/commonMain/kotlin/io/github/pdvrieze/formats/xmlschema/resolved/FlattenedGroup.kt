@@ -32,7 +32,7 @@ sealed class FlattenedGroup(
 ) : FlattenedParticle(range) {
 
     object EMPTY : Sequence(VAllNNI.ZERO..VAllNNI.ZERO, emptyList(), false) {
-
+        override fun toString(): String = "()"
     }
 
     abstract val particles: List<FlattenedParticle>
@@ -108,7 +108,7 @@ sealed class FlattenedGroup(
             return All(range * otherRange, particles)
         }
 
-        override fun toString(): String = particles.joinToString(prefix = "{", postfix = "}")
+        override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
     }
 
     class Choice(range: AllNNIRange, particles: List<FlattenedParticle>) :
@@ -122,7 +122,7 @@ sealed class FlattenedGroup(
             for (startElem in particles.flatMap { it.startingTerms() }) {
                 when (startElem) {
                     is Element -> require(seenNames.add(startElem.term.mdlQName)) {
-                        "Non-deterministic choice group: choice(${particles.joinToString("| ")})"
+                        "Non-deterministic choice group: choice(${particles.joinToString(" | ")})"
                     }
 
                     is Wildcard -> require(seenWildcards.none { it.intersects(startElem.term) }) {
@@ -155,7 +155,8 @@ sealed class FlattenedGroup(
             return when(reference) {
                 is Sequence -> restricts(reference.particles.first())
                 is Choice -> {
-                    particles.all { p -> reference.particles.any { p.restricts(it) } }
+                    reference.range.contains(range) &&
+                        particles.all { p -> reference.particles.any { p.restricts(it) } }
                 }
 
                 is All -> false // can not happen
@@ -173,7 +174,7 @@ sealed class FlattenedGroup(
             return Choice(range * otherRange, particles)
         }
 
-        override fun toString(): String = particles.joinToString(separator = "| ", prefix = "(", postfix = ")")
+        override fun toString(): String = particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
 
     fun Sequence(range: AllNNIRange, particles: List<FlattenedParticle>): FlattenedParticle = when {
@@ -271,19 +272,20 @@ sealed class FlattenedGroup(
             val refIt = reference.particles.iterator()
             if (! refIt.hasNext()) return false
             var currentParticle: FlattenedParticle = refIt.next()
-            var currentConsumed = 0
+            var currentConsumed: VAllNNI = VAllNNI.ZERO
             for(p in particles) {
-                while (! p.restricts(currentParticle)) {
+                while (currentConsumed >= currentParticle.maxOccurs || ! p.restricts(currentParticle)) {
                     // We can't go to the next particle
-                    if (VAllNNI(currentConsumed) < p.minOccurs) return false
+                    if (currentConsumed < currentParticle.minOccurs) return false
                     if (! refIt.hasNext()) return false
 
                     currentParticle = refIt.next()
-                    currentConsumed = 0
+                    currentConsumed = VAllNNI.ZERO
                 }
+                currentConsumed = currentConsumed + p.maxOccurs
             }
             // Tail that isn't optional
-            if (VAllNNI(currentConsumed) < currentParticle.minOccurs) return false
+            if (currentConsumed < currentParticle.minOccurs) return false
 
             // more tail
             while (refIt.hasNext()) {
@@ -310,7 +312,7 @@ sealed class FlattenedGroup(
             return Sequence(range * otherRange, particles, false)
         }
 
-        override fun toString(): String = particles.joinToString(prefix = "(", postfix = ")")
+        override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
 
     }
 
@@ -367,7 +369,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return Element(range * otherRange, term)
         }
 
-        override fun toString(): String = term.mdlQName.toString()
+        override fun toString(): String = range.toPostfix(term.mdlQName.toString())
     }
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
@@ -399,7 +401,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return Wildcard(range * otherRange, term)
         }
 
-        override fun toString(): String = "*"
+        override fun toString(): String = range.toPostfix("<*>")
     }
 
     companion object {
@@ -450,6 +452,19 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                 0 -> namespaceURI.compareTo(other.namespaceURI)
                 else -> l
             }
+        }
+
+        internal fun AllNNIRange.toPostfix(prefix: String=""): String = when {
+            endInclusive == VAllNNI.UNBOUNDED -> when (start) {
+                VAllNNI.ZERO -> prefix + '*'
+                VAllNNI.ONE -> prefix + '+'
+                else -> prefix + '[' + start.toULong() + "+]"
+            }
+
+            endInclusive > VAllNNI.ONE -> prefix +'[' + start.toULong()+ ".."+ (endInclusive as VAllNNI.Value).toULong() +']'
+            // end inclusive 0 should not happen
+            start == VAllNNI.ZERO -> prefix+'?'
+            else -> prefix // both are 1
         }
     }
 
