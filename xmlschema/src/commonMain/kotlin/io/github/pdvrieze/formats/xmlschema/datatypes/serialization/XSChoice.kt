@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -43,6 +44,7 @@ class XSChoice(
     override val choices: List<XSChoice> = emptyList(),
     override val sequences: List<XSSequence> = emptyList(),
     override val anys: List<XSAny> = emptyList(),
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val id: VID? = null,
     @XmlOtherAttributes

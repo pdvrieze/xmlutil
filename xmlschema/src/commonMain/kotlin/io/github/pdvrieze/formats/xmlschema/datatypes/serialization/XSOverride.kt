@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.XSI_An
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -33,6 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSOverride(
     val schemaLocation: VAnyURI,
     override val id: VID? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     override val simpleTypes: List<XSToplevelSimpleType> = emptyList(),

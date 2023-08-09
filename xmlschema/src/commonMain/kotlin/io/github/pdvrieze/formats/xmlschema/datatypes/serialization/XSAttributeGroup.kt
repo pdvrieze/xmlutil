@@ -30,6 +30,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -41,6 +42,7 @@ class XSAttributeGroup(
     override val attributes: List<XSLocalAttribute> = emptyList(),
     override val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     override val anyAttribute: XSAnyAttribute? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()

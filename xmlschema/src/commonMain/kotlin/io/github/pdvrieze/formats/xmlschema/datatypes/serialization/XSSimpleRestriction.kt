@@ -34,6 +34,7 @@ class XSSimpleRestriction(
     override val base: QName? = null, // Rrequiers an embedded restriction
     @XmlElement(false)
     override val id: VID? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     override val simpleTypes: List<XSLocalSimpleType> = emptyList(),
