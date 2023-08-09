@@ -70,7 +70,9 @@ class ResolvedGlobalElement(
 
         val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
         for (member in mdlSubstitutionGroupMembers) {
-            require(member.isSubstitutableFor(this)) { "Element ${member.mdlQName} is not not substitutable for ${this.mdlQName}" }
+            require(member.isSubstitutableFor(this)) {
+                "Element ${member.mdlQName} is not not substitutable for ${this.mdlQName} but in its substitution group"
+            }
         }
 
         if (mdlSubstitutionGroupMembers.isNotEmpty() && otherExcluded.isNotEmpty()) {
