@@ -25,10 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XmlAfter
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 @XmlSerialName("simpleType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
@@ -41,6 +38,7 @@ class XSToplevelSimpleType(
     @Serializable(SchemaEnumSetSerializer::class)
     override val final: T_SimpleDerivationSet = emptySet(),
     override val id: VID? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 
     @XmlOtherAttributes

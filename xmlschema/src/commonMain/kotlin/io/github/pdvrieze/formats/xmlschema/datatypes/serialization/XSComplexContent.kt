@@ -29,6 +29,7 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -39,6 +40,7 @@ class XSComplexContent(
     override val id: VID? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap(),
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val derivation: XSDerivationBase
 ) : IXSComplexContent, T_ComplexTypeComplexContent {
