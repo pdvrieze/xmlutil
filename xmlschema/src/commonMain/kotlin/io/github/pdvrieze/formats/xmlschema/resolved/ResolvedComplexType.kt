@@ -205,7 +205,7 @@ sealed class ResolvedComplexType(
 
                 contentType is ElementOnlyContentType -> {
                     check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(contentType.restricts(baseContentType) || true) // TODO do check
+                    check(contentType.restricts(baseContentType)) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
                 }
 
                 contentType is MixedContentType -> {
