@@ -383,7 +383,7 @@ private constructor(
 
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             recommended()
-            policyBuilder().apply(configurePolicy)
+            policy = policyBuilder().apply(configurePolicy).build()
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
