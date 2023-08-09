@@ -20,10 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -35,7 +37,9 @@ sealed class XSAttribute : XSAnnotatedBase {
     val default: VString?
     val fixed: VString?
     val type: SerializableQName?
-    val inheritable: Boolean?
+    @SerialName("inheritable")
+    private val _inheritable: VBoolean?
+    val inheritable: Boolean? get() = _inheritable?.value
     val simpleType: XSLocalSimpleType?
     abstract val name: VNCName?
 
@@ -52,7 +56,7 @@ sealed class XSAttribute : XSAnnotatedBase {
         this.default = default
         this.fixed = fixed
         this.type = type
-        this.inheritable = inheritable
+        this._inheritable = inheritable?.let(::VBoolean)
         this.simpleType = simpleType
     }
 

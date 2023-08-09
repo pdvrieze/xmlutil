@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -62,8 +63,8 @@ class XSGlobalComplexTypeShorthand(
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             name = name,
-            mixed = mixed,
-            abstract = abstract,
+            mixed = mixed?.let(::VBoolean),
+            abstract = abstract?.let(::VBoolean),
             final = final,
             block = block,
             defaultAttributesApply = defaultAttributesApply,

@@ -20,10 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -78,7 +80,7 @@ sealed class XSLocalComplexType(
     @Serializable
     @XmlSerialName("complexType", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
     class SerialDelegate(
-        val mixed: Boolean? = null,
+        val mixed: VBoolean? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         val term: XSComplexContent.XSIDerivationParticle? = null,
@@ -87,7 +89,7 @@ sealed class XSLocalComplexType(
         val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
         val anyAttribute: XSAnyAttribute? = null,
         val openContent: XSOpenContent? = null,
-        val defaultAttributesApply: Boolean? = null,
+        val defaultAttributesApply: VBoolean? = null,
         @XmlId
         val id: VID? = null,
         @XmlBefore("*")
@@ -99,24 +101,24 @@ sealed class XSLocalComplexType(
             // TODO verify
             return when {
                 simpleContent != null -> XSLocalComplexTypeSimple(
-                    mixed = mixed,
-                    defaultAttributesApply = defaultAttributesApply,
+                    mixed = mixed?.value,
+                    defaultAttributesApply = defaultAttributesApply?.value,
                     content = simpleContent,
                     id = id,
                     annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
                 complexContent != null -> XSLocalComplexTypeComplex(
-                    mixed = mixed,
-                    defaultAttributesApply = defaultAttributesApply,
+                    mixed = mixed?.value,
+                    defaultAttributesApply = defaultAttributesApply?.value,
                     content = complexContent,
                     id = id,
                     annotation = annotation,
                     otherAttrs = otherAttrs,
                 )
                 else -> XSLocalComplexTypeShorthand(
-                    mixed = mixed,
-                    defaultAttributesApply = defaultAttributesApply,
+                    mixed = mixed?.value,
+                    defaultAttributesApply = defaultAttributesApply?.value,
                     term = term,
                     asserts = asserts,
                     attributes = atributes,
