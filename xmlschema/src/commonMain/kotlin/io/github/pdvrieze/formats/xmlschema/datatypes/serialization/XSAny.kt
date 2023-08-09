@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -32,6 +33,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("any", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAny(
     override val processContents: T_ProcessContents? = null,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlElement(false)
     val notQName: T_QNameList? = null,
