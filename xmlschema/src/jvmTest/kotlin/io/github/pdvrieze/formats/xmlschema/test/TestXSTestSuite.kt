@@ -62,10 +62,10 @@ class TestXSTestSuite {
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
-//                .filter { false || it.href.contains("sunMeta/suntest") }
-//                .filter { false || (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/").any { m -> it.href.contains(m) } }
-//                .filter { false || (it.href.contains("msMeta/Additional") /*&& it.href.contains("CType")*/) }
+//                .filter { it.href.contains("sunMeta/suntest") }
+//                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
+//                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional").any { m -> it.href.contains(m) } }
+                .filter { (it.href.contains("msMeta/ComplexType")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -77,7 +77,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set $tsName") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.equals("test009")) {
+                            if (true || group.name.equals("addA005")) {
                                 dynamicContainer("Group ${group.name}") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
