@@ -100,6 +100,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
+            else -> error("Compiler limitation")
         }
 
         operator fun invoke(
