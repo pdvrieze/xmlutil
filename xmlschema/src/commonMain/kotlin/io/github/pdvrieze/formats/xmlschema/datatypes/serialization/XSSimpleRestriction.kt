@@ -38,6 +38,7 @@ class XSSimpleRestriction : XSSimpleDerivation, XSI_Annotated {
 
     @XmlElement(false)
     val base: SerializableQName?
+    @XmlBefore("facets")
     val simpleType: XSLocalSimpleType?
     val facets: List<XSFacet>
 

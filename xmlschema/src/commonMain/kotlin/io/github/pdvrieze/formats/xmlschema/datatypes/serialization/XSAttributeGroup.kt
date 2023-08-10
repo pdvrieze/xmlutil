@@ -40,7 +40,9 @@ class XSAttributeGroup(
     val name: VNCName,
     @XmlId
     override val id: VID? = null,
+    @XmlBefore("anyAttribute")
     val attributes: List<XSLocalAttribute> = emptyList(),
+    @XmlBefore("anyAttribute")
     val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
     val anyAttribute: XSAnyAttribute? = null,
     @XmlBefore("*")

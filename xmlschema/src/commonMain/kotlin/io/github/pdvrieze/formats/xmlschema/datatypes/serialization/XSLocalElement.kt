@@ -63,9 +63,10 @@ class XSLocalElement : XSElement, XSI_AllParticle {
         type: QName? = null,
         annotation: XSAnnotation? = null,
         localType: XSLocalType? = null,
+        alternatives: List<XSAlternative> = emptyList(),
         identityConstraints: List<XSIdentityConstraint> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints, otherAttrs) {
+    ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints, alternatives, otherAttrs) {
         this.name = name
         this.form = form
         this.minOccurs = minOccurs
