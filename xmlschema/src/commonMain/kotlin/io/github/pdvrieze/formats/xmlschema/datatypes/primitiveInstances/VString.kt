@@ -26,6 +26,7 @@ import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 
 @Serializable(VString.Serializer::class)
@@ -35,12 +36,12 @@ interface VString : VAnyAtomicType, CharSequence {
     override fun get(index: Int): Char = xmlString[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = xmlString.subSequence(startIndex, endIndex)
-    fun toLong(): Long = xmlString.toLong()
-    fun toInt(): Int = xmlString.toInt()
-    fun toULong(): ULong = xmlString.toULong()
-    fun toUInt(): UInt = xmlString.toUInt()
-    fun toDouble(): Double = xmlString.toDouble()
-    fun toFloat(): Float = xmlString.toFloat()
+    fun toLong(): Long = xmlCollapseWhitespace(xmlString).toLong()
+    fun toInt(): Int = xmlCollapseWhitespace(xmlString).toInt()
+    fun toULong(): ULong = xmlCollapseWhitespace(xmlString).toULong()
+    fun toUInt(): UInt = xmlCollapseWhitespace(xmlString).toUInt()
+    fun toDouble(): Double = xmlCollapseWhitespace(xmlString).toDouble()
+    fun toFloat(): Float = xmlCollapseWhitespace(xmlString).toFloat()
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VString {
