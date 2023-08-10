@@ -65,8 +65,10 @@ class XSGlobalElement : XSElement {
         final: Set<@Contextual VDerivationControl.Complex>? = null,
         annotation: XSAnnotation? = null,
         localType: XSLocalType? = null,
-        identityConstraints: List<XSIdentityConstraint> = emptyList()
-    ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints) {
+        identityConstraints: List<XSIdentityConstraint> = emptyList(),
+        alternatives: List<XSAlternative> = emptyList(),
+        otherAttrs: Map<QName, String> = emptyMap(),
+    ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints, alternatives, otherAttrs) {
         this.name = name
         this._abstract = abstract?.let(::VBoolean)
         this.substitutionGroup = substitutionGroup
