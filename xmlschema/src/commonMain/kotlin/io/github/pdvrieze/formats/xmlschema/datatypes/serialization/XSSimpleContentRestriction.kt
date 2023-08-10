@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
@@ -56,8 +57,10 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
 
     override val base: SerializableQName?
 
+    @XmlBefore("facets")
     override val simpleType: XSLocalSimpleType?
 
+    @XmlBefore("attributes", "attributeGroups")
     override val facets: List<XSFacet>
 
     val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
