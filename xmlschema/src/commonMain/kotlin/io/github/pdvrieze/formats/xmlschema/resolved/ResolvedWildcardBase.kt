@@ -28,30 +28,34 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlin.jvm.JvmStatic
 
-abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> : ResolvedAnnotated {
-
-    val mdlNamespaceConstraint: VNamespaceConstraint<E>
-    val mdlProcessContents: VProcessContents
-
+abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructor(
+    final val mdlNamespaceConstraint: VNamespaceConstraint<E>,
+    final val mdlProcessContents: VProcessContents,
     final override val model: ResolvedAnnotated.IModel
+) : ResolvedAnnotated {
 
     constructor(
         mdlNamespaceConstraint: VNamespaceConstraint<E>,
         mdlProcessContents: VProcessContents
-    ) {
-        this.mdlNamespaceConstraint = mdlNamespaceConstraint
-        this.mdlProcessContents = mdlProcessContents
-        this.model = ResolvedAnnotated.Empty
-    }
+    ) : this (mdlNamespaceConstraint, mdlProcessContents, ResolvedAnnotated.Empty)
 
     constructor(
         rawPart: XSI_Annotated,
         mdlNamespaceConstraint: VNamespaceConstraint<E>,
         mdlProcessContents: VProcessContents
-    ) {
-        this.mdlNamespaceConstraint = mdlNamespaceConstraint
-        this.mdlProcessContents = mdlProcessContents
-        this.model = ResolvedAnnotated.Model(rawPart)
+    ) : this(
+        mdlNamespaceConstraint,
+        mdlProcessContents,
+        ResolvedAnnotated.Model(rawPart),
+    )
+
+    override fun toString(): String {
+        return buildString {
+            append("wildcard(")
+            append(mdlProcessContents).append(", ")
+            append(mdlNamespaceConstraint)
+            append(")")
+        }
     }
 
     companion object {
