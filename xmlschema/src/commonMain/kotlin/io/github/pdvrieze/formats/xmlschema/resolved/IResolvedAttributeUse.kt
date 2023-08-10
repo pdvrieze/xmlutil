@@ -34,7 +34,7 @@ sealed interface IResolvedAttributeUse : ResolvedAnnotated {
         (mdlValueConstraint?:mdlAttributeDeclaration.mdlValueConstraint)?.let { vc ->
             baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(vc.value)
             (baseAttr.mdlValueConstraint ?: baseAttr.mdlAttributeDeclaration.mdlValueConstraint)?.let { bc ->
-                if (!vc.isValidRestrictionOf(bc)) return false
+                if (!vc.isValidRestrictionOf(baseAttr.mdlAttributeDeclaration.mdlTypeDefinition, bc)) return false
             }
         }
 

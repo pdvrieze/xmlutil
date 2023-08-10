@@ -173,6 +173,25 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         return collector
     }
 
+    fun value(representation: VString): Any? {
+        val normalized = mdlFacets.whiteSpace?.value?.normalize(representation) ?: representation
+        return when (mdlVariety) {
+            Variety.ATOMIC -> {
+                return mdlPrimitiveTypeDefinition!!.value(normalized)
+            }
+            Variety.LIST -> {
+                return normalized.split(' ').map { mdlItemTypeDefinition!!.value(VString(it)) }
+            }
+            Variety.UNION -> {
+                for (m in mdlMemberTypeDefinitions) {
+                    // TODO don't rely on exceptions here
+                    runCatching { m.value(normalized) }.onSuccess { return it }
+                }
+            }
+            Variety.NIL -> error("Nil variety is not allowed for actual types")
+        }
+    }
+
     sealed class Derivation() : ResolvedAnnotated {
         abstract override val model: ResolvedAnnotated.IModel
 

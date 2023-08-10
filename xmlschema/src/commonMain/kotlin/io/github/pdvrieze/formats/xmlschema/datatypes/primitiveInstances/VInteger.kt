@@ -60,7 +60,8 @@ private class IntInstance(private val i: Int) : VInteger {
     }
 }
 
-private class LongInstance(private val l: Long) : VInteger {
+@JvmInline
+private value class LongInstance(private val l: Long) : VInteger {
     override fun toLong(): Long = l
 
     override fun toInt(): Int = l.toInt()
