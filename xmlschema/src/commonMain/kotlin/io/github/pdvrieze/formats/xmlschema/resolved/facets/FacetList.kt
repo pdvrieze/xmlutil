@@ -281,36 +281,36 @@ class FacetList(
                 when (facet) {
                     is ResolvedAssertionFacet -> assertions.add(facet)
                     is ResolvedMaxExclusive ->
-                        if (maxConstraint != null) error("multiple max facets") else maxConstraint = facet
+                        if (maxConstraint != null) error("3.4.3(2) - multiple max facets") else maxConstraint = facet
 
                     is ResolvedMaxInclusive ->
-                        if (maxConstraint != null) error("multiple max facets") else maxConstraint = facet
+                        if (maxConstraint != null) error("3.4.3(2) - multiple max facets") else maxConstraint = facet
 
                     is ResolvedMinExclusive ->
-                        if (minConstraint != null) error("multiple min facets") else minConstraint = facet
+                        if (minConstraint != null) error("3.4.3(2) - multiple min facets") else minConstraint = facet
 
                     is ResolvedMinInclusive ->
-                        if (minConstraint != null) error("multiple min facets") else minConstraint = facet
+                        if (minConstraint != null) error("3.4.3(2) - multiple min facets") else minConstraint = facet
 
                     is ResolvedEnumeration -> enumeration.add(facet)
                     is ResolvedExplicitTimezone ->
-                        if (explicitTimezone != null) error("multiple explicitTimezone facets") else explicitTimezone =
+                        if (explicitTimezone != null) error("3.4.3(2) - multiple explicitTimezone facets") else explicitTimezone =
                             facet
 
                     is ResolvedFractionDigits ->
-                        if (fractionDigits != null) error("multiple fractionDigits facets") else fractionDigits = facet
+                        if (fractionDigits != null) error("3.4.3(2) - multiple fractionDigits facets") else fractionDigits = facet
 
                     is ResolvedLength ->
-                        if (minLength != null || maxLength != null) error("multiple length facets") else {
+                        if (minLength != null || maxLength != null) error("3.4.3(2) - multiple length facets") else {
                             minLength = facet
                             maxLength = facet
                         }
 
                     is ResolvedMaxLength ->
-                        if (maxLength != null) error("multiple maxLength facets") else maxLength = facet
+                        if (maxLength != null) error("3.4.3(2) - multiple maxLength facets") else maxLength = facet
 
                     is ResolvedMinLength ->
-                        if (minLength != null) error("multiple maxLength facets") else minLength = facet
+                        if (minLength != null) error("3.4.3(2) - multiple maxLength facets") else minLength = facet
 
                     is ResolvedPattern -> pattern?.let {// combine by or
                         ResolvedPattern(XSPattern("(?:${it.value}|${facet.value})"), it.schema)
@@ -319,10 +319,10 @@ class FacetList(
                     }
 
                     is ResolvedTotalDigits ->
-                        if (totalDigits != null) error("multiple totalDigits facets") else totalDigits = facet
+                        if (totalDigits != null) error("3.4.3(2) - multiple totalDigits facets") else totalDigits = facet
 
                     is ResolvedWhiteSpace ->
-                        if (whiteSpace != null) error("multiple whiteSpace facets") else whiteSpace = facet
+                        if (whiteSpace != null) error("3.4.3(2) - multiple whiteSpace facets") else whiteSpace = facet
                 }
             }
 

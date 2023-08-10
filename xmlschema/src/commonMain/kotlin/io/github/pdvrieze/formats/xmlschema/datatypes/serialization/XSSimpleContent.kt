@@ -24,11 +24,13 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlAfter
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @XmlSerialName("simpleContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 @Serializable
 class XSSimpleContent : XSAnnotatedBase, XSI_ComplexContent {
+    @XmlAfter("annotation")
     override val derivation: XSSimpleContentDerivation
 
     constructor(

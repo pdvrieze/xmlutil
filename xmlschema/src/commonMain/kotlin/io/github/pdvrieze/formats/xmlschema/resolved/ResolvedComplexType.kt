@@ -25,6 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -392,7 +395,7 @@ sealed class ResolvedComplexType(
                 } -> contentType(effectiveMixed, effectiveContent)
 
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
-                else -> {
+                else -> { // extension
                     val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
@@ -408,7 +411,7 @@ sealed class ResolvedComplexType(
                         }
 
                         else -> {
-                            require(baseParticle.mdlTerm !is ResolvedAll) { "All can not be part of a sequence" }
+                            require(baseParticle.mdlTerm !is ResolvedAll) { "3.4.2.3.3(4.2.3.3) - All can not be part of a sequence" }
 
                             val p: List<ResolvedParticle<ResolvedTerm>> =
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
@@ -491,6 +494,8 @@ sealed class ResolvedComplexType(
 
         init {
 
+            require(rawPart.mixed != true) { "3.4.3(1) - Simple content can not have mixed=true" }
+
             val derivation = rawPart.content.derivation
 
             val baseType: ResolvedType = mdlBaseTypeDefinition
@@ -500,8 +505,10 @@ sealed class ResolvedComplexType(
                     "${derivation.base} is final for extension"
                 }
 
-                is XSSimpleContentRestriction -> require(VDerivationControl.RESTRICTION !in baseType.mdlFinal) {
-                    "${derivation.base} is final for extension"
+                is XSSimpleContentRestriction -> {
+                    require(VDerivationControl.RESTRICTION !in baseType.mdlFinal) {
+                        "${derivation.base} is final for extension"
+                    }
                 }
             }
 
