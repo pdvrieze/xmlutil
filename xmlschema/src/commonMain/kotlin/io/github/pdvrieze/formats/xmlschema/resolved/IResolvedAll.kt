@@ -66,12 +66,12 @@ interface IResolvedAll : ResolvedModelGroup {
         return true
     }
 
-    override fun flatten(range: AllNNIRange): FlattenedParticle {
+    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
         if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
             if (p !is ResolvedProhibitedElement) {
-                val f = p.flatten()
+                val f = p.flatten(typeContext, schema)
                 if (f.maxOccurs > VAllNNI.ZERO) {
                     when (f) {
                         is FlattenedGroup.All ->

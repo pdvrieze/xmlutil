@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -49,10 +51,6 @@ class VAttrQNameList(values: List<AttrElem>): VQNameListBase<VQNameListBase.Attr
         newElems.retainAll(other.values)
 
         return VAttrQNameList(newElems.toList())
-    }
-
-    override fun contains(name: QName): Boolean {
-        return values.any { it is Name && it.qName.isEquivalent(name) }
     }
 
     constructor() : this(emptyList())

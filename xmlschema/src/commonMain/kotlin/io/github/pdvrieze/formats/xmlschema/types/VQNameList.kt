@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -33,23 +35,41 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
 
-    abstract operator fun contains(name: QName): Boolean
+    fun contains(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        return values.any { it.matches(name, context, schema) }
+    }
+
     abstract fun union(other: VQNameListBase<E>): VQNameListBase<E>
     abstract fun intersection(other: VQNameListBase<E>): VQNameListBase<E>
 
-    interface IElem
+    interface IElem {
+        fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean
+    }
     sealed interface AttrElem : IElem
     sealed class Elem : IElem
-    object DEFINED : Elem(), AttrElem
-    object DEFINEDSIBLING : Elem()
-    class Name(val qName: QName) : Elem(), AttrElem
+    object DEFINED : Elem(), AttrElem {
+        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+            return schema.maybeAttribute(name) != null || schema.maybeElement(name) != null
+        }
+    }
+
+    object DEFINEDSIBLING : Elem() {
+        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+            val ct = context.mdlContentType
+            return context.mdlAttributeUses.any { it.mdlAttributeDeclaration.mdlQName.isEquivalent(name) } ||
+                    (ct is ResolvedComplexType.ElementContentType && ct.mdlParticle.mdlTerm.definesElement(name))
+        }
+    }
+
+    class Name(val qName: QName) : Elem(), AttrElem {
+        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+            return qName.isEquivalent(name)
+        }
+    }
 }
 
 @Serializable(VQNameList.Serializer::class)
 class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(values) {
-    override fun contains(name: QName): Boolean {
-        return values.any { it is Name && it.qName.isEquivalent(name) }
-    }
 
     override fun union(other: VQNameListBase<Elem>): VQNameList {
         val newElems = values.toMutableSet()
