@@ -30,12 +30,12 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
-    override fun flatten(range: AllNNIRange): FlattenedParticle {
+    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
         if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
         val newParticles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
             if (p !is ResolvedProhibitedElement) {
-                val f = p.flatten()
+                val f = p.flatten(typeContext, schema)
                 if (f.maxOccurs > VAllNNI.ZERO) {
                     if (f is FlattenedGroup.Sequence && (!f.isVariable && f.maxOccurs == VAllNNI.ONE)) {
                         f.particles.mapTo(newParticles) { it * range }
@@ -45,7 +45,7 @@ interface IResolvedSequence : ResolvedModelGroup {
                 }
             }
         }
-        return FlattenedGroup.Sequence(range, newParticles)
+        return FlattenedGroup.Sequence(range, newParticles, typeContext, schema)
     }
 
 

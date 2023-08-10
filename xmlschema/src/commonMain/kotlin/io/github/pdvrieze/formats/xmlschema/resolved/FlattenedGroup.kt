@@ -32,7 +32,7 @@ sealed class FlattenedGroup(
     range: AllNNIRange,
 ) : FlattenedParticle(range) {
 
-    object EMPTY : Sequence(VAllNNI.ZERO..VAllNNI.ZERO, emptyList(), false) {
+    object EMPTY : Sequence(VAllNNI.ZERO..VAllNNI.ZERO, emptyList()) {
         override fun toString(): String = "()"
     }
 
@@ -69,12 +69,16 @@ sealed class FlattenedGroup(
                 .times(range)
         }
 
-        override fun restricts(reference: FlattenedParticle): Boolean {
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             // case of 0 range should never happen
             return when(reference) {
-                is Sequence -> restricts(reference.particles.first())
+                is Sequence -> restricts(reference.particles.first(), context, schema)
                 is Choice -> {
-                    reference.particles.any { this.restricts(it * reference.range) }
+                    reference.particles.any { this.restricts(it * reference.range, context, schema) }
                     // Take the easy way for now (without creating all potential paths
 /*
                     val elemRange = particles.asSequence().map { range }.reduce { l, r -> l + r }.times(range)
@@ -85,12 +89,12 @@ sealed class FlattenedGroup(
                 is All -> {
                     reference.range.contains(range) &&
                             particles.all { p->
-                                reference.particles.any { p.restricts(it) }
+                                reference.particles.any { p.restricts(it, context, schema) }
                             }
                 }
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference) }
+                            particles.all { it.restricts(reference, context, schema) }
                 }
 
                 else -> false
@@ -151,20 +155,24 @@ sealed class FlattenedGroup(
                 }.times(range)
         }
 
-        override fun restricts(reference: FlattenedParticle): Boolean {
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             // case of 0 range should never happen
             return when(reference) {
-                is Sequence -> restricts(reference.particles.first())
+                is Sequence -> restricts(reference.particles.first(), context, schema)
                 is Choice -> {
                     reference.range.contains(range) &&
-                        particles.all { p -> reference.particles.any { p.restricts(it) } }
+                        particles.all { p -> reference.particles.any { p.restricts(it, context, schema) } }
                 }
 
                 is All -> false // can not happen
 
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference) }
+                            particles.all { it.restricts(reference, context, schema) }
                 }
 
                 else -> false
@@ -178,57 +186,10 @@ sealed class FlattenedGroup(
         override fun toString(): String = particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
 
-    open class Sequence internal constructor(range: AllNNIRange, final override val particles: List<FlattenedParticle>, marker: Boolean) :
-        FlattenedGroup(range) {
-
-        init {
-            var lastOptionals: MutableList<QName> = mutableListOf()
-            var lastAnys: MutableList<ResolvedAny> = mutableListOf()
-            for (p in particles) {
-                for (startTerm in p.startingTerms()) {
-                    when (startTerm) {
-                        is Element -> {
-                            val startName = startTerm.term.mdlQName
-                            require(startName !in lastOptionals) {
-                                "Non-deterministic sequence: sequence${particles.joinToString()}"
-                            }
-                            require(lastAnys.none { it.matches(startName) })
-                        }
-
-                        is Wildcard -> {
-                            require(lastAnys.none { it.intersects(startTerm.term) }) {
-                                "Non-deterministic choice group: choice${particles.joinToString()}"
-                            }
-                            require(lastOptionals.none { startTerm.term.matches(it) }) {
-                                "Non-deterministic choice group: choice${particles.joinToString()}"
-                            }
-                        }
-                    }
-                }
-
-
-
-                lastOptionals = mutableListOf()
-                lastAnys = mutableListOf()
-
-                when {
-                    p.isVariable -> for (e in p.trailingTerms()) {
-                        when (e) {
-                            is Wildcard -> lastAnys.add(e.term)
-                            is Element -> lastOptionals.add(e.term.mdlQName)
-                        }
-                    }
-
-                    else -> for (e in p.trailingTerms()) {
-                        if (e.isVariable) when (e) {
-                            is Wildcard -> lastAnys.add(e.term)
-                            is Element -> lastOptionals.add(e.term.mdlQName)
-                        }
-                    }
-                }
-
-            }
-        }
+    open class Sequence internal constructor(
+        range: AllNNIRange,
+        final override val particles: List<FlattenedParticle>
+    ) : FlattenedGroup(range) {
 
         override fun effectiveTotalRange(): AllNNIRange {
             return particles.asSequence()
@@ -237,17 +198,21 @@ sealed class FlattenedGroup(
                 .times(range)
         }
 
-        override fun restricts(reference: FlattenedParticle): Boolean {
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             return when(reference) {
-                is Sequence -> restrictsSequence(reference)
+                is Sequence -> restrictsSequence(reference, context, schema)
                 is Choice -> {
-                    reference.particles.any { this.restricts(it * reference.range) }
+                    reference.particles.any { this.restricts(it * reference.range, context, schema) }
                 }
 
                 is All -> {
                     val refCpy = reference.particles.toMutableList<FlattenedParticle?>()
                     for (e in particles) {
-                        val matchIdx = refCpy.indexOfFirst { it!=null && e.restricts(it) }
+                        val matchIdx = refCpy.indexOfFirst { it!=null && e.restricts(it, context, schema) }
                         if (matchIdx < 0) return false
                         refCpy[matchIdx] = null
                     }
@@ -256,20 +221,24 @@ sealed class FlattenedGroup(
 
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference) }
+                            particles.all { it.restricts(reference, context, schema) }
                 }
 
                 else -> false
             }
         }
 
-        private fun restrictsSequence(reference: Sequence): Boolean {
+        private fun restrictsSequence(
+            reference: Sequence,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             val refIt = reference.particles.iterator()
             if (! refIt.hasNext()) return false
             var currentParticle: FlattenedParticle = refIt.next()
             var currentConsumed: VAllNNI = VAllNNI.ZERO
             for(p in particles) {
-                while (currentConsumed >= currentParticle.maxOccurs || ! p.restricts(currentParticle)) {
+                while (currentConsumed >= currentParticle.maxOccurs || ! p.restricts(currentParticle, context, schema)) {
                     // We can't go to the next particle
                     if (currentConsumed < currentParticle.minOccurs) return false
                     if (! refIt.hasNext()) return false
@@ -304,7 +273,8 @@ sealed class FlattenedGroup(
         }
 
         override fun times(otherRange: AllNNIRange): Sequence {
-            return Sequence(range * otherRange, particles, false)
+            // no need to validate again
+            return Sequence(range * otherRange, particles)
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
@@ -313,11 +283,74 @@ sealed class FlattenedGroup(
 
     companion object {
         @JvmStatic
-        fun Sequence(range: AllNNIRange, particles: List<FlattenedParticle>): FlattenedParticle = when {
+        fun Sequence(
+            range: AllNNIRange,
+            particles: List<FlattenedParticle>,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle = when {
             particles.isEmpty() -> EMPTY
             particles.size == 1 -> particles.single()
-            else -> Sequence(range, particles, false)
+            else -> {
+                checkSequence(particles, context, schema)
+                Sequence(range, particles)
+            }
         }
+
+        private fun checkSequence(
+            particles: List<FlattenedParticle>,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ) {
+            var lastOptionals: MutableList<QName> = mutableListOf()
+            var lastAnys: MutableList<ResolvedAny> = mutableListOf()
+            for (p in particles) {
+                for (startTerm in p.startingTerms()) {
+                    when (startTerm) {
+                        is Element -> {
+                            val startName = startTerm.term.mdlQName
+                            require(startName !in lastOptionals) {
+                                "Non-deterministic sequence: sequence${particles.joinToString()}"
+                            }
+                            require(lastAnys.none { it.matches(startName, context, schema) })
+                        }
+
+                        is Wildcard -> {
+                            require(lastAnys.none { it.intersects(startTerm.term) }) {
+                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                            }
+                            require(lastOptionals.none { startTerm.term.matches(it, context, schema) }) {
+                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                            }
+                        }
+                    }
+                }
+
+
+
+                lastOptionals = mutableListOf()
+                lastAnys = mutableListOf()
+
+                when {
+                    p.isVariable -> for (e in p.trailingTerms()) {
+                        when (e) {
+                            is Wildcard -> lastAnys.add(e.term)
+                            is Element -> lastOptionals.add(e.term.mdlQName)
+                        }
+                    }
+
+                    else -> for (e in p.trailingTerms()) {
+                        if (e.isVariable) when (e) {
+                            is Wildcard -> lastAnys.add(e.term)
+                            is Element -> lastOptionals.add(e.term.mdlQName)
+                        }
+                    }
+                }
+
+            }
+        }
+
+
     }
 
 }
@@ -337,7 +370,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     abstract fun startingTerms(): List<Term>
     abstract fun trailingTerms(): List<Term>
 
-    abstract fun restricts(reference: FlattenedParticle): Boolean
+    abstract fun restricts(
+        reference: FlattenedParticle,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): Boolean
 
     abstract class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
@@ -359,28 +396,38 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
         override fun trailingTerms(): List<Element> = listOf(this)
 
-        override fun restricts(reference: FlattenedParticle): Boolean = when (reference) {
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean = when (reference) {
             is Element -> when {
                 ! reference.range.contains(range) -> false
                 else -> reference.term.mdlQName.isEquivalent(term.mdlQName)
             }
 
-            is Wildcard -> reference.range.contains(range) && reference.term.matches(term.mdlQName)
+            is Wildcard -> reference.range.contains(range) && reference.term.matches(term.mdlQName, context, schema)
 
-            is FlattenedGroup.Sequence -> restrictsSequence(reference)
+            is FlattenedGroup.Sequence -> restrictsSequence(reference, context, schema)
 
-            is FlattenedGroup.All -> reference.particles.all { it.isOptional || this.restricts(it * reference.range) }
+            is FlattenedGroup.All -> reference.particles.all { it.isOptional ||
+                    this.restricts(it * reference.range, context, schema)
+            }
 
-            is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range) }
+            is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range, context, schema) }
 
             else -> false
         }
 
-        private fun restrictsSequence(sequence: FlattenedGroup.Sequence): Boolean {
+        private fun restrictsSequence(
+            sequence: FlattenedGroup.Sequence,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             val it = sequence.particles.iterator()
             var match : FlattenedParticle? = null
             while (match == null && it.hasNext()) {
-                match = it.next().takeIf { this.restricts(it) }
+                match = it.next().takeIf { this.restricts(it, context, schema) }
             }
             if (match==null) return false
             while(it.hasNext()) {
@@ -404,17 +451,21 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
         override fun trailingTerms(): List<Wildcard> = listOf(this)
 
-        override fun restricts(reference: FlattenedParticle): Boolean {
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             if (!reference.range.contains(range)) return false
             return when (reference) {
                 is FlattenedGroup -> when {
                     !reference.effectiveTotalRange().contains(range) -> false
 
                     // duplicate checking for child range, but we don't want the complexity
-                    else -> reference.particles.all { restricts(it) }
+                    else -> reference.particles.all { restricts(it, context, schema) }
                 }
 
-                is Element -> term.matches(reference.term.mdlQName)
+                is Element -> term.matches(reference.term.mdlQName, context, schema)
 
                 is Wildcard -> reference.term.mdlNamespaceConstraint.contains(term.mdlNamespaceConstraint)
                 else -> error("Unsupported particle kind: $reference")

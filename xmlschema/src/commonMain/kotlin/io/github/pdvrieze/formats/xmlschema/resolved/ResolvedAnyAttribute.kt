@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribu
 import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
 import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
 import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
 
@@ -40,5 +41,9 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
         rawPart.toConstraint(schema),
         rawPart.processContents ?: VProcessContents.STRICT
     )
+
+    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        return mdlNamespaceConstraint.matches(name, context, schema)
+    }
 
 }

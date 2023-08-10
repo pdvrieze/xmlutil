@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -30,15 +32,15 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     val disallowedNames: VQNameListBase<E>,
 ) {
 
-    fun matches(elem: E): Boolean = when (elem) {
-        is VQNameListBase.Name -> matches(elem.qName)
+    fun matches(elem: E, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean = when (elem) {
+        is VQNameListBase.Name -> matches(elem.qName, context, schema)
         else -> elem !in disallowedNames
     }
 
-    fun matches(name: QName): Boolean = when (mdlVariety) {
-        Variety.ANY -> name !in disallowedNames
-        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && name !in disallowedNames
-        Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && name !in disallowedNames
+    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
+        Variety.ANY -> !disallowedNames.contains(name, context, schema)
+        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && !disallowedNames.contains(name, context, schema)
+        Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && !disallowedNames.contains(name, context, schema)
     }
 
     /**
@@ -80,15 +82,15 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     }
 
     /* Determined by 3.10.6.3 (for attributes) */
-    fun union(other: VNamespaceConstraint<E>): VNamespaceConstraint<E> {
+    fun union(other: VNamespaceConstraint<E>, context: ResolvedComplexType, schema: ResolvedSchemaLike): VNamespaceConstraint<E> {
         // TODO resolve the "special" values
         val newDisallowed: VQNameListBase<E> = run {
             val newDisallowed = mutableListOf<E>()
             for (c in disallowedNames) {
-                if (!other.matches(c)) newDisallowed.add(c)
+                if (!other.matches(c, context, schema)) newDisallowed.add(c)
             }
             for (c in other.disallowedNames) {
-                if (!matches(c)) newDisallowed.add(c)
+                if (!matches(c, context, schema)) newDisallowed.add(c)
             }
             @Suppress("UNCHECKED_CAST")
             VQNameList(newDisallowed as List<VQNameListBase.Elem>) as VQNameListBase<E>
