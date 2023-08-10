@@ -39,10 +39,9 @@ internal class CollatedSchema(
     val elements: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalElement>>> = mutableMapOf()
     val attributes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalAttribute>>> =
         mutableMapOf()
-    val simpleTypes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalSimpleType>>> =
-        mutableMapOf()
-    val complexTypes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalComplexType>>> =
-        mutableMapOf()
+
+    val types: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalType>>> = mutableMapOf()
+
     val groups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGroup>>> = mutableMapOf()
     val attributeGroups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSAttributeGroup>>> =
         mutableMapOf()
@@ -51,8 +50,7 @@ internal class CollatedSchema(
     val importedSchemas: MutableMap<String, CollatedSchema> = mutableMapOf()
 
     fun findType(name: QName) : Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>> {
-        simpleTypes[name]?.let { return it }
-        complexTypes[name]?.let { return it }
+        types[name]?.let { return it }
         return importedSchemas[name.getNamespaceURI()]?.findType(name) ?:
             throw IllegalArgumentException("No type with name $name found in schema")
     }
@@ -227,7 +225,7 @@ internal class CollatedSchema(
 
     fun checkRecursiveTypeDefinitions() {
         val verifiedSet = mutableSetOf<XSGlobalType>()
-        for (typeInfo in (simpleTypes.values + complexTypes.values)) {
+        for (typeInfo in (types.values)) {
             if (typeInfo.second.element !in verifiedSet) { // skip already validated types
                 val chain = mutableSetOf<XSGlobalType>()
                 checkRecursiveTypes(typeInfo, verifiedSet, chain)
@@ -357,17 +355,19 @@ internal class CollatedSchema(
         for (st in redefine.simpleTypes) {
             val name = QName(targetNamespace?.toString() ?: "", st.name.toString())
             val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
-            val old = requireNotNull(simpleTypes[name]) { "Redefine must override" }
+            val old = requireNotNull(types[name]) { "Redefine must override" }
+            require(old.second.element is XSGlobalSimpleType) { "Simpletypes can only redefine simpletypes" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            simpleTypes[name] = Pair(s, SchemaAssociatedElement(schemaLocation, st))
+            types[name] = Pair(s, SchemaAssociatedElement(schemaLocation, st))
         }
 
         for (ct in redefine.complexTypes) {
             val name = QName(targetNamespace?.toString() ?: "", ct.name.toString())
             val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
-            val old = requireNotNull(complexTypes[name]) { "Redefine must override" }
+            val old = requireNotNull(types[name]) { "Redefine must override" }
+            require(old.second.element is XSGlobalComplexType) { "Complextypes can only complex simpetypes" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            complexTypes[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ct))
+            types[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ct))
         }
 
         for (g in redefine.groups) {
@@ -408,11 +408,11 @@ internal class CollatedSchema(
             QName(targetNamespace, it.name.toString()) to
                     Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
-        sourceSchema.simpleTypes.associateToUnique(simpleTypes) {
+        sourceSchema.simpleTypes.associateToUnique(types) {
             QName(targetNamespace, it.name.toString()) to
                     Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
-        sourceSchema.complexTypes.associateToUnique(complexTypes) {
+        sourceSchema.complexTypes.associateToUnique(types) {
             QName(targetNamespace, it.name.toString()) to
                     Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
         }
@@ -434,8 +434,7 @@ internal class CollatedSchema(
         importedNamespaces.addAll(sourceSchema.importedNamespaces)
         sourceSchema.elements.entries.associateToUnique(elements)
         sourceSchema.attributes.entries.associateToUnique(attributes)
-        sourceSchema.simpleTypes.entries.associateToUnique(simpleTypes)
-        sourceSchema.complexTypes.entries.associateToUnique(complexTypes)
+        sourceSchema.types.entries.associateToUnique(types)
         sourceSchema.groups.entries.associateToUnique(groups)
         sourceSchema.attributeGroups.entries.associateToUnique(attributeGroups)
         sourceSchema.notations.entries.associateToUnique(notations)
