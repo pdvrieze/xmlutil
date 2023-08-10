@@ -141,7 +141,7 @@ sealed class ResolvedComplexType(
                 val baseWc = baseType.mdlAttributeWildcard
                 if (baseWc != null) {
                     val wc = requireNotNull(mdlAttributeWildcard) { "3.4.6.2(1.3) - extension must have also one" }
-                    require(wc.mdlNamespaceConstraint.contains(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
+                    require(wc.mdlNamespaceConstraint.isSupersetOf(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
                 }
 
                 when (val baseCType = baseType.mdlContentType) {
@@ -161,7 +161,7 @@ sealed class ResolvedComplexType(
                             "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
                         }
                         if (bot != null && eot != null) {
-                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.contains(bot.mdlWildCard!!.mdlNamespaceConstraint))
+                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.isSupersetOf(bot.mdlWildCard!!.mdlNamespaceConstraint))
                         }
                     }
 
@@ -238,6 +238,12 @@ sealed class ResolvedComplexType(
                     }
 
                 }
+            }
+            mdlAttributeWildcard?.let { wc ->
+                require(b is ResolvedComplexType) { "Restriction with wilcard attributes must derive complex types" }
+                val baseWC = requireNotNull(b.mdlAttributeWildcard) { "A wildcard must derive from a wildcard" }
+                require(wc.restricts(baseWC)) { "Wildcard $wc does not restrict $baseWC" }
+
             }
 
 
