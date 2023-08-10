@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
@@ -771,6 +772,14 @@ sealed class ResolvedComplexType(
 
             }
             val attributeUses = attributes.values.toSet()
+
+            var idAttrName: QName? = null
+            for(use in attributeUses) {
+                if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
+                    require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
+                    idAttrName = use.mdlAttributeDeclaration.mdlQName
+                }
+            }
             return attributeUses
         }
 
