@@ -738,7 +738,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMap
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getChildConstraints ()Ljava/util/Collection;
+	public final fun getChildConstraints ()Lnl/adaptivity/xmlutil/serialization/impl/OrderMatrix;
 	public final fun getChildReorderMap ()[I
 	public fun getDoInline ()Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;

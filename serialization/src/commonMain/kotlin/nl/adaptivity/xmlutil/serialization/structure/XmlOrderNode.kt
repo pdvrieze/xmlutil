@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.serialization.structure
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.serialization.OutputKind
+import nl.adaptivity.xmlutil.serialization.impl.OrderMatrix
 import nl.adaptivity.xmlutil.serialization.structure.XmlOrderNode.OrderWildcard.*
 
 internal class XmlOrderNode(val elementIdx: Int) {
@@ -162,7 +163,8 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
 }
 
 /**
- * This function creates a list with all the nodes reachable from the receiver in (breath first) order
+ * This function creates a list with all the nodes reachable from the receiver in (breath first) order.
+ * This function is used initially before element descriptors are finalised.
  */
 internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
     fun XmlOrderNode.lastIndex(): Int {
@@ -194,13 +196,18 @@ internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
 }
 
 /**
+ * Function that is used for the final order of the elements, as determined *after* element kinds
+ * have been determined (also on order).
  *
+ * @return A pair of (matching information for validation) + (canonical order for serialization)
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal fun Collection<XmlOrderNode>.fullFlatten(
     serialDescriptor: SerialDescriptor,
     children: List<XmlDescriptor>
-): Pair<Collection<XmlOrderConstraint>, IntArray> {
+): Pair<OrderMatrix, IntArray> {
+    val orderMatrix = OrderMatrix(children.size)
+
     val originalOrderNodes = arrayOfNulls<XmlOrderNode>(serialDescriptor.elementsCount)
 
     val allNodes = mutableListOf<XmlOrderNode>()
@@ -221,6 +228,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
 //        allNodes.add(node)
     }
 
+    // Those nodes without any constraint will be groups on their own
     for (i in originalOrderNodes.indices) {
         if (originalOrderNodes[i] == null) {
             val node = XmlOrderNode(i)
@@ -240,6 +248,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
     // The list of constraints to remember (they are the "valid" constraints) that don't cross
     // partition boundaries (attrs vs elements), (before, general, after)
     val constraints = mutableListOf<XmlOrderConstraint>()
+
     // first attributes, then elements
     for (attrOrMembers in arrayOf(attributes, members)) {
         // After having split into different output kinds, then split by wildcard.
@@ -254,19 +263,32 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
             }
         }
         for (node in before) {
-            constraints.add(XmlOrderConstraint(node.elementIdx, XmlOrderConstraint.OTHERS))
+            val beforeIdx = node.elementIdx
+            constraints.add(XmlOrderConstraint(beforeIdx, XmlOrderConstraint.OTHERS))
+            for (gnode in general) {
+                orderMatrix.setOrderedBefore(beforeIdx, gnode.elementIdx)
+            }
+            for (anode in after) {
+                orderMatrix.setOrderedBefore(beforeIdx, anode.elementIdx)
+            }
         }
         for (node in after) {
-            constraints.add(XmlOrderConstraint(XmlOrderConstraint.OTHERS, node.elementIdx))
+            val afterIdx = node.elementIdx
+            constraints.add(XmlOrderConstraint(XmlOrderConstraint.OTHERS, afterIdx))
+            for (gnode in general) {
+                orderMatrix.setOrderedAfter(afterIdx, gnode.elementIdx)
+            }
         }
 
         //now flatten the list for the before/general/after partitions (in order)
-        for (partitionElements in arrayOf(before, general, after)) {
+        for (partition in arrayOf(before, general, after)) {
 
-            val queue = partitionElements.toMutableList()
+            val forwardQueue = partition
+                .filter { it.predecessors.isEmpty() }
+                .toMutableList()
             //                .apply { sortBy { it.child } }
-            while (queue.isNotEmpty()) {
-                val nextIdx = queue.indexOfMinBy { node ->
+            while (forwardQueue.isNotEmpty()) {
+                val nextIdx = forwardQueue.indexOfMinBy { node ->
                     // In the case that the predecessors are not sorted yet
                     if (node.predecessors.any { pred -> declToOrderMap[pred.elementIdx] < 0 }) {
                         serialDescriptor.elementsCount // Order as if at end of queue
@@ -274,16 +296,17 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
                         node.elementIdx
                     }
                 }
-                val next = queue.removeAt(nextIdx)
+                val next = forwardQueue.removeAt(nextIdx)
                 finalToDeclMap[nextElemIdx] = next.elementIdx
                 declToOrderMap[next.elementIdx] = nextElemIdx
                 nextElemIdx++
                 for (successor in next.successors) {
+                    orderMatrix.setOrderedAfter(successor.elementIdx, next.elementIdx)
                     // Check that the successor is actually within this partition, otherwise just ignore it (it will be in a later one)
-                    if (partitionElements.any { it.elementIdx == successor.elementIdx }) { // This ensures 2*3 independent partitions
-                        constraints.add(XmlOrderConstraint(next.elementIdx, successor.elementIdx))
-                        if (successor !in queue) { // and isn't queued
-                            queue.add(successor)
+                    if (partition.any { it.elementIdx == successor.elementIdx }) { // This ensures 2*3 independent partitions
+//                        constraints.add(XmlOrderConstraint(next.elementIdx, successor.elementIdx))
+                        if (successor !in forwardQueue) { // and isn't queued
+                            forwardQueue.add(successor)
                         }
                     }
                 }
@@ -292,7 +315,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
     }
 
 
-    return Pair(constraints, declToOrderMap)
+    return Pair(orderMatrix, declToOrderMap)
 }
 
 private inline fun <E, R : Comparable<R>> List<E>.indexOfMinBy(selector: (E) -> R): Int {

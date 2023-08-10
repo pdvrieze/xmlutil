@@ -802,58 +802,19 @@ internal open class XmlDecoderBase internal constructor(
             checkRepeat()
             if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
                 if (xmlDescriptor is XmlCompositeDescriptor) {
-                    // TODO optimize by caching ordering.
                     val constraints = xmlDescriptor.childConstraints
-                    if (!constraints.isNullOrEmpty()) {
-                        val orderedBefore = BooleanArray(seenItems.size)
-                        val orderedAfter = BooleanArray(seenItems.size)
-                        for ((before, after) in constraints) {
-                            if (before == XmlOrderConstraint.OTHERS) orderedAfter[after] = true
-                            if (after == XmlOrderConstraint.OTHERS) orderedBefore[before] = true
-                        }
-                        for ((before, after) in constraints) {
-                            if (before == this) { // Check that there were no elements already expected
-                                if (after == XmlOrderConstraint.OTHERS) {
-                                    val seenSiblingIndex = seenItems.indices.indexOfFirst {
-                                        seenItems[it] &&
-                                                xmlDescriptor.getElementDescriptor(it).effectiveOutputKind == OutputKind.Element &&
-                                                (!orderedBefore[it])
-                                    }
-                                    if (seenSiblingIndex >= 0) {
-                                        throw XmlSerialException(
-                                            "Found element ${
-                                                xmlDescriptor.getElementDescriptor(
-                                                    seenSiblingIndex
-                                                ).tagName
-                                            } before ${xmlDescriptor.getElementDescriptor(idx).tagName} in conflict with ordering constraints"
-                                        )
-                                    }
-                                } else if (seenItems[after]) {
-                                    val thisName = when (xmlDescriptor) {
-                                        is XmlPolymorphicDescriptor -> ""
-                                        else -> xmlDescriptor.tagName
-                                    }
-
+                    if (constraints!=null) {
+                        for (childIdx in seenItems.indices) {
+                            if(seenItems[childIdx]) {
+                                if(constraints.isOrderedAfter(childIdx, this)) {
                                     throw XmlSerialException(
-                                        "Found element ${xmlDescriptor.childName(after)} before ${
-                                            xmlDescriptor.childName(idx)} in conflict with ordering constraints"
-                                    )
-                                }
-                            }
-                            if (!orderedAfter[idx]) { // If this element is not ordered "last"
-                                val alreadySeenTrailingIndex =
-                                    seenItems.indices.indexOfFirst { seenItems[it] && orderedAfter[it] }
-                                if (alreadySeenTrailingIndex > 0) {
-                                    throw XmlSerialException(
-                                        "Found element ${xmlDescriptor.childName(idx)} after ${
-                                            xmlDescriptor.childName(alreadySeenTrailingIndex)
-                                        } in conflict with ordering constraints"
+                                        "In ${xmlDescriptor.tagName}, found element ${
+                                            xmlDescriptor.childName(childIdx)
+                                        } before ${xmlDescriptor.childName(idx)} in conflict with ordering constraints"
                                     )
                                 }
                             }
                         }
-                        // TODO verify order.
-
                     }
                 }
             }

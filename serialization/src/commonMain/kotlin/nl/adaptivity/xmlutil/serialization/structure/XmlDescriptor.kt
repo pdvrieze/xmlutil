@@ -36,6 +36,7 @@ import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
+import nl.adaptivity.xmlutil.serialization.impl.OrderMatrix
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
@@ -789,7 +790,7 @@ internal constructor(
     override fun getElementDescriptor(index: Int): XmlDescriptor =
         children[index]
 
-    private val childReorderInfo: Pair<Collection<XmlOrderConstraint>, IntArray>? by lazy {
+    private val childReorderInfo: Pair<OrderMatrix, IntArray>? by lazy {
         initialChildReorderInfo?.let {
             val newList = it.sequenceStarts(elementsCount)
 
@@ -799,7 +800,7 @@ internal constructor(
 
     public val childReorderMap: IntArray? get() = childReorderInfo?.second
 
-    public val childConstraints: Collection<XmlOrderConstraint>? get() = childReorderInfo?.first
+    public val childConstraints: OrderMatrix? get() = childReorderInfo?.first
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.apply {
