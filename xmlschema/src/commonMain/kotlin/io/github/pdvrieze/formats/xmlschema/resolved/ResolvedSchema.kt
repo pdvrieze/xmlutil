@@ -24,9 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -149,10 +147,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
                 for (a in data.attributes.values) {
                     checkHelper.checkAttribute(a)
                 }
-                for (t in data.simpleTypes.values) {
-                    checkHelper.checkType(t)
-                }
-                for (t in data.complexTypes.values) {
+                for (t in data.types.values) {
                     checkHelper.checkType(t)
                 }
                 for (g in data.groups.values) {
@@ -231,9 +226,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
 
         val attributes: Map<String, ResolvedGlobalAttribute>
 
-        val simpleTypes: Map<String, ResolvedGlobalSimpleType>
-
-        val complexTypes: Map<String, ResolvedGlobalComplexType>
+        val types: Map<String, ResolvedGlobalType>
 
         val groups: Map<String, ResolvedGlobalGroup>
 
@@ -247,14 +240,12 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
             attributes =
                 DelegateMap(targetNamespace.value, source.attributes) { (s, v) -> ResolvedGlobalAttribute(v, s) }
 
-            simpleTypes =
-                DelegateMap(targetNamespace.value, source.simpleTypes) { (s, v) ->
-                    ResolvedGlobalSimpleType(v, s)
-                }
-
-            complexTypes =
-                DelegateMap(targetNamespace.value, source.complexTypes) { (s, v) ->
-                    ResolvedGlobalComplexType(v, s)
+            types =
+                DelegateMap(targetNamespace.value, source.types) { (s, v) ->
+                    when (v.element) {
+                        is XSGlobalSimpleType -> ResolvedGlobalSimpleType(v.element, s)
+                        is XSGlobalComplexType -> ResolvedGlobalComplexType(v.element, s, v.schemaLocation)
+                    }
                 }
 
             groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
@@ -270,7 +261,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
         val identityConstraints: Map<String, ResolvedIdentityConstraint> by lazy {
             val identityConstraintList = mutableSetOf<ResolvedIdentityConstraint>().also { collector ->
                 elements.values.forEach { elem -> elem.collectConstraints(collector) }
-                complexTypes.values.forEach { type -> type.collectConstraints(collector) }
+                types.values.forEach { type ->
+                    if (type is ResolvedComplexType) type.collectConstraints(collector)
+                }
                 groups.values.forEach { group -> group.collectConstraints(collector) }
             }
             val map = HashMap<String, ResolvedIdentityConstraint>()
@@ -286,11 +279,13 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
         }
 
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return simpleTypes[typeName]
+            return types[typeName]?.let {
+                checkNotNull(it as? ResolvedGlobalSimpleType) { "The type $typeName resolves to a complex type, not a simple one" }
+            }
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return complexTypes[typeName] ?: simpleTypes[typeName]
+            return types[typeName]
         }
 
         override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
