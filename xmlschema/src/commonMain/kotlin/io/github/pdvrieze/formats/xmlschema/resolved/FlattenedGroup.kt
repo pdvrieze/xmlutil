@@ -467,7 +467,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
                 is Element -> term.matches(reference.term.mdlQName, context, schema)
 
-                is Wildcard -> reference.term.mdlNamespaceConstraint.contains(term.mdlNamespaceConstraint)
+                is Wildcard -> reference.term.mdlNamespaceConstraint.isSupersetOf(term.mdlNamespaceConstraint)
                 else -> error("Unsupported particle kind: $reference")
             }
         }
