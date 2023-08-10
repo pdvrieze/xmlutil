@@ -50,12 +50,14 @@ sealed class XSElement : XSI_Annotated {
 
     @XmlBefore("*")
     final override val annotation: XSAnnotation?
+
+    @XmlBefore("alternatives")
     val localType: XSLocalType?
 
     val identityConstraints: List<XSIdentityConstraint>
 
-    /** TODO support alternatives */
-    val alternatives: List<XSAlternative> get() = emptyList()
+    @XmlBefore("identityConstraints")
+    val alternatives: List<XSAlternative>// get() = emptyList()
 
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>
@@ -72,6 +74,7 @@ sealed class XSElement : XSI_Annotated {
         annotation: XSAnnotation?,
         localType: XSLocalType?,
         identityConstraints: List<XSIdentityConstraint>,
+        alternatives: List<XSAlternative>,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) {
         this.block = block
@@ -83,6 +86,7 @@ sealed class XSElement : XSI_Annotated {
         this.annotation = annotation
         this.localType = localType
         this.identityConstraints = identityConstraints
+        this.alternatives = alternatives
         this.otherAttrs = otherAttrs
     }
 

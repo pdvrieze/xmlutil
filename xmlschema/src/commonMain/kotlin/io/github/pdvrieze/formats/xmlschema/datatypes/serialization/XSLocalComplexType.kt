@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -83,11 +82,16 @@ sealed class XSLocalComplexType(
         val mixed: VBoolean? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
+        @XmlBefore("attributes", "attributeGroups")
         val term: XSComplexContent.XSIDerivationParticle? = null,
         val asserts: List<XSAssert> = emptyList(),
-        val atributes: List<XSLocalAttribute> = emptyList(),
-        val atributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        @XmlBefore("anyAttribute")
+        val attributes: List<XSLocalAttribute> = emptyList(),
+        @XmlBefore("anyAttribute")
+        val attributeGroups: List<XSAttributeGroupRef> = emptyList(),
+        @XmlBefore("asserts")
         val anyAttribute: XSAnyAttribute? = null,
+        @XmlBefore("term")
         val openContent: XSOpenContent? = null,
         val defaultAttributesApply: VBoolean? = null,
         @XmlId
@@ -121,8 +125,8 @@ sealed class XSLocalComplexType(
                     defaultAttributesApply = defaultAttributesApply?.value,
                     term = term,
                     asserts = asserts,
-                    attributes = atributes,
-                    attributeGroups = atributeGroups,
+                    attributes = attributes,
+                    attributeGroups = attributeGroups,
                     anyAttribute = anyAttribute,
                     openContent = openContent,
                     id = id,

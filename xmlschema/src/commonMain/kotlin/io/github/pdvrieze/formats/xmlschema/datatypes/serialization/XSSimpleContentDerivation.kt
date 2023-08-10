@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
@@ -33,10 +34,14 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 sealed class XSSimpleContentDerivation(
     @XmlId
     override val id: VID?,
+    @XmlBefore("anyAttribute")
     override val attributes: List<XSLocalAttribute>,
+    @XmlBefore("anyAttribute")
     override val attributeGroups: List<XSAttributeGroupRef>,
+    @XmlBefore("asserts")
     override val anyAttribute: XSAnyAttribute?,
     override val asserts: List<XSAssert>,
+    @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
