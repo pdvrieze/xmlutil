@@ -93,11 +93,11 @@ fun builtinType(localName: String, targetNamespace: String): ResolvedBuiltinType
 }
 
 sealed interface IStringType : ResolvedBuiltinSimpleType {
-    fun value(representation: VString): VString
+    override fun value(representation: VString): VString
 }
 
 sealed interface IDecimalType : ResolvedBuiltinSimpleType {
-    fun value(representation: VString): VDecimal
+    override fun value(representation: VString): VDecimal
 }
 
 sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace, BuiltinSchemaXmlschema),
@@ -122,7 +122,7 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(na
 
 sealed class PrimitiveDatatype(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
     final override val isSpecial: Boolean get() = false
-    abstract fun value(representation: VString): VAnySimpleType
+    abstract override fun value(representation: VString): VAnySimpleType
     abstract fun value(maybeValue: VAnySimpleType): VAnySimpleType
 
     abstract override val baseType: ResolvedBuiltinType
@@ -539,7 +539,7 @@ object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IInt
     )
 
     override fun value(representation: VString): VInteger {
-        return VInteger(representation.toLong())
+        return VInteger(WhitespaceValue.COLLAPSE.normalize(representation).toLong())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
