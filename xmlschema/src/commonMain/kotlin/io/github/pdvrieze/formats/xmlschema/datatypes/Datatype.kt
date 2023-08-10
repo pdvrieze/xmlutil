@@ -39,6 +39,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
+import kotlin.coroutines.coroutineContext
 
 abstract class Datatype(
     name: VNCName,
@@ -245,7 +246,9 @@ object AnyType : ResolvedGlobalComplexType(
                         VProcessContents.LAX
                     )
                 )
-            )
+            ),
+            typeContext = AnyType,
+            schema = schema
         )
 
         override val mdlDerivationMethod: VDerivationControl.Complex get() = VDerivationControl.RESTRICTION

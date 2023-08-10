@@ -22,6 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
@@ -42,6 +45,17 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
     }
 
     fun restricts(general: ResolvedModelGroup): Boolean
+
+    fun definesElement(name: QName): Boolean {
+        for (particle in mdlParticles) {
+            val t = particle.mdlTerm
+            when (t) {
+                is ResolvedModelGroup -> if(t.definesElement(name)) return true
+                is ResolvedElement -> if(t.mdlQName.isEquivalent(name)) return true
+            }
+        }
+        return false
+    }
 
     enum class Compositor { ALL, CHOICE, SEQUENCE }
 }
