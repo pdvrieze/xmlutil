@@ -55,11 +55,16 @@ class XSComplexContent(
 
     @Serializable
     sealed class XSComplexDerivationBase : XSAnnotatedBase, XSI_ComplexDerivation {
+        @XmlBefore("attributes", "attributeGroups")
         final override val term: XSIDerivationParticle?
         final override val asserts: List<XSAssertionFacet>
+        @XmlBefore("anyAttribute")
         final override val attributes: List<XSLocalAttribute>
+        @XmlBefore("anyAttribute")
         final override val attributeGroups: List<XSAttributeGroupRef>
+        @XmlBefore("asserts")
         final override val anyAttribute: XSAnyAttribute?
+        @XmlBefore("term")
         final override val openContent: XSOpenContent?
         final override val base: QName?
         abstract val derivationMethod: VDerivationControl.Complex
