@@ -24,6 +24,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 sealed class ValueConstraint(val value: VString) {
+    fun isValidRestrictionOf(base: ValueConstraint): Boolean = when (base) {
+        is Default -> true // default can be changed
+        is Fixed -> value == base.value // fixed can not be changed
+    }
+
     class Default(value: VString) : ValueConstraint(value)
     class Fixed(value: VString) : ValueConstraint(value)
 

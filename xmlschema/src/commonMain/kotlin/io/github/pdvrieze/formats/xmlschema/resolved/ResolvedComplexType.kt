@@ -55,6 +55,7 @@ sealed class ResolvedComplexType(
     val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
 
     // abstract only in global types
+    // TODO transform to map[QName,IResolvedAttributeUse]
     val mdlAttributeUses: Set<IResolvedAttributeUse> get() = model.mdlAttributeUses
     val mdlAttributeWildcard: ResolvedAnyAttribute? get() = model.mdlAttributeWildcard
     val mdlContentType: ResolvedContentType get() = model.mdlContentType
@@ -218,6 +219,27 @@ sealed class ResolvedComplexType(
                     check(contentType.restricts(this, schema) || true) // TODO do check
                 }
             }
+
+            val dAttrs = mdlAttributeUses
+            if (dAttrs.isNotEmpty()) {
+                require(b is ResolvedComplexType) { "Restriction introduces attributes on a simple type" }
+                val bAttrs = b.mdlAttributeUses
+                for(dAttr in dAttrs) {
+                    val dName = dAttr.mdlAttributeDeclaration.mdlQName
+                    when(val bAttr = bAttrs.firstOrNull { it.mdlAttributeDeclaration.mdlQName == dName }) {
+                        null -> {
+                            val attrWildcard = requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
+                            require(attrWildcard.matches(dName, this, schema)) { "Attribute wildcard does not match $dName" }
+                        }
+
+                        else -> require(dAttr.isValidRestrictionOf(bAttr)) {
+                            "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
+                        }
+                    }
+
+                }
+            }
+
 
             // check attributes : 3.4.6.3, item 3
             // check attributes : 3.4.6.3, item 4
