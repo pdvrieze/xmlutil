@@ -302,7 +302,7 @@ sealed class ResolvedComplexType(
 
                         baseTypeDefinition = baseType
                     }
-
+                    require(baseTypeDefinition is ResolvedComplexType) { "Complex types with complex content must have a complex base" }
                 }
 
                 is XSComplexType.Shorthand -> {
