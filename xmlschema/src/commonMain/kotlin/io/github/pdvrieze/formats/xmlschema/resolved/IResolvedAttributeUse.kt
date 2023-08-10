@@ -29,4 +29,16 @@ sealed interface IResolvedAttributeUse : ResolvedAnnotated {
     val mdlInheritable: Boolean
 
     fun checkUse(checkHelper: CheckHelper)
+    fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
+        if (baseAttr.mdlRequired && !mdlRequired) return false
+        (mdlValueConstraint?:mdlAttributeDeclaration.mdlValueConstraint)?.let { vc ->
+            baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(vc.value)
+            (baseAttr.mdlValueConstraint ?: baseAttr.mdlAttributeDeclaration.mdlValueConstraint)?.let { bc ->
+                if (!vc.isValidRestrictionOf(bc)) return false
+            }
+        }
+
+        return mdlAttributeDeclaration.mdlTypeDefinition
+            .isValidRestrictionOf(baseAttr.mdlAttributeDeclaration.mdlTypeDefinition)
+    }
 }
