@@ -632,7 +632,7 @@ private constructor(
 
     override fun onElementRepeated(parentDescriptor: XmlDescriptor, childIndex: Int) {
         if (throwOnRepeatedElement) {
-            throw XmlSerialException("Duplicate child (${parentDescriptor.getElementDescriptor(childIndex)} found in ${parentDescriptor} outside of eluded list context")
+            throw XmlSerialException("Duplicate child (${parentDescriptor.friendlyChildName(childIndex)} found in ${parentDescriptor.tagName} outside of eluded list context")
         }
     }
 

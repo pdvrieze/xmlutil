@@ -901,8 +901,8 @@ internal open class XmlDecoderBase internal constructor(
                                 if(constraints.isOrderedAfter(childIdx, this)) {
                                     throw XmlSerialException(
                                         "In ${xmlDescriptor.tagName}, found element ${
-                                            xmlDescriptor.childName(childIdx)
-                                        } before ${xmlDescriptor.childName(idx)} in conflict with ordering constraints"
+                                            xmlDescriptor.friendlyChildName(childIdx)
+                                        } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
                                     )
                                 }
                             }
@@ -910,11 +910,6 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 }
             }
-        }
-
-        private fun XmlDescriptor.childName(idx: Int): String = when(val c = getElementDescriptor(idx)) {
-            is XmlPolymorphicDescriptor -> c.polyInfo.values.joinToString(separator = " | ", prefix = "${serialDescriptor.getElementName(idx)}(", postfix = ")") { it.tagName.toString() }
-            else -> c.tagName.toString()
         }
 
         private inline fun Int.markSeenOrHandleUnknown(body: () -> Int): Int {
@@ -1830,4 +1825,9 @@ public data class PolyInfo(
     @OptIn(ExperimentalSerializationApi::class)
     internal val describedName get() = descriptor.serialDescriptor.serialName
 
+}
+
+internal fun XmlDescriptor.friendlyChildName(idx: Int): String = when(val c = getElementDescriptor(idx)) {
+    is XmlPolymorphicDescriptor -> c.polyInfo.values.joinToString(separator = " | ", prefix = "${serialDescriptor.getElementName(idx)}(", postfix = ")") { it.tagName.toString() }
+    else -> c.tagName.toString()
 }
