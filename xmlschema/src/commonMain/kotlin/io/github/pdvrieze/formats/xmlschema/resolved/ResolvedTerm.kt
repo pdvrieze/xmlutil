@@ -27,6 +27,6 @@ interface ResolvedTerm : ResolvedAnnotated {
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper)
-    fun flatten(range: AllNNIRange): FlattenedParticle
+    fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle
 
 }

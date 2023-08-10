@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
@@ -58,7 +59,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlTerm: ResolvedAny get() = this
 
-    override fun flatten(range: AllNNIRange): FlattenedParticle.Wildcard {
+    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
         return FlattenedParticle.Wildcard(range, this)
     }
 
@@ -69,6 +70,10 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     fun intersects(other: ResolvedAny): Boolean = when (mdlMaxOccurs) {
         VAllNNI.ZERO -> false
         else -> this.mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
+    }
+
+    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        return mdlNamespaceConstraint.matches(name, context, schema)
     }
 
 }
