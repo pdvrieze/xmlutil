@@ -21,10 +21,9 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.namespaceURI
 
 sealed interface ResolvedModelGroup : ResolvedTerm {
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
@@ -48,10 +47,19 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     fun definesElement(name: QName): Boolean {
         for (particle in mdlParticles) {
-            val t = particle.mdlTerm
-            when (t) {
+            when (val t = particle.mdlTerm) {
                 is ResolvedModelGroup -> if(t.definesElement(name)) return true
                 is ResolvedElement -> if(t.mdlQName.isEquivalent(name)) return true
+            }
+        }
+        return false
+    }
+
+    fun hasLocalNsInContext(): Boolean {
+        for (particle in mdlParticles) {
+            when (val t = particle.mdlTerm) {
+                is ResolvedModelGroup -> if(t.hasLocalNsInContext()) return true
+                is ResolvedElement -> if(t.mdlQName.namespaceURI.isEmpty()) return true
             }
         }
         return false

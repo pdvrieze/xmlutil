@@ -65,6 +65,10 @@ sealed class ResolvedComplexType(
     /** TODO tidy this one up */
     val mdlAssertions: List<XSIAssertCommon> get() = model.mdlAssertions
 
+    override fun hasLocalNsInContext(): Boolean {
+        return model.hasLocalNsInContext
+    }
+
     override fun validate(representation: VString) {
         when (val ct = mdlContentType) {
             is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
@@ -212,7 +216,13 @@ sealed class ResolvedComplexType(
 
                 contentType is ElementOnlyContentType -> {
                     check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(contentType.restricts(baseContentType, this, schema)) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
+                    check(
+                        contentType.restricts(
+                            baseContentType,
+                            this,
+                            schema
+                        )
+                    ) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
                 }
 
                 contentType is MixedContentType -> {
@@ -225,12 +235,19 @@ sealed class ResolvedComplexType(
             if (dAttrs.isNotEmpty()) {
                 require(b is ResolvedComplexType) { "Restriction introduces attributes on a simple type" }
                 val bAttrs = b.mdlAttributeUses
-                for(dAttr in dAttrs) {
+                for (dAttr in dAttrs) {
                     val dName = dAttr.mdlAttributeDeclaration.mdlQName
-                    when(val bAttr = bAttrs.firstOrNull { it.mdlAttributeDeclaration.mdlQName == dName }) {
+                    when (val bAttr = bAttrs.firstOrNull { it.mdlAttributeDeclaration.mdlQName == dName }) {
                         null -> {
-                            val attrWildcard = requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
-                            require(attrWildcard.matches(dName, this, schema)) { "Attribute wildcard does not match $dName" }
+                            val attrWildcard =
+                                requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
+                            require(
+                                attrWildcard.matches(
+                                    dName,
+                                    this,
+                                    schema
+                                )
+                            ) { "Attribute wildcard does not match $dName" }
                         }
 
                         else -> require(dAttr.isValidRestrictionOf(bAttr)) {
@@ -263,7 +280,10 @@ sealed class ResolvedComplexType(
     sealed interface ResolvedDirectParticle<out T : ResolvedTerm>
 
     interface Model : ResolvedAnnotated.IModel {
-        fun calculateProhibitedSubstitutions(rawPart: XSIComplexType, schema: ResolvedSchemaLike): Set<VDerivationControl.Complex>
+        fun calculateProhibitedSubstitutions(
+            rawPart: XSIComplexType,
+            schema: ResolvedSchemaLike
+        ): Set<VDerivationControl.Complex>
 
         val mdlAssertions: List<XSIAssertCommon>
         val mdlBaseTypeDefinition: ResolvedType
@@ -274,6 +294,7 @@ sealed class ResolvedComplexType(
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlAttributeUses: Set<IResolvedAttributeUse>
+        val hasLocalNsInContext: Boolean
     }
 
     protected abstract class ModelBase<R : XSIComplexType>(
@@ -291,6 +312,11 @@ sealed class ResolvedComplexType(
             addAll(rawPart.content.derivation.asserts)
         }
 
+
+        override val hasLocalNsInContext: Boolean by lazy {
+            (mdlContentType as? ElementContentType)
+                ?.run { mdlParticle.mdlTerm.hasLocalNsInContext() } ?: false
+        }
 
     }
 
@@ -345,14 +371,19 @@ sealed class ResolvedComplexType(
 
 
             // attribute wildcards according to 3.4.2.5
-/* -- It is not clear what this does (attribute groups are outside the wildcard)
-            val defaultAttrGroupRef = when {
-                rawPart.defaultAttributesApply!=false -> schema.defaultAttributes
-                else -> null
-            }
-*/
+            /* -- It is not clear what this does (attribute groups are outside the wildcard)
+                        val defaultAttrGroupRef = when {
+                            rawPart.defaultAttributesApply!=false -> schema.defaultAttributes
+                            else -> null
+                        }
+            */
 
-            val completeWildcard = content.derivation.anyAttribute?.let { ResolvedAnyAttribute(it, schema) }
+            val completeWildcard = content.derivation.anyAttribute?.let {
+                ResolvedAnyAttribute(
+                    it,
+                    schema
+                )
+            }
 
             mdlAttributeWildcard = when {
                 // 2.1
@@ -414,7 +445,13 @@ sealed class ResolvedComplexType(
                 )
             }
 
-            val openContent: ResolvedOpenContent? = derivation.openContent?.let { ResolvedOpenContent(it, schema) }
+            val openContent: ResolvedOpenContent? = derivation.openContent?.let {
+                ResolvedOpenContent(
+                    it,
+                    schema,
+                    effectiveContent?.mdlTerm?.hasLocalNsInContext() ?: false
+                )
+            }
 
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
@@ -432,7 +469,7 @@ sealed class ResolvedComplexType(
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> { // extension
                     val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
-                    if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition!=AnyType) {
+                    if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition != AnyType) {
                         require(baseParticle.mdlTerm is IResolvedAll || term !is XSAll) {
                             "Somehow all in extension is not allowed (its fails various test suite tests - but should be valid on the spec)"
                         }
@@ -494,7 +531,7 @@ sealed class ResolvedComplexType(
                     XSOpenContent(
                         mode = wildcardElement.mode,
                         any = w
-                    ), schema
+                    ), schema, particle.mdlTerm.hasLocalNsInContext()
                 )
 
                 mdlContentType = when {
@@ -558,7 +595,12 @@ sealed class ResolvedComplexType(
             }
 
 
-            val completeWildcard = rawPart.content.derivation.anyAttribute?.let { ResolvedAnyAttribute(it, schema) }
+            val completeWildcard = rawPart.content.derivation.anyAttribute?.let {
+                ResolvedAnyAttribute(
+                    it,
+                    schema
+                )
+            }
 
             mdlAttributeWildcard = when {
                 // 2.1
@@ -662,7 +704,11 @@ sealed class ResolvedComplexType(
         val flattened: FlattenedParticle
 
         /** Implementation of 3.4.6.4 */
-        fun restricts(baseCT: ResolvedContentType, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        fun restricts(
+            baseCT: ResolvedContentType,
+            typeContext: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             if (baseCT !is ElementContentType) return false
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
@@ -830,7 +876,7 @@ sealed class ResolvedComplexType(
             val attributeUses = attributes.values.toSet()
 
             var idAttrName: QName? = null
-            for(use in attributeUses) {
+            for (use in attributeUses) {
                 if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
                     require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
                     idAttrName = use.mdlAttributeDeclaration.mdlQName

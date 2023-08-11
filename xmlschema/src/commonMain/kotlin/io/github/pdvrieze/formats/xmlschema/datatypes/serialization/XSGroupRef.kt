@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -49,5 +50,9 @@ class XSGroupRef(
 ) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated {
     init {
         require((minOccurs ?: VNonNegativeInteger.ONE) <= (maxOccurs ?: VAllNNI.ONE)) { "Invalid bounds: ! (${minOccurs}<=$maxOccurs)" }
+    }
+
+    override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean {
+        return schema.modelGroup(ref).hasLocalNsInContext()
     }
 }

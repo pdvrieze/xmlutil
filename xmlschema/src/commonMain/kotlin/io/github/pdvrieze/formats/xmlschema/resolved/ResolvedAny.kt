@@ -45,11 +45,12 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     constructor(
         rawPart: XSAny,
         schema: ResolvedSchemaLike,
+        localInContext: Boolean,
         mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
         mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
     ) : super(
         rawPart,
-        rawPart.toConstraint(schema),
+        rawPart.toConstraint(schema, localInContext),
         rawPart.processContents ?: VProcessContents.STRICT
     ) {
         require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
@@ -75,5 +76,4 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
-
 }
