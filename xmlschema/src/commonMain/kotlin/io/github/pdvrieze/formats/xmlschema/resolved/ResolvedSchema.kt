@@ -322,5 +322,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
 
 
     }
+
+    companion object {
+        const val STRICT_ALL_IN_EXTENSION: Boolean = true
+    }
 }
 
