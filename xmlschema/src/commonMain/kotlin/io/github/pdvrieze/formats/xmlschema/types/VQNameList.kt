@@ -56,7 +56,9 @@ abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : L
     object DEFINEDSIBLING : Elem() {
         override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
             val ct = context.mdlContentType
-            return context.mdlAttributeUses.any { it.mdlAttributeDeclaration.mdlQName.isEquivalent(name) } ||
+
+
+            return context.mdlAttributeUses[name]!=null ||
                     (ct is ResolvedComplexType.ElementContentType && ct.mdlParticle.mdlTerm.definesElement(name))
         }
     }

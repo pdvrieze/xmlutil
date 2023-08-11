@@ -263,7 +263,7 @@ object AnyType : ResolvedGlobalComplexType(
 
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = emptySet()
-        override val mdlAttributeUses: Set<IResolvedAttributeUse> get() = emptySet()
+        override val mdlAttributeUses: Map<QName, IResolvedAttributeUse> get() = emptyMap()
     }
 }
 
