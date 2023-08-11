@@ -72,7 +72,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
             rawPart: XSI_Grouplike,
             schema: ResolvedSchemaLike,
         ) : super(rawPart) {
-            particles = rawPart.particles.map { ResolvedParticle(parent, it, schema) }
+            particles = rawPart.particles.map { ResolvedParticle(parent, it, schema, rawPart.hasLocalNsInContext(schema)) }
         }
     }
 }

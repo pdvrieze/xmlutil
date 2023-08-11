@@ -38,7 +38,7 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
         schema: ResolvedSchemaLike,
     ) : super(
         rawPart,
-        rawPart.toConstraint(schema),
+        rawPart.toConstraint(schema, true), // for now attributes always have ## local in the context
         rawPart.processContents ?: VProcessContents.STRICT
     )
 
