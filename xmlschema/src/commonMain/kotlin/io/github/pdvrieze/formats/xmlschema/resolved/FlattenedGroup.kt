@@ -35,6 +35,8 @@ sealed class FlattenedGroup(
     object EMPTY : Sequence(VAllNNI.ZERO..VAllNNI.ZERO, emptyList()) {
         override fun toString(): String = "()"
 
+        override fun effectiveTotalRange(): AllNNIRange = range
+
         override fun restricts(
             reference: FlattenedParticle,
             context: ResolvedComplexType,
