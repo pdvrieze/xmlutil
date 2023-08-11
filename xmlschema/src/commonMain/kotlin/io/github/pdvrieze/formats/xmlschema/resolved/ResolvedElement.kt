@@ -68,7 +68,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     abstract val mdlAbstract: Boolean
 
-    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle.Element {
+    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
         return FlattenedParticle.Element(range, this)
     }
 
