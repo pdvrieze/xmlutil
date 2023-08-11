@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.STRICT_ALL_IN_EXTENSION
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -431,6 +432,12 @@ sealed class ResolvedComplexType(
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> { // extension
                     val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
+                    if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition!=AnyType) {
+                        require(baseParticle.mdlTerm is IResolvedAll || term !is XSAll) {
+                            "Somehow all in extension is not allowed (its fails various test suite tests - but should be valid on the spec)"
+                        }
+                    }
+
                     val baseTerm: ResolvedTerm = baseParticle.mdlTerm
                     val effectiveContentTerm = effectiveContent.mdlTerm
                     val part: ResolvedParticle<ResolvedModelGroup> = when {
