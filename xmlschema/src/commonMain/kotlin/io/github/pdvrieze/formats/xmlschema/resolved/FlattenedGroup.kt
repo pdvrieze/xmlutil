@@ -94,7 +94,7 @@ sealed class FlattenedGroup(
                 }
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference, context, schema) }
+                            particles.all { (it*reference.range).restricts(reference*it.range, context, schema) }
                 }
 
                 else -> false
@@ -172,7 +172,7 @@ sealed class FlattenedGroup(
 
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference, context, schema) }
+                            particles.all { (it * reference.range).restricts(reference*it.range, context, schema) }
                 }
 
                 else -> false
@@ -216,7 +216,7 @@ sealed class FlattenedGroup(
                         if (matchIdx < 0) return false
                         refCpy[matchIdx] = null
                     }
-                    false
+                    true
                 }
 
                 is Wildcard -> {
