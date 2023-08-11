@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -73,6 +74,10 @@ class XSLocalElement : XSElement, XSI_AllParticle {
         this.maxOccurs = maxOccurs
         this.ref = ref
         this.targetNamespace = targetNamespace
+    }
+
+    override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean {
+        return form == VFormChoice.UNQUALIFIED || (targetNamespace!=null && schema.elementFormDefault == VFormChoice.UNQUALIFIED)
     }
 
     override fun toString(): String = buildString {
