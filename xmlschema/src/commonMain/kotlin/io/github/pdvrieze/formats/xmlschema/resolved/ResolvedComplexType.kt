@@ -159,8 +159,19 @@ sealed class ResolvedComplexType(
 
                 when (val baseCType = baseType.mdlContentType) {
                     is ResolvedSimpleContentType ->
-                        require(baseCType.mdlSimpleTypeDefinition == (mdlContentType as ResolvedSimpleContentType).mdlSimpleTypeDefinition) {
-                            "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
+                        when (val ct = mdlContentType) {
+                            is EmptyContentType -> {
+                                // fine for now
+                            }
+                            is ResolvedSimpleContentType -> {
+                                require(baseCType.mdlSimpleTypeDefinition == ct.mdlSimpleTypeDefinition) {
+                                    "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
+                                }
+
+                            }
+                            else -> {
+                                throw IllegalArgumentException("simple base can only extend from simple content or empty")
+                            }
                         }
 
                     is EmptyContentType -> {}//1.4.2 / 1.4.3.2.1 can extend from empty
@@ -463,14 +474,14 @@ sealed class ResolvedComplexType(
 
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
-                        derivation is XSComplexType.Shorthand ->
+                        derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 
 
-                baseTypeDefinition !is ResolvedComplexType -> // simple type
+                baseTypeDefinition !is ResolvedComplexType -> // simple type 4.2.1
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 
-                baseTypeDefinition.mdlContentType.mdlVariety.let {
+                baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
                     it == Variety.SIMPLE || it == Variety.EMPTY
                 } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 

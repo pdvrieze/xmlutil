@@ -47,6 +47,9 @@ class ResolvedGroupRef(
     override fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         checkHelper.checkGroup(model.referenced)
+        if (mdlTerm is IResolvedAll) {
+            check(mdlMaxOccurs <= VAllNNI.ONE) { "All groups may only have maxOccurs <=1" }
+        }
     }
 
     class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
