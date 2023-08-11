@@ -57,7 +57,7 @@ interface VNonNegativeInteger : VInteger {
 
     operator fun compareTo(other: VAllNNI): Int = when {
         other !is VAllNNI.Value -> -1 // If not a value then unbounded
-        else -> toULong().compareTo(other.toULong())
+        else -> compareTo(other.value)
     }
 
     operator fun compareTo(other: VAllNNI.Value): Int = toULong().compareTo(other.toULong())
@@ -80,6 +80,24 @@ interface VNonNegativeInteger : VInteger {
 
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
             return VUnsignedLong(toULong() * other.toULong())
+        }
+
+        override fun compareTo(other: VNonNegativeInteger): Int {
+            val maybeULong = xmlString.toULongOrNull()
+            val otherStr: String
+            if (maybeULong!=null) {
+                if (other is VUnsignedLong) return maybeULong.compareTo(other.toULong())
+                otherStr = other.xmlString
+                val maybeOtherULong = otherStr.toULongOrNull()
+                if (maybeOtherULong != null) return maybeULong.compareTo(maybeOtherULong)
+            } else {
+                otherStr = other.xmlString
+            }
+
+            val len = maxOf(xmlString.length, otherStr.length)
+            val newLeft = xmlString.padStart(len, '0')
+            val newRight = otherStr.padStart(len, '0')
+            return newLeft.compareTo(newRight)
         }
 
         override fun toString(): String = "${xmlString}u"
