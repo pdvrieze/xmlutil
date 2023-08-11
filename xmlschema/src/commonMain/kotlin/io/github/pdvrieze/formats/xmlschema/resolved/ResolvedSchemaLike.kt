@@ -36,8 +36,8 @@ abstract class ResolvedSchemaLike {
     abstract val blockDefault: VBlockSet
     abstract val finalDefault: Set<VDerivationControl.Type>
     abstract val defaultOpenContent: XSDefaultOpenContent?
-    open val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
-    open val elementFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
+    abstract val attributeFormDefault: VFormChoice
+    abstract val elementFormDefault: VFormChoice
 
     abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?
 
