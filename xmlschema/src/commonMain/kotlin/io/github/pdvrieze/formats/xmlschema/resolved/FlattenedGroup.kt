@@ -358,7 +358,7 @@ sealed class FlattenedGroup(
                 lastAnys = mutableListOf()
 
                 when {
-                    p.isVariable -> for (e in p.trailingTerms()) {
+                    p.isOptional && p.isVariable -> for (e in p.trailingTerms()) {
                         when (e) {
                             is Wildcard -> lastAnys.add(e.term)
                             is Element -> lastOptionals.add(e.term.mdlQName)
