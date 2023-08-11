@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XSI_NAMESPAC
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 
 internal class CollatedSchema(
@@ -91,18 +92,18 @@ internal class CollatedSchema(
                         importNamespace.isNullOrEmpty() && importTargetNamespace.isEmpty() -> {
                             val schemaNamespace = schemaLike.targetNamespace
                             require(!schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
-                            ChameleonWrapper(schemaLike, schemaNamespace)
+                            ChameleonWrapper(rawImport, schemaLike, schemaNamespace)
                         }
 
-                        importNamespace == null -> ChameleonWrapper(schemaLike, importTargetNamespace)
+                        importNamespace == null -> ChameleonWrapper(rawImport, schemaLike, importTargetNamespace)
 
-                        importTargetNamespace.isEmpty() -> ChameleonWrapper(schemaLike, importNamespace)
+                        importTargetNamespace.isEmpty() -> ChameleonWrapper(rawImport, schemaLike, importNamespace)
 
                         else -> {
                             require(importNamespace == importTargetNamespace) {
                                 "Renaming can only be done with an import with a null targetNamespace"
                             }
-                            ChameleonWrapper(schemaLike, importTargetNamespace)
+                            ChameleonWrapper(rawImport, schemaLike, importTargetNamespace)
                         }
                     }
 
@@ -144,7 +145,7 @@ internal class CollatedSchema(
                         includeNamespace
                     }
                 }
-                val chameleonSchema = ChameleonWrapper(schemaLike, VAnyURI(chameleonNamespace))
+                val chameleonSchema = ChameleonWrapper(rawInclude, schemaLike, VAnyURI(chameleonNamespace))
 
                 val includedSchema = CollatedSchema(
                     rawInclude,
@@ -457,6 +458,11 @@ internal class CollatedSchema(
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
         override val defaultAttributes: QName? get() = originalSchema.defaultAttributes
 
+        override val attributeFormDefault: VFormChoice
+            get() = originalSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+        override val elementFormDefault: VFormChoice
+            get() = originalSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED
+
         override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
             if (elementKind == Redefinable.TYPE && elementName == typeName) {
                 return nestedSimpleType(typeName)
@@ -619,9 +625,13 @@ internal class CollatedSchema(
         }
     }
 
-    class ChameleonWrapper(val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
+    class ChameleonWrapper(private val sourceSchema: XSSchema, val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
         override val targetNamespace: VAnyURI?
             get() = chameleonNamespace
+
+        override val attributeFormDefault: VFormChoice = sourceSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+
+        override val elementFormDefault: VFormChoice = sourceSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
         override val blockDefault: VBlockSet
             get() = base.blockDefault
