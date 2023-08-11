@@ -320,11 +320,16 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
             }
         }
 
-
     }
 
     companion object {
         const val STRICT_ALL_IN_EXTENSION: Boolean = true
+
+        /**
+         * If true, apply rules that are more restrictive than needed (per standard/test suite, but
+         * semantically valid)
+         */
+        const val VALIDATE_PEDANTIC: Boolean = true
     }
 }
 

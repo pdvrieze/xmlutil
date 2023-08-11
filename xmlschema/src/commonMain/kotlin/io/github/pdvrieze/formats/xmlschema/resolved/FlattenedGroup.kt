@@ -316,7 +316,7 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): FlattenedParticle = when {
             particles.isEmpty() -> EMPTY
-            particles.size == 1 -> particles.single()
+            particles.size == 1 -> particles.single() * range
             else -> {
                 checkSequence(particles, context, schema)
                 Sequence(range, particles)
@@ -450,7 +450,10 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                         this.restricts(it * reference.range, context, schema)
             }
 
-            is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range, context, schema) }
+            is FlattenedGroup.Choice -> reference.particles.any {
+                val ref = if (ResolvedSchema.VALIDATE_PEDANTIC) it else (it * reference.range)
+                restricts(ref, context, schema)
+            }
 
             else -> false
         }
