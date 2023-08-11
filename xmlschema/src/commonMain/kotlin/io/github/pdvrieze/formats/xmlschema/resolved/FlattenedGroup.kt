@@ -34,6 +34,14 @@ sealed class FlattenedGroup(
 
     object EMPTY : Sequence(VAllNNI.ZERO..VAllNNI.ZERO, emptyList()) {
         override fun toString(): String = "()"
+
+        override fun restricts(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
+            return reference.effectiveTotalRange().start == VAllNNI.ZERO
+        }
     }
 
     abstract val particles: List<FlattenedParticle>
@@ -205,7 +213,7 @@ sealed class FlattenedGroup(
         ): Boolean {
             return when(reference) {
                 is Sequence -> restrictsSequence(reference, context, schema)
-                is Choice -> { // TODO check multiplication, seems off
+                is Choice -> { // check each side in turn (taking into account the particle range and choice range)
                     reference.particles.any { this.restricts(it * reference.range, context, schema) }
                 }
 
