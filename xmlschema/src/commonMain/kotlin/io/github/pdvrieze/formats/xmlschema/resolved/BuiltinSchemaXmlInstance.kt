@@ -38,6 +38,9 @@ import nl.adaptivity.xmlutil.QName
 object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
     override val defaultAttributes: Nothing? get() = null
 
+    override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
+    override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
+
     private val delegate: ResolvedSchema
 
     init {
