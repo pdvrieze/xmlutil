@@ -57,7 +57,7 @@ sealed class ResolvedComplexType(
 
     // abstract only in global types
     // TODO transform to map[QName,IResolvedAttributeUse]
-    val mdlAttributeUses: Set<IResolvedAttributeUse> get() = model.mdlAttributeUses
+    val mdlAttributeUses: Map<QName, IResolvedAttributeUse> get() = model.mdlAttributeUses
     val mdlAttributeWildcard: ResolvedAnyAttribute? get() = model.mdlAttributeWildcard
     val mdlContentType: ResolvedContentType get() = model.mdlContentType
     val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
@@ -130,7 +130,7 @@ sealed class ResolvedComplexType(
 
     override fun checkType(checkHelper: CheckHelper) {
         checkNotNull(model)
-        for (attrUse in mdlAttributeUses) {
+        for (attrUse in mdlAttributeUses.values) {
             attrUse.checkUse(checkHelper)
         }
 
@@ -140,7 +140,15 @@ sealed class ResolvedComplexType(
             val baseType = mdlBaseTypeDefinition
             if (baseType is ResolvedComplexType) {
                 require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
-                require(mdlAttributeUses.containsAll(baseType.mdlAttributeUses)) { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: ${mdlAttributeUses} - base: ${baseType.mdlAttributeUses}" }
+                for ((baseName, baseUse) in baseType.mdlAttributeUses) {
+                    val derived = requireNotNull(mdlAttributeUses[baseName])  { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: $baseName not found in $mdlAttributeUses" }
+                    if (baseUse.mdlRequired) {
+                        require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
+                    }
+                    require(baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(derived.mdlAttributeDeclaration.mdlTypeDefinition)) {
+                        "Types must match"
+                    }
+                }
 
                 // 1.3
                 val baseWc = baseType.mdlAttributeWildcard
@@ -235,9 +243,9 @@ sealed class ResolvedComplexType(
             if (dAttrs.isNotEmpty()) {
                 require(b is ResolvedComplexType) { "Restriction introduces attributes on a simple type" }
                 val bAttrs = b.mdlAttributeUses
-                for (dAttr in dAttrs) {
-                    val dName = dAttr.mdlAttributeDeclaration.mdlQName
-                    when (val bAttr = bAttrs.firstOrNull { it.mdlAttributeDeclaration.mdlQName == dName }) {
+                for ((dName, dAttr) in dAttrs) {
+
+                    when (val bAttr = bAttrs[dName]) {
                         null -> {
                             val attrWildcard =
                                 requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
@@ -293,7 +301,7 @@ sealed class ResolvedComplexType(
         val mdlAttributeWildcard: ResolvedAnyAttribute?
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Set<IResolvedAttributeUse>
+        val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
         val hasLocalNsInContext: Boolean
     }
 
@@ -303,7 +311,7 @@ sealed class ResolvedComplexType(
         schema: ResolvedSchemaLike
     ) : ResolvedAnnotated.Model(rawPart), Model {
 
-        final override val mdlAttributeUses: Set<IResolvedAttributeUse> by lazy {
+        final override val mdlAttributeUses: Map<QName, IResolvedAttributeUse> by lazy {
             calculateAttributeUses(schema, rawPart, context)
         }
 
@@ -788,7 +796,7 @@ sealed class ResolvedComplexType(
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlFinal: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Set<IResolvedAttributeUse>
+        val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
         val mdlDerivationMethod: VDerivationControl.Complex
 
     }
@@ -815,7 +823,7 @@ sealed class ResolvedComplexType(
             schema: ResolvedSchemaLike,
             rawPart: XSIComplexType,
             parent: ResolvedComplexType
-        ): Set<IResolvedAttributeUse> {
+        ): Map<QName, IResolvedAttributeUse> {
             val defaultAttributeGroup = (schema as? ResolvedSchema)?.defaultAttributes
                 ?.takeIf { rawPart.defaultAttributesApply != false }
 
@@ -850,7 +858,7 @@ sealed class ResolvedComplexType(
                 val baseType = parent.mdlBaseTypeDefinition as? ResolvedComplexType
                 when (baseType?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
-                        for (a in baseType.mdlAttributeUses) {
+                        for (a in baseType.mdlAttributeUses.values) {
                             val attrName = a.mdlAttributeDeclaration.mdlQName
 //                            require(a.mdlInheritable) { "Only inheritable attributes can be inherited ($attrName)" }
                             if (attrName !in prohibitedAttrs) {
@@ -862,7 +870,7 @@ sealed class ResolvedComplexType(
                         }
 
                     VDerivationControl.RESTRICTION ->
-                        for (a in baseType.mdlAttributeUses) {
+                        for (a in baseType.mdlAttributeUses.values) {
                             val qName = a.mdlAttributeDeclaration.mdlQName
                             if (qName !in prohibitedAttrs) {
                                 getOrPut(qName) { a }
@@ -873,10 +881,10 @@ sealed class ResolvedComplexType(
                 }
 
             }
-            val attributeUses = attributes.values.toSet()
+            val attributeUses = attributes.toMap()
 
             var idAttrName: QName? = null
-            for (use in attributeUses) {
+            for (use in attributes.values) {
                 if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
                     require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
                     idAttrName = use.mdlAttributeDeclaration.mdlQName
