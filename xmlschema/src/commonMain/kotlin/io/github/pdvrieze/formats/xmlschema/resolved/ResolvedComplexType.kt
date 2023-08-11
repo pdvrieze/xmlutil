@@ -211,12 +211,12 @@ sealed class ResolvedComplexType(
 
                 contentType is ElementOnlyContentType -> {
                     check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(contentType.restricts(this, schema)) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
+                    check(contentType.restricts(baseContentType, this, schema)) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
                 }
 
                 contentType is MixedContentType -> {
                     check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
-                    check(contentType.restricts(this, schema) || true) // TODO do check
+                    check(contentType.restricts(baseContentType, this, schema) || true) // TODO do check
                 }
             }
 
@@ -655,17 +655,16 @@ sealed class ResolvedComplexType(
         val flattened: FlattenedParticle
 
         /** Implementation of 3.4.6.4 */
-        fun restricts(context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
-            val base = context.mdlContentType
-            if (base !is ElementContentType) return false
+        fun restricts(baseCT: ResolvedContentType, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+            if (baseCT !is ElementContentType) return false
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
 
             // we use indirect access to term as that will give us groups.
-            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, context, schema)
-            val flattenedBase = base.mdlParticle.mdlTerm.flatten(base.mdlParticle.range, context, schema)
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, typeContext, schema)
+            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, typeContext, schema)
 
-            return flattened.restricts(flattenedBase, context, schema)
+            return flattened.restricts(flattenedBase, typeContext, schema)
         }
 
         override fun check(
