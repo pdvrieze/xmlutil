@@ -104,7 +104,7 @@ sealed class FlattenedGroup(
                 }
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { (it*reference.range).restricts(reference*it.range, context, schema) }
+                            particles.all { it.restrictsNoRange(reference, context, schema) }
                 }
 
                 else -> false
@@ -182,7 +182,7 @@ sealed class FlattenedGroup(
 
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { (it * reference.range).restricts(reference*it.range, context, schema) }
+                            particles.all { it.restrictsNoRange(reference, context, schema) }
                 }
 
                 else -> false
@@ -216,7 +216,7 @@ sealed class FlattenedGroup(
             return when(reference) {
                 is Sequence -> restrictsSequence(reference, context, schema)
                 is Choice -> { // check each side in turn (taking into account the particle range and choice range)
-                    reference.particles.any { this.restricts(it * reference.range, context, schema) }
+                    restrictsChoice(reference, context, schema)
                 }
 
                 is All -> {
@@ -232,12 +232,23 @@ sealed class FlattenedGroup(
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
                             particles.all {// cross-multiply ranges to make them equal
-                                (it * reference.range).restricts(reference* it.range, context, schema)
+                                it.restrictsNoRange(reference, context, schema)
                             }
                 }
 
                 else -> false
             }
+        }
+
+        private fun restrictsChoice(
+            reference: Choice,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
+            // all particles in the sequence are present
+            if (!particles.all { p -> p.restrictsNoRange(reference, context, schema) })
+                return false
+            return reference.effectiveTotalRange().contains(effectiveTotalRange())
         }
 
         private fun restrictsSequence(
@@ -388,6 +399,14 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         schema: ResolvedSchemaLike
     ): Boolean
 
+    open fun restrictsNoRange(
+        reference: FlattenedParticle,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): Boolean {
+        return this.restricts(reference * INFRANGE, context, schema)
+    }
+
     abstract class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
 
@@ -492,6 +511,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     }
 
     companion object {
+        private val INFRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.UNBOUNDED
+
         val particleComparator: Comparator<in FlattenedParticle> = Comparator { a, b ->
             when (a) {
                 is Term -> when (b) {
