@@ -58,7 +58,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         override fun compareTo(other: VAllNNI): Int {
             return when (other) {
                 is UNBOUNDED -> -1
-                is Value -> toULong().compareTo(other.toULong())
+                is Value -> value.compareTo(other.value)
             }
         }
 
