@@ -24,6 +24,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -43,6 +44,8 @@ class XSAny : XSAnyBase, XSI_AllParticle {
     @XmlElement(false)
     @XmlSerialName("processContents", "", "")
     override val processContents: VProcessContents?
+
+    override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean = false
 
     constructor(
         processContents: VProcessContents? = null,

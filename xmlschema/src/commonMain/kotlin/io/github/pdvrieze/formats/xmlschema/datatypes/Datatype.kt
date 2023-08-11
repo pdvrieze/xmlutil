@@ -211,11 +211,11 @@ object AnyType : ResolvedGlobalComplexType(
     mdlQName = QName(XS_NAMESPACE, "anyType"),
     schema = BuiltinSchemaXmlschema,
     modelFactory = { AnyModel },
-), ResolvedBuiltinType, ResolvedGlobalComplexType.Model {
+), ResolvedBuiltinType {
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
-    override val annotations: List<ResolvedAnnotation> get() = emptyList()
+
     override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
     override val isSpecial: Boolean get() = true
 
@@ -257,6 +257,9 @@ object AnyType : ResolvedGlobalComplexType(
             VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VAttrQNameList()),
             VProcessContents.LAX
         )
+
+        override val hasLocalNsInContext: Boolean
+            get() = false
 
         override val mdlAbstract: Boolean get() = false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = emptySet()

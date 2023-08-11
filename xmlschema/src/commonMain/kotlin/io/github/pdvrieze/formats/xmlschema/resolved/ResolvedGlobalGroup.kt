@@ -44,6 +44,10 @@ class ResolvedGlobalGroup(
         is XSGroup.Sequence -> SequenceImpl(this, c, schema)
     }
 
+    override fun hasLocalNsInContext(): Boolean {
+        return mdlModelGroup.hasLocalNsInContext()
+    }
+
     fun checkGroup(checkHelper: CheckHelper) {
         mdlModelGroup.checkTerm(checkHelper)
     }
@@ -83,7 +87,9 @@ class ResolvedGlobalGroup(
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
         class Model(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
-            val particles = rawPart.particles.map { ResolvedParticle(parent, it, schema) }
+            val localInContext = rawPart.particles.any { it.hasLocalNsInContext(schema) }
+
+            val particles = rawPart.particles.map { ResolvedParticle(parent, it, schema, localInContext) }
         }
     }
 

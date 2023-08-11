@@ -31,4 +31,5 @@ interface ResolvedBuiltinType : ResolvedGlobalType {
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val mdlAnnotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
+
 }

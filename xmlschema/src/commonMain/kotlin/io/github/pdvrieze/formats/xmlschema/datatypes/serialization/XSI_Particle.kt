@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -33,6 +34,8 @@ sealed interface XSI_Particle : XSI_Annotated {
     /** Optional, default 1 */
     val maxOccurs: VAllNNI?
 
+    fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean
+
 }
 
 /**
@@ -44,6 +47,10 @@ sealed interface XSI_Grouplike : XSI_Particle {
 
     fun hasChildren(): Boolean =
         particles.isNotEmpty() // TODO filter out maxCount==0
+
+    override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean =
+        particles.any { it.hasLocalNsInContext(schema) }
+
 }
 
 /*

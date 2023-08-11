@@ -329,10 +329,10 @@ sealed class FlattenedGroup(
 
                         is Wildcard -> {
                             require(lastAnys.none { it.intersects(startTerm.term) }) {
-                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                                "Non-deterministic choice group: ${particles.joinToString()}"
                             }
                             require(lastOptionals.none { startTerm.term.matches(it, context, schema) }) {
-                                "Non-deterministic choice group: choice${particles.joinToString()}"
+                                "Non-deterministic choice group: ${particles.joinToString()}"
                             }
                         }
                     }
@@ -488,7 +488,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return Wildcard(range * otherRange, term)
         }
 
-        override fun toString(): String = range.toPostfix("<*>")
+        override fun toString(): String = range.toPostfix("<${term.mdlNamespaceConstraint}>")
     }
 
     companion object {

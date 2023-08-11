@@ -92,13 +92,14 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         operator fun invoke(
             parent: VElementScope.Member,
             rawPart: XSI_Particle,
-            schema: ResolvedSchemaLike
+            schema: ResolvedSchemaLike,
+            localInContext: Boolean,
         ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
             is XSAll -> ResolvedAll(parent, rawPart, schema)
             is XSChoice -> ResolvedChoice(parent, rawPart, schema)
             is XSSequence -> ResolvedSequence(parent, rawPart, schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
-            is XSAny -> ResolvedAny(rawPart, schema)
+            is XSAny -> ResolvedAny(rawPart, schema, localInContext)
             is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
             else -> error("Compiler limitation")
         }

@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
-class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike) {
+class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike, localInContext: Boolean) {
 
     val mdlMode: Mode = when(rawPart.mode) {
         VContentMode.INTERLEAVE -> Mode.INTERLEAVE
@@ -31,7 +31,7 @@ class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike
         VContentMode.NONE -> Mode.NONE
     }
 
-    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schema) }
+    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schema, localInContext) }
 
     init {
         when(mdlMode) {
