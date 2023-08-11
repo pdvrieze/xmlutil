@@ -500,10 +500,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                     !reference.effectiveTotalRange().contains(range) -> false
 
                     // duplicate checking for child range, but we don't want the complexity
-                    else -> reference.particles.all { restricts(it, context, schema) }
+                    else -> reference.particles.all { restrictsNoRange(it, context, schema) }
                 }
 
-                is Element -> term.matches(reference.term.mdlQName, context, schema)
+                is Element -> false // wildcards can never restrict an element
+                //term.matches(reference.term.mdlQName, context, schema)
 
                 is Wildcard -> reference.term.mdlNamespaceConstraint.isSupersetOf(term.mdlNamespaceConstraint)
                 else -> error("Unsupported particle kind: $reference")
