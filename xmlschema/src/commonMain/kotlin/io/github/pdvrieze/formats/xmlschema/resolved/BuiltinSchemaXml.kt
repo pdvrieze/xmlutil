@@ -37,6 +37,9 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     private val delegate: ResolvedSchema
 
+    override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
+    override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
+
     init {
         val rawSchema = XSSchema(
             targetNamespace = VAnyURI(XML_NAMESPACE),

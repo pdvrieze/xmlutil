@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -33,6 +34,9 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
     override val defaultOpenContent: Nothing? get() = null
     override val defaultAttributes: Nothing? get() = null
+
+    override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
+    override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
         require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
