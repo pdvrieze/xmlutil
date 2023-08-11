@@ -48,7 +48,9 @@ sealed class VElementScope : IScope {
 
     class Local(override val parent: Member) : VElementScope(), IScope.Local
 
-    interface Member
+    interface Member {
+        fun hasLocalNsInContext(): Boolean
+    }
 }
 
 sealed interface VTypeScope : IScope {

@@ -61,20 +61,20 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
     companion object {
 
         @JvmStatic
-        protected fun XSAny.toConstraint(schemaLike: ResolvedSchemaLike): VNamespaceConstraint<VQNameListBase.Elem> {
-            val p = toConstraintHelper(schemaLike)
+        protected fun XSAny.toConstraint(schemaLike: ResolvedSchemaLike, localInContext: Boolean): VNamespaceConstraint<VQNameListBase.Elem> {
+            val p = toConstraintHelper(schemaLike, localInContext)
 
             return VNamespaceConstraint(p.first, p.second, notQName ?: VQNameList())
         }
 
         @JvmStatic
-        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike): VNamespaceConstraint<VQNameListBase.AttrElem> {
-            val p = toConstraintHelper(schemaLike)
+        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, localInContext: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
+            val p = toConstraintHelper(schemaLike, localInContext)
 
             return VNamespaceConstraint(p.first, p.second, notQName ?: VAttrQNameList())
         }
 
-        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
+        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike, localInContext: Boolean): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
             val ns = namespace
             val notNs = notNamespace
 
@@ -90,7 +90,9 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                 VNamespaceList.OTHER -> {
                     variety = VNamespaceConstraint.Variety.NOT
                     namespaces = buildSet {
-                        add(VAnyURI(""))
+                        // only add local when relevant to the context (there is something in the context
+                        // This should handle "other" being special
+                        if(localInContext) add(VAnyURI(""))
                         schemaLike.targetNamespace?.let { add(it) }
                     }
                 }
