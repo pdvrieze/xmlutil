@@ -205,7 +205,7 @@ sealed class FlattenedGroup(
         ): Boolean {
             return when(reference) {
                 is Sequence -> restrictsSequence(reference, context, schema)
-                is Choice -> {
+                is Choice -> { // TODO check multiplication, seems off
                     reference.particles.any { this.restricts(it * reference.range, context, schema) }
                 }
 
@@ -221,7 +221,9 @@ sealed class FlattenedGroup(
 
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference, context, schema) }
+                            particles.all {// cross-multiply ranges to make them equal
+                                (it * reference.range).restricts(reference* it.range, context, schema)
+                            }
                 }
 
                 else -> false
@@ -246,7 +248,7 @@ sealed class FlattenedGroup(
                     currentParticle = refIt.next()
                     currentConsumed = VAllNNI.ZERO
                 }
-                currentConsumed = currentConsumed + p.maxOccurs
+                currentConsumed = currentConsumed + p.effectiveTotalRange().endInclusive
             }
             // Tail that isn't optional
             if (currentConsumed < currentParticle.minOccurs) return false
