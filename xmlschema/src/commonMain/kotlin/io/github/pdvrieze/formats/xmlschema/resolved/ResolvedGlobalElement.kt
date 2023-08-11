@@ -59,6 +59,21 @@ class ResolvedGlobalElement(
     internal constructor(rawPart: SchemaAssociatedElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)
 
+    private fun fullSubstitutionGroup(collector: MutableMap<QName, ResolvedGlobalElement>) {
+        val old = collector.put(mdlQName, this)
+        if (old == null) {
+            for(m in mdlSubstitutionGroupMembers) {
+                m.fullSubstitutionGroup(collector)
+            }
+        }
+    }
+
+    fun fullSubstitutionGroup(): List<ResolvedGlobalElement> {
+        val map = mutableMapOf<QName, ResolvedGlobalElement>()
+        fullSubstitutionGroup(map)
+        return map.values.toList()
+    }
+
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))

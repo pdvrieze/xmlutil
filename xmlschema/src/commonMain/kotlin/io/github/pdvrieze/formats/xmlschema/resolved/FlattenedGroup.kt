@@ -85,23 +85,25 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): Boolean {
             // case of 0 range should never happen
-            return when(reference) {
+            return when (reference) {
                 is Sequence -> restricts(reference.particles.first(), context, schema)
                 is Choice -> {
                     reference.particles.any { this.restricts(it * reference.range, context, schema) }
                     // Take the easy way for now (without creating all potential paths
-/*
-                    val elemRange = particles.asSequence().map { range }.reduce { l, r -> l + r }.times(range)
-                    val choiceRange = particles.asSequence().map { range }.reduce { l, r -> l + r }.times(range)
-                    if (! elemRange.contains(choiceRange)) return false
-*/
+                    /*
+                                        val elemRange = particles.asSequence().map { range }.reduce { l, r -> l + r }.times(range)
+                                        val choiceRange = particles.asSequence().map { range }.reduce { l, r -> l + r }.times(range)
+                                        if (! elemRange.contains(choiceRange)) return false
+                    */
                 }
+
                 is All -> {
                     reference.range.contains(range) &&
-                            particles.all { p->
+                            particles.all { p ->
                                 reference.particles.any { p.restricts(it, context, schema) }
                             }
                 }
+
                 is Wildcard -> {
                     reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
                             particles.all { it.restrictsNoRange(reference, context, schema) }
@@ -171,11 +173,11 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): Boolean {
             // case of 0 range should never happen
-            return when(reference) {
+            return when (reference) {
                 is Sequence -> restricts(reference.particles.first(), context, schema)
                 is Choice -> {
                     reference.range.contains(range) &&
-                        particles.all { p -> reference.particles.any { p.restricts(it, context, schema) } }
+                            particles.all { p -> reference.particles.any { p.restricts(it, context, schema) } }
                 }
 
                 is All -> false // can not happen
@@ -193,7 +195,8 @@ sealed class FlattenedGroup(
             return Choice(range * otherRange, particles)
         }
 
-        override fun toString(): String = particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
+        override fun toString(): String =
+            particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
 
     open class Sequence internal constructor(
@@ -213,7 +216,7 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): Boolean {
-            return when(reference) {
+            return when (reference) {
                 is Sequence -> restrictsSequence(reference, context, schema)
                 is Choice -> { // check each side in turn (taking into account the particle range and choice range)
                     restrictsChoice(reference, context, schema)
@@ -222,7 +225,7 @@ sealed class FlattenedGroup(
                 is All -> {
                     val refCpy = reference.particles.toMutableList<FlattenedParticle?>()
                     for (e in particles) {
-                        val matchIdx = refCpy.indexOfFirst { it!=null && e.restricts(it, context, schema) }
+                        val matchIdx = refCpy.indexOfFirst { it != null && e.restricts(it, context, schema) }
                         if (matchIdx < 0) return false
                         refCpy[matchIdx] = null
                     }
@@ -257,14 +260,14 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): Boolean {
             val refIt = reference.particles.iterator()
-            if (! refIt.hasNext()) return false
+            if (!refIt.hasNext()) return false
             var currentParticle: FlattenedParticle = refIt.next()
             var currentConsumed: VAllNNI = VAllNNI.ZERO
-            for(p in particles) {
-                while (currentConsumed >= currentParticle.maxOccurs || ! p.restricts(currentParticle, context, schema)) {
+            for (p in particles) {
+                while (currentConsumed >= currentParticle.maxOccurs || !p.restricts(currentParticle, context, schema)) {
                     // We can't go to the next particle
                     if (currentConsumed < currentParticle.minOccurs) return false
-                    if (! refIt.hasNext()) return false
+                    if (!refIt.hasNext()) return false
 
                     currentParticle = refIt.next()
                     currentConsumed = VAllNNI.ZERO
@@ -276,7 +279,7 @@ sealed class FlattenedGroup(
 
             // more tail
             while (refIt.hasNext()) {
-                if (! refIt.next().isOptional) return false
+                if (!refIt.next().isOptional) return false
             }
 
             return true
@@ -413,14 +416,15 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun effectiveTotalRange(): AllNNIRange = range
 
         companion object {
-            operator fun invoke(range: AllNNIRange, term: ResolvedBasicTerm): Term = when (term) {
+            operator fun invoke(range: AllNNIRange, term: ResolvedBasicTerm): FlattenedParticle = when (term) {
                 is ResolvedElement -> Element(range, term)
                 is ResolvedAny -> Wildcard(range, term)
             }
         }
     }
 
-    class Element(range: AllNNIRange, override val term: ResolvedElement) : Term(range) {
+    class Element internal constructor(range: AllNNIRange, override val term: ResolvedElement, dummy: Boolean) :
+        Term(range) {
         override fun startingTerms(): List<Element> {
             return listOf(this)
         }
@@ -433,7 +437,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): Boolean = when (reference) {
             is Element -> when {
-                ! reference.range.contains(range) -> false
+                !reference.range.contains(range) -> false
                 else -> reference.term.mdlQName.isEquivalent(term.mdlQName)
             }
 
@@ -441,8 +445,9 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
             is FlattenedGroup.Sequence -> restrictsSequence(reference, context, schema)
 
-            is FlattenedGroup.All -> reference.particles.all { it.isOptional ||
-                    this.restricts(it * reference.range, context, schema)
+            is FlattenedGroup.All -> reference.particles.all {
+                it.isOptional ||
+                        this.restricts(it * reference.range, context, schema)
             }
 
             is FlattenedGroup.Choice -> reference.particles.any { restricts(it * reference.range, context, schema) }
@@ -456,22 +461,24 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): Boolean {
             val it = sequence.particles.iterator()
-            var match : FlattenedParticle? = null
+            var match: FlattenedParticle? = null
             while (match == null && it.hasNext()) {
                 match = it.next().takeIf { this.restricts(it, context, schema) }
             }
-            if (match==null) return false
-            while(it.hasNext()) {
-                if (! it.next().isOptional) return false
+            if (match == null) return false
+            while (it.hasNext()) {
+                if (!it.next().isOptional) return false
             }
             return true
         }
 
         override fun times(otherRange: AllNNIRange): Element {
-            return Element(range * otherRange, term)
+            return Element(range * otherRange, term, true)
         }
 
         override fun toString(): String = range.toPostfix(term.mdlQName.toString())
+
+
     }
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
@@ -512,6 +519,20 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     companion object {
         private val INFRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.UNBOUNDED
+        private val SINGLERANGE: AllNNIRange = VAllNNI.ONE..VAllNNI.ONE
+
+        @JvmStatic
+        fun Element(range: AllNNIRange, term: ResolvedElement): FlattenedParticle = when {
+            term !is ResolvedGlobalElement ||
+                    term.mdlSubstitutionGroupMembers.isEmpty()
+            -> Element(range, term, true)
+
+            else -> {
+                val elems = term.fullSubstitutionGroup().map { Element(SINGLERANGE, it, true) }
+                FlattenedGroup.Choice(range, elems)
+            }
+        }
+
 
         val particleComparator: Comparator<in FlattenedParticle> = Comparator { a, b ->
             when (a) {
@@ -562,16 +583,16 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             }
         }
 
-        internal fun AllNNIRange.toPostfix(prefix: String=""): String = when {
+        internal fun AllNNIRange.toPostfix(prefix: String = ""): String = when {
             endInclusive == VAllNNI.UNBOUNDED -> when (start) {
                 VAllNNI.ZERO -> prefix + '*'
                 VAllNNI.ONE -> prefix + '+'
                 else -> prefix + '[' + start.toULong() + "+]"
             }
 
-            endInclusive > VAllNNI.ONE -> prefix +'[' + start.toULong()+ ".."+ (endInclusive as VAllNNI.Value).toULong() +']'
+            endInclusive > VAllNNI.ONE -> prefix + '[' + start.toULong() + ".." + (endInclusive as VAllNNI.Value).toULong() + ']'
             // end inclusive 0 should not happen
-            start == VAllNNI.ZERO -> prefix+'?'
+            start == VAllNNI.ZERO -> prefix + '?'
             else -> prefix // both are 1
         }
     }
