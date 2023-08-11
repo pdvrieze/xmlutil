@@ -87,23 +87,23 @@ internal class CollatedSchema(
                     includedUrls.add(Pair(targetNamespace, resolvedImport))
 
                     val importNamespace = import.namespace
-                    val importTargetNamespace = rawImport.targetNamespace ?: VAnyURI("")
+
                     val chameleonSchema = when {
-                        importNamespace.isNullOrEmpty() && importTargetNamespace.isEmpty() -> {
+                        importNamespace.isNullOrEmpty() && targetNamespace.isEmpty() -> {
                             val schemaNamespace = schemaLike.targetNamespace
                             require(!schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
-                            ChameleonWrapper(rawImport, schemaLike, schemaNamespace)
+                            ChameleonWrapper(rawImport, schemaLike, importNamespace)
                         }
 
-                        importNamespace == null -> ChameleonWrapper(rawImport, schemaLike, importTargetNamespace)
+                        importNamespace == null -> ChameleonWrapper(rawImport, schemaLike, VAnyURI(targetNamespace))
 
-                        importTargetNamespace.isEmpty() -> ChameleonWrapper(rawImport, schemaLike, importNamespace)
+                        targetNamespace.isEmpty() -> ChameleonWrapper(rawImport, schemaLike, importNamespace)
 
                         else -> {
-                            require(importNamespace == importTargetNamespace) {
+                            require(importNamespace.value == targetNamespace) {
                                 "Renaming can only be done with an import with a null targetNamespace"
                             }
-                            ChameleonWrapper(rawImport, schemaLike, importTargetNamespace)
+                            ChameleonWrapper(rawImport, schemaLike, VAnyURI(targetNamespace))
                         }
                     }
 
@@ -111,14 +111,14 @@ internal class CollatedSchema(
                         rawImport,
                         relativeResolver,
                         chameleonSchema,
-                        importTargetNamespace.value,
+                        VAnyURI(targetNamespace).value,
                         includedUrls
                     )
                     for ((_, nestedImport) in collatedImport.importedSchemas) {
                         addToCollation(nestedImport)
                     }
                     collatedImport.importedSchemas.clear()
-                    importedSchemas.put(importTargetNamespace.value, collatedImport)
+                    importedSchemas.put(VAnyURI(targetNamespace).value, collatedImport)
                 }
             }
         }
