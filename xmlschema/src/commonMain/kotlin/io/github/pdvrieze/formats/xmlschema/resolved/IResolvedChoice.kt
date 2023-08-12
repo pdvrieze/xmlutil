@@ -49,8 +49,8 @@ interface IResolvedChoice : ResolvedModelGroup {
         }
         return when (newParticles.size) {
             0 -> FlattenedGroup.EMPTY
-            1 -> when {
-                range.isSimple -> newParticles.single()
+            1 -> when { // Only one member 2.2.2.2.1
+                range.isSimple -> newParticles.single() // simple range 2.2.2.1
                 else -> FlattenedGroup.Choice(range, newParticles)
             }
             else -> FlattenedGroup.Choice(range, newParticles)
