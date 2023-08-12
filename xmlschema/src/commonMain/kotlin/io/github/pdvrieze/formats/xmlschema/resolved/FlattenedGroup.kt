@@ -283,10 +283,19 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
-            if (! particles.all { p -> base.particles.any { p.restricts(it, context, schema) } })
-                    return null
+            if (VALIDATE_PEDANTIC && !base.range.contains(range)) return null
+            val seenBase = BooleanArray(base.particles.size)
+            for (p in particles) {
+                val matchIdx = base.particles.indexOfFirst { p.restricts(it, context, schema) }
+                if (matchIdx<0) return null
+                seenBase[matchIdx] = true
+            }
 
-            return base - range
+            val newMin = if (minOccurs<=base.minOccurs) base.minOccurs-minOccurs else VAllNNI.ZERO
+            val newMax = maxOf(newMin, base.maxOccurs - minOf(maxOccurs, base.maxOccurs))
+            if (newMax<newMin) return null
+
+            return Choice(newMin..newMax, base.particles)
         }
 
         override fun times(otherRange: AllNNIRange): Choice {
@@ -438,7 +447,26 @@ sealed class FlattenedGroup(
                 }
                 if (!found) return null // no match
             }
-            return All(base.range, consumed)
+
+            var isOptional = true
+            val newConsumed = buildList {
+                for (c in consumed) {
+                    if (c.maxOccurs != VAllNNI.ZERO) {
+                        if (!c.isOptional) isOptional = false
+                        add(c)
+                    }
+                }
+            }
+
+            return when(newConsumed.size) {
+                0 -> EMPTY
+                1 -> newConsumed.single()
+                else -> {
+                    // note that base(all).range is never more than 1
+                    val r = if (isOptional) OPTRANGE else base.range
+                    All(r, newConsumed)
+                }
+            }
         }
 
         override fun removeFromChoice(
@@ -457,7 +485,7 @@ sealed class FlattenedGroup(
             var partial: FlattenedParticle? = null
 
             for (p in particles) {
-                if (partial != null) {
+                if (partial != null && partial.maxOccurs!= VAllNNI.ZERO) {
                     val wasOptional = partial.isOptional
                     partial = partial.consume(p, context, schema)
                     when {
@@ -467,7 +495,7 @@ sealed class FlattenedGroup(
                     }
                 }
                 baseIterCount += VAllNNI.ONE
-                if(baseIterCount>range.endInclusive) return null // range doesn't match
+                if(baseIterCount>base.range.endInclusive) return null // range doesn't match
                 for (c in base.particles) {
                     // partial will be null if reaching here
                     partial = c.consume(p, context, schema)
@@ -504,6 +532,7 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
+            if (maxOccurs> VAllNNI.ZERO && !base.range.contains(range)) return null
             // Only if pedantic, otherwise we don't need range comparison
             if (particles.isEmpty()) return base // empty sequence is null opp
 
@@ -528,7 +557,28 @@ sealed class FlattenedGroup(
                     currentParticle = baseIt.next()
                 }
             }
-            return currentParticle
+
+            if (base.maxOccurs> VAllNNI.ONE) {
+                if (! currentParticle.isOptional) return null
+                while(baseIt.hasNext()) {
+                    if (! baseIt.next().isOptional) return null
+                }
+                val count = minOf(base.maxOccurs, maxOccurs)
+                return Sequence(base.range-count, base.particles)
+            } else { // single distance sequences
+                val newSeqContent = buildList {
+                    if (currentParticle.maxOccurs>= VAllNNI.ZERO) add(currentParticle)
+                    while (baseIt.hasNext()) {
+                        add(baseIt.next())
+                    }
+                }
+
+                return when (newSeqContent.size) {
+                    0 -> EMPTY
+                    1 -> newSeqContent.single()
+                    else -> Sequence(SINGLERANGE, newSeqContent)
+                }
+            }
         }
 
         override fun times(otherRange: AllNNIRange): Sequence {
@@ -661,7 +711,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         schema: ResolvedSchemaLike,
     ): Boolean {
         val r = reference.consume(this, context, schema)
-        return r != null && r.isOptional
+        return r != null && r.effectiveTotalRange().start == VAllNNI.ZERO
     }
 
     open fun removeFromElement(base: Element, context: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle? = null
@@ -758,7 +808,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
             if (! base.term.mdlQName.isEquivalent(term.mdlQName)) return null
-            return base - range
+            val realMax = minOf(maxOccurs, base.maxOccurs)
+            return Element(base.range - realMax, base.term)
         }
 
         override fun removeFromWildcard(
@@ -800,7 +851,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun minus(otherRange: AllNNIRange): Element {
-            return Element(range.safeMinus(otherRange), term, true)
+            return Element(range.minus(otherRange), term, true)
         }
 
         override fun single(): Element = Element(SINGLERANGE, term, true)
