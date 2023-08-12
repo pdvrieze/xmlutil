@@ -103,7 +103,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         override fun safeMinus(other: VAllNNI, min: Value): VAllNNI = when {
             other !is Value -> min // unbounded
-            (value + min.value) > other.value -> this - other
+            value > (other.value + min.value) -> this - other
             else -> min
         }
 

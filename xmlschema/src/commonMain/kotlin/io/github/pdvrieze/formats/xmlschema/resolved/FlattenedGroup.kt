@@ -73,8 +73,6 @@ sealed class FlattenedGroup(
         override val particles: List<FlattenedParticle> = particles.sortedWith(particleComparator)
 
         init {
-            require(particles.size > 1)
-
             val seenNames = mutableSetOf<QName>()
             val seenWildcards = mutableListOf<ResolvedAny>()
             for (startElem in particles.flatMap { it.startingTerms() }) {
@@ -289,7 +287,7 @@ sealed class FlattenedGroup(
             if (VALIDATE_PEDANTIC && !base.range.contains(range)) return null
             val seenBase = BooleanArray(base.particles.size)
             for (p in particles) {
-                val matchIdx = base.particles.indexOfFirst { p.restricts(it, context, schema) }
+                val matchIdx = base.particles.indexOfFirst { p.restrictsNoRange(it, context, schema) }
                 if (matchIdx<0) return null
                 seenBase[matchIdx] = true
             }
@@ -811,8 +809,9 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
             if (! base.term.mdlQName.isEquivalent(term.mdlQName)) return null
-            val realMax = minOf(maxOccurs, base.maxOccurs)
-            return Element(base.range - realMax, base.term)
+            val newStart = base.minOccurs.safeMinus(minOccurs)
+            val newEnd = base.maxOccurs.safeMinus(maxOccurs, newStart)
+            return Element(newStart..newEnd, base.term)
         }
 
         override fun removeFromWildcard(
@@ -831,7 +830,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return Sequence(SINGLERANGE, listOf(this)).removeFromAll(base, context, schema)
+            return All(SINGLERANGE, listOf(this)).removeFromAll(base, context, schema)
         }
 
         override fun removeFromChoice(
@@ -839,7 +838,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return Sequence(SINGLERANGE, listOf(this)).removeFromChoice(base, context, schema)
+            return Choice(SINGLERANGE, listOf(this)).removeFromChoice(base, context, schema)
         }
 
         override fun removeFromSequence(
