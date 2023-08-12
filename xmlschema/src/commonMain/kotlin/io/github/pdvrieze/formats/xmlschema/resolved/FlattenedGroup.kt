@@ -213,13 +213,20 @@ sealed class FlattenedGroup(
     class Choice(range: AllNNIRange, particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
+        override val particles: List<FlattenedParticle>
+
         init {
             // when pedantic we "allow" single item choices (newer standard allows this to be eluded)
             if (!VALIDATE_PEDANTIC) require(particles.size > 1)
 
+            // apply pointlessness rule
+            val newParticles = particles.flatMap {
+                if (it is Choice && it.range.isSimple) it.particles else listOf(it)
+            }
+
             val seenNames = mutableSetOf<QName>()
             val seenWildcards = mutableListOf<ResolvedAny>()
-            for (startElem in particles.flatMap { it.startingTerms() }) {
+            for (startElem in newParticles.flatMap { it.startingTerms() }) {
                 when (startElem) {
                     is Element -> require(seenNames.add(startElem.term.mdlQName)) {
                         "Non-deterministic choice group: choice(${particles.joinToString(" | ")})"
@@ -230,9 +237,8 @@ sealed class FlattenedGroup(
                     }
                 }
             }
+            this.particles = newParticles
         }
-
-        override val particles: List<FlattenedParticle> = particles.sortedWith(particleComparator)
 
         override fun startingTerms(): List<Term> {
             return particles.flatMap { it.startingTerms() }
@@ -285,18 +291,29 @@ sealed class FlattenedGroup(
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
             if (VALIDATE_PEDANTIC && !base.range.contains(range)) return null
-            val seenBase = BooleanArray(base.particles.size)
+            val newItems = arrayOfNulls <FlattenedParticle?>(base.particles.size)
+
             for (p in particles) {
-                val matchIdx = base.particles.indexOfFirst { p.restrictsNoRange(it, context, schema) }
-                if (matchIdx<0) return null
-                seenBase[matchIdx] = true
+                var match: FlattenedParticle? = null
+                for (cIdx in base.particles.indices) {
+                    if (newItems[cIdx] == null) {
+                        match = base.particles[cIdx].consume(p, context, schema)
+                        if (match != null) {
+                            newItems[cIdx] = match
+                            if (VALIDATE_PEDANTIC && match.minOccurs>VAllNNI.ZERO) return null
+                            break
+                        }
+                    }
+                }
+                if(match == null) return null
             }
+
+            val newParticles = newItems.filterNotNull()
 
             val newMin = base.minOccurs.safeMinus(minOccurs)
             val newMax = base.maxOccurs.safeMinus(maxOccurs, newMin)
-            if (newMax<newMin) return null
 
-            return Choice(newMin..newMax, base.particles)
+            return Choice(newMin..newMax, newParticles)
         }
 
         override fun times(otherRange: AllNNIRange): Choice {
@@ -607,12 +624,18 @@ sealed class FlattenedGroup(
             particles: List<FlattenedParticle>,
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
-        ): FlattenedParticle = when {
-            particles.isEmpty() -> EMPTY
-            range.isSimple && particles.size == 1 -> particles.single()
-            else -> {
-                checkSequence(particles, context, schema)
-                Sequence(range, particles)
+        ): FlattenedParticle {
+            // apply pointlessness rule
+            val flattenedParticles = particles.flatMap { p->
+                if (p is Sequence && p.range.isSimple) p.particles else listOf(p)
+            }
+            return when {
+                flattenedParticles.isEmpty() -> EMPTY
+                range.isSimple && flattenedParticles.size == 1 -> flattenedParticles.single()
+                else -> {
+                    checkSequence(flattenedParticles, context, schema)
+                    Sequence(range, flattenedParticles)
+                }
             }
         }
 
