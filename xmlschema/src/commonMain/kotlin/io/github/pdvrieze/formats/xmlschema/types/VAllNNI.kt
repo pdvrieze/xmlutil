@@ -196,4 +196,19 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
 
         return AllNNIRange(newStart, newEnd)
     }
+
+    operator fun minus(other: VAllNNI): AllNNIRange {
+
+        val newStart: VAllNNI.Value = when {
+            other !is VAllNNI.Value ||
+            other >= start -> VAllNNI.ZERO
+            else -> start - other
+        }
+        val newEnd: VAllNNI = when {
+            other > endInclusive -> throw IllegalArgumentException("Int underflow ($endInclusive-$other)")
+            else -> endInclusive - other
+        }
+
+        return AllNNIRange(newStart, newEnd)
+    }
 }
