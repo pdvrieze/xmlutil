@@ -39,6 +39,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
     abstract operator fun times(other: VAllNNI): VAllNNI
 
+    abstract fun safeMinus(other: VAllNNI, min: Value = ZERO): VAllNNI
+
     object UNBOUNDED : VAllNNI() {
         override fun compareTo(other: VAllNNI): Int = when(other){
             UNBOUNDED -> 0
@@ -52,6 +54,11 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             else -> UNBOUNDED
         }
         override operator fun times(other: VAllNNI): VAllNNI = UNBOUNDED
+
+        override fun safeMinus(other: VAllNNI, min: Value): VAllNNI = when(other) {
+            UNBOUNDED -> min
+            else -> UNBOUNDED
+        }
 
         override fun toString(): String = "unbounded"
     }
@@ -92,6 +99,22 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         override fun minus(other: VAllNNI): VAllNNI = when(other) {
             UNBOUNDED -> ZERO
             is Value -> Value((value.toULong() - other.value.toULong()))
+        }
+
+        override fun safeMinus(other: VAllNNI, min: Value): VAllNNI = when {
+            other !is Value -> min // unbounded
+            (value + min.value) > other.value -> this - other
+            else -> min
+        }
+
+        fun safeMinus(other: Value, min: Value): Value = when {
+            (value + min.value) > other.value -> this - other
+            else -> min
+        }
+
+        fun safeMinus(other: Value): Value = when {
+            value > other.value -> this - other
+            else -> ZERO
         }
 
         override fun toString(): String = value.toString()

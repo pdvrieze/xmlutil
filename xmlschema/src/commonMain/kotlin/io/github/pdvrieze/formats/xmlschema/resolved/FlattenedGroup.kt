@@ -163,13 +163,16 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (minOccurs>base.maxOccurs) return null
-            var self: FlattenedParticle? = this
+            if (minOccurs > base.maxOccurs) return null
+            var b: FlattenedParticle? = base
             for (p in particles) {
-                self = self?.consume(p, context, schema)
-                if (self == null) return null
+                b = b?.consume(p, context, schema)
+                if (b == null) return null
             }
-            return self
+
+            val effectiveTotalRange = effectiveTotalRange()
+            if (! base.range.contains(effectiveTotalRange)) return null
+            return b
         }
 
         override fun removeFromAll(
@@ -291,8 +294,8 @@ sealed class FlattenedGroup(
                 seenBase[matchIdx] = true
             }
 
-            val newMin = if (minOccurs<=base.minOccurs) base.minOccurs-minOccurs else VAllNNI.ZERO
-            val newMax = maxOf(newMin, base.maxOccurs - minOf(maxOccurs, base.maxOccurs))
+            val newMin = base.minOccurs.safeMinus(minOccurs)
+            val newMax = base.maxOccurs.safeMinus(maxOccurs, newMin)
             if (newMax<newMin) return null
 
             return Choice(newMin..newMax, base.particles)
@@ -819,7 +822,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
             if (! base.term.matches(term.mdlQName, context, schema)) return null
-            return base - range
+            val start = base.minOccurs.safeMinus(minOccurs)
+            return Wildcard(start..base.maxOccurs.safeMinus(maxOccurs, start), base.term)
         }
 
         override fun removeFromAll(
