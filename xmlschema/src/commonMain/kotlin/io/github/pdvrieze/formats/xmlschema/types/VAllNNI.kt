@@ -35,6 +35,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
     abstract operator fun plus(other: VAllNNI): VAllNNI
 
+    abstract operator fun minus(other: VAllNNI): VAllNNI
+
     abstract operator fun times(other: VAllNNI): VAllNNI
 
     object UNBOUNDED : VAllNNI() {
@@ -45,6 +47,10 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         operator fun plus(other: VNonNegativeInteger): VAllNNI = UNBOUNDED
         override operator fun plus(other: VAllNNI): VAllNNI = UNBOUNDED
+        override operator fun minus(other: VAllNNI): VAllNNI = when (other) {
+            UNBOUNDED -> ZERO
+            else -> UNBOUNDED
+        }
         override operator fun times(other: VAllNNI): VAllNNI = UNBOUNDED
 
         override fun toString(): String = "unbounded"
@@ -80,6 +86,13 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         }
 
         operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
+
+        operator fun minus(other: Value): Value = Value(value.toULong() - other.value.toULong())
+
+        override fun minus(other: VAllNNI): VAllNNI = when(other) {
+            UNBOUNDED -> ZERO
+            is Value -> Value((value.toULong() - other.value.toULong()))
+        }
 
         override fun toString(): String = value.toString()
 
@@ -139,6 +152,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 }
 
 class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: VAllNNI) : ClosedRange<VAllNNI> {
+    val isSimple: Boolean get() = endInclusive == VAllNNI.ONE && start == VAllNNI.ONE
+
     constructor(startNNI: VNonNegativeInteger, endInclusive: VAllNNI) : this(VAllNNI.Value(startNNI), endInclusive)
     constructor(
         startNNI: VNonNegativeInteger,
@@ -169,5 +184,16 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
 
     operator fun plus(other: AllNNIRange): AllNNIRange {
         return AllNNIRange(start + other.start, endInclusive + other.endInclusive)
+    }
+
+    operator fun minus(otherRange: AllNNIRange): AllNNIRange {
+        require (otherRange.start <= start) { "Integer underflow" }
+        val newStart: VAllNNI.Value = start - otherRange.start
+        val newEnd: VAllNNI = when {
+            otherRange.endInclusive>=(endInclusive + newStart) -> newStart
+            else -> otherRange.endInclusive-endInclusive
+        }
+
+        return AllNNIRange(newStart, newEnd)
     }
 }
