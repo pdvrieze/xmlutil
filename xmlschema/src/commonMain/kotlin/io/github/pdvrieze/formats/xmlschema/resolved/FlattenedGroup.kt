@@ -300,7 +300,7 @@ sealed class FlattenedGroup(
                         match = base.particles[cIdx].consume(p, context, schema)
                         if (match != null) {
                             newItems[cIdx] = match
-                            if (VALIDATE_PEDANTIC && match.minOccurs>VAllNNI.ZERO) return null
+                            if (VALIDATE_PEDANTIC && match.effectiveTotalRange().start>VAllNNI.ZERO) return null
                             break
                         }
                     }
@@ -561,7 +561,7 @@ sealed class FlattenedGroup(
                 while (true) {
                     if (currentParticle.maxOccurs != VAllNNI.ZERO) {
                         // can not complete current match
-                        when (val l = currentParticle.consume(p, context, schema)) {
+                        when (val l = currentParticle.consumeLax(p, context, schema)) {
                             null -> if (!currentParticle.isOptional) return null
                             // fall through to go to next particle
 
@@ -584,17 +584,21 @@ sealed class FlattenedGroup(
                 val count = minOf(base.maxOccurs, maxOccurs)
                 return Sequence(base.range-count, base.particles)
             } else { // single distance sequences
+                var allOptional = true
                 val newSeqContent = buildList {
-                    if (currentParticle.maxOccurs>= VAllNNI.ZERO) add(currentParticle)
+                    if (currentParticle.maxOccurs>= VAllNNI.ZERO) {
+                        if (currentParticle.isOptional) allOptional = false
+                        add(currentParticle)
+                    }
                     while (baseIt.hasNext()) {
-                        add(baseIt.next())
+                        add(baseIt.next().also { if(!it.isOptional) allOptional = false})
                     }
                 }
 
                 return when (newSeqContent.size) {
                     0 -> EMPTY
                     1 -> newSeqContent.single()
-                    else -> Sequence(SINGLERANGE, newSeqContent)
+                    else -> Sequence(/*if (allOptional) OPTRANGE else*/ SINGLERANGE, newSeqContent)
                 }
             }
         }
@@ -721,6 +725,30 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
      */
     abstract fun consume(derived: FlattenedParticle, context: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle?
 
+    /** Helper that is more lax for elements*/
+    internal fun consumeLax(derived: FlattenedParticle, context: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle? {
+        if (derived is Element &&
+            ! range.isSimple
+        ) {
+            when(this) {
+                is Choice ->
+                    return Choice(derived.range, listOf(derived.single())).removeFromChoice(this, context, schema)
+
+                is All ->
+                    return All(derived.range, listOf(derived.single())).removeFromAll(this, context, schema)
+
+/*
+                is Sequence ->
+                    return Sequence(derived.range, listOf(derived.single())).removeFromSequence(this, context, schema)
+*/
+
+                else -> {}
+            }
+        }
+
+        return consume(derived, context, schema)
+    }
+
     open fun restrictsNoRange(
         reference: FlattenedParticle,
         context: ResolvedComplexType,
@@ -830,7 +858,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (minOccurs > base.maxOccurs) return null
+            if (minOccurs > base.maxOccurs || maxOccurs>base.maxOccurs) return null
             if (! base.term.mdlQName.isEquivalent(term.mdlQName)) return null
             val newStart = base.minOccurs.safeMinus(minOccurs)
             val newEnd = base.maxOccurs.safeMinus(maxOccurs, newStart)
