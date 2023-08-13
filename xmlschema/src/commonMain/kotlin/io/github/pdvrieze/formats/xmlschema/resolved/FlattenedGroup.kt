@@ -885,7 +885,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (minOccurs > base.maxOccurs) return null
+            if (maxOccurs > base.maxOccurs) return null
             if (! base.term.matches(term.mdlQName, context, schema)) return null
             val start = base.minOccurs.safeMinus(minOccurs)
             return Wildcard(start..base.maxOccurs.safeMinus(maxOccurs, start), base.term)
