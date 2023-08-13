@@ -106,8 +106,8 @@ class ResolvedLocalElement private constructor(
 
         val mdlTerm: ResolvedLocalElement = context
 
-        override val mdlTypeTable: ITypeTable
-            get() = TODO("not implemented")
+        override val mdlTypeTable: ITypeTable?
+            get() = null
 
         override val mdlTypeDefinition: ResolvedType =
             rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
