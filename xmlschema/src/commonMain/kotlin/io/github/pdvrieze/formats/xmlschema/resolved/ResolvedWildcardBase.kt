@@ -62,19 +62,19 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
 
         @JvmStatic
         protected fun XSAny.toConstraint(schemaLike: ResolvedSchemaLike, localInContext: Boolean): VNamespaceConstraint<VQNameListBase.Elem> {
-            val p = toConstraintHelper(schemaLike, localInContext)
+            val p = toConstraintHelper(schemaLike, false)
 
             return VNamespaceConstraint(p.first, p.second, notQName ?: VQNameList())
         }
 
         @JvmStatic
-        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, localInContext: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
-            val p = toConstraintHelper(schemaLike, localInContext)
+        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, localInContext: Boolean, localInOther: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
+            val p = toConstraintHelper(schemaLike, localInOther)
 
             return VNamespaceConstraint(p.first, p.second, notQName ?: VAttrQNameList())
         }
 
-        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike, localInContext: Boolean): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
+        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike, localInOther: Boolean): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
             val ns = namespace
             val notNs = notNamespace
 
@@ -92,8 +92,8 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                     namespaces = buildSet {
                         // only add local when relevant to the context (there is something in the context
                         // This should handle "other" being special
-                        if(localInContext) add(VAnyURI(""))
-                        schemaLike.targetNamespace?.let { add(it) }
+                        if(false && localInOther) add(VAnyURI(""))
+                        add(schemaLike.targetNamespace?:VAnyURI(""))
                     }
                 }
 
