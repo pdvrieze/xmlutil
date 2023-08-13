@@ -40,17 +40,17 @@ sealed interface ResolvedType : ResolvedAnnotated {
      */
     fun isValidRestrictionOf(other: ResolvedType): Boolean {
         // subject to blocking keywords
-        return isValidSubtitutionFor(other)
+        return isValidSubtitutionFor(other, true)
     }
 
     /**
      * Defined in 3.3.4.2
      */
-    fun isValidSubtitutionFor(other: ResolvedType): Boolean
+    fun isValidSubtitutionFor(other: ResolvedType, asRestriction: Boolean): Boolean
 
     /**
      * Defined by 3.4.6.5
      */
-    fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean
+    fun isValidlyDerivedFrom(simpleBase: ResolvedType, asRestriction: Boolean): Boolean
 }
 

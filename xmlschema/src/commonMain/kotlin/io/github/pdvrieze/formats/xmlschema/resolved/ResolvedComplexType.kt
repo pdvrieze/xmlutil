@@ -88,42 +88,27 @@ sealed class ResolvedComplexType(
 
 
     /** 3.3.4.2 for complex types */
-    override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
-        return when (other) {
-            is ResolvedComplexType -> isValidlyDerivedFrom(other)
-            is ResolvedSimpleType -> isValidlyDerivedFrom(other)
-            else -> error("Unreachable")
-        }
+    override fun isValidSubtitutionFor(other: ResolvedType, asRestriction: Boolean): Boolean {
+        return isValidlyDerivedFrom(other, asRestriction)
     }
 
     /**
      * 3.4.6.5 Type derivation ok (complex)
      */
-    override fun isValidlyDerivedFrom(simpleBase: ResolvedType): Boolean {
-        if (this == simpleBase) return true // 2.1
-        // check derivation method is not in blocking
-        if (this == simpleBase) return true // 2.2
-        val btd = mdlBaseTypeDefinition
-        if (btd == AnyType) return false // 2.3.1
-        return when (btd) {
-            is ResolvedComplexType -> btd.isValidlyDerivedFrom(simpleBase)
-            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(simpleBase)
-            else -> error("Should be unreachable")
-        }
-    }
+    override fun isValidlyDerivedFrom(base: ResolvedType, asRestriction: Boolean): Boolean {
+        if (this == base) return true // 2.1
 
-    /**
-     * 3.4.6.5 Type derivation ok (complex)
-     */
-    fun isValidlyDerivedFrom(complexBase: ResolvedComplexType): Boolean {
-        if (this == complexBase) return true // 2.1
+        if (asRestriction && mdlDerivationMethod != VDerivationControl.RESTRICTION) return false
+        if (base.mdlFinal.contains(mdlDerivationMethod)) return false
+
         // check derivation method is not in blocking
+        if (this == base) return true // 2.1
+        if (mdlBaseTypeDefinition == base) return true
         val btd = mdlBaseTypeDefinition
-        if (btd == complexBase) return true // 2.2
         if (btd == AnyType) return false // 2.3.1
         return when (btd) {
-            is ResolvedComplexType -> btd.isValidlyDerivedFrom(complexBase)
-            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(complexBase)
+            is ResolvedComplexType -> btd.isValidlyDerivedFrom(base, asRestriction)
+            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(base, asRestriction)
             else -> error("Should be unreachable")
         }
     }
@@ -145,7 +130,7 @@ sealed class ResolvedComplexType(
                     if (baseUse.mdlRequired) {
                         require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
                     }
-                    require(baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(derived.mdlAttributeDeclaration.mdlTypeDefinition)) {
+                    require(baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(derived.mdlAttributeDeclaration.mdlTypeDefinition, false)) {
                         "Types must match"
                     }
                 }
@@ -213,7 +198,7 @@ sealed class ResolvedComplexType(
                         is ResolvedSimpleContentType -> {
                             val sb = baseContentType.mdlSimpleTypeDefinition
                             val st = contentType.mdlSimpleTypeDefinition
-                            check(st.isValidlyDerivedFrom(sb)) { "For derivation, simple content models must validly derive" }
+                            check(st.isValidlyDerivedFrom(sb, true)) { "For derivation, simple content models must validly derive" }
                         }
 
                         is MixedContentType ->

@@ -104,25 +104,25 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
-    override fun isValidSubtitutionFor(other: ResolvedType): Boolean {
-        return isValidlyDerivedFrom(other)
+    override fun isValidSubtitutionFor(other: ResolvedType, asRestriction: Boolean): Boolean {
+        return isValidlyDerivedFrom(other, asRestriction)
     }
 
     /**
      * 3.16.6.3
      */
-    override fun isValidlyDerivedFrom(base: ResolvedType): Boolean {
+    override fun isValidlyDerivedFrom(base: ResolvedType, asRestriction: Boolean): Boolean {
         if (this === base) return true // 3.16.6.3(1)
 
         if (VDerivationControl.RESTRICTION in base.mdlFinal) return false //3.16.6.3(2.1a)
         if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //3.16.6.3(2.1.b)
         if (mdlBaseTypeDefinition == base) return true //3.16.6.3(2.2.1)
-        if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(base)) return true //3.16.6.3(2.2.2)
+        if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(base, asRestriction)) return true //3.16.6.3(2.2.2)
         if (mdlVariety != Variety.ATOMIC && base == AnySimpleType) return true //2.2.3
         if (base is ResolvedSimpleType && base.mdlVariety == Variety.UNION) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
             val members = base.transitiveUnionMembership() //2.2.4.2
-            return members.any { m -> isValidlyDerivedFrom(m) }
+            return members.any { m -> isValidlyDerivedFrom(m, asRestriction) }
         }
         return false //none of the 4 options is true
     }
