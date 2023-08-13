@@ -458,6 +458,10 @@ internal class CollatedSchema(
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
         override val defaultAttributes: QName? get() = originalSchema.defaultAttributes
 
+        override fun hasLocalTargetNamespace(): Boolean {
+            return targetNamespace.isNullOrEmpty()
+        }
+
         override val attributeFormDefault: VFormChoice
             get() = originalSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
         override val elementFormDefault: VFormChoice
@@ -632,6 +636,10 @@ internal class CollatedSchema(
         override val attributeFormDefault: VFormChoice = sourceSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
 
         override val elementFormDefault: VFormChoice = sourceSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED
+
+        override fun hasLocalTargetNamespace(): Boolean {
+            return chameleonNamespace.isNullOrEmpty()
+        }
 
         override val blockDefault: VBlockSet
             get() = base.blockDefault
