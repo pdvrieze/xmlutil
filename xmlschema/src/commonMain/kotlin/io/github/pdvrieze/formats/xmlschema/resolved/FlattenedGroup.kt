@@ -84,7 +84,10 @@ sealed class FlattenedGroup(
     class All(range: AllNNIRange, particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
-        override val particles: List<FlattenedParticle> = particles.sortedWith(particleComparator)
+        override val particles: List<FlattenedParticle> = when {
+            VALIDATE_PEDANTIC -> particles
+            else -> particles.sortedWith(particleComparator)
+        }
 
         init {
             val seenNames = mutableSetOf<QName>()
@@ -193,17 +196,24 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
-            val seenRefP = BooleanArray(base.particles.size)
+
+            val baseIt = base.particles.iterator()
 
             for (p in particles) {
-                val i = base.particles.indexOfFirst { p.restricts(it, context, schema) }
-                if (i < 0) return null
-                seenRefP[i] = true
-            }
-            for (i in seenRefP.indices) {
-                if (!seenRefP[i] && !base.particles[i].isOptional) {
-                    return null
+                var match = false
+                while (!match && baseIt.hasNext()) {
+                    if (!baseIt.hasNext()) return null
+                    val basePart = baseIt.next()
+                    if(!p.restricts(basePart, context, schema)) {
+                        if(!basePart.isOptional) return null
+                    } else {
+                        match = true
+                    }
                 }
+                if (!match) return null
+            }
+            while(baseIt.hasNext()) {
+                if(! baseIt.next().isOptional) return null
             }
 
             return base - range
