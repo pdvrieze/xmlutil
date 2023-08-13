@@ -75,9 +75,14 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
 
-        val vc = mdlValueConstraint // subsume 4.2
-        if (vc is ValueConstraint.Fixed && (specific.mdlValueConstraint as? ValueConstraint.Fixed)?.value != vc.value) {
-            return false
+        val bvc = mdlValueConstraint // subsume 4.2
+        val svc = specific.mdlValueConstraint
+        if (bvc is ValueConstraint.Fixed) {
+            if (svc !is ValueConstraint.Fixed) return false
+            val t = (mdlTypeDefinition as? ResolvedSimpleType ?: return false)
+            val bVal = t.value(bvc.value)
+            val sVal = t.value(svc.value)
+            if (bVal!=sVal) return false
         }
 
         // subsume 4.3
