@@ -115,7 +115,7 @@ class ResolvedGlobalElement(
     /** Implements substitutable as define in 3.3.6.3 */
     private fun isSubstitutableFor(head: ResolvedGlobalElement): Boolean {
         if (this === head) return true
-        return mdlTypeDefinition.isValidSubtitutionFor(head.mdlTypeDefinition)
+        return mdlTypeDefinition.isValidSubtitutionFor(head.mdlTypeDefinition, true)
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
