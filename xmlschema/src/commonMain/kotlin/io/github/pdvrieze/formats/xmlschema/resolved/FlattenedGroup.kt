@@ -201,7 +201,7 @@ sealed class FlattenedGroup(
 
             for (p in particles) {
                 var match = false
-                while (!match && baseIt.hasNext()) {
+                while (!match) {
                     if (!baseIt.hasNext()) return null
                     val basePart = baseIt.next()
                     if(!p.restricts(basePart, context, schema)) {
@@ -246,7 +246,7 @@ sealed class FlattenedGroup(
             // apply pointlessness rule
             val newParticles = particles.flatMap {
                 if (it is Choice && it.range.isSimple) it.particles else listOf(it)
-            }
+            }.let { if (VALIDATE_PEDANTIC) it else it.sortedWith(particleComparator)}
 
             val seenNames = mutableSetOf<QName>()
             val seenWildcards = mutableListOf<ResolvedAny>()
@@ -280,28 +280,6 @@ sealed class FlattenedGroup(
                 }.times(range)
         }
 
-        fun restricts2(
-            reference: FlattenedParticle,
-            context: ResolvedComplexType,
-            schema: ResolvedSchemaLike,
-        ): Boolean {
-            // case of 0 range should never happen
-            return when (reference) {
-
-                is Choice -> {
-                    (reference.range.contains(range)) &&
-                            particles.all { p -> reference.particles.any { p.restricts(it, context, schema) } }
-                }
-
-                is Wildcard -> {
-                    reference.effectiveTotalRange().contains(effectiveTotalRange()) &&
-                            particles.all { it.restricts(reference, context, schema) }
-                }
-
-                else -> false
-            }
-        }
-
         override fun consume(
             derived: FlattenedParticle,
             context: ResolvedComplexType,
@@ -315,29 +293,25 @@ sealed class FlattenedGroup(
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
             if (VALIDATE_PEDANTIC && !base.range.contains(range)) return null
-            val newItems = arrayOfNulls <FlattenedParticle?>(base.particles.size)
+
+            val baseIt = base.particles.iterator()
 
             for (p in particles) {
-                var match: FlattenedParticle? = null
-                for (cIdx in base.particles.indices) {
-                    if (newItems[cIdx] == null) {
-                        match = base.particles[cIdx].consume(p, context, schema)
-                        if (match != null) {
-                            newItems[cIdx] = match
-                            if (VALIDATE_PEDANTIC && match.effectiveTotalRange().start>VAllNNI.ZERO) return null
-                            break
-                        }
+                var match = false
+                while (!match) {
+                    if (!baseIt.hasNext()) return null
+                    val basePart = baseIt.next()
+                    if (p.restricts(basePart, context, schema)) {
+                        match = true
                     }
                 }
-                if(match == null) return null
+                if (!match) return null
             }
-
-            val newParticles = newItems.filterNotNull()
 
             val newMin = base.minOccurs.safeMinus(minOccurs)
             val newMax = base.maxOccurs.safeMinus(maxOccurs, newMin)
 
-            return Choice(newMin..newMax, newParticles)
+            return Choice(newMin..newMax, base.particles)
         }
 
         override fun times(otherRange: AllNNIRange): Choice {
