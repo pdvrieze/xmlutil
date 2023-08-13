@@ -43,12 +43,26 @@ sealed class FlattenedGroup(
         override fun effectiveTotalRange(): AllNNIRange = range
         override fun single(): Sequence = this
 
-        fun restricts3(
-            reference: FlattenedParticle,
+        override fun removeFromAll(
+            base: All,
             context: ResolvedComplexType,
-            schema: ResolvedSchemaLike,
-        ): Boolean {
-            return reference.effectiveTotalRange().start == VAllNNI.ZERO
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? = base
+
+        override fun removeFromChoice(
+            base: Choice,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return base
+        }
+
+        override fun removeFromSequence(
+            base: Sequence,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return base
         }
     }
 
@@ -182,7 +196,7 @@ sealed class FlattenedGroup(
             val seenRefP = BooleanArray(base.particles.size)
 
             for (p in particles) {
-                val i = base.particles.indexOfFirst { it.restricts(p, context, schema) }
+                val i = base.particles.indexOfFirst { p.restricts(it, context, schema) }
                 if (i < 0) return null
                 seenRefP[i] = true
             }
@@ -523,8 +537,7 @@ sealed class FlattenedGroup(
             }
             invariantNotNull(partial)
 
-
-            if (minOccurs * baseIterCount > base.maxOccurs) return null // can never be repeated sufficiently
+            if (maxOccurs * baseIterCount > base.maxOccurs) return null
 
             return when {
                 baseIterCount == base.maxOccurs -> partial
@@ -860,6 +873,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs || maxOccurs>base.maxOccurs) return null
             if (! base.term.mdlQName.isEquivalent(term.mdlQName)) return null
+            if (!base.term.subsumes(term)) return null
+//            if (term.mdlNillable && !base.term.mdlNillable) return null
             val newStart = base.minOccurs.safeMinus(minOccurs)
             val newEnd = base.maxOccurs.safeMinus(maxOccurs, newStart)
             return Element(newStart..newEnd, base.term)
