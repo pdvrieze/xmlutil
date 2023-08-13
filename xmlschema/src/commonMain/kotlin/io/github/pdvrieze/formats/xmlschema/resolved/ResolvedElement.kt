@@ -89,8 +89,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         if (!specific.mdlIdentityConstraints.containsAll(mdlIdentityConstraints)) return false
 
         // subsume 4.4
-        if (specific.mdlDisallowedSubstitutions.size > mdlDisallowedSubstitutions.size &&
-            specific.mdlDisallowedSubstitutions.containsAll(mdlDisallowedSubstitutions)
+        if (! specific.mdlDisallowedSubstitutions.containsAll(mdlDisallowedSubstitutions)
         ) return false
 
         // subsume 4.5
