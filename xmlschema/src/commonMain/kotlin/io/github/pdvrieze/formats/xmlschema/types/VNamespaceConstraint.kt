@@ -36,16 +36,17 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         when (mdlVariety) {
             Variety.NOT -> {
                 require(namespaces.isNotEmpty()) { "3.10.6.1(2) - not constraint must have at least 1 member" }
-                for(n in disallowedNames) {
+                for (n in disallowedNames) {
                     if (n is VQNameListBase.Name) {
                         val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
                         require(ns !in namespaces) { "3.10.6.1(4) - disallowed names must not already be disallowed by namespaces list" }
                     }
                 }
             }
+
             Variety.ANY -> require(namespaces.isEmpty()) { "3.10.6.1(3) - Any constraint has no members" }
             Variety.ENUMERATION -> {
-                for(n in disallowedNames) {
+                for (n in disallowedNames) {
                     if (n is VQNameListBase.Name) {
                         val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
                         require(ns in namespaces) { "3.10.6.1(4) - disallowed names must be included in the wildcard of namespaces" }
@@ -62,7 +63,12 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
 
     fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
         Variety.ANY -> !disallowedNames.contains(name, context, schema)
-        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && !disallowedNames.contains(name, context, schema)
+        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && !disallowedNames.contains(
+            name,
+            context,
+            schema
+        )
+
         Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && !disallowedNames.contains(name, context, schema)
     }
 
@@ -70,21 +76,44 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
      * Determine whether there is any overlap between the two constraints (the intersection is not empty)
      * 3.10.6.4
      */
-    fun intersects(other: VNamespaceConstraint<E>): Boolean = when(mdlVariety) {
-        Variety.ANY -> when(other.mdlVariety) {
+    fun intersects(other: VNamespaceConstraint<E>): Boolean = when (mdlVariety) {
+        Variety.ANY -> when (other.mdlVariety) {
             Variety.ANY,
             Variety.ENUMERATION -> true
+
             Variety.NOT -> other.namespaces.containsAll(namespaces)
         }
-        Variety.ENUMERATION -> when(other.mdlVariety) {
+
+        Variety.ENUMERATION -> when (other.mdlVariety) {
             Variety.ANY -> true
             Variety.ENUMERATION -> other.namespaces.toSet().let { ons -> namespaces.any { it in ons } }
             Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons } }
         }
-        Variety.NOT -> when(other.mdlVariety) {
+
+        Variety.NOT -> when (other.mdlVariety) {
             Variety.ANY,
             Variety.NOT -> true
-            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns }}
+
+            Variety.ENUMERATION -> namespaces.toSet().let { ns -> other.namespaces.all { it in ns } }
+        }
+    }
+
+    fun isSubsetOf(sup: VNamespaceConstraint<*>): Boolean {
+        return when (sup.mdlVariety) {
+            Variety.ANY -> true // 3.10.6.2(1)
+
+            Variety.NOT -> when (mdlVariety) {
+                Variety.NOT -> namespaces.containsAll(sup.namespaces) // 3.10.6.2(4)
+
+                Variety.ENUMERATION -> sup.namespaces.none { it in namespaces }
+
+                Variety.ANY -> false
+            }
+
+            Variety.ENUMERATION -> when (mdlVariety) {
+                Variety.ENUMERATION -> sup.namespaces.containsAll(namespaces) // 3.10.6.2(2)
+                else -> false
+            }
         }
     }
 
@@ -93,32 +122,40 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
      * 3.10.6.2
      */
     fun isSupersetOf(sub: VNamespaceConstraint<E>): Boolean {
-        when(mdlVariety) {
+        when (mdlVariety) {
             Variety.ANY -> {} // main constraint matches
-            Variety.ENUMERATION -> when(sub.mdlVariety) {
-                Variety.ENUMERATION -> if(!namespaces.toSet().let { ns -> sub.namespaces.all { it in ns } }) return false
+            Variety.ENUMERATION -> when (sub.mdlVariety) {
+                Variety.ENUMERATION -> if (!namespaces.toSet()
+                        .let { ns -> sub.namespaces.all { it in ns } }
+                ) return false
+
                 Variety.ANY,
                 Variety.NOT -> return false
             }
-            Variety.NOT -> when(sub.mdlVariety) {
+
+            Variety.NOT -> when (sub.mdlVariety) {
                 Variety.ANY -> return false
-                Variety.ENUMERATION -> if(! namespaces.toSet().let { ns -> sub.namespaces.none { it in ns }}) return false
-                Variety.NOT -> if(! sub.namespaces.toSet().let { ons -> namespaces.all { it in ons }}) return false
+                Variety.ENUMERATION -> if (!namespaces.toSet()
+                        .let { ns -> sub.namespaces.none { it in ns } }
+                ) return false
+
+                Variety.NOT -> if (!sub.namespaces.toSet().let { ons -> namespaces.all { it in ons } }) return false
             }
         }
 
         // check for second rule that sub doesn't allow any names forbidden by super
-        for(n in disallowedNames) {
+        for (n in disallowedNames) {
             when (n) {
                 VQNameListBase.DEFINEDSIBLING,
-                VQNameListBase.DEFINED -> if(n !in sub.disallowedNames.values) return false
+                VQNameListBase.DEFINED -> if (n !in sub.disallowedNames.values) return false
+
                 is VQNameListBase.Name -> {
                     val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
-                    if(n !in sub.disallowedNames.values) { // not explicitly disallowed
+                    if (n !in sub.disallowedNames.values) { // not explicitly disallowed
                         if (sub.mdlVariety == Variety.ENUMERATION) {
-                            if(ns in sub.namespaces) return false
+                            if (ns in sub.namespaces) return false
                         } else {
-                            if(ns !in sub.namespaces) return false
+                            if (ns !in sub.namespaces) return false
                         }
                     }
                 }
@@ -128,7 +165,11 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     }
 
     /* Determined by 3.10.6.3 (for attributes) */
-    fun union(other: VNamespaceConstraint<E>, context: ResolvedComplexType, schema: ResolvedSchemaLike): VNamespaceConstraint<E> {
+    fun union(
+        other: VNamespaceConstraint<E>,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): VNamespaceConstraint<E> {
         // TODO resolve the "special" values
         val newDisallowed: VQNameListBase<E> = run {
             val newDisallowed = mutableListOf<E>()
@@ -181,15 +222,17 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             disallowedNames.isNotEmpty() -> disallowedNames.joinToString(prefix = "ns(* except ", postfix = ")")
             else -> "ns(*)"
         }
+
         Variety.NOT -> buildString {
-            namespaces.joinTo(this, prefix="ns(NOT ") { "'$it'"}
+            namespaces.joinTo(this, prefix = "ns(NOT ") { "'$it'" }
             if (disallowedNames.isNotEmpty()) {
                 disallowedNames.joinTo(this, prefix = " or ")
             }
             append(')')
         }
+
         Variety.ENUMERATION -> buildString {
-            namespaces.joinTo(this, prefix="ns(") { "'$it'"}
+            namespaces.joinTo(this, prefix = "ns(") { "'$it'" }
             if (disallowedNames.isNotEmpty()) {
                 disallowedNames.joinTo(this, prefix = " except ")
             }
@@ -197,10 +240,10 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         }
     }
 
-    enum class Variety { ANY, ENUMERATION, NOT}
+    enum class Variety { ANY, ENUMERATION, NOT }
 }
 
-internal fun <T> Collection<T>.isContentEqual(other: Collection<T>): Boolean = when(size) {
+internal fun <T> Collection<T>.isContentEqual(other: Collection<T>): Boolean = when (size) {
     other.size -> all { other.contains(it) }
     else -> false
 }
