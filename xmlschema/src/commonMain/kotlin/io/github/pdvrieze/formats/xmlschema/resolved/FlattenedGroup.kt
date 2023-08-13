@@ -971,7 +971,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (minOccurs>base.maxOccurs) return null
+            if (maxOccurs > base.maxOccurs) return null
             if (base.term.mdlNamespaceConstraint.isSupersetOf(term.mdlNamespaceConstraint)) {
                 return base - range
             }
