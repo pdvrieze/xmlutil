@@ -104,4 +104,10 @@ abstract class ResolvedSchemaLike {
     }
 
     abstract fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement>
+
+    /**
+     * True if this schema or any of it's imported schemas actually has the local namespace
+     * as its target
+     */
+    open fun hasLocalTargetNamespace(): Boolean = false
 }

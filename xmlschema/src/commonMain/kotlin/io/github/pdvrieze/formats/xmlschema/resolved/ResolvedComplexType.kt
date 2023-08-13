@@ -32,7 +32,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 sealed class ResolvedComplexType(
     val schema: ResolvedSchemaLike
@@ -385,7 +387,14 @@ sealed class ResolvedComplexType(
             val completeWildcard = content.derivation.anyAttribute?.let {
                 ResolvedAnyAttribute(
                     it,
-                    schema
+                    schema,
+                    hasUnqualifiedAttrs = content.derivation.attributes.any {
+                        when(it.form) {
+                            VFormChoice.UNQUALIFIED -> true
+                            VFormChoice.QUALIFIED -> false
+                            null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
+                        }
+                    } || (baseTypeDefinition is ResolvedComplexType && baseTypeDefinition.mdlAttributeUses.keys.any { it.namespaceURI.isEmpty() })
                 )
             }
 
@@ -602,7 +611,14 @@ sealed class ResolvedComplexType(
             val completeWildcard = rawPart.content.derivation.anyAttribute?.let {
                 ResolvedAnyAttribute(
                     it,
-                    schema
+                    schema,
+                    hasUnqualifiedAttrs = rawPart.content.derivation.attributes.any {
+                        when(it.form) {
+                            VFormChoice.UNQUALIFIED -> true
+                            VFormChoice.QUALIFIED -> false
+                            null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
+                        }
+                    } || (baseType is ResolvedComplexType && baseType.mdlAttributeUses.keys.any { it.namespaceURI.isEmpty() })
                 )
             }
 

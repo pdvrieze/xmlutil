@@ -87,6 +87,10 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
 
     override val targetNamespace: VAnyURI get() = rawPart.targetNamespace ?: VAnyURI("")
 
+    override fun hasLocalTargetNamespace(): Boolean {
+        return nestedData.containsKey("")
+    }
+
     val version: VToken? get() = rawPart.version
 
     val lang: VLanguage? get() = rawPart.lang

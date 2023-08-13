@@ -36,9 +36,10 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
     constructor(
         rawPart: XSAnyAttribute,
         schema: ResolvedSchemaLike,
+        hasUnqualifiedAttrs: Boolean,
     ) : super(
         rawPart,
-        rawPart.toConstraint(schema, true, false), // for now attributes always have ## local in the context
+        rawPart.toConstraint(schema, hasUnqualifiedAttrs), // for now attributes always have ## local in the context
         rawPart.processContents ?: VProcessContents.STRICT
     )
 
