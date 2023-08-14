@@ -22,6 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Choice
+import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Companion.SINGLERANGE
+import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Element
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
@@ -68,8 +71,12 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     abstract val mdlAbstract: Boolean
 
-    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
-        return FlattenedParticle.Element(range, this)
+    override fun flatten(
+        range: AllNNIRange,
+        typeContext: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle {
+        return Element(range, this, true)
     }
 
     fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
