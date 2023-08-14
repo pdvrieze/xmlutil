@@ -97,7 +97,7 @@ class TestXSTestSuite {
                     ts.testGroups.flatMap { tg ->
                         listOfNotNull(tg.schemaTest)
                     }.filter { schemaTest ->
-                        schemaTest.expected?.validity == TSValidityOutcome.VALID
+                        schemaTest.expected.firstOrNull { it.version!="1.1" }?.validity == TSValidityOutcome.VALID
                     }.flatMap { schemaTest ->
                         schemaTest.schemaDocuments
                     }.map { schemaDoc ->
@@ -448,7 +448,7 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
             assertNotNull(stream)
         }
     }
-    if (instanceTest.expected?.validity == TSValidityOutcome.VALID) {
+    if (instanceTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID) {
         val schemaLocation = VAnyURI(schemaDoc.href)
         val schema = resolver.readSchema(schemaLocation).resolve(resolver)
 
@@ -465,7 +465,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 ) {
     val resolver = SimpleResolver(setBaseUrl)
 
-    val expected = schemaTest.expected
+    val expected = schemaTest.expected.firstOrNull{ it.version != "1.1" }
     val expectedValidity = expected?.validity
     when (expectedValidity) {
         TSValidityOutcome.INVALID -> {

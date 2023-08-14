@@ -34,7 +34,7 @@ class TSInstanceTest(
     @XmlElement(true)
     val instanceDocument: TSInstanceDocument,
     @XmlElement(true)
-    val expected: TSExpected? = null,
+    val expected: List<TSExpected> = emptyList(),
     @XmlElement(true)
     val current: TSCurrent? = null,
     @XmlElement(true)
