@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedChoice : ResolvedModelGroup {
 
@@ -31,29 +32,40 @@ interface IResolvedChoice : ResolvedModelGroup {
 
 
     override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
-        if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
-        val newParticles = mutableListOf<FlattenedParticle>()
-        for (p in mdlParticles) {
-            if (p !is ResolvedProhibitedElement) {
-                val f = p.flatten(typeContext, schema)
-                if (f.maxOccurs > VAllNNI.ZERO) {
-                    when (f) {
-                        is FlattenedGroup.Choice -> f.particles.asSequence()
-                            .filter { it.maxOccurs > VAllNNI.ZERO }
-                            .mapTo(newParticles) { it * range }
+        val seenNames = mutableSetOf<QName>()
+        val seenWildcards = mutableListOf<ResolvedAny>()
 
-                        else -> newParticles.add(f)
+        val particles = mutableListOf<FlattenedParticle>()
+        for (p in mdlParticles) {
+            val f = p.flatten(typeContext, schema)
+
+            when {
+                f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
+                f.maxOccurs != VAllNNI.ZERO -> particles.add(f)
+            }
+
+            for (startElem in f.startingTerms()) {
+                when (startElem) {
+                    is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
+                        "Non-deterministic all group: all{${mdlParticles.joinToString()}}"
+                    }
+
+                    is FlattenedParticle.Wildcard -> {
+                        require(seenWildcards.none { it.intersects(startElem.term) }) {
+                            "Non-deterministic all group: all${mdlParticles.joinToString()}"
+                        }
+                        seenWildcards.add(startElem.term)
                     }
                 }
+
             }
+
         }
-        return when (newParticles.size) {
+
+        return when (particles.size) {
             0 -> FlattenedGroup.EMPTY
-            1 -> when { // Only one member 2.2.2.2.1
-                range.isSimple -> newParticles.single() // simple range 2.2.2.1
-                else -> FlattenedGroup.Choice(range, newParticles)
-            }
-            else -> FlattenedGroup.Choice(range, newParticles)
+            1 -> particles.single()
+            else -> FlattenedGroup.Choice(range, particles)
         }
     }
 
