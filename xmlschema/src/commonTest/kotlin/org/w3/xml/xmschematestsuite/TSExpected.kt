@@ -40,6 +40,7 @@ class TSExpected(
     @XmlElement(false)
     val validity: TSValidityOutcome,
     @XmlElement(false)
+    val version: String? = null,
     val exception: String? = null,
     @XmlElement(false)
     val message: @Serializable(RegexSerializer::class) Regex? = null,
