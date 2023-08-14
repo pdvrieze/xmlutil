@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
@@ -124,6 +125,21 @@ class ResolvedGlobalElement(
             }
             substitutionGroupHead.checkSubstitutionGroupChain(seenElements + mdlQName)
         }
+    }
+
+    override fun flatten(
+        range: AllNNIRange,
+        typeContext: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle = when {
+        mdlSubstitutionGroupMembers.isNotEmpty() -> {
+            val elems = fullSubstitutionGroup().map {
+                FlattenedParticle.Element(FlattenedParticle.SINGLERANGE, it, true)
+            }
+            FlattenedGroup.Choice(range, elems)
+        }
+
+        else -> super.flatten(range, typeContext, schema)
     }
 
     override fun toString(): String {
