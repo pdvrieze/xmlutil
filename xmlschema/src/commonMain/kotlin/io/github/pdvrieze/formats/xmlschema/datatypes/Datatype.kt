@@ -224,6 +224,11 @@ object AnyType : ResolvedGlobalComplexType(
 
     override val mdlBaseTypeDefinition: AnyType get() = this
 
+    val urWildcard = ResolvedAny(
+        VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VQNameList()),
+        VProcessContents.LAX
+    )
+
     override fun validate(representation: VString) {
 //        error("anyType cannot be directly implemented")
     }
@@ -237,15 +242,10 @@ object AnyType : ResolvedGlobalComplexType(
         override val mdlAssertions: List<XSIAssertCommon> get() = emptyList()
 
         override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
-        override val mdlContentType: ResolvedContentType = MixedContentType(
+        override val mdlContentType: MixedContentType = MixedContentType(
             SyntheticSequence(
                 VNonNegativeInteger.ZERO, VAllNNI.UNBOUNDED,
-                listOf(
-                    ResolvedAny(
-                        VNamespaceConstraint(VNamespaceConstraint.Variety.ANY, emptySet(), VQNameList()),
-                        VProcessContents.LAX
-                    )
-                )
+                listOf(urWildcard)
             ),
             typeContext = AnyType,
             schema = schema
