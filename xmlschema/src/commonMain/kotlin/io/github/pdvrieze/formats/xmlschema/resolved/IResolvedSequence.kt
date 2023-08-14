@@ -31,21 +31,24 @@ interface IResolvedSequence : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
     override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
-        if (range.endInclusive == VAllNNI.ZERO) return FlattenedGroup.EMPTY
-        val newParticles = mutableListOf<FlattenedParticle>()
-        for (p in mdlParticles) {
-            if (p !is ResolvedProhibitedElement) {
-                val f = p.flatten(typeContext, schema)
-                if (f.maxOccurs > VAllNNI.ZERO) {
-                    if (f is FlattenedGroup.Sequence && (!f.isVariable && f.maxOccurs == VAllNNI.ONE)) {
-                        f.particles.mapTo(newParticles) { it * range }
-                    } else {
-                        newParticles.add(f)
-                    }
-                }
+
+        val particles = mdlParticles.flatMap {
+            val f = it.flatten(typeContext, schema)
+            when {
+                f is FlattenedGroup.Sequence && f.range.isSimple ->  f.particles
+                f.maxOccurs== VAllNNI.ZERO -> emptyList()
+                else -> listOf(f)
             }
         }
-        return FlattenedGroup.Sequence(range, newParticles, typeContext, schema)
+
+        // TODO move to this class
+        FlattenedGroup.checkSequence(particles, typeContext, schema)
+
+        return when (particles.size) {
+            0 -> FlattenedGroup.EMPTY
+            1 -> particles.single()
+            else -> FlattenedGroup.Sequence(range, particles)
+        }
     }
 
 

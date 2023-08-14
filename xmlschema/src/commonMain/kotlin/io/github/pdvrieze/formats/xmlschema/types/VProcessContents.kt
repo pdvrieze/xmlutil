@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("processContents", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 enum class VProcessContents {
-    @SerialName("skip") SKIP,
+    @SerialName("skip") SKIP, // the order is significant
     @SerialName("lax") LAX,
     @SerialName("strict") STRICT,
 }
