@@ -34,7 +34,7 @@ class TSSchemaTest(
     @XmlElement(true)
     val schemaDocuments: List<TSSchemaDocument>,
     @XmlElement(true)
-    val expected: TSExpected? = null,
+    val expected: List<TSExpected> = emptyList(),
     @XmlElement(true)
     val current: TSCurrent? = null,
     @XmlElement(true)
