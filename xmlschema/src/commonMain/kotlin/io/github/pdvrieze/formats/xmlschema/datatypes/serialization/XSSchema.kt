@@ -41,15 +41,15 @@ class XSSchema : XSOpenAttrsBase {
     @XmlElement(false)
     val attributeFormDefault: VFormChoice?
 
-    @Serializable(AllDerivationSerializer::class)
-    val blockDefault: Set<T_BlockSetValues>?
+    @Serializable(BlockSetSerializer::class)
+    val blockDefault: Set<VDerivationControl.T_BlockSetValues>?
 
     val defaultAttributes: SerializableQName?
     val xpathDefaultNamespace: VXPathDefaultNamespace?
     @XmlElement(false)
     val elementFormDefault: VFormChoice?
 
-    @Serializable(AllDerivationSerializer::class)
+    @Serializable(TypeDerivationControlSerializer::class)
     val finalDefault: Set<@Contextual VDerivationControl.Type>?
 
     @XmlId
@@ -81,7 +81,7 @@ class XSSchema : XSOpenAttrsBase {
 
     constructor(
         attributeFormDefault: VFormChoice? = null,
-        blockDefault: VBlockSet = emptySet(),
+        blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
         defaultAttributes: SerializableQName? = null,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         elementFormDefault: VFormChoice? = null,

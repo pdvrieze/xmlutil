@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XSI_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
@@ -453,7 +452,8 @@ internal class CollatedSchema(
     ) : ResolvedSchemaLike() {
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
-        override val blockDefault: VBlockSet get() = originalSchema.blockDefault ?: emptySet()
+        override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
+            get() = originalSchema.blockDefault ?: emptySet()
         override val finalDefault: Set<VDerivationControl.Type> get() = originalSchema.finalDefault ?: emptySet()
         override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
         override val defaultAttributes: QName? get() = originalSchema.defaultAttributes
@@ -619,11 +619,11 @@ internal class CollatedSchema(
 
             val targetLocalName = name.localPart
             originalSchema.simpleTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
-                return Pair(nestedRedefine?:this, SchemaAssociatedElement(originalLocation, it))
+                return Pair(nestedRedefine ?: this, SchemaAssociatedElement(originalLocation, it))
             }
 
             originalSchema.complexTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
-                return Pair(nestedRedefine?:this, SchemaAssociatedElement(originalLocation, it))
+                return Pair(nestedRedefine ?: this, SchemaAssociatedElement(originalLocation, it))
             }
             return nestedRedefine?.lookupRawType(name)
         }
@@ -641,7 +641,7 @@ internal class CollatedSchema(
             return chameleonNamespace.isNullOrEmpty()
         }
 
-        override val blockDefault: VBlockSet
+        override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
             get() = base.blockDefault
         override val finalDefault: Set<VDerivationControl.Type>
             get() = base.finalDefault
