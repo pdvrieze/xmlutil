@@ -20,13 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import kotlinx.serialization.Serializable
 
-typealias VBlockSet = Set<T_BlockSetValues>
-
-@Serializable
-sealed interface T_BlockSetValues
-
-fun VBlockSet.toDerivationSet(): Set<VDerivationControl.Complex> {
+fun Set<VDerivationControl.T_BlockSetValues>.toDerivationSet(): Set<VDerivationControl.Complex> {
     return asSequence().filterIsInstance<VDerivationControl.Complex>().toSet()
 }

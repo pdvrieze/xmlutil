@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
@@ -47,7 +46,7 @@ class ResolvedGlobalElement(
     override val mdlQName: QName =
         rawPart.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
 
-    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+    override val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues> =
         (rawPart.final ?: schema.finalDefault).filterIsInstanceTo(HashSet())
 
     val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement>

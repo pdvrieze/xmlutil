@@ -31,41 +31,42 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlin.reflect.KClass
+import kotlin.reflect.safeCast
 
-@OptIn(ExperimentalSerializationApi::class)
-class SchemaEnumSetSerializer<T : Enum<T>>(val elementSerializer: KSerializer<T>) : KSerializer<Set<T>> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("Set<${elementSerializer.descriptor.serialName}>", PrimitiveKind.STRING)
+abstract class AllDerivationSerializerBase<T : VDerivationControl>(name: String, private val kclass: KClass<T>) :
+    KSerializer<Set<T>> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Set<$name>", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Set<T>) {
-        if (value.size > 0) {
-            if (value.size == elementSerializer.descriptor.elementsCount) {
-                encoder.encodeString("#all")
-            } else {
-                val stringListEncoder = SimpleStringEncoder(encoder.serializersModule)
-                SetSerializer(elementSerializer).serialize(stringListEncoder, value)
+    private val values: Map<String, T> = listOf(RESTRICTION, EXTENSION, LIST, UNION, SUBSTITUTION)
+        .mapNotNull { kclass.safeCast(it) }.associateBy { it.name }
 
-                encoder.encodeString(stringListEncoder.joinToString(" "))
+    override fun deserialize(decoder: Decoder): Set<T> {
+        return when (val s = decoder.decodeString().trim()) {
+            "#all" -> values.values.toSet()
+            "" -> emptySet()
+            else -> s.split(' ').asSequence().mapTo(HashSet()) {
+                values[it] ?: error("Unsupported substitution name: ${s}")
             }
         }
     }
 
-    override fun deserialize(decoder: Decoder): Set<T> {
-        val str = decoder.decodeString()
-        val names = when (str) {
-            "#all" -> {
-                (0 until elementSerializer.descriptor.elementsCount).map {
-                    elementSerializer.descriptor.getElementName(it)
-                }
-            }
-
-            else -> str.split(' ')
-        }.filter { it.isNotEmpty() }
-        return SetSerializer(elementSerializer).deserialize(SimpleStringListDecoder(names, decoder.serializersModule))
+    override fun serialize(encoder: Encoder, value: Set<T>) {
+        val s = when {
+            value.containsAll(values.values) -> "#all"
+            else -> value.joinToString(" ") { it.name }
+        }
+        encoder.encodeString(s)
     }
 }
 
-class AllDerivationSerializer : KSerializer<Set<VDerivationControl>> {
+class BlockSetSerializer: AllDerivationSerializerBase<T_BlockSetValues>("V_BlockSetValues", T_BlockSetValues::class)
+
+class TypeDerivationControlSerializer: AllDerivationSerializerBase<Type>("V_BlockSetValues", Type::class)
+
+class AllDerivationSerializer: AllDerivationSerializerBase<VDerivationControl>("T_DerivationControl", VDerivationControl::class)
+
+class AllDerivationSerializer2 : KSerializer<Set<VDerivationControl>> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("Set<T_DeriviationControl>", PrimitiveKind.STRING)
 

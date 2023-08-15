@@ -42,7 +42,7 @@ class XSGlobalSimpleType(
     @XmlAfter("annotation")
     override val simpleDerivation: XSSimpleDerivation,
     @XmlElement(false)
-    @Serializable(AllDerivationSerializer::class)
+    @Serializable(TypeDerivationControlSerializer::class)
     val final: Set<@Contextual VDerivationControl.Type> = emptySet(),
     @XmlId
     override val id: VID? = null,

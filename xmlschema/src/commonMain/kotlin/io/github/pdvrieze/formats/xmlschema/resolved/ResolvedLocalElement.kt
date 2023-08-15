@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
-import io.github.pdvrieze.formats.xmlschema.types.T_BlockSetValues
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -66,7 +65,7 @@ class ResolvedLocalElement private constructor(
             }
     )
 
-    override val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues> =
+    override val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues> =
         schema.finalDefault.filterIsInstanceTo(HashSet())
 
     override val mdlScope: VElementScope.Local = VElementScope.Local(parent)

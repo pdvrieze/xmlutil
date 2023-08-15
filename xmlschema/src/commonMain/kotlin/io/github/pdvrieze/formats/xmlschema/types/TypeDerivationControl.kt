@@ -24,16 +24,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class VDerivationControl(val name: String) {
+sealed interface VDerivationControl {
+    val name: String
     @Serializable
     sealed class Complex : Type {
         constructor(name: String) : super(name)
     }
 
     @Serializable
-    sealed class Type : VDerivationControl {
-        constructor(name: String) : super(name)
-    }
+    sealed class Type(override val name: String) : VDerivationControl
 
     @Serializable
     @SerialName("restriction")
@@ -58,10 +57,13 @@ sealed class VDerivationControl(val name: String) {
     }
 
     @Serializable
-    object SUBSTITUTION : VDerivationControl("substitution"), T_BlockSetValues {
+    object SUBSTITUTION : VDerivationControl, T_BlockSetValues {
+        override val name: String get() = "substitution"
+
         override fun toString(): String = "SUBSTITUTION"
     }
 
+    sealed interface T_BlockSetValues : VDerivationControl
 }
 
 fun Set<VDerivationControl>.toDerivationSet(): Set<VDerivationControl.Complex> =
