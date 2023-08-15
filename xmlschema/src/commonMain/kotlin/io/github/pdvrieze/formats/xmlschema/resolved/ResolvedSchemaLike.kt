@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
@@ -33,7 +32,7 @@ abstract class ResolvedSchemaLike {
     abstract val defaultAttributes: QName?
     abstract val targetNamespace: VAnyURI?
 
-    abstract val blockDefault: VBlockSet
+    abstract val blockDefault: Set<VDerivationControl.T_BlockSetValues>
     abstract val finalDefault: Set<VDerivationControl.Type>
     abstract val defaultOpenContent: XSDefaultOpenContent?
     abstract val attributeFormDefault: VFormChoice

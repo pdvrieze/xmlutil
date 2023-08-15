@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Choice
-import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Companion.SINGLERANGE
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Element
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
@@ -65,9 +63,14 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
 
-    val mdlDisallowedSubstitutions: VBlockSet = (rawPart.block ?: schema.blockDefault)
+    val mdlDisallowedSubstitutions: Set<VDerivationControl.T_BlockSetValues> =
+        rawPart.block
+            ?: schema.blockDefault
+                .filterIsInstanceTo<VDerivationControl.T_BlockSetValues, HashSet<VDerivationControl.T_BlockSetValues>>(
+                    HashSet()
+                )
 
-    abstract val mdlSubstitutionGroupExclusions: Set<T_BlockSetValues>
+    abstract val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues>
 
     abstract val mdlAbstract: Boolean
 
@@ -89,14 +92,14 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
             val t = (mdlTypeDefinition as? ResolvedSimpleType ?: return false)
             val bVal = t.value(bvc.value)
             val sVal = t.value(svc.value)
-            if (bVal!=sVal) return false
+            if (bVal != sVal) return false
         }
 
         // subsume 4.3
         if (!specific.mdlIdentityConstraints.containsAll(mdlIdentityConstraints)) return false
 
         // subsume 4.4
-        if (! specific.mdlDisallowedSubstitutions.containsAll(mdlDisallowedSubstitutions)
+        if (!specific.mdlDisallowedSubstitutions.containsAll(mdlDisallowedSubstitutions)
         ) return false
 
         // subsume 4.5

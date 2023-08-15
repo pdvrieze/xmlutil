@@ -53,7 +53,7 @@ class XSGlobalElement : XSElement {
     val substitutionGroup: List<QName>?
 
     constructor(
-        block: VBlockSet? = null,
+        block: Set<VDerivationControl.T_BlockSetValues>? = null,
         default: VString? = null,
         fixed: VString? = null,
         id: VID? = null,

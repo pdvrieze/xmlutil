@@ -50,7 +50,7 @@ class XSLocalElement : XSElement, XSI_AllParticle {
     val targetNamespace: VAnyURI?
 
     constructor(
-        block: VBlockSet? = null,
+        block: Set<VDerivationControl.T_BlockSetValues>? = null,
         default: VString? = null,
         fixed: VString? = null,
         form: VFormChoice? = null,
