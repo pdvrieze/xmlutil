@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -33,8 +32,8 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
 sealed class XSElement : XSI_Annotated {
-    @Serializable(AllDerivationSerializer::class)
-    val block: Set<T_BlockSetValues>?
+    @Serializable(BlockSetSerializer::class)
+    val block: Set<VDerivationControl.T_BlockSetValues>?
     val default: VString?
     val fixed: VString?
     @XmlId
@@ -64,7 +63,7 @@ sealed class XSElement : XSI_Annotated {
 
     // alternative
     constructor(
-        block: VBlockSet?,
+        block: Set<VDerivationControl.T_BlockSetValues>?,
         default: VString?,
         fixed: VString?,
         id: VID?,

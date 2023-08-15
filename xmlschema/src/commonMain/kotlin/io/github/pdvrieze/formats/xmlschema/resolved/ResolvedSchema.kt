@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLangua
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
@@ -70,7 +69,8 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
     override val attributeFormDefault: VFormChoice
         get() = rawPart.attributeFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override val blockDefault: VBlockSet get() = rawPart.blockDefault ?: emptySet()
+    override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
+        get() = rawPart.blockDefault ?: emptySet()
 
     override val defaultAttributes: QName? = rawPart.defaultAttributes
 
