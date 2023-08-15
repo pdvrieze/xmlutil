@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
-import io.github.pdvrieze.formats.xmlschema.types.VBlockSet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
@@ -128,7 +127,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val targetNamespace: VAnyURI get() = delegate.targetNamespace
 
-    override val blockDefault: VBlockSet get() = delegate.blockDefault
+    override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = delegate.blockDefault
 
     override val finalDefault: Set<VDerivationControl.Type> get() = delegate.finalDefault
 

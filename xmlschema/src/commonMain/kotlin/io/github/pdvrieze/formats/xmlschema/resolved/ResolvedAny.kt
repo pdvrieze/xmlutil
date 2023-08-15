@@ -51,10 +51,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     ) : super(
         rawPart,
         rawPart.toConstraint(schema),
-        rawPart.processContents ?: when {
-            rawPart.namespace.let { it == null || it == VNamespaceList.ANY } -> VProcessContents.LAX
-            else -> VProcessContents.STRICT
-        }
+        rawPart.processContents ?: VProcessContents.STRICT
     ) {
         require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
