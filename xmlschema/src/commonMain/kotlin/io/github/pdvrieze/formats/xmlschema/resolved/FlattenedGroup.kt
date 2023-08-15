@@ -54,7 +54,7 @@ sealed class FlattenedGroup(
     }
 
     override val isEmptiable: Boolean
-        get() = minOccurs== VAllNNI.ZERO || effectiveTotalRange().start == VAllNNI.ZERO
+        get() = minOccurs == VAllNNI.ZERO || effectiveTotalRange().start == VAllNNI.ZERO
 
     // Implements recurse (seq-seq or all-all)
     protected fun restrictsRecurse(
@@ -313,13 +313,13 @@ sealed class FlattenedGroup(
             val unprocessed = base.particles.toMutableList<FlattenedParticle?>() // 2.1
 
             for (p in particles) { // 2.2
-                val matchIdx = unprocessed.indexOfFirst { it!=null && p.restricts(it, context, schema) }
-                if (matchIdx<0) return false
+                val matchIdx = unprocessed.indexOfFirst { it != null && p.restricts(it, context, schema) }
+                if (matchIdx < 0) return false
                 unprocessed[matchIdx] = null // 2.1
             }
 
             for (bp in unprocessed) { // 2.3
-                if (bp!=null && !bp.isEmptiable) return false
+                if (bp != null && !bp.isEmptiable) return false
             }
             return true
         }
@@ -338,16 +338,16 @@ sealed class FlattenedGroup(
             // TODO implement "unfolding"
             for (p in particles) {
                 val matchIdx = base.particles.indexOfFirst { p.single().restricts(it.single(), context, schema) }
-                if (matchIdx <0) return false
-                val newConsumed = maxValues[matchIdx] + p.maxOccurs
+                if (matchIdx < 0) return false
+                val newConsumed = maxValues[matchIdx] + (p.maxOccurs * maxOccurs)
                 val match = base.particles[matchIdx]
-                if (newConsumed>match.maxOccurs) return false // matches should be disjunct
+                if (newConsumed > (match.maxOccurs * base.maxOccurs)) return false // matches should be disjunct
                 maxValues[matchIdx] = newConsumed
-                minValues[matchIdx] += p.minOccurs
+                minValues[matchIdx] += (p.minOccurs * minOccurs)
             }
 
-            for (i in base.particles.indices) { // if consumed it must be within the range
-                if (maxValues[i]> VAllNNI.ZERO && minValues[i] < base.minOccurs) return false
+            for (i in base.particles.indices) { // if consumed (maxValues>0) it must be within the range
+                if (maxValues[i] > VAllNNI.ZERO && minValues[i] < base.particles[i].minOccurs) return false
             }
 
             return true
@@ -366,7 +366,7 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return if(restrictsSequence(base, context, schema)) EMPTY else null
+            return if (restrictsSequence(base, context, schema)) EMPTY else null
         }
 
         override fun single(): Sequence {
@@ -521,7 +521,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): Boolean {
             // NSCompat 2
-            if(!base.range.contains(range)) return false
+            if (!base.range.contains(range)) return false
 
             // NSCompat 1
             return base.term.matches(term.mdlQName, context, schema)
