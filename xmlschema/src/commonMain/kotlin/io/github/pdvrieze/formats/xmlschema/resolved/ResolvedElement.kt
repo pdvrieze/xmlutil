@@ -64,11 +64,10 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     val mdlIdentityConstraints: Set<ResolvedIdentityConstraint> get() = model.mdlIdentityConstraints
 
     val mdlDisallowedSubstitutions: Set<VDerivationControl.T_BlockSetValues> =
-        rawPart.block
-            ?: schema.blockDefault
-                .filterIsInstanceTo<VDerivationControl.T_BlockSetValues, HashSet<VDerivationControl.T_BlockSetValues>>(
-                    HashSet()
-                )
+        rawPart.block ?: schema.blockDefault
+            .filterIsInstanceTo<VDerivationControl.T_BlockSetValues, HashSet<VDerivationControl.T_BlockSetValues>>(
+                HashSet()
+            )
 
     abstract val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues>
 
