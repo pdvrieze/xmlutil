@@ -191,6 +191,10 @@ sealed class FlattenedGroup(
             return All(SINGLERANGE, particles)
         }
 
+        override fun times(range: AllNNIRange): All {
+            return All((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
+        }
+
         override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
     }
 
@@ -271,6 +275,10 @@ sealed class FlattenedGroup(
             return Choice(SINGLERANGE, particles)
         }
 
+        override fun times(range: AllNNIRange): Choice {
+            return Choice((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
+        }
+
         override fun toString(): String =
             particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
@@ -346,9 +354,14 @@ sealed class FlattenedGroup(
                 minValues[matchIdx] += (p.minOccurs * minOccurs)
             }
 
+/*
             for (i in base.particles.indices) { // if consumed (maxValues>0) it must be within the range
-                if (maxValues[i] > VAllNNI.ZERO && minValues[i] < base.particles[i].minOccurs) return false
+                if (maxValues[i] > VAllNNI.ZERO &&
+                    !(minValues[i] == VAllNNI.ZERO && base.minOccurs == VAllNNI.ZERO) &&
+                    minValues[i] < base.particles[i].minOccurs
+                ) return false
             }
+*/
 
             return true
         }
@@ -371,6 +384,10 @@ sealed class FlattenedGroup(
 
         override fun single(): Sequence {
             return Sequence(SINGLERANGE, particles)
+        }
+
+        override fun times(range: AllNNIRange): Sequence {
+            return Sequence((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
@@ -480,6 +497,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     open fun restrictsSequence(base: Sequence, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean =
         false
 
+    abstract operator fun times(range: AllNNIRange): FlattenedParticle
+
     sealed class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
 
@@ -533,7 +552,9 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun restrictsChoice(base: Choice, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
-            return Choice(SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema)
+            // The option to do it either way is valid for 1.1
+            return Choice(SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema) ||
+                    Choice(range, listOf(single())).restricts(base, context, schema)
         }
 
         override fun restrictsSequence(
@@ -545,6 +566,10 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun single(): Element = Element(SINGLERANGE, term, true)
+
+        override fun times(range: AllNNIRange): Element {
+            return Element((minOccurs * range.start)..(maxOccurs * range.endInclusive), term, true)
+        }
 
         override fun toString(): String = range.toPostfix(term.mdlQName.toString())
 
@@ -585,6 +610,10 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun single(): Wildcard = Wildcard(SINGLERANGE, term)
+
+        override fun times(range: AllNNIRange): Wildcard {
+            return Wildcard((minOccurs * range.start)..(maxOccurs * range.endInclusive), term)
+        }
 
         override fun toString(): String = range.toPostfix("<${term.mdlNamespaceConstraint}>")
     }
