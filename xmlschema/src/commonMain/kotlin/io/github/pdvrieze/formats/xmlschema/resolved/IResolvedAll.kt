@@ -93,9 +93,9 @@ interface IResolvedAll : ResolvedModelGroup {
             }
         }
 
-        return when (particles.size) {
-            0 -> FlattenedGroup.EMPTY
-            1 -> particles.single()
+        return when {
+            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.size == 1 && range.isSimple -> particles.single()
             else -> FlattenedGroup.All(range, particles)
         }
     }
