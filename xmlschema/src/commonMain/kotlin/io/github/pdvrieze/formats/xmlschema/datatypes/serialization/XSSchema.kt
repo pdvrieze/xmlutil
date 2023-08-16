@@ -134,10 +134,10 @@ class XSSchema : XSOpenAttrsBase {
         return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
     }
 
-    fun resolve(resolver: ResolvedSchema.Resolver): ResolvedSchema = ResolvedSchema(this, resolver)
+    fun resolve(resolver: ResolvedSchema.Resolver, defaultVersion: ResolvedSchema.Version = ResolvedSchema.Version.V1_1): ResolvedSchema = ResolvedSchema(this, resolver, defaultVersion)
 
-    fun check(resolver: ResolvedSchema.Resolver) {
-        resolve(resolver).check()
+    fun check(resolver: ResolvedSchema.Resolver, defaultVersion: ResolvedSchema.Version = ResolvedSchema.Version.V1_1) {
+        resolve(resolver, defaultVersion).check()
     }
 
     override fun equals(other: Any?): Boolean {
