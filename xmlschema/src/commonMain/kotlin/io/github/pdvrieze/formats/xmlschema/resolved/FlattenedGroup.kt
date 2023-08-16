@@ -559,7 +559,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun restrictsChoice(base: Choice, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
             // The option to do it either way is valid for 1.1
             return Choice(SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema) ||
-                    Choice(range, listOf(single())).restricts(base, context, schema)
+                    (schema.version == ResolvedSchema.Version.V1_1 &&
+                            Choice(range, listOf(single())).restricts(base, context, schema))
         }
 
         override fun restrictsSequence(
