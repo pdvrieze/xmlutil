@@ -91,7 +91,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         return nestedData.containsKey("")
     }
 
-    val version: Version = when(rawPart.version?.xmlString) {
+    override val version: Version = when(rawPart.version?.xmlString) {
         "1.0" -> Version.V1_0
         "1.1" -> Version.V1_1
         else -> defaultVersion

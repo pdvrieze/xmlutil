@@ -413,8 +413,11 @@ sealed class FlattenedGroup(
                             require(startName !in lastOptionals) {
                                 "Non-deterministic sequence: sequence${particles.joinToString()}"
                             }
-                            require(lastAnys.none { it.matches(startName, context, schema) }) {
-                                "Ambiguous sequence $startName - ${lastAnys}"
+                            if (schema.version == ResolvedSchema.Version.V1_0) {
+                                // In version 1.1 resolving prioritises explicit elements, wildcards can omit
+                                require(lastAnys.none { it.matches(startName, context, schema) }) {
+                                    "Ambiguous sequence $startName - ${lastAnys}"
+                                }
                             }
                         }
 

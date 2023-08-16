@@ -450,6 +450,7 @@ internal class CollatedSchema(
         val elementName: QName,
         val elementKind: Redefinable,
     ) : ResolvedSchemaLike() {
+        override val version: ResolvedSchema.Version get() = base.version
 
         override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
         override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
@@ -630,6 +631,9 @@ internal class CollatedSchema(
     }
 
     class ChameleonWrapper(private val sourceSchema: XSSchema, val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
+
+        override val version: ResolvedSchema.Version get() = base.version
+
         override val targetNamespace: VAnyURI?
             get() = chameleonNamespace
 
