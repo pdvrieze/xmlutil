@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
-class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchemaLike() {
+class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: Version = Version.V1_1) : ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
 
@@ -91,7 +91,11 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
         return nestedData.containsKey("")
     }
 
-    val version: VToken? get() = rawPart.version
+    val version: Version = when(rawPart.version?.xmlString) {
+        "1.0" -> Version.V1_0
+        "1.1" -> Version.V1_1
+        else -> defaultVersion
+    }
 
     val lang: VLanguage? get() = rawPart.lang
 
@@ -172,6 +176,10 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
             }
         }
 
+    }
+
+    enum class Version {
+        V1_0, V1_1
     }
 
 
@@ -327,6 +335,16 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver) : ResolvedSchema
     }
 
     companion object {
+
+
+        fun Version(str: String) : Version = when (str){
+            "1.0" -> Version.V1_0
+            "1.1" -> Version.V1_1
+            else -> throw IllegalArgumentException("'$str' is not a supported version")
+        }
+
+
+
         const val STRICT_ALL_IN_EXTENSION: Boolean = true
 
         /**

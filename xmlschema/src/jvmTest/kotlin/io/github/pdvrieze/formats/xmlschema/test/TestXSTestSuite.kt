@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
@@ -448,7 +449,7 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
             assertNotNull(stream)
         }
     }
-    if (instanceTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID) {
+    if (instanceTest.expected.firstOrNull { it.version != "1.0" }?.validity == TSValidityOutcome.VALID) {
         val schemaLocation = VAnyURI(schemaDoc.href)
         val schema = resolver.readSchema(schemaLocation).resolve(resolver)
 
@@ -465,82 +466,94 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 ) {
     val resolver = SimpleResolver(setBaseUrl)
 
-    val expected = schemaTest.expected.firstOrNull{ it.version != "1.1" }
-    val expectedValidity = expected?.validity
-    when (expectedValidity) {
-        TSValidityOutcome.INVALID -> {
-            dynamicTest("Schema document ${schemaDoc.href} exists") {
-                setBaseUrl.resolve(schemaDoc.href).toURL().openStream().use { stream ->
-                    assertNotNull(stream)
-                }
-            }
-            if (true) {
-                dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid") {
-                    val e = assertFails(documentation) {
-                        val schemaLocation = VAnyURI(schemaDoc.href)
-                        val schema = resolver.readSchema(schemaLocation)
-                        val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation))
-                        resolvedSchema.check()
-                    }
-                    if (e is Error) throw e
+    dynamicTest("Schema document ${schemaDoc.href} exists") {
+        setBaseUrl.resolve(schemaDoc.href).toURL().openStream().use { stream ->
+            assertNotNull(stream)
+        }
+    }
 
-                    try {
+    val expecteds = schemaTest.expected.associateBy { it.version?.let{ ResolvedSchema.Version(it) } }
 
-                        val exName = expected.exception
-                        if (exName != null) {
-                            if (exName.contains('.')) {
-                                assertEquals(exName, e.javaClass.name)
-                            } else {
-                                assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
-                            }
+    val expecteds2 = schemaTest.expected.firstOrNull{ it.version != "1.0" }
+
+    for ((version, expected) in expecteds) {
+        val versionLabel = if (version != null) " for version ${version}" else ""
+        val appliedVersion = version ?: ResolvedSchema.Version.V1_1
+
+        val expectedValidity = expected.validity
+        when (expectedValidity) {
+            TSValidityOutcome.INVALID -> {
+                if (true) {
+                    dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
+                        val e = assertFails(documentation) {
+                            val schemaLocation = VAnyURI(schemaDoc.href)
+                            val schema = resolver.readSchema(schemaLocation)
+                            val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), appliedVersion)
+                            resolvedSchema.check()
                         }
+                        if (e is Error) throw e
 
-                        val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES)) }
-                        if (exMsg != null) {
-                            if (!exMsg.containsMatchIn(e.message ?: "")) {
-                                val match = exMsg.find(e.message ?: "")?.value
-                                if (match != null) {
-                                    assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
+                        try {
+
+                            val exName = expected.exception
+                            if (exName != null) {
+                                if (exName.contains('.')) {
+                                    assertEquals(exName, e.javaClass.name)
                                 } else {
-                                    assertEquals(exMsg.pattern, e.message)
+                                    assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
                                 }
                             }
-                        } else {
-                            System.err.println("Expected error: \n")
-                            System.err.println(documentation.prependIndent("        "))
-                            System.err.println("    Exception thrown:")
-                            System.err.println(e.message?.prependIndent("        "))
+
+                            val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES)) }
+                            if (exMsg != null) {
+                                if (!exMsg.containsMatchIn(e.message ?: "")) {
+                                    val match = exMsg.find(e.message ?: "")?.value
+                                    if (match != null) {
+                                        assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
+                                    } else {
+                                        assertEquals(exMsg.pattern, e.message)
+                                    }
+                                }
+                            } else {
+                                System.err.println("Expected error: \n")
+                                System.err.println(documentation.prependIndent("        "))
+                                System.err.println("    Exception thrown:")
+                                System.err.println(e.message?.prependIndent("        "))
+                            }
+                        } catch (f: AssertionError) {
+                            if (f != e) {
+                                f.addSuppressed(e)
+                            }
+                            throw f
                         }
-                    } catch (f: AssertionError) {
-                        if (f != e) {
-                            f.addSuppressed(e)
-                        }
-                        throw f
                     }
                 }
             }
-        }
-        null,
-        TSValidityOutcome.VALID -> {
-            val schemaLocation = VAnyURI(schemaDoc.href)
-            dynamicTest("Schema document ${schemaDoc.href} parses") {
-                val schema = resolver.readSchema(schemaLocation)
-                assertNotNull(schema)
+
+            null,
+            TSValidityOutcome.VALID -> {
+                val schemaLocation = VAnyURI(schemaDoc.href)
+                dynamicTest("Schema document ${schemaDoc.href} parses") {
+                    val schema = resolver.readSchema(schemaLocation)
+                    assertNotNull(schema)
+                }
+                dynamicTest("Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
+                    val resolvedSchema = resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), appliedVersion)
+                    resolvedSchema.check()
+                    assertNotNull(resolvedSchema)
+                }
             }
-            dynamicTest("Schema document ${schemaDoc.href} resolves and checks") {
-                val resolvedSchema = resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation))
-                resolvedSchema.check()
-                assertNotNull(resolvedSchema)
+
+            TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
+                val schemaLocation = VAnyURI(schemaDoc.href)
+                dynamicTest("Schema document ${schemaDoc.href} parses") {
+                    val schema = resolver.readSchema(schemaLocation)
+                    assertNotNull(schema)
+                }
             }
+
+            TSValidityOutcome.NOTKNOWN -> {} // ignore unknown
         }
-        TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
-            val schemaLocation = VAnyURI(schemaDoc.href)
-            dynamicTest("Schema document ${schemaDoc.href} parses") {
-                val schema = resolver.readSchema(schemaLocation)
-                assertNotNull(schema)
-            }
-        }
-        TSValidityOutcome.NOTKNOWN -> {} // ignore unknown
     }
 }
 
