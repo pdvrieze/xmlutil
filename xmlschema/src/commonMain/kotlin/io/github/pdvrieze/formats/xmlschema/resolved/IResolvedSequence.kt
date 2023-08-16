@@ -44,9 +44,9 @@ interface IResolvedSequence : ResolvedModelGroup {
         // TODO move to this class
         FlattenedGroup.checkSequence(particles, typeContext, schema)
 
-        return when (particles.size) {
-            0 -> FlattenedGroup.EMPTY
-            1 -> particles.single()
+        return when {
+            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.size == 1 && range.isSimple -> particles.single()
             else -> FlattenedGroup.Sequence(range, particles)
         }
     }
