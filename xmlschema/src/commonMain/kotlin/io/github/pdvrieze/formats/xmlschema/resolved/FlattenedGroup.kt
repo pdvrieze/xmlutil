@@ -68,15 +68,41 @@ sealed class FlattenedGroup(
         val baseIt = base.particles.iterator()
 
         for (p in particles) {
-            while (true) {
-                if (!baseIt.hasNext()) return false
-                val basePart = baseIt.next()
+            // particles size should always be more than 1
+            if (schema.version == ResolvedSchema.Version.V1_1 && p is Choice && p.particles.size > 1) {
+                val buffer = mutableListOf<FlattenedParticle>()
+                for (o in p.particles) {
+                    val matchIdx = buffer.indexOfFirst { o.restricts(it, context, schema) }
+                    if (matchIdx >= 0) {
+                        buffer.removeAt(matchIdx)
+                    } else {
+                        while (true) {
+                            if (!baseIt.hasNext()) return false
+                            val c = baseIt.next()
 
-                // 2.1
-                if (p.restricts(basePart, context, schema)) break
+                            if (!o.restricts(c, context, schema)) {
+                                if (!c.isEmptiable) return false
+                                buffer.add(c)
+                            } else {
+                                break
+                            }
 
-                // otherwise skip 2.2
-                if (!basePart.isEmptiable) return false
+                        }
+
+                    }
+
+                }
+            } else {
+                while (true) {
+                    if (!baseIt.hasNext()) return false
+                    val basePart = baseIt.next()
+
+                    // 2.1
+                    if (p.restricts(basePart, context, schema)) break
+
+                    // otherwise skip 2.2
+                    if (!basePart.isEmptiable) return false
+                }
             }
         }
         while (baseIt.hasNext()) {
@@ -354,14 +380,14 @@ sealed class FlattenedGroup(
                 minValues[matchIdx] += (p.minOccurs * minOccurs)
             }
 
-/*
-            for (i in base.particles.indices) { // if consumed (maxValues>0) it must be within the range
-                if (maxValues[i] > VAllNNI.ZERO &&
-                    !(minValues[i] == VAllNNI.ZERO && base.minOccurs == VAllNNI.ZERO) &&
-                    minValues[i] < base.particles[i].minOccurs
-                ) return false
-            }
-*/
+            /*
+                        for (i in base.particles.indices) { // if consumed (maxValues>0) it must be within the range
+                            if (maxValues[i] > VAllNNI.ZERO &&
+                                !(minValues[i] == VAllNNI.ZERO && base.minOccurs == VAllNNI.ZERO) &&
+                                minValues[i] < base.particles[i].minOccurs
+                            ) return false
+                        }
+            */
 
             return true
         }
