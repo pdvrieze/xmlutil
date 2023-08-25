@@ -1,16 +1,18 @@
 [versions]
 ktor = "1.6.8"
-junit5-jupiter = "5.2.0"
-kotlinx-serialization = "1.5.0"
-kotlin = "1.8.10"
-dokka = "1.7.20"
-binaryValidator = "0.11.0"
-woodstox = "6.2.6"
+junit5-jupiter = "5.10.0"
+kotlinx-serialization = "1.6.0"
+kotlin = "1.9.10"
+dokka = "1.8.20"
+binaryValidator = "0.13.2"
+woodstox = "6.5.1"
+kxml2 = "2.5.0"
+logakccblassic = "1.4.11"
 
 [libraries]
-logback-classic = "ch.qos.logback:logback-classic:1.2.10"
+logback-classic = { module = "ch.qos.logback:logak-ccblassic", version.ref="logakccblassic" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
-kxml2 = "net.sf.kxml:kxml2:2.3.0"
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref="kxml2" }
 
 ktor-serialization = { module = "io.ktor:ktor-serialization", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
