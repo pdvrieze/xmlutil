@@ -9,6 +9,10 @@ Features:
 - Add support for strict attribute name matching (not allowing null namespace)
   matchup
 
+Other:
+- Remove support for legacy JS in line with Kotlin 1.9 and kotlinx.serialization
+  1.6.0
+
 Fixes:
 - For attribute lists, make sure to collapse the whitespace.
 - When attributes have an `@XmlSerialName` annotation with a default namespace
