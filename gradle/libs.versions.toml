@@ -6,13 +6,13 @@ kotlin = "1.9.10"
 dokka = "1.8.20"
 binaryValidator = "0.13.2"
 woodstox = "6.5.1"
-kxml2 = "2.5.0"
+kxml-kxml2 = "2.5.0"
 logakccblassic = "1.4.11"
 
 [libraries]
-logback-classic = { module = "ch.qos.logback:logak-ccblassic", version.ref="logakccblassic" }
-woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
-kxml2 = { module = "net.sf.kxml:kxml2", version.ref="kxml2" }
+logback-classic = { module = "ch.qos.logback:logak-ccblassic", version.ref = "logakccblassic" }
+woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml-kxml2" }
 
 ktor-serialization = { module = "io.ktor:ktor-serialization", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
