@@ -74,6 +74,8 @@ allprojects {
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
         maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")}
+        maven { url = uri("https://jitpack.io")}
+        maven { url = uri("https://dl.bintray.com/unverbraucht/java9-fixed-jars")}
         google()
     }
 
