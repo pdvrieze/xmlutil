@@ -87,18 +87,22 @@ internal class ElementImpl(
 
     override fun appendChild(node: Node): Node {
         val n = checkNode(node)
-        if (n is DocumentFragmentImpl) {
-            val nodes = _childNodes.elements.toList()
-            _childNodes.elements.clear()
-            for (n2 in nodes) {
-                appendChild(n2)
+        when (n) {
+            is DocumentFragmentImpl -> {
+                val nodes = _childNodes.elements.toList()
+                _childNodes.elements.clear()
+                for (n2 in nodes) {
+                    appendChild(n2)
+                }
             }
-        } else {
-            n.parentNode?.removeChild(n)
 
-            n.parentNode = this
+            else -> {
+                n.parentNode?.removeChild(n)
 
-            _childNodes.elements.add(n)
+                n.parentNode = this
+
+                _childNodes.elements.add(n)
+            }
         }
         return n
     }

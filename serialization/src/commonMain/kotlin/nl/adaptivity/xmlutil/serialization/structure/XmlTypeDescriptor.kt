@@ -36,7 +36,7 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     public val serialName: String
         get() = serialDescriptor.serialName
 
-    public val typeQname: QName? = typeNameInfo.annotatedName
+    public val typeQname: QName? get() = typeNameInfo.annotatedName
 
     @OptIn(ExperimentalSerializationApi::class)
     public val elementsCount: Int
@@ -46,10 +46,28 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
         return children[index]
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XmlTypeDescriptor
+
+        if (serialDescriptor != other.serialDescriptor) return false
+        return typeNameInfo == other.typeNameInfo
+    }
+
+    override fun hashCode(): Int {
+        var result = serialDescriptor.hashCode()
+        result = 31 * result + typeNameInfo.hashCode()
+        return result
+    }
+
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
             XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx), typeQname?.toNamespace() ?: parentNamespace)
         }
     }
+
+
 }

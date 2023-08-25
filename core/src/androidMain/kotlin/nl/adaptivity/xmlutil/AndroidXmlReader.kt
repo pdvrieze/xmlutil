@@ -75,6 +75,12 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     override val text: String
         get() = parser.text
 
+    override val piTarget: String
+        get() = parser.name
+
+    override val piData: String
+        get() = parser.text
+
     override val localName: String
         get() = parser.name
 

@@ -20,75 +20,83 @@
 
 package nl.adaptivity.xmlutil
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
-class TestKtXmlReader {
+class TestKtXmlReader : TestCommonReader() {
+
+    @Test
+    fun testReadCompactFragmentWithNamespaceInOuter() {
+        testReadCompactFragmentWithNamespaceInOuter(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testNamespaceDecls() {
+        testNamespaceDecls(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testReadCompactFragment() {
+        testReadCompactFragment(XmlStreaming::newGenericReader)
+    }
 
     @Test
     fun testReadSingleTag() {
-        val xml = "<MixedAttributeContainer xmlns:a=\"a\" xmlns:e=\"c\" attr1=\"value1\" a:b=\"dyn1\" e:d=\"dyn2\" attr2=\"value2\"/>"
-
-        KtXmlReader(StringReader(xml)).use { reader ->
-            assertTrue(reader.hasNext())
-            assertEquals(EventType.START_DOCUMENT, reader.next())
-
-            assertTrue(reader.hasNext())
-            assertEquals(EventType.START_ELEMENT, reader.next())
-            assertEquals(QName("MixedAttributeContainer"), reader.name)
-            assertEquals(4, reader.attributeCount)
-
-            assertTrue(reader.hasNext())
-            assertEquals(EventType.END_ELEMENT, reader.next())
-
-            assertTrue(reader.hasNext())
-            assertEquals(EventType.END_DOCUMENT, reader.next(), "Expected end of document, location: ${reader.locationInfo}")
-
-            assertFalse(reader.hasNext())
-
-        }
+        testReadSingleTag(XmlStreaming::newGenericReader)
     }
 
     @Test
     fun testGenericReadEntity() {
-        val xml = """<tag>&lt;foo&amp;&#039;&gt;</tag>"""
-        XmlStreaming.newGenericReader(xml).use { reader ->
-            assertEquals(EventType.START_ELEMENT, reader.nextTag())
-            assertEquals(QName("tag"), reader.name)
-
-            val actualText = StringBuilder()
-            while (reader.next().isTextElement) {
-                actualText.append(reader.text)
-            }
-
-            assertEquals("<foo&'>", actualText.toString())
-
-            assertEquals(EventType.END_ELEMENT, reader.eventType)
-            assertEquals(QName("tag"), reader.name)
-        }
+        testReadEntity(XmlStreaming::newGenericReader)
     }
 
     @Test
-    fun testReadEntity() {
-        val xml = """<tag>&lt;foo&amp;&#039;&gt;</tag>"""
-        XmlStreaming.newReader(xml).use { reader ->
-            assertEquals(EventType.START_ELEMENT, reader.nextTag())
-            assertEquals(QName("tag"), reader.name)
-
-            val actualText = StringBuilder()
-            while (reader.next().isTextElement) {
-                actualText.append(reader.text)
-            }
-
-            assertEquals("<foo&'>", actualText.toString())
-
-            assertEquals(EventType.END_ELEMENT, reader.eventType)
-            assertEquals(QName("tag"), reader.name)
-        }
+    fun testReadUnknownEntity() {
+        testReadUnknownEntity(XmlStreaming::newGenericReader)
     }
+
+    @Test
+    fun testIgnorableWhitespace() {
+        testIgnorableWhitespace(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testReaderWithBOM() {
+        testReaderWithBOM(XmlStreaming::newGenericReader)
+    }
+
+    @Test
+    fun testProcessingInstruction() {
+        testProcessingInstruction(XmlStreaming::newGenericReader) { KtXmlWriter(StringWriter()) }
+    }
+
+    @Test
+    fun testProcessingInstructionDom() {
+        val domWriter = DomWriter()
+        testProcessingInstruction(XmlStreaming::newGenericReader) { domWriter }
+
+        val expectedXml = """
+                <?xpacket begin='' id='from_166'?>
+                <a:root xmlns:a="foo" a:b="42">bar</a:root>
+                <?xpacket end='w'?>
+            """
+        val expected = XmlStreaming.newReader(expectedXml)
+        assertXmlEquals(expected, DomReader(domWriter.target))
+
+        val fromDom = StringWriter()
+        KtXmlWriter(fromDom).use { writer ->
+            DomReader(domWriter.target).use { reader ->
+                while(reader.hasNext()) {
+                    reader.next()
+                    reader.writeCurrent(writer)
+                }
+            }
+        }
+         assertXmlEquals(expectedXml, fromDom.toString())
+    }
+
 }

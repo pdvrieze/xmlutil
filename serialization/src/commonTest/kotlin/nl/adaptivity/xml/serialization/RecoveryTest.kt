@@ -27,10 +27,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.InputKind
-import nl.adaptivity.xmlutil.serialization.PolyInfo
-import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -41,27 +41,69 @@ class RecoveryTest {
     @Serializable
     data class Data(val a: String, val b: String)
 
+    @Serializable
+    @XmlSerialName("Container", "", "")
+    data class Container(val stat: Stat)
+
+    @Serializable
+    @XmlSerialName("Stat", "SomeNs", "link")
+    data class Stat(val value: String)
+
+    @Test
+    fun testDeserializeNonRecovering() {
+        val input = "<Container><link:Stat xmlns:link=\"SomeNs\" value=\"foo\"/></Container>"
+        val parsed = XML.decodeFromString<Container>(input)
+        assertEquals(Container(Stat("foo")), parsed)
+    }
+
+    /**
+     * Test in response to #160
+     */
+    @Test
+    fun testDeserializeRecoveringWithParser() {
+        val xml = XML {
+            policy = object: DefaultXmlSerializationPolicy(true) {
+                @ExperimentalXmlUtilApi
+                override fun handleUnknownContentRecovering(
+                    input: XmlReader,
+                    inputKind: InputKind,
+                    descriptor: XmlDescriptor,
+                    name: QName?,
+                    candidates: Collection<Any>
+                ): List<XML.ParsedData<*>> {
+                    XmlSerializationPolicy.recoverNullNamespaceUse(inputKind, descriptor, name)?.let { return it }
+                    return super.handleUnknownContentRecovering(input, inputKind, descriptor, name, candidates)
+                }
+            }
+        }
+        val input = "<Container><Stat value=\"foo\"/></Container>"
+        val parsed = xml.decodeFromString<Container>(input)
+        assertEquals(Container(Stat("foo")), parsed)
+    }
+
     @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     @Test
     fun testDeserializeRecovering() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
-                assertEquals(QName("c"), name)
-                assertEquals(InputKind.Attribute, inputKind)
-                assertEquals(StructureKind.CLASS, descriptor.kind)
-                assertEquals(QName("a"), descriptor.getElementDescriptor(0).tagName)
-                assertEquals(QName("b"), descriptor.getElementDescriptor(1).tagName)
-                assertEquals(
-                    listOf(
-                        PolyInfo(QName("a"), 0, descriptor.getElementDescriptor(0)),
-                        PolyInfo(QName("b"), 1, descriptor.getElementDescriptor(1))
-                    ),
-                    candidates
-                )
+            defaultPolicy {
+                unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
+                    assertEquals(QName("c"), name)
+                    assertEquals(InputKind.Attribute, inputKind)
+                    assertEquals(StructureKind.CLASS, descriptor.kind)
+                    assertEquals(QName("a"), descriptor.getElementDescriptor(0).tagName)
+                    assertEquals(QName("b"), descriptor.getElementDescriptor(1).tagName)
+                    assertEquals(
+                        listOf(
+                            PolyInfo(QName("a"), 0, descriptor.getElementDescriptor(0)),
+                            PolyInfo(QName("b"), 1, descriptor.getElementDescriptor(1))
+                        ),
+                        candidates
+                    )
 
-                listOf(XML.ParsedData(1, input.getAttributeValue(name!!)))
+                    listOf(XML.ParsedData(1, input.getAttributeValue(name!!)))
+                }
             }
         }
         val parsed: Data = xml.decodeFromString(serialized)
@@ -75,9 +117,11 @@ class RecoveryTest {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { _, _, _, name, _ ->
-                assertEquals(QName("c"), name)
-                emptyList()
+            defaultPolicy {
+                unknownChildHandler = UnknownChildHandler { _, _, _, name, _ ->
+                    assertEquals(QName("c"), name)
+                    emptyList()
+                }
             }
         }
         val e = assertFailsWith<SerializationException> { xml.decodeFromString<Data>(serialized) }
@@ -91,12 +135,14 @@ class RecoveryTest {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { input, _, _, name, _ ->
-                assertEquals(QName("c"), name)
-                listOf(
-                    XML.ParsedData(1, input.getAttributeValue(name!!)),
-                    XML.ParsedData(1, "baz"),
-                )
+            defaultPolicy {
+                unknownChildHandler = UnknownChildHandler { input, _, _, name, _ ->
+                    assertEquals(QName("c"), name)
+                    listOf(
+                        XML.ParsedData(1, input.getAttributeValue(name!!)),
+                        XML.ParsedData(1, "baz"),
+                    )
+                }
             }
         }
         val d = xml.decodeFromString<Data>(serialized)

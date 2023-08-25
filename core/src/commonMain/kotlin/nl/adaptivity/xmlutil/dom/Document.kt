@@ -63,3 +63,5 @@ public inline val Document.doctype: DocumentType? get() = getDoctype()
 public inline val Document.documentElement: Element? get() = getDocumentElement()
 
 public inline val Document.inputEncoding: String? get() = getInputEncoding()
+
+public expect val Document.supportsWhitespaceAtToplevel: Boolean

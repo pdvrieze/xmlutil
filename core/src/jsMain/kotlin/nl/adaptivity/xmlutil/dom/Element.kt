@@ -46,7 +46,7 @@ public actual external interface Element : Node {
 
 public actual fun Element.getNamespaceURI(): String? = namespaceURI
 public actual fun Element.getPrefix(): String? = prefix
-public actual fun Element.getLocalName(): String = localName
+public actual fun Element.getLocalName(): String? = localName
 public actual fun Element.getTagName(): String = tagName
 public actual fun Element.getAttributes(): NamedNodeMap = attributes
 

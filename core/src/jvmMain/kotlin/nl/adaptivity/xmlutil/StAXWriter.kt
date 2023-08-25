@@ -127,7 +127,7 @@ public class StAXWriter(
     private fun doStartTag(namespace: String?, prefix: String?, localName: String, isEmpty: Boolean) {
         // the depth was already increased because this can be called
         // from a pending context. This needs to be undone for indentation
-        writeIndent(newDepth = depth -1 , indentDepth = depth - 1)
+        writeIndent(newDepth = depth - 1, indentDepth = depth - 1)
 
         try {
             if (namespace.isNullOrEmpty() &&
@@ -191,7 +191,7 @@ public class StAXWriter(
     }
 
 
-    private fun writeIndent(newDepth: Int = depth, indentDepth:Int = depth) {
+    private fun writeIndent(newDepth: Int = depth, indentDepth: Int = depth) {
         val indentSeq = indentSequence
         if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != indentDepth) {
             try {
@@ -269,7 +269,7 @@ public class StAXWriter(
             if (namespace.isNullOrEmpty() || prefix.isNullOrEmpty()) {
                 delegate.writeAttribute(name, value)
             } else {
-                delegate.writeAttribute(namespace, name, value)
+                delegate.writeAttribute(prefix, namespace, name, value)
             }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
@@ -308,6 +308,7 @@ public class StAXWriter(
                     namespaceUri
                 )
             )
+
             else -> pendingWrites.add(
                 XmlEvent.Attribute(
                     XMLNS_ATTRIBUTE_NS_URI,
@@ -361,16 +362,26 @@ public class StAXWriter(
         }
     }
 
-    @Deprecated("", ReplaceWith("processingInstruction(target)"))
+    override public fun processingInstruction(target: String, data: String) {
+        assert(pendingWrites.isEmpty())
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        try {
+            delegate.writeProcessingInstruction(target, data)
+        } catch (e: XMLStreamException) {
+            throw XmlException(e)
+        }
+    }
+
+    @Deprecated("General interface for consistency", ReplaceWith("processingInstruction(target)"))
     @Throws(XmlException::class)
     public fun writeProcessingInstruction(target: String) {
         processingInstruction(target)
     }
 
-    @Deprecated("", ReplaceWith("processingInstruction(target + \" \" + data)"))
+    @Deprecated("General interface for consistency", ReplaceWith("processingInstruction(target, data)"))
     @Throws(XmlException::class)
     public fun writeProcessingInstruction(target: String, data: String) {
-        processingInstruction("$target $data")
+        processingInstruction(target, data)
     }
 
     @Throws(XmlException::class)
@@ -436,6 +447,7 @@ public class StAXWriter(
                     false -> encoding
                     else -> null
                 }
+
                 XmlDeclMode.Charset -> encoding ?: "UTF-8"
                 else -> encoding
             }

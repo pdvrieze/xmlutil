@@ -66,12 +66,22 @@ public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
                     // cause.addSuppressed(closeException) // ignored here
                 }
         }
-    }}
+    }
+}
 
 public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 
 public actual abstract class Writer : Appendable {
-    public abstract fun write(text: String)
+    public open fun write(text: String) {
+        append(text)
+    }
+
+    override fun append(value: CharSequence?): Appendable {
+        return append(value, 0, value?.length ?: 0)
+    }
+
+    /** Write buffers to the underlying file (where valid). */
+    public open fun flush() {}
 }
 
 public actual open class StringWriter : Writer() {
@@ -107,12 +117,13 @@ public actual abstract class Reader {
         if (read(b, 0, 1) < 0) return -1
         return b[0].code
     }
+
     public actual abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
-public actual open class StringReader(private val source: CharSequence): Reader() {
+public actual open class StringReader(private val source: CharSequence) : Reader() {
 
-    public actual constructor(source: String): this(source as CharSequence)
+    public actual constructor(source: String) : this(source as CharSequence)
 
     private var pos: Int = 0
 
@@ -132,6 +143,19 @@ public actual open class StringReader(private val source: CharSequence): Reader(
     }
 }
 
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public actual annotation class Language(
+    actual val value: String,
+    actual val prefix: String,
+    actual val suffix: String
+)
 
 public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
     try {

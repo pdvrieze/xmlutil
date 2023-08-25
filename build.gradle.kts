@@ -19,10 +19,22 @@
  */
 
 import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.envAndroid
+import net.devrieze.gradle.ext.envJvm
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.Companion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id(libs.plugins.kotlinMultiplatform.get().pluginId)/* version "1.7.0"*/ apply false
@@ -36,7 +48,7 @@ plugins {
 description = "The overall project for cross-platform xml access"
 
 ext {
-    set("myJavaVersion",JavaVersion.VERSION_1_8)
+    set("myJavaVersion", JavaVersion.VERSION_1_8)
 }
 
 tasks {
@@ -64,48 +76,94 @@ allprojects {
 
     tasks.withType<KotlinNpmInstallTask> {
         args += "--ignore-scripts"
-        dependsOn(":restoreYarnLock")
+//        dependsOn(":restoreYarnLock")
     }
 
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    afterEvaluate {
+
+        extensions.findByType<JavaPluginExtension>()?.run {
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+        extensions.findByType<KotlinMultiplatformExtension>()?.run {
+            targets.configureEach {
+                if (this is KotlinJvmTarget) {
+                    val targetName = name
+                    attributes {
+                        when (targetName) {
+                            "jvm" -> {
+                                attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
+                                attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+                            }
+
+                            "android" -> {
+                                attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
+                                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+                            }
+                        }
+                    }
+                    compilations.configureEach {
+                        compileTaskProvider.configure {
+                            kotlinOptions {
+                                jvmTarget = "1.8"
+                            }
+                        }
+                    }
+                }
+
+            }
+            sourceSets {
+                all {
+                    languageSettings {
+                        progressiveMode = true
+                        languageVersion = "1.8"
+                        apiVersion = "1.8"
+                        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+                    }
+                }
+            }
+        }
+        extensions.findByType<KotlinJvmProjectExtension>()?.run {
+            target {
+                attributes {
+                    attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
+                    attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+                }
+                sourceSets.configureEach {
+                    languageSettings {
+                        progressiveMode = true
+                        languageVersion = "1.8"
+                        apiVersion = "1.8"
+                        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+                    }
+                }
+            }
+        }
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
-rootProject.plugins.withType(YarnPlugin::class.java) {
-    rootProject.the<YarnRootExtension>().disableGranularWorkspaces()
+afterEvaluate {
+    rootProject.plugins.withType(YarnPlugin::class.java) {
+        rootProject.the<YarnRootExtension>().apply {
+            resolution("minimist", "1.2.6")
+            resolution("webpack", "5.76.0")
+            resolution("qs", "6.11.0")
+            resolution("follow-redirects", "1.14.8")
+        }
+    }
 }
+/*
+*/
 
 project.configureDokka()
-
-tasks.register("backupYarnLock") {
-    dependsOn("kotlinNpmInstall")
-
-    doLast {
-        copy {
-            from("$rootDir/build/js/yarn.lock")
-            rename { "yarn.lock.bak" }
-            into(rootDir)
-        }
-    }
-
-    inputs.file("$rootDir/build/js/yarn.lock").withPropertyName("inputFile")
-    outputs.file("$rootDir/yarn.lock.bak").withPropertyName("outputFile")
-}
-
-val restoreYarnLock = tasks.register("restoreYarnLock") {
-    doLast {
-        copy {
-            from("$rootDir/yarn.lock.bak")
-            rename { "yarn.lock" }
-            into("$rootDir/build/js")
-        }
-    }
-
-    inputs.file("$rootDir/yarn.lock.bak").withPropertyName("inputFile")
-    outputs.file("$rootDir/build/js/yarn.lock").withPropertyName("outputFile")
-}
-
-//tasks.named("kotlinNpmInstall").configure {
-//    dependsOn(restoreYarnLock)
-//}
 
 configurations.all {
     resolutionStrategy {
@@ -126,7 +184,7 @@ idea {
         languageLevel = IdeaLanguageLevel(JavaVersion.VERSION_1_8)
     }
     module {
-        isDownloadSources=true
+        isDownloadSources = true
         contentRoot = projectDir
     }
 }

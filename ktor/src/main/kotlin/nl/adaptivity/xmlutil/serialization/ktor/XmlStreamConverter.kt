@@ -42,6 +42,7 @@ import java.nio.charset.Charset
  *                  (de)serialization.
  * @property defaultCharset THe character set that is used as default.
  */
+@Deprecated("Ktor 2.0 contains its own implementation of xml support. Please use that feature rather than this module")
 public class XmlStreamConverter constructor(
     public var format: XML = DefaultXml,
     private val defaultCharset: Charset = Charsets.UTF_8

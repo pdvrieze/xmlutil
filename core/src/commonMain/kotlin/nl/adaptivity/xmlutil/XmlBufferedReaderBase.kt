@@ -22,6 +22,10 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
+import nl.adaptivity.xmlutil.dom.CharacterData
+import nl.adaptivity.xmlutil.dom.data
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.nodeName
 
 
 @XmlUtilInternal
@@ -29,8 +33,10 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element
-        for(ns in delegate.namespaceContext) {
-            namespaceHolder.addPrefixToContext(ns)
+        if (delegate.isStarted) {
+            for (ns in delegate.namespaceContext) {
+                namespaceHolder.addPrefixToContext(ns)
+            }
         }
     }
 
@@ -38,7 +44,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
     protected abstract val hasPeekItems: Boolean
 
     @XmlUtilInternal
-    protected var current: XmlEvent? = XmlEvent.from(delegate)
+    protected var current: XmlEvent? = if (delegate.isStarted) XmlEvent.from(delegate) else null
         private set
 
     private val currentElement: StartElementEvent
@@ -50,17 +56,18 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.ATTRIBUTE -> (current as Attribute).namespaceUri
             EventType.START_ELEMENT -> (current as StartElementEvent).namespaceUri
             EventType.END_ELEMENT -> (current as EndElementEvent).namespaceUri
-            else -> throw XmlException("Attribute not defined here: namespaceUri")
+            else -> throw XmlException("Attribute not defined here: namespaceUri (current event: ${current?.eventType})")
         }
 
 
     override val localName: String
         get() = when (current?.eventType) {
+            EventType.ENTITY_REF -> (current as EntityRefEvent).localName
             EventType.ATTRIBUTE -> (current as Attribute).localName
             EventType.START_ELEMENT -> (current as StartElementEvent).localName
             EventType.END_ELEMENT -> (current as EndElementEvent).localName
             else -> throw XmlException(
-                "Attribute not defined here: namespaceUri"
+                "Attribute not defined here: localName"
             )
         }
 
@@ -69,7 +76,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
             EventType.ATTRIBUTE -> (current as Attribute).prefix
             EventType.START_ELEMENT -> (current as StartElementEvent).prefix
             EventType.END_ELEMENT -> (current as EndElementEvent).prefix
-            else -> throw XmlException("Attribute not defined here: namespaceUri")
+            else -> throw XmlException("Attribute not defined here: prefix")
         }
 
     override val depth: Int
@@ -77,6 +84,12 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
 
     protected fun incDepth() { namespaceHolder.incDepth() }
     protected fun decDepth() { namespaceHolder.decDepth() }
+
+    override val piTarget: String
+        get() = (current as ProcessingInstructionEvent).target
+
+    override val piData: String
+        get() = (current as ProcessingInstructionEvent).data
 
     override val text: String
         get() {
@@ -242,6 +255,7 @@ public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : X
                     throw XmlException("Unexpected element found when looking for tags: $current")
                 }
             }
+            EventType.START_DOCUMENT,
             EventType.COMMENT, EventType.IGNORABLE_WHITESPACE,
             EventType.PROCESSING_INSTRUCTION -> nextTagEvent()
             EventType.START_ELEMENT, EventType.END_ELEMENT -> current

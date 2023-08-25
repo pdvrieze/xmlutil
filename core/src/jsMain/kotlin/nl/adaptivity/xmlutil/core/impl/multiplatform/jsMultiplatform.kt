@@ -48,7 +48,7 @@ public actual interface AutoCloseable {
 
 public actual interface Closeable : AutoCloseable
 
-public actual inline fun <T: Closeable?, R> T.use(block: (T) -> R): R {
+public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
     var exception: Throwable? = null
     try {
         return block(this)
@@ -66,7 +66,8 @@ public actual inline fun <T: Closeable?, R> T.use(block: (T) -> R): R {
                     // cause.addSuppressed(closeException) // ignored here
                 }
         }
-    }}
+    }
+}
 
 public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 
@@ -108,13 +109,14 @@ public actual abstract class Reader {
         if (read(b, 0, 1) < 0) return -1
         return b[0].code
     }
+
     public actual abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
-public actual open class StringReader(source: CharSequence): Reader() {
+public actual open class StringReader(source: CharSequence) : Reader() {
     private val source = source.toString()
 
-    public actual constructor(source: String): this(source as CharSequence)
+    public actual constructor(source: String) : this(source as CharSequence)
 
     private var srcOffset: Int = 0
 
@@ -129,10 +131,65 @@ public actual open class StringReader(source: CharSequence): Reader() {
         for (i in 0 until count) {
             buf[i + offset] = source[srcOffset + i]
         }
-        srcOffset+=count
+        srcOffset += count
         return count
     }
 }
+
+public actual abstract class InputStream : Closeable {
+    public actual open fun read(b: ByteArray, off: Int, len: Int): Int {
+        val endIdx = off + len
+        require(off in 0 until b.size) { "Offset before start of array" }
+        require(endIdx <= b.size) { "Range size beyond buffer size" }
+
+        for (i in off until endIdx) {
+            val byte = read()
+            if (byte < 0) {
+                return i
+            }
+            b[i] = byte.toByte()
+        }
+        return len
+    }
+
+    public actual fun read(b: ByteArray): Int {
+        return read(b, 0, b.size)
+    }
+
+    public actual abstract fun read(): Int
+}
+
+public actual abstract class OutputStream : Closeable {
+    public actual abstract fun write(b: Int)
+
+    public actual open fun write(b: ByteArray) {
+        write(b, 0, b.size)
+    }
+
+    public actual open fun write(b: ByteArray, off: Int, len: Int) {
+        val endIdx = off + len
+        require(off in 0 until b.size) { "Offset before start of array" }
+        require(endIdx <= b.size) { "Range size beyond buffer size" }
+        for (b in off until endIdx) {
+            write(b)
+        }
+    }
+
+}
+
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
+public actual annotation class Language(
+    actual val value: String,
+    actual val prefix: String,
+    actual val suffix: String
+)
 
 
 public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {

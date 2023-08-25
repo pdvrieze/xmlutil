@@ -1,3 +1,71 @@
+# 0.86.1
+*(July 5, 2023)<br />*
+Features:
+- Support detecting duplicate elements outside of list context #145. This
+  is not default behaviour as it is somewhat up to the serializer to deal
+  with duplicate values, rather than the format.
+- Update to Kotlinx.serialization 1.5.1
+- Add SerializableQName as an alias that links is to the serializer.
+- Add a helper function `XmlSerializationPolicy.recoverNullNamespaceUse` that
+  can be used to support recovering in case of null namespaces (and them
+  effectively functioning as wildcard)
+- Handle processing instructions correctly, expose processing instructions as
+  target (`XmlReader.piTarget`) + data (`XmlReader.piData`) pairs
+  attributes and `XmlEvent.ProcessingInstructionEvent` as event. (#160)
+- Allow processing instructions/whitespace as children of Native Document.
+
+Fixes:
+- Fix recording/copying of attribute prefixes in copying algorithms (#167).
+- Fix reading/writing of processing instruction events (#160).
+- Fix recovery of element children (#160).
+- Fix decoding of nil elements in certain cases (lists) where the end of the tag
+  wasn't parsed. Implemented decodeNull accordingly to actually finish the nil tag.
+- Fix accidental immediate emission of xsi:nil elements (rather than deferring
+  as expected #152).
+- Add expected key name to the error message when it couldn't be found for a
+  map. #140
+- Fix attribute name for empty prefix in Attr (native DOM). This should fix #142.
+
+# 0.86.0 – Go in chunks
+*(May 2, 2023)<br />*
+Features:
+- Preliminary (partial) support for chunked decoding/Chunked Decoder ()
+- Use kotlinx.serialization 1.5.0
+- The default policy now ignores all attributes in the xml namespace when
+  found missing (it will not throw an exception). If explicitly declared
+  they will still be handled.
+- Implement a FileReader and FileWriter (and streams) for native to allow
+  native writing of files.
+- Update to Kotlin 1.8.21
+- Deprecate the ktor module (in favour of ktor's own xml integration module).
+  Note that that module still uses xmlutil, it just provides its own xml access
+  code.
+  
+Fixes:
+- Various high range unicode characters (and modifiers) were incorrectly seen
+  as invalid values (relevant for emoji's)
+- Still allow for explicit xml:space properties (while also handling them
+  automatically).
+- Update `ChildCollector` to use the correct/updated signature for
+  `polymorhpicDefaultDeserializer`. "Fixes" #126 (the underlying issues are
+  [KT-55318](https://youtrack.jetbrains.com/issue/KT-55318)
+  and [KT-56602](https://youtrack.jetbrains.com/issue/KT-56602))
+- Support document fragments in DomReader
+- Make the StAXReader not skip the StartDocument event initially.
+- Make XmlBufferedReader.nextTagEvent process/ignore StartDocument.
+- Made ignorable whitespace more consistent. #128
+- Fix handling of `isCollectingNSAttributes` (#135). This will now properly
+  handle sealed polymorphism as well as deal properly with the default
+  namespace: properties without prefix will not register the null namespace.
+  If the default namespace is used anywhere, this ensures that prefixes are
+  used otherwise. This will avoid all occurences of `xmlns=""` (and
+  `xmlns:prefix=""`)
+- Fix DomReader's handling of non-namespace aware elements/nodes that return 
+  `null` as localName.
+- In DomReader handle the fact that JVM's xpath creates xmlns declarations for
+  xmlns.
+- Fix unsigned serialization of value classes.
+
 # 0.85.0 – Tying things up
 *(Feb 19, 2023)<br />*
 Features:

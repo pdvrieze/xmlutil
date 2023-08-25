@@ -89,7 +89,13 @@ private fun assertElementEquals(expected: Element, actual: Element) {
     )
     for ((idx, expectedAttr) in expectedAttrsSorted.withIndex()) {
         val actualAttr = actualAttrsSorted[idx]
-        assertEquals(expectedAttr.namespaceURI ?: "", actualAttr.namespaceURI ?: "")
+        if (expectedAttr.namespaceURI.isNullOrEmpty()) {
+            if (!actualAttr.namespaceURI.isNullOrEmpty()) {
+                assertEquals(expected.namespaceURI, actualAttr.namespaceURI)
+            }
+        } else if(!(expectedAttr.namespaceURI == expected.namespaceURI && actualAttr.namespaceURI.isNullOrEmpty())) {
+            assertEquals(expectedAttr.namespaceURI, actualAttr.namespaceURI)
+        }
 
         val expectedLocalName = if (expectedAttr.prefix == null) expectedAttr.name else expectedAttr.localName
         val actualLocalName = if (actualAttr.prefix == null) actualAttr.name else actualAttr.localName

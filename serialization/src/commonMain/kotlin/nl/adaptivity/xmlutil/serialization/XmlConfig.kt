@@ -376,6 +376,7 @@ private constructor(
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
                 encodeDefault = XmlEncodeDefault.ANNOTATED
+                throwOnRepeatedElement = true
             }
         }
 
@@ -398,10 +399,12 @@ private constructor(
     }
 
     public companion object {
+        private val DEFAULT_IGNORED_NAMESPACES = arrayOf(XMLConstants.XSI_NS_URI, XMLConstants.XML_NS_URI)
+
         @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
         public val DEFAULT_UNKNOWN_CHILD_HANDLER: UnknownChildHandler =
             UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
-                if (inputKind == InputKind.Attribute && name?.namespaceURI == XMLConstants.XSI_NS_URI) {
+                if (inputKind == InputKind.Attribute && name?.namespaceURI in DEFAULT_IGNORED_NAMESPACES) {
                     emptyList()
                 } else {
                     throw UnknownXmlFieldException(

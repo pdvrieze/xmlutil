@@ -21,6 +21,8 @@ public final class nl/adaptivity/xmlutil/DomReader : nl/adaptivity/xmlutil/XmlRe
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
 	public fun getText ()Ljava/lang/String;
@@ -67,6 +69,7 @@ public final class nl/adaptivity/xmlutil/DomWriter : nl/adaptivity/xmlutil/core/
 	public final fun isAppend ()Z
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
@@ -190,6 +193,8 @@ public final class nl/adaptivity/xmlutil/StAXReader : nl/adaptivity/xmlutil/XmlR
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
 	public final fun getNamespaceUri ()Ljava/lang/String;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
 	public fun getText ()Ljava/lang/String;
@@ -263,6 +268,7 @@ public final class nl/adaptivity/xmlutil/StAXWriter : nl/adaptivity/xmlutil/core
 	public fun ignorableWhitespace (Ljava/lang/String;)V
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
@@ -315,6 +321,8 @@ public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
 	public fun getText ()Ljava/lang/String;
@@ -364,6 +372,7 @@ public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlut
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun reader ()Lnl/adaptivity/xmlutil/XmlBufferReader;
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
@@ -406,6 +415,8 @@ public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/X
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
 	public fun getText ()Ljava/lang/String;
@@ -447,6 +458,7 @@ public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -532,6 +544,12 @@ public final class nl/adaptivity/xmlutil/XmlEvent$NamespaceImpl : nl/adaptivity/
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class nl/adaptivity/xmlutil/XmlEvent$ProcessingInstructionEvent : nl/adaptivity/xmlutil/XmlEvent$TextEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun getData ()Ljava/lang/String;
+	public final fun getTarget ()Ljava/lang/String;
+}
+
 public final class nl/adaptivity/xmlutil/XmlEvent$StartDocumentEvent : nl/adaptivity/xmlutil/XmlEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
 	public final fun getEncoding ()Ljava/lang/String;
@@ -596,6 +614,8 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 	public abstract fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public abstract fun getNamespaceURI ()Ljava/lang/String;
 	public abstract fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getPiData ()Ljava/lang/String;
+	public abstract fun getPiTarget ()Ljava/lang/String;
 	public abstract fun getPrefix ()Ljava/lang/String;
 	public abstract fun getStandalone ()Ljava/lang/Boolean;
 	public abstract fun getText ()Ljava/lang/String;
@@ -761,6 +781,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlWriter : java/io/Closea
 	public abstract fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public abstract fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public abstract fun processingInstruction (Ljava/lang/String;)V
+	public abstract fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public abstract fun setIndent (I)V
 	public abstract fun setIndentString (Ljava/lang/String;)V
 	public abstract fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -774,6 +795,7 @@ public final class nl/adaptivity/xmlutil/XmlWriter$DefaultImpls {
 	public static fun getIndent (Lnl/adaptivity/xmlutil/XmlWriter;)I
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/Namespace;)V
+	public static fun processingInstruction (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)V
 	public static fun setIndent (Lnl/adaptivity/xmlutil/XmlWriter;I)V
 	public static fun setPrefix (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static synthetic fun startDocument$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)V
@@ -850,6 +872,8 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public final fun getRelaxed ()Z
 	public fun getStandalone ()Ljava/lang/Boolean;
@@ -901,6 +925,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmluti
 	public final fun isRepairNamespaces ()Z
 	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun setAddTrailingSpaceBeforeEnd (Z)V
 	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
 	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
@@ -967,6 +992,7 @@ public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
 	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
 	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
 	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun getSupportsWhitespaceAtToplevel (Lorg/w3c/dom/Document;)Z
 	public static final fun getTagName (Lorg/w3c/dom/Element;)Ljava/lang/String;
 	public static final fun getTarget (Lorg/w3c/dom/ProcessingInstruction;)Ljava/lang/String;
 	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;

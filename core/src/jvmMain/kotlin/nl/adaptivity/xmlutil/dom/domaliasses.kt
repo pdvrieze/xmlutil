@@ -79,7 +79,7 @@ public actual inline fun Document.getInputEncoding(): String? = inputEncoding
 
 public actual fun Element.getNamespaceURI(): String? = namespaceURI
 public actual fun Element.getPrefix(): String? = prefix
-public actual fun Element.getLocalName(): String = localName
+public actual fun Element.getLocalName(): String? = localName
 public actual fun Element.getTagName(): String = tagName
 public actual fun Element.getAttributes(): NamedNodeMap = attributes
 
@@ -89,3 +89,5 @@ public actual inline fun NodeList.getLength(): Int = length
 public actual inline fun ProcessingInstruction.getTarget(): String = target
 public actual inline fun ProcessingInstruction.getData(): String = data
 public actual inline fun ProcessingInstruction.setData(data: String) { this.data = data }
+public actual val Document.supportsWhitespaceAtToplevel: Boolean get() = false
+

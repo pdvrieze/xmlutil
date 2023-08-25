@@ -39,22 +39,11 @@ plugins {
 }
 
 val xmlutil_serial_version: String by project
-val xmlutil_core_version: String by project
-val xmlutil_versiondesc: String by project
 
 base {
     archivesName.set("xmlutil-serialization")
     version = xmlutil_serial_version
 }
-
-val serializationVersion: String by project
-val woodstoxVersion: String by project
-val kotlin_version: String = libs.versions.kotlin.get()
-val kxml2Version: String = libs.kxml2.get().versionConstraint.requiredVersion
-
-val argJvmDefault: String by project
-
-val androidAttribute = Attribute.of("net.devrieze.android", Boolean::class.javaObjectType)
 
 val autoModuleName = "net.devrieze.xmlutil.serialization"
 
@@ -63,18 +52,7 @@ kotlin {
     explicitApi()
     targets {
         jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                attribute(androidAttribute, false)
-            }
-
             compilations.all {
-                compileKotlinTaskProvider.configure {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-//                        freeCompilerArgs += argJvmDefault
-                    }
-                }
                 tasks.named<Jar>("jvmJar") {
                     manifest {
                         attributes("Automatic-Module-Name" to autoModuleName)
@@ -94,13 +72,7 @@ kotlin {
 
 
         }
-        jvm("android") {
-            attributes {
-                attribute(androidAttribute, true)
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-        }
+        jvm("android")
         js(BOTH) {
             browser()
             compilations.all {
@@ -154,6 +126,11 @@ kotlin {
 
         val inlineSupportTest by creating {
             dependsOn(commonMain)
+            dependsOn(commonTest)
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
         }
 
         val javaShared by creating {
@@ -161,8 +138,6 @@ kotlin {
         }
 
         val javaSharedTest by creating {
-            languageSettings.enableLanguageFeature("InlineClasses")
-
             dependsOn(inlineSupportTest)
             dependsOn(javaShared)
             dependsOn(commonTest)
@@ -170,13 +145,9 @@ kotlin {
 
         val jvmMain by getting {
             dependsOn(javaShared)
-            dependencies {
-                implementation(kotlin("stdlib-jdk8", kotlin_version))
-            }
         }
 
         val jvmTestCommon by creating {
-            languageSettings.enableLanguageFeature("InlineClasses")
             dependsOn(javaSharedTest)
             dependsOn(jvmMain)
 
@@ -185,20 +156,17 @@ kotlin {
                 implementation(libs.junit5.api)
 
                 runtimeOnly(libs.junit5.engine)
-                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+                implementation(libs.kotlin.reflect)
             }
         }
 
         val jvmTest by getting {
-            languageSettings.enableLanguageFeature("InlineClasses")
-
             dependsOn(jvmTestCommon)
             dependencies {
                 implementation(kotlin("test-junit5"))
             }
         }
         val jvmWoodstoxTest by getting {
-            languageSettings.enableLanguageFeature("InlineClasses")
             dependsOn(jvmTestCommon)
             dependencies {
                 implementation(kotlin("test-junit5"))
@@ -216,8 +184,6 @@ kotlin {
         }
 
         val androidTest by getting {
-            languageSettings.enableLanguageFeature("InlineClasses")
-
             dependsOn(javaSharedTest)
             dependsOn(androidMain)
 
@@ -226,7 +192,7 @@ kotlin {
                 runtimeOnly(libs.kxml2)
 
                 implementation(libs.junit5.api)
-                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+                implementation(libs.kotlin.reflect)
 
                 runtimeOnly(libs.junit5.engine)
             }
@@ -254,11 +220,7 @@ kotlin {
                 dependsOn(this@sourceSets.get("nativeMain"))
                 dependsOn(inlineSupportTest)
             }
-            logger.lifecycle("Source set: ${this.name}")
             languageSettings.apply {
-                languageVersion = "1.7"
-                apiVersion = "1.7"
-                optIn("kotlin.RequiresOptIn")
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
@@ -290,13 +252,12 @@ tasks.register("cleanTest") {
 
 tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
     filter.excludeTestsMatching("nl.adaptivity.xml.serialization.OrderedFieldsTest")
-//    exclude("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 }
 
 tasks.withType<Test> {
     logger.lifecycle("Enabling xml reports on task ${project.name}:${name}")
     reports {
-        junitXml.isEnabled = true
+        junitXml.required.set(true)
     }
 }
 

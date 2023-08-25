@@ -89,6 +89,12 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public val text: String
 
+    /** Target for processing instructions. */
+    public val piTarget: String
+
+    /** Data for processing instructions. */
+    public val piData: String
+
     public val attributeCount: Int
 
     public fun getAttributeNamespace(index: Int): String

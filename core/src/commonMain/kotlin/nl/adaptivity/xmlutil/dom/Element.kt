@@ -48,7 +48,7 @@ public expect interface Element : Node {
 
 public expect fun Element.getNamespaceURI(): String?
 public expect fun Element.getPrefix(): String?
-public expect fun Element.getLocalName(): String
+public expect fun Element.getLocalName(): String?
 public expect fun Element.getTagName(): String
 public expect fun Element.getAttributes(): NamedNodeMap
 
@@ -57,7 +57,7 @@ public inline val Element.namespaceURI: String? get(): String? = getNamespaceURI
 
 public inline val Element.prefix: String? get(): String? = getPrefix()
 
-public inline val Element.localName: String get(): String = getLocalName()
+public inline val Element.localName: String get(): String = getLocalName() ?: tagName
 
 public inline val Element.tagName: String get(): String = getTagName()
 

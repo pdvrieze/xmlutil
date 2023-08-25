@@ -118,6 +118,9 @@ public interface XmlWriter : Closeable {
 
     public fun processingInstruction(text: String)
 
+    public fun processingInstruction(target: String, data: String): Unit =
+        processingInstruction("$target $data")
+
     public fun ignorableWhitespace(text: String)
 
     public fun attribute(namespace: String?, name: String, prefix: String?, value: String)
@@ -194,9 +197,16 @@ public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
             }
             run {
                 for (i in reader.attributeIndices) {
+                    val attrPrefix = reader.getAttributePrefix(i)
+                    val namespace = if(attrPrefix=="") "" else reader.getAttributeNamespace(i)
+                    val prefix = when(namespace) {
+                        "" -> ""
+                        namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
+                        else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                    }
                     attribute(
-                        reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
-                        null, reader.getAttributeValue(i)
+                        namespace, reader.getAttributeLocalName(i),
+                        prefix, reader.getAttributeValue(i)
                     )
                 }
             }
@@ -216,7 +226,7 @@ public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
         EventType.END_DOCUMENT -> endDocument()
         EventType.ENTITY_REF -> entityRef(reader.text)
         EventType.IGNORABLE_WHITESPACE -> ignorableWhitespace(reader.text)
-        EventType.PROCESSING_INSTRUCTION -> processingInstruction(reader.text)
+        EventType.PROCESSING_INSTRUCTION -> processingInstruction(reader.piTarget, reader.piData)
     }
 }
 
@@ -247,7 +257,7 @@ public fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence
  */
 @JvmOverloads
 public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? = null) {
-    if (nsUri == null) {
+    if (nsUri == null || nsUri == XMLConstants.XML_NS_URI || nsUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
         val namespace = namespaceContext.getNamespaceURI(prefix ?: DEFAULT_NS_PREFIX) ?: NULL_NS_URI
         startTag(namespace, localName, prefix)
     } else {
@@ -470,6 +480,9 @@ public fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, S
 private class SubstreamFilterWriter(delegate: XmlWriter) : XmlDelegatingWriter(delegate) {
 
     override fun processingInstruction(text: String) { /* ignore */
+    }
+
+    override fun processingInstruction(target: String, data: String) { /* ignore */
     }
 
     override fun endDocument() { /* ignore */

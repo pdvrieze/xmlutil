@@ -85,7 +85,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 else -> {
                 } // ignore
             }
-            type = if (hasNext()) next() else null
+            type = if (hasNext()) next() else break
         }
 
         if (missingNamespaces[""] == "") missingNamespaces.remove("")

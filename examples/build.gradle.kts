@@ -33,41 +33,9 @@ base {
     archivesName.set("examples")
 }
 
-val serializationVersion: String by project
-
-val kotlin_version: String get() = libs.versions.kotlin.get()
-
 val autoModuleName = "net.devrieze.serialexamples"
-
-java {
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-kotlin {
-    sourceSets.all {
-        languageSettings {
-            optIn("kotlin.RequiresOptIn")
-        }
-    }
-    target {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-        }
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
-    }
-}
 
 dependencies {
     implementation(project(":serialization"))
     implementation(project(":serialutil"))
-}
-
-idea {
-    module {
-        name = "xmlutil-examples"
-    }
 }

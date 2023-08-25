@@ -14,6 +14,7 @@ logback-classic = { module = "ch.qos.logback:logak-ccblassic", version.ref = "lo
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml-kxml2" }
 
+
 ktor-serialization = { module = "io.ktor:ktor-serialization", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
@@ -24,6 +25,7 @@ junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref
 
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
 
 [plugins]
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }

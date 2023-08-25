@@ -48,7 +48,7 @@ jobs:
                     distribution: 'adopt'
             -   id: cache-gradle-windows
                 name: Set up gradle
-                uses: gradle/gradle-build-action@v2.3.3
+                uses: gradle/gradle-build-action@v2.4.2
             -   name: Check (macos / windows)
                 if: matrix.os != 'ubuntu-latest'
                 run: ./gradlew nativeTest --stacktrace

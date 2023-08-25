@@ -67,7 +67,11 @@ public actual object XmlStreaming {
     }*/
 
     public actual fun newReader(input: CharSequence): XmlReader {
-        return DomReader(DOMParser().parseFromString(input.toString(), "text/xml") as nl.adaptivity.xmlutil.dom.Node)
+        val str = when { // Ignore initial BOM (it parses incorrectly without exception)
+            input.get(0) == '\ufeff' -> input.subSequence(1, input.length)
+            else -> input
+        }.toString()
+        return DomReader(DOMParser().parseFromString(str, "text/xml") as nl.adaptivity.xmlutil.dom.Node)
     }
 
     public actual fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)

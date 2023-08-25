@@ -128,7 +128,13 @@ public class KtXmlWriter(
         }
 
         val c = codepoint
-        val ch = if (codepoint <= 0xD7ffu) Char(codepoint.toUShort()) else Char(0x0u)
+        val ch = when (codepoint) {
+            0x9u, 0xAu, 0xDu, in (0x20u..0xd7ffu), in (0xe000u .. 0xfffdu)
+            -> Char(codepoint.toUShort())
+
+            else -> Char(0x0u)
+        }
+
         when {
             c == 0u -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
             ch == '&' -> append("&amp;")
@@ -276,6 +282,16 @@ public class KtXmlWriter(
         triggerStartDocument()
         writer.append("<?")
         writer.append(text)
+        writer.append("?>")
+    }
+
+    override fun processingInstruction(target: String, data: String) {
+        finishPartialStartTag(false)
+        writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
+        triggerStartDocument()
+        writer.append("<?")
+        writer.append(target)
+        if(data.isNotEmpty()) { writer.append(' ').append(data) }
         writer.append("?>")
     }
 
