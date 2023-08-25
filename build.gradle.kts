@@ -22,22 +22,24 @@ import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.envAndroid
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.Companion
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.targets
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
 plugins {
-    id(libs.plugins.kotlinMultiplatform.get().pluginId)/* version "1.7.0"*/ apply false
+    id(libs.plugins.kotlinMultiplatform.get().pluginId) apply false
+//    kotlin("multiplatform")/* version "1.7.0"*/ //apply false
     idea
 //    kotlin("multiplatform") apply false
     `maven-publish`
@@ -71,6 +73,7 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
+        maven { url = uri("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")}
         google()
     }
 

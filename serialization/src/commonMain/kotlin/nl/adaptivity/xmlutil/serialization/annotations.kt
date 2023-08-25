@@ -101,6 +101,13 @@ public annotation class XmlElement(val value: Boolean = true)
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlValue(val value: Boolean = true)
 
+/**
+ * Annotation to mark the value as an ID attribute. This implies that the element is an attribute.
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class XmlId()
+
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 public annotation class XmlIgnoreWhitespace(val value: Boolean = true)

@@ -50,7 +50,7 @@ val moduleName = "io.github.pdvrieze.testutil"
 kotlin {
     targets {
         jvm()
-        js(BOTH) {
+        js {
             browser()
             nodejs()
             compilations.all {
@@ -65,7 +65,12 @@ kotlin {
                 }
             }
         }
-
+        if (isWasmSupported) {
+            wasm {
+                nodejs()
+                browser()
+            }
+        }
     }
 
     @Suppress("UNUSED_VARIABLE")

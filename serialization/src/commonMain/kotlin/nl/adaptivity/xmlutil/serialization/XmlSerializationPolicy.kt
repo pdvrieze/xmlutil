@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
@@ -39,6 +40,11 @@ public interface XmlSerializationPolicy {
 
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
+
+    public val isStrictNames: Boolean get() = false
+
+    @ExperimentalXmlUtilApi
+    public val verifyElementOrder: Boolean get() = false
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
@@ -97,8 +103,15 @@ public interface XmlSerializationPolicy {
 
     public data class DeclaredNameInfo(
         val serialName: String,
-        val annotatedName: QName?
-    )
+        val annotatedName: QName?,
+        val isDefaultNamespace: Boolean/* = false*/
+    ) {
+        internal constructor(serialName: String) : this(serialName, null, false)
+
+        init {
+            check(!(isDefaultNamespace && annotatedName == null)) { "Default namespace requires there to be an annotated name" }
+        }
+    }
 
     public data class ActualNameInfo(
         val serialName: String,
@@ -190,13 +203,13 @@ public interface XmlSerializationPolicy {
 
     /** Determine the name of map keys for a given map type */
     public fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo =
-        DeclaredNameInfo("key", null) // minimal default for implementations.
+        DeclaredNameInfo("key") // minimal default for implementations.
 
     /**
      * Determine the name of the values for a given map type
      */
     public fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo =
-        DeclaredNameInfo("value", null) // minimal default for implementations.
+        DeclaredNameInfo("value") // minimal default for implementations.
 
     /**
      * Determine the name to use for the map element (only used when a map entry is wrapped)
@@ -222,7 +235,8 @@ public interface XmlSerializationPolicy {
      * first element.
      */
     @ExperimentalXmlUtilApi
-    public fun attributeListDelimiters(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Array<String> = arrayOf(" ", "\n", "\t", "\r")
+    public fun attributeListDelimiters(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Array<String> =
+        arrayOf(" ", "\n", "\t", "\r")
 
     public enum class XmlEncodeDefault {
         ALWAYS, ANNOTATED, NEVER
@@ -236,13 +250,18 @@ public interface XmlSerializationPolicy {
          * correct child).
          */
         @ExperimentalXmlUtilApi
-        public fun recoverNullNamespaceUse(inputKind: InputKind, descriptor: XmlDescriptor, name: QName?): List<XML.ParsedData<*>>? {
+        public fun recoverNullNamespaceUse(
+            inputKind: InputKind,
+            descriptor: XmlDescriptor,
+            name: QName?
+        ): List<XML.ParsedData<*>>? {
             if (name != null) {
                 if (name.namespaceURI == "") {
                     for (idx in 0 until descriptor.elementsCount) {
                         val candidate = descriptor.getElementDescriptor(idx)
                         if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
-                            candidate.tagName.localPart == name.getLocalPart()) {
+                            candidate.tagName.localPart == name.getLocalPart()
+                        ) {
                             return listOf(XML.ParsedData(idx, Unit, true))
                         }
                     }
@@ -250,7 +269,8 @@ public interface XmlSerializationPolicy {
                     for (idx in 0 until descriptor.elementsCount) {
                         val candidate = descriptor.getElementDescriptor(idx)
                         if (inputKind.mapsTo(candidate.effectiveOutputKind) &&
-                            candidate.tagName.isEquivalent(QName(name.localPart))) {
+                            candidate.tagName.isEquivalent(QName(name.localPart))
+                        ) {
                             return listOf(XML.ParsedData(idx, Unit, true))
                         }
                     }
@@ -276,27 +296,44 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  *                     but the function can silently ignore it as well.
  */
 public open class DefaultXmlSerializationPolicy
-@ExperimentalXmlUtilApi constructor(
+private constructor(
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean = false,
     public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
     public val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
     public val typeDiscriminatorName: QName? = null,
     public val throwOnRepeatedElement: Boolean = false,
+    public override val verifyElementOrder: Boolean = false,
+    public override val isStrictNames: Boolean,
 ) : XmlSerializationPolicy {
 
+    @Deprecated("Use builder")
+    @ExperimentalXmlUtilApi
+    public constructor(
+        pedantic: Boolean,
+        autoPolymorphic: Boolean = false,
+        encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
+        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+        typeDiscriminatorName: QName? = null,
+        throwOnRepeatedElement: Boolean = false,
+        verifyElementOrder: Boolean = false,
+    ) : this(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName, throwOnRepeatedElement, verifyElementOrder, false)
+
+    @Deprecated("Use builder")
     @ExperimentalXmlUtilApi
     public constructor(
         pedantic: Boolean,
         typeDiscriminatorName: QName,
         encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
         unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-        throwOnRepeatedElement: Boolean = false
-    ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName)
+        throwOnRepeatedElement: Boolean = false,
+        verifyElementOrder: Boolean = false,
+    ) : this(pedantic, false, encodeDefault, unknownChildHandler, typeDiscriminatorName, throwOnRepeatedElement, verifyElementOrder)
 
     /**
      * Stable constructor that doesn't use experimental api.
      */
+    @Deprecated("Use builder")
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(
         pedantic: Boolean,
@@ -332,7 +369,7 @@ public open class DefaultXmlSerializationPolicy
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
-        autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
+        autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
         unknownChildHandler = original?.let { orig -> // If there is an original, get from it
             (orig as? DefaultXmlSerializationPolicy)?.unknownChildHandler // take the existing one if present
@@ -341,7 +378,9 @@ public open class DefaultXmlSerializationPolicy
                 }
         } ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER, // otherwise the default
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
-        throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false
+        throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
+        verifyElementOrder = original?.verifyElementOrder ?: false,
+        isStrictNames = original?.isStrictNames ?: false
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -351,7 +390,9 @@ public open class DefaultXmlSerializationPolicy
         encodeDefault = builder.encodeDefault,
         unknownChildHandler = builder.unknownChildHandler,
         typeDiscriminatorName = builder.typeDiscriminatorName,
-        throwOnRepeatedElement = builder.throwOnRepeatedElement
+        throwOnRepeatedElement = builder.throwOnRepeatedElement,
+        verifyElementOrder = builder.verifyElementOrder,
+        isStrictNames = builder.isStrictAttributeNames,
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -495,9 +536,14 @@ public open class DefaultXmlSerializationPolicy
         val parentSerialKind = tagParent.descriptor?.serialKind
 
         return when {
+            outputKind == OutputKind.Attribute -> when {
+                useName.isDefaultNamespace -> QName(useName.annotatedName?.getLocalPart() ?: useName.serialName)
+                useName.annotatedName != null -> useName.annotatedName
+                else -> QName(useName.serialName)
+            } // Use non-prefix attributes by default
+
             useName.annotatedName != null -> useName.annotatedName
 
-            outputKind == OutputKind.Attribute -> QName(useName.serialName) // Use non-prefix attributes by default
 
             serialKind is PrimitiveKind ||
                     serialKind == StructureKind.MAP ||
@@ -556,7 +602,10 @@ public open class DefaultXmlSerializationPolicy
     ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
             "javax.xml.namespace.QName?",
-            "javax.xml.namespace.QName" -> XmlQNameSerializer
+            "javax.xml.namespace.QName" -> when {
+                serializerParent.elementSerialDescriptor.isNullable -> XmlQNameSerializer.nullable
+                else -> XmlQNameSerializer
+            }
 
             else -> null
         }
@@ -574,8 +623,9 @@ public open class DefaultXmlSerializationPolicy
                 parentDescriptor.getElementName(it)
             }
 
-        fun String.toChildIndex(): Int {
-            return nameToIdx[this]
+        fun String.toChildIndex(): Int = when (this) {
+            "*" -> XmlOrderConstraint.OTHERS
+            else -> nameToIdx[this]
                 ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
@@ -652,12 +702,13 @@ public open class DefaultXmlSerializationPolicy
     }
 
     override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {
-        return DeclaredNameInfo("key", null)
+        return DeclaredNameInfo("key")
     }
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
-        val childrenName = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
-        return DeclaredNameInfo("value", childrenName)
+        val childAnnotation = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()
+        val childrenName = childAnnotation?.toQName()
+        return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
 
     override fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName {
@@ -745,6 +796,8 @@ public open class DefaultXmlSerializationPolicy
         public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
         public var typeDiscriminatorName: QName? = null,
         public var throwOnRepeatedElement: Boolean = false,
+        public var verifyElementOrder: Boolean = false,
+        public var isStrictAttributeNames: Boolean = false,
     ) {
         internal constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,
@@ -752,7 +805,9 @@ public open class DefaultXmlSerializationPolicy
             encodeDefault = policy.encodeDefault,
             unknownChildHandler = policy.unknownChildHandler,
             typeDiscriminatorName = policy.typeDiscriminatorName,
-            throwOnRepeatedElement = policy.throwOnRepeatedElement
+            throwOnRepeatedElement = policy.throwOnRepeatedElement,
+            verifyElementOrder = policy.verifyElementOrder,
+            isStrictAttributeNames = policy.isStrictNames,
         )
 
         public fun ignoreUnknownChildren() {

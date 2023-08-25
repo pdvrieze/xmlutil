@@ -29,6 +29,7 @@ import org.gradle.kotlin.dsl.getByName
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -105,22 +106,21 @@ fun Project.addNativeTargets() {
 
                     if (nativeState != NativeState.HOST || host == Host.Macos) {
                         macosX64 { addSourceSets() }
+                        macosArm64 { addSourceSets() }
                         iosArm64 { addSourceSets() }
-                        iosArm32 { addSourceSets() }
+                        iosSimulatorArm64 { addSourceSets() }
                         iosX64 { addSourceSets() }
+                        iosArm32 { addSourceSets() }
 
                         watchosX86 { addSourceSets() }
+                        watchosSimulatorArm64() { addSourceSets() }
                         watchosX64 { addSourceSets() }
                         watchosArm32 { addSourceSets() }
                         watchosArm64 { addSourceSets() }
 
+                        tvosSimulatorArm64 { addSourceSets() }
                         tvosArm64 { addSourceSets() }
                         tvosX64 { addSourceSets() }
-
-                        addTarget("iosSimulatorArm64")
-                        addTarget("watchosSimulatorArm64")
-                        addTarget("tvosSimulatorArm64")
-                        addTarget("macosArm64")
                     }
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
@@ -155,3 +155,5 @@ private fun KotlinMultiplatformExtension.targets(configure: Action<Any>): Unit =
 
 private fun KotlinMultiplatformExtension.sourceSets(configure: Action<org.gradle.api.NamedDomainObjectContainer<KotlinSourceSet>>): Unit =
     (this as ExtensionAware).extensions.configure("sourceSets", configure)
+
+val Project.isWasmSupported: Boolean get() = extraProperties.get("xmlutil.wasmEnabled")?.toString()?.toLowerCase() == "true"

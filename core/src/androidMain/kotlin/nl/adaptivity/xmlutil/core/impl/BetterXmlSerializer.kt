@@ -92,8 +92,8 @@ public class BetterXmlSerializer : XmlSerializer {
     @Throws(IOException::class)
     private fun writeEscaped(s: String, quot: Int) {
 
-        loop@ for (i in 0 until s.length) {
-            when (val c = s[i]) {
+        loop@ for (c in s) {
+            when (c) {
                 '&' -> writer.write("&amp;")
                 '>' -> writer.write("&gt;")
                 '<' -> writer.write("&lt;")

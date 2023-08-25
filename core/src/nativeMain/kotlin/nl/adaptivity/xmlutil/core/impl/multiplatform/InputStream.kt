@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CPointed
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.posix.size_t
 
 public actual abstract class InputStream : Closeable {
@@ -47,5 +48,6 @@ public actual abstract class InputStream : Closeable {
 
     public actual abstract fun read(): Int
 
+    @ExperimentalForeignApi
     public abstract fun <T : CPointed> read(buffer: CArrayPointer<T>, size: size_t, bufferSize: size_t): size_t
 }

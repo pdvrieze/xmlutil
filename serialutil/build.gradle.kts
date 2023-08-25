@@ -48,7 +48,7 @@ kotlin {
     targets {
         jvm()
         jvm("android")
-        js(BOTH) {
+        js {
             browser()
             nodejs()
             compilations.all {

@@ -121,7 +121,6 @@ fun Project.doPublish(
         description = "Task to publish all native artefacts only"
     }
 
-    val ghOs = System.getenv("RUNNER_OS")?.toLowerCase()
     tasks.withType<PublishToMavenRepository> {
         if (isEnabled) {
             val doPublish = arrayOf("publishKotlinMultiplatform", "publishJs", "publishJvm", "publishAndroid").none { "${it}Publication" in name }

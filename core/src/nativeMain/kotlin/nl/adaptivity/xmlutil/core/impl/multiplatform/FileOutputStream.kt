@@ -18,13 +18,13 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalForeignApi::class)
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import platform.posix.*
 
-@OptIn(ExperimentalUnsignedTypes::class)
 @ExperimentalXmlUtilApi
 public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream() {
 
@@ -114,4 +114,4 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
     }
 }
 
-internal val SIZE0: size_t = 0.convert<size_t>()
+internal val SIZE0: size_t = 0u.convert<size_t>()

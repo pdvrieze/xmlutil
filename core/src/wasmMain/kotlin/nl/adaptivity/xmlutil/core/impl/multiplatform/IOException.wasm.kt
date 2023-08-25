@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,23 +18,14 @@
  * under the License.
  */
 
-@file:Suppress("PropertyName")
+package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-plugins {
-    `kotlin-dsl`
-}
+public actual open class IOException : Exception {
+    public actual constructor() : super()
 
-java {
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+    public actual constructor(message: String?) : super(message)
 
-dependencies {
-    implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
-}
+    public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
 
-repositories {
-    maven { url = file("mavenBundled").toURI() }
-    mavenLocal()
-    mavenCentral()
+    public actual constructor(cause: Throwable?) : super(cause)
 }

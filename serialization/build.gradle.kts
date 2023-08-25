@@ -73,7 +73,7 @@ kotlin {
 
         }
         jvm("android")
-        js(BOTH) {
+        js {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -248,10 +248,6 @@ configureDokka(myModuleVersion = xmlutil_serial_version)
 tasks.register("cleanTest") {
     group = "verification"
     dependsOn(tasks.named("cleanAllTests"))
-}
-
-tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
-    filter.excludeTestsMatching("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 }
 
 tasks.withType<Test> {

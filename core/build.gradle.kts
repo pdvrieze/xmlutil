@@ -20,9 +20,7 @@
 
 import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -106,7 +104,7 @@ kotlin {
                 }
             }
         }
-        js(BOTH) {
+        js {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -117,6 +115,18 @@ kotlin {
                     metaInfo = true
                     moduleKind = "umd"
                     main = "call"
+                }
+            }
+        }
+        if (isWasmSupported) {
+            wasm {
+                nodejs()
+                browser()
+                compilations.all {
+                    kotlinOptions {
+                        sourceMap = true
+                        verbose = true
+                    }
                 }
             }
         }
@@ -148,7 +158,7 @@ kotlin {
         }
 
         val javaShared by creating {
-            dependsOn(commonDom)
+            dependsOn(commonMain)
         }
 
         val jvmMain by getting {
@@ -190,7 +200,6 @@ kotlin {
         }
 
         val jsMain by getting {
-            dependsOn(commonDom)
         }
 
         val jsTest by getting {
@@ -207,6 +216,13 @@ kotlin {
         val nativeTest by creating {
             dependencies {
                 implementation(kotlin("test"))
+            }
+        }
+        if (isWasmSupported) {
+            val wasmMain by getting {
+                dependsOn(commonDom)
+                dependencies {
+                }
             }
         }
     }
