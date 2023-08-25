@@ -7,7 +7,7 @@ dokka = "1.8.20"
 binaryValidator = "0.13.2"
 woodstox = "6.5.1"
 kxml-kxml2 = "2.3.0"
-logakccblassic = "1.4.11"
+logakccblassic = "1.4.7"
 
 [libraries]
 logback-classic = { module = "ch.qos.logback:logak-ccblassic", version.ref = "logakccblassic" }
