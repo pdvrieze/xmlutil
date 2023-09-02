@@ -380,14 +380,11 @@ sealed class FlattenedGroup(
                 minValues[matchIdx] += (p.minOccurs * minOccurs)
             }
 
-            /*
-                        for (i in base.particles.indices) { // if consumed (maxValues>0) it must be within the range
-                            if (maxValues[i] > VAllNNI.ZERO &&
-                                !(minValues[i] == VAllNNI.ZERO && base.minOccurs == VAllNNI.ZERO) &&
-                                minValues[i] < base.particles[i].minOccurs
-                            ) return false
-                        }
-            */
+            for (i in base.particles.indices) { // if consumed (and therefore maxValues>0) it must be within the range
+                if (maxValues[i] > VAllNNI.ZERO) {
+                    if (! (base.particles[i].range*base.range).contains(minValues[i]..maxValues[i])) return false
+                }
+            }
 
             return true
         }
