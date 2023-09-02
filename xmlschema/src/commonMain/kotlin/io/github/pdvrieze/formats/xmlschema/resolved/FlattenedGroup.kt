@@ -140,7 +140,7 @@ sealed class FlattenedGroup(
             return particles.asSequence()
                 .map { it.effectiveTotalRange() }
                 .reduce { l, r -> l + r }
-                .times(range)
+                .let { it.start * range.start..it.endInclusive * range.endInclusive }
         }
 
         override fun startingTerms(): List<Term> {
@@ -217,8 +217,8 @@ sealed class FlattenedGroup(
             return All(SINGLERANGE, particles)
         }
 
-        override fun times(range: AllNNIRange): All {
-            return All((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
+        override fun times(range: AllNNIRange): All? {
+            return this.range.times(range)?.let { All(it, particles) }
         }
 
         override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
@@ -245,7 +245,7 @@ sealed class FlattenedGroup(
                 .map { it.effectiveTotalRange() }
                 .reduce { l, r ->
                     AllNNIRange(minOf(l.start, r.start), maxOf(l.endInclusive, r.endInclusive))
-                }.times(range)
+                }.let { it.start * range.start..it.endInclusive * range.endInclusive }
         }
 
         override fun isRestrictedBy(
@@ -301,8 +301,8 @@ sealed class FlattenedGroup(
             return Choice(SINGLERANGE, particles)
         }
 
-        override fun times(range: AllNNIRange): Choice {
-            return Choice((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
+        override fun times(range: AllNNIRange): Choice? {
+            return (this.range * range)?.let { Choice(it, particles) }
         }
 
         override fun toString(): String =
@@ -318,7 +318,7 @@ sealed class FlattenedGroup(
             return particles.asSequence()
                 .map { it.effectiveTotalRange() }
                 .reduce { l, r -> l + r }
-                .times(range)
+                .let { it.start * range.start..it.endInclusive * range.endInclusive }
         }
 
         override fun startingTerms(): List<Term> {
@@ -382,7 +382,8 @@ sealed class FlattenedGroup(
 
             for (i in base.particles.indices) { // if consumed (and therefore maxValues>0) it must be within the range
                 if (maxValues[i] > VAllNNI.ZERO) {
-                    if (! (base.particles[i].range*base.range).contains(minValues[i]..maxValues[i])) return false
+                    val collapsedRange = base.particles[i].range * base.range
+                    if (collapsedRange?.contains(minValues[i]..maxValues[i]) != true) return false
                 }
             }
 
@@ -409,8 +410,8 @@ sealed class FlattenedGroup(
             return Sequence(SINGLERANGE, particles)
         }
 
-        override fun times(range: AllNNIRange): Sequence {
-            return Sequence((minOccurs * range.start)..(maxOccurs * range.endInclusive), particles)
+        override fun times(range: AllNNIRange): Sequence? {
+            return (this.range * range)?.let { Sequence(it, particles) }
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
@@ -525,7 +526,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     open fun restrictsSequence(base: Sequence, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean =
         false
 
-    abstract operator fun times(range: AllNNIRange): FlattenedParticle
+    abstract operator fun times(range: AllNNIRange): FlattenedParticle?
 
     sealed class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
@@ -596,8 +597,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
         override fun single(): Element = Element(SINGLERANGE, term, true)
 
-        override fun times(range: AllNNIRange): Element {
-            return Element((minOccurs * range.start)..(maxOccurs * range.endInclusive), term, true)
+        override fun times(range: AllNNIRange): Element? {
+            return (this.range * range)?.let { Element(it, term, true) }
         }
 
         override fun toString(): String = range.toPostfix(term.mdlQName.toString())
@@ -640,8 +641,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
         override fun single(): Wildcard = Wildcard(SINGLERANGE, term)
 
-        override fun times(range: AllNNIRange): Wildcard {
-            return Wildcard((minOccurs * range.start)..(maxOccurs * range.endInclusive), term)
+        override fun times(range: AllNNIRange): Wildcard? {
+            return (this.range * range)?.let { Wildcard(it, term) }
         }
 
         override fun toString(): String = range.toPostfix("<${term.mdlNamespaceConstraint}>")
