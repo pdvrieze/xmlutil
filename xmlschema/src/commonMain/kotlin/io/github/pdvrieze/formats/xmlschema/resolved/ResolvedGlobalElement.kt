@@ -135,7 +135,7 @@ class ResolvedGlobalElement(
             val elems = fullSubstitutionGroup().map {
                 FlattenedParticle.Element(FlattenedParticle.SINGLERANGE, it, true)
             }
-            FlattenedGroup.Choice(range, elems)
+            FlattenedGroup.Choice(range, elems, schema.version)
         }
 
         else -> super.flatten(range, typeContext, schema)
