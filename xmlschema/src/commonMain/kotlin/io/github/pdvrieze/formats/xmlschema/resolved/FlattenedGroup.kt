@@ -462,7 +462,7 @@ sealed class FlattenedGroup(
                 if (maxOccurs > VAllNNI.ONE) {
                     return Sequence(SINGLERANGE, listOf(this)).removeFromSequence(base, context, schema)
                 }
-                if (minOccurs == VAllNNI.ONE && base.minOccurs == VAllNNI.ZERO) return null
+                if (minOccurs == VAllNNI.ZERO && base.minOccurs == VAllNNI.ONE) return null
                 val baseIt = base.particles.iterator()
                 var pending: FlattenedParticle? = null
                 for (p in particles) {
@@ -482,7 +482,7 @@ sealed class FlattenedGroup(
                 val newParticles = mutableListOf<FlattenedParticle>()
                 if (pending != null) newParticles.add(pending)
 
-                while(baseIt.hasNext()) newParticles.add(baseIt.next())
+                while (baseIt.hasNext()) newParticles.add(baseIt.next())
                 return when (newParticles.size) {
                     0 -> EMPTY
                     1 -> newParticles.single()
@@ -870,6 +870,17 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             return reference.removeFromWildcard(this, context, schema)
+        }
+
+        override fun removeFromWildcard(
+            reference: Wildcard,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            if (!reference.range.contains(range)) return null
+            if (!term.mdlNamespaceConstraint.isSubsetOf(reference.term.mdlNamespaceConstraint)) return null
+            if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null
+            return reference - range
         }
 
         override fun single(): Wildcard = Wildcard(SINGLERANGE, term)
