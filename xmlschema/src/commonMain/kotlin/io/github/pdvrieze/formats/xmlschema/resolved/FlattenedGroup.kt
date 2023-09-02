@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.All
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Choice
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Sequence
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.VALIDATE_PEDANTIC
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -61,6 +60,15 @@ sealed class FlattenedGroup(
         base: FlattenedGroup,
         context: ResolvedComplexType,
         schema: ResolvedSchemaLike
+    ): Boolean = when (schema.version) {
+        ResolvedSchema.Version.V1_0 -> restrictsRecurse10(base, context, schema)
+        else -> restrictsRecurse11(base, context, schema)
+    }
+
+    private fun restrictsRecurse10(
+        base: FlattenedGroup,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
     ): Boolean {
         // 1
         if (!base.range.contains(range)) return false
@@ -69,7 +77,37 @@ sealed class FlattenedGroup(
 
         for (p in particles) {
             // particles size should always be more than 1
-            if (schema.version == ResolvedSchema.Version.V1_1 && p is Choice && p.particles.size > 1) {
+            while (true) {
+                if (!baseIt.hasNext()) return false
+                val basePart = baseIt.next()
+
+                // 2.1
+                if (p.restricts(basePart, context, schema)) break
+
+                // otherwise skip 2.2
+                if (!basePart.isEmptiable) return false
+            }
+        }
+        while (baseIt.hasNext()) {
+            if (!baseIt.next().isEmptiable) return false
+        }
+
+        return true
+    }
+
+    private fun restrictsRecurse11(
+        base: FlattenedGroup,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): Boolean {
+        // 1
+        if (!base.range.contains(range)) return false
+
+        val baseIt = base.particles.iterator()
+
+        for (p in particles) {
+            // particles size should always be more than 1
+            if (p is Choice && p.particles.size > 1) {
                 val buffer = mutableListOf<FlattenedParticle>()
                 for (o in p.particles) {
                     val matchIdx = buffer.indexOfFirst { o.restricts(it, context, schema) }
@@ -80,13 +118,14 @@ sealed class FlattenedGroup(
                             if (!baseIt.hasNext()) return false
                             val c = baseIt.next()
 
-                            if (!o.restricts(c, context, schema)) {
+                            val subtracted = c.remove(o, context, schema)
+                            if (subtracted == null) {
                                 if (!c.isEmptiable) return false
                                 buffer.add(c)
                             } else {
+                                if (subtracted.maxOccurs> VAllNNI.ZERO) buffer.add(subtracted)
                                 break
                             }
-
                         }
 
                     }
@@ -187,7 +226,15 @@ sealed class FlattenedGroup(
             return restrictsRecurse(base, context, schema)
         }
 
-        fun removeFromAll(
+        override fun remove(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return reference.removeFromAll(this, context, schema)
+        }
+
+        override fun removeFromAll(
             base: All,
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
@@ -222,6 +269,10 @@ sealed class FlattenedGroup(
 
         override fun times(range: AllNNIRange): All? {
             return this.range.times(range)?.let { All(it, particles) }
+        }
+
+        override fun minus(range: AllNNIRange): FlattenedParticle? {
+            return this.range.minus(range)?.let { All(it, particles) }
         }
 
         override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
@@ -276,7 +327,15 @@ sealed class FlattenedGroup(
             return true
         }
 
-        fun removeFromChoice(
+        override fun remove(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return reference.removeFromChoice(this, context, schema)
+        }
+
+        override fun removeFromChoice(
             base: Choice,
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
@@ -309,6 +368,10 @@ sealed class FlattenedGroup(
 
         override fun times(range: AllNNIRange): Choice? {
             return (this.range * range)?.let { Choice(it, particles) }
+        }
+
+        override fun minus(range: AllNNIRange): FlattenedParticle? {
+            return this.range.minus(range)?.let { Choice(it, particles) }
         }
 
         override fun toString(): String =
@@ -396,6 +459,22 @@ sealed class FlattenedGroup(
             return true
         }
 
+        override fun removeFromChoice(
+            base: Choice,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            val partSize = VAllNNI.Value(particles.size.toUInt())
+            if (!base.range.contains((minOccurs * partSize)..(maxOccurs * partSize))) return null
+
+            val baseIt = base.particles.iterator()
+            // TODO deal better with repeated sequences
+            for (p in particles) {
+                if (base.particles.none { p.restricts(it, context, schema) }) return null
+            }
+            return null
+        }
+
         override fun restrictsSequence(
             base: Sequence,
             context: ResolvedComplexType,
@@ -404,7 +483,15 @@ sealed class FlattenedGroup(
             return restrictsRecurse(base, context, schema)
         }
 
-        fun removeFromSequence(
+        override fun remove(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return reference.removeFromSequence(this, context, schema)
+        }
+
+        override fun removeFromSequence(
             base: Sequence,
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
@@ -418,6 +505,10 @@ sealed class FlattenedGroup(
 
         override fun times(range: AllNNIRange): Sequence? {
             return (this.range * range)?.let { Sequence(it, particles) }
+        }
+
+        override fun minus(range: AllNNIRange): FlattenedParticle? {
+            return this.range.minus(range)?.let { Sequence(it, particles) }
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
@@ -534,6 +625,42 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     abstract operator fun times(range: AllNNIRange): FlattenedParticle?
 
+    abstract fun remove(
+        reference: FlattenedParticle,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle?
+
+    open fun removeFromElement(
+        reference: Element,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? = null
+
+    open fun removeFromWildcard(
+        reference: Wildcard,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? = null
+
+    open fun removeFromAll(
+        reference: All,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? = null
+
+    open fun removeFromChoice(
+        reference: Choice,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? = null
+
+    open fun removeFromSequence(
+        reference: Sequence,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? = null
+
     sealed class Term(range: AllNNIRange) : FlattenedParticle(range) {
         abstract val term: ResolvedBasicTerm
 
@@ -601,16 +728,76 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return Sequence(SINGLERANGE, listOf(this)).restrictsSequence(base, context, schema)
         }
 
+        override fun remove(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return reference.removeFromElement(this, context, schema)
+        }
+
+        override fun removeFromElement(
+            reference: Element,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            if (!reference.term.mdlQName.isEquivalent(term.mdlQName)) return null
+
+            if (!reference.term.subsumes(term)) return null
+
+            return reference.minus(range)
+        }
+
+        override fun removeFromWildcard(
+            reference: Wildcard,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            if (!reference.term.matches(term.mdlQName, context, schema)) return null
+
+            return reference - range
+        }
+
+        override fun removeFromAll(
+            reference: All,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return super.removeFromAll(reference, context, schema)
+        }
+
+        override fun removeFromChoice(
+            reference: Choice,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return super.removeFromChoice(reference, context, schema)
+        }
+
+        override fun removeFromSequence(
+            reference: Sequence,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return super.removeFromSequence(reference, context, schema)
+        }
+
         override fun single(): Element = Element(SINGLERANGE, term, true)
 
         override fun times(range: AllNNIRange): Element? {
             return (this.range * range)?.let { Element(it, term, true) }
         }
 
+        override fun minus(range: AllNNIRange): FlattenedParticle? {
+            return this.range.minus(range)?.let { Element(it, term, true) }
+        }
+
         override fun toString(): String = range.toPostfix(term.mdlQName.toString())
 
 
     }
+
+    abstract operator fun minus(range: AllNNIRange): FlattenedParticle?
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
 
@@ -645,10 +832,22 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return base.term === AnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
         }
 
+        override fun remove(
+            reference: FlattenedParticle,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            return reference.removeFromWildcard(this, context, schema)
+        }
+
         override fun single(): Wildcard = Wildcard(SINGLERANGE, term)
 
         override fun times(range: AllNNIRange): Wildcard? {
             return (this.range * range)?.let { Wildcard(it, term) }
+        }
+
+        override fun minus(range: AllNNIRange): FlattenedParticle? {
+            return this.range.minus(range)?.let { Wildcard(it, term) }
         }
 
         override fun toString(): String = range.toPostfix("<${term.mdlNamespaceConstraint}>")
