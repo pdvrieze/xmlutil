@@ -100,54 +100,7 @@ sealed class FlattenedGroup(
         context: ResolvedComplexType,
         schema: ResolvedSchemaLike
     ): Boolean {
-        // 1
-        if (!base.range.contains(range)) return false
-
-        val baseIt = base.particles.iterator()
-
-        for (p in particles) {
-            // particles size should always be more than 1
-            if (p is Choice && p.particles.size > 1) {
-                val buffer = mutableListOf<FlattenedParticle>()
-                for (o in p.particles) {
-                    while (true) {
-                        val matchIdx = buffer.indexOfFirst { o.restricts(it, context, schema) }
-                        val c = when {
-                            matchIdx >= 0 -> buffer.removeAt(matchIdx)
-                            buffer.any { !it.isEmptiable } -> return false // partial choice element
-                            !baseIt.hasNext() -> return false
-                            else -> baseIt.next()
-                        }
-
-                        val subtracted = c.remove(o, context, schema)
-                        if (subtracted == null) {
-                            if (!c.isEmptiable) return false
-                            buffer.add(c)
-                        } else {
-                            if (subtracted.maxOccurs > VAllNNI.ZERO) buffer.add(subtracted)
-                            break // matched this particle
-                        }
-                    }
-
-                }
-            } else {
-                while (true) {
-                    if (!baseIt.hasNext()) return false
-                    val basePart = baseIt.next()
-
-                    // 2.1
-                    if (p.restricts(basePart, context, schema)) break
-
-                    // otherwise skip 2.2
-                    if (!basePart.isEmptiable) return false
-                }
-            }
-        }
-        while (baseIt.hasNext()) {
-            if (!baseIt.next().isEmptiable) return false
-        }
-
-        return true
+        return (base.remove(this, context, schema) ?: return false).isEmptiable
     }
 
     // implements NSRecurse-CheckCardinality
@@ -495,7 +448,47 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return if (restrictsSequence(base, context, schema)) EMPTY else null
+            if (base.maxOccurs > VAllNNI.ONE) {
+                val singleReduction = single().removeFromSequence(base.single(), context, schema)
+                if (singleReduction != null && singleReduction.isEmptiable) {
+                    // The sequences "match"
+                    return base - range
+                }
+                val head = Sequence(base.minOccurs.. VAllNNI.ONE, base.particles)
+                val tail = (base - SINGLERANGE)!!
+                val reducedHead = removeFromSequence(head, context, schema) ?: return null
+                return Sequence(SINGLERANGE, listOf(reducedHead, tail))
+            } else { //base is optional or simple
+                if (maxOccurs > VAllNNI.ONE) {
+                    return Sequence(SINGLERANGE, listOf(this)).removeFromSequence(base, context, schema)
+                }
+                if (minOccurs == VAllNNI.ONE && base.minOccurs == VAllNNI.ZERO) return null
+                val baseIt = base.particles.iterator()
+                var pending: FlattenedParticle? = null
+                for (p in particles) {
+                    while(true) {
+                        val bp = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
+                        pending = null
+                        val reduced = bp.remove(p, context, schema)
+                        if (reduced == null) {
+                            if (!bp.isEmptiable) return null
+                            // emptiable, thus ignore
+                        } else {
+                            if (reduced.maxOccurs > VAllNNI.ZERO) pending = reduced
+                            break
+                        }
+                    }
+                }
+                val newParticles = mutableListOf<FlattenedParticle>()
+                if (pending != null) newParticles.add(pending)
+
+                while(baseIt.hasNext()) newParticles.add(baseIt.next())
+                return when (newParticles.size) {
+                    0 -> EMPTY
+                    1 -> newParticles.single()
+                    else -> Sequence(SINGLERANGE, newParticles)
+                }
+            }
         }
 
         override fun single(): Sequence {
@@ -770,7 +763,22 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return super.removeFromChoice(reference, context, schema)
+            val matchIdx = reference.particles.indexOfFirst { it.single().isRestrictedBy(single(), context, schema) }
+            if (matchIdx < 0) return null
+            val match = reference.particles[matchIdx]
+            return if (maxOccurs == VAllNNI.UNBOUNDED) {
+                when {
+                    match.maxOccurs == VAllNNI.UNBOUNDED -> reference - SINGLERANGE
+                    reference.maxOccurs == VAllNNI.UNBOUNDED -> FlattenedGroup.EMPTY
+                    else -> null
+                }
+            } else { // consider further options
+                when {
+                    match.range.contains(range) -> reference - SINGLERANGE
+                    match.range.isSimple -> reference - range
+                    else -> null // TODO a bit more options
+                }
+            }
         }
 
         override fun removeFromSequence(
@@ -778,7 +786,32 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            return super.removeFromSequence(reference, context, schema)
+            if (reference.maxOccurs > VAllNNI.ONE) { // handle the case that there is more than 1 iteration
+                val head = Sequence(reference.minOccurs..VAllNNI.ONE, reference.particles)
+                val tail = (reference - SINGLERANGE) ?: error("Should not happen because maxOccurs>0")
+                val trimmedHead = removeFromSequence(head, context, schema) ?: return null
+                if (trimmedHead.maxOccurs == VAllNNI.ZERO) return tail
+                return Sequence(SINGLERANGE, listOf(trimmedHead, tail))
+            }
+            val partIt = reference.particles.iterator()
+            val newParticles = mutableListOf<FlattenedParticle>()
+            while (partIt.hasNext()) {
+                val part = partIt.next()
+                val removed = part.remove(this, context, schema)
+                when {
+                    removed == null -> if (!part.isEmptiable) return null
+                    removed.maxOccurs > VAllNNI.ZERO -> {
+                        newParticles.add(removed)
+                        break
+                    }
+                }
+            }
+            while (partIt.hasNext()) {
+                newParticles.add(partIt.next())
+            } // flush remaining particles
+
+            // We consumed part of the sequence so it must occur
+            return Sequence(SINGLERANGE, newParticles)
         }
 
         override fun single(): Element = Element(SINGLERANGE, term, true)
