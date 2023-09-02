@@ -128,13 +128,16 @@ sealed class FlattenedGroup(
 
     abstract val particles: List<FlattenedParticle>
 
-    class All(range: AllNNIRange, particles: List<FlattenedParticle>) :
+    class All(range: AllNNIRange, override val particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
-        override val particles: List<FlattenedParticle> = when {
-            VALIDATE_PEDANTIC -> particles
-            else -> particles.sortedWith(particleComparator)
-        }
+        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: ResolvedSchema.Version) : this(
+            range,
+            when (version) {
+                ResolvedSchema.Version.V1_0 -> particles
+                else -> particles.sortedWith(particleComparator)
+            }
+        )
 
         override fun effectiveTotalRange(): AllNNIRange {
             return particles.asSequence()
@@ -224,13 +227,16 @@ sealed class FlattenedGroup(
         override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
     }
 
-    class Choice(range: AllNNIRange, particles: List<FlattenedParticle>) :
+    class Choice(range: AllNNIRange, override val particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
-        override val particles: List<FlattenedParticle> = when {
-            VALIDATE_PEDANTIC -> particles
-            else -> particles.sortedWith(particleComparator)
-        }
+        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: ResolvedSchema.Version) : this(
+            range,
+            when (version) {
+                ResolvedSchema.Version.V1_0 -> particles
+                else -> particles.sortedWith(particleComparator)
+            }
+        )
 
         override fun startingTerms(): List<Term> {
             return particles.flatMap { it.startingTerms() }
@@ -661,7 +667,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
             else -> {
                 val elems = term.fullSubstitutionGroup().map { Element(SINGLERANGE, it, true) }
-                Choice(range, elems)
+                Choice(range, elems, ResolvedSchema.Version.V1_1) // force 1.1 as substitution groups are not ordered
             }
         }
 

@@ -31,7 +31,11 @@ interface IResolvedChoice : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
 
-    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
+    override fun flatten(
+        range: AllNNIRange,
+        typeContext: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
@@ -64,9 +68,18 @@ interface IResolvedChoice : ResolvedModelGroup {
 
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.size == 1 -> when {
+                schema.version != ResolvedSchema.Version.V1_0 ->
+                    particles.single() * range // multiply will be null if not valid
+
+                range.isSimple -> particles.single()
+
+                else -> null
+            }
+
             particles.size == 1 && range.isSimple -> particles.single()
-            else -> FlattenedGroup.Choice(range, particles)
-        }
+            else -> null
+        } ?: FlattenedGroup.Choice(range, particles, schema.version)
     }
 
     override fun restricts(general: ResolvedModelGroup): Boolean {
