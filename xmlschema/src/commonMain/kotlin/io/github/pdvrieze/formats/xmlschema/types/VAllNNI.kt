@@ -212,12 +212,16 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         return AllNNIRange(start + other.start, endInclusive + other.endInclusive)
     }
 
-    operator fun minus(otherRange: AllNNIRange): AllNNIRange {
-        require (otherRange.start <= start) { "Integer underflow" }
-        val newStart: VAllNNI.Value = start - otherRange.start
+    operator fun minus(otherRange: AllNNIRange): AllNNIRange? {
+        if (otherRange.endInclusive > endInclusive) return null
+
+        val newStart: VAllNNI.Value = when { // out of range start is allowed
+            otherRange.start > start -> VAllNNI.ZERO
+            else -> start - otherRange.start
+        }
         val newEnd: VAllNNI = when {
-            otherRange.endInclusive>=(endInclusive + newStart) -> newStart
-            else -> otherRange.endInclusive-endInclusive
+            otherRange.endInclusive >= (endInclusive + newStart) -> newStart
+            else -> otherRange.endInclusive - endInclusive
         }
 
         return AllNNIRange(newStart, newEnd)
