@@ -472,9 +472,9 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         }
     }
 
-    val expecteds = schemaTest.expected.associateBy { it.version?.let{ ResolvedSchema.Version(it) } }
-
-    val expecteds2 = schemaTest.expected.firstOrNull{ it.version != "1.0" }
+    val expecteds = schemaTest.expected
+//        .filter { it.version != "1.0" }
+        .associateBy { it.version?.let{ ResolvedSchema.Version(it) } }
 
     for ((version, expected) in expecteds) {
         val versionLabel = if (version != null) " for version ${version}" else ""
