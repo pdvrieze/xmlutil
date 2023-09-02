@@ -57,11 +57,7 @@ interface IResolvedSequence : ResolvedModelGroup {
                 }
 
                 else -> { // 1.1
-                    val p = particles.single()
-                    when {
-                        p.minOccurs <= VAllNNI.ONE -> p * range
-                        else -> null
-                    }
+                    particles.single() * range // multiply will be null if not valid
                 }
 
             }
