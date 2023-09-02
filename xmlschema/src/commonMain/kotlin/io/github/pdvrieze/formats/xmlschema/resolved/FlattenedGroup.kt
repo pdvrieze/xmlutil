@@ -110,24 +110,23 @@ sealed class FlattenedGroup(
             if (p is Choice && p.particles.size > 1) {
                 val buffer = mutableListOf<FlattenedParticle>()
                 for (o in p.particles) {
-                    val matchIdx = buffer.indexOfFirst { o.restricts(it, context, schema) }
-                    if (matchIdx >= 0) {
-                        buffer.removeAt(matchIdx)
-                    } else {
-                        while (true) {
-                            if (!baseIt.hasNext()) return false
-                            val c = baseIt.next()
-
-                            val subtracted = c.remove(o, context, schema)
-                            if (subtracted == null) {
-                                if (!c.isEmptiable) return false
-                                buffer.add(c)
-                            } else {
-                                if (subtracted.maxOccurs> VAllNNI.ZERO) buffer.add(subtracted)
-                                break
-                            }
+                    while (true) {
+                        val matchIdx = buffer.indexOfFirst { o.restricts(it, context, schema) }
+                        val c = when {
+                            matchIdx >= 0 -> buffer.removeAt(matchIdx)
+                            buffer.any { !it.isEmptiable } -> return false // partial choice element
+                            !baseIt.hasNext() -> return false
+                            else -> baseIt.next()
                         }
 
+                        val subtracted = c.remove(o, context, schema)
+                        if (subtracted == null) {
+                            if (!c.isEmptiable) return false
+                            buffer.add(c)
+                        } else {
+                            if (subtracted.maxOccurs > VAllNNI.ZERO) buffer.add(subtracted)
+                            break // matched this particle
+                        }
                     }
 
                 }

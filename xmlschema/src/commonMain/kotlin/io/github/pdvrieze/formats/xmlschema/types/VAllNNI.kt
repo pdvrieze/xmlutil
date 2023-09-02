@@ -221,7 +221,7 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         }
         val newEnd: VAllNNI = when {
             otherRange.endInclusive >= (endInclusive + newStart) -> newStart
-            else -> otherRange.endInclusive - endInclusive
+            else -> endInclusive - otherRange.endInclusive
         }
 
         return AllNNIRange(newStart, newEnd)
