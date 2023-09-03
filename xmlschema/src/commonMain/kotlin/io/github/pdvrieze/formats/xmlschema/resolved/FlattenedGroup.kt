@@ -411,8 +411,10 @@ sealed class FlattenedGroup(
 
             for (i in base.particles.indices) { // if consumed (and therefore maxValues>0) it must be within the range
                 if (maxValues[i] > VAllNNI.ZERO) {
-                    val collapsedRange = base.particles[i].range * base.range
-                    if (collapsedRange?.contains(minValues[i]..maxValues[i]) != true) return false
+                    // This is more restrictive than needed, and can cause failures with open ranges
+//                    val collapsedRange = base.particles[i].range * base.range
+                    val collapsedRange = base.particles[i].let { (minOccurs * it.minOccurs)..(maxOccurs * it.maxOccurs) }
+                    if (!collapsedRange.contains(minValues[i]..maxValues[i])) return false
                 }
             }
 
@@ -797,13 +799,13 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                 when {
                     match.maxOccurs == VAllNNI.UNBOUNDED -> reference - SINGLERANGE
                     reference.maxOccurs == VAllNNI.UNBOUNDED -> FlattenedGroup.EMPTY
-                    else -> null
+                    else -> match.remove(this, context, schema) // perhaps inside the match it is possible
                 }
             } else { // consider further options
                 when {
                     match.range.contains(range) -> reference - SINGLERANGE
                     match.range.isSimple -> reference - range
-                    else -> null // TODO a bit more options
+                    else -> match.remove(this, context, schema) // TODO a bit more options
                 }
             }
         }
@@ -831,6 +833,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                         newParticles.add(removed)
                         break
                     }
+                    else -> break
                 }
             }
             while (partIt.hasNext()) {
@@ -838,7 +841,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             } // flush remaining particles
 
             // We consumed part of the sequence so it must occur
-            return Sequence(SINGLERANGE, newParticles)
+            return when(newParticles.size) {
+                0 -> FlattenedGroup.EMPTY
+                1 -> newParticles.single()*range
+                else  -> Sequence(SINGLERANGE, newParticles)
+            }
         }
 
         override fun single(): Element = Element(SINGLERANGE, term, true)
