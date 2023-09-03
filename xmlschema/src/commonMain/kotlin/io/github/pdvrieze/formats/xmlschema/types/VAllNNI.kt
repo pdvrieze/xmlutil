@@ -220,7 +220,7 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
             else -> start - otherRange.start
         }
         val newEnd: VAllNNI = when {
-            otherRange.endInclusive >= (endInclusive + newStart) -> newStart
+            (otherRange.endInclusive + newStart) >= endInclusive -> newStart
             else -> endInclusive - otherRange.endInclusive
         }
 
