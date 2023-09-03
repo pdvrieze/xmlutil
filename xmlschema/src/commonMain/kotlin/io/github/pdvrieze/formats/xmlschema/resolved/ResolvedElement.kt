@@ -122,8 +122,10 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         }
         mdlValueConstraint?.let {
             mdlTypeDefinition.validate(it.value)
-            check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
-                "ID types can not have fixed values"
+            if (checkHelper.version == ResolvedSchema.Version.V1_0) {
+                check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
+                    "ID types can not have fixed values"
+                }
             }
         }
         checkHelper.checkType(mdlTypeDefinition)
