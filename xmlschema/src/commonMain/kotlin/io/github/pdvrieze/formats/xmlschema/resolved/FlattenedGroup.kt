@@ -116,6 +116,14 @@ sealed class FlattenedGroup(
         return particles.all { it.single().restricts(base.single(), context, schema) }
     }
 
+    override fun removeFromWildcard(
+        reference: Wildcard,
+        context: ResolvedComplexType,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle? {
+        if (particles.any { ! it.single().restricts(reference.single(), context, schema) }) return null
+        return reference - effectiveTotalRange() // this should already cause range checking
+    }
 
     abstract val particles: List<FlattenedParticle>
 
@@ -312,15 +320,6 @@ sealed class FlattenedGroup(
             val newMax = base.maxOccurs.safeMinus(maxOccurs, newMin)
 
             return Choice(newMin..newMax, base.particles)
-        }
-
-        override fun removeFromWildcard(
-            reference: Wildcard,
-            context: ResolvedComplexType,
-            schema: ResolvedSchemaLike
-        ): FlattenedParticle? {
-            if (particles.any { ! it.single().restricts(reference.single(), context, schema) }) return null
-            return reference - effectiveTotalRange() // this should already cause range checking
         }
 
         override fun single(): Choice {
