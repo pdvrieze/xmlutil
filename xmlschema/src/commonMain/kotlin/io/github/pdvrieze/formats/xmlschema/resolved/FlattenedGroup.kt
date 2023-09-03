@@ -319,8 +319,8 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (particles.any { ! it.restricts(reference, context, schema) }) return null
-            return reference - effectiveTotalRange()
+            if (particles.any { ! it.single().restricts(reference.single(), context, schema) }) return null
+            return reference - effectiveTotalRange() // this should already cause range checking
         }
 
         override fun single(): Choice {
