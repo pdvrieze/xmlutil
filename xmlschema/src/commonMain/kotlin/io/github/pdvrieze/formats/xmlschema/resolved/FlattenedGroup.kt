@@ -314,6 +314,15 @@ sealed class FlattenedGroup(
             return Choice(newMin..newMax, base.particles)
         }
 
+        override fun removeFromWildcard(
+            reference: Wildcard,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): FlattenedParticle? {
+            if (particles.any { ! it.restricts(reference, context, schema) }) return null
+            return reference - effectiveTotalRange()
+        }
+
         override fun single(): Choice {
             return Choice(SINGLERANGE, particles)
         }
