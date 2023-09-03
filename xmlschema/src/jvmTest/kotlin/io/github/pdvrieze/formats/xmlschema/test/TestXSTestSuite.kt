@@ -468,6 +468,10 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     schemaDoc: TSSchemaDocument,
     documentation: String
 ) {
+    val defaultVersion = when(schemaTest.version) {
+        "1.0" -> ResolvedSchema.Version.V1_0
+        else -> ResolvedSchema.Version.V1_1
+    }
     val resolver = SimpleResolver(setBaseUrl)
 
     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {
@@ -481,8 +485,12 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         .associateBy { it.version?.let{ ResolvedSchema.Version(it) } }
 
     for ((version, expected) in expecteds) {
-        val versionLabel = if (version != null) " for version ${version}" else ""
-        val appliedVersion = version ?: ResolvedSchema.Version.V1_1
+        val versionLabel = when {
+            version != null -> " for version ${version}"
+            schemaTest.version != null -> " for version ${defaultVersion}"
+            else -> ""
+        }
+        val appliedVersion = version ?: defaultVersion
 
         val expectedValidity = expected.validity
         when (expectedValidity) {

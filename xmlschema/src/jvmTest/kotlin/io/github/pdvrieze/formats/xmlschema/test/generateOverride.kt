@@ -86,12 +86,12 @@ fun findOverrides(test: TSSchemaTest): OTSSchemaTest? {
     println("        Processing schema test: ${test.name}")
     val newExpected = test.expected.filter { it.exception != null || it.message != null }
     if (newExpected.isEmpty()) return null
-    return OTSSchemaTest(test.name, newExpected)
+    return OTSSchemaTest(test.name, null, newExpected)
 }
 
 fun findOverrides(test: TSInstanceTest): OTSInstanceTest? {
     println("        Processing instance test: ${test.name}")
     val newExpected = test.expected.filter { it.exception != null || it.message != null }
     if (newExpected.isEmpty()) return null
-    return OTSInstanceTest(test.name, newExpected)
+    return OTSInstanceTest(test.name, null, newExpected)
 }
