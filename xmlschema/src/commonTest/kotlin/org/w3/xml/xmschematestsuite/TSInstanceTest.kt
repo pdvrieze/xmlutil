@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("instanceTest", TS_NAMESPACE, TS_PREFIX)
-class TSInstanceTest(
+data class TSInstanceTest(
     val name: String,
     @XmlElement(true)
     val instanceDocument: TSInstanceDocument,
@@ -37,6 +37,8 @@ class TSInstanceTest(
     val expected: List<TSExpected> = emptyList(),
     @XmlElement(true)
     val current: TSCurrent? = null,
+    @XmlElement(true)
+    val annotation: TSAnnotation? = null,
     @XmlElement(true)
     val priors: List<TSPrior> = emptyList(),
     @XmlOtherAttributes

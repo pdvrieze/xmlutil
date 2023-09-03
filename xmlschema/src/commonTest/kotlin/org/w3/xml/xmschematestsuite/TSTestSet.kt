@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class TSTestSet(
     val contributor: String,
     val name: String,
+    val version : String? = null,
     @XmlElement(true)
     val annotation: TSAnnotation? = null,
     @XmlElement(true)
