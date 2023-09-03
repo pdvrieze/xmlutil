@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("schemaTest", TS_NAMESPACE, TS_PREFIX)
 data class TSSchemaTest(
     val name: String,
+    val version: String? = null,
     @XmlElement(true)
     val schemaDocuments: List<TSSchemaDocument>,
     @XmlElement(true)
