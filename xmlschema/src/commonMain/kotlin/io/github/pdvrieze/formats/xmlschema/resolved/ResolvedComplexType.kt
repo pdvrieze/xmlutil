@@ -128,11 +128,17 @@ sealed class ResolvedComplexType(
             if (baseType is ResolvedComplexType) {
                 require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
                 for ((baseName, baseUse) in baseType.mdlAttributeUses) {
-                    val derived = requireNotNull(mdlAttributeUses[baseName])  { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: $baseName not found in $mdlAttributeUses" }
+                    val derived =
+                        requireNotNull(mdlAttributeUses[baseName]) { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: $baseName not found in $mdlAttributeUses" }
                     if (baseUse.mdlRequired) {
                         require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
                     }
-                    require(baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(derived.mdlAttributeDeclaration.mdlTypeDefinition, false)) {
+                    require(
+                        baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(
+                            derived.mdlAttributeDeclaration.mdlTypeDefinition,
+                            false
+                        )
+                    ) {
                         "Types must match"
                     }
                 }
@@ -148,14 +154,22 @@ sealed class ResolvedComplexType(
                     is ResolvedSimpleContentType ->
                         when (val ct = mdlContentType) {
                             is EmptyContentType -> {
+                                require(baseType is ResolvedSimpleType || schema.version == ResolvedSchema.Version.V1_0) {
+                                    "From version 1.1 complexContent can not inherit simpleContent"
+                                }
+                                require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
+                                    "The empty string must be a valid value"
+                                }
                                 // fine for now
                             }
+
                             is ResolvedSimpleContentType -> {
                                 require(baseCType.mdlSimpleTypeDefinition == ct.mdlSimpleTypeDefinition) {
                                     "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
                                 }
 
                             }
+
                             else -> {
                                 throw IllegalArgumentException("simple base can only extend from simple content or empty")
                             }
@@ -200,7 +214,12 @@ sealed class ResolvedComplexType(
                         is ResolvedSimpleContentType -> {
                             val sb = baseContentType.mdlSimpleTypeDefinition
                             val st = contentType.mdlSimpleTypeDefinition
-                            check(st.isValidlyDerivedFrom(sb, true)) { "For derivation, simple content models must validly derive" }
+                            check(
+                                st.isValidlyDerivedFrom(
+                                    sb,
+                                    true
+                                )
+                            ) { "For derivation, simple content models must validly derive" }
                         }
 
                         is MixedContentType ->
@@ -222,13 +241,9 @@ sealed class ResolvedComplexType(
 
                 contentType is ElementOnlyContentType -> {
                     check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(
-                        contentType.restricts(
-                            baseContentType,
-                            this,
-                            schema
-                        )
-                    ) { "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}" }
+                    check(contentType.restricts(baseContentType, this, schema)) {
+                        "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
+                    }
                 }
 
                 contentType is MixedContentType -> {
@@ -389,7 +404,7 @@ sealed class ResolvedComplexType(
                     it,
                     schema,
                     hasUnqualifiedAttrs = content.derivation.attributes.any {
-                        when(it.form) {
+                        when (it.form) {
                             VFormChoice.UNQUALIFIED -> true
                             VFormChoice.QUALIFIED -> false
                             null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
@@ -613,7 +628,7 @@ sealed class ResolvedComplexType(
                     it,
                     schema,
                     hasUnqualifiedAttrs = rawPart.content.derivation.attributes.any {
-                        when(it.form) {
+                        when (it.form) {
                             VFormChoice.UNQUALIFIED -> true
                             VFormChoice.QUALIFIED -> false
                             null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
@@ -873,11 +888,14 @@ sealed class ResolvedComplexType(
                         for (a in baseType.mdlAttributeUses.values) {
                             val attrName = a.mdlAttributeDeclaration.mdlQName
 //                            require(a.mdlInheritable) { "Only inheritable attributes can be inherited ($attrName)" }
-                            if (attrName !in prohibitedAttrs) {
-                                val existingAttr = get(attrName)
-                                if (existingAttr == null) {
-                                    put(attrName, a)
-                                }
+                            require(attrName !in prohibitedAttrs) {
+                                "Extensions can not prohibit existing attributes"
+                            }
+                            val existingAttr = get(attrName)
+                            if (existingAttr == null) {
+                                put(attrName, a)
+                            } else if (schema.version == ResolvedSchema.Version.V1_1 && existingAttr is ResolvedLocalAttribute) {
+                                throw IllegalArgumentException("Local attributes can not override parent attributes in V1.1")
                             }
                         }
 
@@ -885,7 +903,18 @@ sealed class ResolvedComplexType(
                         for (a in baseType.mdlAttributeUses.values) {
                             val qName = a.mdlAttributeDeclaration.mdlQName
                             if (qName !in prohibitedAttrs) {
-                                getOrPut(qName) { a }
+                                val existing = get(qName)
+                                if (existing == null) {
+                                    put(qName, a)
+                                } else if (schema.version == ResolvedSchema.Version.V1_1 && existing is ResolvedLocalAttribute) {
+                                    val oldC = existing.mdlValueConstraint
+                                    val newC = a.mdlValueConstraint
+                                    if (oldC != null && newC != null) {
+                                        require(newC.isValidRestrictionOf(existing.mdlTypeDefinition, oldC)) {
+                                            "Overridden attributes must be valid restrictions in 1.1"
+                                        }
+                                    }
+                                }
                             }
                         }
 
