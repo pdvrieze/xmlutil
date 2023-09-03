@@ -300,7 +300,7 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
-            if (!base.range.contains(range)) return null
+            if (!base.effectiveTotalRange().contains(effectiveTotalRange())) return null
 
             val baseIt = base.particles.iterator()
 
