@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
@@ -38,6 +39,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.w3.xml.xmschematestsuite.*
+import org.w3.xml.xmschematestsuite.override.OTSSuite
 import java.net.URI
 import java.net.URL
 import kotlin.experimental.ExperimentalTypeInference
@@ -59,6 +61,8 @@ class TestXSTestSuite {
     fun testFromTestSetRef(): List<DynamicNode> {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
 
+        val override = javaClass.getResource("/override.json").readText().let { Json.decodeFromString<OTSSuite>(it) }
+
         val nodes = mutableListOf<DynamicNode>()
         suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
@@ -72,16 +76,16 @@ class TestXSTestSuite {
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
-                    val testSet = setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
+                    val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
 
                     val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
 
                     val tsName = "$folderName - ${testSet.name}"
 
-                    buildDynamicContainer("Test set $tsName") {
+                    buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
                             if (true || group.name.equals("addA005")) {
-                                dynamicContainer("Group ${group.name}") {
+                                dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
                             }
@@ -98,7 +102,7 @@ class TestXSTestSuite {
                     ts.testGroups.flatMap { tg ->
                         listOfNotNull(tg.schemaTest)
                     }.filter { schemaTest ->
-                        schemaTest.expected.firstOrNull { it.version!="1.1" }?.validity == TSValidityOutcome.VALID
+                        schemaTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID
                     }.flatMap { schemaTest ->
                         schemaTest.schemaDocuments
                     }.map { schemaDoc ->
@@ -111,7 +115,7 @@ class TestXSTestSuite {
                 val schemas: Sequence<XSSchema> = schemaUrls.asSequence().map { url ->
                     url.withXmlReader { reader ->
                         xml.decodeFromReader<XSSchema>(reader).also {
-                            if(reader.eventType != EventType.END_DOCUMENT) {
+                            if (reader.eventType != EventType.END_DOCUMENT) {
                                 var e: EventType
                                 do {
                                     e = reader.next()
@@ -195,7 +199,7 @@ class TestXSTestSuite {
         override val values: Collection<NON_TESTED>
             get() = listOf(BOTH)
 
-        override fun isEmpty(): Boolean { return false }
+        override fun isEmpty(): Boolean = false
 
         override fun get(key: String): NON_TESTED = BOTH
 
@@ -428,7 +432,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
             }
         }
     }
-    if(false && targetSchemaDoc!=null && group.instanceTests.isNotEmpty()) {
+    if (false && targetSchemaDoc != null && group.instanceTests.isNotEmpty()) {
 
         for (instanceTest in group.instanceTests) {
             addInstanceTest(setBaseUrl, instanceTest, targetSchemaDoc!!, group.documentationString())
@@ -466,7 +470,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 ) {
     val resolver = SimpleResolver(setBaseUrl)
 
-    dynamicTest("Schema document ${schemaDoc.href} exists") {
+    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {
         setBaseUrl.resolve(schemaDoc.href).toURL().openStream().use { stream ->
             assertNotNull(stream)
         }
@@ -484,7 +488,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         when (expectedValidity) {
             TSValidityOutcome.INVALID -> {
                 if (true) {
-                    dynamicTest("Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
+                    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
                         val e = assertFails(documentation) {
                             val schemaLocation = VAnyURI(schemaDoc.href)
                             val schema = resolver.readSchema(schemaLocation)
@@ -533,12 +537,13 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
             null,
             TSValidityOutcome.VALID -> {
                 val schemaLocation = VAnyURI(schemaDoc.href)
-                dynamicTest("Schema document ${schemaDoc.href} parses") {
+                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
                     val schema = resolver.readSchema(schemaLocation)
                     assertNotNull(schema)
                 }
-                dynamicTest("Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
-                    val resolvedSchema = resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), appliedVersion)
+                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
+                    val resolvedSchema =
+                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), appliedVersion)
                     resolvedSchema.check()
                     assertNotNull(resolvedSchema)
                 }
@@ -546,7 +551,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 
             TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
                 val schemaLocation = VAnyURI(schemaDoc.href)
-                dynamicTest("Schema document ${schemaDoc.href} parses") {
+                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
                     val schema = resolver.readSchema(schemaLocation)
                     assertNotNull(schema)
                 }

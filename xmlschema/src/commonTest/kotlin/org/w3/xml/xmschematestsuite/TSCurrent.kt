@@ -36,6 +36,8 @@ class TSCurrent(
     override val date: XSDate,
     @XmlElement(false)
     override val bugzilla: TSBugUriT? = null,
+    @XmlElement(true)
+    val annotation: TSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap(),
 ) : TSStatusEntryT
