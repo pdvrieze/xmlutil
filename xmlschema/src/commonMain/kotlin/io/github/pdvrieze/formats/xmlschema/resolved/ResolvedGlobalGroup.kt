@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
@@ -95,6 +96,14 @@ class ResolvedGlobalGroup(
 
     private class AllImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.All, schema: ResolvedSchemaLike) :
         ModelGroupBase(parent, rawPart, schema), IResolvedAll {
+
+        init {
+            if (schema.version== ResolvedSchema.Version.V1_0) {
+                require(rawPart.particles.all { it is XSLocalElement }) {
+                    "Schema 1.0 only allows element members for all model group schema components"
+                }
+            }
+        }
 
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)
