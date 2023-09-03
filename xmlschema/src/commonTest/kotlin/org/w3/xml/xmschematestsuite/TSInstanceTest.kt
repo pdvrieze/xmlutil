@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("instanceTest", TS_NAMESPACE, TS_PREFIX)
 data class TSInstanceTest(
     val name: String,
+    val version: String? = null,
     @XmlElement(true)
     val instanceDocument: TSInstanceDocument,
     @XmlElement(true)
