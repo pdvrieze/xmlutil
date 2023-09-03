@@ -29,9 +29,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("testGroup", TS_NAMESPACE, TS_PREFIX)
-class TSTestGroup(
+data class TSTestGroup(
     @XmlElement(true)
-    val annotation: TSAnnotation? = null,
+    val annotations: List<TSAnnotation> = emptyList(),
     @XmlElement(true)
     val documentationReferences: List<TSDocumentationReference> = emptyList(),
     @XmlElement(true)
@@ -44,8 +44,8 @@ class TSTestGroup(
 ) {
     fun documentationString(): String {
         return buildString {
-            if (annotation!=null) {
-                for (elem in annotation.elements) {
+            if (annotations.isNotEmpty()) {
+                for (elem in annotations.flatMap { it.elements }) {
                     when(elem) {
                         is TSAnnotation.Documentation -> append(elem.info.contentString)
                         else -> Unit

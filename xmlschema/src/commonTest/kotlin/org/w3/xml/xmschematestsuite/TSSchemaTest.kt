@@ -29,10 +29,12 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("schemaTest", TS_NAMESPACE, TS_PREFIX)
-class TSSchemaTest(
+data class TSSchemaTest(
     val name: String,
     @XmlElement(true)
     val schemaDocuments: List<TSSchemaDocument>,
+    @XmlElement(true)
+    val annotation: TSAnnotation? = null,
     @XmlElement(true)
     val expected: List<TSExpected> = emptyList(),
     @XmlElement(true)

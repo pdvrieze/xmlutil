@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("testSuite", TS_NAMESPACE, TS_PREFIX)
-class TSTestSuite(
+data class TSTestSuite(
     val name: String,
     val releaseDate: TSDate,
     val schemaVersion: String,
