@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -35,9 +36,11 @@ interface IResolvedAll : ResolvedModelGroup {
         // super just calls check on the particles
         for (particle in mdlParticles) {
             particle.checkParticle(checkHelper)
-            val maxOccurs = particle.mdlMaxOccurs
-            check(maxOccurs <= VAllNNI(1uL)) {
-                "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
+            if (checkHelper.version == Version.V1_0) {
+                val maxOccurs = particle.mdlMaxOccurs
+                check(maxOccurs <= VAllNNI(1uL)) {
+                    "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
+                }
             }
         }
     }
@@ -96,7 +99,7 @@ interface IResolvedAll : ResolvedModelGroup {
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
             particles.size == 1 -> when {
-                schema.version != ResolvedSchema.Version.V1_0 ->
+                schema.version != Version.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
 
                 range.isSimple -> particles.single()
