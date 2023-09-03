@@ -924,11 +924,14 @@ sealed class ResolvedComplexType(
             }
             val attributeUses = attributes.toMap()
 
-            var idAttrName: QName? = null
-            for (use in attributes.values) {
-                if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
-                    require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
-                    idAttrName = use.mdlAttributeDeclaration.mdlQName
+            if (schema.version == ResolvedSchema.Version.V1_0) {
+                // this is legal in 1.1
+                var idAttrName: QName? = null
+                for (use in attributes.values) {
+                    if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
+                        require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
+                        idAttrName = use.mdlAttributeDeclaration.mdlQName
+                    }
                 }
             }
             return attributeUses
