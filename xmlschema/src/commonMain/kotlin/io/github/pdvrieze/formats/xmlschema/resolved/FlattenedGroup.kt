@@ -426,6 +426,27 @@ sealed class FlattenedGroup(
             context: ResolvedComplexType,
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
+            // try to match the sequence to a single element in the sequence
+            if (base.maxOccurs> VAllNNI.ONE) {
+                val reduced = base.particles.asSequence().mapNotNull { it.remove(this, context, schema) }.firstOrNull()
+                if (reduced != null) {
+                    val tail = base - SINGLERANGE
+                    return when {
+                        reduced.maxOccurs == VAllNNI.ZERO -> return tail ?: EMPTY
+                        tail == null -> reduced
+                        else -> Sequence(SINGLERANGE, listOf(reduced, tail))
+                    }
+                }
+            } else {
+                val reduced = base.particles.asSequence().mapNotNull {
+                    it.remove(this, context, schema)
+                }.firstOrNull()
+                if (reduced != null) return reduced
+            }
+
+            // remove the sequence in a more complex choice (using the code from removeFromSequence)
+            return removeFromSequence(Sequence(SINGLERANGE, listOf(base)), context, schema)
+
             val partSize = VAllNNI.Value(particles.size.toUInt())
             if (!base.range.contains((minOccurs * partSize)..(maxOccurs * partSize))) return null
 
@@ -472,7 +493,7 @@ sealed class FlattenedGroup(
                 if (maxOccurs > VAllNNI.ONE) {
                     return Sequence(SINGLERANGE, listOf(this)).removeFromSequence(base, context, schema)
                 }
-                if (minOccurs == VAllNNI.ZERO && base.minOccurs == VAllNNI.ONE) return null
+                if (minOccurs == VAllNNI.ZERO && base.effectiveTotalRange().start != VAllNNI.ZERO) return null
                 val baseIt = base.particles.iterator()
                 var pending: FlattenedParticle? = null
                 for (p in particles) {
@@ -489,6 +510,7 @@ sealed class FlattenedGroup(
                                 while (choiceCount < choiceMembers.size) {
                                     val bp2 = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
                                     pending = null
+                                    // TODO use removal rather than restriction
                                     val i = choiceMembers.indexOfFirst { it != null && it.restricts(bp2, context, schema) }
                                     if (i < 0) {
                                         if (!bp.isEmptiable) return null
