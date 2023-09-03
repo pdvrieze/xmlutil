@@ -930,6 +930,9 @@ sealed class ResolvedComplexType(
                 for (use in attributes.values) {
                     if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
                         require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
+                        require(use.mdlValueConstraint !is ValueConstraint.Fixed) {
+                            "Fixed id attributes are not allowed in 1.0"
+                        }
                         idAttrName = use.mdlAttributeDeclaration.mdlQName
                     }
                 }
