@@ -492,7 +492,7 @@ sealed class FlattenedGroup(
                 val baseIt = base.particles.iterator()
                 var pending: FlattenedParticle? = null
                 for (p in particles) {
-                    while(true) {
+                    while (true) {
                         val bp = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
                         pending = null
                         val reduced = bp.remove(p, context, schema)
@@ -820,6 +820,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                 }
             } else { // consider further options
                 when {
+                    match.minOccurs * reference.minOccurs > minOccurs -> (match * reference.range)?.minus(range)
                     match.range.contains(range) -> reference - SINGLERANGE
                     match.range.isSimple -> reference - range
                     else -> match.remove(this, context, schema) // TODO a bit more options
