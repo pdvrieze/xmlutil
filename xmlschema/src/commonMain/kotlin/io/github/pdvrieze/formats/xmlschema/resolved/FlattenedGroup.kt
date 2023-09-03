@@ -475,22 +475,20 @@ sealed class FlattenedGroup(
                             if (p is Choice) {
                                 var choiceCount = 0
                                 val choiceMembers = ArrayList<FlattenedParticle?>(p.particles)
-                                var bp2 = bp
-                                while (true) {
+                                pending = bp
+                                while (choiceCount < choiceMembers.size) {
+                                    val bp2 = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
+                                    pending = null
                                     val i = choiceMembers.indexOfFirst { it != null && it.restricts(bp2, context, schema) }
                                     if (i < 0) {
                                         if (!bp.isEmptiable) return null
                                     } else {
+                                        pending = bp2.remove(choiceMembers[i]!!, context, schema)
                                         choiceMembers[i] = null
                                         choiceCount++
                                     }
-                                    if (choiceCount < choiceMembers.size) {
-                                        if (!baseIt.hasNext()) return null
-                                        bp2 = baseIt.next()
-                                    } else {
-                                        break
-                                    }
                                 }
+                                pending = null
                                 break // all choice members should have been consumed
                             }
                             // emptiable, thus ignore
