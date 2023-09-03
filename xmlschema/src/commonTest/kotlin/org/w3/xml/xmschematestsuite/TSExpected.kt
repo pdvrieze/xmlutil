@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("expected", TS_NAMESPACE, TS_PREFIX)
-class TSExpected(
+data class TSExpected(
     @XmlElement(false)
     val validity: TSValidityOutcome,
     @XmlElement(false)
