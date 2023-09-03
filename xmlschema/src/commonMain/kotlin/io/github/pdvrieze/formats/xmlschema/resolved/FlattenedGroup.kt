@@ -444,18 +444,13 @@ sealed class FlattenedGroup(
                 if (reduced != null) return reduced
             }
 
-            // remove the sequence in a more complex choice (using the code from removeFromSequence)
-            return removeFromSequence(Sequence(SINGLERANGE, listOf(base)), context, schema)
+            if (base.maxOccurs <= VAllNNI.ONE) return null
 
-            val partSize = VAllNNI.Value(particles.size.toUInt())
-            if (!base.range.contains((minOccurs * partSize)..(maxOccurs * partSize))) return null
-
-            val baseIt = base.particles.iterator()
-            // TODO deal better with repeated sequences
+            var reduced: FlattenedParticle = base
             for (p in particles) {
-                if (base.particles.none { p.restricts(it, context, schema) }) return null
+                reduced = reduced.remove(p, context, schema) ?: return null
             }
-            return null
+            return reduced
         }
 
         override fun restrictsSequence(
