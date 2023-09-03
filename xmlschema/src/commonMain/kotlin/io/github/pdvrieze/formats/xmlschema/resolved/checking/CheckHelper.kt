@@ -33,6 +33,8 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkedGroups: MutableSet<QName> = HashSet()
     private val notations: MutableSet<QName> = HashSet()
 
+    val version: ResolvedSchema.Version get() = schema.version
+
     private val checkHelper get() = this
 
     fun checkType(name: QName) {
