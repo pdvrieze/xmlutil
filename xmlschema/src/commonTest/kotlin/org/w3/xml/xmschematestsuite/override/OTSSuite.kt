@@ -104,19 +104,19 @@ private fun mergeExpecteds(originalExpected: List<TSExpected>, overridden: List<
 
 
 @Serializable
-data class OTSSchemaTest(val name: String, val expecteds: List<TSExpected> = emptyList()) {
+data class OTSSchemaTest(val name: String, val version: String? = null, val expecteds: List<TSExpected> = emptyList()) {
     fun applyTo(original: TSSchemaTest): TSSchemaTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
-        return original.copy(expected = newExpected)
+        return original.copy(version = version ?: original.version, expected = newExpected)
     }
 
 }
 
 @Serializable
-data class OTSInstanceTest(val name: String, val expecteds: List<TSExpected> = emptyList()) {
+data class OTSInstanceTest(val name: String, val version: String? = null, val expecteds: List<TSExpected> = emptyList()) {
     fun applyTo(original: TSInstanceTest): TSInstanceTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
-        return original.copy(expected = newExpected)
+        return original.copy(version = version ?: original.version, expected = newExpected)
     }
 
 }
