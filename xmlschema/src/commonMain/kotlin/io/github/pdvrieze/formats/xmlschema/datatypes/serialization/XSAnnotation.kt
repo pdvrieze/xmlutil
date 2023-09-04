@@ -24,12 +24,20 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("annotation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSAnnotation : XSOpenAttrsBase {
+    init {
+        otherAttrs.keys.forEach { it ->
+            require(it.prefix.isNotEmpty() && it.namespaceURI.isNotEmpty()) { "Other attributes must not be in the default namespace: $it" }
+        }
+    }
+
     val documentationElements: List<XSDocumentation>
     val appInfos: List<XSAppInfo>
 
