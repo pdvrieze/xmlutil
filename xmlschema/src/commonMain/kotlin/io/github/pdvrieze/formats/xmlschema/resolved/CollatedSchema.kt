@@ -80,7 +80,13 @@ internal class CollatedSchema(
             } else {
                 val resolvedImport = resolver.resolve(importedLocation)
                 val relativeResolver = resolver.delegate(resolvedImport)
-                val rawImport by lazy { resolver.readSchema(resolvedImport) }
+                val rawImport by lazy {
+                    try {
+                        resolver.readSchema(resolvedImport)
+                    } catch (e: FileNotFoundException) { // schema location is only a hint, so import an empty schema
+                        XSSchema(targetNamespace = import.namespace)
+                    }
+                }
                 val targetNamespace = (import.namespace ?: rawImport.targetNamespace)?.value ?: ""
 
                 if (Pair(targetNamespace, resolvedImport) !in includedUrls) { // Avoid recursion in collations
@@ -128,7 +134,13 @@ internal class CollatedSchema(
             val resolvedIncluded = resolver.resolve(includedLocation)
             val includeNamespace = baseSchema.targetNamespace?.value
             val relativeResolver = resolver.delegate(includedLocation)
-            val rawInclude by lazy { resolver.readSchema(includedLocation) }
+            val rawInclude by lazy {
+                try {
+                    resolver.readSchema(includedLocation)
+                } catch (e: FileNotFoundException) {
+                    XSSchema()
+                }
+            }
             val targetNamespace = (includeNamespace ?: rawInclude.targetNamespace?.value) ?: ""
             if (Pair(targetNamespace, resolvedIncluded) !in includedUrls) { // Avoid recursion in collations
                 includedUrls.add(Pair(targetNamespace, resolvedIncluded))
