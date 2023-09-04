@@ -25,16 +25,26 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("redefine", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
-class XSRedefine : XSAnnotatedBase {
+class XSRedefine : XSOpenAttrsBase {
     val simpleTypes: List<XSGlobalSimpleType>
     val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
     val attributeGroups: List<XSAttributeGroup>
     val schemaLocation: VAnyURI
+    @XmlId
+    final val id: VID?
+
+    @XmlBefore("*")
+    val annotations: List<XSAnnotation>
+
+    @Deprecated("Use the list of annotations instead")
+    val annotation: XSAnnotation? get() = annotations.firstOrNull()
 
     constructor(
         simpleTypes: List<XSGlobalSimpleType> = emptyList(),
@@ -43,13 +53,34 @@ class XSRedefine : XSAnnotatedBase {
         attributeGroups: List<XSAttributeGroup> = emptyList(),
         schemaLocation: VAnyURI,
         id: VID? = null,
-        annotation: XSAnnotation? = null,
+        annotation: XSAnnotation?,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
-    ) : super(id, annotation, otherAttrs) {
+    ) : super(otherAttrs) {
         this.simpleTypes = simpleTypes
         this.complexTypes = complexTypes
         this.groups = groups
         this.attributeGroups = attributeGroups
         this.schemaLocation = schemaLocation
+        this.id = id
+        this.annotations = listOfNotNull(annotation)
+    }
+
+    constructor(
+        simpleTypes: List<XSGlobalSimpleType> = emptyList(),
+        complexTypes: List<XSGlobalComplexType> = emptyList(),
+        groups: List<XSGroup> = emptyList(),
+        attributeGroups: List<XSAttributeGroup> = emptyList(),
+        schemaLocation: VAnyURI,
+        id: VID? = null,
+        annotations: List<XSAnnotation> = emptyList(),
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
+    ) : super(otherAttrs) {
+        this.simpleTypes = simpleTypes
+        this.complexTypes = complexTypes
+        this.groups = groups
+        this.attributeGroups = attributeGroups
+        this.schemaLocation = schemaLocation
+        this.id = id
+        this.annotations = annotations
     }
 }
