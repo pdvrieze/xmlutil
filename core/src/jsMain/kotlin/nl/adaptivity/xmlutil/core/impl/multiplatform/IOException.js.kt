@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
+@XmlUtilInternal
 public actual open class IOException : Exception {
     public actual constructor() : super()
 
@@ -29,4 +31,12 @@ public actual open class IOException : Exception {
     public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
 
     public actual constructor(cause: Throwable?) : super(cause)
+}
+
+@XmlUtilInternal
+public actual open class FileNotFoundException : IOException {
+    public constructor() : super()
+    public constructor(message: String?) : super(message)
+    public constructor(message: String?, cause: Throwable?) : super(message, cause)
+    public constructor(cause: Throwable?) : super(cause)
 }

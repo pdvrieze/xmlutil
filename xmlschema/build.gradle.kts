@@ -81,11 +81,11 @@ kotlin {
         }
     }
 
-    @Suppress("UNUSED_VARIABLE")
     sourceSets {
         all {
             languageSettings {
-                optIn("kotlin.RequiresOptIn")
+                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
+                optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
             }
         }
 

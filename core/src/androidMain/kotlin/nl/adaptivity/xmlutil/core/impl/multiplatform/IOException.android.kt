@@ -25,3 +25,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @XmlUtilInternal
 @Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
 public actual typealias IOException = java.io.IOException
+
+@XmlUtilInternal
+@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
+public actual typealias FileNotFoundException = java.io.FileNotFoundException
