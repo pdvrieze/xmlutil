@@ -100,7 +100,8 @@ sealed interface IDecimalType : ResolvedBuiltinSimpleType {
     override fun value(representation: VString): VDecimal
 }
 
-sealed class AtomicDatatype(name: String, targetNamespace: String) : Datatype(name, targetNamespace, BuiltinSchemaXmlschema),
+sealed class AtomicDatatype(name: String, targetNamespace: String) :
+    Datatype(name, targetNamespace, BuiltinSchemaXmlschema),
     ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
 
     override val model: AtomicDatatype get() = this
@@ -353,8 +354,7 @@ object DateTimeType : PrimitiveDatatype("dateTime", XmlSchemaConstants.XS_NAMESP
     }
 
     override fun validate(representation: VString) {
-        // TODO: validate date time
-        value(representation)
+        validateValue(value(representation))
     }
 }
 
@@ -389,7 +389,7 @@ object DateTimeStampType : PrimitiveDatatype("dateTimeStamp", XmlSchemaConstants
     }
 
     override fun validate(representation: VString) {
-        value(representation)
+        validateValue(value(representation))
     }
 }
 
@@ -429,7 +429,7 @@ object DecimalType : PrimitiveDatatype("decimal", XmlSchemaConstants.XS_NAMESPAC
     }
 
     override fun validate(representation: VString) {
-        value(representation)
+        validateValue(value(representation))
     }
 
 }
@@ -465,6 +465,7 @@ object IntegerType : PrimitiveDatatype("integer", XmlSchemaConstants.XS_NAMESPAC
     }
 
     override fun validate(representation: VString) {
+        validateValue(value(representation))
         //TODO("not implemented")
     }
 }
@@ -508,7 +509,7 @@ object LongType : PrimitiveDatatype("long", XmlSchemaConstants.XS_NAMESPACE), II
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 }
 
@@ -551,7 +552,7 @@ object IntType : PrimitiveDatatype("int", XmlSchemaConstants.XS_NAMESPACE), IInt
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 
 }
@@ -588,10 +589,11 @@ object ShortType : PrimitiveDatatype("short", XmlSchemaConstants.XS_NAMESPACE), 
 
     override fun validateValue(representation: Any) {
         check(representation is VInteger)
+        check(representation.toInt() in Short.MIN_VALUE..Short.MAX_VALUE)
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        validateValue(value(representation))
     }
 
 }
@@ -624,10 +626,11 @@ object ByteType : PrimitiveDatatype("byte", XmlSchemaConstants.XS_NAMESPACE), II
 
     override fun validateValue(representation: Any) {
         check(representation is VInteger)
+        check(representation.toInt() in Byte.MIN_VALUE..Byte.MAX_VALUE)
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        validateValue(value(representation))
     }
 
     override fun toString(): String = "Builtin:Byte"
@@ -667,7 +670,7 @@ object NonNegativeIntegerType : PrimitiveDatatype("nonNegativeInteger", XmlSchem
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 
 }
@@ -702,7 +705,7 @@ object PositiveIntegerType : PrimitiveDatatype("positiveInteger", XmlSchemaConst
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 
 }
@@ -742,7 +745,7 @@ object UnsignedLongType : PrimitiveDatatype("unsignedLong", XmlSchemaConstants.X
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
+        value(representation)
     }
 
 }
@@ -782,7 +785,6 @@ object UnsignedIntType : PrimitiveDatatype("unsignedInt", XmlSchemaConstants.XS_
     }
 
     override fun validate(representation: VString) {
-        //TODO("not implemented")
         validateValue(value(representation))
     }
 
@@ -1371,7 +1373,7 @@ object HexBinaryType : PrimitiveDatatype("hexBinary", XmlSchemaConstants.XS_NAME
     }
 
     override fun validate(representation: VString) {
-        TODO("not implemented")
+        validateValue(value(representation))
     }
 }
 
@@ -1503,7 +1505,7 @@ object NormalizedStringType : PrimitiveDatatype("normalizedString", XmlSchemaCon
     }
 
     override fun validate(representation: VString) {
-        // TODO("not implemented")
+        // all representations are valid
     }
 }
 
@@ -1534,7 +1536,8 @@ object TokenType : PrimitiveDatatype("token", XmlSchemaConstants.XS_NAMESPACE), 
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        mdlFacets.validate(this, representation)
+    //        TODO("not implemented")
     }
 }
 
@@ -1562,7 +1565,7 @@ object LanguageType : PrimitiveDatatype("language", XmlSchemaConstants.XS_NAMESP
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        mdlFacets.validate(this, representation)
     }
 }
 
@@ -1661,7 +1664,7 @@ object EntityType : PrimitiveDatatype("ENTITY", XmlSchemaConstants.XS_NAMESPACE)
     }
 
     override fun validate(representation: VString) {
-//        TODO("not implemented")
+        mdlFacets.validate(this, representation)
     }
 }
 
@@ -1832,13 +1835,12 @@ object IDRefsType :
     override fun validate(representation: VString) {}
 }
 
-object NMTokensType :
-    ConstructedListDatatype(
-        "NMTOKENS",
-        XmlSchemaConstants.XS_NAMESPACE,
-        EntityType,
-        BuiltinSchemaXmlschema
-    ) {
+object NMTokensType : ConstructedListDatatype(
+    "NMTOKENS",
+    XmlSchemaConstants.XS_NAMESPACE,
+    EntityType,
+    BuiltinSchemaXmlschema
+) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = NMTokenType
 
@@ -1872,6 +1874,7 @@ object PrecisionDecimalType : PrimitiveDatatype("precisionDecimal", XmlSchemaCon
     }
 
     override fun validate(representation: VString) {
+        mdlFacets.validate(this, representation)
 //        TODO("not implemented")
     }
 }
