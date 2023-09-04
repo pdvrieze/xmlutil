@@ -25,21 +25,83 @@ import org.w3.xml.xmschematestsuite.*
 
 @Serializable
 data class OTSSuite(val testSetOverrides: List<OTSTestSet>) {
+
+    constructor(compact: CompactOverride) : this(toTestSets(compact))
+
     fun applyTo(original: TSTestSet): TSTestSet {
         return testSetOverrides
             .firstOrNull { it.name == original.name }
             ?.applyTo(original)
             ?: return original
     }
+
+    fun findIgnoredPaths(): List<TestPath> {
+        return testSetOverrides.flatMap { it.findIgnoredPaths() }
+    }
+
+    fun findOverrides(): List<ExpectedOverride> {
+        return testSetOverrides.flatMap { it.findOverrides() }
+    }
+
+    companion object {
+        private fun toTestSets(compact: CompactOverride): List<OTSTestSet> {
+            val ignoreMap = compact.ignores.groupBy { it.testSet }
+            val overrideMap = compact.overrides.groupBy { it.path.testSet }
+
+            val setNames = (ignoreMap.keys + overrideMap.keys).sorted()
+
+            return setNames.map { tsName ->
+                val ignores = ignoreMap[tsName]?: emptyList()
+                val isIgnored = ignores.any { it.group==null }
+                val overrides = overrideMap[tsName] ?: emptyList()
+
+                val newOverrides = toGroups(overrides, ignores)
+
+                OTSTestSet(tsName, newOverrides, isIgnored)
+            }
+        }
+
+        private fun toGroups(overrides: List<ExpectedOverride>, ignores: List<TestPath>): List<OTSTestGroup> {
+            val ignoreMap = ignores.filter { it.group != null }.groupBy { it.group!! }
+            val overrideMap = overrides.filter { it.path.group != null }.groupBy { it.path.group!! }
+            val groupNames = (ignoreMap.keys + overrideMap.keys).sorted()
+
+            return groupNames.map { groupName ->
+                val grOverrides = overrideMap[groupName] ?: emptyList()
+                val grIgnores = ignoreMap[groupName] ?: emptyList()
+                val isIgnored = grIgnores.any { it.test == null }
+
+                val schemaTest = grOverrides.singleOrNull { it.path.test!=null && !it.isInstance }?.let {
+                    val testName = it.path.test!!
+                    OTSSchemaTest(testName, expecteds = it.expecteds, isIgnored = grIgnores.any { it.test == testName })
+                }
+
+                val instanceTests = grOverrides.filter { it.path.test!=null && it.isInstance }.map {
+                    val testName = it.path.test!!
+                    OTSInstanceTest(testName, expecteds = it.expecteds, isIgnored = grIgnores.any { it.test == testName })
+                }
+
+                OTSTestGroup(groupName, schemaTest, instanceTests, isIgnored)
+            }
+
+            return TODO()
+        }
+    }
 }
 
 @Serializable
-data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyList()) {
+data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyList(), val isIgnored: Boolean = false) {
     fun applyTo(original: TSTestSet): TSTestSet {
-        val associations = groups.associateBy { it.name }
-        val newGroups = original.testGroups.map {
-            associations.get(it.name)?.applyTo(it) ?: it
+        val newGroups: List<TSTestGroup> = when {
+            isIgnored -> emptyList()
+            else -> {
+                val associations = groups.associateBy { it.name }
+                original.testGroups.map {
+                    associations.get(it.name)?.applyTo(it) ?: it
+                }
+            }
         }
+
         return TSTestSet(
             original.contributor,
             original.name,
@@ -48,13 +110,25 @@ data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyLi
             newGroups
         )
     }
+
+    fun findIgnoredPaths(): Sequence<TestPath> {
+        return when {
+            isIgnored -> sequenceOf(TestPath(name))
+            else -> groups.asSequence().flatMap { it.findIgnoredPaths(TestPath(name)) }
+        }
+    }
+
+    fun findOverrides(): Sequence<ExpectedOverride> {
+        return groups.asSequence().flatMap { it.findOverrides(TestPath(name)) }
+    }
 }
 
 @Serializable
 data class OTSTestGroup(
     val name: String,
     val schemaTest: OTSSchemaTest? = null,
-    val instanceTests: List<OTSInstanceTest> = emptyList()
+    val instanceTests: List<OTSInstanceTest> = emptyList(),
+    val isIgnored: Boolean = false
 ) {
     fun applyTo(original: TSTestGroup): TSTestGroup {
         val newSchemaTest = original.schemaTest?.let { ot -> schemaTest?.applyTo(ot) ?: ot }
@@ -65,6 +139,29 @@ data class OTSTestGroup(
             schemaTest = newSchemaTest,
             instanceTests = newInstanceTests,
         )
+    }
+
+    fun findIgnoredPaths(base: TestPath): Sequence<TestPath> {
+        val newBase = base.copy(group = name)
+        return when {
+            isIgnored -> sequenceOf(newBase)
+            else -> sequence {
+                if (schemaTest != null && schemaTest.isIgnored) yield(newBase.copy(test=schemaTest.name, isSchema = true))
+                yieldAll(instanceTests.asSequence().filter { it.isIgnored }.map { newBase.copy(test=it.name, isSchema = false)})
+            }
+        }
+    }
+
+    fun findOverrides(base: TestPath): Sequence<ExpectedOverride> {
+        val newBase = base.copy(group=name)
+        return sequence {
+            if (schemaTest != null) yield(
+                ExpectedOverride(newBase.copy(test = schemaTest.name, isSchema = true), schemaTest.expecteds)
+            )
+            yieldAll(instanceTests.asSequence().map {
+                ExpectedOverride(newBase.copy(test=it.name, isSchema = false), it.expecteds)
+            })
+        }
     }
 }
 
@@ -104,7 +201,13 @@ private fun mergeExpecteds(originalExpected: List<TSExpected>, overridden: List<
 
 
 @Serializable
-data class OTSSchemaTest(val name: String, val version: String? = null, val expecteds: List<TSExpected> = emptyList()) {
+data class OTSSchemaTest(
+    val name: String,
+    val version: String? = null,
+    val expecteds: List<TSExpected> = emptyList(),
+    val isIgnored: Boolean = false,
+) {
+
     fun applyTo(original: TSSchemaTest): TSSchemaTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
         return original.copy(version = version ?: original.version, expected = newExpected)
@@ -113,7 +216,12 @@ data class OTSSchemaTest(val name: String, val version: String? = null, val expe
 }
 
 @Serializable
-data class OTSInstanceTest(val name: String, val version: String? = null, val expecteds: List<TSExpected> = emptyList()) {
+data class OTSInstanceTest(
+    val name: String,
+    val version: String? = null,
+    val expecteds: List<TSExpected> = emptyList(),
+    val isIgnored: Boolean = false,
+) {
     fun applyTo(original: TSInstanceTest): TSInstanceTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
         return original.copy(version = version ?: original.version, expected = newExpected)

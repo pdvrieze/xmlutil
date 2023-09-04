@@ -39,6 +39,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.w3.xml.xmschematestsuite.*
+import org.w3.xml.xmschematestsuite.override.CompactOverride
 import org.w3.xml.xmschematestsuite.override.OTSSuite
 import java.net.URI
 import java.net.URL
@@ -61,7 +62,10 @@ class TestXSTestSuite {
     fun testFromTestSetRef(): List<DynamicNode> {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
 
-        val override = javaClass.getResource("/override.json").readText().let { Json.decodeFromString<OTSSuite>(it) }
+        val override = javaClass.getResource("/override.xml").withXmlReader {
+            val compact = XML { recommended() }.decodeFromReader<CompactOverride>(it)
+            OTSSuite(compact)
+        }
 
         val nodes = mutableListOf<DynamicNode>()
         suiteURL.withXmlReader { xmlReader ->
@@ -481,8 +485,8 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     }
 
     val expecteds = schemaTest.expected
-//        .filter { it.version != "1.0" }
-        .associateBy { it.version?.let{ ResolvedSchema.Version(it) } }
+//        .filter { (it.version ?: schemaTest.version) != "1.0" }
+        .associateBy { it.version?.let { ResolvedSchema.Version(it) } }
 
     for ((version, expected) in expecteds) {
         val versionLabel = when {
