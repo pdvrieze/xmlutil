@@ -26,15 +26,20 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
+import java.io.FileNotFoundException
 import java.net.URI
 import java.net.URL
 
-internal class SimpleResolver(private val baseURI: URI): ResolvedSchema.Resolver {
+internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false): ResolvedSchema.Resolver {
     override val baseUri: VAnyURI
         get() = VAnyURI(baseURI.toASCIIString())
 
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
-        return baseURI.resolve(schemaLocation.value).withXmlReader { reader ->
+        val schemaUri = URI(schemaLocation.value)
+        if (!isNetworkResolvingAllowed && schemaUri.isAbsolute && schemaUri.scheme!=null) {
+            throw FileNotFoundException("Absolute uri references are not supported")
+        }
+        return baseURI.resolve(schemaUri).withXmlReader { reader ->
             XML {
                 defaultPolicy {
                     autoPolymorphic = true
