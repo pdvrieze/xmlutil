@@ -20,12 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.LanguageType
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
 value class VLanguage(override val xmlString: String) : VToken {
+
+    init {
+        LanguageType.validate(VString(xmlString))
+    }
 
     override fun toString(): String = xmlString
 
