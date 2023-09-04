@@ -22,10 +22,12 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toKString
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import platform.posix.posix_errno
 import platform.posix.strerror
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@XmlUtilInternal
 public actual open class IOException : Exception {
     public actual constructor() : super()
 
@@ -42,4 +44,13 @@ public actual open class IOException : Exception {
             return IOException("Error ($errno): $errMsg")
         }
     }
+}
+
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@XmlUtilInternal
+public actual open class FileNotFoundException : IOException {
+    public constructor() : super()
+    public constructor(message: String?) : super(message)
+    public constructor(message: String?, cause: Throwable?) : super(message, cause)
+    public constructor(cause: Throwable?) : super(cause)
 }

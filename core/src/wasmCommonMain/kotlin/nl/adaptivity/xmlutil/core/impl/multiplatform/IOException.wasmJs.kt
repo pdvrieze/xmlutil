@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@XmlUtilInternal
 public actual open class IOException : Exception {
     public actual constructor() : super()
 
@@ -29,4 +32,13 @@ public actual open class IOException : Exception {
     public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
 
     public actual constructor(cause: Throwable?) : super(cause)
+}
+
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@XmlUtilInternal
+public actual open class FileNotFoundException : IOException {
+    public constructor()
+    public constructor(message: String?)
+    public constructor(message: String?, cause: Throwable?)
+    public constructor(cause: Throwable?)
 }
