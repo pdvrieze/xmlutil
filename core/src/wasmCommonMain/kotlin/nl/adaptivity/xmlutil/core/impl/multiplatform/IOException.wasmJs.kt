@@ -31,8 +31,12 @@ public actual open class IOException : Exception {
 }
 
 public actual open class FileNotFoundException : IOException {
-    public constructor()
-    public constructor(message: String?)
-    public constructor(message: String?, cause: Throwable?)
-    public constructor(cause: Throwable?)
+    public constructor() : super()
+
+    public constructor(message: String?) : super(message)
+
+    public constructor(message: String?, cause: Throwable?) : super(message, cause)
+
+    public constructor(cause: Throwable?) : super(cause)
+
 }
