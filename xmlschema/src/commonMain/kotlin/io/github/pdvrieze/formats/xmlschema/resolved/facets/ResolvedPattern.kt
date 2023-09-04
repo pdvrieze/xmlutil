@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 
 class ResolvedPattern(rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
     override val model: Model by lazy { Model(rawPart) }
@@ -50,6 +51,9 @@ class ResolvedPattern(rawPart: XSPattern, schema: ResolvedSchemaLike) : Resolved
         val regex: Regex = Regex(rawPart.value.convertToKtRegex())
     }
 
+    override fun checkFacetValid(type: ResolvedSimpleType) {
+        model // this will instantiate the regex
+    }
 }
 
 
