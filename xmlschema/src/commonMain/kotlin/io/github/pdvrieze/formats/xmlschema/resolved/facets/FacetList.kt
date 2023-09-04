@@ -125,6 +125,10 @@ class FacetList(
     }
 
     fun check(primitiveType: PrimitiveDatatype?) {
+        if (primitiveType!=null) {
+            for (p in patterns) p.checkFacetValid(primitiveType)
+        }
+
         when (primitiveType) {
             is IStringType -> {
                 if (minLength != null && maxLength != null) {
