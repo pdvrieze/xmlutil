@@ -20,5 +20,5 @@ ij_wrap_on_typing = false
 max_line_length = 80
 ij_visual_guides = 70, 80
 
-[xmlschema/src/jvmTest/resources/override.json]
+[xmlschema/src/jvmTest/resources/override.*]
 indent_size = 2
