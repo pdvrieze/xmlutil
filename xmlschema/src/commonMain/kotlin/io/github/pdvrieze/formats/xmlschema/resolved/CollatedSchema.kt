@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.FileNotFoundException
 
 internal class CollatedSchema(
     baseSchema: XSSchema,
@@ -164,7 +165,16 @@ internal class CollatedSchema(
         for (redefine in baseSchema.redefines) {
             val relativeLocation = resolver.resolve(redefine.schemaLocation)
             val relativeResolver = resolver.delegate(redefine.schemaLocation)
-            val nestedSchema = resolver.readSchema(redefine.schemaLocation)
+            val nestedSchema = try {
+                resolver.readSchema(redefine.schemaLocation)
+            } catch (e: FileNotFoundException) { // file not found
+                if (redefine.complexTypes.isEmpty() && redefine.simpleTypes.isEmpty() &&
+                    redefine.groups.isEmpty() && redefine.attributeGroups.isEmpty()) {
+                    XSSchema() // empty schema instead if the redefine doesn't redefine
+                } else {
+                    throw e
+                }
+            }
 
 //            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
 
