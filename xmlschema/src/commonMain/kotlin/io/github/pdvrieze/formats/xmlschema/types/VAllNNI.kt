@@ -88,7 +88,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         operator fun plus(other: Value): Value = Value(value + other.value)
 
         override operator fun times(other: VAllNNI): VAllNNI = when (other) {
-            is Value -> Value(value.toULong() * other.value.toULong())
+            is Value -> value.toULong().safeTimes(other.value.toULong())?.let { Value(it) } ?: UNBOUNDED
             is UNBOUNDED -> UNBOUNDED
         }
 
@@ -115,6 +115,12 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         fun safeMinus(other: Value): Value = when {
             value > other.value -> this - other
             else -> ZERO
+        }
+
+        fun ULong.safeTimes(other: ULong): ULong? {
+            val result = this * other
+            if (this != 0uL && result / this != other) return null
+            return result
         }
 
         override fun toString(): String = value.toString()
