@@ -24,6 +24,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
@@ -40,7 +41,7 @@ class XSDocumentation : XSOpenAttrsBase {
     val source: VAnyURI?
 
     @XmlSerialName("lang", XmlSchemaConstants.XML_NAMESPACE, XmlSchemaConstants.XML_PREFIX)
-    val lang: String?
+    val lang: VLanguage?
 
     @XmlValue(true)
 //    @XmlDefault("")
@@ -49,7 +50,7 @@ class XSDocumentation : XSOpenAttrsBase {
 
     constructor(
         source: VAnyURI? = null,
-        lang: String? = null,
+        lang: VLanguage? = null,
         content: CompactFragment = CompactFragment(""),
         otherAttrs: Map<QName, String> = emptyMap()
     ) : super(otherAttrs) {
