@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileNotFoundException
+import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 
 internal class CollatedSchema(
     baseSchema: XSSchema,
@@ -83,7 +84,7 @@ internal class CollatedSchema(
                 val rawImport by lazy {
                     try {
                         resolver.readSchema(resolvedImport)
-                    } catch (e: FileNotFoundException) { // schema location is only a hint, so import an empty schema
+                    } catch (e: IOException) { // schema location is only a hint, so import an empty schema
                         XSSchema(targetNamespace = import.namespace)
                     }
                 }
@@ -137,7 +138,7 @@ internal class CollatedSchema(
             val rawInclude by lazy {
                 try {
                     resolver.readSchema(includedLocation)
-                } catch (e: FileNotFoundException) {
+                } catch (e: IOException) {
                     XSSchema()
                 }
             }
@@ -179,7 +180,7 @@ internal class CollatedSchema(
             val relativeResolver = resolver.delegate(redefine.schemaLocation)
             val nestedSchema = try {
                 resolver.readSchema(redefine.schemaLocation)
-            } catch (e: FileNotFoundException) { // file not found
+            } catch (e: IOException) { // file not found
                 if (redefine.complexTypes.isEmpty() && redefine.simpleTypes.isEmpty() &&
                     redefine.groups.isEmpty() && redefine.attributeGroups.isEmpty()) {
                     XSSchema() // empty schema instead if the redefine doesn't redefine
