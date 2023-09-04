@@ -22,10 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.test
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.xml.xmschematestsuite.*
 import org.w3.xml.xmschematestsuite.override.*
 import java.io.FileOutputStream
+import java.io.FileWriter
 import java.net.URI
 import java.net.URL
 
@@ -41,26 +44,33 @@ fun main() {
     val suiteURL: URL = OTSSuite.javaClass.getResource("/xsts/suite.xml")
     val override: OTSSuite? = suiteURL.withXmlReader { suiteReader ->
         val suite = xml.decodeFromReader<TSTestSuite>(suiteReader) as TSTestSuite
-        findOverrides(suite)
+        val oldOverrides = OTSSuite.javaClass.getResource("/override.json").readText().let {
+            Json.decodeFromString<OTSSuite>(it)
+        }
+
+        findOverrides(suite, oldOverrides)
     }
 
     if (override != null) {
-        FileOutputStream("override.json").use { out ->
-            Json {
-                prettyPrint = true
-                prettyPrintIndent = "  "
-            }.encodeToStream(override, out)
+        val compact = CompactOverride(override)
+
+        FileWriter("override.xml").use { out ->
+            XmlStreaming.newWriter(out).use { writer ->
+                XML {
+                    indent = 2
+                }.encodeToWriter(writer, compact, "")
+            }
         }
     }
 
 
 }
 
-private fun findOverrides(suite: TSTestSuite): OTSSuite? {
+private fun findOverrides(suite: TSTestSuite, oldOverrides: OTSSuite): OTSSuite? {
     val setOverrides = suite.testSetRefs.mapNotNull { setRef ->
         val setBaseUrl: URI = OTSSuite.javaClass.getResource("/xsts/${setRef.href}").toURI()
         val testSet = setBaseUrl.withXmlReader { setReader -> xml.decodeFromReader<TSTestSet>(setReader) } as TSTestSet
-        findOverrides(testSet, setBaseUrl)
+        findOverrides(oldOverrides.applyTo(testSet), setBaseUrl)
     }
     if (setOverrides.isEmpty()) return null
     return OTSSuite(setOverrides)
