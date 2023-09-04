@@ -27,3 +27,5 @@ public expect open class IOException : Exception {
     public constructor(message: String?, cause: Throwable?)
     public constructor(cause: Throwable?)
 }
+
+public expect open class FileNotFoundException : IOException

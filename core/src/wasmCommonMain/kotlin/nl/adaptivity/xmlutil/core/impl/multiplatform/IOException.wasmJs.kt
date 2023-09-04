@@ -29,3 +29,10 @@ public actual open class IOException : Exception {
 
     public actual constructor(cause: Throwable?) : super(cause)
 }
+
+public actual open class FileNotFoundException : IOException {
+    public constructor()
+    public constructor(message: String?)
+    public constructor(message: String?, cause: Throwable?)
+    public constructor(cause: Throwable?)
+}

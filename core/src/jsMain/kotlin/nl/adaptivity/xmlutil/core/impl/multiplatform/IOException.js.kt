@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,5 +20,19 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-public actual typealias IOException = java.io.IOException
+public actual open class IOException : Exception {
+    public actual constructor() : super()
 
+    public actual constructor(message: String?) : super(message)
+
+    public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
+
+    public actual constructor(cause: Throwable?) : super(cause)
+}
+
+public actual open class FileNotFoundException : IOException {
+    public constructor() : super()
+    public constructor(message: String?) : super(message)
+    public constructor(message: String?, cause: Throwable?) : super(message, cause)
+    public constructor(cause: Throwable?) : super(cause)
+}
