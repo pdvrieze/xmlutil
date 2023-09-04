@@ -44,6 +44,7 @@ data class TSExpected(
     val exception: String? = null,
     @XmlElement(false)
     val message: @Serializable(RegexSerializer::class) Regex? = null,
+    val annotation: String? = null,
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 )
