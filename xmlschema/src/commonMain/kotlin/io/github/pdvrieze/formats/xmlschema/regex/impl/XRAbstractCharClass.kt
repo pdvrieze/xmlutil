@@ -238,6 +238,60 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
                 CachedWord().getValue(negative = true).apply { mayContainSupplCodepoints = true }
     }
 
+    internal class CachedNameStartChar : CachedCharClass() {
+        init {
+            initValues()
+        }
+        public override fun computeValue(): XRAbstractCharClass = XRCharClass()
+            .add(':')
+            .add('A', 'Z')
+            .add('_')
+            .add('a', 'z')
+            .add(0xC0, 0xD6)
+            .add(0xD8, 0xF6)
+            .add(0xF8, 0x2FF)
+            .add(0x370, 0x37D)
+            .add(0x37F, 0x1FFF)
+            .add(0x200C, 0x200D)
+            .add(0x2070, 0x218F)
+            .add(0x2C00, 0x2FEF)
+            .add(0x3001, 0xD7FF)
+            .add(0xF900, 0xFDCF)
+            .add(0xFDF0, 0xFFFD)
+            .add(0x10000, 0xEFFFF)
+    }
+
+    internal class CachedNonNameStartChar : CachedCharClass() {
+        init {
+            initValues()
+        }
+        override fun computeValue(): XRAbstractCharClass =
+            CachedNameStartChar().getValue(negative = true).apply { mayContainSupplCodepoints = true }
+    }
+
+    internal class CachedNameChar : CachedCharClass() {
+        init {
+            initValues()
+        }
+        override fun computeValue(): XRAbstractCharClass {
+            return (CachedNameStartChar().computeValue() as XRCharClass)
+                .add('-')
+                .add('.')
+                .add('0', '9')
+                .add(0xB7)
+                .add(0x300,0x36f)
+                .add(0x203f,0x2040)
+        }
+    }
+
+    internal class CachedNonNameChar : CachedCharClass() {
+        init {
+            initValues()
+        }
+        override fun computeValue(): XRAbstractCharClass =
+                CachedWord().getValue(negative = true).apply { mayContainSupplCodepoints = true }
+    }
+
     internal class CachedLower : CachedCharClass() {
         init {
             initValues()
@@ -450,6 +504,10 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             CNTRL("Cntrl", ::CachedCntrl),
             XDIGIT("XDigit", ::CachedXDigit),
             SPACE("Space", ::CachedSpace),
+            NAMECHAR("c", ::CachedNameChar),
+            NON_NAMECHAR("C", ::CachedNonNameChar),
+            NAMESTARTCHAR("i", ::CachedNameStartChar),
+            NON_NAMESTARTCHAR("I", ::CachedNonNameStartChar),
             WORD("w", ::CachedWord),
             NON_WORD("W", ::CachedNonWord),
             SPACE_SHORT("s", ::CachedSpace),
@@ -645,7 +703,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         }
 
         fun getPredefinedClass(name: String, negative: Boolean): XRAbstractCharClass {
-            val charClass = classCacheMap[name] ?: throw XRPatternSyntaxException("No such character class")
+            val charClass = classCacheMap[name] ?: throw XRPatternSyntaxException("No such character class ($name)")
             val cachedClass = classCache[charClass.ordinal].value
             return cachedClass.getValue(negative)
         }

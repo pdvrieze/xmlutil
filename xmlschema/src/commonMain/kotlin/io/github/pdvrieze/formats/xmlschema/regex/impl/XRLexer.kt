@@ -47,12 +47,12 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String, flags: Int) {
+internal class XRLexer(val patternString: String) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray
 
-    var flags = flags
+    var flags = 0
         private set
 
     // Modes ===========================================================================================================
@@ -106,9 +106,9 @@ internal class XRLexer(val patternString: String, flags: Int) {
 
     init {
         var processedPattern = patternString
-        if (flags and XRPattern.LITERAL > 0) {
-            processedPattern = XRPattern.quote(patternString)
-        } else if (flags and XRPattern.CANON_EQ > 0) {
+        if (flags and XPattern.LITERAL > 0) {
+            processedPattern = XPattern.quote(patternString)
+        } else if (flags and XPattern.CANON_EQ > 0) {
             processedPattern = XRLexer.normalize(patternString)
         }
 
@@ -117,7 +117,7 @@ internal class XRLexer(val patternString: String, flags: Int) {
         this.pattern[this.pattern.size - 2] = 0.toChar()
 
         // Skips leading comments and whitespaces if comments flag is on.
-        if (flags and XRPattern.COMMENTS != 0) {
+        if (flags and XPattern.COMMENTS != 0) {
             skipComments()
         }
         // Read first two tokens.
@@ -208,7 +208,7 @@ internal class XRLexer(val patternString: String, flags: Int) {
     private fun nextIndex(): Int {
         prevNonWhitespaceIndex = index
         index++
-        if (mode != Mode.ESCAPE && flags and XRPattern.COMMENTS != 0) {
+        if (mode != Mode.ESCAPE && flags and XPattern.COMMENTS != 0) {
             skipComments()
         }
         return prevNonWhitespaceIndex
@@ -445,7 +445,7 @@ internal class XRLexer(val patternString: String, flags: Int) {
             }
 
             // Word/whitespace/digit.
-            'w', 's', 'd', 'W', 'S', 'D', 'v', 'V', 'h', 'H' -> {
+            'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I', 'v', 'V', 'h', 'H' -> {
                 lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(
                         pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
                         false
@@ -501,17 +501,7 @@ internal class XRLexer(val patternString: String, flags: Int) {
             'z' -> lookAhead = CHAR_END_OF_INPUT
             'R' -> lookAhead = CHAR_LINEBREAK
 
-            // \cx - A control character corresponding to x.
-            'c' -> {
-                if (index < pattern.size - 2) {
-                    // Need not care about supplementary codepoints here.
-                    lookAhead = pattern[nextIndex()].toInt() and 0x1f
-                } else {
-                    throw XRPatternSyntaxException("Illegal control sequence", patternString, curTokenIndex)
-                }
-            }
-
-            'C', 'E', 'F', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'T', 'U', 'X', 'Y', 'g', 'i', 'j', 'l', 'm', 'o', 'q', 'y' ->
+            'E', 'F', 'J', 'K', 'L', 'M', 'N', 'O', 'T', 'U', 'X', 'Y', 'g', 'j', 'l', 'm', 'o', 'q', 'y' ->
                 throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
         }
         return false
@@ -593,29 +583,29 @@ internal class XRLexer(val patternString: String, flags: Int) {
                 }
 
                 'c' -> result = if (positive)
-                                    result or XRPattern.CANON_EQ
+                                    result or XPattern.CANON_EQ
                                 else
-                                    result xor XRPattern.CANON_EQ and result
+                                    result xor XPattern.CANON_EQ and result
 
                 'i' -> result = if (positive)
-                                    result or XRPattern.CASE_INSENSITIVE
+                                    result or XPattern.CASE_INSENSITIVE
                                 else
-                                    result xor XRPattern.CASE_INSENSITIVE and result
+                                    result xor XPattern.CASE_INSENSITIVE and result
 
                 'd' -> result = if (positive)
-                                    result or XRPattern.UNIX_LINES
+                                    result or XPattern.UNIX_LINES
                                 else
-                                    result xor XRPattern.UNIX_LINES and result
+                                    result xor XPattern.UNIX_LINES and result
 
                 'm' -> result = if (positive)
-                                    result or XRPattern.MULTILINE
+                                    result or XPattern.MULTILINE
                                 else
-                                    result xor XRPattern.MULTILINE and result
+                                    result xor XPattern.MULTILINE and result
 
                 's' -> result = if (positive)
-                                    result or XRPattern.DOTALL
+                                    result or XPattern.DOTALL
                                 else
-                                    result xor XRPattern.DOTALL and result
+                                    result xor XPattern.DOTALL and result
 
                 // We don't support UNICODE_CASE.
                 'u' -> {}/*result = if (positive)
@@ -630,9 +620,9 @@ internal class XRLexer(val patternString: String, flags: Int) {
                                     result xor Pattern.UNICODE_CHARACTER_CLASS and result*/
 
                 'x' -> result = if (positive)
-                                    result or XRPattern.COMMENTS
+                                    result or XPattern.COMMENTS
                                 else
-                                    result xor XRPattern.COMMENTS and result
+                                    result xor XPattern.COMMENTS and result
 
                 ':' -> {
                     nextIndex()
