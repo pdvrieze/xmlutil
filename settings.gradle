@@ -34,7 +34,7 @@ pluginManagement {
             switch (requested.id.id) {
                 case "com.android.library":
                 case "com.android.application" :
-                    def ver = requested.version!=null ? requested.version : androidBuildToolsVersion
+                    def ver = requested.version!=null ? requested.version : "8.0.2"
                     useModule("com.android.tools.build:gradle:${ver}");
                     break
                 case "org.jetbrains.dokka-android" :
@@ -53,8 +53,6 @@ pluginManagement {
 plugins {
     id "com.gradle.enterprise" version "3.1.1"
 }
-
-enableFeaturePreview("VERSION_CATALOGS")
 
 rootProject.name = "xmlutil"
 

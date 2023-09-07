@@ -53,12 +53,6 @@ ext {
     set("myJavaVersion", JavaVersion.VERSION_1_8)
 }
 
-tasks {
-    (findByName("wrapper") as? Wrapper)?.run {
-        gradleVersion = "7.2"
-    }
-}
-
 val xmlutil_version: String by project
 val kotlin_version: String get() = libs.versions.kotlin.get()
 
@@ -122,8 +116,8 @@ allprojects {
                 all {
                     languageSettings {
                         progressiveMode = true
-                        languageVersion = "1.8"
-                        apiVersion = "1.8"
+                        languageVersion = "1.9"
+                        apiVersion = "1.9"
                         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                     }
                 }
@@ -138,8 +132,8 @@ allprojects {
                 sourceSets.configureEach {
                     languageSettings {
                         progressiveMode = true
-                        languageVersion = "1.8"
-                        apiVersion = "1.8"
+                        languageVersion = "1.9"
+                        apiVersion = "1.9"
                         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                     }
                 }
