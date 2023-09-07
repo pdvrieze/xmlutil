@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.regex.XRRegex
+import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
@@ -81,7 +81,7 @@ internal class XRFinalSet : XRFSet(0) {
 
     override fun matches(startIndex: Int, testString: CharSequence,
                          matchResult: XRMatchResultImpl): Int {
-        if (matchResult.mode == XRRegex.Mode.FIND || startIndex == testString.length) {
+        if (matchResult.mode == XRegex.Mode.FIND || startIndex == testString.length) {
             matchResult.setEnd(0, startIndex)
             return startIndex
         }
