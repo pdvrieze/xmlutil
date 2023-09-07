@@ -45,29 +45,28 @@ base {
 }
 
 kotlin {
-    targets {
-        jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-            }
+    applyDefaultXmlUtilHierarchyTemplate()
+    jvm {
+        attributes {
+            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
         }
-        js {
-            browser()
-            nodejs()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
-            }
-        }
-
     }
+    js {
+        browser()
+        nodejs()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
+            }
+        }
+    }
+
     targets.all {
         if (this is org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget) {
             testRuns.all {
@@ -104,13 +103,7 @@ kotlin {
                 implementation(project(":testutil"))
             }
         }
-        val javaShared by creating {
-            dependsOn(commonMain)
-        }
 
-        val jvmMain by getting {
-            dependsOn(javaShared)
-        }
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
