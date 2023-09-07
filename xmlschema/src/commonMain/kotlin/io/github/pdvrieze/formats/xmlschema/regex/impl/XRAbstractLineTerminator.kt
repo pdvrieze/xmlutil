@@ -64,7 +64,7 @@ internal abstract class XRAbstractLineTerminator {
 
     companion object {
         fun getInstance(flag: Int): XRAbstractLineTerminator {
-            if (flag and XRPattern.UNIX_LINES != 0) {
+            if (flag and XPattern.UNIX_LINES != 0) {
                 return unixLT
             } else {
                 return unicodeLT

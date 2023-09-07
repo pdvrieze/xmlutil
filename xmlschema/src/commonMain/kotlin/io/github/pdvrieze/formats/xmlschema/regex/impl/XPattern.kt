@@ -22,13 +22,13 @@
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XRPattern(val pattern: String, flags: Int = 0) {
+internal class XPattern(val pattern: String) {
 
-    var flags = flags
+    var flags = 0
         private set
 
     /** A lexer instance used to get tokens from the pattern. */
-    private val lexemes = XRLexer(pattern, flags)
+    private val lexemes = XRLexer(pattern)
 
     /** List of all capturing groups in the pattern. Primarily used for handling back references. */
     val capturingGroups = mutableListOf<XRFSet>()
@@ -78,7 +78,7 @@ internal class XRPattern(val pattern: String, flags: Int = 0) {
     // Compilation methods. ============================================================================================
     /** A->(a|)+ */
     private fun processAlternations(last: XRAbstractSet): XRAbstractSet {
-        val auxRange = XRCharClass(hasFlag(XRPattern.CASE_INSENSITIVE))
+        val auxRange = XRCharClass(hasFlag(XPattern.CASE_INSENSITIVE))
         while (!lexemes.isEmpty() && lexemes.isLetter()
                 && (lexemes.lookAhead == 0
                     || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR
@@ -296,7 +296,7 @@ internal class XRPattern(val pattern: String, flags: Int = 0) {
         when {
             lexemes.isLetter() && !lexemes.isNextSpecial && XRLexer.isLetter(lexemes.lookAhead) -> {
                 when {
-                    hasFlag(XRPattern.CANON_EQ) -> {
+                    hasFlag(XPattern.CANON_EQ) -> {
                         cur = processDecomposedChar()
                         if (!lexemes.isEmpty()
                             && (lexemes.currentChar != XRLexer.CHAR_RIGHT_PARENTHESIS || last is XRFinalSet)
@@ -367,7 +367,7 @@ internal class XRPattern(val pattern: String, flags: Int = 0) {
 
         if (term.type == XRAbstractSet.TYPE_DOTSET && (quant == XRLexer.QUANT_STAR || quant == XRLexer.QUANT_PLUS)) {
             lexemes.next()
-            return XRDotQuantifierSet(term, last, quant, XRAbstractLineTerminator.getInstance(flags), hasFlag(XRPattern.DOTALL))
+            return XRDotQuantifierSet(term, last, quant, XRAbstractLineTerminator.getInstance(flags), hasFlag(XPattern.DOTALL))
         }
 
         return when (quant) {
@@ -615,7 +615,7 @@ internal class XRPattern(val pattern: String, flags: Int = 0) {
     }
 
     private fun processRangeExpression(alt: Boolean): XRCharClass {
-        var result = XRCharClass(hasFlag(XRPattern.CASE_INSENSITIVE), alt)
+        var result = XRCharClass(hasFlag(XPattern.CASE_INSENSITIVE), alt)
         var buffer = -1
         var intersection = false
         var firstInClass = true
@@ -846,13 +846,13 @@ internal class XRPattern(val pattern: String, flags: Int = 0) {
         val CANON_EQ = 1 shl 6
 
         /** A bit mask that includes all defined match flags */
-        internal val flagsBitMask = XRPattern.UNIX_LINES or
-                XRPattern.CASE_INSENSITIVE or
-                XRPattern.COMMENTS or
-                XRPattern.MULTILINE or
-                XRPattern.LITERAL or
-                XRPattern.DOTALL or
-                XRPattern.CANON_EQ
+        internal val flagsBitMask = XPattern.UNIX_LINES or
+                XPattern.CASE_INSENSITIVE or
+                XPattern.COMMENTS or
+                XPattern.MULTILINE or
+                XPattern.LITERAL or
+                XPattern.DOTALL or
+                XPattern.CANON_EQ
 
 
         /**
