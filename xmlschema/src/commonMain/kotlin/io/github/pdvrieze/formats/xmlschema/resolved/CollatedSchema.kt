@@ -142,7 +142,7 @@ internal class CollatedSchema(
                     XSSchema()
                 }
             }
-            val targetNamespace = (includeNamespace ?: rawInclude.targetNamespace?.value) ?: ""
+            val targetNamespace = (includeNamespace ?: rawInclude.targetNamespace?.value) ?: schemaLike.targetNamespace?.toString() ?: ""
             if (Pair(targetNamespace, resolvedIncluded) !in includedUrls) { // Avoid recursion in collations
                 includedUrls.add(Pair(targetNamespace, resolvedIncluded))
 
@@ -718,6 +718,12 @@ internal class CollatedSchema(
         override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
             return base.substitutionGroupMembers(headName)
         }
+
+        override fun toString(): String {
+            return "ChameleonWrapper($chameleonNamespace)"
+        }
+
+
     }
 
     companion object {
