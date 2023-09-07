@@ -21,14 +21,16 @@
 @file:Suppress("DEPRECATION") // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
+
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XPattern(val pattern: String) {
+internal class XPattern(val pattern: String, version: ResolvedSchema.Version) {
 
     var flags = 0
         private set
 
     /** A lexer instance used to get tokens from the pattern. */
-    private val lexemes = XRLexer(pattern)
+    private val lexemes = XRLexer(pattern, version)
 
     /** List of all capturing groups in the pattern. Primarily used for handling back references. */
     val capturingGroups = mutableListOf<XRFSet>()

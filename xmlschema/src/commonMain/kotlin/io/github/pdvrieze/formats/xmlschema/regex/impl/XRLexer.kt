@@ -24,6 +24,7 @@
 @file:OptIn(XmlUtilInternal::class) // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
@@ -47,7 +48,7 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String) {
+internal class XRLexer(val patternString: String, private val version: ResolvedSchema.Version) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray
@@ -440,7 +441,7 @@ internal class XRLexer(val patternString: String) {
                 val cs = parseCharClassName()
                 val negative = lookAheadChar == 'P'
 
-                lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(cs, negative)
+                lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(cs, negative, version)
                 lookAhead = 0
             }
 
@@ -448,7 +449,8 @@ internal class XRLexer(val patternString: String) {
             'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I', 'v', 'V', 'h', 'H' -> {
                 lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(
                         pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
-                        false
+                        false,
+                    version
                 )
                 lookAhead = 0
             }
