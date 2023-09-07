@@ -651,7 +651,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             MN("Mn", { CachedCategory(CharCategory.NON_SPACING_MARK.ordinal, true) }),
             ME("Me", { CachedCategory(CharCategory.ENCLOSING_MARK.ordinal, false) }),
             MC("Mc", { CachedCategory(CharCategory.COMBINING_SPACING_MARK.ordinal, true) }),
-            N("N", { CachedCategoryScope(0xE00, true) }),
+            N("IsN", { CachedCategoryScope(0xE00, true) }),
             ND("Nd", { CachedCategory(CharCategory.DECIMAL_DIGIT_NUMBER.ordinal, true) }),
             NL("Nl", { CachedCategory(CharCategory.LETTER_NUMBER.ordinal, true) }),
             NO("No", { CachedCategory(CharCategory.OTHER_NUMBER.ordinal, true) }),
