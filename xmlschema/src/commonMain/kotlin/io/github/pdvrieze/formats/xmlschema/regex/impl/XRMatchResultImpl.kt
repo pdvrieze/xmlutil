@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.XMatchGroup
-import io.github.pdvrieze.formats.xmlschema.regex.XRRegex
+import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 
 /**
  * Match result implementation
@@ -32,7 +32,7 @@ internal class XRMatchResultImpl
  *  @param input an input sequence for matching/searching.
  *  @param regex a [Regex] instance used for matching/searching.
  */
-constructor (internal val input: CharSequence, internal val regex: XRRegex) : XMatchResult {
+constructor (internal val input: CharSequence, internal val regex: XRegex) : XMatchResult {
     // Harmony's implementation ========================================================================================
     private val nativePattern = regex.nativePattern
     private val groupCount = nativePattern.capturingGroups.size
@@ -52,7 +52,7 @@ constructor (internal val input: CharSequence, internal val regex: XRRegex) : XM
         }
 
     var previousMatch = -1
-    var mode = XRRegex.Mode.MATCH
+    var mode = XRegex.Mode.MATCH
 
     private data class MatchResultState(val groupBounds: IntArray, val consumers: IntArray, val enterCounters: IntArray,
                                         val startIndex: Int, val previousMatch: Int)
