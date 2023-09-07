@@ -30,13 +30,18 @@ import java.io.FileNotFoundException
 import java.net.URI
 import java.net.URL
 
-internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false): ResolvedSchema.Resolver {
+internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
+    ResolvedSchema.Resolver {
     override val baseUri: VAnyURI
         get() = VAnyURI(baseURI.toASCIIString())
 
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
         val schemaUri = URI(schemaLocation.value)
-        if (!isNetworkResolvingAllowed && schemaUri.isAbsolute && schemaUri.scheme!=null) {
+        if (!isNetworkResolvingAllowed &&
+            schemaUri.isAbsolute &&
+            (schemaUri.scheme != baseURI.scheme ||
+                    schemaUri.host != baseURI.host)
+        ) {
             throw FileNotFoundException("Absolute uri references are not supported")
         }
         return baseURI.resolve(schemaUri).withXmlReader { reader ->
@@ -61,7 +66,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
 }
 
 
-private inline fun <R> URI.withXmlReader(body: (XmlReader)->R): R {
+private inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
     return toURL().withXmlReader(body)
 }
 
@@ -69,7 +74,7 @@ private inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
     return openStream().use { inStream ->
         val reader = XmlStreaming.newReader(inStream, "UTF-8")
         val r = reader.use(body)
-        if(reader.eventType != EventType.END_DOCUMENT) {
+        if (reader.eventType != EventType.END_DOCUMENT) {
             var e: EventType
             do {
                 e = reader.next()
