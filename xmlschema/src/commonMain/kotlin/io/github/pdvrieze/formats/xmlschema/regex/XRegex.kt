@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.regex
 
 import io.github.pdvrieze.formats.xmlschema.regex.impl.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 
 /**
  * Represents the results from a single capturing group within a [MatchResult] of [Regex].
@@ -61,7 +62,7 @@ public class XRegex internal constructor(internal val nativePattern: XPattern) {
     }
 
     /** Creates a regular expression from the specified [pattern] string and the default options.  */
-    constructor(pattern: String): this(XPattern(pattern))
+    constructor(pattern: String, version: ResolvedSchema.Version) : this(XPattern(pattern, version))
 
     /** The pattern string of this regular expression. */
     val pattern: String

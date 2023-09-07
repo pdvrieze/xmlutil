@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.XBitSet
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.set
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.collections.associate
 
@@ -290,6 +292,17 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         }
         override fun computeValue(): XRAbstractCharClass =
                 CachedWord().getValue(negative = true).apply { mayContainSupplCodepoints = true }
+    }
+
+    /** Supports unknown classes, in xsd 1.1 those are allowed, but match any character at all. */
+    internal class CachedUnknownClass: CachedCharClass() {
+        init {
+            initValues()
+        }
+
+        override fun computeValue(): XRAbstractCharClass {
+            return XRCharClass().apply { inverted=true }
+        }
     }
 
     internal class CachedLower : CachedCharClass() {
@@ -702,8 +715,11 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             return cc1.bits!!.intersects(cc2.bits!!)
         }
 
-        fun getPredefinedClass(name: String, negative: Boolean): XRAbstractCharClass {
-            val charClass = classCacheMap[name] ?: throw XRPatternSyntaxException("No such character class ($name)")
+        fun getPredefinedClass(name: String, negative: Boolean, version: Version): XRAbstractCharClass {
+            val charClass = classCacheMap[name] ?: when(version) {
+                Version.V1_0 -> throw XRPatternSyntaxException("No such character class ($name)")
+                else -> classCacheMap["all"]!! // xsd 1.1 allows unknown classes }
+            }
             val cachedClass = classCache[charClass.ordinal].value
             return cachedClass.getValue(negative)
         }
