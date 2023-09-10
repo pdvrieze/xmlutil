@@ -48,7 +48,7 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String, private val version: ResolvedSchema.Version) {
+internal class XRLexer(val patternString: String, internal val version: ResolvedSchema.Version) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray

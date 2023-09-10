@@ -22,9 +22,10 @@
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XPattern(val pattern: String, version: ResolvedSchema.Version) {
+internal class XPattern(val pattern: String, version: Version) {
 
     var flags = 0
         private set
@@ -691,7 +692,9 @@ internal class XPattern(val pattern: String, version: ResolvedSchema.Version) {
                     if (firstInClass
                         || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
                         || lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET
-                        || buffer < 0) {
+                        || (buffer < 0 && lexemes.version != Version.V1_0)) {
+                        // Note that mid-range hyphens are only supported in 1.1
+
                         // Treat the hypen as a normal character.
                         if (buffer >= 0) {
                             result.add(buffer)
