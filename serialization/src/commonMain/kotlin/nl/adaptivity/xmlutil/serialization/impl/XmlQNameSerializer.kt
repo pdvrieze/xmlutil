@@ -21,21 +21,27 @@
 package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 internal object XmlQNameSerializer : KSerializer<QName> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING)
+    @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+    override val descriptor: SerialDescriptor =
+        buildSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING) {
+            annotations = listOf(XmlSerialName("QName", XMLConstants.XSD_NS_URI, XMLConstants.XSD_PREFIX))
+        }
 
     override fun deserialize(decoder: Decoder): QName {
         if(decoder !is  XML.XmlInput) throw SerializationException("QNameXmlSerializer only makes sense in an XML context")

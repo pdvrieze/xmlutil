@@ -1,10 +1,11 @@
 [versions]
 ktor = "1.6.8"
 junit5-jupiter = "5.9.2"
-kotlinx-serialization = "1.5.1"
-kotlin = "1.8.22"
-dokka = "1.8.10"
-binaryValidator = "0.13.1"
+kotlinx-serialization = "1.6.0"
+#kotlinx-serialization = "1.5.2-wasm0"
+kotlin = "1.9.10"
+dokka = "1.8.20"
+binaryValidator = "0.13.2"
 woodstox = "6.5.1"
 
 [libraries]
@@ -28,5 +29,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref="kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref="kotlin" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref="kotlin" }
+kotlinJs = { id = "org.jetbrains.kotlin.js", version.ref="kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref="dokka" }
 binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref="binaryValidator" }

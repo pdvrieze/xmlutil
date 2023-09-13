@@ -24,6 +24,7 @@ import kotlinx.cinterop.*
 import platform.posix.*
 import kotlin.test.*
 
+@OptIn(ExperimentalForeignApi::class)
 class FileIOTest {
 
     lateinit var testFile: CPointer<FILE>
@@ -33,7 +34,7 @@ class FileIOTest {
     fun createTestTmpFile() {
         memScoped {
             val fileName: CPointer<ByteVar> = "FILEIOTEST.XXXXXX".cstr.ptr
-            val fileDescriptor = mkstemp(fileName).takeIf { it>=0 } ?: throw IOException.fromErrno()
+            val fileDescriptor = mkstemp(fileName).takeIf { it >= 0 } ?: throw IOException.fromErrno()
             unlink(fileName.toKString())
             testFile = fdopen(fileDescriptor, "w+") ?: throw IOException.fromErrno()
             writer = OutputStreamWriter(FileOutputStream(testFile))
@@ -52,7 +53,7 @@ class FileIOTest {
         rewind(testFile)
         memScoped {
             val readBuffer = allocArray<UByteVar>(10)
-            val bytesRead = fread(readBuffer.getPointer(this), 1u, 10, testFile)
+            val bytesRead = fread(readBuffer.getPointer(this), 1u, 10u, testFile)
             assertEquals(1u, bytesRead)
             assertEquals('5'.code, readBuffer[0].toInt())
         }

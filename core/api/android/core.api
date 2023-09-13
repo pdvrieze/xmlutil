@@ -193,6 +193,7 @@ public abstract class nl/adaptivity/xmlutil/EventType : java/lang/Enum {
 	public static final field TEXT Lnl/adaptivity/xmlutil/EventType;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun createEvent (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/XmlEvent;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public fun isIgnorable ()Z
 	public fun isTextElement ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/EventType;
@@ -370,6 +371,7 @@ public final class nl/adaptivity/xmlutil/XmlDeclMode : java/lang/Enum {
 	public static final field Charset Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static final field Minimal Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static final field None Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static fun values ()[Lnl/adaptivity/xmlutil/XmlDeclMode;
 }
@@ -736,6 +738,7 @@ public final class nl/adaptivity/xmlutil/XmlUtil {
 	public static final fun toCName (Ljavax/xml/namespace/QName;)Ljava/lang/String;
 	public static final fun toQname (Ljava/lang/CharSequence;)Ljavax/xml/namespace/QName;
 	public static final fun toQname (Ljava/lang/CharSequence;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static final fun xmlCollapseWhitespace (Ljava/lang/String;)Ljava/lang/String;
 	public static final fun xmlEncode (Ljava/lang/CharSequence;)Ljava/lang/String;
 }
 
@@ -918,6 +921,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmluti
 public final class nl/adaptivity/xmlutil/core/XmlVersion : java/lang/Enum {
 	public static final field XML10 Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public static final field XML11 Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getVersionString ()Ljava/lang/String;
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/core/XmlVersion;
 	public static fun values ()[Lnl/adaptivity/xmlutil/core/XmlVersion;

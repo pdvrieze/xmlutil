@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -42,7 +42,7 @@ public actual object XmlStreaming {
     }
 
     public actual fun newReader(input: CharSequence): XmlReader {
-        return KtXmlReader(StringReader(input))
+        return KtXmlReader(StringReader(input.toString()))
     }
 
     public actual fun newReader(reader: Reader): XmlReader {
@@ -50,7 +50,7 @@ public actual object XmlStreaming {
     }
 
     public actual fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(StringReader(input))
+        newGenericReader(StringReader(input.toString()))
 
     public actual fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 

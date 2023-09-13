@@ -1,3 +1,33 @@
+# 0.86.2-SNAPSHOT
+Security:
+- On JVM target only: explicitly disable creating input stream factory that
+  allows for external entities (which could be local files such as passwd).
+  An upgrade is recommended. However workarounds exist: Rather than use the
+  convenience accessor from string, use the following code: 
+  `XML.decodeFromReader(XmlStreaming.newGenericReader(inputString))` (or the
+  relevant overloads - It is the usage of the generic reader that is key). 
+
+Features:
+- Support wildcard (`*`) for `XmlBefore` and `XmlAfter`. These create a
+  partition in ordering. An element/attribute with wildcard before will
+  be ordered before/after elements that do not have this. Explicit order
+  relationships will be maintained.
+- Support checking ordering in reading.
+- Support ID type attributes with an @XmlId attribute marking them
+- Add support for strict attribute name matching (not allowing null namespace)
+  matchup
+
+Other:
+- Remove support for legacy JS in line with Kotlin 1.9 and kotlinx.serialization
+  1.6.0
+
+Fixes:
+- For attribute lists, make sure to collapse the whitespace.
+- When attributes have an `@XmlSerialName` annotation with a default namespace
+  value, then this will result in a non-qualified attribute.
+- Fix nullable QName serialization (and probably other nullable inline-like)
+  serialization.
+
 # 0.86.1
 *(July 5, 2023)<br />*
 Features:

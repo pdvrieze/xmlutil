@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="apacheprojects" pattern="file[kotlinsql]:*/" />
-</component>

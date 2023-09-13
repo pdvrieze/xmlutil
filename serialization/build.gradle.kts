@@ -64,16 +64,15 @@ kotlin {
             val woodstoxTestRun = testRuns.create("woodstoxTest") {
                 setExecutionSourceFrom(
                     listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
-                    listOf(
-                        woodstoxCompilation.get()
-                    )
+                    listOf(woodstoxCompilation.get())
                 )
             }
 
-
         }
+//        androidTarget("actualAndroid")
+
         jvm("android")
-        js(BOTH) {
+        js {
             browser()
             compilations.all {
                 kotlinOptions {
@@ -180,6 +179,9 @@ kotlin {
 
             dependencies {
                 compileOnly(libs.kxml2)
+                api(project(":core")) {
+                    attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
+                }
             }
         }
 
@@ -199,6 +201,9 @@ kotlin {
         }
 
         val jsMain by getting {
+            dependencies {
+                api(project(":core"))
+            }
         }
 
         val jsTest by getting {
@@ -210,6 +215,11 @@ kotlin {
         }
 
         all {
+            if (this.name == "nativeMain") {
+                dependencies {
+                    api(project(":core"))
+                }
+            }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
                 languageSettings.enableLanguageFeature("InlineClasses")
                 dependencies {
@@ -230,6 +240,12 @@ kotlin {
 
 addNativeTargets()
 
+dependencies {
+    attributesSchema {
+        attribute(KotlinPlatformType.attribute)
+    }
+}
+
 apiValidation {
     nonPublicMarkers.apply {
         add("nl.adaptivity.xmlutil.serialization.WillBePrivate")
@@ -248,10 +264,6 @@ configureDokka(myModuleVersion = xmlutil_serial_version)
 tasks.register("cleanTest") {
     group = "verification"
     dependsOn(tasks.named("cleanAllTests"))
-}
-
-tasks.named<KotlinJsTest>("jsLegacyBrowserTest") {
-    filter.excludeTestsMatching("nl.adaptivity.xml.serialization.OrderedFieldsTest")
 }
 
 tasks.withType<Test> {

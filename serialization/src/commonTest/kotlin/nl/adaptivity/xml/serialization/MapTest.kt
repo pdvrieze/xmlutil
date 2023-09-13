@@ -136,7 +136,7 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
         val xml = baseXmlFormat.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun mapKeyName(serializerParent: SafeParentInfo): XmlSerializationPolicy.DeclaredNameInfo {
-                    return XmlSerializationPolicy.DeclaredNameInfo("name", null)
+                    return XmlSerializationPolicy.DeclaredNameInfo("name")
                 }
             }
         }

@@ -27,6 +27,7 @@ import platform.posix.size_t
 
 public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), Closeable {
 
+    @OptIn(ExperimentalForeignApi::class)
     public constructor(filePtr: CPointer<FILE>) : this(FileOutputStream(filePtr))
 
     public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) :
@@ -36,6 +37,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
             this(FileOutputStream(fileHandle, mode))
 
 
+    @OptIn(ExperimentalForeignApi::class)
     public fun appendCodePoint(codepoint: Int): OutputStreamWriter {
         memScoped {
             val buffer = allocArray<UByteVar>(4)
@@ -46,6 +48,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
         return this
     }
 
+    @ExperimentalForeignApi
     private fun addCodepointToBuffer(
         buffer: CArrayPointer<UByteVar>,
         codepoint: Int
@@ -86,6 +89,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
         return appendCodePoint(value.code)
     }
 
+    @OptIn(ExperimentalForeignApi::class)
     override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): OutputStreamWriter {
         if (value == null) {
             return append("null", 0, 4)

@@ -24,6 +24,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
@@ -32,7 +33,7 @@ import org.gradle.plugins.signing.SigningExtension
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
-    pubName: String = project.displayName,
+    pubName: String = project.name,
     pubDescription: String = "Component of the XMLUtil library"
 ) {
     val xmlutil_version: String by project
@@ -41,6 +42,12 @@ fun Project.doPublish(
 
     val isReleaseVersion = ("SNAPSHOT" !in xmlutil_version)
     extra["isReleaseVersion"] = isReleaseVersion
+
+
+    val javadocJarTask = tasks.create<Jar>("javadocJar") {
+        archiveClassifier.set("javadoc")
+        from(tasks.named("dokkaHtml"))
+    }
 
     configure<PublishingExtension> {
         repositories {
@@ -63,6 +70,7 @@ fun Project.doPublish(
             }
         }
 
+
         configure<SigningExtension> {
             val priv_key:String? = System.getenv("GPG_PRIV_KEY")
             val passphrase:String? = System.getenv("GPG_PASSPHRASE")
@@ -74,20 +82,17 @@ fun Project.doPublish(
             }
         }
 
-        val javadocJarTask = tasks.create<Jar>("javadocJar") {
-            archiveClassifier.set("javadoc")
-            from(tasks.named("dokkaHtml"))
-        }
-
         publications.withType<MavenPublication> {
+
+//            artifactId = project.name
+
+            // the attributes aren't needed for pom (it selects the right module)
+//            suppressPomMetadataWarningsFor("jvmApiElements-published")
+
             artifact(javadocJarTask)
 
-            val pub = this
-            configure<SigningExtension> {
-                setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
 
-                sign(pub)
-            }
+
             pom {
                 name.set(pubName)
                 description.set(pubDescription)
@@ -116,12 +121,33 @@ fun Project.doPublish(
         }
     }
 
+
+    configure<SigningExtension> {
+        setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+
+        val publishing = extensions.findByType<PublishingExtension>()
+        val signTasks = sign(publishing!!.publications)
+
+        tasks.withType<AbstractPublishToMaven> {
+                    val signTaskName = "signKotlinMultiplatformPublication"
+                    val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
+                    tasks.findByName(signTaskName)?.let {
+                        logger.lifecycle("Add dependency for ${name} on ${signTaskName}")
+                        dependsOn(it)
+                    }
+                    logger.lifecycle("Add dependency for ${name} on ${specificSignTaskName}")
+
+
+            dependsOn(signTasks)
+        }
+
+    }
+
     val publishNativeTask = tasks.create<Task>("publishNative") {
         group = "Publishing"
         description = "Task to publish all native artefacts only"
     }
 
-    val ghOs = System.getenv("RUNNER_OS")?.toLowerCase()
     tasks.withType<PublishToMavenRepository> {
         if (isEnabled) {
             val doPublish = arrayOf("publishKotlinMultiplatform", "publishJs", "publishJvm", "publishAndroid").none { "${it}Publication" in name }

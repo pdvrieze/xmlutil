@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -67,15 +67,15 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
             eventType != type ->
-                throw XmlException("Type $eventType does not match expected type \"$type\"")
+                throw XmlException("Type $eventType does not match expected type \"$type\" ($locationInfo)")
 
             namespace != null &&
                     namespaceURI != namespace ->
-                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\"")
+                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\" ($locationInfo)")
 
             name != null &&
                     localName != name ->
-                throw XmlException("local name $localName does not match expected \"$name\"")
+                throw XmlException("local name $localName does not match expected \"$name\" ($locationInfo)")
         }
     }
 

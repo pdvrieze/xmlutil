@@ -24,10 +24,12 @@ plugins {
     `kotlin-dsl`
 }
 
+java {
+//    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 dependencies {
-//    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:$embeddedKotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
-    implementation("org.jetbrains.kotlin:kotlin-native-utils:${libs.versions.kotlin.get()}")
+    implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
 }
 

@@ -27,6 +27,7 @@ public actual abstract class OutputStream : Closeable {
     /**
      * Write the buffer with the given amount of elements. It gets the element size from the type parameter.
      */
+    @ExperimentalForeignApi
     public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: size_t): size_t {
         return writePtr(buffer, sizeOf<T>().convert(), count)
     }
@@ -34,13 +35,16 @@ public actual abstract class OutputStream : Closeable {
     /**
      * Write the buffer to the underlying stream. Effectively wrapping fwrite.
      */
+    @ExperimentalForeignApi
     public abstract fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: size_t, count: size_t): size_t
 
+    @ExperimentalForeignApi
     public inline fun <reified T : CVariable> writeAllPtr(buffer: CArrayPointer<T>, count: Int) {
         writeAllPtr(buffer, sizeOf<T>().convert(), count.convert())
     }
 
 
+    @ExperimentalForeignApi
     public abstract fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: size_t, count: size_t)
 
     public actual abstract fun write(b: Int)
@@ -49,6 +53,7 @@ public actual abstract class OutputStream : Closeable {
         write(b, 0, b.size)
     }
 
+    @OptIn(ExperimentalForeignApi::class)
     public actual open fun write(b: ByteArray, off: Int, len: Int) {
         val endIdx = off + len
         require(off in 0 until b.size) { "Offset before start of array" }
