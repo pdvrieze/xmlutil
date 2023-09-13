@@ -23,10 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.XBitSet
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.set
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.collections.associate
 
 /**
  * Unicode category (i.e. Ll, Lu).
@@ -695,7 +693,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             SK("Sk", { CachedCategory(CharCategory.MODIFIER_SYMBOL.ordinal, false) }),
             SO("So", { CachedCategory(CharCategory.OTHER_SYMBOL.ordinal, true) }),
             PI("Pi", { CachedCategory(CharCategory.INITIAL_QUOTE_PUNCTUATION.ordinal, false) }),
-            PF("Pf", { CachedCategory(CharCategory.FINAL_QUOTE_PUNCTUATION.ordinal, false)  })
+            PF("Pf", { CachedCategory(CharCategory.FINAL_QUOTE_PUNCTUATION.ordinal, false)  }),
         }
 
         private val classCache = Array<Lazy<CachedCharClass>>(CharClasses.entries.size) { idx ->

@@ -419,7 +419,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             '['  -> lookAhead = CHAR_LEFT_SQUARE_BRACKET
             ']'  -> lookAhead = CHAR_RIGHT_SQUARE_BRACKET
             '^'  -> lookAhead = CHAR_CARET
-            '&'  -> lookAhead = CHAR_AMPERSAND
             '-'  -> lookAhead = CHAR_HYPHEN
         }
         return false
@@ -665,8 +664,13 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         if (sb.isEmpty()) throw XRPatternSyntaxException("Empty character family", patternString, curTokenIndex)
 
         val res = sb.toString()
-        return when {
-            res.length == 1 -> "Is$res"
+        return when {// todo validate the pattern
+            res.length == 1 -> {
+                if (res[0] !in arrayOf('L', 'M', 'N', 'P', 'Z', 'S', 'C')) {
+                    throw XRPatternSyntaxException("Single character categories must start with one of the 7 category names")
+                }
+                "Is$res"
+            }
             res.length > 3 && (res.startsWith("Is") || res.startsWith("In")) -> res.substring(2)
             else -> res
         }

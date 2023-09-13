@@ -21,7 +21,6 @@
 @file:Suppress("DEPRECATION") // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
@@ -620,7 +619,7 @@ internal class XPattern(val pattern: String, version: Version) {
     private fun processRangeExpression(alt: Boolean): XRCharClass {
         var result = XRCharClass(hasFlag(XPattern.CASE_INSENSITIVE), alt)
         var buffer = -1
-        var intersection = false
+        var subtraction = false
         var firstInClass = true
 
         var notClosed = lexemes.currentChar != XRLexer.CHAR_RIGHT_SQUARE_BRACKET
@@ -636,6 +635,13 @@ internal class XPattern(val pattern: String, version: Version) {
                 }
 
                 XRLexer.CHAR_LEFT_SQUARE_BRACKET -> {
+                    if (!subtraction) {
+                        throw XRPatternSyntaxException(
+                            "Schema patters don't allow nested groups that are not subtractions",
+                            pattern,
+                            lexemes.curTokenIndex
+                        )
+                    }
                     if (buffer >= 0) {
                         result.add(buffer)
                         buffer = -1
@@ -646,52 +652,22 @@ internal class XPattern(val pattern: String, version: Version) {
                         lexemes.next()
                         negative = true
                     }
-
-                    if (intersection)
-                        result.intersection(processRangeExpression(negative))
-                    else
+                    if (subtraction) {
+                        result.intersection(processRangeExpression(!negative)) // subtraction is intersection with inverse
+                    } else {
                         result.union(processRangeExpression(negative))
-                    intersection = false
+                    }
+
                     lexemes.next()
                 }
 
-                XRLexer.CHAR_AMPERSAND -> {
-                    if (buffer >= 0) {
-                        result.add(buffer)
-                    }
-                    buffer = lexemes.next()  // buffer == Lexer.CHAR_AMPERSAND since next() returns currentChar.
-
-                    /*
-                     * If there is a start for subrange we will do an intersection
-                     * otherwise treat '&' as a normal character
-                     */
-                    if (lexemes.currentChar == XRLexer.CHAR_AMPERSAND) {
-                        if (lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
-                            lexemes.next()
-                            intersection = true
-                            buffer = -1
-                        } else {
-                            lexemes.next()
-                            if (firstInClass) {
-                                // Skip "&&" at "[&&...]" or "[^&&...]"
-                                result = processRangeExpression(false)
-                            } else {
-                                // Ignore "&&" at "[X&&]" ending where X != empty string
-                                if (lexemes.currentChar != XRLexer.CHAR_RIGHT_SQUARE_BRACKET) {
-                                    result.intersection(processRangeExpression(false))
-                                }
-                            }
-                        }
-                    } else {
-                        //treat '&' as a normal character
-                        buffer = '&'.toInt()
-                    }
-                }
-
                 XRLexer.CHAR_HYPHEN -> {
-                    if (firstInClass
+                    if (lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
+                        lexemes.next()
+                        subtraction = true
+                        buffer = -1
+                    } else if (firstInClass
                         || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
-                        || lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET
                         || (buffer < 0 && lexemes.version != Version.V1_0)) {
                         // Note that mid-range hyphens are only supported in 1.1
 
