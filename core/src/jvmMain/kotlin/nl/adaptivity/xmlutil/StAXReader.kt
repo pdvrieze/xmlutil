@@ -44,18 +44,18 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
     @Throws(XMLStreamException::class)
-    public constructor(reader: Reader) : this(XMLInputFactory.newFactory().createXMLStreamReader(reader))
+    public constructor(reader: Reader) : this(safeInputFactory().createXMLStreamReader(reader))
 
     @Throws(XMLStreamException::class)
     public constructor(inputStream: InputStream, encoding: String?) : this(
-        XMLInputFactory.newFactory().createXMLStreamReader(
+        safeInputFactory().createXMLStreamReader(
             inputStream,
             encoding
         )
     )
 
     @Throws(XMLStreamException::class)
-    public constructor(source: Source) : this(XMLInputFactory.newFactory().createXMLStreamReader(source))
+    public constructor(source: Source) : this(safeInputFactory().createXMLStreamReader(source))
 
     @Throws(XmlException::class)
     override fun close() {
@@ -268,6 +268,12 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     }
 
     private companion object {
+
+        fun safeInputFactory(): XMLInputFactory {
+            return XMLInputFactory.newFactory().apply {
+                setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
+            }
+        }
 
         private val DELEGATE_TO_LOCAL = Array(16) { i ->
             when (i) {

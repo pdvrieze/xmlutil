@@ -1,4 +1,12 @@
 # 0.86.2-SNAPSHOT
+Security:
+- On JVM target only: explicitly disable creating input stream factory that
+  allows for external entities (which could be local files such as passwd).
+  An upgrade is recommended. However workarounds exist: Rather than use the
+  convenience accessor from string, use the following code: 
+  `XML.decodeFromReader(XmlStreaming.newGenericReader(inputString))` (or the
+  relevant overloads - It is the usage of the generic reader that is key). 
+
 Features:
 - Support wildcard (`*`) for `XmlBefore` and `XmlAfter`. These create a
   partition in ordering. An element/attribute with wildcard before will
