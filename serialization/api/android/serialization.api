@@ -122,6 +122,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/
 	public static final field Element Lnl/adaptivity/xmlutil/serialization/InputKind;
 	public static final field Text Lnl/adaptivity/xmlutil/serialization/InputKind;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/InputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/InputKind;
 }
@@ -149,6 +150,7 @@ public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public static final field Mixed Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static final field Text Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public fun isTextual ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -629,6 +631,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$Xm
 	public static final field ALWAYS Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public static final field ANNOTATED Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public static final field NEVER Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 }
