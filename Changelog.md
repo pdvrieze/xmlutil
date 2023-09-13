@@ -1,4 +1,5 @@
-# 0.86.2-SNAPSHOT
+# 0.86.2
+*(September 13, 2023)<br />*
 Security:
 - On JVM target only: explicitly disable creating input stream factory that
   allows for external entities (which could be local files such as passwd).
