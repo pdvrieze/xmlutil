@@ -595,6 +595,10 @@ internal class XPattern(val pattern: String, version: Version) {
 
                 XRLexer.CHAR_HYPHEN -> {
                     if (lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
+                        if (firstInClass) {
+                            throw XRPatternSyntaxException("Subtraction from empty alt group is not supported", pattern, lexemes.curTokenIndex)
+                        }
+
                         lexemes.next()
                         subtraction = true
                         buffer = -1
