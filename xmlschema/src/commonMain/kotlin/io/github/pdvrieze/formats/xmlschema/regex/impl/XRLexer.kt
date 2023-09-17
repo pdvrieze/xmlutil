@@ -129,7 +129,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
     // Character checks ================================================================================================
     /** Returns true, if current token is special, i.e. quantifier, or other compound token. */
     val isSpecial: Boolean      get() = curSpecialToken != null
-    val isQuantifier: Boolean   get() = isSpecial && curSpecialToken!!.type == XRSpecialToken.Type.QUANTIFIER
     val isNextSpecial: Boolean  get() = lookAheadSpecialToken != null
 
     private fun Int.isSurrogatePair() : Boolean {
@@ -338,9 +337,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             // Quantifier ({x,y}).
             '{' -> lookAheadSpecialToken = processQuantifier()
 
-            // $.
-            '$' -> lookAhead = CHAR_DOLLAR
-
             // A group or a special construction.
             '(' -> {
                 if (pattern[index] == '?') {
@@ -355,7 +351,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             ')' -> lookAhead = CHAR_RIGHT_PARENTHESIS
             ']' -> { lookAhead = CHAR_RIGHT_SQUARE_BRACKET } // allows for it to trigger an error
             '[' -> { lookAhead = CHAR_LEFT_SQUARE_BRACKET; mode = Mode.RANGE }
-            '^' -> lookAhead = CHAR_CARET
             '|' -> lookAhead = CHAR_VERTICAL_BAR
             '.' -> lookAhead = CHAR_DOT
         }
@@ -529,8 +524,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
     }
 
     companion object {
-        // Special characters.
-        val CHAR_DOLLAR               = 0xe0000000.toInt() or '$'.toInt()
         val CHAR_RIGHT_PARENTHESIS    = 0xe0000000.toInt() or ')'.toInt()
         val CHAR_LEFT_SQUARE_BRACKET  = 0xe0000000.toInt() or '['.toInt()
         val CHAR_RIGHT_SQUARE_BRACKET = 0xe0000000.toInt() or ']'.toInt()
@@ -539,13 +532,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         val CHAR_HYPHEN               = 0xe0000000.toInt() or '-'.toInt()
         val CHAR_DOT                  = 0xe0000000.toInt() or '.'.toInt()
         val CHAR_LEFT_PARENTHESIS     = 0x80000000.toInt() or '('.toInt()
-        val CHAR_NONCAP_GROUP         = 0xc0000000.toInt() or '('.toInt()
-        val CHAR_POS_LOOKAHEAD        = 0xe0000000.toInt() or '('.toInt()
-        val CHAR_NEG_LOOKAHEAD        = 0xf0000000.toInt() or '('.toInt()
-        val CHAR_POS_LOOKBEHIND       = 0xf8000000.toInt() or '('.toInt()
-        val CHAR_NEG_LOOKBEHIND       = 0xfc000000.toInt() or '('.toInt()
-        val CHAR_ATOMIC_GROUP         = 0xfe000000.toInt() or '('.toInt()
-        val CHAR_FLAGS                = 0xff000000.toInt() or '('.toInt()
 
         // Quantifier modes.
         val QMOD_GREEDY     = 0xe0000000.toInt()
@@ -656,7 +642,7 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             }
 
             // Canonical decomposition based on mappings in decomposition table.
-            var resCodePointsIndex = decomposeString(inputCodePoints, inputCodePointsIndex, resCodePoints)
+            val resCodePointsIndex = decomposeString(inputCodePoints, inputCodePointsIndex, resCodePoints)
 
             // Canonical ordering.
             // See http://www.unicode.org/reports/tr15/#Decomposition for details
