@@ -322,6 +322,10 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         when (lookAheadChar) {
             // Quantifier (*, +, ?).
             '+', '*', '?' -> {
+                if (index < pattern.size && pattern[index] in arrayOf('+', '*', '?')) {
+                    throw XRPatternSyntaxException("Duplicate quantifier", patternString, index - 1)
+                }
+
                 val mode = if (index < pattern.size) pattern[index] else '*'
                 // look at the next character to determine if the mode is greedy, reluctant or possessive.
                 when (mode) {
