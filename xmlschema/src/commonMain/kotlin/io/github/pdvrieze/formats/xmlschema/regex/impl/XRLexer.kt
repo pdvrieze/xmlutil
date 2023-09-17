@@ -343,62 +343,12 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
 
             // A group or a special construction.
             '(' -> {
-                if (pattern[index] != '?') {
+                if (pattern[index] == '?') {
+                    // Special constructs (non-capturing groups, named capturing groups, look ahead/look behind etc).
+                    throw XRPatternSyntaxException("XMLSchema regular expressions don't support special groups", patternString, index)
+                } else {
                     // Group
                     lookAhead = CHAR_LEFT_PARENTHESIS
-                } else {
-                    // Special constructs (non-capturing groups, named capturing groups, look ahead/look behind etc).
-                    nextIndex()
-                    var char = pattern[prevNonWhitespaceIndex + 1]
-                    when (char) {
-                        // Look ahead or an atomic group.
-                        '!' -> {
-                            lookAhead = CHAR_NEG_LOOKAHEAD; nextIndex()
-                        }
-                        '=' -> {
-                            lookAhead = CHAR_POS_LOOKAHEAD; nextIndex()
-                        }
-                        '>' -> {
-                            lookAhead = CHAR_ATOMIC_GROUP; nextIndex()
-                        }
-                        // named capturing group or positive / negative look behind - need to check the next char.
-                        '<' -> {
-                            nextIndex()
-                            char = pattern[index]
-                            // Process the second char for look behind construction.
-                            when (char) {
-                                '!' -> {
-                                    lookAhead = CHAR_NEG_LOOKBEHIND; nextIndex()
-                                }
-                                '=' -> {
-                                    lookAhead = CHAR_POS_LOOKBEHIND; nextIndex()
-                                }
-                                else -> {
-                                    val name = readGroupName()
-                                    lookAhead = CHAR_NAMED_GROUP
-                                    lookAheadSpecialToken = XRNamedGroup(name)
-                                }
-                            }
-                        }
-                        // Flags.
-                        else -> {
-                            lookAhead = readFlags()
-
-                            // We return `res = res or 1 shl 8` from readFlags() if we read (?idmsux-idmsux)
-                            if (lookAhead >= 256) {
-                                // Just flags (no non-capturing group with them). Erase auxiliary bit.
-                                lookAhead = lookAhead and 0xff
-                                flags = lookAhead
-                                lookAhead = lookAhead shl 16
-                                lookAhead = CHAR_FLAGS or lookAhead
-                            } else {
-                                // A non-capturing group with flags: (?<flags>:Foo)
-                                flags = lookAhead
-                                lookAhead = lookAhead shl 16
-                                lookAhead = CHAR_NONCAP_GROUP or lookAhead
-                            }
-                        }
-                    }
                 }
             }
 
@@ -449,70 +399,32 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             }
 
             // Word/whitespace/digit.
-            'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I', 'v', 'V', 'h', 'H' -> {
+            'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I' -> {
                 lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(
-                        pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
-                        false,
+                    pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
+                    false,
                     version
                 )
                 lookAhead = 0
-            }
-
-            // Enter in ESCAPE mode. Skip this \Q symbol.
-            'Q' -> {
-                savedMode = mode
-                mode = Mode.ESCAPE
-                index = escapedCharIndex // index of 'Q'
-                nextIndex() // skip 'Q' and process the following chars with ESCAPE mode
-                return true
             }
 
             // Special characters like tab, new line etc.
             't' -> lookAhead = '\t'.toInt()
             'n' -> lookAhead = '\n'.toInt()
             'r' -> lookAhead = '\r'.toInt()
-            'f' -> lookAhead = '\u000C'.toInt()
-            'a' -> lookAhead = '\u0007'.toInt()
-            'e' -> lookAhead = '\u001B'.toInt()
-
-            // Back references to capturing groups.
-            // \n
-            '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                if (mode == Mode.PATTERN) {
-                    lookAhead = 0x80000000.toInt() or lookAhead  // Captured group reference is 0x80...<group number>
-                }
-            }
-            // \k<name>
-            'k' -> {
-                if (pattern[nextIndex()] != '<') {
-                    throw XRPatternSyntaxException("Invalid syntax for named group back reference", patternString, curTokenIndex)
-                }
-                val name = readGroupName()
-                lookAhead = CHAR_NAMED_GROUP_REF
-                lookAheadSpecialToken = XRNamedGroup(name)
-            }
-
-            // A literal: octal, hex, or hex unicode.
-            '0' -> lookAhead = readOctals()
-            'x' -> lookAhead = readHex("hexadecimal", 2)
-            'u' -> lookAhead = readHex("Unicode", 4)
 
             // Special characters like EOL, EOI etc
-            'b' -> lookAhead = CHAR_WORD_BOUND
-            'B' -> lookAhead = CHAR_NONWORD_BOUND
-            'A' -> lookAhead = CHAR_START_OF_INPUT
-            'G' -> lookAhead = CHAR_PREVIOUS_MATCH
-            'Z' -> lookAhead = CHAR_END_OF_LINE
-            'z' -> lookAhead = CHAR_END_OF_INPUT
-            'R' -> lookAhead = CHAR_LINEBREAK
 
-            'E', 'F', 'J', 'K', 'L', 'M', 'N', 'O', 'T', 'U', 'X', 'Y', 'g', 'j', 'l', 'm', 'o', 'q', 'y' ->
+            '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return false
+
+            else ->
                 throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
         }
         return false
     }
 
     /** Process [lookAhead] in assumption that it's quantifier. */
+    @OptIn(XmlUtilInternal::class)
     private fun processQuantifier(): XRQuantifier {
         assert(lookAhead == '{'.toInt())
         val sb = StringBuilder(4)
@@ -654,12 +566,17 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         if (index < pattern.size - 2) {
             // one symbol family
             if (pattern[index] != '{') {
+                if (pattern[index] !in arrayOf('L', 'M', 'N', 'P', 'Z', 'S', 'C')) {
+                    throw XRPatternSyntaxException("Single character categories must start with one of the 7 category names")
+                }
                 return "Is${pattern[nextIndex()]}"
             }
 
             nextIndex() // Skip '{'
             var char = pattern[nextIndex()]
             while (index < pattern.size - 2 && char != '}') {
+                if (!(char.isBlockNameChar())) throw XRPatternSyntaxException("Invalid character '$char' in character class name")
+
                 sb.append(char)
                 char = pattern[nextIndex()]
             }
@@ -675,69 +592,15 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
                 }
                 "Is$res"
             }
+            res.length == 2 -> {
+                if (res[0] !in arrayOf('L', 'M', 'N', 'P', 'Z', 'S', 'C')) {
+                    throw XRPatternSyntaxException("Double character categories must start with one of the 7 category names")
+                }
+                res
+            }
             res.length > 3 && (res.startsWith("Is") || res.startsWith("In")) -> res.substring(2)
             else -> res
         }
-    }
-
-    /** Process hexadecimal integer. */
-    private fun readHex(radixName: String, max: Int): Int {
-        val builder = StringBuilder(max)
-        val length = pattern.size - 2
-        var i = 0
-        while (i < max && index < length) {
-            builder.append(pattern[nextIndex()])
-            i++
-        }
-        if (i == max) {
-            try {
-                return builder.toString().toInt(16)
-            } catch (e: NumberFormatException) {}
-        }
-        throw XRPatternSyntaxException("Invalid $radixName escape sequence", patternString, curTokenIndex)
-    }
-
-    /** Process octal integer. */
-    private fun readOctals(): Int {
-        val length = pattern.size - 2
-        var result = 0
-        var digit = pattern[index].let { d ->
-            if (d !in '0'..'7') {
-                throw XRPatternSyntaxException("Invalid octal escape sequence", patternString, curTokenIndex)
-            }
-            d.code - '0'.code
-        }
-
-        val max = if (digit > 3) 2 else 3
-        var i = 0
-        while (i < max && index < length && digit != -1) {
-            result *= 8
-            result += digit
-            nextIndex()
-            digit = pattern[index].let { d ->
-                if (d in '0'..'7') d.code - '0'.code else -1
-            }
-            i++
-        }
-        return result
-    }
-
-    private fun readGroupName(): String {
-        var char = pattern[nextIndex()]
-        if (char !in 'a'..'z' && char !in 'A'..'Z') {
-            throw XRPatternSyntaxException("Capturing group name should start with a letter", patternString, curTokenIndex)
-        }
-
-        val sb = StringBuilder()
-        do {
-            sb.append(char)
-            char = pattern[nextIndex()]
-        } while (char in 'a'..'z' || char in 'A'..'Z' || char in '0'..'9')
-
-        if (char != '>') {
-            throw XRPatternSyntaxException("Invalid group name syntax", patternString, curTokenIndex)
-        }
-        return sb.toString()
     }
 
     companion object {
@@ -760,14 +623,6 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         val CHAR_NEG_LOOKBEHIND       = 0xfc000000.toInt() or '('.toInt()
         val CHAR_ATOMIC_GROUP         = 0xfe000000.toInt() or '('.toInt()
         val CHAR_FLAGS                = 0xff000000.toInt() or '('.toInt()
-        val CHAR_START_OF_INPUT       = 0x80000000.toInt() or 'A'.toInt()
-        val CHAR_WORD_BOUND           = 0x80000000.toInt() or 'b'.toInt()
-        val CHAR_NONWORD_BOUND        = 0x80000000.toInt() or 'B'.toInt()
-        val CHAR_PREVIOUS_MATCH       = 0x80000000.toInt() or 'G'.toInt()
-        val CHAR_NAMED_GROUP_REF      = 0x80000000.toInt() or 'k'.toInt()
-        val CHAR_END_OF_INPUT         = 0x80000000.toInt() or 'z'.toInt()
-        val CHAR_END_OF_LINE          = 0x80000000.toInt() or 'Z'.toInt()
-        val CHAR_LINEBREAK            = 0x80000000.toInt() or 'R'.toInt()
 
         // Quantifier modes.
         val QMOD_GREEDY     = 0xe0000000.toInt()
@@ -980,4 +835,12 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             }
         }
     }
+}
+
+private fun Char.isBlockNameChar(): Boolean = when(this) {
+    '-',
+    in 'a'..'z',
+    in 'A'..'Z',
+    in '0'..'9' -> true
+    else -> false
 }
