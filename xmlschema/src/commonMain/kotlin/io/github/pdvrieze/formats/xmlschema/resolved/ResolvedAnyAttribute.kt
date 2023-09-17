@@ -48,13 +48,11 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
     }
 
     fun restricts(base: ResolvedAnyAttribute): Boolean {
-/*
         when (mdlProcessContents) {
-            VProcessContents.SKIP -> if (base.mdlProcessContents != VProcessContents.SKIP) return false
-            VProcessContents.LAX -> if (base.mdlProcessContents == VProcessContents.STRICT) return false
+            VProcessContents.SKIP -> if (base.mdlProcessContents == VProcessContents.STRICT) return false
+            VProcessContents.LAX -> if (base.mdlProcessContents != VProcessContents.LAX) return false
             VProcessContents.STRICT -> {} // strict always restricts others
         }
-*/
 
         return base.mdlNamespaceConstraint.isSupersetOf(mdlNamespaceConstraint)
     }
