@@ -196,7 +196,8 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         init {
             initValues()
         }
-        override fun computeValue(): XRAbstractCharClass = XRCharClass().add('0', '9')
+        override fun computeValue(): XRAbstractCharClass =
+            CachedCategory(CharCategory.DECIMAL_DIGIT_NUMBER.ordinal, true).getValue(false)
     }
 
     internal class CachedNonDigit : CachedCharClass() {
@@ -204,7 +205,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             initValues()
         }
         override fun computeValue(): XRAbstractCharClass =
-                XRCharClass().add('0', '9').setNegative(true).apply { mayContainSupplCodepoints = true }
+            CachedCategory(CharCategory.DECIMAL_DIGIT_NUMBER.ordinal, true).getValue(negative = true)
     }
 
     internal class CachedSpace : CachedCharClass() {
@@ -227,15 +228,24 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         init {
             initValues()
         }
-        override fun computeValue(): XRAbstractCharClass = XRCharClass().add('a', 'z').add('A', 'Z').add('0', '9').add('_')
+
+        override fun computeValue(): XRAbstractCharClass =
+            CachedNonWord().getValue(false).apply { mayContainSupplCodepoints = true }
     }
 
     internal class CachedNonWord : CachedCharClass() {
         init {
             initValues()
         }
-        override fun computeValue(): XRAbstractCharClass =
-                CachedWord().getValue(negative = true).apply { mayContainSupplCodepoints = true }
+
+        override fun computeValue(): XRAbstractCharClass {
+            val result = XRCharClass()
+            result.add(CachedPunct().getValue(false))
+            result.add(CharClasses.ISZ.factory().getValue(false))
+            result.add(CharClasses.ISC.factory().getValue(false))
+            return result
+        }
+
     }
 
     internal class CachedNameStartChar : CachedCharClass() {
