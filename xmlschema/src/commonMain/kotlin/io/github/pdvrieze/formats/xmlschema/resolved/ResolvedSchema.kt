@@ -173,6 +173,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                     }
                     checkHelper.checkConstraint(ic)
                 }
+                for (n in data.notations) {
+                    checkHelper.checkNotation(n.value.mdlQName)
+                }
             }
         }
 
