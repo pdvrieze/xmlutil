@@ -554,6 +554,8 @@ internal class XPattern(val pattern: String, version: Version) {
                 XRLexer.CHAR_RIGHT_SQUARE_BRACKET -> {
                     if (buffer >= 0) {
                         result.add(buffer)
+                    } else if (firstInClass) {
+                        throw XRPatternSyntaxException("Empty groups are not allowed", pattern, lexemes.curTokenIndex)
                     }
                     buffer = ']'.toInt()
                     lexemes.next()

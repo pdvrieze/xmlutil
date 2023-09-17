@@ -88,7 +88,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.equals("targetns00101m2")) {
+                            if (false || group.name.startsWith("RegexTest_")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
