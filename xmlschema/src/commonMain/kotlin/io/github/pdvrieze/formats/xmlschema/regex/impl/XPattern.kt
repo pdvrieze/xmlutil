@@ -569,6 +569,13 @@ internal class XPattern(val pattern: String, version: Version) {
                         buffer = -1
                     }
                     lexemes.next()
+                    if (lexemes.currentChar == XRLexer.CHAR_RIGHT_SQUARE_BRACKET) {
+                        throw XRPatternSyntaxException(
+                            "Nested groups cannot contain empty sequences",
+                            pattern,
+                            lexemes.curTokenIndex - 1
+                        )
+                    }
                     var negative = false
                     if (lexemes.currentChar == XRLexer.CHAR_CARET) {
                         lexemes.next()
