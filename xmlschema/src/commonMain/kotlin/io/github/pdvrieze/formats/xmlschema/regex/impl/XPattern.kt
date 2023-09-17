@@ -440,6 +440,9 @@ internal class XPattern(val pattern: String, version: Version) {
         } else {
             // Other terminals.
             when (char) {
+                XRLexer.CHAR_RIGHT_SQUARE_BRACKET -> {
+                    throw XRPatternSyntaxException("Unexpected ]", pattern, lexemes.curTokenIndex)
+                }
                 XRLexer.CHAR_LEFT_SQUARE_BRACKET -> { // Range: [...]
                     lexemes.next()
                     var negative = false
@@ -559,7 +562,7 @@ internal class XPattern(val pattern: String, version: Version) {
                 XRLexer.CHAR_LEFT_SQUARE_BRACKET -> {
                     if (!subtraction) {
                         throw XRPatternSyntaxException(
-                            "Schema patters don't allow nested groups that are not subtractions",
+                            "Schema patterns don't allow nested groups that are not subtractions",
                             pattern,
                             lexemes.curTokenIndex
                         )

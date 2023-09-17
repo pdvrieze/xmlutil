@@ -353,6 +353,7 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             }
 
             ')' -> lookAhead = CHAR_RIGHT_PARENTHESIS
+            ']' -> { lookAhead = CHAR_RIGHT_SQUARE_BRACKET } // allows for it to trigger an error
             '[' -> { lookAhead = CHAR_LEFT_SQUARE_BRACKET; mode = Mode.RANGE }
             '^' -> lookAhead = CHAR_CARET
             '|' -> lookAhead = CHAR_VERTICAL_BAR
