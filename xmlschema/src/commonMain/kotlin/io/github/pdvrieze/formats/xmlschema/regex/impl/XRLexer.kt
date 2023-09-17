@@ -322,7 +322,7 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
         when (lookAheadChar) {
             // Quantifier (*, +, ?).
             '+', '*', '?' -> {
-                if (index < pattern.size && pattern[index] in arrayOf('+', '*', '?')) {
+                if (index < pattern.size && pattern[index] in arrayOf('+', '*', '?', '{')) {
                     throw XRPatternSyntaxException("Duplicate quantifier", patternString, index - 1)
                 }
 
@@ -475,10 +475,9 @@ internal class XRLexer(val patternString: String, internal val version: Resolved
             throw XRPatternSyntaxException("Incorrect Quantifier Syntax", patternString, curTokenIndex)
         }
 
-        val mod = if (index < pattern.size) pattern[index] else '*'
+        val mod = if (index < pattern.size) pattern[index] else ' '
         when (mod) {
-            '+' -> { lookAhead = XRLexer.QUANT_COMP_P; nextIndex() }
-            '?' -> { lookAhead = XRLexer.QUANT_COMP_R; nextIndex() }
+            '+', '?', '*' -> throw XRPatternSyntaxException("Quantifiers cannot be followed by mode", patternString, index)
             else ->  lookAhead = XRLexer.QUANT_COMP
         }
         return XRQuantifier(min, max)
