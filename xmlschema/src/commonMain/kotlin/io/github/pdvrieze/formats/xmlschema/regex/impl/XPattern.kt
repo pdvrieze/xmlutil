@@ -110,7 +110,6 @@ internal class XPattern(val pattern: String, version: Version) {
         val fSet: XRFSet
         when (ch) {
             // Special groups: non-capturing, look ahead/behind etc.
-            XRLexer.CHAR_NONCAP_GROUP -> fSet = XRNonCapFSet(consumersCount++)
             XRLexer.CHAR_POS_LOOKAHEAD,
             XRLexer.CHAR_NEG_LOOKAHEAD -> fSet = XRAheadFSet()
             XRLexer.CHAR_POS_LOOKBEHIND,
@@ -127,14 +126,6 @@ internal class XPattern(val pattern: String, version: Version) {
                 }
 
                 capturingGroups.add(fSet)
-
-                if (ch == XRLexer.CHAR_NAMED_GROUP) {
-                    val name = (lexemes.curSpecialToken as XRNamedGroup).name
-                    if (groupNameToIndex.containsKey(name)) {
-                        throw XRPatternSyntaxException("Named capturing group <$name> is already defined", pattern, lexemes.curTokenIndex)
-                    }
-                    groupNameToIndex[name] = fSet.groupIndex
-                }
             }
         }
 
@@ -175,7 +166,6 @@ internal class XPattern(val pattern: String, version: Version) {
         }
 
         when (ch) {
-            XRLexer.CHAR_NONCAP_GROUP -> return XRNonCapturingJointSet(children, fSet)
             XRLexer.CHAR_POS_LOOKAHEAD -> return XRPositiveLookAheadSet(children, fSet)
             XRLexer.CHAR_NEG_LOOKAHEAD -> return XRNegativeLookAheadSet(children, fSet)
             XRLexer.CHAR_POS_LOOKBEHIND -> return XRPositiveLookBehindSet(children, fSet)
@@ -429,9 +419,7 @@ internal class XPattern(val pattern: String, version: Version) {
         // The terminal is some kind of group: (E). Call processExpression for it.
         if (char and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS) {
             var newFlags = flags
-            if (char and 0xff00ffff.toInt() == XRLexer.CHAR_NONCAP_GROUP) {
-                newFlags = (char shr 16) and flagsBitMask
-            }
+
             term = processExpression(char and 0xff00ffff.toInt(), newFlags, last) // Remove flags from the token.
             if (lexemes.currentChar != XRLexer.CHAR_RIGHT_PARENTHESIS) {
                 throw XRPatternSyntaxException("unmatched (", pattern, lexemes.curTokenIndex)
