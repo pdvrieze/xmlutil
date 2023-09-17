@@ -108,26 +108,17 @@ internal class XPattern(val pattern: String, version: Version) {
 
         // Create a right finalizing set.
         val fSet: XRFSet
-        when (ch) {
-            // Special groups: non-capturing, look ahead/behind etc.
-            XRLexer.CHAR_POS_LOOKAHEAD,
-            XRLexer.CHAR_NEG_LOOKAHEAD -> fSet = XRAheadFSet()
-            XRLexer.CHAR_POS_LOOKBEHIND,
-            XRLexer.CHAR_NEG_LOOKBEHIND -> fSet = XRBehindFSet(consumersCount++)
-            XRLexer.CHAR_ATOMIC_GROUP -> fSet = XRAtomicFSet(consumersCount++)
-            // A Capturing group.
-            else -> {
-                if (last == null) {
-                    // Whole pattern - group #0.
-                    fSet = XRFinalSet()
-                    saveChangedFlags = true
-                } else {
-                    fSet = XRFSet(capturingGroups.size)
-                }
 
-                capturingGroups.add(fSet)
-            }
+        // A Capturing group.
+        if (last == null) {
+            // Whole pattern - group #0.
+            fSet = XRFinalSet()
+            saveChangedFlags = true
+        } else {
+            fSet = XRFSet(capturingGroups.size)
         }
+
+        capturingGroups.add(fSet)
 
         if (last != null) {
             lexemes.next()
@@ -165,18 +156,10 @@ internal class XPattern(val pattern: String, version: Version) {
             lexemes.restoreFlags(flags)
         }
 
-        when (ch) {
-            XRLexer.CHAR_POS_LOOKAHEAD -> return XRPositiveLookAheadSet(children, fSet)
-            XRLexer.CHAR_NEG_LOOKAHEAD -> return XRNegativeLookAheadSet(children, fSet)
-            XRLexer.CHAR_POS_LOOKBEHIND -> return XRPositiveLookBehindSet(children, fSet)
-            XRLexer.CHAR_NEG_LOOKBEHIND -> return XRNegativeLookBehindSet(children, fSet)
-            XRLexer.CHAR_ATOMIC_GROUP -> return XRAtomicJointSet(children, fSet)
-
-            else -> when (children.size) {
-                0 -> return XREmptySet(fSet)
-                1 -> return XRSingleSet(children[0], fSet)
-                else -> return XRJointSet(children, fSet)
-            }
+        return when (children.size) {
+            0 -> XREmptySet(fSet)
+            1 -> XRSingleSet(children[0], fSet)
+            else -> XRJointSet(children, fSet)
         }
     }
 
@@ -193,8 +176,7 @@ internal class XPattern(val pattern: String, version: Version) {
                     || !lexemes.isNextSpecial && XRLexer.isLetter(lexemes.lookAhead)
                     || lexemes.lookAhead == XRLexer.CHAR_RIGHT_PARENTHESIS
                     || lexemes.lookAhead and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS
-                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR
-                    || lexemes.lookAhead == XRLexer.CHAR_DOLLAR)) {
+                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR)) {
             val ch = lexemes.next()
 
             if (Char.isSupplementaryCodePoint(ch)) {
@@ -410,12 +392,7 @@ internal class XPattern(val pattern: String, version: Version) {
     private fun processTerminal(last: XRAbstractSet): XRAbstractSet {
         val term: XRAbstractSet
         var char = lexemes.currentChar
-        // Process flags: (?...)(?...)...
-        while (char and 0xff00ffff.toInt() == XRLexer.CHAR_FLAGS) {
-            lexemes.next()
-            flags = (char shr 16) and flagsBitMask
-            char = lexemes.currentChar
-        }
+
         // The terminal is some kind of group: (E). Call processExpression for it.
         if (char and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS) {
             var newFlags = flags
@@ -450,18 +427,6 @@ internal class XPattern(val pattern: String, version: Version) {
                 XRLexer.CHAR_DOT -> {  // Dot: .
                     lexemes.next()
                     term = XRDotSet(XRAbstractLineTerminator.getInstance(flags), hasFlag(DOTALL))
-                }
-
-                XRLexer.CHAR_CARET -> { // Beginning of the string: ^
-                    lexemes.next()
-                    term = XRSOLSet(XRAbstractLineTerminator.getInstance(flags), hasFlag(MULTILINE))
-                    consumersCount++
-                }
-
-                XRLexer.CHAR_DOLLAR -> { // End of the string: $
-                    lexemes.next()
-                    term = XREOLSet(consumersCount++, XRAbstractLineTerminator.getInstance(flags), hasFlag(MULTILINE))
-
                 }
 
                 // A special token (\D, \w etc), 'u0000' or the end of the pattern.
@@ -505,17 +470,6 @@ internal class XPattern(val pattern: String, version: Version) {
             }
         }
         return term
-    }
-
-    /** Creates a back reference to the group with specified [groupIndex], or throws if the group doesn't exist yet. */
-    private fun createBackReference(groupIndex: Int): XRBackReferenceSet {
-        if (groupIndex >= 0 && groupIndex < capturingGroups.size) {
-            capturingGroups[groupIndex].isBackReferenced = true
-            needsBackRefReplacement = true // And process back references in the second pass.
-            return XRBackReferenceSet(groupIndex, consumersCount++, hasFlag(CASE_INSENSITIVE))
-        } else {
-            throw XRPatternSyntaxException("No such group yet exists at this point in the pattern", pattern, lexemes.curTokenIndex)
-        }
     }
 
     /**

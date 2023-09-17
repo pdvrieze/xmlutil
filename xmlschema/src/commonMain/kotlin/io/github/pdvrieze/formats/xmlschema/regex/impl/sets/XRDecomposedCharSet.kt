@@ -22,10 +22,10 @@ package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 /** Represents canonical decomposition of Unicode character. Is used when CANON_EQ flag of Pattern class is specified. */
 open internal class XRDecomposedCharSet(
-        /** Decomposition of the Unicode codepoint */
-        private val decomposedChar: IntArray,
-        /** Length of useful part of decomposedChar decomposedCharLength <= decomposedChar.length */
-        private val decomposedCharLength: Int
+    /** Decomposition of the Unicode codepoint */
+    private val decomposedChar: IntArray,
+    /** Length of useful part of decomposedChar decomposedCharLength <= decomposedChar.length */
+    private val decomposedCharLength: Int
 ) : XRSimpleSet() {
 
     /** Contains information about number of chars that were read for a codepoint last time */
