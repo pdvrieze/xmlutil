@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("notation", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSNotation(
     val name: VNCName,
-    val public: VToken,
+    val public: VToken? = null,
     val system: VAnyURI? = null,
     @XmlId
     override val id: VID? = null,

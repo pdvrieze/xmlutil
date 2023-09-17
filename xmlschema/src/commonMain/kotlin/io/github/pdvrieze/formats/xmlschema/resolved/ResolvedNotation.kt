@@ -30,13 +30,19 @@ class ResolvedNotation(
     val schema: ResolvedSchemaLike,
     val location: String,
 ) : NamedPart {
+    init {
+        require(rawPart.public != null || rawPart.system != null) {
+            "Notation must have either specified public attribute, or a system attribute"
+        }
+    }
+
     fun check() {
         //TODO add checks
     }
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    val public: VToken = rawPart.public
+    val public: VToken? = rawPart.public
     val system: VAnyURI? = rawPart.system
 
     internal constructor(rawPart: SchemaAssociatedElement<XSNotation>, schema: ResolvedSchemaLike) :
