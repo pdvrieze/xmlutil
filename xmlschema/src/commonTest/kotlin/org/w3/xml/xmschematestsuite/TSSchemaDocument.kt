@@ -21,9 +21,11 @@
 package org.w3.xml.xmschematestsuite
 
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -34,6 +36,23 @@ class TSSchemaDocument(
     override val href: String,
     @XmlSerialName("type", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
     override val locator: String = "locator",
+    @XmlSerialName("role", "", "")
+    @XmlElement(false)
+    val role: Role? = null,
     @XmlOtherAttributes
     override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-) : TSRefT
+) : TSRefT {
+    @Serializable
+    enum class Role {
+        @SerialName("principal") PRINCIPAL,
+
+        @SerialName("imported") IMPORTED,
+
+        @SerialName("included") INCLUDED,
+
+        @SerialName("redefined") REDEFINED,
+
+        @SerialName("overridden") OVERRIDDEN,
+
+    }
+}

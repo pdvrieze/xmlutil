@@ -25,6 +25,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class TSStatusT {
+    @SerialName("submitted")
+    SUBMITTED,
+
     @SerialName("accepted")
     ACCEPTED,
 
