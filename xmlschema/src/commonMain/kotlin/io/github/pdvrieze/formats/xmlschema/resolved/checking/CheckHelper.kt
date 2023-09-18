@@ -86,6 +86,8 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     fun checkAttributeGroup(attributeGroup: ResolvedGlobalAttributeGroup) {
         if (checkedAttributeGroups.add(attributeGroup.mdlQName)) {
             attributeGroup.checkAttributeGroup(this)
+        } else if (version == ResolvedSchema.Version.V1_0) {
+            throw IllegalStateException("Circular attribute group (in 1.0 mode): ${attributeGroup.mdlQName}")
         }
     }
 
