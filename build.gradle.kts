@@ -22,6 +22,7 @@ import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.envAndroid
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -156,8 +157,15 @@ afterEvaluate {
         }
     }
 }
-/*
-*/
+
+tasks.register<Copy>("pages") {
+    group="documentation"
+    dependsOn(tasks.named("dokkaHtmlMultiModule"))
+    into(projectDir.resolve("pages"))
+    from(tasks.named<DokkaMultiModuleTask>("dokkaHtmlMultiModule").flatMap { it.outputDirectory })
+    // Needed as pages may have content already
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
 
 project.configureDokka()
 
