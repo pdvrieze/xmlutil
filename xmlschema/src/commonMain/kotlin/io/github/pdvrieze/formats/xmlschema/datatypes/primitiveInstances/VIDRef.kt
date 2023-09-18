@@ -20,12 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDRefType
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
 value class VIDRef(override val xmlString: String) : VNCName {
+
+    init {
+        IDRefType.validateValue(this)
+    }
 
     override fun toString(): String = xmlString
 

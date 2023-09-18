@@ -20,10 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
 import nl.adaptivity.xmlutil.QName
 
 data class VQName(val namespaceUri: String, val localName: String, val prefix: String) : VAnySimpleType {
     constructor(localName: String) : this("", localName, "")
+
+    init {
+        NCNameType.validate(VString(localName))
+        NCNameType.validate(VString(prefix))
+        AnyURIType.validate(VString(namespaceUri))
+    }
 
     override val xmlString: String
         get() = "$prefix:$localName"
