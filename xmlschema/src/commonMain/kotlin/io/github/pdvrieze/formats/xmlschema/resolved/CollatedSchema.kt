@@ -193,8 +193,9 @@ internal class CollatedSchema(
             }
 
 //            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
+            val newNS = nestedSchema.targetNamespace?.value ?: namespace
 
-            val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, schemaLike = schemaLike)
+            val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, namespace = newNS, schemaLike = schemaLike)
 
             collatedSchema.applyRedefines(
                 redefine,
@@ -409,7 +410,7 @@ internal class CollatedSchema(
             val name = QName(targetNamespace?.toString() ?: "", ag.name.toString())
             val schemaLike =
                 RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
-            val old = requireNotNull(attributeGroups[name]) { "Redefine must override" }
+            val old = requireNotNull(attributeGroups[name]) { "Redefine must override for attribute group '$name'" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
             attributeGroups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ag))
         }
