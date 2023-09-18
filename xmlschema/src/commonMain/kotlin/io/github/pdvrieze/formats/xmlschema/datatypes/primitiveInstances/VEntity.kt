@@ -20,12 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.EntityType
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
 value class VEntity(override val xmlString: String) : VNCName {
+
+    init {
+        EntityType.validateValue(this)
+    }
 
     override fun toString(): String = xmlString
 

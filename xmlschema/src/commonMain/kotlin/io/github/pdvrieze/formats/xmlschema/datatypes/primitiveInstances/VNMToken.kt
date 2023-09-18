@@ -20,12 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NMTokenType
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
 value class VNMToken(override val xmlString: String) : VToken {
+
+    init {
+        NMTokenType.validateValue(this)
+    }
 
     override fun toString(): String = xmlString
 
