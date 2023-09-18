@@ -97,7 +97,7 @@ addNativeTargets()
 
 doPublish()
 
-configureDokka(xmlutil_core_version)
+configureDokka("testutil", xmlutil_core_version)
 
 idea {
     module {
