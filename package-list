@@ -1,0 +1,40 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment.Companion/FACTORY/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/-companion/[-j-v-m]-f-a-c-t-o-r-y.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment.Factory/deserialize/#nl.adaptivity.xmlutil.XmlReader/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/-factory/[-j-v-m]deserialize.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/contentString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]content-string.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/equals/#kotlin.Any?/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]equals.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/getXmlReader/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]get-xml-reader.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/hashCode/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]hash-code.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/isEmpty/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]is-empty.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/namespaces/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]namespaces.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/serialize/#nl.adaptivity.xmlutil.XmlWriter/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]serialize.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/toString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]to-string.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespacePrefix/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]get-namespace-prefix.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespaceURI/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]get-namespace-u-r-i.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/namespaceContext/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]namespace-context.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/next/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]next.html
+$dokka.location:nl.adaptivity.xmlutil.xmlserializable//deSerialize/kotlin.collections.Iterable[kotlin.String]#java.lang.Class[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/xmlserializable/nl.adaptivity.xmlutil.xmlserializable/[-j-v-m]de-serialize.html
+$dokka.location:nl.adaptivity.xmlutil.xmlserializable//serialize/nl.adaptivity.xmlutil.XmlSerializable#java.io.Writer/PointingToDeclaration/xmlserializable/nl.adaptivity.xmlutil.xmlserializable/[-j-v-m]serialize.html
+$dokka.location:nl.adaptivity.xmlutil.xmlserializable//toString/nl.adaptivity.xmlutil.XmlSerializable#kotlin.Int/PointingToDeclaration/xmlserializable/nl.adaptivity.xmlutil.xmlserializable/[-j-v-m]to-string.html
+$dokka.location:nl.adaptivity.xmlutil//deserialize/#java.io.InputStream/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]deserialize.html
+$dokka.location:nl.adaptivity.xmlutil//deserialize/#java.io.Reader/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]deserialize.html
+$dokka.location:nl.adaptivity.xmlutil//deserialize/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]deserialize.html
+$dokka.location:nl.adaptivity.xmlutil//serialize/nl.adaptivity.xmlutil.XmlWriter#org.w3c.dom.Node/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]serialize.html
+$dokka.location:nl.adaptivity.xmlutil//writeChild/nl.adaptivity.xmlutil.XmlWriter#org.w3c.dom.Node/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]write-child.html
+module:core
+nl.adaptivity.js.util
+nl.adaptivity.xmlutil
+nl.adaptivity.xmlutil.core
+nl.adaptivity.xmlutil.dom
+nl.adaptivity.xmlutil.util
+module:serialization
+nl.adaptivity.xmlutil.serialization
+nl.adaptivity.xmlutil.serialization.structure
+module:serialutil
+nl.adaptivity.serialutil
+nl.adaptivity.serialutil.encoders
+module:0.86.2
+io.github.pdvrieze.xmlutil.testutil
+module:xmlserializable
+nl.adaptivity.xmlutil.xmlserializable
