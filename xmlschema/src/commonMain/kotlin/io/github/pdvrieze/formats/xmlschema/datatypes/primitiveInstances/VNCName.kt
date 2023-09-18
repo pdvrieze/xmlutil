@@ -38,17 +38,19 @@ interface VNCName : VName {
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VNCName {
+
+        init {
+            // This can not go through NCNameType as VNCName is used in AtomicDatatype
+            require(xmlString.isNCName()) { "'$xmlString' is not an NCName" }
+        }
+
         override fun toString(): String = xmlString
     }
 
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VNCName>("token") {
         override fun deserialize(decoder: Decoder): VNCName {
-            val s = WhitespaceValue.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString
-            require(s.isNCName()) {
-                "'$s' is not an NCName"
-            }
-            return Inst(s)
+            return Inst(WhitespaceValue.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString)
         }
     }
 

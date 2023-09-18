@@ -181,10 +181,11 @@ object AnyURIType : PrimitiveDatatype("anyURI", XmlSchemaConstants.XS_NAMESPACE)
 
     override fun validateValue(representation: Any) {
         check(representation is VAnyURI)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, VString(representation.value))
     }
 
     override fun validate(representation: VString) {
-        VAnyURI(representation)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 }
 
@@ -1533,11 +1534,11 @@ object TokenType : PrimitiveDatatype("token", XmlSchemaConstants.XS_NAMESPACE), 
 
     override fun validateValue(representation: Any) {
         check(representation is VToken)
+        mdlFacets.validate(this, representation)
     }
 
     override fun validate(representation: VString) {
         mdlFacets.validate(this, representation)
-    //        TODO("not implemented")
     }
 }
 
@@ -1629,10 +1630,11 @@ object NCNameType : PrimitiveDatatype("NCName", XmlSchemaConstants.XS_NAMESPACE)
 
     override fun validateValue(representation: Any) {
         check(representation is VNCName)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
     override fun validate(representation: VString) {
-        value(representation)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
 }
