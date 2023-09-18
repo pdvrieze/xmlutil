@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.util.impl.*
 import nl.adaptivity.xmlutil.dom.*
 
 /**
- * Created by pdvrieze on 04/04/17.
+ * Writer that uses the DOM for the underlying storage (rather than writing to some string).
  */
 public class DomWriter constructor(
     current: Node?,

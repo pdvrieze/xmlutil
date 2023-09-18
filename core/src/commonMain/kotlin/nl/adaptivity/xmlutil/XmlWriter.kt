@@ -37,7 +37,7 @@ import kotlin.jvm.JvmOverloads
 public interface XmlWriter : Closeable {
 
     /**
-     * The current depth into the tree.
+     * The current depth into the tree. The initial depth is `0`
      */
     public val depth: Int
 
@@ -73,12 +73,21 @@ public interface XmlWriter : Closeable {
         namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())
     }
 
+    /**
+     * Write a namespace declaration attribute.
+     */
     public fun namespaceAttr(namespacePrefix: String, namespaceUri: String)
 
+    /**
+     * Write a namespace declaration attribute.
+     */
     public fun namespaceAttr(namespace: Namespace) {
         namespaceAttr(namespace.prefix, namespace.namespaceURI)
     }
 
+    /**
+     * Close the writer. After invoking this the writer is not writable.
+     */
     override fun close()
 
     /**
@@ -87,11 +96,9 @@ public interface XmlWriter : Closeable {
     public fun flush()
 
     /**
-     * Write a start tag.
+     * Write a start tag. This increases the current depth.
      * @param namespace The namespace to use for the tag.
-     *
      * @param localName The local name for the tag.
-     *
      * @param prefix The prefix to use, or `null` for the namespace to be assigned automatically
      */
     public fun startTag(namespace: String?, localName: String, prefix: String?)
@@ -114,25 +121,71 @@ public interface XmlWriter : Closeable {
      */
     public fun cdsect(text: String)
 
+    /**
+     * Write an entity reference
+     * @param text the name of the reference. Must be a valid reference name.
+     */
     public fun entityRef(text: String)
 
+    /**
+     * Write a processing instruction with the given raw content. When using, prefer the version taking two arguments
+     */
     public fun processingInstruction(text: String)
 
+    /**
+     * Write a processing instruction with the given target and data
+     * @param target The (CNAME) target of the instruction
+     * @param data The data to be used.
+     */
     public fun processingInstruction(target: String, data: String): Unit =
         processingInstruction("$target $data")
 
+    /**
+     * Write ignorable whitespace.
+     * @param text This text is expected to be only XML whitespace.
+     */
     public fun ignorableWhitespace(text: String)
 
+    /**
+     * Write an attribute.
+     * @param namespace The namespace of the attribute. `null` and `""` will both resolve to the empty namespace.
+     * @param name The local name of the attribute (CName, must exclude the prefix).
+     * @param prefix The prefix to use. Note that in XML for attributes the prefix is empty/null when the namespace is and vice versa.
+     * @param value The value of the attribute
+     */
     public fun attribute(namespace: String?, name: String, prefix: String?, value: String)
 
+    /**
+     * Write a document declaration (DTD).
+     * @param The content of the DTD Declaration.
+     */
     public fun docdecl(text: String)
 
+    /**
+     * Start the document. This causes an xml declaration to be generated with the relevant content.
+     * @param version The XML version
+     * @param encoding The encoding of the document
+     * @param standalone A statement that the document is standalone (no externally defined entities...)
+     */
     public fun startDocument(version: String? = null, encoding: String? = null, standalone: Boolean? = null)
 
+    /**
+     * Close the document. This will do checks, and update the state, but there is no actual content in an xml stream
+     * that corresponds to it.
+     */
     public fun endDocument()
 
+    /**
+     * Write a closing tag.
+     * @param namespace The namespace for the tag to close
+     * @param localName The local name
+     * @param prefix The prefix
+     */
     public fun endTag(namespace: String?, localName: String, prefix: String?)
 
+    /**
+     * A namespace context that provides access to known namespaces/prefixes at this point in the writer.
+     */
     public val namespaceContext: NamespaceContext
 
     /**
@@ -146,7 +199,13 @@ public interface XmlWriter : Closeable {
     public fun getPrefix(namespaceUri: String?): String?
 }
 
-
+/**
+ * Function that collects namespaces not present in the writer
+ * @receiver The writer where namespace information is looked up from
+ * @param reader The reader from which the namespace information is retrieved
+ * @param missingNamespaces Map to which the "missing" namespace is added.
+ */
+@Deprecated("This function should be internal")
 public fun XmlWriter.addUndeclaredNamespaces(reader: XmlReader, missingNamespaces: MutableMap<String, String>) {
     undeclaredPrefixes(reader, missingNamespaces)
 }
