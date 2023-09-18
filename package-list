@@ -34,7 +34,7 @@ nl.adaptivity.xmlutil.serialization.structure
 module:serialutil
 nl.adaptivity.serialutil
 nl.adaptivity.serialutil.encoders
-module:0.86.2
+module:testutil
 io.github.pdvrieze.xmlutil.testutil
 module:xmlserializable
 nl.adaptivity.xmlutil.xmlserializable
