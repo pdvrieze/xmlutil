@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isXmlName
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
@@ -29,7 +30,7 @@ import kotlin.jvm.JvmInline
 value class VID(override val xmlString: String) : VNCName {
 
     init {
-        require(xmlString.isXmlName())
+        IDType.validateValue(this)
     }
 
     override fun toString(): String = xmlString

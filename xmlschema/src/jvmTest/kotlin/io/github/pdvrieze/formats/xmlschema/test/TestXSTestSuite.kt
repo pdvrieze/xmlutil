@@ -76,7 +76,7 @@ class TestXSTestSuite {
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
 //                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
 //                    "msMeta/ComplexType").any { m -> it.href.contains(m) } }
-                .filter { (it.href.contains("msMeta/Regex")) }
+                .filter { (it.href.contains("msMeta/AttributeGroup")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -88,7 +88,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (false || group.name.startsWith("RegexTest_")) {
+                            if (true || group.name.startsWith("RegexTest_")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }

@@ -1696,10 +1696,11 @@ object IDType : PrimitiveDatatype("ID", XmlSchemaConstants.XS_NAMESPACE), IStrin
 
     override fun validateValue(representation: Any) {
         check(representation is VID)
+        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
     override fun validate(representation: VString) {
-        value(representation)
+        validateValue(value(representation))
     }
 }
 
