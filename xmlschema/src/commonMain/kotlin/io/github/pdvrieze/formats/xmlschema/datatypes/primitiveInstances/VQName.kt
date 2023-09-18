@@ -29,8 +29,8 @@ data class VQName(val namespaceUri: String, val localName: String, val prefix: S
 
     init {
         NCNameType.validate(VString(localName))
-        NCNameType.validate(VString(prefix))
-        AnyURIType.validate(VString(namespaceUri))
+        if (prefix.isNotEmpty()) NCNameType.validate(VString(prefix))
+        if (namespaceUri.isNotEmpty()) AnyURIType.validate(VString(namespaceUri))
     }
 
     override val xmlString: String
