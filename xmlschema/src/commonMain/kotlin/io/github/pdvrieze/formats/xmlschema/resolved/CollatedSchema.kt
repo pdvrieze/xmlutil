@@ -409,7 +409,7 @@ internal class CollatedSchema(
         for (ag in redefine.attributeGroups) {
             val name = QName(targetNamespace?.toString() ?: "", ag.name.toString())
             val schemaLike =
-                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
+                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.ATTRIBUTEGROUP)
             val old = requireNotNull(attributeGroups[name]) { "Redefine must override for attribute group '$name'" }
             val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
             attributeGroups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ag))
@@ -479,7 +479,9 @@ internal class CollatedSchema(
     ) : ResolvedSchemaLike() {
         override val version: ResolvedSchema.Version get() = base.version
 
-        override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace
+        override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace ?: base.targetNamespace
+        private val originalNS get() = targetNamespace?.value ?: ""
+
         override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
             get() = originalSchema.blockDefault ?: emptySet()
         override val finalDefault: Set<VDerivationControl.Type> get() = originalSchema.finalDefault ?: emptySet()
@@ -516,7 +518,6 @@ internal class CollatedSchema(
         }
 
         fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI)
 
             val localName = typeName.localPart
@@ -528,7 +529,6 @@ internal class CollatedSchema(
         }
 
         fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI) { }
             val localName = typeName.localPart
             return originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
@@ -539,7 +539,6 @@ internal class CollatedSchema(
         }
 
         fun nestedType(typeName: QName): ResolvedGlobalType {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI)
 
             val localName = typeName.localPart
@@ -554,8 +553,7 @@ internal class CollatedSchema(
         }
 
         fun nestedAttributeGroup(typeName: QName): ResolvedGlobalAttributeGroup {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
-            require(originalNS == typeName.namespaceURI) { }
+            require(originalNS == typeName.namespaceURI) { "Redefine namespace mismatch. Nested ns: $originalNS, name: $typeName"}
             val localName = typeName.localPart
             return originalSchema.attributeGroups.singleOrNull { it.name.xmlString == localName }?.let { b ->
                 val sa = SchemaAssociatedElement(originalLocation, b)
@@ -565,7 +563,6 @@ internal class CollatedSchema(
         }
 
         fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI) { }
             val localName = typeName.localPart
             return originalSchema.groups.singleOrNull { it.name.xmlString == localName }?.let { b ->
@@ -576,7 +573,6 @@ internal class CollatedSchema(
         }
 
         fun nestedElement(typeName: QName): ResolvedGlobalElement {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI) { }
             val localName = typeName.localPart
             return originalSchema.elements.singleOrNull { it.name.xmlString == localName }?.let { b ->
@@ -587,7 +583,6 @@ internal class CollatedSchema(
         }
 
         fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
-            val originalNS = originalSchema.targetNamespace?.value ?: ""
             require(originalNS == typeName.namespaceURI) { }
             val localName = typeName.localPart
             return originalSchema.attributes.singleOrNull { it.name.xmlString == localName }?.let { b ->
