@@ -31,9 +31,32 @@ class ResolvedGlobalAttributeGroup(
     val location: String,
 ) : ResolvedAnnotated, NamedPart, VAttributeScope.Member {
 
+    override val model: Model by lazy { Model(this, rawPart, schema) }
+
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+
+    val attributes: List<IResolvedAttributeUse> get() = model.attributes
+
+    val attributeGroups: List<ResolvedAttributeGroupRef> get() = model.attributeGroups
+
+    val anyAttribute: XSAnyAttribute? = rawPart.anyAttribute
+
+    internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
+            this(rawPart.element, schema, rawPart.schemaLocation)
+
+    init {
+        if (schema is CollatedSchema.RedefineWrapper) {
+            val baseAttrs = schema.nestedAttributeGroup(mdlQName).getAttributeUses().mapTo(HashSet()) { it.mdlAttributeDeclaration.mdlQName }
+            val attrUses = getAttributeUses().mapTo(HashSet()) { it.mdlAttributeDeclaration.mdlQName }
+            require(baseAttrs.all { it in attrUses } || attrUses.all { it in baseAttrs}) {
+                "Redefining attribute groups must be super or subsets of their bases.\n !(${attrUses.joinToString()}).containsAll(${baseAttrs.joinToString()})"
+            }
+        }
+    }
+
     fun getAttributeUses(): Collection<IResolvedAttributeUse> {
         val uses = mutableMapOf<QName, IResolvedAttributeUse>()
-        val seenGroups = mutableSetOf<QName>(mdlQName)
+        val seenGroups = mutableSetOf(this)
         val groups = ArrayDeque<ResolvedGlobalAttributeGroup>()
         groups.add(this)
         while (groups.isNotEmpty()) {
@@ -43,26 +66,13 @@ class ResolvedGlobalAttributeGroup(
             }
             for (g in group.attributeGroups) {
                 val resolvedGroup = g.resolvedGroup
-                if (seenGroups.add(resolvedGroup.mdlQName)) {
+                if (seenGroups.add(resolvedGroup)) {
                     groups.add(resolvedGroup)
                 }
             }
         }
         return uses.values
     }
-
-    override val model: Model by lazy { Model(this, rawPart, schema) }
-
-    internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
-
-    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
-
-    val attributes: List<IResolvedAttributeUse> get() = model.attributes
-
-    val attributeGroups: List<ResolvedAttributeGroupRef> get() = model.attributeGroups
-
-    val anyAttribute: XSAnyAttribute? = rawPart.anyAttribute
 
     fun checkAttributeGroup(checkHelper: CheckHelper) {
         for (a in attributes) { a.checkUse(checkHelper) }
