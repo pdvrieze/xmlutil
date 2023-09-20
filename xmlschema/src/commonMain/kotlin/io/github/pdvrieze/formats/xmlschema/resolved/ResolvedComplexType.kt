@@ -263,11 +263,7 @@ sealed class ResolvedComplexType(
                             val attrWildcard =
                                 requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
                             require(
-                                attrWildcard.matches(
-                                    dName,
-                                    this,
-                                    schema
-                                )
+                                attrWildcard.matches(dName, this, schema)
                             ) { "Attribute wildcard does not match $dName" }
                         }
 
