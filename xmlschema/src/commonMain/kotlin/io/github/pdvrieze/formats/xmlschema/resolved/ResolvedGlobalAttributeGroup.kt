@@ -90,10 +90,10 @@ class ResolvedGlobalAttributeGroup(
             val group = groups.removeFirst()
             val seenAttrNames = mutableSetOf<QName>()
             for (a in group.attributes) {
-                require(seenAttrNames.add(a.mdlAttributeDeclaration.mdlQName)) {
-                    "Duplicate attribute name ${a.mdlAttributeDeclaration.mdlQName} in attribute group $mdlQName"
+                require(seenAttrNames.add(a.mdlQName)) {
+                    "Duplicate attribute name ${a.mdlQName} in attribute group $mdlQName"
                 }
-                uses.put(a.mdlAttributeDeclaration.mdlQName, a)
+                uses.put(a.mdlQName, a)
             }
             val seenGroupNames = mutableSetOf<QName>()
             for (g in group.attributeGroups) {
