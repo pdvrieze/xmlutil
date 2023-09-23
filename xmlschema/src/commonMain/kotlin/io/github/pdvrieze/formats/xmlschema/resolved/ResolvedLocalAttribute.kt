@@ -52,6 +52,15 @@ class ResolvedLocalAttribute private constructor(
         }
     }
 
+    override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
+        rawPart.targetNamespace ?: when {
+            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                schema.targetNamespace
+
+            else -> null
+        }
+    )
+
     override val model: Model by lazy { Model(rawPart, schema, this) }
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
@@ -68,7 +77,7 @@ class ResolvedLocalAttribute private constructor(
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalAttribute(name = ")
-            append(model.mdlQName)
+            append(mdlQName)
             append(", type =")
             when (val t = model.mdlTypeDefinition) {
                 is ResolvedGlobalSimpleType -> append(t.mdlQName)
@@ -84,14 +93,7 @@ class ResolvedLocalAttribute private constructor(
     class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
         ResolvedAttributeDef.Model(rawPart, schema, typeContext) {
 
-        override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
-            rawPart.targetNamespace ?: when {
-                (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                    schema.targetNamespace
 
-                else -> null
-            }
-        )
 
     }
 

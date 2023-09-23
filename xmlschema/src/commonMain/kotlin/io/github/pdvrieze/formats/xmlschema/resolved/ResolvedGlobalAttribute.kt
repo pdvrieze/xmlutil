@@ -21,8 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalAttribute(
     rawPart: XSGlobalAttribute,
@@ -40,24 +42,21 @@ class ResolvedGlobalAttribute(
 
     override val mdlScope: VAttributeScope.Global get() = VAttributeScope.Global
 
-    class Model : ResolvedAttributeDef.Model {
+    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
+    init {
+        require(mdlQName.namespaceURI!= XmlSchemaConstants.XSI_NAMESPACE) {
+            "Attributes can not be declared into the XSI namespace"
+        }
+    }
+
+    class Model : ResolvedAttributeDef.Model {
 
         constructor(
             rawPart: XSGlobalAttribute,
             schema: ResolvedSchemaLike,
             typeContext: VSimpleTypeScope.Member
-        ) : super(rawPart, schema, typeContext) {
-            this.mdlQName = rawPart.name.toQname(
-                when (schema.attributeFormDefault) {
-                    VFormChoice.QUALIFIED -> schema.targetNamespace
-
-                    else -> null
-                }
-            )
-        }
-
-        override val mdlQName: QName
+        ) : super(rawPart, schema, typeContext)
 
     }
 }
