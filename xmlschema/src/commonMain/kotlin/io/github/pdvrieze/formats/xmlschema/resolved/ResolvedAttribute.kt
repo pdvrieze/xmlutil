@@ -36,13 +36,11 @@ sealed class ResolvedAttribute(
 
     abstract val mdlScope: VAttributeScope
 
-    val mdlQName: QName get() = model.mdlQName
+    abstract val mdlQName: QName
     val mdlTypeDefinition: ResolvedSimpleType get() = model.mdlTypeDefinition
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
     abstract class Model(rawPart: XSAttribute) : ResolvedAnnotated.Model(rawPart) {
-
-        abstract val mdlQName: QName
 
         abstract val mdlTypeDefinition: ResolvedSimpleType
 
