@@ -21,12 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import nl.adaptivity.xmlutil.QName
 
 sealed interface IResolvedAttributeUse : ResolvedAnnotated {
     val mdlRequired: Boolean
     val mdlAttributeDeclaration: ResolvedAttributeDef
     val mdlValueConstraint: ValueConstraint?
     val mdlInheritable: Boolean
+    val mdlQName: QName
 
     fun checkUse(checkHelper: CheckHelper)
     fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
