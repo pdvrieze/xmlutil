@@ -34,8 +34,10 @@ class ResolvedAttributeRef(
 ) : ResolvedAttribute(rawPart, schema), IResolvedAttributeUse {
 
     init {
-        invariant(rawPart.ref!=null) { "Attribute references must have a value" }
+        invariant(rawPart.ref != null) { "Attribute references must have a value" }
         invariant(rawPart.use != XSAttrUse.PROHIBITED) { "Attribute references cannot have prohibited use" }
+
+        require(rawPart.name == null) { "Attributes has name (${rawPart.name}) and reference (${rawPart.ref})"}
 
         require(rawPart.targetNamespace == null) { "3.2.3(6.1) - Attribute references have no target namespace" }
         require(rawPart.simpleType == null) { "Attribute references cannot provide direct types" }
