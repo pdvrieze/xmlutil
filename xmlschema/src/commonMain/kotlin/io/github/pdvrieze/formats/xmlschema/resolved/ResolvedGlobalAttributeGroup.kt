@@ -114,6 +114,10 @@ class ResolvedGlobalAttributeGroup(
         for (ag in attributeGroups) { ag.checkRef(checkHelper) }
     }
 
+    override fun toString(): String {
+        return "attributeGroup(name=$mdlQName, attrs=[${attributes.joinToString()}], attrGroups=[${attributeGroups.joinToString { "@${it.ref}" }}]"
+    }
+
     class Model(parent: ResolvedGlobalAttributeGroup, rawPart: XSAttributeGroup, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
 
         val attributes: List<IResolvedAttributeUse> = rawPart.attributes.map {
