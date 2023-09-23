@@ -102,6 +102,15 @@ sealed class XSLocalComplexType(
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
     ) {
         fun toLocalComplexType(): XSLocalComplexType {
+            if (simpleContent !=null || complexContent != null) {
+                require(asserts.isEmpty()) { "Shorthand as well as non-shorthand definition of complex type" }
+                require(attributes.isEmpty()) { "Shorthand as well as non-shorthand definition of complex type" }
+                require(attributeGroups.isEmpty()) { "Shorthand as well as non-shorthand definition of complex type" }
+                require(anyAttribute == null) { "Shorthand as well as non-shorthand definition of complex type" }
+                require(openContent == null) { "Shorthand as well as non-shorthand definition of complex type" }
+                require(term == null) { "Shorthand as well as non-shorthand definition of complex type" }
+            }
+
             // TODO verify
             return when {
                 simpleContent != null -> XSLocalComplexTypeSimple(
@@ -111,7 +120,7 @@ sealed class XSLocalComplexType(
                     id = id,
                     annotation = annotation,
                     otherAttrs = otherAttrs,
-                )
+                ).also { require(complexContent==null) { "Complex types can not be both simple and complex" } }
                 complexContent != null -> XSLocalComplexTypeComplex(
                     mixed = mixed?.value,
                     defaultAttributesApply = defaultAttributesApply?.value,
