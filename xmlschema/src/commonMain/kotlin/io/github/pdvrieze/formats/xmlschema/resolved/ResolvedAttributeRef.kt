@@ -69,6 +69,8 @@ class ResolvedAttributeRef(
         checkHelper.checkAttribute(mdlAttributeDeclaration)
     }
 
+    override fun toString(): String = "attribute(ref=$mdlQName)"
+
     class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike) :
         ResolvedAttribute.Model(rawPart) {
 

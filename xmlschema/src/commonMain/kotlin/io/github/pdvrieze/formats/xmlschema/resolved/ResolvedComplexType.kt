@@ -874,7 +874,10 @@ sealed class ResolvedComplexType(
                     val groupAttributeUses = group.getAttributeUses()
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
-                    groupAttributeUses.associateByTo(this) { it.mdlQName }
+                    for (use in groupAttributeUses) {
+                        val previous = put(use.mdlQName, use)
+                        require(previous == null) { "Duplicate attribute and group ${use.mdlQName}" }
+                    }
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
