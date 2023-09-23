@@ -896,17 +896,17 @@ sealed class ResolvedComplexType(
                         }
 
                     VDerivationControl.RESTRICTION ->
-                        for (a in baseType.mdlAttributeUses.values) {
-                            val qName = a.mdlQName
+                        for (baseAttrUse in baseType.mdlAttributeUses.values) {
+                            val qName = baseAttrUse.mdlQName
                             if (qName !in prohibitedAttrs) {
-                                val existing = get(qName)
-                                if (existing == null) {
-                                    put(qName, a)
-                                } else if (schema.version == ResolvedSchema.Version.V1_1 && existing is ResolvedLocalAttribute) {
-                                    val oldC = existing.mdlValueConstraint
-                                    val newC = a.mdlValueConstraint
+                                val overriddenAttrUse = get(qName)
+                                if (overriddenAttrUse == null) {
+                                    put(qName, baseAttrUse)
+                                } else if (schema.version == ResolvedSchema.Version.V1_1 && overriddenAttrUse is ResolvedLocalAttribute) {
+                                    val newC = overriddenAttrUse.mdlValueConstraint
+                                    val oldC = baseAttrUse.mdlValueConstraint
                                     if (oldC != null && newC != null) {
-                                        require(newC.isValidRestrictionOf(existing.mdlTypeDefinition, oldC)) {
+                                        require(newC.isValidRestrictionOf(overriddenAttrUse.mdlTypeDefinition, oldC)) {
                                             "Overridden attributes must be valid restrictions in 1.1"
                                         }
                                     }
