@@ -874,7 +874,7 @@ sealed class ResolvedComplexType(
                     val groupAttributeUses = group.getAttributeUses()
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
-                    groupAttributeUses.associateByTo(this) { it.mdlAttributeDeclaration.mdlQName }
+                    groupAttributeUses.associateByTo(this) { it.mdlQName }
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
@@ -882,7 +882,7 @@ sealed class ResolvedComplexType(
                 when (baseType?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
                         for (a in baseType.mdlAttributeUses.values) {
-                            val attrName = a.mdlAttributeDeclaration.mdlQName
+                            val attrName = a.mdlQName
 //                            require(a.mdlInheritable) { "Only inheritable attributes can be inherited ($attrName)" }
                             require(attrName !in prohibitedAttrs) {
                                 "Extensions can not prohibit existing attributes"
@@ -897,7 +897,7 @@ sealed class ResolvedComplexType(
 
                     VDerivationControl.RESTRICTION ->
                         for (a in baseType.mdlAttributeUses.values) {
-                            val qName = a.mdlAttributeDeclaration.mdlQName
+                            val qName = a.mdlQName
                             if (qName !in prohibitedAttrs) {
                                 val existing = get(qName)
                                 if (existing == null) {
@@ -924,12 +924,12 @@ sealed class ResolvedComplexType(
                 // this is legal in 1.1
                 var idAttrName: QName? = null
                 for (use in attributes.values) {
-                    if (use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
+                    if (use !is ResolvedProhibitedAttribute && use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
                         require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
                         require(use.mdlValueConstraint !is ValueConstraint.Fixed) {
                             "Fixed id attributes are not allowed in 1.0"
                         }
-                        idAttrName = use.mdlAttributeDeclaration.mdlQName
+                        idAttrName = use.mdlQName
                     }
                 }
             }
