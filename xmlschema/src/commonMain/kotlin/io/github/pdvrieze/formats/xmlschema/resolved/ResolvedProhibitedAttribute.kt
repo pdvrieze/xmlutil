@@ -60,6 +60,8 @@ class ResolvedProhibitedAttribute(
         }
     }
 
+    override fun toString(): String = "prohibitedAttribute($mdlQName)"
+
     override fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
         if(baseAttr.mdlRequired) return false //Prohibited attributes cannot restrict required attributes
         return true
