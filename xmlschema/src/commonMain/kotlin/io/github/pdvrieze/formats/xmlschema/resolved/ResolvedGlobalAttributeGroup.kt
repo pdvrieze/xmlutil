@@ -85,10 +85,10 @@ class ResolvedGlobalAttributeGroup(
         val uses = mutableMapOf<QName, IResolvedAttributeUse>()
         val seenGroups = mutableSetOf(this)
         val groups = ArrayDeque<ResolvedGlobalAttributeGroup>()
+        val seenAttrNames = mutableSetOf<QName>()
         groups.add(this)
         while (groups.isNotEmpty()) {
             val group = groups.removeFirst()
-            val seenAttrNames = mutableSetOf<QName>()
             for (a in group.attributes) {
                 require(seenAttrNames.add(a.mdlQName)) {
                     "Duplicate attribute name ${a.mdlQName} in attribute group $mdlQName"
