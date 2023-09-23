@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
@@ -40,7 +41,12 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
 
     open fun checkAttribute(checkHelper: CheckHelper) {
         checkHelper.checkType(mdlTypeDefinition)
-        mdlValueConstraint?.let { mdlTypeDefinition.validate(it.value) }
+        mdlValueConstraint?.let {
+            if (checkHelper.version == ResolvedSchema.Version.V1_0) {
+                require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != IDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
+            }
+            mdlTypeDefinition.validate(it.value)
+        }
         require(mdlQName.getNamespaceURI()!= XmlSchemaConstants.XSI_NAMESPACE) {
             "3.2.6.4 - Attributes may not have the XSI namespace as their target namespace"
         }

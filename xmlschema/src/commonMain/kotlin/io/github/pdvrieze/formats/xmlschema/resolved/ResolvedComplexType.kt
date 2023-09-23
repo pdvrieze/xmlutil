@@ -133,13 +133,13 @@ sealed class ResolvedComplexType(
                     if (baseUse.mdlRequired) {
                         require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
                     }
-                    require(
-                        baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(
-                            derived.mdlAttributeDeclaration.mdlTypeDefinition,
-                            false
-                        )
-                    ) {
-                        "Types must match"
+                    if (derived !is ResolvedProhibitedAttribute && baseUse !is ResolvedProhibitedAttribute) {
+                        require(
+                            baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(
+                                derived.mdlAttributeDeclaration.mdlTypeDefinition,
+                                false
+                            )
+                        ) { "Types must match" }
                     }
                 }
 
@@ -850,19 +850,17 @@ sealed class ResolvedComplexType(
             val defaultAttributeGroup = (schema as? ResolvedSchema)?.defaultAttributes
                 ?.takeIf { rawPart.defaultAttributesApply != false }
 
-            val prohibitedAttrs = mutableSetOf<QName>()
+            val prohibitedAttrNames = mutableSetOf<QName>()
+            val seenAttrNames = mutableSetOf<QName>()
 
             val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
                 for (attr in rawPart.content.derivation.attributes) {
                     val resolvedAttribute = ResolvedLocalAttribute(parent, attr, schema)
-                    when (resolvedAttribute) {
-                        is ResolvedProhibitedAttribute -> prohibitedAttrs.add(resolvedAttribute.mdlQName)
-                        else ->
-                            put(resolvedAttribute.mdlAttributeDeclaration.mdlQName, resolvedAttribute)?.also {
-                                error("Duplicate attribute $it on type $parent")
-                            }
+                    require(put(resolvedAttribute.mdlQName, resolvedAttribute) == null) {
+                        "Duplicate attribute ${resolvedAttribute.mdlQName} on type $parent"
                     }
+                    if (resolvedAttribute is ResolvedProhibitedAttribute) prohibitedAttrNames.add(resolvedAttribute.mdlQName)
                 }
 
                 // Defined attribute group references (including the default one)
@@ -875,8 +873,7 @@ sealed class ResolvedComplexType(
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
                     for (use in groupAttributeUses) {
-                        val previous = put(use.mdlQName, use)
-                        require(previous == null) { "Duplicate attribute and group ${use.mdlQName}" }
+                        require(put(use.mdlQName, use) == null) { "Duplicate attribute and group ${use.mdlQName}" }
                     }
                 }
 
@@ -887,7 +884,7 @@ sealed class ResolvedComplexType(
                         for (a in baseType.mdlAttributeUses.values) {
                             val attrName = a.mdlQName
 //                            require(a.mdlInheritable) { "Only inheritable attributes can be inherited ($attrName)" }
-                            require(attrName !in prohibitedAttrs) {
+                            require(attrName !in prohibitedAttrNames) {
                                 "Extensions can not prohibit existing attributes"
                             }
                             val existingAttr = get(attrName)
@@ -901,16 +898,23 @@ sealed class ResolvedComplexType(
                     VDerivationControl.RESTRICTION ->
                         for (baseAttrUse in baseType.mdlAttributeUses.values) {
                             val qName = baseAttrUse.mdlQName
-                            if (qName !in prohibitedAttrs) {
-                                val overriddenAttrUse = get(qName)
+                            val overriddenAttrUse = get(qName)
+                            if (qName in prohibitedAttrNames) {
+                                require(!baseAttrUse.mdlRequired) { "Required attribute can not be prohibited in restriction" }
+                            } else {
                                 if (overriddenAttrUse == null) {
                                     put(qName, baseAttrUse)
                                 } else if (schema.version == ResolvedSchema.Version.V1_1 && overriddenAttrUse is ResolvedLocalAttribute) {
-                                    val newC = overriddenAttrUse.mdlValueConstraint
                                     val oldC = baseAttrUse.mdlValueConstraint
-                                    if (oldC != null && newC != null) {
-                                        require(newC.isValidRestrictionOf(overriddenAttrUse.mdlTypeDefinition, oldC)) {
-                                            "Overridden attributes must be valid restrictions in 1.1"
+                                    if (oldC != null) {
+                                        val newC = overriddenAttrUse.mdlValueConstraint
+                                        when (newC) {
+                                            null -> require(oldC !is ValueConstraint.Fixed) { "Fixed attributes cannot be overridden by attributes without fixed value" }
+                                            else -> require(
+                                                newC.isValidRestrictionOf(overriddenAttrUse.mdlTypeDefinition, oldC)
+                                            ) {
+                                                "Overridden attributes must be valid restrictions in 1.1"
+                                            }
                                         }
                                     }
                                 }
