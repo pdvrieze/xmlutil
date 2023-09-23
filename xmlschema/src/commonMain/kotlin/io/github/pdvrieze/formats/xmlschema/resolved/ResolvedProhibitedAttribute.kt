@@ -35,6 +35,10 @@ class ResolvedProhibitedAttribute(
 
     init {
         check(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }
+        require(rawPart.default == null) { "Prohibited attributes may not have a default value" }
+        if (schema.version != ResolvedSchema.Version.V1_0) {
+            require(rawPart.fixed == null) { "Prohibited attributes may not have a fixed value in 1.1" }
+        }
     }
 
     override val mdlInheritable: Boolean get() = false
