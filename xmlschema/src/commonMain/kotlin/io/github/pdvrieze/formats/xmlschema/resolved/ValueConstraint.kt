@@ -24,20 +24,28 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 
 sealed class ValueConstraint(val value: VString) {
-    fun isValidRestrictionOf(type: ResolvedSimpleType, base: ValueConstraint): Boolean = when (base) {
-        is Default -> true // default can be changed
-        is Fixed -> {
-            val a = type.value(value)
-            val b = type.value(base.value)
-            a == b
-        } // fixed can not be changed
-    }
+    abstract fun isValidRestrictionOf(type: ResolvedSimpleType, base: ValueConstraint): Boolean
 
     class Default(value: VString) : ValueConstraint(value) {
         override fun toString(): String = "DEFAULT(${value})"
+
+        override fun isValidRestrictionOf(type: ResolvedSimpleType, base: ValueConstraint): Boolean = when (base) {
+            is Default -> true // default can be changed
+            is Fixed -> false
+        }
     }
+
     class Fixed(value: VString) : ValueConstraint(value) {
         override fun toString(): String = "FIXED(${value})"
+
+        override fun isValidRestrictionOf(type: ResolvedSimpleType, base: ValueConstraint): Boolean = when (base) {
+            is Default -> true // default can be changed
+            is Fixed -> {
+                val a = type.value(value)
+                val b = type.value(base.value)
+                a == b
+            } // fixed can not be changed
+        }
     }
 
     companion object {
