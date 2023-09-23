@@ -56,6 +56,11 @@ class ResolvedProhibitedAttribute(
         }
     }
 
+    override fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
+        if(baseAttr.mdlRequired) return false //Prohibited attributes cannot restrict required attributes
+        return true
+    }
+
     override fun checkUse(checkHelper: CheckHelper) {
         checkNotNull(mdlQName)
     }
