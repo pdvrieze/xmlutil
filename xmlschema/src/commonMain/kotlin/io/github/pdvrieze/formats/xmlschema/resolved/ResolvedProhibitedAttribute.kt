@@ -43,7 +43,7 @@ class ResolvedProhibitedAttribute(
 
     override val mdlValueConstraint: ValueConstraint? get() = null
 
-    val mdlQName: QName by lazy {
+    override val mdlQName: QName by lazy {
         rawPart.ref ?: run {
 
             val targetNS = rawPart.targetNamespace ?: when (schema.attributeFormDefault) {
