@@ -52,6 +52,17 @@ class ResolvedAttributeRef(
     override val mdlAttributeDeclaration: ResolvedAttributeDef
         get() = model.mdlAttributeDeclaration
 
+    override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
+        val ns = rawPart.targetNamespace ?: when {
+            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
+                schema.targetNamespace
+
+            else -> null
+        }
+
+        requireNotNull(rawPart.name).toQname(ns)
+    }
+
     override val model: Model by lazy { Model(rawPart, schema) }
 
     override fun checkUse(checkHelper: CheckHelper) {
@@ -61,16 +72,6 @@ class ResolvedAttributeRef(
     class Model(rawPart: XSLocalAttribute, schema: ResolvedSchemaLike) :
         ResolvedAttribute.Model(rawPart) {
 
-        override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
-            val ns = rawPart.targetNamespace ?: when {
-                (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                    schema.targetNamespace
-
-                else -> null
-            }
-
-            requireNotNull(rawPart.name).toQname(ns)
-        }
 
         val mdlAttributeDeclaration: ResolvedAttributeDef = schema.attribute(
             requireNotNull(rawPart.ref) { "Missing ref for attributeRef" }
