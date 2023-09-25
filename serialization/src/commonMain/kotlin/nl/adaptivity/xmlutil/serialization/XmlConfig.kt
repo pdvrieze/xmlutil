@@ -51,6 +51,7 @@ private constructor(
     public val xmlVersion: XmlVersion = XmlVersion.XML11
 ) {
 
+    @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
     @Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
     public constructor(
@@ -83,16 +84,16 @@ private constructor(
         (policy as? DefaultXmlSerializationPolicy)?.run {
             when {
                 autoPolymorphic == null && unknownChildHandler == null ->
-                    copy()
+                    copy { }
 
                 autoPolymorphic == null ->
-                    copy(unknownChildHandler = unknownChildHandler!!)
+                    copy { this.unknownChildHandler = unknownChildHandler!!}
 
                 unknownChildHandler == null ->
-                    copy(autoPolymorphic = autoPolymorphic)
+                    copy { this.autoPolymorphic = autoPolymorphic }
 
                 else ->
-                    copy()
+                    copy { }
             }
         } ?: policy,
         nilAttribute
@@ -214,10 +215,19 @@ private constructor(
         @ExperimentalXmlUtilApi
         @Deprecated("Use the policy instead")
         public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
-        @ExperimentalXmlUtilApi
-        public var policy: XmlSerializationPolicy? = null
+        policy: XmlSerializationPolicy? = null
     ) {
 
+        @ExperimentalXmlUtilApi
+        public var policy: XmlSerializationPolicy? = policy
+            set(value) {
+                field = value
+                if (autoPolymorphic !=null) {
+                    if (value is DefaultXmlSerializationPolicy && value.autoPolymorphic != autoPolymorphic) {
+                        this.autoPolymorphic = value.autoPolymorphic
+                    }
+                }
+            }
 
         /**
          * Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
@@ -234,8 +244,9 @@ private constructor(
             set(value) {
                 field = value
                 if (value != null) {
-                    (policy as? DefaultXmlSerializationPolicy)?.also { p ->
-                        if (p.autoPolymorphic != value) {
+                    when (val p = policy) {
+                        null -> defaultPolicy { autoPolymorphic = value }
+                        is DefaultXmlSerializationPolicy -> if (p.autoPolymorphic != value) {
                             policy = p.copy { autoPolymorphic = value }
                         }
                     }
@@ -401,6 +412,7 @@ private constructor(
             isInlineCollapsed = true
             indent = 4
             defaultPolicy {
+                autoPolymorphic = true
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
                 encodeDefault = XmlEncodeDefault.ANNOTATED

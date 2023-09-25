@@ -41,6 +41,7 @@ public interface XmlSerializationPolicy {
 
     @Deprecated("Use isStrictAttributeNames instead")
     public val isStrictNames: Boolean get() = false
+    @Suppress("DEPRECATION")
     public val isStrictAttributeNames: Boolean get() = isStrictNames
     public val isStrictBoolean: Boolean get() = false
     public val isStrictOtherAttributes: Boolean get() = false
@@ -324,15 +325,15 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
 public open class DefaultXmlSerializationPolicy
 private constructor(
     public val pedantic: Boolean,
-    public val autoPolymorphic: Boolean = false,
-    public val encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-    public val unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-    public val typeDiscriminatorName: QName? = null,
-    public val throwOnRepeatedElement: Boolean = false,
-    public override val verifyElementOrder: Boolean = false,
+    public val autoPolymorphic: Boolean,
+    public val encodeDefault: XmlEncodeDefault,
+    public val unknownChildHandler: UnknownChildHandler,
+    public val typeDiscriminatorName: QName?,
+    public val throwOnRepeatedElement: Boolean,
+    public override val verifyElementOrder: Boolean,
     public override val isStrictAttributeNames: Boolean,
-    public override val isStrictBoolean: Boolean = false,
-    public override val isStrictOtherAttributes: Boolean = false,
+    public override val isStrictBoolean: Boolean,
+    public override val isStrictOtherAttributes: Boolean,
 ) : XmlSerializationPolicy {
 
     @Deprecated("Invalid name of property. This only affects attributes")
@@ -348,7 +349,18 @@ private constructor(
         typeDiscriminatorName: QName? = null,
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
-    ) : this(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName, throwOnRepeatedElement, verifyElementOrder, false)
+    ) : this(
+        pedantic = pedantic,
+        autoPolymorphic = autoPolymorphic,
+        encodeDefault = encodeDefault,
+        unknownChildHandler = unknownChildHandler,
+        typeDiscriminatorName = typeDiscriminatorName,
+        throwOnRepeatedElement = throwOnRepeatedElement,
+        verifyElementOrder = verifyElementOrder,
+        isStrictAttributeNames = false,
+        isStrictBoolean = false,
+        isStrictOtherAttributes = false
+    )
 
     @Suppress("DEPRECATION")
     @Deprecated("Use builder")
@@ -805,7 +817,7 @@ private constructor(
     /**
      * Create a copy of this configuration with the changes specified through the config parameter.
      */
-    @ExperimentalSerializationApi
+    @ExperimentalXmlUtilApi
     public inline fun copy(config: Builder.() -> Unit): DefaultXmlSerializationPolicy {
         return builder().apply(config).build()
     }

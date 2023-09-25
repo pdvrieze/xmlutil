@@ -60,7 +60,7 @@ class TestBooleanSerialization {
 
     @Test
     fun testDeserializeBooleanNormalTrueCaps() {
-        val xml = XML { recommended() }
+        val xml = XML { recommended { isStrictBoolean = false } }
         val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>TRUE</BooleanHolder>")
         assertEquals(BooleanHolder(true), decoded)
     }
@@ -81,7 +81,7 @@ class TestBooleanSerialization {
 
     @Test
     fun testDeserializeBooleanNormalFalseCaps() {
-        val xml = XML { recommended() }
+        val xml = XML { recommended { isStrictBoolean = false } }
         val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>FALSE</BooleanHolder>")
         assertEquals(BooleanHolder(false), decoded)
     }
@@ -95,14 +95,14 @@ class TestBooleanSerialization {
 
     @Test
     fun testDeserializeBooleanNormalEmpty() {
-        val xml = XML { recommended() }
+        val xml = XML { recommended { isStrictBoolean = false } }
         val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder></BooleanHolder>")
         assertEquals(BooleanHolder(false), decoded)
     }
 
     @Test
     fun testDeserializeBooleanNormalRandom() {
-        val xml = XML { recommended() }
+        val xml = XML { recommended { isStrictBoolean = false } }
         val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>some Random value</BooleanHolder>")
         assertEquals(BooleanHolder(false), decoded)
     }
