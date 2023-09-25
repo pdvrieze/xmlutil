@@ -214,10 +214,19 @@ private constructor(
         @ExperimentalXmlUtilApi
         @Deprecated("Use the policy instead")
         public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
-        @ExperimentalXmlUtilApi
-        public var policy: XmlSerializationPolicy? = null
+        policy: XmlSerializationPolicy? = null
     ) {
 
+        @ExperimentalXmlUtilApi
+        public var policy: XmlSerializationPolicy? = policy
+            set(value) {
+                val autoPolymorphic = autoPolymorphic
+                if (autoPolymorphic !=null && field !is DefaultXmlSerializationPolicy && value is DefaultXmlSerializationPolicy) {
+                    field = value.copy(autoPolymorphic = autoPolymorphic)
+                } else {
+                    field = value
+                }
+            }
 
         /**
          * Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
@@ -234,9 +243,15 @@ private constructor(
             set(value) {
                 field = value
                 if (value != null) {
-                    (policy as? DefaultXmlSerializationPolicy)?.also { p ->
-                        policy = p.copy(autoPolymorphic = value)
+                    if (policy == null) {
+                        policy = DefaultXmlSerializationPolicy.Builder(autoPolymorphic = true).build()
+                    } else {
+
+                        (policy as? DefaultXmlSerializationPolicy)?.also { p ->
+                            policy = p.copy(autoPolymorphic = value)
+                        }
                     }
+
                 }
             }
 
@@ -395,10 +410,10 @@ private constructor(
          * Configure the format starting with the recommended configuration as of version 0.86.3. This configuration is stable.
          */
         public inline fun recommended_0_86_3(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            autoPolymorphic = true
             isInlineCollapsed = true
             indent = 4
             defaultPolicy {
+                autoPolymorphic = true
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
                 encodeDefault = XmlEncodeDefault.ANNOTATED
