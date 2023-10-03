@@ -46,7 +46,7 @@ public fun xmlCollapseWhitespace(original: String): String = buildString(origina
             else -> { append(c); c }
         }
     }
-    if (last == ' ') this.deleteAt(this.length - 1) // make sure to trim
+    if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
 }
 
 
