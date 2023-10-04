@@ -369,6 +369,10 @@ private constructor(
             }
 
         public fun recommended() {
+            recommended { }
+        }
+
+        public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             autoPolymorphic = true
             isInlineCollapsed = true
             indent = 4
@@ -378,12 +382,8 @@ private constructor(
                 encodeDefault = XmlEncodeDefault.ANNOTATED
                 throwOnRepeatedElement = true
                 isStrictAttributeNames = true
+                configurePolicy()
             }
-        }
-
-        public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            recommended()
-            policy = policyBuilder().apply(configurePolicy).build()
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)

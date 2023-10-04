@@ -290,11 +290,25 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
 }
 
 /**
- * @param autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
- *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
- *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
- * @param unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
- *                     but the function can silently ignore it as well.
+ * Default implementation of a serialization policy that provides a behaviour that attempts to create an XML format
+ * that resembles what would be created manually in line with XML's design.
+ *
+ * @property pedantic Enable some stricter behaviour
+ * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
+ *  *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
+ *  *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
+ * @property encodeDefault Determine whether defaults need to be encoded
+ * @property unknownChildHandler A function that is called when an unknown child is found. By default an exception is thrown
+ *  *                     but the function can silently ignore it as well.
+ * @property typeDiscriminatorName When set, use a type discriminator property
+ * @property throwOnRepeatedElement When a single-value elemement is repeated in the content, will this throw an
+ *   exception or only retain the final value
+ * @property verifyElementOrder Verify that element children are in the order required by order annotations (and
+ *   fail if not correct). Note that attribute order in XML is arbitrary and not meaningful.
+ * @property isStrictAttributeNames Process attribute name reading strictly according to the XML standard, or a
+ *   name handling that is a bit more lenient
+ * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
+ *   toBoolean function from the Kotlin standard library.
  */
 public open class DefaultXmlSerializationPolicy
 private constructor(
@@ -791,6 +805,23 @@ private constructor(
         )
     }
 
+    /**
+     * A configuration builder for the default serialization policy.
+     * @property pedantic Enable some stricter behaviour
+     * @property autoPolymorphic Rather than using type wrappers use the tag name to distinguish polymorphic types
+     * @property encodeDefault Determine whether defaults need to be encoded
+     * @property unknownChildHandler Function called when an unknown child is encountered. By default it throws an
+     *   exception, but this function can use its own recovery behaviour
+     * @property typeDiscriminatorName When set, use a type discriminator property
+     * @property throwOnRepeatedElement When a single-value elemement is repeated in the content, will this throw an
+     *   exception or only retain the final value
+     * @property verifyElementOrder Verify that element children are in the order required by order annotations (and
+     *   fail if not correct). Note that attribute order in XML is arbitrary and not meaningful.
+     * @property isStrictAttributeNames Process attribute name reading strictly according to the XML standard, or a
+     *   name handling that is a bit more lenient
+     * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
+     *   toBoolean function from the Kotlin standard library.
+     */
     @OptIn(ExperimentalXmlUtilApi::class)
     public open class Builder
     internal constructor(
