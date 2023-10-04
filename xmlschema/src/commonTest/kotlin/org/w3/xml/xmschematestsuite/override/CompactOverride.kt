@@ -88,8 +88,8 @@ data class TestPath(
             val decoded = decoder.decodeString().split('/')
             return TestPath(
                 decoded[0],
-                if(decoded.size>0) decoded[1] else null,
-                if(decoded.size>1) decoded[2] else null,
+                if (decoded.size > 1) decoded[1].takeIf { decoded.size > 2 || it.isNotEmpty() } else null,
+                if (decoded.size > 2) decoded[2].takeIf { it.isNotEmpty() } else null,
             )
         }
 
