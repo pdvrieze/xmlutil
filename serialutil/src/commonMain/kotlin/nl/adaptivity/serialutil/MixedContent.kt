@@ -121,7 +121,7 @@ sealed class MixedContent<out T> {
                         findPolymorphicSerializer(
                             compositeDecoder,
                             klassName
-                                                                                                                    )
+                        )
                     compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
                 }
             }
@@ -148,7 +148,7 @@ sealed class MixedContent<out T> {
         private fun findPolymorphicSerializer(
             compositeDecoder: CompositeDecoder,
             klassName: String
-                                             ): DeserializationStrategy<out Any> {
+        ): DeserializationStrategy<out Any> {
             return compositeDecoder.serializersModule.getPolymorphic(Any::class, serializedClassName = klassName)
                 ?: throw SerializationException("No matching serializer found for type name $klassName extending Any")
         }
