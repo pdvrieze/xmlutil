@@ -42,6 +42,7 @@ public interface XmlSerializationPolicy {
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
     public val isStrictNames: Boolean get() = false
+    public val isStrictBoolean: Boolean get() = false
 
     @ExperimentalXmlUtilApi
     public val verifyElementOrder: Boolean get() = false
@@ -305,6 +306,7 @@ private constructor(
     public val throwOnRepeatedElement: Boolean = false,
     public override val verifyElementOrder: Boolean = false,
     public override val isStrictNames: Boolean,
+    public override val isStrictBoolean: Boolean = false,
 ) : XmlSerializationPolicy {
 
     @Deprecated("Use builder")
@@ -380,7 +382,8 @@ private constructor(
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
         throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
         verifyElementOrder = original?.verifyElementOrder ?: false,
-        isStrictNames = original?.isStrictNames ?: false
+        isStrictNames = original?.isStrictNames ?: false,
+        isStrictBoolean = original?.isStrictBoolean ?: false,
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -393,6 +396,7 @@ private constructor(
         throwOnRepeatedElement = builder.throwOnRepeatedElement,
         verifyElementOrder = builder.verifyElementOrder,
         isStrictNames = builder.isStrictAttributeNames,
+        isStrictBoolean = builder.isStrictBoolean,
     )
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -798,6 +802,7 @@ private constructor(
         public var throwOnRepeatedElement: Boolean = false,
         public var verifyElementOrder: Boolean = false,
         public var isStrictAttributeNames: Boolean = false,
+        public var isStrictBoolean: Boolean = false,
     ) {
         internal constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,

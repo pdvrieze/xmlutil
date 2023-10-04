@@ -44,6 +44,7 @@ import nl.adaptivity.xmlutil.serialization.impl.consumeChunksFromString
 import nl.adaptivity.xmlutil.serialization.impl.readSimpleElementChunked
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
+import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
 import kotlin.collections.set
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -87,7 +88,10 @@ internal open class XmlDecoderBase internal constructor(
             return null
         }
 
-        override fun decodeBoolean(): Boolean = decodeStringImpl().toBoolean()
+        override fun decodeBoolean(): Boolean = when {
+            config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(this)
+            else -> decodeStringImpl().toBoolean()
+        }
 
         override fun decodeByte(): Byte = when {
             xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
@@ -1115,7 +1119,11 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
-            return decodeStringElement(descriptor, index).toBoolean()
+            val stringValue = decodeStringElement(descriptor, index)
+            return when {
+                config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(StringDecoder(xmlDescriptor.getElementDescriptor(index), stringValue))
+                else -> stringValue.toBoolean()
+            }
         }
 
         override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {

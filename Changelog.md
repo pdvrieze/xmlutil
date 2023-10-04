@@ -1,4 +1,9 @@
 # 0.86.3-SNAPSHOT
+Features:
+- Support strict boolean parsing in policy 
+  (using xml schema rules allowing: 1, true, 0, false)
+- Add an alias XmlBoolean that parses according to xml rules independent of
+  the policy.
 Fixes:
 - Fix handling of empty textual value content.
 
