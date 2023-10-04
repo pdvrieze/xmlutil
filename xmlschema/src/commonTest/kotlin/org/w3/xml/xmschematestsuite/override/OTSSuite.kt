@@ -96,8 +96,11 @@ data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyLi
             isIgnored -> emptyList()
             else -> {
                 val associations = groups.associateBy { it.name }
-                original.testGroups.map {
-                    associations.get(it.name)?.applyTo(it) ?: it
+                original.testGroups.mapNotNull {
+                    when(val a = associations.get(it.name)) {
+                        null -> it
+                        else -> if (a.isIgnored) null else a.applyTo(it)
+                    }
                 }
             }
         }
@@ -131,9 +134,19 @@ data class OTSTestGroup(
     val isIgnored: Boolean = false
 ) {
     fun applyTo(original: TSTestGroup): TSTestGroup {
-        val newSchemaTest = original.schemaTest?.let { ot -> schemaTest?.applyTo(ot) ?: ot }
+        val newSchemaTest = original.schemaTest?.let { ot ->
+            when (val st = schemaTest) {
+                null -> ot
+                else -> if (st.isIgnored) null else st.applyTo(ot)
+            }
+        }
         val instanceMap = instanceTests.associateBy { it.name }
-        val newInstanceTests = original.instanceTests.map { instanceMap[it.name]?.applyTo(it) ?: it }
+        val newInstanceTests = original.instanceTests.mapNotNull {
+            when (val map = instanceMap[it.name]) {
+                null -> it
+                else -> if (map.isIgnored) null else map.applyTo(it)
+            }
+        }
 
         return original.copy(
             schemaTest = newSchemaTest,
