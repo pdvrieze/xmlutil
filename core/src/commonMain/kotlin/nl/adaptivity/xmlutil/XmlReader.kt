@@ -300,6 +300,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
 public fun XmlBufferedReader.allConsecutiveTextContent(): String {
+    if (eventType == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
         if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
