@@ -394,7 +394,7 @@ private constructor(
         @OptIn(ExperimentalXmlUtilApi::class)
         @PublishedApi
         internal fun policyBuilder(): DefaultXmlSerializationPolicy.Builder = when (val p = policy) {
-            is DefaultXmlSerializationPolicy -> DefaultXmlSerializationPolicy.Builder(p)
+            is DefaultXmlSerializationPolicy -> p.builder()
             else -> DefaultXmlSerializationPolicy.Builder()
         }
     }

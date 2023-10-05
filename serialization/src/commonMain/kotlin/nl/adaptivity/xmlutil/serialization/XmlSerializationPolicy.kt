@@ -335,6 +335,7 @@ private constructor(
         verifyElementOrder: Boolean = false,
     ) : this(pedantic, autoPolymorphic, encodeDefault, unknownChildHandler, typeDiscriminatorName, throwOnRepeatedElement, verifyElementOrder, false)
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use builder")
     @ExperimentalXmlUtilApi
     public constructor(
@@ -349,6 +350,7 @@ private constructor(
     /**
      * Stable constructor that doesn't use experimental api.
      */
+    @Suppress("DEPRECATION")
     @Deprecated("Use builder")
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(
@@ -357,6 +359,7 @@ private constructor(
         encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
     ) : this(pedantic, autoPolymorphic, encodeDefault, XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER)
 
+    @Suppress("DEPRECATION")
     @Deprecated("Use the unknownChildHandler version that allows for recovery")
     @ExperimentalXmlUtilApi
     public constructor(
@@ -772,22 +775,37 @@ private constructor(
         if (pedantic) throw XmlSerialException(message)
     }
 
-    @OptIn(ExperimentalXmlUtilApi::class)
+    /**
+     * Create a builder for this policy. This function allows subclasses to have their own configuration.
+     */
+    public open fun builder(): Builder = Builder(this)
+
+    /**
+     * Create a copy of this configuration with the changes specified through the config parameter.
+     */
+    @ExperimentalSerializationApi
+    public inline fun copy(config: Builder.() -> Unit): DefaultXmlSerializationPolicy {
+        return builder().apply(config).build()
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Deprecated("Use the copy that uses the builder to configure changes")
     public fun copy(
         pedantic: Boolean = this.pedantic,
         autoPolymorphic: Boolean = this.autoPolymorphic,
         encodeDefault: XmlEncodeDefault = this.encodeDefault,
         typeDiscriminatorName: QName? = this.typeDiscriminatorName
     ): DefaultXmlSerializationPolicy {
-        return DefaultXmlSerializationPolicy(
-            pedantic,
-            autoPolymorphic,
-            encodeDefault,
-            unknownChildHandler,
-            typeDiscriminatorName
-        )
+        return copy {
+            this.pedantic = pedantic
+            this.autoPolymorphic = autoPolymorphic
+            this.encodeDefault = encodeDefault
+            this.typeDiscriminatorName = typeDiscriminatorName
+        }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @Deprecated("Use the copy that uses the builder to configure changes")
     @ExperimentalXmlUtilApi
     public fun copy(
         pedantic: Boolean = this.pedantic,
@@ -796,17 +814,18 @@ private constructor(
         unknownChildHandler: UnknownChildHandler,
         typeDiscriminatorName: QName? = this.typeDiscriminatorName
     ): DefaultXmlSerializationPolicy {
-        return DefaultXmlSerializationPolicy(
-            pedantic,
-            autoPolymorphic,
-            encodeDefault,
-            unknownChildHandler,
-            typeDiscriminatorName
-        )
+        return copy {
+            this.pedantic = pedantic
+            this.autoPolymorphic = autoPolymorphic
+            this.encodeDefault = encodeDefault
+            this.unknownChildHandler = unknownChildHandler
+            this.typeDiscriminatorName = typeDiscriminatorName
+        }
     }
 
     /**
      * A configuration builder for the default serialization policy.
+     *
      * @property pedantic Enable some stricter behaviour
      * @property autoPolymorphic Rather than using type wrappers use the tag name to distinguish polymorphic types
      * @property encodeDefault Determine whether defaults need to be encoded
@@ -823,8 +842,7 @@ private constructor(
      *   toBoolean function from the Kotlin standard library.
      */
     @OptIn(ExperimentalXmlUtilApi::class)
-    public open class Builder
-    internal constructor(
+    public open class Builder internal constructor(
         public var pedantic: Boolean = false,
         public var autoPolymorphic: Boolean = false,
         public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
@@ -835,7 +853,14 @@ private constructor(
         public var isStrictAttributeNames: Boolean = false,
         public var isStrictBoolean: Boolean = false,
     ) {
-        internal constructor(policy: DefaultXmlSerializationPolicy) : this(
+        /**
+         * Constructor for default builder. To set any values, use the property setters. The primary constructor
+         * is internal as it is not stable as new configuration options are added.
+         */
+        public constructor() : this(pedantic = false)
+
+        @ExperimentalXmlUtilApi
+        public constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,
             autoPolymorphic = policy.autoPolymorphic,
             encodeDefault = policy.encodeDefault,
@@ -854,6 +879,6 @@ private constructor(
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
         }
 
-        public fun build(): XmlSerializationPolicy = DefaultXmlSerializationPolicy(this)
+        public fun build(): DefaultXmlSerializationPolicy = DefaultXmlSerializationPolicy(this)
     }
 }

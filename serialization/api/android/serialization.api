@@ -33,6 +33,8 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;ZZ)V
 	public synthetic fun <init> (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun attributeListDelimiters (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
+	public fun builder ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;
+	public final fun copy (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun copy (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun copy (ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;ZZLnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
@@ -79,7 +81,8 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 
 public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder {
 	public fun <init> ()V
-	public final fun build ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;)V
+	public final fun build ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun getAutoPolymorphic ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getPedantic ()Z
