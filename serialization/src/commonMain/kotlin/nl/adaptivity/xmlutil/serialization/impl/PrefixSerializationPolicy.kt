@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.serialization.impl
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 
 internal class PrefixWrappingPolicy(val basePolicy: XmlSerializationPolicy, val prefixMap: Map<String, String>) : XmlSerializationPolicy by basePolicy {
@@ -35,20 +36,20 @@ internal class PrefixWrappingPolicy(val basePolicy: XmlSerializationPolicy, val 
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
-        useName: XmlSerializationPolicy.DeclaredNameInfo
+        useName: DeclaredNameInfo
     ): QName {
         return basePolicy.effectiveName(serializerParent, tagParent, outputKind, useName).remapPrefix()
     }
 
     override fun serialTypeNameToQName(
-        typeNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
+        typeNameInfo: DeclaredNameInfo,
         parentNamespace: Namespace
     ): QName {
         return basePolicy.serialTypeNameToQName(typeNameInfo, parentNamespace).remapPrefix()
     }
 
     override fun serialUseNameToQName(
-        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
+        useNameInfo: DeclaredNameInfo,
         parentNamespace: Namespace
     ): QName {
         return basePolicy.serialUseNameToQName(useNameInfo, parentNamespace).remapPrefix()
@@ -67,4 +68,8 @@ internal class PrefixWrappingPolicy(val basePolicy: XmlSerializationPolicy, val 
 
 internal fun QName.remapPrefix(prefixMap: Map<String, String>): QName {
     return QName(namespaceURI, localPart, prefixMap[namespaceURI] ?: prefix)
+}
+
+internal fun DeclaredNameInfo.remapPrefix(prefixMap: Map<String, String>): DeclaredNameInfo {
+    return DeclaredNameInfo(serialName, annotatedName?.remapPrefix(prefixMap), isDefaultNamespace)
 }

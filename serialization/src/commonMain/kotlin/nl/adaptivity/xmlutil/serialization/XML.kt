@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.capturedKClass
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -39,10 +40,7 @@ import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
 import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
 import nl.adaptivity.xmlutil.serialization.impl.PrefixWrappingPolicy
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
-import nl.adaptivity.xmlutil.serialization.structure.XmlAttributeMapDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlRootDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
@@ -207,7 +205,13 @@ public class XML constructor(
             }
         }
 
-        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootName, false)
+        val safeSerialName = serializer.descriptor.run { capturedKClass?.serialName ?: serialName }
+
+        val policyDerivedName =
+            config.policy.serialTypeNameToQName(DeclaredNameInfo(safeSerialName), XmlEvent.NamespaceImpl("", ""))
+
+        val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
+        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo, false)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -220,7 +224,8 @@ public class XML constructor(
                     policy = PrefixWrappingPolicy(policy ?: policyBuilder().build(), prefixMap)
                 })
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
-                val newRootName = rootName?.remapPrefix(prefixMap)
+                val newRootName = rootNameInfo.remapPrefix(prefixMap)
+
                 val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName, false)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
@@ -375,6 +380,25 @@ public class XML constructor(
         decodeFromReader(serializer(), reader, rootName)
 
     /**
+     * Function that determines the "proper" use name requirement for a root tag.
+     * @param descriptor The descriptor of the root tag
+     * @param rootName The explicitly given name requirement
+     * @param localName The qname from the reader or (for writer derived from the serial name - avoiding captured types)
+     */
+    private fun rootNameInfo(descriptor: SerialDescriptor, rootName: QName?, localName: QName): DeclaredNameInfo {
+        if (rootName != null) {
+            return DeclaredNameInfo(localName.localPart, rootName, false)
+        }
+
+        val tmpRoot =
+            XmlRootDescriptor(config, serializersModule, descriptor, DeclaredNameInfo(localName.localPart), false)
+
+        val realName = tmpRoot.typeDescriptor.typeQname ?: localName
+
+        return DeclaredNameInfo(realName.localPart, realName, false)
+    }
+
+    /**
      * Parse an object of the type [T] out of the reader. This function is intended mostly to be used indirectly where
      * though the reified function.
      *
@@ -388,25 +412,30 @@ public class XML constructor(
         reader: XmlReader,
         rootName: QName? = null
     ): T {
-
-        val serialName = rootName
-            ?: deserializer.descriptor.annotations.firstOrNull<XmlSerialName>()
-                ?.toQName(deserializer.descriptor.serialName, null)
-
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
-        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, serialName, false)
+        val rootNameInfo = rootNameInfo(deserializer.descriptor, rootName, reader.name)
+        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, rootNameInfo, false)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
-        val polyInfo = (elementDescriptor as? XmlPolymorphicDescriptor)?.run {
-            val tagName = serialName ?: reader.name
-            polyInfo.values.singleOrNull {
+
+        val polyInfo: PolyInfo? = if (elementDescriptor is XmlPolymorphicDescriptor) {
+            val tagName = reader.name
+            val info = elementDescriptor.polyInfo.values.singleOrNull {
                 tagName.isEquivalent(it.tagName)
-            }?.let { PolyInfo(tagName, 0, it) }
+            }
+            info?.let { PolyInfo(tagName, 0, it) }
+        } else {
+            // only check names when not having polymorphic root
+            val serialName = rootDescriptor.getElementDescriptor(0).tagName
+            if (!serialName.isEquivalent(reader.name)) {
+                throw XmlException("Local name \"${reader.name}\" for root tag does not match expected name \"$serialName\"")
+            }
+            null
         }
 
         val decoder = xmlDecoderBase.XmlDecoder(
@@ -439,7 +468,9 @@ public class XML constructor(
                 XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
             )
 
-        return XmlRootDescriptor(config, serializersModule, serialDescriptor, serialName, false)
+        val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
+
+        return XmlRootDescriptor(config, serializersModule, serialDescriptor, nameInfo, false)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)

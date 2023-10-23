@@ -312,16 +312,16 @@ public class XmlRootDescriptor internal constructor(
     config: XmlConfig,
     serializersModule: SerializersModule,
     descriptor: SerialDescriptor,
-    tagName: QName?,
+    tagName: DeclaredNameInfo,
     isDefaultNamespace: Boolean,
-) : XmlDescriptor(config.policy, DetachedParent(descriptor, tagName, true, outputKind = null, isDefaultNamespace = isDefaultNamespace)) {
+) : XmlDescriptor(config.policy, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
     internal constructor(
 // TODO get rid of coded, put policy in its place
         config: XmlConfig,
         serializersModule: SerializersModule,
         descriptor: SerialDescriptor,
-    ) : this (config, serializersModule, descriptor, null, false)
+    ) : this (config, serializersModule, descriptor, DeclaredNameInfo(descriptor.serialName), false)
 
     private val element: XmlDescriptor by lazy {
         from(config, serializersModule, tagParent, canBeAttribute = false)
@@ -340,7 +340,7 @@ public class XmlRootDescriptor internal constructor(
     override val tagName: QName
         get() {
             val useNameInfo = useNameInfo
-            return useNameInfo.annotatedName!!
+            return useNameInfo.annotatedName ?: element.tagName
         }
 
     override val outputKind: OutputKind get() = OutputKind.Mixed
