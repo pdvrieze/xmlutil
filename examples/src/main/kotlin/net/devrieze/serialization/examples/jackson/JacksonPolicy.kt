@@ -29,8 +29,12 @@ import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
  * Example policy that (very crudely) mimicks the way that Jackson serializes xml. It starts by eliding defaults.
  * Note that this version doesn't handle the jackson annotations.
  */
-object JacksonPolicy :
-    DefaultXmlSerializationPolicy(false, encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER) {
+object JacksonPolicy : DefaultXmlSerializationPolicy(
+    {
+        pedantic = false
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
+    }
+) {
     /*
      * Rather than replacing the method wholesale, just make attributes into elements unless the [XmlElement] annotation
      * is present with a `false` value on the value attribute.

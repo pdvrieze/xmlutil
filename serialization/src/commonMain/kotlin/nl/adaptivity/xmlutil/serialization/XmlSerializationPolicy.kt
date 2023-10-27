@@ -404,7 +404,7 @@ private constructor(
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
-    internal constructor(builder: Builder) : this(
+    protected constructor(builder: Builder) : this(
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -415,6 +415,8 @@ private constructor(
         isStrictNames = builder.isStrictAttributeNames,
         isStrictBoolean = builder.isStrictBoolean,
     )
+
+    public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
         return typeDiscriminatorName
