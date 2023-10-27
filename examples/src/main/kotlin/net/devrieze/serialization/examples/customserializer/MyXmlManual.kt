@@ -54,14 +54,16 @@ data class MyXmlManual(val attribute: String) {
     )
 
     companion object : KSerializer<MyXmlManual> {
-        override val descriptor: SerialDescriptor =
-            DescriptorDelegate.serializer().descriptor
+        @OptIn(ExperimentalSerializationApi::class)
+        override val descriptor: SerialDescriptor = SerialDescriptor(
+            serialName = "net.devrieze.serialization.examples.customserializer.MyXmlManual",
+            original = DescriptorDelegate.serializer().descriptor
+        )
 
         private val NS_XSI = XmlEvent.NamespaceImpl(
             "xsi",
             "http://www.w3.org/2001/XMLSchema-instance"
         )
-
 
         override fun serialize(encoder: Encoder, value: MyXmlManual) {
             encoder.encodeStructure(descriptor) {
@@ -90,6 +92,7 @@ data class MyXmlManual(val attribute: String) {
                         else -> throw SerializationException("Not found")
                     }
                 } while (idx != CompositeDecoder.DECODE_DONE)
+
                 MyXmlManual(attribute)
             }
         }
