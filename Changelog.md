@@ -6,6 +6,12 @@ Features:
   the policy.
 Fixes:
 - Fix handling of empty textual value content.
+- Fix collapsing whitespace when it is empty #180.
+- Fix the way the recommended config works to apply the policy. Note that
+  recommended is not designed to be stable.
+- Fix regression on root tag strictness. Now if the root type has a declared `@XmlSerialName`
+  this type will be expected as the root tag unless explicitly specified differently
+  as parameter.
 - Add a proper non-deprecated constructor for `DefaultXmlSerializationPolicy`
   this takes a Builder, or a configuration lambda. Both options enable
   future proofing when further attributes are added.
