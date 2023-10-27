@@ -40,7 +40,7 @@ fun main() {
     val testElements = listOf(
         TestElement(123, 42, "someData"),
         TestElement(456, 71, "moreData")
-                             )
+    )
 
     // Execute the example code for the compatible serializer
     println("# Compatible")

@@ -55,7 +55,7 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
      */
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         when (filterDepth) {
-            0    -> super.startTag("", "Test_$idValue", "")
+            0 -> super.startTag("", "Test_$idValue", "")
             else -> super.startTag(namespace, localName, prefix)
         }
     }
@@ -68,7 +68,8 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
             filterDepth == 1 &&
                     (namespace ?: "") == idAttrName.namespaceURI &&
                     name == idAttrName.localPart
-                 -> Unit
+            -> Unit
+
             else -> super.attribute(namespace, name, prefix, value)
         }
 
@@ -79,7 +80,7 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
      */
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
         when (filterDepth) {
-            1    -> super.endTag("", "Test_$idValue", "")
+            1 -> super.endTag("", "Test_$idValue", "")
             else -> super.endTag(namespace, localName, prefix)
         }
     }

@@ -70,7 +70,7 @@ data class MyXmlDelegate(val attribute: String) {
         private val NS_XSI = XmlEvent.NamespaceImpl(
             "xsi",
             "http://www.w3.org/2001/XMLSchema-instance"
-                                                   )
+        )
 
 
         override fun serialize(encoder: Encoder, value: MyXmlDelegate) {
@@ -80,44 +80,44 @@ data class MyXmlDelegate(val attribute: String) {
                 BaseSerialDelegate.serializer().serialize(encoder, BaseSerialDelegate(value))
             }
 
-/*
-            encoder.encodeStructure(descriptor) {
-                (encoder as? XML.XmlOutput)?.target?.run {
-                    namespaceAttr(NS_XSI)
-                    writeAttribute(
-                        QName( NS_XSI.namespaceURI, "schemalocation", "xsi" ),
-                        "urn:OECD:MyXmlFile.xsd"
-                                  )
-                }
-                encodeStringElement(descriptor, 0, value.attribute)
-            }
-*/
+            /*
+                        encoder.encodeStructure(descriptor) {
+                            (encoder as? XML.XmlOutput)?.target?.run {
+                                namespaceAttr(NS_XSI)
+                                writeAttribute(
+                                    QName( NS_XSI.namespaceURI, "schemalocation", "xsi" ),
+                                    "urn:OECD:MyXmlFile.xsd"
+                                              )
+                            }
+                            encodeStringElement(descriptor, 0, value.attribute)
+                        }
+            */
         }
 
         override fun deserialize(decoder: Decoder): MyXmlDelegate {
             return when (decoder) {
                 is XML.XmlInput -> XmlSerialDelegate.serializer().deserialize(decoder).toMyXml()
-                else            -> BaseSerialDelegate.serializer().deserialize(decoder).toMyXml()
+                else -> BaseSerialDelegate.serializer().deserialize(decoder).toMyXml()
             }
 
-/*
-            return decoder.decodeStructure(descriptor) {
-                lateinit var attribute: String
-                do {
-                    val idx = decodeElementIndex(descriptor)
-                    when (idx) {
-                        1, // just ignore the schema attribute
-                        CompositeDecoder.DECODE_DONE -> continue
-                        0                            -> attribute =
-                            decodeStringElement(descriptor, 0)
-                        else                         -> throw SerializationException(
-                            "Not found"
-                                                                                    )
-                    }
-                } while (idx != CompositeDecoder.DECODE_DONE)
-                MyXml(attribute)
-            }
-*/
+            /*
+                        return decoder.decodeStructure(descriptor) {
+                            lateinit var attribute: String
+                            do {
+                                val idx = decodeElementIndex(descriptor)
+                                when (idx) {
+                                    1, // just ignore the schema attribute
+                                    CompositeDecoder.DECODE_DONE -> continue
+                                    0                            -> attribute =
+                                        decodeStringElement(descriptor, 0)
+                                    else                         -> throw SerializationException(
+                                        "Not found"
+                                                                                                )
+                                }
+                            } while (idx != CompositeDecoder.DECODE_DONE)
+                            MyXml(attribute)
+                        }
+            */
         }
     }
 }

@@ -44,4 +44,4 @@ data class GeResult<out T>(
      * serialized type and is serialized as element (by default).
      */
     val data: T
- )
+)

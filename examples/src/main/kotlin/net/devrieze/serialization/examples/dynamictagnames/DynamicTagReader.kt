@@ -39,7 +39,7 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
          */
         get() = when (eventType) {
             EventType.END_ELEMENT -> delegate.depth - initDepth + 1
-            else                  -> delegate.depth - initDepth
+            else -> delegate.depth - initDepth
         }
 
     /**
@@ -79,9 +79,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeNamespace(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.namespaceURI
+            0 -> idAttrName.namespaceURI
             else -> super.getAttributeNamespace(index - 1)
         }
+
         else -> super.getAttributeNamespace(index)
     }
 
@@ -91,9 +92,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributePrefix(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.prefix
+            0 -> idAttrName.prefix
             else -> super.getAttributePrefix(index - 1)
         }
+
         else -> super.getAttributePrefix(index)
     }
 
@@ -103,9 +105,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeLocalName(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.localPart
+            0 -> idAttrName.localPart
             else -> super.getAttributeLocalName(index - 1)
         }
+
         else -> super.getAttributeLocalName(index)
     }
 
@@ -115,9 +118,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeValue(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idValue
+            0 -> idValue
             else -> super.getAttributeValue(index - 1)
         }
+
         else -> super.getAttributeValue(index)
     }
 
@@ -129,7 +133,8 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
         filterDepth == 0 &&
                 (nsUri ?: "") == idAttrName.namespaceURI &&
                 localName == idAttrName.localPart -> idValue
-        else                                      -> super.getAttributeValue(nsUri, localName)
+
+        else -> super.getAttributeValue(nsUri, localName)
     }
 
     /**

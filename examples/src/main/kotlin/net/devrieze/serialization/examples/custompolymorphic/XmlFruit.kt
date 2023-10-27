@@ -56,7 +56,7 @@ data class XmlFruit(
          * @return the resulting [XmlFruit]
          */
         fun fromFruit(fruit: Fruit): XmlFruit = when (fruit) {
-            is Apple  -> XmlFruit(FruitType.APPLE, fruit.name, fruit.numAppleSeeds, null)
+            is Apple -> XmlFruit(FruitType.APPLE, fruit.name, fruit.numAppleSeeds, null)
             is Tomato -> XmlFruit(FruitType.TOMATO, fruit.name, null, fruit.color)
             // due to Fruit being a sealed class, Kotlin will make sure this `when {}` is exhaustive
         }
@@ -82,6 +82,7 @@ data class XmlFruit(
             require(color == null)
             Apple(name, requireNotNull(numAppleSeeds))
         }
+
         FruitType.TOMATO -> {
             require(numAppleSeeds == null)
             Tomato(name, requireNotNull(color))
@@ -91,13 +92,14 @@ data class XmlFruit(
     /**
      * Simple serializer that serializes a [FruitType] as the string in its property [FruitType.serialName].
      */
-    class FruitTypeSerializer: KSerializer<FruitType> {
+    class FruitTypeSerializer : KSerializer<FruitType> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
             "net.devrieze.serialization.examples.custompolymorphic.FruitType",
             PrimitiveKind.STRING
         )
 
-        override fun deserialize(decoder: Decoder): FruitType = FruitType.values().first { decoder.decodeString() == it.serialName }
+        override fun deserialize(decoder: Decoder): FruitType =
+            FruitType.values().first { decoder.decodeString() == it.serialName }
 
         override fun serialize(encoder: Encoder, value: FruitType): Unit = encoder.encodeString(value.serialName)
     }

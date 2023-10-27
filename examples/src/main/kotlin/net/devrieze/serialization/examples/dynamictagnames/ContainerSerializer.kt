@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XML
  * This version of the serializer uses the new delegateFormat method on [XML.XmlInput] and [XML.XmlOutput]
  * to inherit configuration and serializerModules.
  */
-object ContainerSerializer: CommonContainerSerializer() {
+object ContainerSerializer : CommonContainerSerializer() {
     override fun delegateFormat(decoder: Decoder) = (decoder as XML.XmlInput).delegateFormat()
     override fun delegateFormat(encoder: Encoder) = (encoder as XML.XmlOutput).delegateFormat()
 }

@@ -39,7 +39,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("Envelope", "http://schemas.xmlsoap.org/soap/envelope/", "S")
 class Envelope<BODYTYPE> private constructor(
     private val body: Body<BODYTYPE>
-                                            ) {
+) {
 
     /**
      * Actual constructor so users don't need to know about the body element

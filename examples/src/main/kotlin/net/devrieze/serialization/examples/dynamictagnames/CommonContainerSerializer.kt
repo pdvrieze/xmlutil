@@ -82,6 +82,7 @@ abstract class CommonContainerSerializer : KSerializer<Container> {
                     EventType.IGNORABLE_WHITESPACE -> {
                         // Comments and whitespace are just ignored
                     }
+
                     EventType.ENTITY_REF,
                     EventType.TEXT -> {
                         if (reader.text.isNotBlank()) {

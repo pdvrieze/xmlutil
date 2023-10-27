@@ -40,7 +40,7 @@ data class MyXmlManual(val attribute: String) {
     @Serializable
     @XmlSerialName("MyXml", "urn:OECD:MyXmlFile", "")
     private open class BaseSerialDelegate(val attribute: String) {
-        constructor(origin: MyXmlManual): this(origin.attribute)
+        constructor(origin: MyXmlManual) : this(origin.attribute)
 
         fun toMyXml(): MyXmlManual = MyXmlManual(attribute)
     }
@@ -86,7 +86,7 @@ data class MyXmlManual(val attribute: String) {
                         CompositeDecoder.DECODE_DONE -> continue
 
                         0 -> attribute = decodeStringElement(descriptor, 0)
-                        
+
                         else -> throw SerializationException("Not found")
                     }
                 } while (idx != CompositeDecoder.DECODE_DONE)
