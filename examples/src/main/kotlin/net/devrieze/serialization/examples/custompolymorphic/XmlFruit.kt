@@ -20,7 +20,6 @@
 
 package net.devrieze.serialization.examples.custompolymorphic
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -99,7 +98,7 @@ data class XmlFruit(
         )
 
         override fun deserialize(decoder: Decoder): FruitType =
-            FruitType.values().first { decoder.decodeString() == it.serialName }
+            FruitType.entries.first { decoder.decodeString() == it.serialName }
 
         override fun serialize(encoder: Encoder, value: FruitType): Unit = encoder.encodeString(value.serialName)
     }

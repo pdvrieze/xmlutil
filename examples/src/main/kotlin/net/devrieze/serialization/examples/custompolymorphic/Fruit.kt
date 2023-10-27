@@ -30,8 +30,6 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable(Fruit.FruitSerializer::class)
 sealed class Fruit {
-    @OptIn(ExperimentalSerializationApi::class)
-    @Serializer(Fruit::class)
     class FruitSerializer : KSerializer<Fruit> {
         override val descriptor: SerialDescriptor = XmlFruit.serializer().descriptor
         override fun deserialize(decoder: Decoder): Fruit = XmlFruit.serializer().deserialize(decoder).toFruit()
