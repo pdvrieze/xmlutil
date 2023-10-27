@@ -53,7 +53,7 @@ fun main() {
     val encodedString = xml.encodeToString(/*serializer, */data) // both versions are available
     println("SOAP output:\n${encodedString.prependIndent("    ")}\n")
 
-    // the inline reified version is is also available
+    // the inline reified version is also available
     val reparsedData = xml.decodeFromString(serializer, encodedString)
     println("SOAP input: $reparsedData")
 }
