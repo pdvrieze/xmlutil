@@ -20,7 +20,6 @@
 
 package net.devrieze.serialization.examples.dynamictagnames
 
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.serialization.XML
 
@@ -42,36 +41,9 @@ fun main() {
         TestElement(456, 71, "moreData")
     )
 
-    // Execute the example code for the compatible serializer
-    println("# Compatible")
-    compat(testElements)
-
     // Execute the example code for the improved serializer
-    println()
-    println("# Improved version")
+    println("# Example dyamic tag names processing")
     newExample(testElements)
-}
-
-private fun compat(testElements: List<TestElement>) {
-    val data = Container(testElements)
-
-    // Instead of using the serializer for the type we use the custom one. In normal cases there would only be one
-    // serializer
-    val serializer = CompatContainerSerializer
-
-    /*
-     * Set an indent here to show that it is not effective (as the serialization of the child does not have access to
-     * the configuration).
-     */
-    val xml = XML { indent = 2 }
-
-    // Encode and print the output of serialization
-    val string = xml.encodeToString(serializer, data)
-    println("StringEncodingCompat:\n${string.prependIndent("    ")}")
-
-    // Parse and print the result of deserialization
-    val deserializedData = xml.decodeFromString(serializer, string)
-    println("Deserialized container:\n  $deserializedData")
 }
 
 /** This example works with master, but not with the released version. */
