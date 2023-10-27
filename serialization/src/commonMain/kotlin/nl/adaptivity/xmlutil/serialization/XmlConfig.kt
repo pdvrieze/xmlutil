@@ -368,11 +368,33 @@ private constructor(
                 }
             }
 
+        /**
+         * Configure the parser using the latest recommended settings. Note that this function has
+         * no guarantee of stability.
+         */
         public fun recommended() {
             recommended { }
         }
 
+        /**
+         * Configure the policy and the config builder with the latest recommended settings and policy.
+         * Note that this function has no guarantee of stability.
+         */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            recommended_0_86_3(configurePolicy)
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.86.3. This configuration is stable.
+         */
+        public fun recommended_0_86_3() {
+            recommended_0_86_3 { }
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.86.3. This configuration is stable.
+         */
+        public inline fun recommended_0_86_3(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             autoPolymorphic = true
             isInlineCollapsed = true
             indent = 4

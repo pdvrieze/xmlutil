@@ -4,6 +4,9 @@ Features:
   (using xml schema rules allowing: 1, true, 0, false)
 - Add an alias XmlBoolean that parses according to xml rules independent of
   the policy.
+- Add versioned recommended configuration of the serializer. This provides
+  for a stable configuration without manual configuration.
+
 Fixes:
 - Fix handling of empty textual value content.
 - Fix collapsing whitespace when it is empty #180.
