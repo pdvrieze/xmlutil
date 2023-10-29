@@ -6,6 +6,10 @@ Features:
   the policy.
 - Add versioned recommended configuration of the serializer. This provides
   for a stable configuration without manual configuration.
+- Add support for purely text lists as text content (similar to attributes).
+  This comes with a `textListDelimiters` policy function that allows
+  specifying delimiters (note that it will apply xml schema compatible
+  collapsing of whitespace - as articles do).
 
 Fixes:
 - Fix handling of empty textual value content.

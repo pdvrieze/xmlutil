@@ -320,6 +320,9 @@ internal open class XmlEncoderBase internal constructor(
             OutputKind.Attribute ->
                 AttributeListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex)
 
+            OutputKind.Text ->
+                ValueListEncoder(xmlDescriptor as XmlListDescriptor)
+
             else -> ListEncoder(xmlDescriptor as XmlListDescriptor, elementIndex, discriminatorName)
         }
 
@@ -964,9 +967,10 @@ internal open class XmlEncoderBase internal constructor(
         override fun endStructure(descriptor: SerialDescriptor) {}
     }
 
-    internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :
+    internal abstract inner class TextualListEncoder(xmlDescriptor: XmlListDescriptor) :
         TagEncoder<XmlListDescriptor>(xmlDescriptor, null) {
-        private val valueBuilder = StringBuilder()
+
+        protected val valueBuilder = StringBuilder()
         private val delimiter = xmlDescriptor.delimiters.first()
 
         init {
@@ -1003,8 +1007,22 @@ internal open class XmlEncoderBase internal constructor(
             valueBuilder.append(value)
         }
 
+        override abstract fun endStructure(descriptor: SerialDescriptor)
+    }
+
+    internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :
+        TextualListEncoder(xmlDescriptor) {
+
         override fun endStructure(descriptor: SerialDescriptor) {
             doWriteAttribute(elementIndex, xmlDescriptor.tagName, valueBuilder.toString())
+        }
+    }
+
+    internal inner class ValueListEncoder(xmlDescriptor: XmlListDescriptor) :
+        TextualListEncoder(xmlDescriptor) {
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            target.text(valueBuilder.toString())
         }
     }
 

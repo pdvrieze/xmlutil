@@ -321,7 +321,7 @@ public class XmlRootDescriptor internal constructor(
         config: XmlConfig,
         serializersModule: SerializersModule,
         descriptor: SerialDescriptor,
-    ) : this (config, serializersModule, descriptor, DeclaredNameInfo(descriptor.serialName), false)
+    ) : this(config, serializersModule, descriptor, DeclaredNameInfo(descriptor.serialName), false)
 
     private val element: XmlDescriptor by lazy {
         from(config, serializersModule, tagParent, canBeAttribute = false)
@@ -544,7 +544,6 @@ public class XmlInlineDescriptor internal constructor(
      */
     override val tagName: QName
         get() = child.tagName
-
 
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -882,9 +881,10 @@ public class XmlPolymorphicDescriptor internal constructor(
             val qName = when (polymorphicMode) {
                 PolymorphicMode.TRANSPARENT -> null
                 PolymorphicMode.TAG -> from(
-                    config=config,
+                    config = config,
                     serializersModule = serializersModule, ParentInfo(this, 1), canBeAttribute = false
                 ).tagName
+
                 is PolymorphicMode.ATTR -> tagName
             }
 
@@ -899,7 +899,8 @@ public class XmlPolymorphicDescriptor internal constructor(
                     for (polyChild in xmlPolyChildren.value) {
                         val childInfo = polyTagName(baseName, polyChild, baseClass, serializersModule)
 
-                        val childSerializerParent = DetachedParent(childInfo.descriptor, childInfo.tagName, false, isDefaultNamespace = false)
+                        val childSerializerParent =
+                            DetachedParent(childInfo.descriptor, childInfo.tagName, false, isDefaultNamespace = false)
 
                         map[childInfo.describedName] =
                             from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
@@ -925,7 +926,8 @@ public class XmlPolymorphicDescriptor internal constructor(
 
                     for (childDesc in childDescriptors) {
 
-                        val childSerializerParent = DetachedParent(childDesc, qName, false, outputKind, isDefaultNamespace = false)
+                        val childSerializerParent =
+                            DetachedParent(childDesc, qName, false, outputKind, isDefaultNamespace = false)
 
                         map[childDesc.serialName] =
                             from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
@@ -1151,12 +1153,27 @@ public class XmlListDescriptor internal constructor(
 
             !isListEluded -> OutputKind.Element
 
-            tagParent.elementUseAnnotations.firstOrNull<XmlValue>() != null &&
-                    config.policy.isTransparentPolymorphic(
-                        DetachedParent(serialDescriptor.getElementDescriptor(0), false),
-                        tagParent
-                    )
-            -> OutputKind.Mixed
+            tagParent.elementUseAnnotations.firstOrNull<XmlValue>()?.value == true -> {
+                val childDescriptor = serialDescriptor.getElementDescriptor(0)
+
+                when (childDescriptor.kind) {
+                    is PolymorphicKind -> when {
+                        config.policy.isTransparentPolymorphic(
+                            DetachedParent(childDescriptor, false),
+                            tagParent
+                        ) -> OutputKind.Mixed
+
+                        else -> OutputKind.Element
+                    }
+
+                    SerialKind.ENUM,
+                    StructureKind.OBJECT,
+                    is PrimitiveKind -> OutputKind.Text
+
+                    else -> OutputKind.Mixed
+                }
+            }
+
 
             else -> OutputKind.Element
         }
@@ -1168,7 +1185,11 @@ public class XmlListDescriptor internal constructor(
                     ParentInfo(this, 0, useNameInfo, outputKind),
                     tagParent
                 )
-
+            OutputKind.Text ->
+                config.policy.textListDelimiters(
+                    ParentInfo(this, 0, useNameInfo, outputKind),
+                    tagParent
+                )
             else -> emptyArray()
         }
     }
@@ -1177,7 +1198,11 @@ public class XmlListDescriptor internal constructor(
         val childrenNameAnnotation = tagParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()
 
         val useNameInfo = when {
-            childrenNameAnnotation != null -> DeclaredNameInfo(childrenNameAnnotation.value, childrenNameAnnotation.toQName(), childrenNameAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
+            childrenNameAnnotation != null -> DeclaredNameInfo(
+                childrenNameAnnotation.value,
+                childrenNameAnnotation.toQName(),
+                childrenNameAnnotation?.namespace == UNSET_ANNOTATION_VALUE
+            )
 
             !isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
 
@@ -1332,7 +1357,11 @@ private class DetachedParent(
         isDefaultNamespace: Boolean,
     ) : this(
         serialDescriptor,
-        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.serialName ?: serialName }, useName, isDefaultNamespace),
+        DeclaredNameInfo(
+            serialDescriptor.run { capturedKClass?.serialName ?: serialName },
+            useName,
+            isDefaultNamespace
+        ),
         isDocumentRoot,
         outputKind
     )
@@ -1507,7 +1536,8 @@ private fun <T : Annotation> Iterable<T>.getRequestedOutputKind(): OutputKind? {
         when {
             (annotation as? XmlValue)?.value == true -> return OutputKind.Mixed
             annotation is XmlId ||
-            annotation is XmlOtherAttributes -> return OutputKind.Attribute
+                    annotation is XmlOtherAttributes -> return OutputKind.Attribute
+
             annotation is XmlElement -> return if (annotation.value) OutputKind.Element else OutputKind.Attribute
             annotation is XmlPolyChildren || annotation is XmlChildrenName -> return OutputKind.Element
             annotation is XmlCData -> xmlCData = annotation

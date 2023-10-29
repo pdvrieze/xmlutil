@@ -359,6 +359,9 @@ internal open class XmlDecoderBase internal constructor(
                         xmlDescriptor.outputKind == OutputKind.Attribute ->
                             AttributeListDecoder(xmlDescriptor, attrIndex).also { tagIdHolder = it }
 
+                        xmlDescriptor.outputKind == OutputKind.Text ->
+                            ValueListDecoder(xmlDescriptor)
+
                         xmlDescriptor.isListEluded ->
                             AnonymousListDecoder(xmlDescriptor, polyInfo, typeDiscriminatorName).also {
                                 tagIdHolder = it
@@ -1253,17 +1256,21 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeString(): String = throw UnsupportedOperationException("Expect map structure")
     }
 
-    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, attrIndex: Int) :
+    internal abstract inner class TextualListDecoder(xmlDescriptor: XmlListDescriptor) :
         TagDecoderBase<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
-        private val attrValues = xmlCollapseWhitespace(input.getAttributeValue(attrIndex))
-            .split(*xmlDescriptor.delimiters)
+
+        private val textValues by lazy {
+            xmlCollapseWhitespace(getTextValue()).split(*xmlDescriptor.delimiters)
+        }
+
+        abstract fun getTextValue(): String
 
         @ExperimentalSerializationApi
         override fun decodeSequentially(): Boolean = true
 
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
-            return attrValues.size
+            return textValues.size
         }
 
         override fun <T> decodeSerializableElement(
@@ -1272,17 +1279,29 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             previousValue: T?
         ): T {
-            val decoder = StringDecoder(xmlDescriptor.getElementDescriptor(index), attrValues[listIndex++])
+            val decoder = StringDecoder(xmlDescriptor.getElementDescriptor(index), textValues[listIndex++])
             return decoder.decodeSerializableValue(deserializer)
         }
 
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
-            return attrValues[listIndex++]
+            return textValues[listIndex++]
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // Do nothing
         }
+    }
+
+    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, private val attrIndex: Int) :
+        TextualListDecoder(xmlDescriptor) {
+
+        override fun getTextValue(): String = input.getAttributeValue(attrIndex)
+    }
+
+    internal inner class ValueListDecoder(xmlDescriptor: XmlListDescriptor) :
+        TextualListDecoder(xmlDescriptor) {
+
+        override fun getTextValue(): String = input.text
     }
 
     @OptIn(ExperimentalXmlUtilApi::class)

@@ -78,6 +78,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
+	public fun textListDelimiters (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
 }
 
@@ -576,6 +577,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/XmlSerializa
 	public abstract fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public abstract fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public abstract fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
+	public abstract fun textListDelimiters (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public abstract fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
 }
 
@@ -636,6 +638,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$De
 	public static fun preserveSpace (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public static fun serialTypeNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public static fun serialUseNameToQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
+	public static fun textListDelimiters (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
 	public static fun updateReorderMap (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
 }
 

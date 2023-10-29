@@ -36,30 +36,130 @@ class TestParseOrder {
         val xml = XML { defaultPolicy { autoPolymorphic=true } }
         
         val data = """
-            <ArrayList>
-                <P id="1">11111.11111 111111.111111 -0.111111111</P>
-                <P id="2">22222.22222 222222.222222 -0.222222222</P>
-                <P id="3">33333.33333 333333.333333 -0.333333333</P>
-                <P id="4">44444.44444 444444.444444 -0.444444444</P>
-                <P id="5">55555.55555 555555.555555 -0.555555555</P>
-                <P id="6">66666.66666 666666.666666 -0.666666666</P>
-                <P id="7">77777.77777 777777.777777 -0.777777777</P>
-                <P id="8">88888.88888 888888.888888 -0.888888888</P>
-                <P id="9">99999.99999 999999.999999 -0.999999999</P>
-            </ArrayList>
+            <Pnts>
+                <P id="2">412178.5056976396 1322154.0438618148 -0.06104896051</P>
+                <P id="3">412179.00073756033 1322154.1141126873 -0.066606280826</P>
+                <P id="4">412179.05867695622 1322153.7058285919 -0.066913125887</P>
+                <P id="5">412179.55371716584 1322153.7760795054 -0.063118164421</P>
+                <P id="6">412178.56363703904 1322153.6355777199 -0.060903200248</P>
+                <P id="7">412179.14123938745 1322153.1240322681 -0.067685237375</P>
+                <P id="8">412179.63627959706 1322153.1942831816 -0.063790636278</P>
+                <P id="9">412178.64619947522 1322153.0537813967 -0.060455217987</P>
+            </Pnts>
         """.trimIndent()
 
         val parsed = xml.decodeFromString(ListSerializer(LandXMLPoint.serializer()), data)
-        assertEquals(9, parsed.size)
-        assertEquals((1..9).toList(), parsed.map { it.id })
-        assertEquals("11111.11111 111111.111111 -0.111111111", parsed[0].dataStr)
-        assertEquals("22222.22222 222222.222222 -0.222222222", parsed[1].dataStr)
+        assertEquals(8, parsed.size)
+        assertEquals((2..9).toList(), parsed.map { it.id })
+        assertEquals("412178.5056976396 1322154.0438618148 -0.06104896051", parsed[0].dataStr)
+        assertEquals("412179.00073756033 1322154.1141126873 -0.066606280826", parsed[1].dataStr)
     }
-    
+
     @Serializable
-    @XmlSerialName("P", "", "")
+    @XmlSerialName("LandXML", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXML(
+        val date: String,
+        val time: String,
+        val units: LandXMLUnits,
+        val coordinateSystem: LandXMLCoordinateSystem?,
+        val project: LandXMLProject,
+        val application: LandXMLApplication,
+//        @XmlSerialName("Surfaces", "http://www.landxml.org/schema/LandXML-1.2", "")
+//        @XmlChildrenName("Surface", "http://www.landxml.org/schema/LandXML-1.2", "")
+        val surfaces: LandXMLSurfaces,
+    )
+
+    @Serializable
+    @XmlSerialName("Units", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLUnits(
+        val metric: LandXMLMetric?,
+    )
+
+    @Serializable
+    @XmlSerialName("Metric", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLMetric(
+        val linearUnit: String,
+        val areaUnit: String,
+        val volumeUnit: String,
+        val temperatureUnit: String,
+        val pressureUnit: String,
+        val angularUnit: String,
+        val directionUnit: String,
+    )
+
+    @Serializable
+    @XmlSerialName("CoordinateSystem", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLCoordinateSystem(
+        val desc: String,
+        val horizontalDatum: String,
+        val verticalDatum: String,
+        val datum: String,
+        val horizontalCoordinateSystemName: String,
+        val projectedCoordinateSystemName: String,
+        val verticalCoordinateSystemName: String,
+    )
+
+    @Serializable
+    @XmlSerialName("Project", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLProject(
+        val name: String,
+    )
+
+    @Serializable
+    @XmlSerialName("Application", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLApplication(
+        val name: String,
+        val manufacturer: String,
+        val desc: String,
+        val manufacturerURL: String,
+        val timeStamp: String,
+    )
+
+    @Serializable
+    @XmlSerialName("Surfaces", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLSurfaces(
+        val name: String?,
+        val surfaces: List<LandXMLSurface>,
+    )
+
+    @Serializable
+    @XmlSerialName("Surface", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLSurface(
+        val name: String?,
+        val desc: String?,
+        val definition: LandXMLDefinition,
+    )
+
+    @Serializable
+    @XmlSerialName("Definition", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLDefinition(
+        val surfType: String,
+        val points: LandXMLPoints,
+        val triangles: LandXMLTriangles,
+    )
+
+    @Serializable
+    @XmlSerialName("Pnts", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLPoints(
+        val points: List<LandXMLPoint>,
+    )
+
+    @Serializable
+    @XmlSerialName("P", "http://www.landxml.org/schema/LandXML-1.2", "")
     data class LandXMLPoint(
         val id: Int,
+        @XmlValue(true) val dataStr: String,
+    )
+
+    @Serializable
+    @XmlSerialName("Faces", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLTriangles(
+        val triangles: List<LandXMLTriangle>,
+    )
+
+    @Serializable
+    @XmlSerialName("F", "http://www.landxml.org/schema/LandXML-1.2", "")
+    data class LandXMLTriangle(
         @XmlValue(true) val dataStr: String,
     )
 }
