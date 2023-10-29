@@ -89,7 +89,7 @@ class ResolvedLocalElement private constructor(
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalElement(")
-            append("mdlQName=$mdlQName, ")
+            append("name=$mdlQName, ")
             if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
             if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
             append("type=${this@ResolvedLocalElement.mdlTypeDefinition}")

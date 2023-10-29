@@ -50,5 +50,14 @@ class XSAll : XSExplicitGroup {
         this.maxOccurs = maxOccurs
         this.particles = particles
     }
+
+    override fun toString(): String = buildString {
+        append("all(")
+        if (minOccurs!=null || maxOccurs!=null) {
+            append((minOccurs ?: VAllNNI.ONE)..(maxOccurs ?: VAllNNI.ONE))
+        }
+        particles.joinTo(this, separator = " & ", postfix = ")")
+    }
+
 }
 
