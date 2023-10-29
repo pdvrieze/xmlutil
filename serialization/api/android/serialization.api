@@ -21,6 +21,8 @@ public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
 }
 
 public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy : nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	protected fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
 	public fun <init> (ZLjavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;ZZ)V
 	public synthetic fun <init> (ZLjavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -431,6 +433,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun policyBuilder ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;
 	public final fun recommended ()V
 	public final fun recommended (Lkotlin/jvm/functions/Function1;)V
+	public final fun recommended_0_86_3 ()V
+	public final fun recommended_0_86_3 (Lkotlin/jvm/functions/Function1;)V
 	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
 	public final fun setCollectingNSAttributes (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
