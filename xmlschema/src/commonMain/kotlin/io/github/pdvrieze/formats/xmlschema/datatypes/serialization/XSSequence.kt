@@ -50,5 +50,13 @@ class XSSequence : XSExplicitGroup, XSI_NestedParticle {
         this.particles = particles
         this.maxOccurs = maxOccurs
     }
+
+    override fun toString(): String = buildString {
+        append("seq(")
+        if (minOccurs!=null || maxOccurs!=null) {
+            append((minOccurs ?: VAllNNI.ONE)..(maxOccurs ?: VAllNNI.ONE))
+        }
+        particles.joinTo(this, postfix = ")")
+    }
 }
 

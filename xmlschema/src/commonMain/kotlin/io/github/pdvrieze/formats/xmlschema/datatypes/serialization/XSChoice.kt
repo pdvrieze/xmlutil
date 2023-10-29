@@ -51,4 +51,12 @@ class XSChoice : XSExplicitGroup, XSI_NestedParticle {
         this.maxOccurs = maxOccurs
     }
 
+    override fun toString(): String = buildString {
+        append("choice(")
+        if (minOccurs!=null || maxOccurs!=null) {
+            append((minOccurs ?: VAllNNI.ONE)..(maxOccurs ?: VAllNNI.ONE))
+        }
+        particles.joinTo(this, separator = "| ", postfix = ")")
+    }
+
 }
