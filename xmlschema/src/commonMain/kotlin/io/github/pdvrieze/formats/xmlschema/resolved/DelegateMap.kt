@@ -22,9 +22,16 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
-class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, private val delegate: Map<QName, T>, private val transform: (T) -> V) :
-    AbstractMap<String, V>() {
+class DelegateMap<T: Any, V : NamedPart> :
+    AbstractMap<String, V> {
+
+    private val targetNamespace: String
+    private val _delegate: Map<String, T> // force this to use the getter at runtime
+    private val delegate: Map<String, T> get() = _delegate
+    private val transform: (T) -> V
+
     private val lazyStore: MutableMap<String, V?> = mutableMapOf()
 
     override val size: Int get() = delegate.size
@@ -41,8 +48,8 @@ class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, pr
 
                 override fun next(): Map.Entry<String, V> {
                     val k = keyIterator.next()
-                    return object: Map.Entry<String, V> {
-                        override val key: String = k.localPart
+                    return object : Map.Entry<String, V> {
+                        override val key: String = k
 
                         override val value: V get() = checkNotNull(get(key))
                     }
@@ -51,18 +58,6 @@ class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, pr
         }
 
     }
-
-
-    override fun containsKey(key: String): Boolean {
-        return delegate.containsKey(QName(targetNamespace, key))
-    }
-
-    override fun containsValue(value: V): Boolean {
-        return delegate.containsKey(QName(targetNamespace, value.mdlQName.localPart))
-    }
-
-    override val keys: Set<String>
-        get() = delegate.keys.mapTo(HashSet()) { it.localPart }
 
     override val values: Collection<V> = object : AbstractCollection<V>() {
         override val size: Int get() = delegate.size
@@ -74,7 +69,7 @@ class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, pr
                 override fun hasNext(): Boolean = keyIterator.hasNext()
 
                 override fun next(): V {
-                    val k = keyIterator.next().localPart
+                    val k = keyIterator.next()
                     return checkNotNull(get(k)) {
                         "Key $k does not resolve to a non-null value"
                     }
@@ -84,10 +79,42 @@ class DelegateMap<T: Any, V : NamedPart>(private val targetNamespace: String, pr
         }
     }
 
+    constructor(targetNamespace: String, delegate: Map<QName, T>, dummy: Boolean = false, transform: (T) -> V) : super() {
+        this.targetNamespace = targetNamespace
+        this._delegate = delegate.mapKeys { it.key.localPart }
+        this.transform = transform
+
+        for (k in delegate.keys) {
+            require(k.namespaceURI == targetNamespace) {
+                "Target namespace mismatch (${k.namespaceURI} != $targetNamespace)"
+            }
+        }
+
+    }
+
+    constructor(targetNamespace: String, delegate: Map<String, T>, transform: (T) -> V) : super() {
+        this.targetNamespace = targetNamespace
+        this._delegate = delegate.toMap() // defensive copy
+        this.transform = transform
+    }
+
+
+    override fun containsKey(key: String): Boolean {
+        return delegate.containsKey(key)
+    }
+
+    override fun containsValue(value: V): Boolean {
+        val name = value.mdlQName
+        return targetNamespace == name.namespaceURI && delegate.containsKey(name.localPart)
+    }
+
+    override val keys: Set<String>
+        get() = delegate.keys
+
 
     override fun get(key: String): V? {
         return lazyStore.getOrPut(key) {
-            val orig = delegate[QName(targetNamespace, key)] ?: return null
+            val orig = delegate[key] ?: return null
             transform(orig)
         }
     }

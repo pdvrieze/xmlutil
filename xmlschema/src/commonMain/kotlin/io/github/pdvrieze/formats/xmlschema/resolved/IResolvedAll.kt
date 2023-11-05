@@ -80,9 +80,9 @@ interface IResolvedAll : ResolvedModelGroup {
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {
-                when (startElem) {
+                when (startElem) { // allow repetition
                     is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
-                        "Non-deterministic all group: all{${mdlParticles.joinToString()}}"
+                        "Non-deterministic all group (${schema.version}): all{${mdlParticles.joinToString()}}"
                     }
 
                     is FlattenedParticle.Wildcard -> {
