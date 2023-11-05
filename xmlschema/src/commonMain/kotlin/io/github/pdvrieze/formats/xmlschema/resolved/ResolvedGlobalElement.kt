@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedGlobalElement(
+class ResolvedGlobalElement private constructor(
     rawPart: XSGlobalElement,
     schema: ResolvedSchemaLike,
     val location: String = "",
@@ -56,8 +56,8 @@ class ResolvedGlobalElement(
 
     override val mdlScope: VElementScope.Global get() = VElementScope.Global
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
+    internal constructor(elem: SchemaElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
+            this(elem.elem, elem.effectiveSchema(schema), elem.schemaLocation)
 
     private fun fullSubstitutionGroup(collector: MutableMap<QName, ResolvedGlobalElement>) {
         val old = collector.put(mdlQName, this)

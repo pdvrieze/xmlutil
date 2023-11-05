@@ -23,196 +23,107 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XSI_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 
-internal class CollatedSchema(
-    baseSchema: XSSchema,
-    resolver: ResolvedSchema.Resolver,
-    schemaLike: ResolvedSchemaLike,
-    val namespace: String = baseSchema.targetNamespace?.value ?: "",
-    includedUrls: MutableList<Pair<String, VAnyURI>> = mutableListOf(Pair(namespace, resolver.baseUri))
+internal class SchemaData(
+    val namespace: String?,
+    val schemaLocation: String?,
+    val elementFormDefault: VFormChoice?,
+    val attributeFormDefault: VFormChoice?,
+    val elements: Map<String, SchemaElement<XSGlobalElement>>,
+    val attributes: Map<String, SchemaElement<XSGlobalAttribute>>,
+    val types: Map<String, SchemaElement<XSGlobalType>>,
+    val groups: Map<String, SchemaElement<XSGroup>>,
+    val attributeGroups: Map<String, SchemaElement<XSAttributeGroup>>,
+    val notations: Map<String, XSNotation>,
+    val includedNamespaceToUri: Map<String, VAnyURI>,
+    val knownNested: Map<String, SchemaData?>,
+    val importedNamespaces: Set<String>,
 ) {
-    val elements: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalElement>>> = mutableMapOf()
-    val attributes: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalAttribute>>> =
-        mutableMapOf()
 
-    val types: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGlobalType>>> = mutableMapOf()
+    constructor(namespace: String) : this(
+        namespace = namespace,
+        elementFormDefault = null,
+        attributeFormDefault = null,
+        schemaLocation = null,
+        elements = emptyMap(),
+        attributes = emptyMap(),
+        types = emptyMap(),
+        groups = emptyMap(),
+        attributeGroups = emptyMap(),
+        notations = emptyMap(),
+        includedNamespaceToUri = emptyMap(),
+        knownNested = emptyMap(),
+        importedNamespaces = emptySet(),
+    )
 
-    val groups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSGroup>>> = mutableMapOf()
-    val attributeGroups: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSAttributeGroup>>> =
-        mutableMapOf()
-    val notations: MutableMap<QName, Pair<ResolvedSchemaLike, SchemaAssociatedElement<XSNotation>>> = mutableMapOf()
-    val importedNamespaces: MutableSet<String> = mutableSetOf()
-    val importedSchemas: MutableMap<String, CollatedSchema> = mutableMapOf()
+    constructor(
+        namespace: String?,
+        schemaLocation: String,
+        elementFormDefault: VFormChoice?,
+        attributeFormDefault: VFormChoice?,
+        builder: DataBuilder
+    ) : this(
+        namespace = namespace,
+        elementFormDefault = elementFormDefault,
+        attributeFormDefault = attributeFormDefault,
+        schemaLocation = schemaLocation,
+        elements = builder.elements,
+        attributes = builder.attributes,
+        types = builder.types,
+        groups = builder.groups,
+        attributeGroups = builder.attributeGroups,
+        notations = builder.notations,
+        includedNamespaceToUri = builder.includedNamespaceToUri,
+        knownNested = builder.newProcessed,
+        importedNamespaces = builder.importedNamespaces,
+    )
 
-    fun findType(name: QName) : Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>> {
-        types[name]?.let { return it }
-        return importedSchemas[name.getNamespaceURI()]?.findType(name) ?:
-            throw IllegalArgumentException("No type with name $name found in schema")
+    fun findElement(elementName: QName): Pair<SchemaData, SchemaElement<XSGlobalElement>> {
+        if (namespace == elementName.namespaceURI) { elements[elementName.localPart]?.let { return Pair(this, it) } }
+
+        if (elementName.namespaceURI in importedNamespaces) {
+            includedNamespaceToUri[elementName.namespaceURI]?.value?.let { uri ->
+                knownNested[uri]?.let { n ->
+                    n.elements[elementName.localPart]?.let { return Pair(n, it)}
+                }
+            }
+        }
+        throw IllegalArgumentException("No element with name $elementName found in schema")
     }
 
-    fun findElement(name: QName) : Pair<ResolvedSchemaLike,XSGlobalElement> {
-        elements[name]?.let { return Pair(it.first, it.second.element) }
-        return importedSchemas[name.getNamespaceURI()]?.findElement(name) ?:
-            throw IllegalArgumentException("No element with name $name found in schema")
+    fun findType(typeName: QName): SchemaElement<XSGlobalType>? {
+        return when {
+            namespace == typeName.namespaceURI -> types[typeName.localPart]
+            typeName.namespaceURI in importedNamespaces -> {
+                includedNamespaceToUri[typeName.namespaceURI]?.value?.let { uri ->
+                    knownNested[uri]?.run { types[typeName.localPart] }
+                }
+            }
+
+            else -> null
+        }
     }
 
-
-    init {
-        val invalidAttrs = baseSchema.otherAttrs.keys.filter { it.namespaceURI in INVALID_NAMESPACES }
-        require(invalidAttrs.isEmpty()) {
-            "Found unsupported attributes in schema: ${invalidAttrs}"
+    fun findComplexType(typeName: QName): SchemaElement<XSGlobalComplexType>? {
+        val t = findType(typeName)
+        @Suppress("UNCHECKED_CAST")
+        return when {
+            t?.elem is XSGlobalComplexType -> t as SchemaElement<XSGlobalComplexType>
+            else -> null
         }
+    }
 
-        addToCollation(baseSchema, schemaLike, resolver.baseUri.toString(), namespace)
-
-        // TODO this may need more indirection to ensure scoping
-
-        for (import in baseSchema.imports) {
-            val importedLocation = import.schemaLocation
-            if (importedLocation == null) {
-                importedNamespaces.add(import.namespace!!.value)
-            } else {
-                val resolvedImport = resolver.resolve(importedLocation)
-                val relativeResolver = resolver.delegate(resolvedImport)
-                val rawImport by lazy {
-                    try {
-                        resolver.readSchema(resolvedImport)
-                    } catch (e: XmlException) { // Don't ignore xml exceptions.
-                        throw e
-                    } catch (e: IOException) { // schema location is only a hint, so import an empty schema
-                        XSSchema(targetNamespace = import.namespace)
-                    }
-                }
-                val targetNamespace = (import.namespace ?: rawImport.targetNamespace)?.value ?: ""
-
-                if (Pair(targetNamespace, resolvedImport) !in includedUrls) { // Avoid recursion in collations
-                    includedUrls.add(Pair(targetNamespace, resolvedImport))
-
-                    val importNamespace = import.namespace
-
-                    val chameleonSchema = when {
-                        importNamespace.isNullOrEmpty() && targetNamespace.isEmpty() -> {
-                            val schemaNamespace = schemaLike.targetNamespace
-                            require(!schemaNamespace.isNullOrEmpty()) { "When an import has no targetNamespace then the enclosing document must have a targetNamespace" }
-                            ChameleonWrapper(rawImport, schemaLike, importNamespace)
-                        }
-
-                        importNamespace == null -> ChameleonWrapper(rawImport, schemaLike, VAnyURI(targetNamespace))
-
-                        targetNamespace.isEmpty() -> ChameleonWrapper(rawImport, schemaLike, importNamespace)
-
-                        else -> {
-                            require(importNamespace.value == targetNamespace) {
-                                "Renaming can only be done with an import with a null targetNamespace"
-                            }
-                            ChameleonWrapper(rawImport, schemaLike, VAnyURI(targetNamespace))
-                        }
-                    }
-
-                    val collatedImport = CollatedSchema(
-                        rawImport,
-                        relativeResolver,
-                        chameleonSchema,
-                        VAnyURI(targetNamespace).value,
-                        includedUrls
-                    )
-                    for ((_, nestedImport) in collatedImport.importedSchemas) {
-                        addToCollation(nestedImport)
-                    }
-                    collatedImport.importedSchemas.clear()
-                    importedSchemas.put(VAnyURI(targetNamespace).value, collatedImport)
-                }
-            }
+    fun findSimpleType(typeName: QName): SchemaElement<XSGlobalSimpleType>? {
+        val t = findType(typeName)
+        @Suppress("UNCHECKED_CAST")
+        return when {
+            t?.elem is XSGlobalSimpleType -> t as SchemaElement<XSGlobalSimpleType>
+            else -> null
         }
-
-        for (include in baseSchema.includes) {
-            val includedLocation = include.schemaLocation
-            val resolvedIncluded = resolver.resolve(includedLocation)
-            val includeNamespace = baseSchema.targetNamespace?.value
-            val relativeResolver = resolver.delegate(includedLocation)
-            val rawInclude by lazy {
-                try {
-                    resolver.readSchema(includedLocation)
-                } catch (e: IOException) {
-                    XSSchema()
-                }
-            }
-            val targetNamespace = (includeNamespace ?: rawInclude.targetNamespace?.value) ?: schemaLike.targetNamespace?.toString() ?: ""
-            if (Pair(targetNamespace, resolvedIncluded) !in includedUrls) { // Avoid recursion in collations
-                includedUrls.add(Pair(targetNamespace, resolvedIncluded))
-
-                val includeTargetNamespace = rawInclude.targetNamespace?.value
-                val chameleonNamespace = when {
-                    includeNamespace == null -> requireNotNull(targetNamespace)
-                    includeTargetNamespace == null -> requireNotNull(targetNamespace)
-
-                    else -> {
-                        require(includeNamespace == includeTargetNamespace) {
-                            "Renaming can only be done with an import with a null targetNamespace ($includeNamespace != $includeTargetNamespace)"
-                        }
-                        includeNamespace
-                    }
-                }
-                val chameleonSchema = ChameleonWrapper(rawInclude, schemaLike, VAnyURI(chameleonNamespace))
-
-                val includedSchema = CollatedSchema(
-                    rawInclude,
-                    relativeResolver,
-                    chameleonSchema,
-                    chameleonNamespace,
-                    includedUrls
-                )
-                for ((_, nestedImport) in includedSchema.importedSchemas) {
-                    addToCollation(nestedImport)
-                }
-                includedSchema.importedSchemas.clear()
-                addToCollation(includedSchema)
-            }
-        }
-
-        for (redefine in baseSchema.redefines) {
-            val relativeLocation = resolver.resolve(redefine.schemaLocation)
-            val relativeResolver = resolver.delegate(redefine.schemaLocation)
-            val nestedSchema = try {
-                resolver.readSchema(redefine.schemaLocation)
-            } catch (e: XmlException) { // Don't ignore xml exceptions.
-                throw e
-            } catch (e: IOException) { // file not found
-                if (redefine.complexTypes.isEmpty() && redefine.simpleTypes.isEmpty() &&
-                    redefine.groups.isEmpty() && redefine.attributeGroups.isEmpty()) {
-                    XSSchema() // empty schema instead if the redefine doesn't redefine
-                } else {
-                    throw e
-                }
-            }
-
-//            val nestedSchemaLike = RedefineWrapper(schemaLike, nestedSchema, relativeLocation.value, null)
-            val newNS = nestedSchema.targetNamespace?.value ?: namespace
-
-            val collatedSchema = CollatedSchema(nestedSchema, relativeResolver, namespace = newNS, schemaLike = schemaLike)
-
-            collatedSchema.applyRedefines(
-                redefine,
-                baseSchema.targetNamespace,
-                nestedSchema,
-                schemaLike,
-                relativeLocation.value
-            )
-
-            for ((_, nestedImport) in collatedSchema.importedSchemas) {
-                addToCollation(nestedImport)
-            }
-            collatedSchema.importedSchemas.clear()
-
-            addToCollation(collatedSchema)
-        }
-
     }
 
     fun checkRecursiveSubstitutionGroups() {
@@ -221,20 +132,19 @@ internal class CollatedSchema(
         fun followChain(
             elementName: QName,
             seen: SingleLinkedList<QName>,
-            elementInfo: Pair<ResolvedSchemaLike, XSGlobalElement> = findElement(elementName)
+            elementInfo: Pair<SchemaData, SchemaElement<XSGlobalElement>> = findElement(elementName)
         ) {
-            val (schema, element) = elementInfo
+            val (schema, schElem) = elementInfo
+            val element = schElem.elem
             val newSeen = seen + elementName
             val sg = (element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return })
                 .let {
-                    when (schema) {
-                        is ChameleonWrapper -> {
-                            val ns = schema.chameleonNamespace?.value ?: ""
-                            it.map { n -> QName(ns, n.localPart) }
-                        }
-                        else -> it
+                    when (val ns = schema.namespace) {
+                        null -> it
+                        else -> it.map { QName(ns, it.localPart) }
                     }
                 }
+
             for (referenced in sg) {
                 if (referenced !in verifiedHeads) {
                     require(referenced !in newSeen) { "Recursive substitution group (${newSeen.sortedBy { it.toString() }.joinToString()})" }
@@ -243,49 +153,49 @@ internal class CollatedSchema(
             }
         }
 
-        for((name, elementInfo) in elements) {
-            if (name !in verifiedHeads) {
-                followChain(name, SingleLinkedList(), Pair(elementInfo.first, elementInfo.second.element))
+        for((name, childElement) in elements) {
+            val qname = QName(namespace?:"", name)
+            if (qname !in verifiedHeads) {
+                followChain(qname, SingleLinkedList(), Pair(this, childElement))
             }
         }
     }
 
+
     fun checkRecursiveTypeDefinitions() {
         val verifiedSet = mutableSetOf<XSGlobalType>()
         for (typeInfo in (types.values)) {
-            if (typeInfo.second.element !in verifiedSet) { // skip already validated types
+            if (typeInfo.elem !in verifiedSet) { // skip already validated types
                 val chain = mutableSetOf<XSGlobalType>()
-                checkRecursiveTypes(typeInfo, verifiedSet, chain)
+                checkRecursiveTypes(Pair(this, typeInfo), verifiedSet, chain)
                 verifiedSet.addAll(chain)
             }
         }
     }
 
-    fun checkRecursiveTypes(
-        typeInfo: Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>>,
+    private fun checkRecursiveTypes(
+        typeInfo: Pair<SchemaData, SchemaElement<out XSGlobalType>>,
         seenTypes: MutableSet<XSGlobalType>,
         inheritanceChain: MutableSet<XSGlobalType>,
     ) {
-        val (schema, x) = typeInfo
-        val (_, startType) = x
-        val name = (startType as? XSGlobalType)?.name?.toQname(schema.targetNamespace)
-        checkRecursiveTypes(startType, schema, seenTypes, inheritanceChain)
+        val (schema, type) = typeInfo
+        checkRecursiveTypes(type, schema, seenTypes, inheritanceChain)
     }
 
     private fun checkRecursiveTypes(
-        startType: XSIType,
-        schema: ResolvedSchemaLike,
+        startType: SchemaElement<out XSIType>,
+        schema: SchemaData,
         seenTypes: MutableSet<XSGlobalType>,
         inheritanceChain: MutableSet<XSGlobalType>
     ) {
-        require(startType !is XSGlobalType || inheritanceChain.add(startType)) {
-            "Recursive type use for ${(startType as XSGlobalType).name}: ${inheritanceChain.joinToString { it.name }}"
+        require(startType.elem !is XSGlobalType || inheritanceChain.add(startType.elem)) {
+            "Recursive type use for ${(startType.elem as XSGlobalType).name}: ${inheritanceChain.joinToString { it.name }}"
         }
         val refs: List<QName>
         val locals: List<XSLocalType>
-        when (startType) {
+        when (val st = startType.elem) {
             is XSISimpleType -> {
-                when (val d = startType.simpleDerivation) {
+                when (val d = st.simpleDerivation) {
                     is XSSimpleList -> {
                         refs = listOfNotNull(d.itemTypeName)
                         locals = listOfNotNull(d.simpleType)
@@ -304,7 +214,7 @@ internal class CollatedSchema(
             }
 
             is XSComplexType.ComplexBase -> {
-                when (val c: XSI_ComplexContent = startType.content) {
+                when (val c: XSI_ComplexContent = st.content) {
                     is XSComplexType.Shorthand -> {
                         refs = listOfNotNull(c.base)
                         locals = emptyList()
@@ -325,7 +235,7 @@ internal class CollatedSchema(
             }
 
             is XSComplexType.Simple -> {
-                val d = startType.content.derivation
+                val d = st.content.derivation
                 refs = listOfNotNull(d.base)
                 locals = listOfNotNull((d as? XSSimpleContentRestriction)?.simpleType)
             }
@@ -333,483 +243,588 @@ internal class CollatedSchema(
             else -> throw AssertionError("Unreachable")
         }
         val finalRefs = refs.asSequence()
-            .filter { it.namespaceURI != XS_NAMESPACE && it.namespaceURI != XSI_NAMESPACE }
+            .filter { it.namespaceURI != XmlSchemaConstants.XS_NAMESPACE && it.namespaceURI != XmlSchemaConstants.XSI_NAMESPACE }
             .let {
-                when (schema) {
-                    is ChameleonWrapper -> it.map {
-                        QName(schema.chameleonNamespace?.value ?: "", it.localPart)
-                    }
-
-                    else -> it
+                when (val ns = schema.namespace) {
+                    null -> it
+                    else -> it.map { QName(ns, it.localPart) }
                 }
             }.toSet()
-        for (ref in finalRefs) {
-            if (schema is RedefineWrapper &&
-                schema.elementKind == Redefinable.TYPE &&
-                schema.elementName.isEquivalent(ref)
-            ) {
-                val typeInfo = schema.lookupRawType(ref)
-                when {
-                    typeInfo == null ->
-                        require(ref.namespaceURI == XS_NAMESPACE || ref.namespaceURI == XSI_NAMESPACE) {
-                            "Failure to find referenced (redefined) type $ref"
-                        }
 
-                    typeInfo.second.element !in seenTypes ->
-                        checkRecursiveTypes(typeInfo, seenTypes, inheritanceChain)
-                }
-            } else {
-                val typeInfo = findType(ref)
-                if (typeInfo.second.element !in seenTypes) checkRecursiveTypes(typeInfo, seenTypes, inheritanceChain)
+        for (ref in finalRefs) {
+            val typeInfo = when {
+                startType is SchemaElement.Redefined<*> && ref.isEquivalent(startType.elementName)->
+                    requireNotNull(startType.baseSchema.findType(ref)) { "Failure to find redefined type $ref" }
+                else -> requireNotNull(findType(ref)) { "Failure to find referenced type $ref" }
             }
 
+            if (typeInfo.elem !in seenTypes) {
+                checkRecursiveTypes(Pair(this, typeInfo), seenTypes, inheritanceChain)
+            }
 
         }
         for (local in locals) {
-            checkRecursiveTypes(local, schema, seenTypes, inheritanceChain)
+            checkRecursiveTypes(SchemaElement(local, schema.schemaLocation?:""), schema, seenTypes, inheritanceChain)
         }
 
     }
 
 
-    fun applyRedefines(
-        redefine: XSRedefine,
-        targetNamespace: VAnyURI?,
-        nestedSchema: XSSchema,
-        origSchemaLike: ResolvedSchemaLike,
-        schemaLocation: String,
-    ) {
-        for (st in redefine.simpleTypes) {
-            val name = QName(targetNamespace?.toString() ?: "", st.name.toString())
-            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
-            val old = requireNotNull(types[name]) { "Redefine must override" }
-            require(old.second.element is XSGlobalSimpleType) { "Simpletypes can only redefine simpletypes" }
-            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            types[name] = Pair(s, SchemaAssociatedElement(schemaLocation, st))
+    class DataBuilder(processed: Map<String, SchemaData?>? = null) {
+        val elements: MutableMap<String, SchemaElement<XSGlobalElement>> = mutableMapOf()
+        val attributes: MutableMap<String, SchemaElement<XSGlobalAttribute>> = mutableMapOf()
+        val types: MutableMap<String, SchemaElement<XSGlobalType>> = mutableMapOf()
+        val groups: MutableMap<String, SchemaElement<XSGroup>> = mutableMapOf()
+        val attributeGroups: MutableMap<String, SchemaElement<XSAttributeGroup>> = mutableMapOf()
+        val notations: MutableMap<String, XSNotation> = mutableMapOf()
+        val includedNamespaceToUri: MutableMap<String, VAnyURI> = mutableMapOf()
+        val newProcessed: MutableMap<String, SchemaData?> = processed?.toMutableMap() ?: mutableMapOf()
+        val importedNamespaces: MutableSet<String> = mutableSetOf()
+
+        fun addFromSchema(sourceSchema: XSSchema, schemaLocation: String, targetNamespace: String?) {
+            val chameleon = when {
+                ! sourceSchema.targetNamespace.isNullOrEmpty() -> null
+                targetNamespace.isNullOrEmpty() -> error("Invalid name override to default namespace")
+                else -> targetNamespace
+            }
+            sourceSchema.elements.associateToUnique(elements) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.attributes.associateToUnique(attributes) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.simpleTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.complexTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.groups.associateToUnique(groups) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.attributeGroups.associateToUnique(attributeGroups) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.notations.associateToUnique(notations) { it.name.toString() to it }
         }
 
-        for (ct in redefine.complexTypes) {
-            val name = QName(targetNamespace?.toString() ?: "", ct.name.toString())
-            val schemaLike = RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.TYPE)
-            val old = requireNotNull(types[name]) { "Redefine must override" }
-            require(old.second.element is XSGlobalComplexType) { "Complextypes can only complex simpetypes" }
-            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            types[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ct))
+        fun addInclude(sourceData: SchemaData, targetNamespace: String?) {
+            val chameleon = when {
+                sourceData.namespace.isNullOrEmpty() -> null
+                targetNamespace.isNullOrEmpty() -> error("Invalid name override to default namespace")
+                targetNamespace != sourceData.namespace -> targetNamespace
+                else -> null
+            }
+
+            if (chameleon == null) {
+                sourceData.elements.addUnique(elements)
+                sourceData.groups.addUnique(groups)
+                sourceData.attributes.addUnique(attributes)
+                sourceData.types.addUnique(types)
+                sourceData.attributeGroups.addUnique(attributeGroups)
+                sourceData.notations.addUnique(notations)
+            } else {
+                sourceData.elements.addUnique(elements.mapValuesTo(mutableMapOf()) { (k, v) -> v.toChameleon(chameleon, sourceData) })
+                sourceData.groups.addUnique(groups.mapValuesTo(mutableMapOf()) { (k, v) -> v.toChameleon(chameleon, sourceData) })
+                sourceData.attributes.addUnique(attributes.mapValuesTo(mutableMapOf()) { (k, v) -> v.toChameleon(chameleon, sourceData) })
+                sourceData.types.addUnique(types.mapValuesTo(mutableMapOf()) { (k, v) -> v.toChameleon(chameleon, sourceData) })
+                sourceData.attributeGroups.addUnique(attributeGroups.mapValuesTo(mutableMapOf()) { (k, v) -> v.toChameleon(chameleon, sourceData) })
+                sourceData.notations.addUnique(notations)
+            }
+            sourceData.schemaLocation?.let { newProcessed[it] = sourceData }
+            importedNamespaces.addAll(sourceData.importedNamespaces)
         }
 
-        for (g in redefine.groups) {
-            val name = QName(targetNamespace?.toString() ?: "", g.name.toString())
-            val schemaLike =
-                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.GROUP)
-            val old = requireNotNull(groups[name]) { "Redefine must override" }
-            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            groups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, g))
-        }
-
-        for (ag in redefine.attributeGroups) {
-            val name = QName(targetNamespace?.toString() ?: "", ag.name.toString())
-            val schemaLike =
-                RedefineWrapper(origSchemaLike, nestedSchema, schemaLocation, null, name, Redefinable.ATTRIBUTEGROUP)
-            val old = requireNotNull(attributeGroups[name]) { "Redefine must override for attribute group '$name'" }
-            val s = schemaLike.withNestedRedefine(old.first as? RedefineWrapper)
-            attributeGroups[name] = Pair(s, SchemaAssociatedElement(schemaLocation, ag))
-        }
     }
 
-    private fun addToCollation(
-        sourceSchema: XSSchema,
-        schemaLike: ResolvedSchemaLike,
-        schemaLocation: String,
-        targetNamespace: String = sourceSchema.targetNamespace?.value ?: ""
-    ) {
-        when (schemaLike) {
-            is ChameleonWrapper -> schemaLike.chameleonNamespace?.let { importedNamespaces.add(it.value) }
-            else -> importedNamespaces.add(targetNamespace)
-        }
-
-        sourceSchema.elements.associateToUnique(elements) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.attributes.associateToUnique(attributes) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.simpleTypes.associateToUnique(types) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.complexTypes.associateToUnique(types) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.groups.associateToUnique(groups) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.attributeGroups.associateToUnique(attributeGroups) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-        sourceSchema.notations.associateToUnique(notations) {
-            QName(targetNamespace, it.name.toString()) to
-                    Pair(schemaLike, SchemaAssociatedElement(schemaLocation, it))
-        }
-    }
-
-    private fun addToCollation(sourceSchema: CollatedSchema) {
-        importedNamespaces.addAll(sourceSchema.importedNamespaces)
-        sourceSchema.elements.entries.associateToUnique(elements)
-        sourceSchema.attributes.entries.associateToUnique(attributes)
-        sourceSchema.types.entries.associateToUnique(types)
-        sourceSchema.groups.entries.associateToUnique(groups)
-        sourceSchema.attributeGroups.entries.associateToUnique(attributeGroups)
-        sourceSchema.notations.entries.associateToUnique(notations)
-    }
-
-    enum class Redefinable { TYPE, ELEMENT, ATTRIBUTE, GROUP, ATTRIBUTEGROUP }
-
-    class RedefineWrapper(
-        val base: ResolvedSchemaLike,
-        val originalSchema: XSSchema,
-        val originalLocation: String,
-        val nestedRedefine: RedefineWrapper?,
-        val elementName: QName,
-        val elementKind: Redefinable,
-    ) : ResolvedSchemaLike() {
-        override val version: ResolvedSchema.Version get() = base.version
-
-        override val targetNamespace: VAnyURI? get() = originalSchema.targetNamespace ?: base.targetNamespace
-        private val originalNS get() = targetNamespace?.value ?: ""
-
-        override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
-            get() = originalSchema.blockDefault ?: emptySet()
-        override val finalDefault: Set<VDerivationControl.Type> get() = originalSchema.finalDefault ?: emptySet()
-        override val defaultOpenContent: XSDefaultOpenContent? get() = originalSchema.defaultOpenContent
-        override val defaultAttributes: QName? get() = originalSchema.defaultAttributes
-
-        override fun hasLocalTargetNamespace(): Boolean {
-            return targetNamespace.isNullOrEmpty()
-        }
-
-        override val attributeFormDefault: VFormChoice
-            get() = originalSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
-        override val elementFormDefault: VFormChoice
-            get() = originalSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED
-
-        override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-            if (elementKind == Redefinable.TYPE && elementName == typeName) {
-                return nestedSimpleType(typeName)
-            }
-
-            return base.maybeSimpleType(typeName)
-        }
-
-        override fun maybeType(typeName: QName): ResolvedGlobalType? {
-            if (elementKind == Redefinable.TYPE && elementName == typeName) {
-                return nestedType(typeName)
-            }
-
-            return base.maybeType(typeName)
-        }
-
-        fun maybeComplexType(typeName: QName): ResolvedGlobalComplexType? {
-            return (base as? RedefineWrapper)?.maybeComplexType(typeName)
-        }
-
-        fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
-            require(originalNS == typeName.namespaceURI)
-
-            val localName = typeName.localPart
-            return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalSimpleType(sa, base)
-            } ?: nestedRedefine?.nestedSimpleType(typeName)
-            ?: error("Nested simple type with name $typeName could not be found")
-        }
-
-        fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
-            require(originalNS == typeName.namespaceURI) { }
-            val localName = typeName.localPart
-            return originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedComplexType(typeName)
-            ?: error("No nested complex type with name $typeName")
-        }
-
-        fun nestedType(typeName: QName): ResolvedGlobalType {
-            require(originalNS == typeName.namespaceURI)
-
-            val localName = typeName.localPart
-            return originalSchema.simpleTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalSimpleType(sa, base)
-            } ?: originalSchema.complexTypes.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalComplexType(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedType(typeName)
-            ?: error("No nested type with name $typeName")
-        }
-
-        fun nestedAttributeGroup(typeName: QName): ResolvedGlobalAttributeGroup {
-            require(originalNS == typeName.namespaceURI) { "Redefine namespace mismatch. Nested ns: $originalNS, name: $typeName"}
-            val localName = typeName.localPart
-            return originalSchema.attributeGroups.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalAttributeGroup(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedAttributeGroup(typeName)
-            ?: error("No nested complex type with name $typeName")
-        }
-
-        fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
-            require(originalNS == typeName.namespaceURI) { }
-            val localName = typeName.localPart
-            return originalSchema.groups.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalGroup(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedGroup(typeName)
-            ?: error("No nested complex type with name $typeName")
-        }
-
-        fun nestedElement(typeName: QName): ResolvedGlobalElement {
-            require(originalNS == typeName.namespaceURI) { }
-            val localName = typeName.localPart
-            return originalSchema.elements.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalElement(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedElement(typeName)
-            ?: error("No nested complex type with name $typeName")
-        }
-
-        fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
-            require(originalNS == typeName.namespaceURI) { }
-            val localName = typeName.localPart
-            return originalSchema.attributes.singleOrNull { it.name.xmlString == localName }?.let { b ->
-                val sa = SchemaAssociatedElement(originalLocation, b)
-                ResolvedGlobalAttribute(sa, nestedRedefine ?: base)
-            } ?: nestedRedefine?.nestedAttribute(typeName)
-            ?: error("No nested complex type with name $typeName")
-        }
-
-        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
-            if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName == attributeGroupName) {
-                return nestedAttributeGroup(attributeGroupName)
-            }
-            return base.maybeAttributeGroup(attributeGroupName)
-        }
-
-        override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
-            if (elementKind == Redefinable.GROUP && elementName == groupName) {
-                return nestedGroup(groupName)
-            }
-            return base.maybeGroup(groupName)
-        }
-
-        override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
-            if (elementKind == Redefinable.ELEMENT && this.elementName == elementName) {
-                return nestedElement(elementName)
-            }
-            return base.maybeElement(elementName)
-        }
-
-        override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
-            if (elementKind == Redefinable.ATTRIBUTE && elementName == attributeName) {
-                return nestedAttribute(attributeName)
-            }
-            return base.maybeAttribute(attributeName)
-        }
-
-        override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? {
-            return base.maybeIdentityConstraint(constraintName)
-        }
-
-        override fun maybeNotation(notationName: QName): ResolvedNotation? {
-            return base.maybeNotation(notationName)
-        }
-
-        override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
-            return base.substitutionGroupMembers(headName)
-        }
-
-        fun withNestedRedefine(nestedRedefine: RedefineWrapper?): RedefineWrapper = when (nestedRedefine) {
-            null -> this
-            else -> RedefineWrapper(base, originalSchema, originalLocation, nestedRedefine, elementName, elementKind)
-        }
-
-        fun lookupRawType(name: QName): Pair<ResolvedSchemaLike, SchemaAssociatedElement<out XSGlobalType>>? {
-            if ((targetNamespace?.value ?: "") != name.namespaceURI) return null
-
-            val targetLocalName = name.localPart
-            originalSchema.simpleTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
-                return Pair(nestedRedefine ?: this, SchemaAssociatedElement(originalLocation, it))
-            }
-
-            originalSchema.complexTypes.firstOrNull { it.name.xmlString == targetLocalName }?.let {
-                return Pair(nestedRedefine ?: this, SchemaAssociatedElement(originalLocation, it))
-            }
-            return nestedRedefine?.lookupRawType(name)
-        }
-    }
-
-    class ChameleonWrapper(private val sourceSchema: XSSchema, val base: ResolvedSchemaLike, val chameleonNamespace: VAnyURI?) : ResolvedSchemaLike() {
-
-        override val version: ResolvedSchema.Version get() = base.version
-
-        override val targetNamespace: VAnyURI?
-            get() = chameleonNamespace
-
-        override val attributeFormDefault: VFormChoice = sourceSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED
-
-        override val elementFormDefault: VFormChoice = sourceSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED
-
-        override fun hasLocalTargetNamespace(): Boolean {
-            return chameleonNamespace.isNullOrEmpty()
-        }
-
-        override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
-            get() = base.blockDefault
-        override val finalDefault: Set<VDerivationControl.Type>
-            get() = base.finalDefault
-        override val defaultOpenContent: XSDefaultOpenContent?
-            get() = base.defaultOpenContent
-        override val defaultAttributes: QName? get() = base.defaultAttributes
-
-        private fun QName.extend(): QName {
-            return when {
-                namespaceURI.isEmpty() -> QName(chameleonNamespace?.value ?: "", localPart, prefix)
-                else -> this
-            }
-        }
-
-        override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-            return base.maybeSimpleType(typeName.extend())
-        }
-
-        override fun maybeType(typeName: QName): ResolvedGlobalType? {
-            return base.maybeType(typeName.extend())
-        }
-
-        override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
-            return base.maybeAttribute(attributeName.extend())
-        }
-
-        override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
-            return base.maybeAttributeGroup(attributeGroupName.extend())
-        }
-
-        override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
-            return base.maybeGroup(groupName.extend())
-        }
-
-        override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
-            return base.maybeElement(elementName.extend())
-        }
-
-        override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? {
-            return base.maybeIdentityConstraint(constraintName)
-        }
-
-        override fun maybeNotation(notationName: QName): ResolvedNotation? {
-            return base.maybeNotation(notationName)
-        }
-
-        override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
-            return base.substitutionGroupMembers(headName)
-        }
-
-        override fun toString(): String {
-            return "ChameleonWrapper($chameleonNamespace)"
-        }
-
-
-    }
 
     companion object {
 
-        private val INVALID_NAMESPACES: HashSet<String> = HashSet(listOf("", XS_NAMESPACE))
+        /**
+         * Create a new schema data object
+         *
+         * @param sourceSchema The schema to make into data
+         * @param schemaLocation The uri location for this particular schema file
+         * @param targetNamespace The target namespace for the file
+         * @param resolver The resolver responsible for resolving the files. It is relative to the currently processed file
+         * @param alreadyProcessed A map from uri's to schema data that has already been processed (somewhat)
+         */
+        operator fun invoke(
+            sourceSchema: XSSchema,
+            schemaLocation: String,
+            targetNamespace: String?,
+            resolver: ResolvedSchema.Resolver,
+            alreadyProcessed: Map<String, SchemaData?>
+        ): SchemaData {
+            val b = DataBuilder(alreadyProcessed)
+            b.newProcessed.put(schemaLocation, null)
 
-        private inline fun <T, K, M : MutableMap<in K, in T>> Iterable<Map.Entry<K, T>>.associateToUnique(
-            destination: M
-        ): M {
-            for (element in this) {
-                val (key, value) = element
-                if (key in destination) {
-                    if (destination[key] != value) { //identical values is allowed, but ignored
-                        throw IllegalArgumentException("Duplicate key ($key) on unique association")
+            b.addFromSchema(sourceSchema, schemaLocation, targetNamespace)
+
+            for (include in sourceSchema.includes) {
+                val includeLocation = resolver.resolve(include.schemaLocation)
+                val includeData: SchemaData = when {
+                    includeLocation.value in alreadyProcessed ->
+                        requireNotNull(alreadyProcessed[includeLocation.value]) { "Recursive includes: $includeLocation" }
+
+                    else -> {
+                        val delegateResolver = resolver.delegate(includeLocation)
+                        val parsed = resolver.readSchema(includeLocation)
+                        require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
+                        SchemaData(
+                            parsed,
+                            includeLocation.value,
+                            targetNamespace,
+                            delegateResolver,
+                            b.newProcessed
+                        ).also {
+                            b.newProcessed[includeLocation.value] = it
+                        }
                     }
                 }
-                destination.put(key, value)
+
+                b.addInclude(includeData, targetNamespace)
             }
-            return destination
-        }
 
-        private inline fun <T, K, M : MutableMap<in K, in T>> Iterable<T>.associateByToUnique(
-            destination: M,
-            keySelector: (T) -> K
-        ): M {
-            for (element in this) {
-                val key = keySelector(element)
-                require(key !in destination) { "Duplicate key on unique association" }
-                destination.put(key, element)
+            for (redefine in sourceSchema.redefines) {
+                val redefineLocation = resolver.resolve(redefine.schemaLocation)
+                val redefineData: SchemaData = when {
+                    redefineLocation.value in alreadyProcessed ->
+                        requireNotNull(alreadyProcessed[redefineLocation.value]) { "Recursive redefines: $redefineLocation" }
+
+                    else -> {
+                        val delegateResolver = resolver.delegate(redefineLocation)
+                        val parsed = resolver.readSchema(redefineLocation)
+                        require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
+                        SchemaData(
+                            parsed,
+                            redefineLocation.value,
+                            targetNamespace,
+                            delegateResolver,
+                            b.newProcessed
+                        ).also {
+                            b.newProcessed[redefineLocation.value] = it
+                        }
+                    }
+                }
+
+
+                b.addInclude(redefineData, targetNamespace)
+
+                val redefinedTypeNames = mutableSetOf<String>()
+                for (st in (redefine.simpleTypes + redefine.complexTypes)) {
+                    val name = st.name.xmlString
+                    require(redefinedTypeNames.add(name)) { "Redefine redefines the same type multiple times" }
+                    val baseType = requireNotNull(b.types[name]) { "Redefine must actually redefine type" }
+                    // TODO add check for base type
+                    val typeName = QName(targetNamespace ?: "", name)
+                    b.types[name] = SchemaElement.Redefined(st, redefineData, schemaLocation, typeName, Redefinable.TYPE)
+                }
+
+                val redefinedGroups = mutableSetOf<String>()
+                for (g in redefine.groups) {
+                    val name = g.name.xmlString
+                    require(redefinedGroups.add(name)) { "Redefine redefines the same group multiple times" }
+                    val oldGroup = requireNotNull(b.groups[name]) { "Redefine must actually redefine group" }
+                    // TODO add checks if needed
+                    val groupName = QName(targetNamespace ?: "", name)
+                    b.groups[name] = SchemaElement.Redefined(g, redefineData, schemaLocation, groupName, Redefinable.GROUP)
+                }
+
+                val redefinedAttrGroups = mutableSetOf<String>()
+                for (ag in redefine.attributeGroups) {
+                    val name = ag.name.xmlString
+                    require(redefinedAttrGroups.add(name)) { "Redefine redefines the same attribute group multiple times" }
+                    val oldGroup =
+                        requireNotNull(b.attributeGroups[name]) { "Redefine must actually redefine attribute group" }
+                    // TODO add checks if needed
+                    val agName = QName(targetNamespace ?: "", name)
+
+                    b.attributeGroups[name] = SchemaElement.Redefined(ag, redefineData, schemaLocation, agName, Redefinable.ATTRIBUTEGROUP)
+                }
             }
-            return destination
-        }
 
-        private inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateToUnique(
-            destination: M,
-            keySelector: (T) -> Pair<K, V>
-        ): M {
-            for (element in this) {
-                val (key, value) = keySelector(element)
-                require(key !in destination) { "Duplicate key on unique association" }
-                destination.put(key, value)
+            for (import in sourceSchema.imports) {
+                val il = import.schemaLocation
+                if (il == null) {
+                    val ns =
+                        requireNotNull(import.namespace) { "import must specify at least namespace or location" }
+                    b.includedNamespaceToUri[ns.value] = VAnyURI("")
+                    b.importedNamespaces.add(ns.value)
+                } else {
+                    val importLocation = resolver.resolve(il)
+
+                    val actualImport: SchemaData? = when {
+                        // imports can be delayed in parsing
+                        importLocation.value in alreadyProcessed -> alreadyProcessed[importLocation.value]
+
+                        else -> {
+                            val delegateResolver = resolver.delegate(importLocation)
+                            val parsed = resolver.readSchema(importLocation)
+                            val actualNamespace = when (val ins = import.namespace) {
+                                null -> requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
+                                else -> {
+                                    require(parsed.targetNamespace == null || parsed.targetNamespace == ins) {
+                                        "Imports cannot change source namespace from ${parsed.targetNamespace} to $ins"
+                                    }
+                                    ins
+                                }
+                            }
+
+                            require(parsed.targetNamespace.let { it == null || it == import.namespace }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
+                            b.importedNamespaces.add(actualNamespace.value)
+                            b.includedNamespaceToUri[actualNamespace.value] = importLocation
+
+                            SchemaData(
+                                parsed,
+                                importLocation.value,
+                                actualNamespace.value,
+                                delegateResolver,
+                                b.newProcessed
+                            ).also {
+                                b.newProcessed[importLocation.value] = it
+                            }
+                        }
+                    }
+                    if (actualImport != null) b.newProcessed[importLocation.value] = actualImport
+                }
             }
-            return destination
-        }
 
-        private inline fun <T, K, M : MutableMap<in K, in T>> Iterable<T>.associateByToOverride(
-            destination: M,
-            keySelector: (T) -> K
-        ): M {
-            for (element in this) {
-                val key = keySelector(element)
+            // TODO add override support
 
-                require(key in destination) { "Duplicate key on unique association" }
-                destination.put(key, element)
-            }
-            return destination
-        }
-
-        private inline fun <T, K, M : MutableMap<in K, in T>> Iterable<Map.Entry<K, T>>.associateToOverride(
-            destination: M
-        ): M {
-            for (element in this) {
-                val (key, value) = element
-
-                require(key in destination) { "Duplicate key on unique association" }
-                destination.put(key, value)
-            }
-            return destination
-        }
-
-        private inline fun <T, V, K, M : MutableMap<in K, V>> Iterable<T>.associateToOverride(
-            destination: M,
-            getKey: (T) -> K,
-            getNewValue: (T, V) -> V
-        ): M {
-            for (element in this) {
-                val key = getKey(element)
-                val oldValue: V = requireNotNull(destination[key]) { "Redefine must override an existing value" }
-                val newValue = getNewValue(element, oldValue)
-
-                destination.put(key, newValue)
-            }
-            return destination
+            return SchemaData(
+                namespace = targetNamespace,
+                schemaLocation = schemaLocation,
+                elementFormDefault = sourceSchema.elementFormDefault,
+                attributeFormDefault = sourceSchema.attributeFormDefault,
+                builder = b
+            )
         }
 
     }
+}
 
+class ChameleonWrapper internal constructor(
+    override val attributeFormDefault: VFormChoice = VFormChoice.UNQUALIFIED,
+    override val elementFormDefault: VFormChoice = VFormChoice.UNQUALIFIED,
+    val base: ResolvedSchemaLike,
+    val chameleonNamespace: VAnyURI?
+) : ResolvedSchemaLike() {
+
+    override val version: ResolvedSchema.Version get() = base.version
+
+    override val targetNamespace: VAnyURI?
+        get() = chameleonNamespace
+
+    override fun hasLocalTargetNamespace(): Boolean {
+        return chameleonNamespace.isNullOrEmpty()
+    }
+
+    override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
+        get() = base.blockDefault
+    override val finalDefault: Set<VDerivationControl.Type>
+        get() = base.finalDefault
+    override val defaultOpenContent: XSDefaultOpenContent?
+        get() = base.defaultOpenContent
+    override val defaultAttributes: QName? get() = base.defaultAttributes
+
+    private fun QName.extend(): QName {
+        return when {
+            namespaceURI.isEmpty() -> QName(chameleonNamespace?.value ?: "", localPart, prefix)
+            else -> this
+        }
+    }
+
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+        return base.maybeSimpleType(typeName.extend())
+    }
+
+    override fun maybeType(typeName: QName): ResolvedGlobalType? {
+        return base.maybeType(typeName.extend())
+    }
+
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
+        return base.maybeAttribute(attributeName.extend())
+    }
+
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
+        return base.maybeAttributeGroup(attributeGroupName.extend())
+    }
+
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
+        return base.maybeGroup(groupName.extend())
+    }
+
+    override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
+        return base.maybeElement(elementName.extend())
+    }
+
+    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? {
+        return base.maybeIdentityConstraint(constraintName)
+    }
+
+    override fun maybeNotation(notationName: QName): ResolvedNotation? {
+        return base.maybeNotation(notationName)
+    }
+
+    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
+        return base.substitutionGroupMembers(headName)
+    }
+
+    override fun toString(): String {
+        return "ChameleonWrapper($chameleonNamespace)"
+    }
+
+
+}
+
+
+internal class RedefineSchema(
+    val base: ResolvedSchemaLike,
+    val data: SchemaData,
+    internal val elementName: QName,
+    internal val elementKind: Redefinable,
+    override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
+    override val finalDefault: Set<VDerivationControl.Type> = emptySet(),
+    override val defaultOpenContent: XSDefaultOpenContent? = null,
+    override val defaultAttributes: QName? = null,
+) : ResolvedSchemaLike() {
+
+    override val version: ResolvedSchema.Version get() = base.version
+
+    override val targetNamespace: VAnyURI? get() = data.namespace?.let(::VAnyURI) ?: base.targetNamespace
+    private val originalNS get() = targetNamespace?.value ?: ""
+
+    override fun hasLocalTargetNamespace(): Boolean {
+        return targetNamespace.isNullOrEmpty()
+    }
+
+    override val attributeFormDefault: VFormChoice
+        get() = data.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+    override val elementFormDefault: VFormChoice
+        get() = data.elementFormDefault ?: VFormChoice.UNQUALIFIED
+
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+        if (elementKind == Redefinable.TYPE && elementName == typeName) {
+            return nestedSimpleType(typeName)
+        }
+
+        return base.maybeSimpleType(typeName)
+    }
+
+    override fun maybeType(typeName: QName): ResolvedGlobalType? {
+        if (elementKind == Redefinable.TYPE && elementName == typeName) {
+            return nestedType(typeName)
+        }
+
+        return base.maybeType(typeName)
+    }
+
+    fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
+        require(originalNS == typeName.namespaceURI)
+        val t = data.findType(typeName)
+        if (t != null && t.elem is XSGlobalSimpleType) {
+            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(this))
+        }
+        error("Nested simple type with name $typeName could not be found")
+    }
+
+    fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
+        require(originalNS == typeName.namespaceURI)
+        val t = data.findComplexType(typeName) ?: error("No nested complex type with name $typeName")
+        return ResolvedGlobalComplexType(t, t.effectiveSchema(this))
+    }
+
+    fun nestedType(typeName: QName): ResolvedGlobalType {
+        require(originalNS == typeName.namespaceURI)
+
+        val t = data.findType(typeName)
+        if (t != null) {
+            if (t.elem is XSGlobalComplexType) {
+                return ResolvedGlobalComplexType(t.elem, t.effectiveSchema(this), data.schemaLocation ?: "")
+            } else if (t.elem is XSGlobalSimpleType) {
+                return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(this))
+            }
+        }
+        error("No nested complex type with name $typeName")
+    }
+
+    fun nestedAttributeGroup(typeName: QName): ResolvedGlobalAttributeGroup {
+        require(originalNS == typeName.namespaceURI) { "Redefine namespace mismatch. Nested ns: $originalNS, name: $typeName" }
+
+        val localName = typeName.localPart
+        val ag = data.attributeGroups[localName] ?: error("No nested complex type with name $typeName")
+
+        return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(this))
+    }
+
+    fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
+        require(originalNS == typeName.namespaceURI) { }
+        val localName = typeName.localPart
+        val g = data.groups[localName] ?: error("No nested complex type with name $typeName")
+
+        return ResolvedGlobalGroup(g, g.effectiveSchema(this))
+    }
+
+    fun nestedElement(typeName: QName): ResolvedGlobalElement {
+        require(originalNS == typeName.namespaceURI) { }
+        val localName = typeName.localPart
+        val e = data.elements[localName] ?: error("No nested complex type with name $typeName")
+
+        return ResolvedGlobalElement(e, this)
+    }
+
+    fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
+        require(originalNS == typeName.namespaceURI) { }
+        val localName = typeName.localPart
+        val a = data.attributes[localName] ?: error("No nested complex type with name $typeName")
+
+        return ResolvedGlobalAttribute(a, this)
+    }
+
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
+        if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName == attributeGroupName) {
+            return nestedAttributeGroup(attributeGroupName)
+        }
+        return base.maybeAttributeGroup(attributeGroupName)
+    }
+
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
+        if (elementKind == Redefinable.GROUP && elementName == groupName) {
+            return nestedGroup(groupName)
+        }
+        return base.maybeGroup(groupName)
+    }
+
+    override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
+        if (elementKind == Redefinable.ELEMENT && this.elementName == elementName) {
+            return nestedElement(elementName)
+        }
+        return base.maybeElement(elementName)
+    }
+
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
+        if (elementKind == Redefinable.ATTRIBUTE && elementName == attributeName) {
+            return nestedAttribute(attributeName)
+        }
+        return base.maybeAttribute(attributeName)
+    }
+
+    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? {
+        return base.maybeIdentityConstraint(constraintName)
+    }
+
+    override fun maybeNotation(notationName: QName): ResolvedNotation? {
+        return base.maybeNotation(notationName)
+    }
+
+    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
+        return base.substitutionGroupMembers(headName)
+    }
+
+}
+
+internal enum class Redefinable { TYPE, ELEMENT, ATTRIBUTE, GROUP, ATTRIBUTEGROUP }
+
+private inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateToUnique(
+    destination: M,
+    keySelector: (T) -> Pair<K, V>
+): M {
+    for (element in this) {
+        val (key, value) = keySelector(element)
+        require(key !in destination) { "Duplicate key on unique association" }
+        destination.put(key, value)
+    }
+    return destination
+}
+
+private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
+    destination: M
+): M {
+    for ((key, value) in this) {
+        require(key !in destination) { "Duplicate key on unique association" }
+        destination.put(key, value)
+    }
+    return destination
+}
+
+internal sealed class SchemaElement<T>(val elem: T, val schemaLocation: String) {
+    abstract fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike
+    abstract fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T>
+    fun toChameleon(chameleon: String, schemaData: SchemaData): Chameleon<T> =
+        toChameleon(chameleon, schemaData.attributeFormDefault, schemaData.elementFormDefault)
+
+    class Direct<T>(type: T, schemaLocation: String) : SchemaElement<T>(type, schemaLocation) {
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = schema
+
+        override fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T> {
+            return Chameleon(
+                elem = elem,
+                schemaLocation = schemaLocation,
+                attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
+                elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
+                newNS = chameleon
+            )
+        }
+
+        override fun toString(): String = "d($elem)"
+    }
+
+    class Chameleon<T>(
+        elem: T,
+        schemaLocation: String,
+        val attributeFormDefault: VFormChoice,
+        val elementFormDefault: VFormChoice,
+        val newNS: String
+    ) : SchemaElement<T>(elem, schemaLocation) {
+
+        constructor(
+            elem: T,
+            schemaLocation: String,
+            baseSchema: XSSchema,
+            newNS: String
+        ) : this(
+            elem,
+            schemaLocation,
+            baseSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED,
+            baseSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED,
+            newNS
+        )
+
+        override fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T> {
+            return Chameleon(elem, schemaLocation, this.attributeFormDefault, this.elementFormDefault, chameleon)
+        }
+
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike {
+            return ChameleonWrapper(
+                attributeFormDefault = attributeFormDefault,
+                elementFormDefault = elementFormDefault,
+                base = schema,
+                chameleonNamespace = VAnyURI(newNS)
+            )
+        }
+        override fun toString(): String = "chameleon($newNS, $elem)"
+    }
+
+    class Redefined<T>(
+        elem: T,
+        val baseSchema: SchemaData,
+        schemaLocation: String,
+        val elementName: QName,
+        val elementKind: Redefinable
+    ) : SchemaElement<T>(elem, schemaLocation) {
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
+            // handle the case where it is called multiple times
+            schema is RedefineSchema && schema.data == baseSchema -> schema
+            else -> RedefineSchema(schema, baseSchema, elementName, elementKind)
+        }
+
+        override fun toChameleon(
+            chameleon: String,
+            attributeFormDefault: VFormChoice?,
+            elementFormDefault: VFormChoice?
+        ): Chameleon<T> {
+            throw UnsupportedOperationException("Redefined elements can not be chameleons")
+        }
+
+        override fun toString(): String = "redefine($elem)"
+    }
+
+    companion object {
+        inline operator fun <T> invoke(elem: T, schemaLocation: String): Direct<T> = Direct(elem, schemaLocation)
+        inline fun <T> auto(elem: T, schemaLocation: String, baseSchema: XSSchema, chameleonNs: String?): SchemaElement<T> = when(chameleonNs) {
+            null -> Direct(elem, schemaLocation)
+            else -> Chameleon(elem, schemaLocation, baseSchema, chameleonNs)
+        }
+    }
 }
 
 internal data class SchemaAssociatedElement<T>(val schemaLocation: String, val element: T)

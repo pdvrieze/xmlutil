@@ -40,6 +40,13 @@ interface ResolvedGlobalSimpleType : ResolvedGlobalType, ResolvedSimpleType {
         ): ResolvedGlobalSimpleType {
             return ResolvedGlobalSimpleTypeImpl(rawPart, schema)
         }
+
+        internal operator fun invoke(
+            element: SchemaElement<XSGlobalSimpleType>,
+            schema: ResolvedSchemaLike
+        ): ResolvedGlobalSimpleType {
+            return ResolvedGlobalSimpleTypeImpl(element.elem, element.effectiveSchema(schema))
+        }
     }
 }
 

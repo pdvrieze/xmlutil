@@ -363,7 +363,7 @@ sealed class ResolvedComplexType(
                     derivation = content.derivation
                     val base = requireNotNull(derivation.base) { "Missing base attribute for complex type derivation" }
                     if ((typeContext as? ResolvedGlobalType)?.mdlQName == base) {
-                        require(schema is CollatedSchema.RedefineWrapper) { "Self-reference of type names can only happen in redefine" }
+                        require(schema is RedefineSchema) { "Self-reference of type names can only happen in redefine" }
 
                         baseTypeDefinition = schema.nestedComplexType(base)
                     } else {

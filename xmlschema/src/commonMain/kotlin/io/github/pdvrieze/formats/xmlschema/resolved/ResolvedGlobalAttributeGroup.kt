@@ -25,30 +25,30 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeG
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedGlobalAttributeGroup(
-    rawPart: XSAttributeGroup,
-    schema: ResolvedSchemaLike,
-    val location: String,
+class ResolvedGlobalAttributeGroup internal constructor(
+    element: SchemaElement<XSAttributeGroup>,
+    unresolvedSchema: ResolvedSchemaLike,
 ) : ResolvedAnnotated, NamedPart, VAttributeScope.Member {
 
-    override val model: Model by lazy { Model(this, rawPart, schema) }
+    val location = element.schemaLocation
 
-    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+    override val model: Model by lazy { Model(this, element.elem, element.effectiveSchema(unresolvedSchema)) }
+
+    override val mdlQName: QName = element.elem.name.toQname(unresolvedSchema.targetNamespace)
 
     val attributes: List<IResolvedAttributeUse> get() = model.attributes
 
     val attributeGroups: List<ResolvedAttributeGroupRef> get() = model.attributeGroups
 
-    val anyAttribute: XSAnyAttribute? = rawPart.anyAttribute
+    val anyAttribute: XSAnyAttribute? = element.elem.anyAttribute
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSAttributeGroup>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
 
     init {
-        if (schema is CollatedSchema.RedefineWrapper) {
+        if (element is SchemaElement.Redefined) {
+            val actualSchema = element.effectiveSchema(unresolvedSchema) as RedefineSchema
             val selfRefCount = attributeGroups.count { it.resolvedGroup.mdlQName == mdlQName }
 
-            val baseGroup = schema.nestedAttributeGroup(mdlQName)
+            val baseGroup = actualSchema.nestedAttributeGroup(mdlQName)
             val baseAttrs = baseGroup.getAttributeUses().associateByTo(mutableMapOf()) { it.mdlAttributeDeclaration.mdlQName }
             val attrUses = getAttributeUses()/*.mapTo(HashSet()) { it.mdlAttributeDeclaration.mdlQName }*/
 

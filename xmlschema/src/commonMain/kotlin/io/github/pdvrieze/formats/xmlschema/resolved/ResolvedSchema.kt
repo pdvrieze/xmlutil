@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -35,29 +34,41 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
-class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: Version = Version.V1_1) : ResolvedSchemaLike() {
+class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: Version = Version.V1_1) :
+    ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
+    private val visibleNamespaces: Set<String>
+
 
     init {
-        val collatedSchema = CollatedSchema(rawPart, resolver, schemaLike = this)
-        collatedSchema.checkRecursiveTypeDefinitions()
-        collatedSchema.checkRecursiveSubstitutionGroups()
+        val schemaData =
+            SchemaData(rawPart, resolver.baseUri.value, rawPart.targetNamespace?.value ?: "", resolver, emptyMap())
 
-        nestedData[targetNamespace.value] = NestedData(targetNamespace, collatedSchema)
+        schemaData.checkRecursiveTypeDefinitions()
+        schemaData.checkRecursiveSubstitutionGroups()
+
+        nestedData[targetNamespace.value] = NestedData(targetNamespace, schemaData)
+
+
         // Use getOrPut to ensure uniqueness
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
         nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
-            XMLConstants.XML_NS_URI in collatedSchema.importedNamespaces &&
-            !collatedSchema.importedSchemas.containsKey(XMLConstants.XML_NS_URI)
-        ) {
+            XMLConstants.XML_NS_URI in schemaData.knownNested) {
             nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
         }
 
-        for ((importNS, importCollation) in collatedSchema.importedSchemas) {
-            nestedData[importNS] = NestedData(VAnyURI(importNS), importCollation)
+        for (importNS in schemaData.importedNamespaces) {
+            if (importNS !in nestedData) { // don't duplicate
+                val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
+                if (importData!=null) {
+                    nestedData[importNS] = NestedData(VAnyURI(importNS), importData)
+                }
+            }
         }
+
+        visibleNamespaces = schemaData.importedNamespaces.toSet()
 
     }
 
@@ -91,7 +102,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         return nestedData.containsKey("")
     }
 
-    override val version: Version = when(rawPart.version?.xmlString) {
+    override val version: Version = when (rawPart.version?.xmlString) {
         "1.0" -> Version.V1_0
         "1.1" -> Version.V1_1
         else -> defaultVersion
@@ -235,43 +246,63 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
     }
 
-    private inner class NestedData(val targetNamespace: VAnyURI, source: CollatedSchema) : SchemaElementResolver {
+    private inner class NestedData : SchemaElementResolver {
 
-        val elements: Map<String, ResolvedGlobalElement>
+        val targetNamespace: VAnyURI
+
+        constructor(targetNamespace: VAnyURI, source: SchemaData) {
+            this.targetNamespace = targetNamespace
+
+            require(targetNamespace.value == source.namespace) {
+                "Namespace mismatch (${targetNamespace.value} != ${source.namespace})"
+            }
+
+            val s = this@ResolvedSchema
+
+            val loc = source.schemaLocation ?: ""
+
+            _elements = DelegateMap(targetNamespace.value, source.elements) { v -> ResolvedGlobalElement(v, s) }
+
+            attributes = DelegateMap(targetNamespace.value, source.attributes) { v -> ResolvedGlobalAttribute(v, s) }
+
+            _types = DelegateMap(targetNamespace.value, source.types) { v ->
+                when (val t = v.elem) {
+                    is XSGlobalSimpleType -> ResolvedGlobalSimpleType(t, v.effectiveSchema(s))
+                    is XSGlobalComplexType -> ResolvedGlobalComplexType(t, v.effectiveSchema(s), loc)
+                }
+            }
+
+            _groups = DelegateMap(targetNamespace.value, source.groups) { v -> ResolvedGlobalGroup(v, s) }
+            attributeGroups = DelegateMap(targetNamespace.value, source.attributeGroups) { v ->
+                ResolvedGlobalAttributeGroup(v, s)
+            }
+            notations = DelegateMap(targetNamespace.value, source.notations) { v -> ResolvedNotation(v, s, loc) }
+
+            imports = mutableMapOf<String, NestedData?>().apply {
+                for (ns in source.importedNamespaces) {
+                    val uri = requireNotNull(source.includedNamespaceToUri[ns]) { "No URI found for namespace $ns" }
+                    val schema = source.knownNested[uri.value]
+                    set(ns, schema?.let{ NestedData(VAnyURI(ns), it) })
+                }
+            }
+        }
+
+        private val _elements: Map<String, ResolvedGlobalElement>
+        val elements: Map<String, ResolvedGlobalElement> get() = _elements
 
         val attributes: Map<String, ResolvedGlobalAttribute>
 
-        val types: Map<String, ResolvedGlobalType>
+        val _types: Map<String, ResolvedGlobalType>
+        val types: Map<String, ResolvedGlobalType> get() = _types
 
-        val groups: Map<String, ResolvedGlobalGroup>
+        val _groups: Map<String, ResolvedGlobalGroup>
+        val groups: Map<String, ResolvedGlobalGroup> get() = _groups
 
         val attributeGroups: Map<String, ResolvedGlobalAttributeGroup>
 
         val notations: Map<String, ResolvedNotation>
 
-        init {
-            elements = DelegateMap(targetNamespace.value, source.elements) { (s, v) -> ResolvedGlobalElement(v, s) }
-
-            attributes =
-                DelegateMap(targetNamespace.value, source.attributes) { (s, v) -> ResolvedGlobalAttribute(v, s) }
-
-            types =
-                DelegateMap(targetNamespace.value, source.types) { (s, v) ->
-                    when (v.element) {
-                        is XSGlobalSimpleType -> ResolvedGlobalSimpleType(v.element, s)
-                        is XSGlobalComplexType -> ResolvedGlobalComplexType(v.element, s, v.schemaLocation)
-                    }
-                }
-
-            groups = DelegateMap(targetNamespace.value, source.groups) { (s, v) -> ResolvedGlobalGroup(v, s) }
-
-            attributeGroups = DelegateMap(targetNamespace.value, source.attributeGroups) { (s, v) ->
-                ResolvedGlobalAttributeGroup(v, s)
-            }
-
-            notations = DelegateMap(targetNamespace.value, source.notations) { (s, v) -> ResolvedNotation(v, s) }
-
-        }
+        val imports: Map<String, NestedData?> // imports can be unresolved
 
         val identityConstraints: Map<String, ResolvedIdentityConstraint> by lazy {
             val identityConstraintList = mutableSetOf<ResolvedIdentityConstraint>().also { collector ->
@@ -340,12 +371,11 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
     companion object {
 
 
-        fun Version(str: String) : Version = when (str){
+        fun Version(str: String): Version = when (str) {
             "1.0" -> Version.V1_0
             "1.1" -> Version.V1_1
             else -> throw IllegalArgumentException("'$str' is not a supported version")
         }
-
 
 
         const val STRICT_ALL_IN_EXTENSION: Boolean = true

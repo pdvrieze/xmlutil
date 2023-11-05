@@ -34,8 +34,8 @@ class ResolvedGlobalGroup(
 
     override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSGroup>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
+    internal constructor(element: SchemaElement<XSGroup>, schema: ResolvedSchemaLike) :
+            this(element.elem, element.effectiveSchema(schema), element.schemaLocation)
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
