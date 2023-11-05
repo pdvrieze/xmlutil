@@ -47,9 +47,9 @@ open class ResolvedGlobalComplexType(
     )
 
     internal constructor(
-        rawPart: SchemaAssociatedElement<XSGlobalComplexType>,
+        element: SchemaElement<XSGlobalComplexType>,
         schema: ResolvedSchemaLike
-    ) : this(rawPart.element, schema, rawPart.schemaLocation)
+    ) : this(element.elem, element.effectiveSchema(schema), element.schemaLocation)
 
     override val mdlScope: VComplexTypeScope.Global get() = VComplexTypeScope.Global
 

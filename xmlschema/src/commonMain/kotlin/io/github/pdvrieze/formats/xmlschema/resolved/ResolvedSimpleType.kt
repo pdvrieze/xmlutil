@@ -211,11 +211,14 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
                 rawPart is XSGlobalSimpleType &&
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
-                    require(schema is CollatedSchema.RedefineWrapper) { "Only redefines can have 'self-referencing types'" }
+                    require(schema is RedefineSchema) { "Only redefines can have 'self-referencing types'" }
+                    schema.nestedType(typeName) as ResolvedGlobalSimpleType
+/*
                     ResolvedGlobalSimpleType(
                         schema.originalSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
                         schema
                     )
+*/
                 }
 
                 simpleDerivation.base?.isEquivalent(AnySimpleType.mdlQName) == true -> AnySimpleType
