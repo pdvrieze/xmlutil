@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
-import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -32,8 +31,8 @@ class ResolvedGlobalAttribute(
     val location: String,
 ) : ResolvedAttributeDef(rawPart, schema), IScope.Global, NamedPart {
 
-    internal constructor(rawPart: SchemaAssociatedElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
-            this(rawPart.element, schema, rawPart.schemaLocation)
+    internal constructor(elem: SchemaElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
+            this(elem.elem, elem.effectiveSchema(schema), elem.schemaLocation)
 
     internal constructor(rawPart: XSGlobalAttribute, schema: ResolvedSchemaLike) :
             this(rawPart, schema, "")
