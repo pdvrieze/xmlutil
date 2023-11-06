@@ -20,12 +20,19 @@
 
 @file:Suppress("PropertyName")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+
 plugins {
     `kotlin-dsl`
 }
 
+kotlin {
+    compilerOptions.jvmTarget = JvmTarget.JVM_11
+}
+
 java {
-//    targetCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 dependencies {
