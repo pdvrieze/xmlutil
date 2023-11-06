@@ -110,9 +110,7 @@ fun Project.addNativeTargets() {
                         iosArm64 { addSourceSets() }
                         iosSimulatorArm64 { addSourceSets() }
                         iosX64 { addSourceSets() }
-                        iosArm32 { addSourceSets() }
 
-                        watchosX86 { addSourceSets() }
                         watchosSimulatorArm64() { addSourceSets() }
                         watchosX64 { addSourceSets() }
                         watchosArm32 { addSourceSets() }
@@ -125,7 +123,6 @@ fun Project.addNativeTargets() {
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
                         mingwX64 { addSourceSets() }
-                        mingwX86 { addSourceSets() }
                     }
                 }
             }

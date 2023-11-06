@@ -18,8 +18,11 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalNativeApi::class)
+
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlin.experimental.ExperimentalNativeApi
 import kotlin.reflect.KClass
 
 public actual val KClass<*>.name: String get() = qualifiedName!!

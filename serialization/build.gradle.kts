@@ -60,7 +60,10 @@ kotlin {
                 }
             }
 
-            val woodstoxCompilation = compilations.register("woodstoxTest")
+            val woodstoxCompilation = compilations.register("woodstoxTest") {
+                // This needs to be specified explicitly in 1.9.20
+                compilerOptions.options.moduleName = "woodstoxTest"
+            }
             val woodstoxTestRun = testRuns.create("woodstoxTest") {
                 setExecutionSourceFrom(
                     listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),

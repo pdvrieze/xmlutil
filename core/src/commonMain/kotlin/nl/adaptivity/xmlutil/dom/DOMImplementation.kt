@@ -22,5 +22,8 @@ package nl.adaptivity.xmlutil.dom
 
 public expect interface DOMImplementation {
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
-    public fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType? = null): Document
+    public fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document
 }
+
+public fun DOMImplementation.createDocument(namespace: String?, qualifiedName: String): Document =
+    createDocument(namespace, qualifiedName, null)

@@ -682,6 +682,13 @@ public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/XmlStreaming;
+	public fun deSerialize (Ljava/io/InputStream;Ljava/lang/Class;)Ljava/lang/Object;
+	public fun deSerialize (Ljava/io/Reader;Ljava/lang/Class;)Ljava/lang/Object;
+	public fun deSerialize (Ljava/io/Reader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public fun deSerialize (Ljava/lang/Iterable;Ljava/lang/Class;)Ljava/util/List;
+	public fun deSerialize (Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
+	public fun deSerialize (Ljavax/xml/transform/Source;Ljava/lang/Class;)Ljava/lang/Object;
+	public fun deserializerFor (Ljava/lang/Class;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public final fun newGenericReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -697,6 +704,9 @@ public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/co
 	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;Z)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun serializerFor (Ljava/lang/Class;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
 	public fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
 	public fun toCharArray (Ljavax/xml/transform/Source;)[C
 	public fun toString (Ljavax/xml/transform/Source;)Ljava/lang/String;
@@ -958,6 +968,10 @@ public final class nl/adaptivity/xmlutil/dom/AttrKt {
 public final class nl/adaptivity/xmlutil/dom/CharacterDataKt {
 	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
 	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom/DOMImplementationKt {
+	public static final fun createDocument (Lorg/w3c/dom/DOMImplementation;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Document;
 }
 
 public final class nl/adaptivity/xmlutil/dom/DocumentKt {

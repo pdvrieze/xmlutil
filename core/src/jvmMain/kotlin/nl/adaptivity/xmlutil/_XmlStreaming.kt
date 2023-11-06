@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
+import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Reader
@@ -32,9 +33,15 @@ import java.io.StringReader
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
+import kotlin.reflect.KClass
 
 
 public actual object XmlStreaming : XmlStreamingJavaCommon() {
+
+    override val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
+        val service = SerializationProvider::class.java
+        ServiceLoader.load(service, service.classLoader)
+    }
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
         val service = XmlStreamingFactory::class.java
@@ -122,6 +129,24 @@ public actual object XmlStreaming : XmlStreamingJavaCommon() {
     override fun toString(source: Source): String {
         return newReader(source).toCharArrayWriter().toString()
     }
+
+    override fun <T : Any> deSerialize(input: InputStream, type: Class<T>): T = deSerialize(input, type.kotlin)
+    override fun <T : Any> deSerialize(input: Reader, type: Class<T>): T = deSerialize(input, type.kotlin)
+    override fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T {
+        val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException(
+            "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})"
+                                                                                    )
+        return deserializer(newReader(input), kClass)
+    }
+
+    override fun <T : Any> deSerialize(input: String, type: Class<T>): T = deSerialize(input, type.kotlin)
+    override fun <T : Any> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> = deSerialize(inputs, type.kotlin)
+    override fun <T : Any> deSerialize(reader: Source, type: Class<T>): T {
+        return deSerialize(reader, type.kotlin)
+    }
+
+    override fun <T : Any> deserializerFor(type: Class<T>): SerializationProvider.XmlDeserializerFun? = deserializerFor(type.kotlin)
+    override fun <T : Any> serializerFor(type: Class<T>): SerializationProvider.XmlSerializerFun<T>? = serializerFor(type.kotlin)
 
 }
 

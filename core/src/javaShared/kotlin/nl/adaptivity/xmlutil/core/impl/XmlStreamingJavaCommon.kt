@@ -38,10 +38,7 @@ import kotlin.reflect.KClass
  */
 public abstract class XmlStreamingJavaCommon {
 
-    private val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
-        val service = SerializationProvider::class.java
-        ServiceLoader.load(service, service.classLoader)
-    }
+    protected abstract val serializationLoader: ServiceLoader<SerializationProvider>
 
     public fun newWriter(result: Result): XmlWriter = newWriter(result, false)
 
@@ -50,21 +47,24 @@ public abstract class XmlStreamingJavaCommon {
     public fun newWriter(outputStream: OutputStream, encoding: String): XmlWriter =
         newWriter(outputStream, encoding, false)
 
-    public abstract fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter
+    public abstract fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
 
     public fun newWriter(writer: Writer): XmlWriter = newWriter(writer, false)
 
     @Deprecated("Use version that takes XmlDeclMode")
-    public final fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
+    public final fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
         newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    public abstract fun newWriter(writer: Writer, repairNamespaces: Boolean = false, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter =
+        newWriter(writer, repairNamespaces, XmlDeclMode.None)
+
+    public abstract fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter
 
     @Deprecated("Use version that takes XmlDeclMode")
     public final fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
         newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    public abstract fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None): XmlWriter
+    public abstract fun newWriter(output: Appendable, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter
 
     public abstract fun newReader(inputStream: InputStream, encoding: String): XmlReader
 
@@ -78,7 +78,7 @@ public abstract class XmlStreamingJavaCommon {
 
     public abstract fun setFactory(factory: XmlStreamingFactory?)
 
-    public fun <T : Any> deserializerFor(type: Class<T>): XmlDeserializerFun? = deserializerFor(type.kotlin)
+    public abstract fun <T : Any> deserializerFor(type: Class<T>): XmlDeserializerFun?
     public fun <T : Any> deserializerFor(klass: KClass<T>): XmlDeserializerFun? {
         for (candidate in serializationLoader) {
             val deSerializer: XmlDeserializerFun? = candidate.deSerializer(klass)
@@ -87,7 +87,7 @@ public abstract class XmlStreamingJavaCommon {
         return null
     }
 
-    public fun <T : Any> serializerFor(type: Class<T>): XmlSerializerFun<T>? = serializerFor(type.kotlin)
+    public abstract fun <T : Any> serializerFor(type: Class<T>): XmlSerializerFun<T>?
     public fun <T : Any> serializerFor(klass: KClass<T>): XmlSerializerFun<T>? {
         for (candidate in serializationLoader) {
             val serializer: XmlSerializerFun<T>? = candidate.serializer(klass)
@@ -112,30 +112,25 @@ public abstract class XmlStreamingJavaCommon {
         serializer(target, value)
     }
 
-    public fun <T : Any> deSerialize(input: InputStream, type: Class<T>): T = deSerialize(input, type.kotlin)
+    public abstract fun <T : Any> deSerialize(input: InputStream, type: Class<T>): T
 
     public fun <T : Any> deSerialize(input: InputStream, kClass: KClass<T>): T {
         val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException("No deserializer for $kClass")
         return deserializer(newReader(input, "UTF-8"), kClass)
     }
 
-    public fun <T : Any> deSerialize(input: Reader, type: Class<T>): T = deSerialize(input, type.kotlin)
+    public abstract fun <T : Any> deSerialize(input: Reader, type: Class<T>): T
 
-    public fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T {
-        val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException(
-            "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})"
-                                                                                    )
-        return deserializer(newReader(input), kClass)
-    }
+    public abstract fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T
 
-    public fun <T : Any> deSerialize(input: String, type: Class<T>): T = deSerialize(input, type.kotlin)
+    public abstract fun <T : Any> deSerialize(input: String, type: Class<T>): T
 
     public fun <T : Any> deSerialize(input: String, kClass: KClass<T>): T {
         val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException("No deserializer for $kClass")
         return deserializer(newReader(StringReader(input)), kClass)
     }
 
-    public fun <T : Any> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> = deSerialize(inputs, type.kotlin)
+    public abstract fun <T : Any> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T>
 
     public fun <T : Any> deSerialize(inputs: Iterable<String>, kClass: KClass<T>): List<T> {
         val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException("No deserializer for $kClass")
@@ -146,9 +141,7 @@ public abstract class XmlStreamingJavaCommon {
         return deSerialize(input, T::class)
     }
 
-    public fun <T : Any> deSerialize(reader: Source, type: Class<T>): T {
-        return deSerialize(reader, type.kotlin)
-    }
+    public abstract fun <T : Any> deSerialize(reader: Source, type: Class<T>): T
 
     public fun <T : Any> deSerialize(reader: Source, kClass: KClass<T>): T {
         val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException("No deserializer for $kClass")

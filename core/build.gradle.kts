@@ -74,7 +74,7 @@ kotlin {
                 }
             }
             tasks.withType<Jar>().named(artifactsTaskName) {
-                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                from(project.file("src/jvmMain/proguard.pro")) {
                     rename { "xmlutil-proguard.pro" }
                     into("META-INF/proguard")
                 }
@@ -94,11 +94,11 @@ kotlin {
                     rename { "xmlutil-r8-workaround.pro" }
                     into("META-INF/com.android.tools/r8")
                 }
-                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                from(project.file("src/androidMain/proguard.pro")) {
                     rename { "xmlutil-proguard.pro" }
                     into("META-INF/com.android.tools/r8")
                 }
-                from(project.file("src/$defaultConfigurationName/proguard.pro")) {
+                from(project.file("src/androidMain/proguard.pro")) {
                     rename { "xmlutil-proguard.pro" }
                     into("META-INF/com.android.tools/proguard")
                 }
