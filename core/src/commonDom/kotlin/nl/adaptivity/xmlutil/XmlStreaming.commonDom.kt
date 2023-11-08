@@ -31,37 +31,45 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-public actual object XmlStreaming {
+@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
+    "nl.adaptivity.xmlutil.xmlStreaming",
+    "nl.adaptivity.xmlutil.newWriter",
+    "nl.adaptivity.xmlutil.newGenericWriter",
+))
+public actual object XmlStreaming : IXmlStreaming {
 
-    public actual fun setFactory(factory: XmlStreamingFactory?) {
+    public override fun setFactory(factory: XmlStreamingFactory?) {
         throw UnsupportedOperationException("Native does not support setting the factory")
     }
 
-    public actual inline fun <reified T : Any> deSerialize(input: String): T {
+    @Deprecated("Does not work", level = DeprecationLevel.ERROR)
+    public inline fun <reified T : Any> deSerialize(input: String): T {
         throw UnsupportedOperationException("Cannot work")
     }
 
-    public actual fun newReader(input: CharSequence): XmlReader {
+    public override fun newReader(input: CharSequence): XmlReader {
         return KtXmlReader(StringReader(input.toString()))
     }
 
-    public actual fun newReader(reader: Reader): XmlReader {
+    public override fun newReader(reader: Reader): XmlReader {
         return newGenericReader(reader)
     }
 
-    public actual fun newGenericReader(input: CharSequence): XmlReader =
+    public override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input.toString()))
 
-    public actual fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
-    public actual fun newWriter(
+    public fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
     ): XmlWriter {
+        @Suppress("DEPRECATION")
         return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
+    @Deprecated("Use overload in IXmlStreaming")
     public actual fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
@@ -78,12 +86,36 @@ public actual object XmlStreaming {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
-    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    @Deprecated("Use overload on IXmlStreaming", ReplaceWith("newWriter(writer, repairNamespace, xmlDeclMode"))
+    public actual fun newWriter(
+        writer: Writer,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode
+    ): XmlWriter {
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
 }
+
+@Suppress("DEPRECATION")
+public actual val xmlStreaming: IXmlStreaming
+    get() = XmlStreaming
+
+
+@Suppress("DEPRECATION")
+public actual fun IXmlStreaming.newWriter(
+    output: Appendable,
+    repairNamespaces: Boolean,
+    xmlDeclMode: XmlDeclMode
+): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+
+public actual fun IXmlStreaming.newWriter(
+    writer: Writer,
+    repairNamespaces: Boolean,
+    xmlDeclMode: XmlDeclMode,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+

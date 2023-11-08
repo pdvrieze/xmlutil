@@ -20,16 +20,18 @@
 
 package nl.adaptivity.xmlutil.xmlserializable
 
+import nl.adaptivity.xmlutil.IXmlStreaming
 import nl.adaptivity.xmlutil.XmlSerializable
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.util.CompactFragment
-import nl.adaptivity.xmlutil.util.SerializationProvider
-import kotlin.reflect.KClass
 
 expect fun CompactFragment(content: XmlSerializable): CompactFragment
 
-expect fun XmlStreaming.toString(value: XmlSerializable): String
+expect fun IXmlStreaming.toString(value: XmlSerializable): String
+
+@Deprecated("Use IXmlStreaming.toString", level = DeprecationLevel.HIDDEN)
+fun XmlStreaming.toString(value: XmlSerializable): String = (this as IXmlStreaming).toString(value)
 
 
 fun XmlWriter.writeChild(child: XmlSerializable?) {

@@ -1,4 +1,10 @@
 # 0.86.3-SNAPSHOT
+Changes:
+- The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
+  with an accessor function `xmlStreaming` that provides an appropriate
+  instance. The platform specific objects have been retained, but deprecated.
+  In various places extension functions have been added.
+
 Features:
 - Support strict boolean parsing in policy 
   (using xml schema rules allowing: 1, true, 0, false)

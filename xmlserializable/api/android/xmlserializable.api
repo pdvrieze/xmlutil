@@ -23,7 +23,7 @@ public final class nl/adaptivity/xmlutil/xmlserializable/CollectionSerialization
 
 public final class nl/adaptivity/xmlutil/xmlserializable/CompactFragmentKt {
 	public static final fun CompactFragment (Lnl/adaptivity/xmlutil/XmlSerializable;)Lnl/adaptivity/xmlutil/util/CompactFragment;
-	public static final fun toString (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/XmlSerializable;)Ljava/lang/String;
+	public static final fun toString (Lnl/adaptivity/xmlutil/IXmlStreaming;Lnl/adaptivity/xmlutil/XmlSerializable;)Ljava/lang/String;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/xmlserializable/ExtXmlDeserializable : nl/adaptivity/xmlutil/xmlserializable/XmlDeserializable {
@@ -64,6 +64,7 @@ public final class nl/adaptivity/xmlutil/xmlserializable/SerializableContainer :
 }
 
 public final class nl/adaptivity/xmlutil/xmlserializable/SerializableFunctionsKt {
+	public static final synthetic fun toString (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/XmlSerializable;)Ljava/lang/String;
 	public static final fun writeChild (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlSerializable;)V
 	public static final fun writeChildren (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;)V
 }

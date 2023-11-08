@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -34,39 +34,47 @@ import kotlin.reflect.KClass
 public actual interface XmlStreamingFactory
 
 
-public actual object XmlStreaming {
+@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
+    "nl.adaptivity.xmlutil.xmlStreaming",
+    "nl.adaptivity.xmlutil.newWriter",
+    "nl.adaptivity.xmlutil.newGenericWriter",
+))
+public actual object XmlStreaming: IXmlStreaming {
 
 
-    public fun newWriter(): DomWriter {
+    internal fun newWriter(): DomWriter {
         return DomWriter()
     }
 
-    public fun newWriter(dest: ParentNode): DomWriter {
+    internal fun newWriter(dest: ParentNode): DomWriter {
         return DomWriter(dest as nl.adaptivity.xmlutil.dom.Node)
     }
 
 
-    public fun newReader(delegate: Node): DomReader {
+    internal fun newReader(delegate: Node): DomReader {
         return DomReader(delegate as nl.adaptivity.xmlutil.dom.Node)
     }
 
-    public actual fun setFactory(factory: XmlStreamingFactory?) {
+    @Deprecated("Does not work on Javascript except for setting null", level = DeprecationLevel.ERROR)
+    public override fun setFactory(factory: XmlStreamingFactory?) {
         if (factory != null)
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
+    @Deprecated("Does not work", level = DeprecationLevel.ERROR)
     @Suppress("UNUSED_PARAMETER")
     public fun <T : Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
     /*: T {
         return newReader(input).deSerialize(type)
     }*/
 
-    public actual inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
+    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0. Not MP compatible", level = DeprecationLevel.ERROR)
+    public inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
     /*: T {
         return deSerialize(input, T::class)
     }*/
 
-    public actual fun newReader(input: CharSequence): XmlReader {
+    public override fun newReader(input: CharSequence): XmlReader {
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
             input.get(0) == '\ufeff' -> input.subSequence(1, input.length)
             else -> input
@@ -74,14 +82,14 @@ public actual object XmlStreaming {
         return DomReader(DOMParser().parseFromString(str, "text/xml") as nl.adaptivity.xmlutil.dom.Node)
     }
 
-    public actual fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
-    public actual fun newGenericReader(input: CharSequence): XmlReader =
+    public override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input))
 
-    public actual fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
-    public actual fun newWriter(
+    public fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
@@ -91,25 +99,29 @@ public actual object XmlStreaming {
 
     public actual fun newWriter(
         output: Appendable,
-        repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        repairNamespaces: Boolean /*= false*/,
+        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
         return AppendingWriter(output, DomWriter(xmlDeclMode))
     }
 
     public actual fun newGenericWriter(
         output: Appendable,
-        isRepairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        isRepairNamespaces: Boolean /*= false*/,
+        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): KtXmlWriter {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
-    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    public actual fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    public actual fun newWriter(
+        writer: Writer,
+        repairNamespaces: Boolean /*= false*/,
+        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+    ): XmlWriter {
         return WriterXmlWriter(writer, DomWriter(xmlDeclMode))
     }
 }
@@ -183,3 +195,29 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
         delegate.flush()
     }
 }
+
+@Suppress("DEPRECATION")
+public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
+
+@Suppress("UnusedReceiverParameter")
+public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
+@Suppress("UnusedReceiverParameter")
+public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = XmlStreaming.newWriter(dest)
+@Suppress("UnusedReceiverParameter")
+public fun IXmlStreaming.newReader(delegate: Node): DomReader = XmlStreaming.newReader(delegate)
+
+
+@Suppress("DEPRECATION")
+public actual fun IXmlStreaming.newWriter(
+    output: Appendable,
+    repairNamespaces: Boolean,
+    xmlDeclMode: XmlDeclMode
+): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+
+@Suppress("DEPRECATION")
+public actual fun IXmlStreaming.newWriter(
+    writer: Writer,
+    repairNamespaces: Boolean,
+    xmlDeclMode: XmlDeclMode,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+

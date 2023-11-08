@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
-import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use

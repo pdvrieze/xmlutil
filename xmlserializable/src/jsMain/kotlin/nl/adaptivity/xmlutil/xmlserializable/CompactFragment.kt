@@ -20,17 +20,18 @@
 
 package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.IXmlStreaming
 import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.util.CompactFragment
+import nl.adaptivity.xmlutil.xmlStreaming
 
 actual fun CompactFragment(content: XmlSerializable): CompactFragment {
     return CompactFragment(emptyList(), content.toString())
 }
 
-actual fun XmlStreaming.toString(value: XmlSerializable): String {
-    val w = XmlStreaming.newWriter()
+actual fun IXmlStreaming.toString(value: XmlSerializable): String {
+    val w = xmlStreaming.newWriter()
     try {
         value.serialize(w)
     } finally {

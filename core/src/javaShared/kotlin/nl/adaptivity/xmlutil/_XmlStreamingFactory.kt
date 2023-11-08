@@ -22,11 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.AppendableWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
-import java.io.StringReader
+import java.io.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 
@@ -52,7 +48,7 @@ public actual interface XmlStreamingFactory {
         encoding: String,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-                 ): XmlWriter
+    ): XmlWriter
 
     @Deprecated("Use version with xmlDeclMode")
     public fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
