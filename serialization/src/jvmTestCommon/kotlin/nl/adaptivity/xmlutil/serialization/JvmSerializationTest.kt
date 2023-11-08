@@ -23,8 +23,8 @@ package nl.adaptivity.xmlutil.serialization
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.XmlStreaming
-import org.junit.jupiter.api.Test
 import nl.adaptivity.xmlutil.dom.Element
+import org.junit.jupiter.api.Test
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
 import kotlin.test.assertEquals

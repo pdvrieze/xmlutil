@@ -22,11 +22,11 @@ package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.smartStartTag
+import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -50,7 +50,7 @@ class StringTest : PlatformTestBase<String>(
     @Test
     fun testSmartTag() {
         val result = buildString {
-            XmlStreaming.newWriter(this).use {
+            xmlStreaming.newWriter(this).use {
                 it.smartStartTag(QName("http://www.w3.org/2001/XMLSchema", "string", "xsd")) {
                     text("foo")
                 }

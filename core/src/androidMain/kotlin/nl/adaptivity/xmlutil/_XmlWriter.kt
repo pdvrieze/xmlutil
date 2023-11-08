@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.newReader
 import org.w3c.dom.Node
 import javax.xml.transform.dom.DOMSource
 
@@ -30,6 +31,6 @@ public fun XmlWriter.writeChild(node: Node) {
 }
 
 public fun XmlWriter.serialize(node: Node) {
-    val xmlReader = XmlStreaming.newReader(DOMSource(node))
+    val xmlReader = xmlStreaming.newReader(DOMSource(node))
     serialize(xmlReader)
 }

@@ -94,7 +94,7 @@ private fun parseToElementChildren(parent: Element, xmlReader: XmlReader) {
 }
 
 private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
-    val expectedDom = parseToDocument(XmlStreaming.newGenericReader(expectedXML))
+    val expectedDom = parseToDocument(xmlStreaming.newGenericReader(expectedXML))
 
     println("Expected xml\n${expectedDom.toString().prependIndent("    ")}\n")
 
@@ -107,8 +107,8 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     assertDomEquals(expectedDom, writer.target)
 }
 
-private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
-    val expectedDom = parseToDocument(XmlStreaming.newGenericReader(expectedXML))
+private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: XML) {
+    val expectedDom = parseToDocument(xmlStreaming.newGenericReader(expectedXML))
 
     val actualReader = DomReader(expectedDom)
 

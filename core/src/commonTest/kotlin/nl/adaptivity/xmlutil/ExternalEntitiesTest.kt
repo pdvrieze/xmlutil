@@ -23,8 +23,10 @@ package nl.adaptivity.xmlutil.test
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlStreaming
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -63,12 +65,12 @@ class ExternalEntitiesTests() {
 
     @Test
     fun testPlatformReadFileReader() {
-        testReadFileReaderImpl { XmlStreaming.newReader(it) }
+        testReadFileReaderImpl { xmlStreaming.newReader(it) }
     }
 
     @Test
     fun testGenericReadFileReader() {
-        testReadFileReaderImpl { XmlStreaming.newGenericReader(it) }
+        testReadFileReaderImpl { xmlStreaming.newGenericReader(it) }
     }
 
     fun testReadFileReaderImpl(readerFactory: (String) -> XmlReader) {

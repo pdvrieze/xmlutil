@@ -29,7 +29,7 @@ import kotlin.test.assertFailsWith
 class TestXmlWriter {
     private fun testIndentImpl1(indent: String) {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
+            val w = xmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
             w.indentString = indent
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {
@@ -55,7 +55,7 @@ class TestXmlWriter {
 
     private fun testIndentImpl2(indent: String) {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
+            val w = xmlStreaming.newWriter(this, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
             w.indentString = indent
             w.smartStartTag("foo".toQname()) {
                 smartStartTag("bar".toQname()) {
@@ -76,7 +76,7 @@ class TestXmlWriter {
     @Test
     fun testSerializeSimplest() {
         val serialized = buildString {
-            val w = XmlStreaming.newWriter(
+            val w = xmlStreaming.newWriter(
                 this,
                 repairNamespaces = false,
                 xmlDeclMode = XmlDeclMode.None
@@ -90,7 +90,7 @@ class TestXmlWriter {
     @Test
     fun testCorrectWithFlush() {
         val serialized = buildString {
-            XmlStreaming.newWriter(this).use { writer ->
+            xmlStreaming.newWriter(this).use { writer ->
                 writer.smartStartTag(null, "a") {
                     flush()
                     smartStartTag(null, "b") {
@@ -144,7 +144,7 @@ class TestXmlWriter {
 
     @Test
     fun testIndentTextContent() {
-        val w = XmlStreaming.newWriter(StringBuilder())
+        val w = xmlStreaming.newWriter(StringBuilder())
         assertFailsWith<XmlException> {
             w.indentString = "  ..."
         }
@@ -152,7 +152,7 @@ class TestXmlWriter {
 
     @Test
     fun testIndentIncompleteComment() {
-        val w = XmlStreaming.newWriter(StringBuilder())
+        val w = xmlStreaming.newWriter(StringBuilder())
         assertFailsWith<XmlException> {
             w.indentString = "<!--"
         }
@@ -179,7 +179,7 @@ class TestXmlWriter {
         val fragment = CompactFragment(listOf(XmlEvent.NamespaceImpl("", "foobar")), inner)
 
         val builder = StringBuilder()
-        XmlStreaming.newWriter(builder).use { output ->
+        xmlStreaming.newWriter(builder).use { output ->
             output.startTag("foobar", "root", "")
             output.namespaceAttr("", "foobar")
 
@@ -193,7 +193,7 @@ class TestXmlWriter {
     fun testWritePlatformSmartTag() {
         val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
         val builder = StringBuilder()
-        XmlStreaming.newWriter(builder).use { out ->
+        xmlStreaming.newWriter(builder).use { out ->
             out.smartStartTag("ns/a", "a", "") {
                 smartStartTag("ns/b", "b", "") {
                     smartStartTag("", "c", "")
@@ -210,7 +210,7 @@ class TestXmlWriter {
     fun testWriteGenericSmartTag() {
         val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
         val builder = StringBuilder()
-        XmlStreaming.newGenericWriter(builder).use { out ->
+        xmlStreaming.newGenericWriter(builder).use { out ->
             out.smartStartTag("ns/a", "a", "") {
                 smartStartTag("ns/b", "b", "") {
                     smartStartTag("", "c", "")
@@ -237,7 +237,7 @@ class TestXmlWriter {
                 }
             }
         }
-        XmlStreaming.newWriter(builder, false).use { out ->
+        xmlStreaming.newWriter(builder, false).use { out ->
             val input = DomReader(dw.target)
             while (input.hasNext()) {
                 input.next()

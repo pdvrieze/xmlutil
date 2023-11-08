@@ -102,7 +102,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().apply {
-        XmlStreaming.newWriter(this).use { out ->
+        xmlStreaming.newWriter(this).use { out ->
             while (hasNext()) {
                 next()
                 writeCurrent(out)

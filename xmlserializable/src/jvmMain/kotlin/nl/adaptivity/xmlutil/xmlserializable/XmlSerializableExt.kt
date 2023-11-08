@@ -27,12 +27,12 @@ import java.io.Writer
 
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-    XmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
+    xmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {
     return StringWriter().apply {
-        XmlStreaming.newWriter(
+        xmlStreaming.newWriter(
             this,
             flags and FLAG_REPAIR_NS == FLAG_REPAIR_NS,
             XmlDeclMode.None

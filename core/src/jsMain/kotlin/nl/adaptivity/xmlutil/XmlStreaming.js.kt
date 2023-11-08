@@ -199,12 +199,12 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
-@Suppress("UnusedReceiverParameter")
+@Suppress("UnusedReceiverParameter", "DEPRECATION")
 public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
 @Suppress("UnusedReceiverParameter")
-public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = XmlStreaming.newWriter(dest)
+public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = xmlStreaming.newWriter(dest)
 @Suppress("UnusedReceiverParameter")
-public fun IXmlStreaming.newReader(delegate: Node): DomReader = XmlStreaming.newReader(delegate)
+public fun IXmlStreaming.newReader(delegate: Node): DomReader = xmlStreaming.newReader(delegate)
 
 
 @Suppress("DEPRECATION")

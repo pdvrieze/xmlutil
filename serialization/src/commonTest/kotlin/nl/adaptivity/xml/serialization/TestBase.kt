@@ -132,7 +132,7 @@ abstract class XmlTestBase<T>(
     @Test
     open fun testGenericSerializeXml() {
         val stringBuilder = StringBuilder()
-        val writer = XmlStreaming.newGenericWriter(stringBuilder)
+        val writer = xmlStreaming.newGenericWriter(stringBuilder)
         baseXmlFormat.encodeToWriter(writer, serializer, value)
         assertXmlEquals(expectedXML, stringBuilder.toString().normalizeXml())
     }
@@ -144,7 +144,7 @@ abstract class XmlTestBase<T>(
 
     @Test
     open fun testGenericDeserializeXml() {
-        val reader = XmlStreaming.newGenericReader(expectedXML)
+        val reader = xmlStreaming.newGenericReader(expectedXML)
         assertEquals(value, baseXmlFormat.decodeFromReader(serializer, reader))
     }
 

@@ -21,15 +21,16 @@
 package nl.adaptivity.xmlutil.xmlserializable
 
 import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.XmlStreaming
-import java.io.*
+import nl.adaptivity.xmlutil.newWriter
+import nl.adaptivity.xmlutil.xmlStreaming
+import java.io.CharArrayWriter
 
 /**
  * Extension functions for writing that need different js/jvm implementations
  */
 fun XmlSerializable.toCharArray(): CharArray {
     val caw = CharArrayWriter()
-    XmlStreaming.newWriter(caw).use { writer ->
+    xmlStreaming.newWriter(caw).use { writer ->
         serialize(writer)
     }
     return caw.toCharArray()

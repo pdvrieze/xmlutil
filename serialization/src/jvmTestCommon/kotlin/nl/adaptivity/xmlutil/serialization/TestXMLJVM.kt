@@ -21,7 +21,8 @@
 package nl.adaptivity.xmlutil.serialization
 
 import nl.adaptivity.xmlutil.StAXWriter
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.newWriter
+import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.io.CharArrayWriter
 import kotlin.test.Test
@@ -32,7 +33,7 @@ import kotlin.test.Test
 class TestXMLJVM {
     @Test
     fun a_simple_writer_should_be_a_STaXwriter() {
-        val writer = XmlStreaming.newWriter(CharArrayWriter())
+        val writer = xmlStreaming.newWriter(CharArrayWriter())
         assertTrue(writer is StAXWriter)
     }
 }

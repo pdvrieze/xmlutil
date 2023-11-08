@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.xmlserializable
 
 import nl.adaptivity.xmlutil.XmlDeserializerFactory
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.StringReader
 
 /**
@@ -38,11 +38,8 @@ fun <T> Iterable<String>.deSerialize(type: Class<T>): List<T> {
     val deserializer = type.getAnnotation(XmlDeserializer::class.java)
         ?: throw IllegalArgumentException("Types must be annotated with ${XmlDeserializer::class.java.name} to be deserialized automatically")
 
+    @Suppress("DEPRECATION")
     val factory: XmlDeserializerFactory<*> = deserializer.value.java.getConstructor().newInstance() as XmlDeserializerFactory<*>
 
-    return this.map { type.cast(factory.deserialize(
-        XmlStreaming.newReader(
-            StringReader(it)
-                              )
-                                                   )) }
+    return this.map { type.cast(factory.deserialize(xmlStreaming.newReader(StringReader(it)))) }
 }

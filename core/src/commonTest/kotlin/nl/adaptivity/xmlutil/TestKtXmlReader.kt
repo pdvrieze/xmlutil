@@ -28,62 +28,64 @@ import kotlin.test.Test
 
 class TestKtXmlReader : TestCommonReader() {
 
+    private fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
+    
     @Test
     fun testReadCompactFragmentWithNamespaceInOuter() {
-        testReadCompactFragmentWithNamespaceInOuter(XmlStreaming::newGenericReader)
+        testReadCompactFragmentWithNamespaceInOuter(::createReader)
     }
 
     @Test
     fun testNamespaceDecls() {
-        testNamespaceDecls(XmlStreaming::newGenericReader)
+        testNamespaceDecls(::createReader)
     }
 
     @Test
     fun testReadCompactFragment() {
-        testReadCompactFragment(XmlStreaming::newGenericReader)
+        testReadCompactFragment(::createReader)
     }
 
     @Test
     fun testReadSingleTag() {
-        testReadSingleTag(XmlStreaming::newGenericReader)
+        testReadSingleTag(::createReader)
     }
 
     @Test
     fun testGenericReadEntity() {
-        testReadEntity(XmlStreaming::newGenericReader)
+        testReadEntity(::createReader)
     }
 
     @Test
     fun testReadUnknownEntity() {
-        testReadUnknownEntity(XmlStreaming::newGenericReader)
+        testReadUnknownEntity(::createReader)
     }
 
     @Test
     fun testIgnorableWhitespace() {
-        testIgnorableWhitespace(XmlStreaming::newGenericReader)
+        testIgnorableWhitespace(::createReader)
     }
 
     @Test
     fun testReaderWithBOM() {
-        testReaderWithBOM(XmlStreaming::newGenericReader)
+        testReaderWithBOM(::createReader)
     }
 
     @Test
     fun testProcessingInstruction() {
-        testProcessingInstruction(XmlStreaming::newGenericReader) { KtXmlWriter(StringWriter()) }
+        testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter()) }
     }
 
     @Test
     fun testProcessingInstructionDom() {
         val domWriter = DomWriter()
-        testProcessingInstruction(XmlStreaming::newGenericReader) { domWriter }
+        testProcessingInstruction(::createReader) { domWriter }
 
         val expectedXml = """
                 <?xpacket begin='' id='from_166'?>
                 <a:root xmlns:a="foo" a:b="42">bar</a:root>
                 <?xpacket end='w'?>
             """
-        val expected = XmlStreaming.newReader(expectedXml)
+        val expected = xmlStreaming.newReader(expectedXml)
         assertXmlEquals(expected, DomReader(domWriter.target))
 
         val fromDom = StringWriter()

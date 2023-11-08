@@ -31,7 +31,7 @@ import java.io.*
 @Throws(XmlException::class)
 fun XmlSerializable.toReader(): Reader {
     val buffer = CharArrayWriter()
-    XmlStreaming.newWriter(buffer).use {
+    xmlStreaming.newWriter(buffer).use {
         serialize(it)
 
     }
@@ -43,12 +43,12 @@ fun XmlSerializable.toReader(): Reader {
  */
 @Throws(XmlException::class)
 fun XmlSerializable.serialize(writer: Writer) {
-    XmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
+    xmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
 }
 
 fun XmlSerializable.toString(flags: Int): String {
     return StringWriter().apply {
-        XmlStreaming.newWriter(
+        xmlStreaming.newWriter(
             this,
             flags.and(FLAG_REPAIR_NS) == FLAG_REPAIR_NS,
             if (flags.and(FLAG_OMIT_XMLDECL) == FLAG_OMIT_XMLDECL) XmlDeclMode.None else XmlDeclMode.Auto

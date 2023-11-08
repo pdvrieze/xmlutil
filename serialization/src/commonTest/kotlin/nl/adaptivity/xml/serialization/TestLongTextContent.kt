@@ -22,10 +22,11 @@ package nl.adaptivity.xml.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.newGenericWriter
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -44,7 +45,7 @@ class TestLongTextContent {
         val data = "xy".repeat(6000)
 
         val serialized = buildString {
-            val writer = XmlStreaming.newGenericWriter(this)
+            val writer = xmlStreaming.newGenericWriter(this)
             XML.encodeToWriter(writer, AttributeTextContainer.serializer(), AttributeTextContainer(data))
         }
 
@@ -63,7 +64,7 @@ class TestLongTextContent {
     fun testDeserializeLongTextToAttributeCrossPlatform() {
         val data = "xy".repeat(6000)
 
-        val reader = XmlStreaming.newGenericReader("<tag data=\"$data\" />")
+        val reader = xmlStreaming.newGenericReader("<tag data=\"$data\" />")
         val obj = XML.decodeFromReader(AttributeTextContainer.serializer(), reader)
 
         assertEquals(AttributeTextContainer(data), obj)
@@ -82,7 +83,7 @@ class TestLongTextContent {
         val data = "xy".repeat(6000)
 
         val serialized = buildString {
-            val writer = XmlStreaming.newGenericWriter(this)
+            val writer = xmlStreaming.newGenericWriter(this)
             XML.encodeToWriter(writer, ContentTextContainer.serializer(), ContentTextContainer(data))
         }
 
@@ -101,7 +102,7 @@ class TestLongTextContent {
     fun testDeserializeLongTextToContentCrossPlatform() {
         val data = "xy".repeat(6000)
 
-        val reader = XmlStreaming.newGenericReader("<tag>$data</tag>")
+        val reader = xmlStreaming.newGenericReader("<tag>$data</tag>")
         val obj = XML.decodeFromReader(ContentTextContainer.serializer(), reader)
 
         assertEquals(ContentTextContainer(data), obj)

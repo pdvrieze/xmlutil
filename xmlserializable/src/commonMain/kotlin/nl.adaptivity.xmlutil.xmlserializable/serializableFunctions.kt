@@ -30,6 +30,7 @@ expect fun CompactFragment(content: XmlSerializable): CompactFragment
 
 expect fun IXmlStreaming.toString(value: XmlSerializable): String
 
+@Suppress("DEPRECATION")
 @Deprecated("Use IXmlStreaming.toString", level = DeprecationLevel.HIDDEN)
 fun XmlStreaming.toString(value: XmlSerializable): String = (this as IXmlStreaming).toString(value)
 

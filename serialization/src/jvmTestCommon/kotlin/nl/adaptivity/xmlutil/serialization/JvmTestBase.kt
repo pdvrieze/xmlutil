@@ -23,9 +23,8 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.DomReader
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3c.dom.Document
 import org.xml.sax.InputSource

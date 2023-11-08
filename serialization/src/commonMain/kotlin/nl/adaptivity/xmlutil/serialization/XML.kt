@@ -112,7 +112,7 @@ public class XML constructor(
      */
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String?): String {
         val stringWriter = StringWriter()
-        XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
+        xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
             encodeToWriter(xmlWriter, serializer, value, prefix)
         }
         return stringWriter.toString()
@@ -127,7 +127,7 @@ public class XML constructor(
      */
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String {
         val stringWriter = StringWriter()
-        XmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
+        xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
             encodeToWriter(xmlWriter, serializer, value, rootName)
         }
         return stringWriter.toString()
@@ -354,7 +354,7 @@ public class XML constructor(
      * @param string The string input
      */
     override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String): T {
-        return decodeFromReader(deserializer, XmlStreaming.newReader(string))
+        return decodeFromReader(deserializer, xmlStreaming.newReader(string))
     }
 
     /**
@@ -365,7 +365,7 @@ public class XML constructor(
      * @param string The string input
      */
     public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String, rootName: QName?): T {
-        return decodeFromReader(deserializer, XmlStreaming.newReader(string), rootName)
+        return decodeFromReader(deserializer, xmlStreaming.newReader(string), rootName)
     }
 
     /**

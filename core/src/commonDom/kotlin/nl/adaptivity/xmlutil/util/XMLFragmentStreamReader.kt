@@ -110,7 +110,7 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
             }
 
             val actualInput = CombiningReader(StringReader(wrapper), reader, StringReader("</$WRAPPERPPREFIX:wrapper>"))
-            return XmlStreaming.newGenericReader(actualInput)
+            return xmlStreaming.newGenericReader(actualInput)
         }
 
         public fun from(reader: Reader, namespaceContext: Iterable<Namespace>): XMLFragmentStreamReader {

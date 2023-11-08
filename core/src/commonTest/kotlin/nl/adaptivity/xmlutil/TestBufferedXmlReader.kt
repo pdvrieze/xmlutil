@@ -29,7 +29,7 @@ import kotlin.test.Test
 class TestBufferedXmlReader : TestCommonReader() {
 
     fun createReader(xml: String) : XmlReader {
-        return XmlBufferedReader(XmlStreaming.newReader(xml))
+        return XmlBufferedReader(xmlStreaming.newReader(xml))
     }
 
     @Test
