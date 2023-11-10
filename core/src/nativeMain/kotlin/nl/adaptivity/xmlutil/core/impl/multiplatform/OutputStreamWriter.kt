@@ -24,6 +24,7 @@ import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
 import platform.posix.FILE
 import platform.posix.size_t
+import platform.posix.uint64_t
 
 public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), Closeable {
 
@@ -43,7 +44,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
             val buffer = allocArray<UByteVar>(4)
 
             val byteCount: size_t = addCodepointToBuffer(buffer, codepoint)
-            if (outStream.writePtr(buffer, byteCount) != byteCount) error("Failure to write full character")
+            if (outStream.writePtr(buffer, MPSizeT(byteCount.convert<uint64_t>())).sizeT != byteCount) error("Failure to write full character")
         }
         return this
     }
