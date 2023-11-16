@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.*
 public class CombiningNamespaceContext(
     public val primary: IterableNamespaceContext,
     public val secondary: IterableNamespaceContext
-) : IterableNamespaceContext, NamespaceContextImpl {
+) : IterableNamespaceContext, NamespaceContext {
 
     override fun getNamespaceURI(prefix: String): String? {
         val namespaceURI = primary.getNamespaceURI(prefix)
@@ -75,13 +75,9 @@ public class CombiningNamespaceContext(
         return (primary.asSequence() + secondary.asSequence()).iterator()
     }
 
-    @Deprecated(
-        "Don't use as unsafe",
-        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
-    )
-    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
-        val prefixes1 = primary.prefixesFor(namespaceURI)
-        val prefixes2 = secondary.prefixesFor(namespaceURI)
+    override fun getPrefixes(namespaceURI: String): Iterator<String> {
+        val prefixes1 = primary.getPrefixes(namespaceURI)
+        val prefixes2 = secondary.getPrefixes(namespaceURI)
         val prefixes = hashSetOf<String>()
         while (prefixes1.hasNext()) {
             prefixes.add(prefixes1.next())

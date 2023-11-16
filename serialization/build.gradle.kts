@@ -22,10 +22,8 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.*
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
@@ -49,44 +47,56 @@ val autoModuleName = "net.devrieze.xmlutil.serialization"
 
 
 kotlin {
+    applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
-    targets {
-        jvm {
-            compilations.all {
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
+
+    jvm {
+        compilations.all {
+            tasks.named<Jar>("jvmJar") {
+                manifest {
+                    attributes("Automatic-Module-Name" to autoModuleName)
                 }
             }
-
-            val woodstoxCompilation = compilations.register("woodstoxTest") {
-                // This needs to be specified explicitly in 1.9.20
-                compilerOptions.options.moduleName = "woodstoxTest"
-            }
-            val woodstoxTestRun = testRuns.create("woodstoxTest") {
-                setExecutionSourceFrom(
-                    listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
-                    listOf(woodstoxCompilation.get())
-                )
-            }
-
         }
+
+        val woodstoxCompilation = compilations.register("woodstoxTest") {
+            // This needs to be specified explicitly in 1.9.20
+            compilerOptions.options.moduleName = "woodstoxTest"
+            defaultSourceSet { }
+        }
+        val woodstoxTestRun = testRuns.register("woodstoxTest") {
+            setExecutionSourceFrom(
+                listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
+                listOf(woodstoxCompilation.get())
+            )
+        }
+
+    }
 //        androidTarget("actualAndroid")
 
-        jvm("android")
-        js {
-            browser()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
+    jvm("android")
+    js {
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
+            }
+        }
+    }
+    wasmJs {
+        moduleName="core-wasm"
+        nodejs()
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                verbose = true
             }
         }
     }
@@ -126,32 +136,18 @@ kotlin {
             }
         }
 
-        val inlineSupportTest by creating {
-            dependsOn(commonMain)
-            dependsOn(commonTest)
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
+//        val inlineSupportTest by creating {
+//            dependsOn(commonMain)
+//            dependsOn(commonTest)
+//            dependencies {
+//                implementation(kotlin("test-common"))
+//                implementation(kotlin("test-annotations-common"))
+//            }
+//        }
 
-        val javaShared by creating {
-            dependsOn(commonMain)
-        }
-
-        val javaSharedTest by creating {
-            dependsOn(inlineSupportTest)
-            dependsOn(javaShared)
-            dependsOn(commonTest)
-        }
-
-        val jvmMain by getting {
-            dependsOn(javaShared)
-        }
-
-        val jvmTestCommon by creating {
-            dependsOn(javaSharedTest)
-            dependsOn(jvmMain)
+/*
+        val jvmCommonTest by creating {
+//            dependsOn(javaSharedTest)
 
             dependencies {
 //                implementation(kotlin("test-junit5"))
@@ -161,15 +157,19 @@ kotlin {
                 implementation(libs.kotlin.reflect)
             }
         }
+*/
 
         val jvmTest by getting {
-            dependsOn(jvmTestCommon)
+//            dependsOn(jvmTestCommon)
             dependencies {
                 implementation(kotlin("test-junit5"))
             }
         }
+        val commonJvmTest by getting {}
+        val commonJvmMain by getting {}
         val jvmWoodstoxTest by getting {
-            dependsOn(jvmTestCommon)
+            dependsOn(commonJvmTest)
+            dependsOn(commonJvmMain)
             dependencies {
                 implementation(kotlin("test-junit5"))
                 runtimeOnly(libs.junit5.engine)
@@ -178,8 +178,6 @@ kotlin {
         }
 
         val androidMain by getting {
-            dependsOn(javaShared)
-
             dependencies {
                 compileOnly(libs.kxml2)
                 api(project(":core")) {
@@ -189,9 +187,6 @@ kotlin {
         }
 
         val androidTest by getting {
-            dependsOn(javaSharedTest)
-            dependsOn(androidMain)
-
             dependencies {
                 implementation(kotlin("test-junit5"))
                 runtimeOnly(libs.kxml2)
@@ -230,8 +225,8 @@ kotlin {
                     implementation(kotlin("test-annotations-common"))
                 }
 
-                dependsOn(this@sourceSets.get("nativeMain"))
-                dependsOn(inlineSupportTest)
+//                dependsOn(this@sourceSets.get("nativeMain"))
+//                dependsOn(inlineSupportTest)
             }
             languageSettings.apply {
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")

@@ -46,9 +46,6 @@ import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 @ExperimentalXmlUtilApi
-public expect fun getPlatformDefaultModule(): SerializersModule
-
-@ExperimentalXmlUtilApi
 private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(CompactFragment::class, CompactFragmentSerializer)
     contextual(QName::class, QNameSerializer)

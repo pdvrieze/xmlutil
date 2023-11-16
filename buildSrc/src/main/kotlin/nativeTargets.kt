@@ -26,13 +26,15 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
+import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
+import org.jetbrains.kotlin.gradle.kpm.external.project
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
+import java.util.*
 
 enum class Host {
     Windows,
@@ -44,13 +46,78 @@ enum class NativeState {
     ALL, HOST, SINGLE, DISABLED
 }
 
-private fun NamedDomainObjectCollection<KotlinTargetPreset<*>>.nativePreset(name: String): AbstractKotlinNativeTargetPreset<*> {
-    return getByName<AbstractKotlinNativeTargetPreset<*>>(name)
+private typealias TargetFun = KotlinMultiplatformExtension.() -> Unit
+
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
+fun KotlinMultiplatformExtension.applyDefaultXmlUtilHierarchyTemplate() {
+    applyHierarchyTemplate(defaultXmlUtilHierarchyTemplate)
+
+}
+
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
+private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
+    withSourceSetTree(KotlinSourceSetTree.main, KotlinSourceSetTree.test)
+
+    common {
+        withCompilations { c -> c.target.platformType !in arrayOf(KotlinPlatformType.jvm, KotlinPlatformType.wasm) }
+
+        group("javaShared") {
+            withCompilations { c ->
+                c.target.platformType == KotlinPlatformType.jvm && "jvm" !in c.target.name
+            }
+
+            group("commonJvm") {
+                withCompilations { c ->
+                    c.target.platformType == KotlinPlatformType.jvm && "jvm" in c.target.name
+                }
+            }
+        }
+
+        group("commonDom") {
+
+            withWasm()
+
+            group("native") {
+                group("apple") {
+                    withApple()
+
+                    group("ios") {
+                        withIos()
+                    }
+
+                    group("tvos") {
+                        withTvos()
+                    }
+
+                    group("watchos") {
+                        withWatchos()
+                    }
+
+                    group("macos") {
+                        withMacos()
+                    }
+                }
+
+                group("linux") {
+                    withLinux()
+                }
+
+                group("mingw") {
+                    withMingw()
+                }
+
+                group("androidNative") {
+                    withAndroidNative()
+                }
+
+            }
+        }
+    }
 }
 
 fun Project.addNativeTargets() {
     val ideaActive = System.getProperty("idea.active") == "true"
-    val nativeState = when(property("native.deploy")?.toString()?.toLowerCase()) {
+    val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {
         "all", "true" -> NativeState.ALL
         "host" -> NativeState.HOST
         "disabled" -> NativeState.DISABLED
@@ -62,8 +129,6 @@ fun Project.addNativeTargets() {
     val manager = HostManager()//ext["hostManager"] as HostManager
     val kotlin = extensions.getByName<KotlinMultiplatformExtension>("kotlin")
 
-    val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>> = kotlin.presets
-
     val hostTarget = manager.targetByName("host")
 
     val host = when {
@@ -73,9 +138,9 @@ fun Project.addNativeTargets() {
     }
 
     ext["ideaPreset"] = when (host) {
-        Host.Windows -> presets.nativePreset("mingwX64")
-        Host.Macos -> presets.nativePreset("macosX64")
-        Host.Linux -> presets.nativePreset("linuxX64")
+        Host.Windows -> fun KotlinMultiplatformExtension.() { mingwX64() }// presets.nativePreset("mingwX64")
+        Host.Macos -> fun KotlinMultiplatformExtension.() { macosX64() }//presets.nativePreset("macosX64")
+        Host.Linux -> fun KotlinMultiplatformExtension.() { linuxX64() } //presets.nativePreset("linuxX64")
     }
 
     val nativeMainSets = mutableListOf<KotlinSourceSet>()
@@ -86,18 +151,13 @@ fun Project.addNativeTargets() {
         nativeTestSets.add(compilations.getByName("test").kotlinSourceSets.first())
     }
 
-    fun addTarget(targetName: String) {
-        kotlin.targetFromPreset(presets.getByName<AbstractKotlinNativeTargetPreset<*>>(targetName)) {
-            addSourceSets()
-        }
-    }
-
     if (nativeState != NativeState.DISABLED) {
         with(kotlin) {
-            targets {
-                if (singleTargetMode) {
-                    kotlin.targetFromPreset(ext["ideaPreset"] as AbstractKotlinNativeTargetPreset<*>, "native")
-                } else {
+            if (singleTargetMode) {
+                @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
+                targetFun()
+            } else {
+                if(true) {
                     if (nativeState != NativeState.HOST || host == Host.Linux) {
                         linuxX64 { addSourceSets() }
                         linuxArm32Hfp { addSourceSets() }
@@ -128,11 +188,12 @@ fun Project.addNativeTargets() {
             }
 
             sourceSets {
+/*
                 val commonMain = getByName("commonMain")
                 val commonTest = getByName("commonTest")
                 if (singleTargetMode) {
-                    getByName("nativeMain") { dependsOn(commonMain) }
-                    getByName("nativeTest") { dependsOn(commonTest) }
+//                    getByName("nativeMain") { dependsOn(commonMain) }
+//                    getByName("nativeTest") { dependsOn(commonTest) }
                 } else {
                     val nativeMain = maybeCreate("nativeMain").apply { dependsOn(commonMain) }
                     val nativeTest = maybeCreate("nativeTest").apply { dependsOn(commonTest) }
@@ -140,6 +201,7 @@ fun Project.addNativeTargets() {
                     configure(nativeMainSets) { dependsOn(nativeMain) }
                     configure(nativeTestSets) { dependsOn(nativeTest) }
                 }
+*/
             }
         }
 
@@ -153,4 +215,4 @@ private fun KotlinMultiplatformExtension.targets(configure: Action<Any>): Unit =
 private fun KotlinMultiplatformExtension.sourceSets(configure: Action<org.gradle.api.NamedDomainObjectContainer<KotlinSourceSet>>): Unit =
     (this as ExtensionAware).extensions.configure("sourceSets", configure)
 
-val Project.isWasmSupported: Boolean get() = extraProperties.get("xmlutil.wasmEnabled")?.toString()?.toLowerCase() == "true"
+val Project.isWasmSupported: Boolean get() = true

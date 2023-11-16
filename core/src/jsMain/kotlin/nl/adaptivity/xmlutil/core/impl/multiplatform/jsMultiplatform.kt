@@ -170,8 +170,8 @@ public actual abstract class OutputStream : Closeable {
         val endIdx = off + len
         require(off in 0 until b.size) { "Offset before start of array" }
         require(endIdx <= b.size) { "Range size beyond buffer size" }
-        for (b in off until endIdx) {
-            write(b)
+        for (idx in off until endIdx) {
+            write(b[idx].toInt())
         }
     }
 

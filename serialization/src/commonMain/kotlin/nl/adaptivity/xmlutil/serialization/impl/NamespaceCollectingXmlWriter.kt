@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.serialization.impl
 
 import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.NamespaceContextImpl
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlWriter
 
@@ -80,7 +79,7 @@ internal class NamespaceCollectingXmlWriter(
     }
 
     override val namespaceContext: NamespaceContext
-        get() = object : NamespaceContextImpl {
+        get() = object : NamespaceContext {
             override fun getPrefix(namespaceURI: String): String? =
                 this@NamespaceCollectingXmlWriter.getPrefix(namespaceURI)
 
@@ -88,7 +87,7 @@ internal class NamespaceCollectingXmlWriter(
                 return getNamespaceUri(prefix)
             }
 
-            override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
+            override fun getPrefixes(namespaceURI: String): Iterator<String> {
                 return listOfNotNull(getPrefix(namespaceURI)).iterator()
             }
         }

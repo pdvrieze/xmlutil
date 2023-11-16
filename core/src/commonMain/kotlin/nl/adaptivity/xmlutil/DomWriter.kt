@@ -77,7 +77,7 @@ public class DomWriter constructor(
         currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
 
     @Suppress("OverridingDeprecatedMember")
-    override val namespaceContext: NamespaceContext = object : NamespaceContextImpl {
+    override val namespaceContext: NamespaceContext = object : NamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
             return currentNode?.lookupNamespaceURI(prefix)
         }
@@ -93,13 +93,13 @@ public class DomWriter constructor(
         ) {
             attributes.forEachAttr { attr ->
                 val prefix = when {
-                    attr.prefix == "xmlns" -> attr.localName
-                    attr.prefix.isNullOrEmpty() && attr.localName == "xmlns" -> ""
+                    attr.getPrefix() == "xmlns" -> attr.getLocalName()
+                    attr.getPrefix().isNullOrEmpty() && attr.getLocalName() == "xmlns" -> ""
                     else -> null
                 }
                 if (prefix != null) {
                     if (prefix in redeclared) {
-                        if (attr.value == namespaceUri) result.add(prefix)
+                        if (attr.getValue() == namespaceUri) result.add(prefix)
                         redeclared.add(prefix)
                     }
                 }
@@ -111,7 +111,7 @@ public class DomWriter constructor(
             "Don't use as unsafe",
             replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
         )
-        override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
+        override fun getPrefixes(namespaceURI: String): Iterator<String> {
             return buildSet<String> {
                 (currentNode as Element?)?.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
             }.toList().iterator()

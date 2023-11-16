@@ -118,7 +118,6 @@ public abstract interface class nl/adaptivity/xmlutil/IterableNamespaceContext :
 
 public final class nl/adaptivity/xmlutil/IterableNamespaceContext$DefaultImpls {
 	public static fun freeze (Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
-	public static fun getPrefixes (Lnl/adaptivity/xmlutil/IterableNamespaceContext;Ljava/lang/String;)Ljava/util/Iterator;
 	public static fun plus (Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 }
 
@@ -144,12 +143,6 @@ public final class nl/adaptivity/xmlutil/Namespace$DefaultImpls {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/NamespaceContextImpl : javax/xml/namespace/NamespaceContext {
-	public abstract fun getPrefixes (Ljava/lang/String;)Ljava/util/Iterator;
-	public abstract fun getPrefixesCompat (Ljava/lang/String;)Ljava/util/Iterator;
-}
-
-public final class nl/adaptivity/xmlutil/NamespaceContextImpl$DefaultImpls {
-	public static fun getPrefixes (Lnl/adaptivity/xmlutil/NamespaceContextImpl;Ljava/lang/String;)Ljava/util/Iterator;
 }
 
 public final class nl/adaptivity/xmlutil/NamespaceKt {
@@ -1004,6 +997,16 @@ public final class nl/adaptivity/xmlutil/dom/DocumentKt {
 	public static final fun importNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 }
 
+public final class nl/adaptivity/xmlutil/dom/Document_jvmKt {
+	public static final fun createCDATASection (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/CDATASection;
+	public static final fun createComment (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Comment;
+	public static final fun createDocumentFragment (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentFragment;
+	public static final fun createElement (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Element;
+	public static final fun createElementNS (Lorg/w3c/dom/Document;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Element;
+	public static final fun createProcessingInstruction (Lorg/w3c/dom/Document;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/ProcessingInstruction;
+	public static final fun createTextNode (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Text;
+}
+
 public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
 	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
 	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
@@ -1141,7 +1144,7 @@ public final class nl/adaptivity/xmlutil/util/DomutilKt {
 	public static final synthetic fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
-public final class nl/adaptivity/xmlutil/util/GatheringNamespaceContext : nl/adaptivity/xmlutil/NamespaceContextImpl {
+public final class nl/adaptivity/xmlutil/util/GatheringNamespaceContext : javax/xml/namespace/NamespaceContext {
 	public fun <init> (Ljavax/xml/namespace/NamespaceContext;Ljava/util/Map;)V
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
 	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;

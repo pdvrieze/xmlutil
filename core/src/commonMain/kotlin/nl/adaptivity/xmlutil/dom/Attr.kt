@@ -18,8 +18,6 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-
 package nl.adaptivity.xmlutil.dom
 
 public expect interface Attr : Node

@@ -31,12 +31,12 @@ public class DomReader(public val delegate: Node) : XmlReader {
     private var current: Node? = null
 
     override val namespaceURI: String
-        get() = currentElement?.run { namespaceURI ?: "" }
+        get() = currentElement?.run { getNamespaceURI() ?: "" }
             ?: throw XmlException("Only elements have a namespace uri")
 
     override val localName: String
         // allow localName to be null for non-namespace aware nodes
-        get() = currentElement?.let { it.localName ?: it.tagName }
+        get() = currentElement?.let { it.getLocalName() ?: it.tagName }
             ?: throw XmlException("Only elements have a local name")
 
     override val prefix: String
@@ -92,9 +92,10 @@ public class DomReader(public val delegate: Node) : XmlReader {
         get() {
             return _namespaceAttrs ?: (
                     requireCurrentElem.attributes.filterTyped {
-                        (it.namespaceURI == null || it.namespaceURI== XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
-                        (it.prefix == "xmlns" || (it.prefix.isNullOrEmpty() && it.localName == "xmlns")) &&
-                                it.value!=XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+                        (it.getNamespaceURI() == null || it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
+                                (it.getPrefix() == "xmlns" || (it.getPrefix()
+                                    .isNullOrEmpty() && it.getLocalName() == "xmlns")) &&
+                                it.getValue() != XMLConstants.XMLNS_ATTRIBUTE_NS_URI
                     }.also {
                         _namespaceAttrs = it
                     })
@@ -150,11 +151,11 @@ public class DomReader(public val delegate: Node) : XmlReader {
                     while (c != null) {
                         c.attributes.forEachAttr { attr ->
                             when {
-                                attr.prefix == "xmlns" ->
-                                    yield(XmlEvent.NamespaceImpl(attr.localName ?: attr.name, attr.value))
+                                attr.getPrefix() == "xmlns" ->
+                                    yield(XmlEvent.NamespaceImpl(attr.getLocalName() ?: attr.getName(), attr.getValue()))
 
-                                attr.prefix.isNullOrEmpty() && attr.localName == "xmlns" ->
-                                    yield(XmlEvent.NamespaceImpl("", attr.value))
+                                attr.getPrefix().isNullOrEmpty() && attr.getLocalName() == "xmlns" ->
+                                    yield(XmlEvent.NamespaceImpl("", attr.getValue()))
                             }
                         }
                         c = c.parentElement
@@ -162,11 +163,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
                 }.iterator()
             }
 
-            @Deprecated(
-                "Don't use as unsafe",
-                replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
-            )
-            override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
+            override fun getPrefixes(namespaceURI: String): Iterator<String> {
                 // TODO return all possible ones by doing so recursively
                 return listOfNotNull(getPrefix(namespaceURI)).iterator()
             }
@@ -176,11 +173,11 @@ public class DomReader(public val delegate: Node) : XmlReader {
         get() {
             return namespaceAttrs.map { attr ->
                 when {
-                    attr.prefix == "xmlns" ->
-                        XmlEvent.NamespaceImpl(attr.localName!!, attr.value)
+                    attr.getPrefix() == "xmlns" ->
+                        XmlEvent.NamespaceImpl(attr.getLocalName()!!, attr.getValue())
 
                     else ->
-                        XmlEvent.NamespaceImpl("", attr.value)
+                        XmlEvent.NamespaceImpl("", attr.getValue())
                 }
             }
         }
@@ -253,22 +250,22 @@ public class DomReader(public val delegate: Node) : XmlReader {
 
     override fun getAttributeNamespace(index: Int): String {
         val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
-        return attr.namespaceURI ?: ""
+        return attr.getNamespaceURI() ?: ""
     }
 
     override fun getAttributePrefix(index: Int): String {
         val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
-        return attr.prefix ?: ""
+        return attr.getPrefix() ?: ""
     }
 
     override fun getAttributeLocalName(index: Int): String {
         val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
-        return attr.localName ?: attr.name
+        return attr.getLocalName() ?: attr.getName()
     }
 
     override fun getAttributeValue(index: Int): String {
         val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
-        return attr.value
+        return attr.getValue()
     }
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {

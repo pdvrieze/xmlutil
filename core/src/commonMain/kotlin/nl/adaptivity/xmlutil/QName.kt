@@ -55,7 +55,6 @@ public fun QName.toNamespace(): Namespace {
 public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
 @OptIn(ExperimentalSerializationApi::class)
-@Serializer(forClass = QName::class)
 public object QNameSerializer : KSerializer<QName> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
         val stringSerializer = String.serializer()

@@ -20,11 +20,9 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.NamespaceContextImpl
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
-import nl.adaptivity.xmlutil.prefixesFor
 
 
 /**
@@ -34,7 +32,7 @@ import nl.adaptivity.xmlutil.prefixesFor
 public class GatheringNamespaceContext(
     private val parentContext: NamespaceContext?,
     private val resultMap: MutableMap<String, String>
-) : NamespaceContextImpl {
+) : NamespaceContext {
 
     override fun getNamespaceURI(prefix: String): String? {
         return parentContext?.getNamespaceURI(prefix)?.apply {
@@ -52,21 +50,21 @@ public class GatheringNamespaceContext(
         }
     }
 
-    @Deprecated(
-        "Don't use as unsafe",
-        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
-    )
-    override fun getPrefixesCompat(namespaceURI: String): Iterator<String> {
+    override fun getPrefixes(namespaceURI: String): Iterator<String> {
         if (parentContext == null) {
             return emptyList<String>().iterator()
         }
         if (namespaceURI != XMLNS_ATTRIBUTE_NS_URI && namespaceURI != XML_NS_URI) {
 
-            val it = parentContext.prefixesFor(namespaceURI)
+            val it = parentContext.getPrefixes(namespaceURI)
             while (it.hasNext()) {
                 resultMap[it.next()] = namespaceURI
             }
         }
-        return parentContext.prefixesFor(namespaceURI)
+        return parentContext.getPrefixes(namespaceURI)
     }
+
+    @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS")
+    @Deprecated("Just for compatibility", ReplaceWith("getPrefixes(namespaceURI"), DeprecationLevel.ERROR)
+    public open fun getPrefixesCompat(namespaceURI: String): Iterator<String> = getPrefixes(namespaceURI)
 }

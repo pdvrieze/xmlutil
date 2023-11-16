@@ -730,7 +730,7 @@ internal open class XmlEncoderBase internal constructor(
             qName.namespaceURI == "" -> return qName.copy(prefix = "")
 
             qName.prefix == "" -> { // the namespace is set
-                val effectivePrefix = target.namespaceContext.prefixesFor(qName.namespaceURI).asSequence()
+                val effectivePrefix = target.namespaceContext.getPrefixes(qName.namespaceURI).asSequence()
                     .firstOrNull { it.isNotEmpty() }
                     ?: namespaceContext.nextAutoPrefix().also {
                         target.namespaceAttr(it, qName.namespaceURI)
@@ -744,7 +744,9 @@ internal open class XmlEncoderBase internal constructor(
         // If things match, or no namespace, no need to do anything
         if (registeredNamespace == qName.namespaceURI) return qName
 
-        val registeredPrefix =  target.namespaceContext.prefixesFor(qName.namespaceURI).asSequence().filterNot { isAttr && it.isEmpty() }.firstOrNull()
+        val registeredPrefix =
+            target.namespaceContext.getPrefixes(qName.namespaceURI).asSequence().filterNot { isAttr && it.isEmpty() }
+                .firstOrNull()
 
         return when { // Attributes with empty prefix are always in the default namespace, so if they are to be otherwise
 

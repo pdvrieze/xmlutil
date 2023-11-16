@@ -40,101 +40,101 @@ base {
     version = xmlutil_core_version
 }
 
-val woodstoxVersion: String by project
-val kxml2Version: String by project
-
-val argJvmDefault: String by project
-
 val autoModuleName = "net.devrieze.xmlutil.core"
 
 kotlin {
     explicitApi()
+    applyDefaultXmlUtilHierarchyTemplate()
 
-    targets {
-        val testTask = tasks.create("test") {
-            group = "verification"
+    val testTask = tasks.create("test") {
+        group = "verification"
+    }
+    val cleanTestTask = tasks.create("cleanTest") {
+        group = "verification"
+    }
+
+    jvm {
+        attributes {
+            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
         }
-        val cleanTestTask = tasks.create("cleanTest") {
-            group = "verification"
+        compilations.all {
+            tasks.named<Test>("${target.name}Test") {
+                testTask.dependsOn(this)
+            }
+            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
+            tasks.named<Jar>("jvmJar") {
+                manifest {
+                    attributes("Automatic-Module-Name" to autoModuleName)
+                }
+            }
+        }
+        tasks.withType<Jar>().named(artifactsTaskName) {
+            from(project.file("src/jvmMain/proguard.pro")) {
+                rename { "xmlutil-proguard.pro" }
+                into("META-INF/proguard")
+            }
         }
 
-        jvm {
-            attributes {
-                attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
+    }
+    jvm("android") {
+        attributes {
+            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
+        }
+        compilations.all {
+            tasks.named<Test>("${target.name}Test") {
+                testTask.dependsOn(this)
             }
-            compilations.all {
-                tasks.named<Test>("${target.name}Test") {
-                    testTask.dependsOn(this)
-                }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
-                }
-            }
-            tasks.withType<Jar>().named(artifactsTaskName) {
-                from(project.file("src/jvmMain/proguard.pro")) {
-                    rename { "xmlutil-proguard.pro" }
-                    into("META-INF/proguard")
-                }
-            }
+            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
+        }
 
-        }
-        jvm("android") {
-            compilations.all {
-                tasks.named<Test>("${target.name}Test") {
-                    testTask.dependsOn(this)
-                }
-                cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+        tasks.withType<Jar>().named(artifactsTaskName) {
+            from(project.file("src/r8-workaround.pro")) {
+                rename { "xmlutil-r8-workaround.pro" }
+                into("META-INF/com.android.tools/r8")
             }
-
-            tasks.withType<Jar>().named(artifactsTaskName) {
-                from(project.file("src/r8-workaround.pro")) {
-                    rename { "xmlutil-r8-workaround.pro" }
-                    into("META-INF/com.android.tools/r8")
-                }
-                from(project.file("src/androidMain/proguard.pro")) {
-                    rename { "xmlutil-proguard.pro" }
-                    into("META-INF/com.android.tools/r8")
-                }
-                from(project.file("src/androidMain/proguard.pro")) {
-                    rename { "xmlutil-proguard.pro" }
-                    into("META-INF/com.android.tools/proguard")
-                }
+            from(project.file("src/androidMain/proguard.pro")) {
+                rename { "xmlutil-proguard.pro" }
+                into("META-INF/com.android.tools/r8")
+            }
+            from(project.file("src/androidMain/proguard.pro")) {
+                rename { "xmlutil-proguard.pro" }
+                into("META-INF/com.android.tools/proguard")
             }
         }
-        js {
-            browser()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
+    }
+    js {
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
             }
         }
-        if (isWasmSupported) {
-            wasm {
-                nodejs()
-                browser()
-                compilations.all {
-                    kotlinOptions {
-                        sourceMap = true
-                        verbose = true
-                    }
-                }
+    }
+    @Suppress("OPT_IN_USAGE")
+    wasmJs {
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                verbose = true
             }
         }
     }
 
-    targets.forEach { target ->
-        target.mavenPublication {
+    targets.all {
+        mavenPublication {
             version = xmlutil_core_version
+        }
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs = freeCompilerArgs + "-Xexpect-actual-classes"
+            }
         }
     }
 
@@ -143,10 +143,6 @@ kotlin {
             dependencies {
                 implementation(libs.serialization.core)
             }
-        }
-
-        val commonDom by creating {
-            dependsOn(commonMain)
         }
 
         val commonTest by getting {
@@ -158,12 +154,7 @@ kotlin {
             }
         }
 
-        val javaShared by creating {
-            dependsOn(commonMain)
-        }
-
         val jvmMain by getting {
-            dependsOn(javaShared)
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
             }
@@ -171,7 +162,6 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
-                dependsOn(commonTest)
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
@@ -181,8 +171,6 @@ kotlin {
         }
 
         val androidMain by getting {
-            dependsOn(javaShared)
-
             dependencies {
                 compileOnly(libs.kxml2)
             }
@@ -190,8 +178,6 @@ kotlin {
 
         val androidTest by getting {
             dependencies {
-                dependsOn(commonTest)
-
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
@@ -200,30 +186,9 @@ kotlin {
             }
         }
 
-        val jsMain by getting {
-        }
-
         val jsTest by getting {
-            dependsOn(commonTest)
             dependencies {
                 implementation(kotlin("test-js"))
-            }
-        }
-
-        val nativeMain by creating {
-            dependsOn(commonDom)
-        }
-
-        val nativeTest by creating {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-        if (isWasmSupported) {
-            val wasmMain by getting {
-                dependsOn(commonDom)
-                dependencies {
-                }
             }
         }
     }

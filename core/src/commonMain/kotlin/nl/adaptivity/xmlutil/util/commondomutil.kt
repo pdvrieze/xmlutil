@@ -78,15 +78,15 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? {
 private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: MutableSet<String>): String? {
     this.attributes?.forEachAttr { attr ->
         when {
-            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE ->
-                if (attr.value == namespaceUri && attr.localName !in seenPrefixes) {
-                    return attr.localName
+            attr.getPrefix() == XMLConstants.XMLNS_ATTRIBUTE ->
+                if (attr.getValue() == namespaceUri && attr.getLocalName() !in seenPrefixes) {
+                    return attr.getLocalName()
                 } else {
-                    seenPrefixes.add(attr.localName ?: attr.name)
+                    seenPrefixes.add(attr.getLocalName() ?: attr.getName())
                 }
 
-            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE ->
-                if (attr.value == namespaceUri && attr.localName !in seenPrefixes) {
+            attr.getPrefix().isNullOrBlank() && attr.getLocalName() == XMLConstants.XMLNS_ATTRIBUTE ->
+                if (attr.getValue() == namespaceUri && attr.getLocalName() !in seenPrefixes) {
                     return ""
                 } else {
                     seenPrefixes.add("")
@@ -100,8 +100,8 @@ internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
     nodeType!=NodeConsts.ELEMENT_NODE -> null
     else -> {
         (this as Element).attributes.filterTyped {
-            (prefix == "" && it.localName == "xmlns") ||
-                    (it.prefix == "xmlns" && it.localName == prefix)
-        }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
+            (prefix == "" && it.getLocalName() == "xmlns") ||
+                    (it.getPrefix() == "xmlns" && it.getLocalName() == prefix)
+        }.firstOrNull()?.getValue() ?: parentNode?.myLookupNamespaceURI(prefix)
     }
 }

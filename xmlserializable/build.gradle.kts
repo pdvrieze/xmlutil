@@ -57,40 +57,38 @@ val cleanTestTask = tasks.create("cleanTest") {
 }
 
 kotlin {
-    targets {
-        jvm {
-            compilations.all {
-                tasks.named<Test>("${target.name}Test") {
-                    testTask.dependsOn(this)
-                }
-                cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
-                tasks.named<Jar>("jvmJar") {
-                    manifest {
-                        attributes("Automatic-Module-Name" to autoModuleName)
-                    }
+    jvm {
+        compilations.all {
+            tasks.named<Test>("${target.name}Test") {
+                testTask.dependsOn(this)
+            }
+            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+            tasks.named<Jar>("jvmJar") {
+                manifest {
+                    attributes("Automatic-Module-Name" to autoModuleName)
                 }
             }
         }
-        jvm("android") {
-            compilations.all {
-                tasks.named<Test>("${target.name}Test") {
-                    testTask.dependsOn(this)
-                }
-                cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+    }
+    jvm("android") {
+        compilations.all {
+            tasks.named<Test>("${target.name}Test") {
+                testTask.dependsOn(this)
             }
+            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
         }
-        js {
-            browser()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
+    }
+    js {
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
             }
         }
     }

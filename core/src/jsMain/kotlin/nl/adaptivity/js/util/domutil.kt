@@ -180,16 +180,12 @@ internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNa
         return localNamespaces.firstOrNull { it.namespaceURI == namespaceURI }?.prefix ?: parent.getPrefix(namespaceURI)
     }
 
-    @Deprecated(
-        "Don't use as unsafe",
-        replaceWith = ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor")
-    )
-    override fun getPrefixes(namespaceURI: String): Iterator<String?> {
+    override fun getPrefixes(namespaceURI: String): Iterator<String> {
         return buildSet {
             localNamespaces.asSequence()
                 .filter { it.namespaceURI == namespaceURI }
                 .mapTo(this) { it.prefix }
-            parent.prefixesFor(namespaceURI).forEach { add(it) }
+            parent.getPrefixes(namespaceURI).forEach { add(it) }
         }.iterator()
     }
 

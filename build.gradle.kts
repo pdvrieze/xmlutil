@@ -26,6 +26,8 @@ import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -151,13 +153,19 @@ allprojects {
     }
 }
 
+plugins.withType<NodeJsRootPlugin> {
+    extensions.configure<NodeJsRootExtension> {
+        nodeVersion = "21.2.0"
+    }
+}
+
 afterEvaluate {
     rootProject.plugins.withType(YarnPlugin::class.java) {
         rootProject.the<YarnRootExtension>().apply {
-            resolution("minimist", "1.2.6")
-            resolution("webpack", "5.76.0")
-            resolution("qs", "6.11.0")
-            resolution("follow-redirects", "1.14.8")
+//            resolution("minimist", "1.2.6")
+//            resolution("webpack", "5.76.0")
+//            resolution("qs", "6.11.0")
+//            resolution("follow-redirects", "1.14.8")
         }
     }
 }

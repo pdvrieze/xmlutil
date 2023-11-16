@@ -18,24 +18,32 @@
  * under the License.
  */
 
+@file:JvmName("_actualAliassesKt")
 package nl.adaptivity.xmlutil
+
+import kotlin.jvm.JvmName
 
 /** Interface that provides access to namespace queries */
 public expect interface NamespaceContext {
     public fun getNamespaceURI(prefix: String): String?
     public fun getPrefix(namespaceURI: String): String?
+    public fun getPrefixes(namespaceURI: String): Iterator<String>
 }
 
-/** Helper interface for implementation.
- * @suppress
- */
-@XmlUtilInternal
-public expect interface NamespaceContextImpl : NamespaceContext {
-    @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
-    public fun getPrefixesCompat(namespaceURI: String): Iterator<String>
-}
+@Deprecated("Just use NamespaceContext", ReplaceWith("NamespaceContext", "nl.adaptivity.xmlutil.NamespaceContext"))
+public interface NamespaceContextImpl: NamespaceContext
+
+///** Helper interface for implementation.
+// * @suppress
+// */
+//@XmlUtilInternal
+//public expect interface NamespaceContextImpl : NamespaceContext {
+//    @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
+//    public fun getPrefixesCompat(namespaceURI: String): Iterator<String>
+//}
 
 /** Namespace context that allows iterating over the namespaces. */
+@Suppress("DEPRECATION")
 public interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace> {
     public fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this)
 
@@ -46,6 +54,8 @@ public interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Names
 
 }
 
-@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE", "DEPRECATION")
-public expect inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String>
+@Suppress("NOTHING_TO_INLINE")
+@Deprecated("No longer needed using JDK>8", ReplaceWith("getPrefixes(namespaceURI)"))
+public inline fun NamespaceContext.prefixesFor(namespaceURI: String): Iterator<String> =
+    getPrefixes(namespaceURI)
 

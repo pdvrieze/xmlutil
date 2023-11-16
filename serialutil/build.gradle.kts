@@ -45,22 +45,31 @@ base {
 val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
-    targets {
-        jvm()
-        jvm("android")
-        js {
-            browser()
-            nodejs()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
+    applyDefaultXmlUtilHierarchyTemplate()
+    jvm()
+    jvm("android")
+    js {
+        browser()
+        nodejs()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
+            }
+        }
+    }
+    wasmJs {
+        nodejs()
+        browser()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                verbose = true
             }
         }
 
@@ -85,13 +94,6 @@ kotlin {
                 implementation(libs.serialization.json)
             }
         }
-        val javaShared by creating {
-            dependsOn(commonMain)
-        }
-
-        val jvmMain by getting {
-            dependsOn(javaShared)
-        }
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
@@ -99,9 +101,6 @@ kotlin {
 
                 runtimeOnly(libs.junit5.engine)
             }
-        }
-        val androidMain by getting {
-            dependsOn(javaShared)
         }
 
         val androidTest by getting {

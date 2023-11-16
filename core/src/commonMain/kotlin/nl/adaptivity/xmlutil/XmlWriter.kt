@@ -519,6 +519,7 @@ public fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, S
         // We already moved to the next event. Add the namespaces before writing as for a DOM implementation
         // it is too late to do it afterwards.
         if (reader.eventType == EventType.START_ELEMENT && missingNamespaces != null) {
+            @Suppress("DEPRECATION")
             addUndeclaredNamespaces(reader, missingNamespaces)
         }
 

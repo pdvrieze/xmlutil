@@ -115,7 +115,7 @@ public object ElementSerializer : KSerializer<Element> {
                     if (ln == null) {
                         encodeStringElement(descriptor, 1, value.tagName)
                     } else {
-                        val namespaceURI = value.namespaceURI
+                        val namespaceURI = value.getNamespaceURI()
                         if (!namespaceURI.isNullOrEmpty()) {
                             encodeStringElement(descriptor, 0, namespaceURI)
                         }
@@ -123,7 +123,7 @@ public object ElementSerializer : KSerializer<Element> {
                     }
 
                     val attrIterator: Iterator<Attr> = value.attributes.iterator()
-                    val m = attrIterator.asSequence().associate { it.nodeName to it.value }
+                    val m = attrIterator.asSequence().associate { it.nodeName to it.getValue() }
                     encodeSerializableElement(descriptor, 2, attrSerializer, m)
 
                     val n = value.childNodes.iterator().asSequence().toList()
@@ -136,7 +136,7 @@ public object ElementSerializer : KSerializer<Element> {
 }
 
 private fun serialize(encoder: XmlWriter, value: Element) {
-    encoder.smartStartTag(value.namespaceURI, value.localName ?: value.tagName, value.prefix) {
+    encoder.smartStartTag(value.getNamespaceURI(), value.localName ?: value.tagName, value.prefix) {
         for (n: Attr in value.attributes) {
             serialize(encoder, n)
         }
@@ -202,7 +202,12 @@ private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDese
 }
 
 private fun serialize(encoder: XmlWriter, value: Attr) {
-    encoder.attribute(value.namespaceURI, value.localName ?: value.name, value.prefix, value.value)
+    encoder.attribute(
+        value.getNamespaceURI(),
+        value.getLocalName() ?: value.getName(),
+        value.getPrefix(),
+        value.getValue()
+    )
 }
 
 private fun serialize(encoder: XmlWriter, value: CDATASection) {
@@ -274,7 +279,7 @@ public object NodeSerializer : KSerializer<Node> {
                                 val map = decodeSerializableElement(descriptor, 1, attrSerializer)
                                 if (map.size != 1) throw SerializationException("Only a single attribute pair expected")
                                 result = decoder.document.createAttribute(map.keys.single())
-                                    .apply { value = map.values.single() }
+                                    .apply { setValue(map.values.single()) }
                             }
                             "text" -> result = decoder.document.createTextNode(decodeStringElement(descriptor, 1))
                             "comment" -> result = decoder.document.createComment(decodeStringElement(descriptor, 1))
@@ -306,7 +311,7 @@ public object NodeSerializer : KSerializer<Node> {
                 }
                 NodeConsts.ATTRIBUTE_NODE -> {
                     encodeStringElement(descriptor, 0, "attr")
-                    encodeSerializableElement(descriptor, 1, attrSerializer, mapOf((value as Attr).name to value.value))
+                    encodeSerializableElement(descriptor, 1, attrSerializer, mapOf((value as Attr).getName() to value.getValue()))
                 }
                 NodeConsts.TEXT_NODE,
                 NodeConsts.CDATA_SECTION_NODE -> {

@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.dom.*
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private val Node.isElement: Boolean get() = this.nodeType == NodeConsts.ELEMENT_NODE
 
@@ -72,11 +71,11 @@ fun assertDomEquals(expected: Node, actual: Node): Unit = when {
 
 private fun assertElementEquals(expected: Element, actual: Element) {
     val expectedAttrsSorted = expected.attributes.asSequence()
-        .filterNot { it.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
-        .sortedBy { "${it.prefix}:${it.localName}" }.toList()
+        .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
     val actualAttrsSorted = actual.attributes.asSequence()
-        .filterNot { it.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
-        .sortedBy { "${it.prefix}:${it.localName}" }.toList()
+        .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+        .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
 
 //    val expectedString = expected.outerHTML
 //    val actualString = actual.outerHTML
@@ -89,16 +88,18 @@ private fun assertElementEquals(expected: Element, actual: Element) {
     )
     for ((idx, expectedAttr) in expectedAttrsSorted.withIndex()) {
         val actualAttr = actualAttrsSorted[idx]
-        if (expectedAttr.namespaceURI.isNullOrEmpty()) {
-            if (!actualAttr.namespaceURI.isNullOrEmpty()) {
-                assertEquals(expected.namespaceURI, actualAttr.namespaceURI)
+        if (expectedAttr.getNamespaceURI().isNullOrEmpty()) {
+            if (!actualAttr.getNamespaceURI().isNullOrEmpty()) {
+                assertEquals(expected.getNamespaceURI(), actualAttr.getNamespaceURI())
             }
-        } else if(!(expectedAttr.namespaceURI == expected.namespaceURI && actualAttr.namespaceURI.isNullOrEmpty())) {
-            assertEquals(expectedAttr.namespaceURI, actualAttr.namespaceURI)
+        } else if (!(expectedAttr.getNamespaceURI() == expected.getNamespaceURI() && actualAttr.getNamespaceURI()
+                .isNullOrEmpty())) {
+            assertEquals(expectedAttr.getNamespaceURI(), actualAttr.getNamespaceURI())
         }
 
-        val expectedLocalName = if (expectedAttr.prefix == null) expectedAttr.name else expectedAttr.localName
-        val actualLocalName = if (actualAttr.prefix == null) actualAttr.name else actualAttr.localName
+        val expectedLocalName =
+            if (expectedAttr.getPrefix() == null) expectedAttr.getName() else expectedAttr.getLocalName()
+        val actualLocalName = if (actualAttr.getPrefix() == null) actualAttr.getName() else actualAttr.getLocalName()
         assertEquals(expectedLocalName, actualLocalName)
     }
 

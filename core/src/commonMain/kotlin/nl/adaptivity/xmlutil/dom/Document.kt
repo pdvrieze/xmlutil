@@ -24,19 +24,6 @@ package nl.adaptivity.xmlutil.dom
 
 public expect interface Document : Node {
 
-    public fun createElement(localName: String): Element
-
-    public fun createElementNS(namespaceURI: String, qualifiedName: String): Element
-
-    public fun createDocumentFragment(): DocumentFragment
-
-    public fun createTextNode(data: String): Text
-
-    public fun createCDATASection(data: String): CDATASection
-
-    public fun createComment(data: String): Comment
-
-    public fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
     public fun importNode(node: Node, deep: Boolean): Node
 
     public fun adoptNode(node: Node): Node
@@ -46,6 +33,21 @@ public expect interface Document : Node {
     public fun createAttributeNS(namespace: String?, qualifiedName: String): Attr
 
 }
+
+public expect fun Document.createElement(localName: String): Element
+
+public expect fun Document.createElementNS(namespaceURI: String, qualifiedName: String): Element
+
+public expect fun Document.createDocumentFragment(): DocumentFragment
+
+public expect fun Document.createTextNode(data: String): Text
+
+public expect fun Document.createCDATASection(data: String): CDATASection
+
+public expect fun Document.createComment(data: String): Comment
+
+public expect fun Document.createProcessingInstruction(target: String, data: String): ProcessingInstruction
+
 
 public expect inline fun Document.getImplementation(): DOMImplementation
 public expect inline fun Document.getDoctype(): DocumentType?

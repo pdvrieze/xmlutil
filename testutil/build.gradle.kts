@@ -48,29 +48,25 @@ base {
 val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
-    targets {
-        jvm()
-        js {
-            browser()
-            nodejs()
-            compilations.all {
-                kotlinOptions {
-                    sourceMap = true
-                    sourceMapEmbedSources = "always"
-                    suppressWarnings = false
-                    verbose = true
-                    metaInfo = true
-                    moduleKind = "umd"
-                    main = "call"
-                }
+    jvm()
+    js {
+        browser()
+        nodejs()
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                sourceMapEmbedSources = "always"
+                suppressWarnings = false
+                verbose = true
+                metaInfo = true
+                moduleKind = "umd"
+                main = "call"
             }
         }
-        if (isWasmSupported) {
-            wasm {
-                nodejs()
-                browser()
-            }
-        }
+    }
+    wasmJs {
+        nodejs()
+        browser()
     }
 
     @Suppress("UNUSED_VARIABLE")

@@ -129,15 +129,11 @@ fun Project.doPublish(
         val signTasks = sign(publishing!!.publications)
 
         tasks.withType<AbstractPublishToMaven> {
-                    val signTaskName = "signKotlinMultiplatformPublication"
                     val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
-                    tasks.findByName(signTaskName)?.let {
-                        logger.lifecycle("Add dependency for ${name} on ${signTaskName}")
+                    tasks.findByName(specificSignTaskName)?.let {
+                        logger.debug("Add dependency for ${name} on ${specificSignTaskName}")
                         dependsOn(it)
                     }
-                    logger.lifecycle("Add dependency for ${name} on ${specificSignTaskName}")
-
-
             dependsOn(signTasks)
         }
 

@@ -6,6 +6,7 @@ Changes:
   In various places extension functions have been added.
 
 Features:
+- Update to kotlinx.serialization 1.6.1, add wasmJs support.
 - Support strict boolean parsing in policy 
   (using xml schema rules allowing: 1, true, 0, false)
 - Add an alias XmlBoolean that parses according to xml rules independent of

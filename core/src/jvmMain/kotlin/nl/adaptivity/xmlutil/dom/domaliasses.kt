@@ -26,8 +26,6 @@ public actual typealias Node = org.w3c.dom.Node
 
 public actual typealias Attr = org.w3c.dom.Attr
 
-public actual typealias Document = org.w3c.dom.Document
-
 public actual typealias DocumentFragment = org.w3c.dom.DocumentFragment
 
 public actual typealias Element = org.w3c.dom.Element
