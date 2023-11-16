@@ -687,8 +687,10 @@ public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/co
 	public final fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public final fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;Z)Lnl/adaptivity/xmlutil/XmlWriter;
+	public final fun newWriter (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun serializerFor (Ljava/lang/Class;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
 	public fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
 	public fun toCharArray (Ljavax/xml/transform/Source;)[C
@@ -699,8 +701,10 @@ public final class nl/adaptivity/xmlutil/XmlStreamingAndroidKt {
 	public static final fun getXmlStreaming ()Lnl/adaptivity/xmlutil/IXmlStreaming;
 	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/XmlStreamingFactory {
@@ -914,6 +918,8 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReaderJavaKt {
 public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
 	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;)V
 	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun cdsect (Ljava/lang/String;)V
 	public fun close ()V

@@ -23,7 +23,9 @@ package nl.adaptivity.xmlutil.serialization
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import nl.adaptivity.xmlutil.dom.Element
+import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.Test
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
@@ -138,8 +140,8 @@ class JvmSerializationTest {
 
         val deserialized = json.decodeFromString(ElementSerializer, contentText)
 
-        val expected = XmlStreaming.toString(DOMSource(expectedObj))
-        val actual = XmlStreaming.toString(DOMSource(deserialized))
+        val expected = (xmlStreaming as XmlStreamingJavaCommon).toString(DOMSource(expectedObj))
+        val actual = (xmlStreaming as XmlStreamingJavaCommon).toString(DOMSource(deserialized))
         try {
             assertXmlEquals(expected, actual)
         } catch (e: AssertionError) {

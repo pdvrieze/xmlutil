@@ -155,7 +155,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        val javaSharedMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
             }

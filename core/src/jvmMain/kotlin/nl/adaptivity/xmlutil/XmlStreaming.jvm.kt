@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.InputStream
 import java.io.OutputStream
@@ -33,6 +32,8 @@ import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
+import java.io.Writer as JavaIoWriter
 
 @Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
     "nl.adaptivity.xmlutil.xmlStreaming",
@@ -67,9 +68,18 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
     public actual fun newWriter(
-        writer: Writer,
+        writer: MPWriter,
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+    ): XmlWriter {
+        return factory.newWriter(writer.delegate, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
+    }
+
+    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
+    public fun newWriter(
+        writer: JavaIoWriter,
+        repairNamespaces: Boolean = false,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     ): XmlWriter {
         return factory.newWriter(writer, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
     }
@@ -92,6 +102,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
+    @Deprecated("Use extension functions on IXmlStreaming")
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
@@ -196,8 +207,15 @@ public actual fun IXmlStreaming.newWriter(
 
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
-    writer: Writer,
+    writer: MPWriter,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+
+@Suppress("DEPRECATION")
+public fun IXmlStreaming.newWriter(
+    writer: JavaIoWriter,
+    repairNamespaces: Boolean = false,
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
 ): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
 

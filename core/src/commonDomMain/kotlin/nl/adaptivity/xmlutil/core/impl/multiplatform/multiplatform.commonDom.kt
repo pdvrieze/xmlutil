@@ -140,3 +140,5 @@ public actual annotation class Language actual constructor(
     actual val prefix: String,
     actual val suffix: String
 )
+
+internal actual fun Writer.appendable(): Appendable = this

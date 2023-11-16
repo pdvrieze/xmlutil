@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,17 +20,4 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlin.reflect.KClass
-
-public actual val KClass<*>.name: String get() = java.name
-
-public actual typealias Throws = kotlin.jvm.Throws
-
-public typealias URI = java.net.URI
-
-
-public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
-
-internal actual fun Writer.appendable(): Appendable {
-    return delegate as Appendable
-}
+internal actual fun Writer.appendable(): Appendable = this

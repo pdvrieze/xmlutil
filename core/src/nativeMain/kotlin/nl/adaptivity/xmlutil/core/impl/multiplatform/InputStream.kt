@@ -24,6 +24,7 @@ import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.convert
+import platform.posix.fclose
 import platform.posix.size_t
 import platform.posix.uint32_t
 import platform.posix.uint64_t
@@ -53,6 +54,7 @@ public actual abstract class InputStream : Closeable {
 
     @ExperimentalForeignApi
     public abstract fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT
+    actual override fun close() {}
 }
 
 public value class MPSizeT(public val value: uint64_t) {

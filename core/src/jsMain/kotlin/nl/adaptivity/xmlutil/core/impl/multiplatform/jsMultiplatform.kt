@@ -157,6 +157,8 @@ public actual abstract class InputStream : Closeable {
     }
 
     public actual abstract fun read(): Int
+
+    public actual override fun close() {}
 }
 
 public actual abstract class OutputStream : Closeable {
@@ -175,6 +177,7 @@ public actual abstract class OutputStream : Closeable {
         }
     }
 
+    public actual override fun close() {}
 }
 
 @Retention(AnnotationRetention.SOURCE)

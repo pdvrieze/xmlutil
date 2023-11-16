@@ -21,18 +21,16 @@
 package nl.adaptivity.xmlutil.core.impl
 
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import nl.adaptivity.xmlutil.util.SerializationProvider.XmlDeserializerFun
 import nl.adaptivity.xmlutil.util.SerializationProvider.XmlSerializerFun
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.StringReader
+import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
+import java.io.Writer as JavaWriter
 
 
 public fun IXmlStreaming.newWriter(result: Result, repairNamespaces: Boolean = false): XmlWriter =
@@ -42,7 +40,7 @@ public fun IXmlStreaming.newWriter(outputStream: OutputStream, encoding: String,
     (this as XmlStreamingJavaCommon).newWriter(outputStream, encoding, repairNamespaces)
 
 public fun IXmlStreaming.newWriter(
-    writer: Writer,
+    writer: MPWriter,
     repairNamespaces: Boolean = false,
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ): XmlWriter =
@@ -61,7 +59,7 @@ public fun IXmlStreaming.newReader(source: Source): XmlReader =
 /**
  * Common base for [XmlStreaming] that provides common additional methods available on
  * jvm platforms that work with Java library types such as [OutputStream],
- * [Writer], [Reader], [InputStream], etc..
+ * [MPWriter], [Reader], [InputStream], etc..
  */
 public abstract class XmlStreamingJavaCommon: IXmlStreaming {
 
@@ -81,15 +79,25 @@ public abstract class XmlStreamingJavaCommon: IXmlStreaming {
 
     @Suppress("DEPRECATION")
     @Deprecated("Use extension functions on IXmlStreaming", level = DeprecationLevel.HIDDEN)
-    public fun newWriter(writer: Writer): XmlWriter = newWriter(writer, false)
+    public fun newWriter(writer: MPWriter): XmlWriter = newWriter(writer, false)
+
+    public fun newWriter(writer: JavaWriter): XmlWriter = newWriter(writer, false)
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Use version that takes XmlDeclMode")
+    public fun newWriter(writer: MPWriter, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(writer.delegate, repairNamespaces, omitXmlDecl)
 
     @Deprecated("Use version that takes XmlDeclMode")
-    public fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
-        newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
+    public fun newWriter(writer: JavaWriter, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
+        newWriter(writer as Appendable, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     @Deprecated("Use extension functions on IXmlStreaming")
-    public fun newWriter(writer: Writer, repairNamespaces: Boolean): XmlWriter =
-        newWriter(writer, repairNamespaces, XmlDeclMode.None)
+    public fun newWriter(writer: MPWriter, repairNamespaces: Boolean): XmlWriter =
+        newWriter(writer.delegate, repairNamespaces)
+
+    public fun newWriter(writer: JavaWriter, repairNamespaces: Boolean): XmlWriter =
+        newWriter(writer as Appendable, repairNamespaces, XmlDeclMode.None)
 
     @Deprecated("Use version that takes XmlDeclMode")
     public fun newWriter(output: Appendable, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =

@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import java.io.StringWriter as JavaStringWriter
+import java.io.Writer as JavaWriter
 import kotlin.io.use as ktUse
 
 public actual fun assert(value: Boolean, lazyMessage: () -> String) {
@@ -36,8 +38,11 @@ public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
 
 public actual typealias Closeable = java.io.Closeable
 
-public actual typealias Writer = java.io.Writer
-public actual typealias StringWriter = java.io.StringWriter
+public actual abstract class Writer(internal val delegate: JavaWriter) {
+    override fun toString(): String = delegate.toString()
+}
+
+public actual open class StringWriter actual constructor() : Writer(JavaStringWriter())
 
 public actual typealias Reader = java.io.Reader
 public actual typealias StringReader = java.io.StringReader

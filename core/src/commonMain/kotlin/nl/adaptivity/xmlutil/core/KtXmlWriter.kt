@@ -29,6 +29,8 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.core.impl.multiplatform.appendable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
 /**
@@ -44,6 +46,13 @@ public class KtXmlWriter(
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     xmlVersion: XmlVersion = XmlVersion.XML11
 ) : PlatformXmlWriterBase(), XmlWriter {
+
+    public constructor(
+        writer: Writer,
+        isRepairNamespaces: Boolean = true,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlVersion: XmlVersion = XmlVersion.XML11
+    ): this(writer.appendable(), isRepairNamespaces, xmlDeclMode, xmlVersion)
 
     public var xmlVersion: XmlVersion = xmlVersion
         private set

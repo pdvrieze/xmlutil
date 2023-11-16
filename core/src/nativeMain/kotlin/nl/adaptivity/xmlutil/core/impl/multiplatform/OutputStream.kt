@@ -61,4 +61,6 @@ public actual abstract class OutputStream : Closeable {
 
         b.usePinned { writePtr(it.addressOf(off), MPSizeT(sizeOf<ByteVar>().convert<uint64_t>()), MPSizeT(len.toULong())) }
     }
+
+    actual override fun close() {}
 }

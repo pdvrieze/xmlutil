@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,19 +18,19 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.multiplatform
+package nl.adaptivity.xmlutil
 
-import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import java.io.CharArrayWriter
 
-public actual val KClass<*>.name: String get() = java.name
-
-public actual typealias Throws = kotlin.jvm.Throws
-
-public typealias URI = java.net.URI
-
-
-public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
-
-internal actual fun Writer.appendable(): Appendable {
-    return delegate as Appendable
+internal actual fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter {
+    return CharArrayWriter().also {
+        @Suppress("DEPRECATION")
+        XmlStreaming.newWriter(it as Appendable).use { out ->
+            while (hasNext()) {
+                next()
+                writeCurrent(out)
+            }
+        }
+    }
 }

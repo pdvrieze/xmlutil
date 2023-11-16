@@ -52,8 +52,10 @@ public expect inline fun <T : Closeable?, R> T.use(block: (T) -> R): R
 public expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 
-public expect abstract class Writer : Appendable
+public expect abstract class Writer
 public expect open class StringWriter() : Writer
+
+internal expect fun Writer.appendable(): Appendable
 
 public expect abstract class OutputStream : Closeable {
     public abstract fun write(b: Int)
@@ -61,6 +63,8 @@ public expect abstract class OutputStream : Closeable {
     public open fun write(b: ByteArray)
 
     public open fun write(b: ByteArray, off: Int, len: Int)
+
+    public open override fun close()
 }
 
 public expect abstract class Reader {
@@ -73,6 +77,7 @@ public expect abstract class InputStream : Closeable {
 
     public fun read(b: ByteArray): Int
     public abstract fun read(): Int
+    public open override fun close()
 }
 
 public expect open class StringReader(source: String) : Reader

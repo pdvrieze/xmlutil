@@ -87,7 +87,7 @@ public actual class XMLFragmentStreamReader constructor(reader: Reader, namespac
             }
 
             val actualInput = CombiningReader(StringReader(wrapper), reader, StringReader("</$WRAPPERPPREFIX:wrapper>"))
-            return XmlStreaming.newReader(actualInput)
+            return xmlStreaming.newReader(actualInput)
         }
 
         @JvmStatic

@@ -71,6 +71,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                         val namespaceForPrefix = out.getNamespaceUri(prefix)
                         writeCurrent(out) // writes the start tag
                         if (namespaceForPrefix != namespaceURI) {
+                            @Suppress("DEPRECATION") // deprecated to make it internal
                             out.addUndeclaredNamespaces(this, missingNamespaces)
                         }
                         out.writeElementContent(missingNamespaces, this) // writes the children and end tag
@@ -100,9 +101,12 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 }
 
 
+internal expect fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter
+
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
-    return CharArrayWriter().apply {
-        xmlStreaming.newWriter(this).use { out ->
+    return CharArrayWriter().also {
+        @Suppress("DEPRECATION")
+        XmlStreaming.newWriter(it as Appendable).use { out ->
             while (hasNext()) {
                 next()
                 writeCurrent(out)
