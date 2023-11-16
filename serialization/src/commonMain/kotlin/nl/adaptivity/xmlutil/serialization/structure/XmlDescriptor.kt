@@ -31,11 +31,12 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
-import nl.adaptivity.xmlutil.serialization.impl.serialName
+import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.reflect.KClass
 
@@ -941,7 +942,7 @@ public class XmlPolymorphicDescriptor internal constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     public val parentSerialName: String? =
-        tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.serialName
+        tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.maybeSerialName
 
     @OptIn(WillBePrivate::class) // the type ParentInfo should become internal
     private val children by lazy {
@@ -1026,9 +1027,9 @@ internal fun SerialDescriptor.getElementNameInfo(index: Int, parentNamespace: Na
 internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
-        else -> capturedKClass?.serialName ?: serialName
+        else -> capturedKClass?.maybeSerialName ?: serialName
     }
-    val annotation = annotations.firstOrNull<XmlSerialName>()
+    val annotation = annotations.firstOrNull<XmlSerialName>() ?: capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
     val qName = annotation?.toQName(realSerialName, parentNamespace)
     return DeclaredNameInfo(realSerialName, qName, annotation?.namespace == UNSET_ANNOTATION_VALUE)
 }
@@ -1357,8 +1358,9 @@ private class DetachedParent(
         isDefaultNamespace: Boolean,
     ) : this(
         serialDescriptor,
+
         DeclaredNameInfo(
-            serialDescriptor.run { capturedKClass?.serialName ?: serialName },
+            serialDescriptor.run { capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName },
             useName,
             isDefaultNamespace
         ),
@@ -1373,7 +1375,7 @@ private class DetachedParent(
         outputKind: OutputKind? = null,
     ) : this(
         serialDescriptor,
-        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.serialName ?: serialName }, null, false),
+        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName }, null, false),
         isDocumentRoot,
         outputKind
     )
@@ -1427,10 +1429,12 @@ private class DetachedParent(
 
     override val namespace: Namespace
         get() = elementUseNameInfo.annotatedName?.toNamespace()
-            ?: XmlEvent.NamespaceImpl("", "")
+            ?: DEFAULT_NAMESPACE
 
 
 }
+
+internal val DEFAULT_NAMESPACE=XmlEvent.NamespaceImpl("", "")
 
 @WillBePrivate // 2021-07-05 Should not have been public.
 public class ParentInfo(

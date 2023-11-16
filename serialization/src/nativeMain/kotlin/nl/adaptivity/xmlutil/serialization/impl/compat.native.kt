@@ -26,7 +26,7 @@ import kotlinx.serialization.serializerOrNull
 import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-internal actual val KClass<*>.serialName: String?
+internal actual val KClass<*>.maybeSerialName: String?
     get() = this.serializerOrNull()
         ?.run { descriptor.serialName }
         ?: qualifiedName

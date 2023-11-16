@@ -118,6 +118,7 @@ kotlin {
     }
     @Suppress("OPT_IN_USAGE")
     wasmJs {
+        nodejs()
         browser()
         compilations.all {
             kotlinOptions {

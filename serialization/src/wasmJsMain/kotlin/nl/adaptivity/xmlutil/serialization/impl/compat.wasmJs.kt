@@ -26,8 +26,8 @@ import kotlinx.serialization.serializerOrNull
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import kotlin.reflect.KClass
 
+// TODO note that wasm doesn't yet support reflection so names are not available
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-internal actual val KClass<*>.serialName: String?
+internal actual val KClass<*>.maybeSerialName: String?
     get() = serializerOrNull()
         ?.run { descriptor.serialName }
-        ?: name.replace('$', '.')

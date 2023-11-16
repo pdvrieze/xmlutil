@@ -22,4 +22,4 @@ package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlin.reflect.KClass
 
-internal expect val KClass<*>.serialName: String?
+internal expect val KClass<*>.maybeSerialName: String?

@@ -202,10 +202,10 @@ public class XML constructor(
             }
         }
 
-        val safeSerialName = serializer.descriptor.run { capturedKClass?.serialName ?: serialName }
+        val safeSerialName = serializer.descriptor.run { capturedKClass?.maybeSerialName ?: serialName }
 
         val policyDerivedName =
-            config.policy.serialTypeNameToQName(DeclaredNameInfo(safeSerialName), XmlEvent.NamespaceImpl("", ""))
+            config.policy.serialTypeNameToQName(DeclaredNameInfo(safeSerialName), DEFAULT_NAMESPACE)
 
         val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
         val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo, false)

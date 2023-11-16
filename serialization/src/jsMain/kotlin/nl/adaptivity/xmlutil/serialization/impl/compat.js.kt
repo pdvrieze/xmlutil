@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-internal actual val KClass<*>.serialName: String?
+internal actual val KClass<*>.maybeSerialName: String?
     get() = serializerOrNull()
         ?.run { descriptor.serialName }
         ?: name.replace('$', '.')
