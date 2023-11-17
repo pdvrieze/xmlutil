@@ -25,7 +25,11 @@ import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.getByName
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.registering
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
@@ -33,6 +37,8 @@ import org.jetbrains.kotlin.gradle.kpm.external.project
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.util.*
 
@@ -187,21 +193,17 @@ fun Project.addNativeTargets() {
                 }
             }
 
-            sourceSets {
-/*
-                val commonMain = getByName("commonMain")
-                val commonTest = getByName("commonTest")
-                if (singleTargetMode) {
-//                    getByName("nativeMain") { dependsOn(commonMain) }
-//                    getByName("nativeTest") { dependsOn(commonTest) }
-                } else {
-                    val nativeMain = maybeCreate("nativeMain").apply { dependsOn(commonMain) }
-                    val nativeTest = maybeCreate("nativeTest").apply { dependsOn(commonTest) }
-
-                    configure(nativeMainSets) { dependsOn(nativeMain) }
-                    configure(nativeTestSets) { dependsOn(nativeTest) }
+            @OptIn(ExternalVariantApi::class)
+            project.logger.debug("Registering :${project.name}:nativeTest")
+            @OptIn(ExternalVariantApi::class)
+            val nativeTest = project.tasks.register("nativeTest") {
+                val testTasks = tasks.withType<KotlinNativeTest>().filter {
+                    it is KotlinNativeHostTest &&
+                            hostTarget.family.name in it.targetName!!.uppercase() &&
+                            hostTarget.architecture.name in it.targetName!!.uppercase()
                 }
-*/
+                project.logger.debug("Configuring ${path} with hostTarget: ${hostTarget.visibleName} to depend on ${testTasks.joinToString { it.path}}")
+                dependsOn(testTasks)
             }
         }
 
