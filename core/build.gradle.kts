@@ -119,7 +119,13 @@ kotlin {
     @Suppress("OPT_IN_USAGE")
     wasmJs {
         nodejs()
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeCanaryHeadless()
+                }
+            }
+        }
         compilations.all {
             kotlinOptions {
                 sourceMap = true
