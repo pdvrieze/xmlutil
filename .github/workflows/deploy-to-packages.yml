@@ -60,8 +60,16 @@ jobs:
             # Linux / JVM / JS
             -   name: Check (ubuntu)
                 if: matrix.os == 'ubuntu-latest'
-                run: ./gradlew check --stacktrace
+                run: ./gradlew check --stacktrace --info
                 shell: bash
+            -   name: Store reports
+                if: failure()
+                uses: actions/upload-artifact@v3
+                with:
+                    name: reports
+                    path: |
+                        **/build/reports/
+                        **/build/test-results/
             -   name: Upload (ubuntu)
                 if: matrix.os == 'ubuntu-latest'
                 run: ./gradlew publish -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
