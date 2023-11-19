@@ -92,7 +92,11 @@ kotlin {
     wasmJs {
         moduleName="core-wasm"
         nodejs()
-        browser()
+        browser {
+            testTask {
+                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+            }
+        }
         compilations.all {
             kotlinOptions {
                 sourceMap = true

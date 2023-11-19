@@ -121,9 +121,7 @@ kotlin {
         nodejs()
         browser {
             testTask {
-                useKarma {
-                    useChromeCanaryHeadless()
-                }
+                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
             }
         }
         compilations.all {

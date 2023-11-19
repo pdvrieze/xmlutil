@@ -66,7 +66,11 @@ kotlin {
     }
     wasmJs {
         nodejs()
-        browser()
+        browser {
+            testTask {
+                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+            }
+        }
     }
 
     @Suppress("UNUSED_VARIABLE")
