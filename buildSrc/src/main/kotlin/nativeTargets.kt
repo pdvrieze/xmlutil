@@ -166,7 +166,6 @@ fun Project.addNativeTargets() {
                 if(true) {
                     if (nativeState != NativeState.HOST || host == Host.Linux) {
                         linuxX64 { addSourceSets() }
-                        linuxArm32Hfp { addSourceSets() }
                         linuxArm64 { addSourceSets() }
                     }
 
