@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.*
 import platform.posix.*
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, UnsafeNumber::class)
 public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream() {
 
     public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
@@ -47,7 +47,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
 
     public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT {
         clearerr(filePtr)
-        val itemsRead = MPSizeT(fread(buffer, size.value.convert(), bufferSize.value.convert(), filePtr))
+        val itemsRead = MPSizeT(fread(buffer, size.value.convert<size_t>(), bufferSize.value.convert<size_t>(), filePtr))
         if (itemsRead.value == 0uL) {
             val error = ferror(filePtr)
             if (error != 0) {
