@@ -53,7 +53,8 @@ public actual abstract class InputStream : Closeable {
     actual override fun close() {}
 }
 
-public value class MPSizeT(public val value: uint64_t) {
+public value class MPSizeT(public val value: ULong) {
+    public constructor(value: UInt): this(value.toULong())
     public operator fun minus(other: MPSizeT): MPSizeT = MPSizeT(value - other.value)
     public operator fun plus(other: MPSizeT): MPSizeT = MPSizeT(value + other.value)
 }

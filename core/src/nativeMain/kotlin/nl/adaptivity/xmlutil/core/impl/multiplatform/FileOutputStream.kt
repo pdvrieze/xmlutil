@@ -93,7 +93,7 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
         var elemsRemaining: ULong = count.value
         var currentBufferPointer = buffer
         while (elemsRemaining > 0u) {
-            val elemsWritten: ULong = fwrite(currentBufferPointer, size.value.convert(), count.value.convert(), filePtr)
+            val elemsWritten: ULong = fwrite(currentBufferPointer, size.value.convert(), count.value.convert(), filePtr).convert()
             if (elemsWritten == 0uL) {
                 val e = ferror(filePtr)
                 throw IOException.fromErrno(e)

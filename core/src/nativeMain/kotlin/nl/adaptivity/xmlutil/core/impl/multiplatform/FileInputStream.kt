@@ -61,7 +61,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         clearerr(filePtr)
         memScoped {
             val bytePtr = alloc<UByteVar>()
-            val itemsRead: ULong = fread(bytePtr.ptr, 1u.convert(), 1u.convert(), filePtr)
+            val itemsRead: ULong = fread(bytePtr.ptr, 1u.convert(), 1u.convert(), filePtr).convert()
             if (itemsRead == 0uL) {
                 val error = ferror(filePtr)
                 if (error != 0) {
