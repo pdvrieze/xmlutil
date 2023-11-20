@@ -23,10 +23,6 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.convert
-import platform.posix.fclose
-import platform.posix.size_t
-import platform.posix.uint32_t
 import platform.posix.uint64_t
 
 public actual abstract class InputStream : Closeable {
@@ -60,7 +56,4 @@ public actual abstract class InputStream : Closeable {
 public value class MPSizeT(public val value: uint64_t) {
     public operator fun minus(other: MPSizeT): MPSizeT = MPSizeT(value - other.value)
     public operator fun plus(other: MPSizeT): MPSizeT = MPSizeT(value + other.value)
-
-    @OptIn(ExperimentalForeignApi::class)
-    public val sizeT: size_t get() = value.convert<size_t>()
 }

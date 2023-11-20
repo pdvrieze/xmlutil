@@ -47,7 +47,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
 
     public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT {
         clearerr(filePtr)
-        val itemsRead = MPSizeT(fread(buffer, size.sizeT, bufferSize.sizeT, filePtr).convert<uint64_t>())
+        val itemsRead = MPSizeT(fread(buffer, size.value.convert(), bufferSize.value.convert(), filePtr))
         if (itemsRead.value == 0uL) {
             val error = ferror(filePtr)
             if (error != 0) {
@@ -61,8 +61,8 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         clearerr(filePtr)
         memScoped {
             val bytePtr = alloc<UByteVar>()
-            val itemsRead: size_t = fread(bytePtr.ptr, 1u, 1u, filePtr)
-            if (itemsRead == SIZE0) {
+            val itemsRead: ULong = fread(bytePtr.ptr, 1u.convert(), 1u.convert(), filePtr)
+            if (itemsRead == 0uL) {
                 val error = ferror(filePtr)
                 if (error != 0) {
                     throw IOException.fromErrno(error)
@@ -79,7 +79,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         require(off in b.indices) { "Offset before start of array" }
         require(endIdx <= b.size) { "Range size beyond buffer size" }
         return b.usePinned { buf ->
-            read(buf.addressOf(off), MPSizeT(sizeOf<ByteVar>().convert()), MPSizeT(len.convert())).value.convert()
+            read(buf.addressOf(off), MPSizeT(sizeOf<ByteVar>().toULong()), MPSizeT(len.toULong())).value.toInt()
         }
     }
 

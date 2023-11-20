@@ -23,8 +23,6 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
 import platform.posix.FILE
-import platform.posix.size_t
-import platform.posix.uint64_t
 
 public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), Closeable {
 
@@ -43,8 +41,8 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
         memScoped {
             val buffer = allocArray<UByteVar>(4)
 
-            val byteCount: size_t = addCodepointToBuffer(buffer, codepoint)
-            if (outStream.writePtr(buffer, MPSizeT(byteCount.convert<uint64_t>())).sizeT != byteCount) error("Failure to write full character")
+            val byteCount: MPSizeT = addCodepointToBuffer(buffer, codepoint)
+            if (outStream.writePtr(buffer, byteCount) != byteCount) error("Failure to write full character")
         }
         return this
     }
@@ -53,8 +51,8 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
     private fun addCodepointToBuffer(
         buffer: CArrayPointer<UByteVar>,
         codepoint: Int
-    ): size_t {
-        val byteCount: size_t
+    ): MPSizeT {
+        val byteCount: ULong
         when {
             codepoint <= 0x7f -> {
                 buffer[0] = codepoint.toUByte()
@@ -82,7 +80,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
                 byteCount = 4u
             }
         }
-        return byteCount
+        return MPSizeT(byteCount)
     }
 
 
@@ -117,7 +115,7 @@ public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), 
                     inPos++
                 }
                 val bytes = addCodepointToBuffer((outBuffer + outPos)!!, codepoint)
-                outPos += bytes.toInt()
+                outPos += bytes.value.toInt()
             }
 
             if (outPos > 0) {
