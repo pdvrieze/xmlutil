@@ -55,14 +55,15 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
         nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
-            XMLConstants.XML_NS_URI in schemaData.knownNested) {
+            XMLConstants.XML_NS_URI in schemaData.knownNested
+        ) {
             nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
         }
 
         for (importNS in schemaData.importedNamespaces) {
             if (importNS !in nestedData) { // don't duplicate
                 val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
-                if (importData!=null) {
+                if (importData != null) {
                     nestedData[importNS] = NestedData(VAnyURI(importNS), importData)
                 }
             }
@@ -257,7 +258,17 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 "Namespace mismatch (${targetNamespace.value} != ${source.namespace})"
             }
 
-            val s = this@ResolvedSchema
+            val s = this@ResolvedSchema.let { s2 ->
+                when {
+                    s2.elementFormDefault != source.rawSchema.elementFormDefault ||
+                            s2.attributeFormDefault != source.rawSchema.attributeFormDefault ->
+                        OwnerWrapper(s2, source.rawSchema)
+
+                    else -> s2
+                }
+            }
+
+//            val s = this@ResolvedSchema
 
             val loc = source.schemaLocation ?: ""
 
@@ -282,7 +293,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 for (ns in source.importedNamespaces) {
                     val uri = requireNotNull(source.includedNamespaceToUri[ns]) { "No URI found for namespace $ns" }
                     val schema = source.knownNested[uri.value]
-                    set(ns, schema?.let{ NestedData(VAnyURI(ns), it) })
+                    set(ns, schema?.let { NestedData(VAnyURI(ns), it) })
                 }
             }
         }
