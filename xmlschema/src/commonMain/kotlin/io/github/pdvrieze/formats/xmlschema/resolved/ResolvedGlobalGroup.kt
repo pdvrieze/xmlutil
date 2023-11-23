@@ -25,25 +25,29 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalEleme
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedGlobalGroup(
-    rawPart: XSGroup,
+class ResolvedGlobalGroup internal constructor(
+    elemPart: SchemaElement<XSGroup>,
     schema: ResolvedSchemaLike,
     val location: String,
 ) : ResolvedGroupBase, ResolvedAnnotated, VElementScope.Member, NamedPart {
-    override val model: ResolvedAnnotated.Model by lazy { ResolvedAnnotated.Model(rawPart) }
+    override val model: ResolvedAnnotated.Model by lazy { ResolvedAnnotated.Model(elemPart.elem) }
 
-    override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()
+    override val otherAttrs: Map<QName, String> = elemPart.elem.resolvedOtherAttrs()
 
     internal constructor(element: SchemaElement<XSGroup>, schema: ResolvedSchemaLike) :
-            this(element.elem, element.effectiveSchema(schema), element.schemaLocation)
+            this(element, element.effectiveSchema(schema), element.schemaLocation)
 
-    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+    override val mdlQName: QName = elemPart.elem.name.toQname(schema.targetNamespace)
 
-    val mdlModelGroup: ResolvedModelGroup = when (val c = rawPart.content) {
-        is XSGroup.All -> AllImpl(this, c, schema)
-        is XSGroup.Choice -> ChoiceImpl(this, c, schema)
-        is XSGroup.Sequence -> SequenceImpl(this, c, schema)
+    val mdlModelGroup: ResolvedModelGroup = run {
+        val content = elemPart.wrap { content }
+        when (val c = content.elem) {
+            is XSGroup.All -> AllImpl(this, content.cast(), schema)
+            is XSGroup.Choice -> ChoiceImpl(this, content.cast(), schema)
+            is XSGroup.Sequence -> SequenceImpl(this, content.cast(), schema)
+        }
     }
+
 
     override fun hasLocalNsInContext(): Boolean {
         return mdlModelGroup.hasLocalNsInContext()
@@ -59,47 +63,49 @@ class ResolvedGlobalGroup(
         }
     }
 
-    class Model(
+    class Model internal constructor(
         parent: ResolvedGlobalGroup,
-        rawPart: XSGroup.XSGroupElement,
+        elemPart: SchemaElement<XSGroup.XSGroupElement>,
         schema: ResolvedSchemaLike
-    ) : ResolvedAnnotated.Model(rawPart) {
+    ) : ResolvedAnnotated.Model(elemPart.elem) {
 
-        constructor(parent: ResolvedGlobalGroup, rawPart: XSGroup, schema: ResolvedSchemaLike) :
-                this(parent, rawPart.content, schema)
+        // TODO replace with operator invoke
+        internal constructor(parent: ResolvedGlobalGroup, elemPart: SchemaElement<XSGroup>, schema: ResolvedSchemaLike,
+                             dummy: Boolean = false) :
+                this(parent, elemPart.wrap { content }, schema)
 
-        val modelGroup: ResolvedModelGroup = when (val c = rawPart) {
-            is XSGroup.All -> AllImpl(parent, c, schema)
-            is XSGroup.Choice -> ChoiceImpl(parent, c, schema)
-            is XSGroup.Sequence -> SequenceImpl(parent, c, schema)
+        val modelGroup: ResolvedModelGroup = when (val c = elemPart.elem) {
+            is XSGroup.All -> AllImpl(parent, elemPart.cast(), schema)
+            is XSGroup.Choice -> ChoiceImpl(parent, elemPart.cast(), schema)
+            is XSGroup.Sequence -> SequenceImpl(parent, elemPart.cast(), schema)
         }
     }
 
     private sealed class ModelGroupBase(
         parent: ResolvedGlobalGroup,
-        rawPart: XSGroup.XSGroupElement,
+        elemPart: SchemaElement<XSGroup.XSGroupElement>,
         schema: ResolvedSchemaLike
     ): ResolvedTerm {
-        override val model: Model by lazy { Model(parent, rawPart, schema) }
+        override val model: Model by lazy { Model(parent, elemPart, schema) }
         val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
         abstract override fun checkTerm(checkHelper: CheckHelper)
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
-        class Model(parent: ResolvedGlobalGroup, rawPart: XSGroup.XSGroupElement, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
-            val localInContext = rawPart.particles.any { it.hasLocalNsInContext(schema) }
+        class Model(parent: ResolvedGlobalGroup, elemPart: SchemaElement<XSGroup.XSGroupElement>, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(elemPart.elem) {
+            val localInContext = elemPart.elem.particles.any { it.hasLocalNsInContext(schema) }
 
-            val particles = rawPart.particles.map { ResolvedParticle(parent, it, schema, localInContext) }
+            val particles = elemPart.wrapEach { particles }.map { ResolvedParticle(parent, it, schema, localInContext) }
         }
     }
 
-    private class AllImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.All, schema: ResolvedSchemaLike) :
-        ModelGroupBase(parent, rawPart, schema), IResolvedAll {
+    private class AllImpl(parent: ResolvedGlobalGroup, elemPart: SchemaElement<XSGroup.All>, schema: ResolvedSchemaLike) :
+        ModelGroupBase(parent, elemPart, schema), IResolvedAll {
 
         init {
             if (schema.version== ResolvedSchema.Version.V1_0) {
-                require(rawPart.particles.all { it is XSLocalElement }) {
+                require(elemPart.elem.particles.all { it is XSLocalElement }) {
                     "Schema 1.0 only allows element members for all model group schema components"
                 }
             }
@@ -111,8 +117,8 @@ class ResolvedGlobalGroup(
 
     }
 
-    private class ChoiceImpl(parent: ResolvedGlobalGroup, rawPart: XSGroup.Choice, schema: ResolvedSchemaLike) :
-        ModelGroupBase(parent, rawPart, schema),
+    private class ChoiceImpl(parent: ResolvedGlobalGroup, elemPart: SchemaElement<XSGroup.Choice>, schema: ResolvedSchemaLike) :
+        ModelGroupBase(parent, elemPart, schema),
         IResolvedChoice {
 
         override fun checkTerm(checkHelper: CheckHelper) {
@@ -123,8 +129,8 @@ class ResolvedGlobalGroup(
 
     private class SequenceImpl(
         parent: ResolvedGlobalGroup,
-        rawPart: XSGroup.Sequence, schema: ResolvedSchemaLike
-    ) : ModelGroupBase(parent, rawPart, schema), IResolvedSequence {
+        elemPart: SchemaElement<XSGroup.Sequence>, schema: ResolvedSchemaLike
+    ) : ModelGroupBase(parent, elemPart, schema), IResolvedSequence {
 
         override fun checkTerm(checkHelper: CheckHelper) {
             super.checkTerm(checkHelper)

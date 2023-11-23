@@ -24,16 +24,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSChoice
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
-class ResolvedChoice(
+class ResolvedChoice internal constructor(
     parent: VElementScope.Member,
-    rawPart: XSChoice,
+    elemPart: SchemaElement<XSChoice>,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<IResolvedChoice>(
     parent,
-    rawPart,
+    elemPart,
     schema,
-    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    rawPart.maxOccurs ?: VAllNNI.ONE,
+    elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    elemPart.elem.maxOccurs ?: VAllNNI.ONE,
 ), IResolvedChoice {
 
     override val mdlTerm: ResolvedChoice get() = this

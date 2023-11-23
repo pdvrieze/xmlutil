@@ -27,23 +27,23 @@ sealed interface ResolvedLocalType : ResolvedType {
     val mdlContext: VTypeScope.MemberBase
 
     companion object {
-        operator fun invoke(
-            rawPart: XSLocalType,
+        internal operator fun invoke(
+            elemPart: SchemaElement<XSLocalType>,
             schema: ResolvedSchemaLike,
             scope: VTypeScope.Member
         ): ResolvedLocalType {
-            return when (rawPart) {
+            return when (elemPart.elem) {
                 is XSLocalComplexTypeComplex ->
-                    ResolvedLocalComplexType(rawPart, schema, scope as VComplexTypeScope.Member)
+                    ResolvedLocalComplexType(elemPart.cast(), schema, scope as VComplexTypeScope.Member)
 
                 is XSLocalComplexTypeShorthand ->
-                    ResolvedLocalComplexType(rawPart, schema, scope as VComplexTypeScope.Member)
+                    ResolvedLocalComplexType(elemPart.cast(), schema, scope as VComplexTypeScope.Member)
 
                 is XSLocalComplexTypeSimple ->
-                    ResolvedLocalComplexType(rawPart, schema, scope as VComplexTypeScope.Member)
+                    ResolvedLocalComplexType(elemPart.cast(), schema, scope as VComplexTypeScope.Member)
 
                 is XSLocalSimpleType ->
-                    ResolvedLocalSimpleType(rawPart, schema, scope as VSimpleTypeScope.Member)
+                    ResolvedLocalSimpleType(elemPart.elem, schema, scope as VSimpleTypeScope.Member)
             }
         }
 
@@ -55,15 +55,15 @@ sealed interface ResolvedLocalType : ResolvedType {
             return ResolvedLocalSimpleType(rawPart, schema, scope)
         }
 
-        operator fun invoke(
-            rawPart: XSLocalComplexType,
+        internal operator fun invoke(
+            elemPart: SchemaElement<XSLocalComplexType>,
             schema: ResolvedSchemaLike,
             scope: VComplexTypeScope.Member,
         ): ResolvedLocalType {
-            return when (rawPart) {
-                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(rawPart, schema, scope)
-                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(rawPart, schema, scope)
-                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(rawPart, schema, scope)
+            return when (elemPart.elem) {
+                is XSLocalComplexTypeComplex -> ResolvedLocalComplexType(elemPart.cast(), schema, scope)
+                is XSLocalComplexTypeShorthand -> ResolvedLocalComplexType(elemPart.cast(), schema, scope)
+                is XSLocalComplexTypeSimple -> ResolvedLocalComplexType(elemPart.cast(), schema, scope)
             }
         }
     }

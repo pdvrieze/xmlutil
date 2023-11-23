@@ -30,15 +30,15 @@ sealed interface ResolvedGroupParticle<out T : ResolvedTerm> : ResolvedComplexTy
 
     companion object {
 
-        operator fun invoke(
+        internal operator fun invoke(
             parent: VElementScope.Member,
-            term: XSComplexContent.XSIDerivationParticle,
+            elemTerm: SchemaElement<XSComplexContent.XSIDerivationParticle>,
             schema: ResolvedSchemaLike
-        ): ResolvedGroupParticle<ResolvedModelGroup> = when (term) {
-            is XSAll -> ResolvedAll(parent, term, schema)
-            is XSChoice -> ResolvedChoice(parent, term, schema)
-            is XSSequence -> ResolvedSequence(parent, term, schema)
-            is XSGroupRef -> ResolvedGroupRef(term, schema)
+        ): ResolvedGroupParticle<ResolvedModelGroup> = when (elemTerm.elem) {
+            is XSAll -> ResolvedAll(parent, elemTerm.cast(), schema)
+            is XSChoice -> ResolvedChoice(parent, elemTerm.cast(), schema)
+            is XSSequence -> ResolvedSequence(parent, elemTerm.cast(), schema)
+            is XSGroupRef -> ResolvedGroupRef(elemTerm.elem, schema)
             else -> error("Unsupported particle")
         }
 

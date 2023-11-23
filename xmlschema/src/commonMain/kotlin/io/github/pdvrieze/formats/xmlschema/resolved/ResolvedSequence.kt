@@ -26,16 +26,16 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
-class ResolvedSequence(
+class ResolvedSequence internal constructor(
     parent: VElementScope.Member,
-    rawPart: XSSequence,
+    elemPart: SchemaElement<XSSequence>,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<IResolvedSequence>(
     parent,
-    rawPart,
+    elemPart,
     schema,
-    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    rawPart.maxOccurs ?: VAllNNI.ONE
+    elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    elemPart.elem.maxOccurs ?: VAllNNI.ONE
 ), IResolvedSequence {
 
     override val mdlTerm: ResolvedSequence get() = this

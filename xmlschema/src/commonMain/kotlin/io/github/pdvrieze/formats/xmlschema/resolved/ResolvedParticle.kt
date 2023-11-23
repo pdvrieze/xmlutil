@@ -89,29 +89,29 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     companion object {
 
-        operator fun invoke(
+        internal operator fun invoke(
             parent: VElementScope.Member,
-            rawPart: XSI_Particle,
+            elemPart: SchemaElement<XSI_Particle>,
             schema: ResolvedSchemaLike,
             localInContext: Boolean,
-        ): ResolvedParticle<ResolvedTerm> = when (rawPart) {
-            is XSAll -> ResolvedAll(parent, rawPart, schema)
-            is XSChoice -> ResolvedChoice(parent, rawPart, schema)
-            is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+        ): ResolvedParticle<ResolvedTerm> = when (val rawPart = elemPart.elem) {
+            is XSAll -> ResolvedAll(parent, elemPart.cast(), schema)
+            is XSChoice -> ResolvedChoice(parent, elemPart.cast(), schema)
+            is XSSequence -> ResolvedSequence(parent, elemPart.cast(), schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema, localInContext)
-            is XSLocalElement -> IResolvedElementUse(parent, rawPart, schema)
+            is XSLocalElement -> IResolvedElementUse(parent, elemPart.cast(), schema)
             else -> error("Compiler limitation")
         }
 
-        operator fun invoke(
+        internal operator fun invoke(
             parent: VElementScope.Member,
-            rawPart: XSExplicitGroup,
+            elemPart: SchemaElement<XSExplicitGroup>,
             schema: ResolvedSchemaLike
-        ): ResolvedParticle<*> = when (rawPart) {
-            is XSAll -> ResolvedAll(parent, rawPart, schema)
-            is XSChoice -> ResolvedChoice(parent, rawPart, schema)
-            is XSSequence -> ResolvedSequence(parent, rawPart, schema)
+        ): ResolvedParticle<*> = when (elemPart.elem) {
+            is XSAll -> ResolvedAll(parent, elemPart.cast(), schema)
+            is XSChoice -> ResolvedChoice(parent, elemPart.cast(), schema)
+            is XSSequence -> ResolvedSequence(parent, elemPart.cast(), schema)
         }
     }
 }

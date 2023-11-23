@@ -32,11 +32,16 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
-    rawPart: XSLocalAttribute,
-    schema: ResolvedSchemaLike
-) : ResolvedAttributeDef(rawPart, schema), IResolvedAttributeUse {
+    elem: SchemaElement<XSLocalAttribute>,
+    localAttributeFormDefault: VFormChoice,
+    unresolvedSchema: ResolvedSchemaLike
+) : ResolvedAttributeDef(elem, elem.effectiveSchema(unresolvedSchema)), IResolvedAttributeUse {
+
+    override val mdlQName: QName
 
     init {
+        val rawPart = elem.elem
+        val schema = elem.effectiveSchema(unresolvedSchema)
         invariant(rawPart.ref == null)
         invariant(rawPart.use != XSAttrUse.PROHIBITED) { "Prohibited attributes are not attributes proper" }
 
@@ -50,22 +55,23 @@ class ResolvedLocalAttribute private constructor(
             check(contentType is ResolvedComplexType.ElementContentType)
             check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
+
+        mdlQName = invariantNotNull(rawPart.name).toQname(
+            rawPart.targetNamespace ?: when {
+                (rawPart.form ?: localAttributeFormDefault) == VFormChoice.QUALIFIED ->
+                    elem.rawSchema.targetNamespace
+
+                else -> null
+            }
+        )
     }
 
-    override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
-        rawPart.targetNamespace ?: when {
-            (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                schema.targetNamespace
 
-            else -> null
-        }
-    )
-
-    override val model: Model by lazy { Model(rawPart, schema, this) }
+    override val model: Model by lazy { Model(elem.elem, elem.effectiveSchema(unresolvedSchema), this) }
 
     override val mdlScope: VAttributeScope.Local = VAttributeScope.Local(parent)
 
-    override val mdlRequired: Boolean = rawPart.use == XSAttrUse.REQUIRED
+    override val mdlRequired: Boolean = elem.elem.use == XSAttrUse.REQUIRED
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
 
@@ -98,15 +104,17 @@ class ResolvedLocalAttribute private constructor(
     }
 
     companion object {
-        operator fun invoke(
+        internal operator fun invoke(
             parent: VAttributeScope.Member,
-            rawPart: XSLocalAttribute,
-            schema: ResolvedSchemaLike
+            elem: SchemaElement<XSLocalAttribute>,
+            schema: ResolvedSchemaLike,
+            localAttributeFormDefault: VFormChoice
         ): IResolvedAttributeUse {
+            val rawPart = elem.elem
             return when (rawPart.use) {
                 XSAttrUse.PROHIBITED -> ResolvedProhibitedAttribute(rawPart, schema)
                 else -> when (rawPart.ref) {
-                    null -> ResolvedLocalAttribute(parent, rawPart, schema)
+                    null -> ResolvedLocalAttribute(parent, elem, localAttributeFormDefault, schema)
                     else -> ResolvedAttributeRef(parent, rawPart, schema)
                 }
             }

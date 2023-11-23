@@ -30,17 +30,17 @@ sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<Resol
     val mdlQName: QName
 
     companion object {
-        operator fun invoke(
+        internal operator fun invoke(
             parent: VElementScope.Member,
-            rawPart: XSLocalElement,
+            elemPart: SchemaElement<XSLocalElement>,
             schema: ResolvedSchemaLike,
         ): IResolvedElementUse = when {
-            rawPart.minOccurs == VNonNegativeInteger.ZERO &&
-                    rawPart.maxOccurs == VNonNegativeInteger.ZERO ->
-                ResolvedProhibitedElement(rawPart, schema)
+            elemPart.elem.minOccurs == VNonNegativeInteger.ZERO &&
+                    elemPart.elem.maxOccurs == VNonNegativeInteger.ZERO ->
+                ResolvedProhibitedElement(elemPart.elem, schema)
 
-            rawPart.ref == null -> ResolvedLocalElement(parent, rawPart, schema)
-            else -> ResolvedElementRef(rawPart, schema)
+            elemPart.elem.ref == null -> ResolvedLocalElement(parent, elemPart, schema)
+            else -> ResolvedElementRef(elemPart.elem, schema)
         }
     }
 }

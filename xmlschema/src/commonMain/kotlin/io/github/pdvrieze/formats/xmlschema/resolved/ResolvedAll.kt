@@ -25,16 +25,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAll
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 
 
-class ResolvedAll(
+class ResolvedAll internal constructor(
     parent: VElementScope.Member,
-    rawPart: XSAll,
+    elemPart: SchemaElement<XSAll>,
     schema: ResolvedSchemaLike
 ) : ResolvedGroupParticleTermBase<IResolvedAll>(
     parent,
-    rawPart,
+    elemPart,
     schema,
-    rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    rawPart.maxOccurs ?: VAllNNI.ONE,
+    elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    elemPart.elem.maxOccurs ?: VAllNNI.ONE,
 ), IResolvedAll {
 
     override val mdlTerm: ResolvedAll get() = this
