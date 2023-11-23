@@ -41,6 +41,7 @@ interface IResolvedAll : ResolvedModelGroup {
                 check(maxOccurs <= VAllNNI(1uL)) {
                     "All may only have maxOccurs<=1 for its particles. Not $maxOccurs"
                 }
+                check(particle.mdlTerm is ResolvedElement) { "For version 1.0 all groups may only contain elements, not any's" }
             }
         }
     }
