@@ -268,7 +268,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
             _types = DelegateMap(targetNamespace.value, source.types) { v ->
                 when (val t = v.elem) {
                     is XSGlobalSimpleType -> ResolvedGlobalSimpleType(t, v.effectiveSchema(s))
-                    is XSGlobalComplexType -> ResolvedGlobalComplexType(t, v.effectiveSchema(s), loc)
+                    is XSGlobalComplexType -> ResolvedGlobalComplexType(v.cast(), v.effectiveSchema(s), loc)
                 }
             }
 

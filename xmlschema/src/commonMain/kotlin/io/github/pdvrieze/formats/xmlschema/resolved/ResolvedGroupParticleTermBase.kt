@@ -28,10 +28,10 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     parent: VElementScope.Member,
-    rawPart: XSI_Grouplike,
+    elemPart: SchemaElement<XSI_Grouplike>,
     schema: ResolvedSchemaLike,
-    final override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-    final override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
+    final override val mdlMinOccurs: VNonNegativeInteger = elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    final override val mdlMaxOccurs: VAllNNI = elemPart.elem.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupParticle<T>, ResolvedTerm {
 
     init {
@@ -39,20 +39,20 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     }
 
     final override val model: Model by lazy {
-        Model(parent, rawPart, schema)
+        Model(parent, elemPart, schema)
     }
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-    operator fun invoke(
+    internal operator fun invoke(
         parent: ResolvedComplexType,
-        rawPart: XSExplicitGroup,
+        elemPart: SchemaElement<XSExplicitGroup>,
         schema: ResolvedSchemaLike
-    ): ResolvedGroupParticle<ResolvedModelGroup> = when (rawPart) {
-        is XSAll -> ResolvedAll(parent, rawPart, schema)
-        is XSChoice -> ResolvedChoice(parent, rawPart, schema)
-        is XSSequence -> ResolvedSequence(parent, rawPart, schema)
-        else -> error("Found unsupported group: $rawPart")
+    ): ResolvedGroupParticle<ResolvedModelGroup> = when (elemPart.elem) {
+        is XSAll -> ResolvedAll(parent, elemPart.cast(), schema)
+        is XSChoice -> ResolvedChoice(parent, elemPart.cast(), schema)
+        is XSSequence -> ResolvedSequence(parent, elemPart.cast(), schema)
+        else -> error("Found unsupported group: ${elemPart.elem}")
     }
 
     class Model : ResolvedAnnotated.Model {
@@ -67,12 +67,12 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
             this.particles = particles
         }
 
-        constructor(
+        internal constructor(
             parent: VElementScope.Member,
-            rawPart: XSI_Grouplike,
+            elemPart: SchemaElement<XSI_Grouplike>,
             schema: ResolvedSchemaLike,
-        ) : super(rawPart) {
-            particles = rawPart.particles.map { ResolvedParticle(parent, it, schema, rawPart.hasLocalNsInContext(schema)) }
+        ) : super(elemPart.elem) {
+            particles = elemPart.wrapEach { particles }.map { ResolvedParticle(parent, it, schema, elemPart.elem.hasLocalNsInContext(schema)) }
         }
     }
 }
