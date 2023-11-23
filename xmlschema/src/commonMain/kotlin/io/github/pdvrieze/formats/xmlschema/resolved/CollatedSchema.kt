@@ -31,8 +31,7 @@ import nl.adaptivity.xmlutil.*
 internal class SchemaData(
     val namespace: String?,
     val schemaLocation: String?,
-    val elementFormDefault: VFormChoice?,
-    val attributeFormDefault: VFormChoice?,
+    val rawSchema: XSSchema,
     val elements: Map<String, SchemaElement<XSGlobalElement>>,
     val attributes: Map<String, SchemaElement<XSGlobalAttribute>>,
     val types: Map<String, SchemaElement<XSGlobalType>>,
@@ -43,11 +42,12 @@ internal class SchemaData(
     val knownNested: Map<String, SchemaData?>,
     val importedNamespaces: Set<String>,
 ) {
+    val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
+    val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
 
-    constructor(namespace: String) : this(
+    constructor(namespace: String, rawSchema: XSSchema) : this(
         namespace = namespace,
-        elementFormDefault = null,
-        attributeFormDefault = null,
+        rawSchema = rawSchema,
         schemaLocation = null,
         elements = emptyMap(),
         attributes = emptyMap(),
@@ -63,13 +63,13 @@ internal class SchemaData(
     constructor(
         namespace: String?,
         schemaLocation: String,
+        rawSchema: XSSchema,
         elementFormDefault: VFormChoice?,
         attributeFormDefault: VFormChoice?,
         builder: DataBuilder
     ) : this(
         namespace = namespace,
-        elementFormDefault = elementFormDefault,
-        attributeFormDefault = attributeFormDefault,
+        rawSchema = rawSchema,
         schemaLocation = schemaLocation,
         elements = builder.elements,
         attributes = builder.attributes,
@@ -179,12 +179,13 @@ internal class SchemaData(
         inheritanceChain: MutableSet<XSGlobalType>,
     ) {
         val (schema, type) = typeInfo
-        checkRecursiveTypes(type, schema, seenTypes, inheritanceChain)
+        checkRecursiveTypes(type, schema, type.rawSchema, seenTypes, inheritanceChain)
     }
 
     private fun checkRecursiveTypes(
         startType: SchemaElement<out XSIType>,
         schema: SchemaData,
+        rawSchema: XSSchema,
         seenTypes: MutableSet<XSGlobalType>,
         inheritanceChain: MutableSet<XSGlobalType>
     ) {
@@ -264,7 +265,7 @@ internal class SchemaData(
 
         }
         for (local in locals) {
-            checkRecursiveTypes(SchemaElement(local, schema.schemaLocation?:""), schema, seenTypes, inheritanceChain)
+            checkRecursiveTypes(SchemaElement(local, schema.schemaLocation?:"", rawSchema), schema, rawSchema, seenTypes, inheritanceChain)
         }
 
     }
@@ -284,7 +285,7 @@ internal class SchemaData(
         fun addFromSchema(sourceSchema: XSSchema, schemaLocation: String, targetNamespace: String?) {
             val chameleon = when {
                 ! sourceSchema.targetNamespace.isNullOrEmpty() -> null
-                targetNamespace.isNullOrEmpty() -> error("Invalid name override to default namespace")
+                targetNamespace.isNullOrEmpty() -> null //error("Invalid name override to default namespace")
                 else -> targetNamespace
             }
             sourceSchema.elements.associateToUnique(elements) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
@@ -428,7 +429,8 @@ internal class SchemaData(
                     // TODO add checks if needed
                     val agName = QName(targetNamespace ?: "", name)
 
-                    b.attributeGroups[name] = SchemaElement.Redefined(ag, redefineData, schemaLocation, agName, Redefinable.ATTRIBUTEGROUP)
+                    b.attributeGroups[name] = SchemaElement.Redefined(ag, redefineData, schemaLocation,
+                        agName, Redefinable.ATTRIBUTEGROUP)
                 }
             }
 
@@ -466,7 +468,7 @@ internal class SchemaData(
                             SchemaData(
                                 parsed,
                                 importLocation.value,
-                                actualNamespace.value,
+                                parsed.targetNamespace?.value,
                                 delegateResolver,
                                 b.newProcessed
                             ).also {
@@ -483,6 +485,7 @@ internal class SchemaData(
             return SchemaData(
                 namespace = targetNamespace,
                 schemaLocation = schemaLocation,
+                rawSchema = sourceSchema,
                 elementFormDefault = sourceSchema.elementFormDefault,
                 attributeFormDefault = sourceSchema.attributeFormDefault,
                 builder = b
@@ -490,6 +493,44 @@ internal class SchemaData(
         }
 
     }
+}
+
+class OwnerWrapper internal constructor(val base: ResolvedSchemaLike, val owner: XSSchema) : ResolvedSchemaLike() {
+    override val targetNamespace: VAnyURI? get() = owner.targetNamespace
+
+    override val attributeFormDefault: VFormChoice get() = owner.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+
+    override val elementFormDefault: VFormChoice get() = owner.elementFormDefault ?: VFormChoice.UNQUALIFIED
+
+    override val defaultAttributes: QName? get() = base.defaultAttributes
+
+    override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = base.blockDefault
+
+    override val finalDefault: Set<VDerivationControl.Type> get() = base.finalDefault
+
+    override val defaultOpenContent: XSDefaultOpenContent? get() = base.defaultOpenContent
+
+
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = base.maybeSimpleType(typeName)
+
+    override fun maybeType(typeName: QName): ResolvedGlobalType? = base.maybeType(typeName)
+
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
+        base.maybeAttributeGroup(attributeGroupName)
+
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = base.maybeGroup(groupName)
+
+    override fun maybeElement(elementName: QName): ResolvedGlobalElement? = base.maybeElement(elementName)
+
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? = base.maybeAttribute(attributeName)
+
+    override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? =
+        base.maybeIdentityConstraint(constraintName)
+
+    override fun maybeNotation(notationName: QName): ResolvedNotation? = base.maybeNotation(notationName)
+
+    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> =
+        base.substitutionGroupMembers(headName)
 }
 
 class ChameleonWrapper internal constructor(
@@ -629,7 +670,7 @@ internal class RedefineSchema(
         val t = data.findType(typeName)
         if (t != null) {
             if (t.elem is XSGlobalComplexType) {
-                return ResolvedGlobalComplexType(t.elem, t.effectiveSchema(this), data.schemaLocation ?: "")
+                return ResolvedGlobalComplexType(t.cast(), t.effectiveSchema(this))
             } else if (t.elem is XSGlobalSimpleType) {
                 return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(this))
             }
@@ -736,57 +777,76 @@ private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
     return destination
 }
 
-internal sealed class SchemaElement<T>(val elem: T, val schemaLocation: String) {
+internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: String, val rawSchema: XSSchema) {
+
+    val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
+    val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
+
     abstract fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike
-    abstract fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T>
+    abstract fun toChameleon(chameleon: String): Chameleon<T>
     fun toChameleon(chameleon: String, schemaData: SchemaData): Chameleon<T> =
-        toChameleon(chameleon, schemaData.attributeFormDefault, schemaData.elementFormDefault)
+        toChameleon(chameleon)
 
-    class Direct<T>(type: T, schemaLocation: String) : SchemaElement<T>(type, schemaLocation) {
-        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = schema
+    internal abstract fun <U> wrap(value: U): SchemaElement<U>
 
-        override fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T> {
+    fun <U> wrap(function: T.() -> U): SchemaElement<U> {
+        return wrap(elem.function())
+    }
+
+    fun <U> wrapEach(function: T.() -> Collection<U>): Collection<SchemaElement<U>> {
+        return elem.function().map { wrap(it) }
+    }
+
+    /** The bound to T is merely to make it easier for correctness, but allow variance. */
+    inline fun <reified U: @UnsafeVariance T> cast(): SchemaElement<U> {
+        (elem as U) // throws if not valid
+        @Suppress("UNCHECKED_CAST")
+        return this as SchemaElement<U>
+    }
+
+    class Direct<out T>(elem: T, schemaLocation: String, rawSchema: XSSchema) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
+            schema.targetNamespace != rawSchema.targetNamespace ||
+                    schema.elementFormDefault != rawSchema.elementFormDefault ||
+                    schema.attributeFormDefault != rawSchema.attributeFormDefault -> OwnerWrapper(schema, rawSchema)
+            else -> schema
+        }
+
+        override fun toChameleon(chameleon: String): Chameleon<T> {
             return Chameleon(
                 elem = elem,
                 schemaLocation = schemaLocation,
-                attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
-                elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
+                rawSchema = rawSchema,
                 newNS = chameleon
             )
+        }
+
+        override fun <U> wrap(value: U): Direct<U> {
+            return Direct(value, schemaLocation, rawSchema)
         }
 
         override fun toString(): String = "d($elem)"
     }
 
-    class Chameleon<T>(
+    class Chameleon<out T>(
         elem: T,
         schemaLocation: String,
-        val attributeFormDefault: VFormChoice,
-        val elementFormDefault: VFormChoice,
+        rawSchema: XSSchema,
         val newNS: String
-    ) : SchemaElement<T>(elem, schemaLocation) {
+    ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
 
-        constructor(
-            elem: T,
-            schemaLocation: String,
-            baseSchema: XSSchema,
-            newNS: String
-        ) : this(
-            elem,
-            schemaLocation,
-            baseSchema.attributeFormDefault ?: VFormChoice.UNQUALIFIED,
-            baseSchema.elementFormDefault ?: VFormChoice.UNQUALIFIED,
-            newNS
-        )
+        override fun <U> wrap(value: U): Chameleon<U> {
+            return Chameleon(value, schemaLocation, rawSchema, newNS)
+        }
 
-        override fun toChameleon(chameleon: String, attributeFormDefault: VFormChoice?, elementFormDefault: VFormChoice?): Chameleon<T> {
-            return Chameleon(elem, schemaLocation, this.attributeFormDefault, this.elementFormDefault, chameleon)
+        override fun toChameleon(chameleon: String): Chameleon<T> {
+            return Chameleon(elem, schemaLocation, rawSchema, chameleon)
         }
 
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike {
             return ChameleonWrapper(
-                attributeFormDefault = attributeFormDefault,
-                elementFormDefault = elementFormDefault,
+                attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
+                elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
                 base = schema,
                 chameleonNamespace = VAnyURI(newNS)
             )
@@ -800,17 +860,19 @@ internal sealed class SchemaElement<T>(val elem: T, val schemaLocation: String) 
         schemaLocation: String,
         val elementName: QName,
         val elementKind: Redefinable
-    ) : SchemaElement<T>(elem, schemaLocation) {
+    ) : SchemaElement<T>(elem, schemaLocation, baseSchema.rawSchema) {
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             // handle the case where it is called multiple times
             schema is RedefineSchema && schema.data == baseSchema -> schema
             else -> RedefineSchema(schema, baseSchema, elementName, elementKind)
         }
 
+        override fun <U> wrap(value: U): SchemaElement<U> {
+            return Redefined(value, baseSchema, schemaLocation, elementName, elementKind)
+        }
+
         override fun toChameleon(
-            chameleon: String,
-            attributeFormDefault: VFormChoice?,
-            elementFormDefault: VFormChoice?
+            chameleon: String
         ): Chameleon<T> {
             throw UnsupportedOperationException("Redefined elements can not be chameleons")
         }
@@ -819,9 +881,9 @@ internal sealed class SchemaElement<T>(val elem: T, val schemaLocation: String) 
     }
 
     companion object {
-        inline operator fun <T> invoke(elem: T, schemaLocation: String): Direct<T> = Direct(elem, schemaLocation)
+        inline operator fun <T> invoke(elem: T, schemaLocation: String, rawSchema: XSSchema): Direct<T> = Direct(elem, schemaLocation, rawSchema)
         inline fun <T> auto(elem: T, schemaLocation: String, baseSchema: XSSchema, chameleonNs: String?): SchemaElement<T> = when(chameleonNs) {
-            null -> Direct(elem, schemaLocation)
+            null -> Direct(elem, schemaLocation, baseSchema)
             else -> Chameleon(elem, schemaLocation, baseSchema, chameleonNs)
         }
     }

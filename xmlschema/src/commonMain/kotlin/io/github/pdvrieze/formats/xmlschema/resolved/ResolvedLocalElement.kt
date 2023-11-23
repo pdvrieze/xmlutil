@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
@@ -32,14 +33,15 @@ import nl.adaptivity.xmlutil.QName
 
 class ResolvedLocalElement private constructor(
     parent: VElementScope.Member,
-    rawPart: XSLocalElement,
+    elemPart: SchemaElement<XSLocalElement>,
     schema: ResolvedSchemaLike,
     override val mdlMinOccurs: VNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
-) : ResolvedElement(rawPart, schema),
+) : ResolvedElement(elemPart.elem, schema),
     IResolvedElementUse {
 
     init {
+        val rawPart = elemPart.elem
         invariant(rawPart.ref == null)
         requireNotNull(rawPart.name) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified"}
 
@@ -55,11 +57,11 @@ class ResolvedLocalElement private constructor(
 
     }
 
-    override val model: Model by lazy { Model(rawPart, schema, this) }
+    override val model: Model by lazy { Model(elemPart, schema, this) }
 
-    override val mdlQName: QName = invariantNotNull(rawPart.name).toQname(
-        rawPart.targetNamespace?.also { require(rawPart.form==null) { "3.3.3(4.2) - If targetNamespace is present form must not be" } }
-            ?: when (rawPart.form ?: schema.elementFormDefault) {
+    override val mdlQName: QName = invariantNotNull(elemPart.elem.name).toQname(
+        elemPart.elem.targetNamespace?.also { require(elemPart.elem.form==null) { "3.3.3(4.2) - If targetNamespace is present form must not be" } }
+            ?: when (elemPart.elem.form ?: schema.elementFormDefault) {
                 VFormChoice.QUALIFIED -> schema.targetNamespace
                 else -> null
             }
@@ -74,16 +76,16 @@ class ResolvedLocalElement private constructor(
 
     override val mdlAbstract: Boolean get() = false
 
-    constructor(
+    internal constructor(
         parent: VElementScope.Member,
-        rawPart: XSLocalElement,
+        elemPart: SchemaElement<XSLocalElement>,
         schema: ResolvedSchemaLike,
     ) : this(
         parent,
-        rawPart,
+        elemPart,
         schema,
-        rawPart.minOccurs ?: VNonNegativeInteger.ONE,
-        rawPart.maxOccurs ?: VAllNNI.ONE,
+        elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+        elemPart.elem.maxOccurs ?: VAllNNI.ONE,
     )
 
     override fun toString(): String {
@@ -97,11 +99,11 @@ class ResolvedLocalElement private constructor(
         }
     }
 
-    class Model(
-        rawPart: XSLocalElement,
+    class Model internal constructor(
+        elemPart: SchemaElement<XSLocalElement>,
         schema: ResolvedSchemaLike,
         context: ResolvedLocalElement
-    ) : ResolvedElement.Model(rawPart, schema, context) {
+    ) : ResolvedElement.Model(elemPart.elem, schema, context) {
 
         val mdlTerm: ResolvedLocalElement = context
 
@@ -109,8 +111,9 @@ class ResolvedLocalElement private constructor(
             get() = null
 
         override val mdlTypeDefinition: ResolvedType =
-            rawPart.localType?.let { ResolvedLocalType(it, schema, context) }
-                ?: rawPart.type?.let { schema.type(it) }
+            elemPart.wrap { localType }
+                .let { if (it.elem != null) ResolvedLocalType(it.cast<XSLocalType>(), schema, context) else null }
+                ?: elemPart.elem.type?.let { schema.type(it) }
                 ?: AnyType
     }
 
