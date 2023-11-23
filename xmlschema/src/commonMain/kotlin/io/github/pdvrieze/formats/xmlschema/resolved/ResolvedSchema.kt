@@ -103,11 +103,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         return nestedData.containsKey("")
     }
 
-    override val version: Version = when (rawPart.version?.xmlString) {
-        "1.0" -> Version.V1_0
-        "1.1" -> Version.V1_1
-        else -> defaultVersion
-    }
+    override val version: Version = rawPart.version?.run { Version.fromXml(xmlString) } ?: defaultVersion
 
     val lang: VLanguage? get() = rawPart.lang
 
@@ -194,7 +190,15 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
     }
 
     enum class Version {
-        V1_0, V1_1
+        V1_0, V1_1;
+
+        companion object {
+            fun fromXml(xml: String): Version? = when (xml) {
+                "1.0" -> Version.V1_0
+                "1.1" -> Version.V1_1
+                else -> null
+            }
+        }
     }
 
 

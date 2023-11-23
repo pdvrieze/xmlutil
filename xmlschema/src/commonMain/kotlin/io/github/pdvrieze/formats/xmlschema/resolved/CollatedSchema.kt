@@ -508,7 +508,15 @@ internal class SchemaData(
     }
 }
 
-class OwnerWrapper internal constructor(val base: ResolvedSchemaLike, val owner: XSSchema) : ResolvedSchemaLike() {
+class OwnerWrapper internal constructor(base: ResolvedSchemaLike, val owner: XSSchema) : ResolvedSchemaLike() {
+
+    val base: ResolvedSchemaLike = when (base) {
+        is OwnerWrapper -> base.base
+        else -> base
+    }
+
+    override val version: ResolvedSchema.Version get() = owner.version?.let { ResolvedSchema.Version.fromXml(it.xmlString) } ?: base.version
+
     override val targetNamespace: VAnyURI? get() = owner.targetNamespace
 
     override val attributeFormDefault: VFormChoice get() = owner.attributeFormDefault ?: VFormChoice.UNQUALIFIED
