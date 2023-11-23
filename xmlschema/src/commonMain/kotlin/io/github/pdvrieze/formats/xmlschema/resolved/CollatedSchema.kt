@@ -132,31 +132,29 @@ internal class SchemaData(
         fun followChain(
             elementName: QName,
             seen: SingleLinkedList<QName>,
-            elementInfo: Pair<SchemaData, SchemaElement<XSGlobalElement>> = findElement(elementName)
+            elementInfo: SchemaElement<XSGlobalElement> = findElement(elementName).second
         ) {
-            val (schema, schElem) = elementInfo
-            val element = schElem.elem
+            val element = elementInfo.elem
             val newSeen = seen + elementName
             val sg = (element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return })
-                .let {
-                    when (val ns = schema.namespace) {
-                        null -> it
-                        else -> it.map { QName(ns, it.localPart) }
-                    }
-                }
 
             for (referenced in sg) {
                 if (referenced !in verifiedHeads) {
-                    require(referenced !in newSeen) { "Recursive substitution group (${newSeen.sortedBy { it.toString() }.joinToString()})" }
+                    require(referenced !in newSeen) {
+                        "Recursive substitution group (${
+                            newSeen.sortedBy { it.toString() }.joinToString()
+                        })"
+                    }
                     followChain(referenced, newSeen)
                 }
             }
         }
 
         for((name, childElement) in elements) {
-            val qname = QName(namespace?:"", name)
+            val ns = childElement.targetNamespace
+            val qname = QName(ns, name)
             if (qname !in verifiedHeads) {
-                followChain(qname, SingleLinkedList(), Pair(this, childElement))
+                followChain(qname, SingleLinkedList(), childElement)
             }
         }
     }
@@ -800,6 +798,7 @@ private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
 
 internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: String, val rawSchema: XSSchema) {
 
+    abstract val targetNamespace: String
     val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
     val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
 
@@ -826,6 +825,9 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
     }
 
     class Direct<out T>(elem: T, schemaLocation: String, rawSchema: XSSchema) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
+        override val targetNamespace: String
+            get() = rawSchema.targetNamespace?.xmlString ?: ""
+
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             schema.targetNamespace != rawSchema.targetNamespace ||
                     schema.elementFormDefault != rawSchema.elementFormDefault ||
@@ -855,6 +857,8 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         rawSchema: XSSchema,
         val newNS: String
     ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
+        override val targetNamespace: String
+            get() = newNS
 
         override fun <U> wrap(value: U): Chameleon<U> {
             return Chameleon(value, schemaLocation, rawSchema, newNS)
@@ -882,6 +886,9 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         val elementName: QName,
         val elementKind: Redefinable
     ) : SchemaElement<T>(elem, schemaLocation, baseSchema.rawSchema) {
+        override val targetNamespace: String
+            get() = elementName.namespaceURI
+
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             // handle the case where it is called multiple times
             schema is RedefineSchema && schema.data == baseSchema -> schema
