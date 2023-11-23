@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
+    override val version: ResolvedSchema.Version get() = ResolvedSchema.Version.V1_1
     override val targetNamespace: VAnyURI = VAnyURI(XmlSchemaConstants.XS_NAMESPACE)
     override val defaultOpenContent: Nothing? get() = null
     override val defaultAttributes: Nothing? get() = null
