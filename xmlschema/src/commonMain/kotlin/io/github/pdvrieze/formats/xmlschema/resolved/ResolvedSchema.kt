@@ -51,15 +51,6 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         nestedData[targetNamespace.value] = NestedData(targetNamespace, schemaData)
 
 
-        // Use getOrPut to ensure uniqueness
-        nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
-        nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
-        if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
-            XMLConstants.XML_NS_URI in schemaData.knownNested
-        ) {
-            nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
-        }
-
         for (importNS in schemaData.importedNamespaces) {
             if (importNS !in nestedData) { // don't duplicate
                 val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
@@ -67,6 +58,15 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                     nestedData[importNS] = NestedData(VAnyURI(importNS), importData)
                 }
             }
+        }
+
+        // Use getOrPut to ensure uniqueness
+        nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
+        nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
+        if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
+            XMLConstants.XML_NS_URI in schemaData.knownNested
+        ) {
+            nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
         }
 
         visibleNamespaces = schemaData.importedNamespaces.toSet()
@@ -258,6 +258,8 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         constructor(targetNamespace: VAnyURI, source: SchemaData) {
             this.targetNamespace = targetNamespace
 
+            nestedData.getOrPut(targetNamespace.value) { this }
+
             require(targetNamespace.value == source.namespace) {
                 "Namespace mismatch (${targetNamespace.value} != ${source.namespace})"
             }
@@ -295,15 +297,22 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
             imports = mutableMapOf<String, SchemaElementResolver?>().apply {
                 for (ns in source.importedNamespaces) {
-                    val resolver: SchemaElementResolver? = when (ns) {
-                        BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
-                        BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
-                        BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
-                        else -> {
-                            val uri = requireNotNull(source.includedNamespaceToUri[ns]) { "No URI found for namespace $ns" }
-                            source.knownNested[uri.value]?.let { NestedData(VAnyURI(ns), it) }
+                    val uri = source.includedNamespaceToUri[ns]
+                    val resolver: SchemaElementResolver? = when {
+                            ! uri.isNullOrEmpty() -> source.knownNested[uri.value]?.let { NestedData(VAnyURI(ns), it) }
+                            else -> {
+                                val preParsed = nestedData[ns]
+                                when {
+                                    preParsed != null -> preParsed
+                                    ns == BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
+                                    ns == BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
+                                    ns == BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
+                                    else -> {
+                                        throw IllegalArgumentException("No URI found for namespace $ns")
+                                    }
+                                }
+                            }
                         }
-                    }
                     if (resolver != null) nestedData.getOrPut(ns) { resolver }
 
                     set(ns, resolver)

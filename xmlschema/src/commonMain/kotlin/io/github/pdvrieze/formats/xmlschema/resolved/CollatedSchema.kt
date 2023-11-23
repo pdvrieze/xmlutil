@@ -29,7 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 
 internal class SchemaData(
-    val namespace: String?,
+    val namespace: String,
     val schemaLocation: String?,
     val rawSchema: XSSchema,
     val elements: Map<String, SchemaElement<XSGlobalElement>>,
@@ -61,7 +61,7 @@ internal class SchemaData(
     )
 
     constructor(
-        namespace: String?,
+        namespace: String,
         schemaLocation: String,
         rawSchema: XSSchema,
         elementFormDefault: VFormChoice?,
@@ -463,7 +463,11 @@ internal class SchemaData(
                             val delegateResolver = resolver.delegate(importLocation)
                             val parsed = resolver.readSchema(importLocation)
                             val actualNamespace = when (val ins = import.namespace) {
-                                null -> requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
+                                null -> {
+
+//                                    requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
+                                    VAnyURI("")
+                                }
                                 else -> {
                                     require(parsed.targetNamespace == null || parsed.targetNamespace == ins) {
                                         "Imports cannot change source namespace from ${parsed.targetNamespace} to $ins"
@@ -494,7 +498,7 @@ internal class SchemaData(
             // TODO add override support
 
             return SchemaData(
-                namespace = targetNamespace,
+                namespace = targetNamespace?:"",
                 schemaLocation = schemaLocation,
                 rawSchema = sourceSchema,
                 elementFormDefault = sourceSchema.elementFormDefault,
