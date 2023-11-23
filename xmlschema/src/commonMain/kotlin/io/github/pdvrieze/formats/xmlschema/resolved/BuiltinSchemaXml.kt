@@ -32,6 +32,8 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
+    override val version: ResolvedSchema.Version get() = ResolvedSchema.Version.V1_1
+
     override val defaultAttributes: Nothing? get() = null
 
     private val delegate: ResolvedSchema

@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract class ResolvedSchemaLike {
-    open val version: ResolvedSchema.Version get() = ResolvedSchema.Version.V1_1
+    abstract val version: ResolvedSchema.Version
     abstract val defaultAttributes: QName?
     abstract val targetNamespace: VAnyURI?
 
