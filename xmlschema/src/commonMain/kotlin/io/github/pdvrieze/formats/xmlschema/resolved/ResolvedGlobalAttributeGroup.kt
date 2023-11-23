@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalAttributeGroup internal constructor(
@@ -32,7 +33,14 @@ class ResolvedGlobalAttributeGroup internal constructor(
 
     val location = element.schemaLocation
 
-    override val model: Model by lazy { Model(this, element.elem, element.effectiveSchema(unresolvedSchema)) }
+    override val model: Model by lazy {
+        Model(
+            this,
+            element,
+            element.attributeFormDefault ?: VFormChoice.UNQUALIFIED,
+            element.effectiveSchema(unresolvedSchema)
+        )
+    }
 
     override val mdlQName: QName = element.elem.name.toQname(unresolvedSchema.targetNamespace)
 
@@ -117,13 +125,13 @@ class ResolvedGlobalAttributeGroup internal constructor(
         return "attributeGroup(name=$mdlQName, attrs=[${attributes.joinToString()}], attrGroups=[${attributeGroups.joinToString { "@${it.ref}" }}]"
     }
 
-    class Model(parent: ResolvedGlobalAttributeGroup, rawPart: XSAttributeGroup, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
+    class Model internal constructor(parent: ResolvedGlobalAttributeGroup, element: SchemaElement<XSAttributeGroup>, localAttributeFormDefault: VFormChoice, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(element.elem) {
 
-        val attributes: List<IResolvedAttributeUse> = rawPart.attributes.map {
-            ResolvedLocalAttribute(parent, it, schema)
+        val attributes: List<IResolvedAttributeUse> = element.wrapEach { attributes }.map {
+            ResolvedLocalAttribute(parent, it, schema, localAttributeFormDefault)
         }
 
-        val attributeGroups: List<ResolvedAttributeGroupRef> = rawPart.attributeGroups.map {
+        val attributeGroups: List<ResolvedAttributeGroupRef> = element.elem.attributeGroups.map {
             ResolvedAttributeGroupRef(it, schema)
         }
     }

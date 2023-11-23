@@ -314,19 +314,19 @@ sealed class ResolvedComplexType(
         val hasLocalNsInContext: Boolean
     }
 
-    protected abstract class ModelBase<R : XSIComplexType>(
+    protected abstract class ModelBase<R : XSIComplexType> internal constructor(
         context: ResolvedComplexType,
-        rawPart: R,
+        elem: SchemaElement<R>,
         schema: ResolvedSchemaLike
-    ) : ResolvedAnnotated.Model(rawPart), Model {
+    ) : ResolvedAnnotated.Model(elem.elem), Model {
 
         final override val mdlAttributeUses: Map<QName, IResolvedAttributeUse> by lazy {
-            calculateAttributeUses(schema, rawPart, context)
+            calculateAttributeUses(schema, elem, context)
         }
 
         override val mdlAssertions: List<XSIAssertCommon> = buildList {
-            addAll(rawPart.content.derivation.asserts)
-            addAll(rawPart.content.derivation.asserts)
+            addAll(elem.elem.content.derivation.asserts)
+            addAll(elem.elem.content.derivation.asserts)
         }
 
 
@@ -337,11 +337,11 @@ sealed class ResolvedComplexType(
 
     }
 
-    protected abstract class ComplexModelBase<R : XSComplexType.ComplexBase>(
+    protected abstract class ComplexModelBase<R : XSComplexType.ComplexBase> internal constructor(
         typeContext: ResolvedComplexType,
-        rawPart: R,
+        elemPart: SchemaElement<R>,
         schema: ResolvedSchemaLike,
-    ) : ModelBase<R>(typeContext, rawPart, schema) {
+    ) : ModelBase<R>(typeContext, elemPart, schema) {
 
         final override val mdlContentType: ResolvedContentType
 
@@ -353,6 +353,8 @@ sealed class ResolvedComplexType(
 
 
         init {
+            val rawPart = elemPart.elem
+
             val baseTypeDefinition: ResolvedType
             val content: XSI_ComplexContent = rawPart.content
             val derivation: XSI_ComplexDerivation
@@ -457,14 +459,14 @@ sealed class ResolvedComplexType(
                 }
 
 
-                else -> ResolvedGroupParticle.invoke(typeContext, term, schema)
+                else -> ResolvedGroupParticle.invoke(typeContext, elemPart.wrap(term), schema)
             }
 
             val effectiveContent: ResolvedParticle<ResolvedModelGroup>? = explicitContent ?: when {
                 !effectiveMixed -> null
                 else -> ResolvedSequence(
                     typeContext,
-                    XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = VAllNNI(1)),
+                    elemPart.wrap(XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = VAllNNI(1))),
                     schema
                 )
             }
@@ -577,18 +579,18 @@ sealed class ResolvedComplexType(
         }
     }
 
-    protected abstract class SimpleModelBase<R : XSComplexType.Simple>(
+    protected abstract class SimpleModelBase<R : XSComplexType.Simple> internal constructor(
         context: ResolvedComplexType,
-        rawPart: R,
+        elem: SchemaElement<R>,
         schema: ResolvedSchemaLike,
-    ) : ModelBase<R>(context, rawPart, schema),
+    ) : ModelBase<R>(context, elem, schema),
         ResolvedSimpleContentType {
 
         final override val mdlBaseTypeDefinition: ResolvedType =
-            rawPart.content.derivation.base?.let { schema.type(it) } ?: AnyType
+            elem.elem.content.derivation.base?.let { schema.type(it) } ?: AnyType
 
         override val mdlDerivationMethod: VDerivationControl.Complex =
-            rawPart.content.derivation.derivationMethod
+            elem.elem.content.derivation.derivationMethod
 
         override val mdlContentType: ResolvedSimpleContentType get() = this
 
@@ -599,7 +601,7 @@ sealed class ResolvedComplexType(
         final override val mdlAttributeWildcard: ResolvedAnyAttribute?
 
         init {
-
+            val rawPart = elem.elem
             require(rawPart.mixed != true) { "3.4.3(1) - Simple content can not have mixed=true" }
 
             val derivation = rawPart.content.derivation
@@ -842,11 +844,13 @@ sealed class ResolvedComplexType(
         /**
          * This one isn't quire correct/ready
          */
-        fun calculateAttributeUses(
+        internal fun calculateAttributeUses(
             schema: ResolvedSchemaLike,
-            rawPart: XSIComplexType,
+            elem: SchemaElement<XSIComplexType>,
             parent: ResolvedComplexType
         ): Map<QName, IResolvedAttributeUse> {
+            val rawPart = elem.elem
+
             val defaultAttributeGroup = (schema as? ResolvedSchema)?.defaultAttributes
                 ?.takeIf { rawPart.defaultAttributesApply != false }
 
@@ -856,7 +860,7 @@ sealed class ResolvedComplexType(
             val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
                 for (attr in rawPart.content.derivation.attributes) {
-                    val resolvedAttribute = ResolvedLocalAttribute(parent, attr, schema)
+                    val resolvedAttribute = ResolvedLocalAttribute(parent, elem.wrap(attr), schema, schema.attributeFormDefault)
                     require(put(resolvedAttribute.mdlQName, resolvedAttribute) == null) {
                         "Duplicate attribute ${resolvedAttribute.mdlQName} on type $parent"
                     }
@@ -873,7 +877,7 @@ sealed class ResolvedComplexType(
                     val interSection = groupAttributeUses.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
                     for (use in groupAttributeUses) {
-                        require(put(use.mdlQName, use) == null) { "Duplicate attribute and group ${use.mdlQName}" }
+                        require(put(use.mdlQName, use) == null) { "Duplicate attribute and group '${use.mdlQName}' for group ${group.mdlQName}" }
                     }
                 }
 
