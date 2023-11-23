@@ -35,6 +35,7 @@ import nl.adaptivity.xmlutil.QName
  * Built-in schema attribute declarations (3.2.7)
  */
 object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
+    override val version: ResolvedSchema.Version get() = ResolvedSchema.Version.V1_1
     override val defaultAttributes: Nothing? get() = null
 
     override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
