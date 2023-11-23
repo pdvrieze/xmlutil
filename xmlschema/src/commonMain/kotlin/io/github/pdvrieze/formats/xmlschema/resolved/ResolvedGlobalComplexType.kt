@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 open class ResolvedGlobalComplexType(
@@ -32,24 +32,19 @@ open class ResolvedGlobalComplexType(
     val location: String = ""
 ) : ResolvedComplexType(schema), ResolvedGlobalType {
 
-    constructor(rawPart: XSGlobalComplexType, schema: ResolvedSchemaLike, location: String) : this(
-        rawPart.name.toQname(schema.targetNamespace),
+    internal constructor(elemPart: SchemaElement<XSGlobalComplexType>, schema: ResolvedSchemaLike, dummy: String = "") : this(
+        elemPart.elem.name.toQname(schema.targetNamespace),
         schema,
         {
-            when (val r = rawPart) {
-                is XSGlobalComplexTypeComplex -> ComplexModel(this, r, schema)
-                is XSGlobalComplexTypeShorthand -> ShorthandModel(this, r, schema)
-                is XSGlobalComplexTypeSimple -> SimpleModel(this, r, schema)
+            when (val r = elemPart.elem) {
+                is XSGlobalComplexTypeComplex -> ComplexModel(this, elemPart.cast(), schema)
+                is XSGlobalComplexTypeShorthand -> ShorthandModel(this, elemPart.cast(), schema)
+                is XSGlobalComplexTypeSimple -> SimpleModel(this, elemPart.cast(), schema)
             }
         },
-        rawPart.abstract ?: false,
-        location
+        elemPart.elem.abstract ?: false,
+        elemPart.schemaLocation
     )
-
-    internal constructor(
-        element: SchemaElement<XSGlobalComplexType>,
-        schema: ResolvedSchemaLike
-    ) : this(element.elem, element.effectiveSchema(schema), element.schemaLocation)
 
     override val mdlScope: VComplexTypeScope.Global get() = VComplexTypeScope.Global
 
@@ -71,42 +66,42 @@ open class ResolvedGlobalComplexType(
 
     private class SimpleModel(
         parent: ResolvedComplexType,
-        rawPart: XSGlobalComplexTypeSimple,
+        elemPart: SchemaElement<XSGlobalComplexTypeSimple>,
         schema: ResolvedSchemaLike,
-    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, rawPart, schema),
+    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, elemPart, schema),
         Model {
         override val mdlContext: VComplexTypeScope.Member = parent
-        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlAbstract: Boolean = elemPart.elem.abstract ?: false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
-            calcProhibitedSubstitutions(rawPart, schema)
+            calcProhibitedSubstitutions(elemPart.elem, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
-            calcFinalSubstitutions(rawPart, schema)
+            calcFinalSubstitutions(elemPart.elem, schema)
     }
 
     private class ShorthandModel(
         parent: ResolvedComplexType,
-        rawPart: XSGlobalComplexTypeShorthand,
+        elemPart: SchemaElement<XSGlobalComplexTypeShorthand>,
         schema: ResolvedSchemaLike,
-    ) : ComplexModelBase<XSGlobalComplexTypeShorthand>(parent, rawPart, schema),
+    ) : ComplexModelBase<XSGlobalComplexTypeShorthand>(parent, elemPart, schema),
         Model {
-        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlAbstract: Boolean = elemPart.elem.abstract ?: false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
-            calcProhibitedSubstitutions(rawPart, schema)
+            calcProhibitedSubstitutions(elemPart.elem, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
-            calcFinalSubstitutions(rawPart, schema)
+            calcFinalSubstitutions(elemPart.elem, schema)
     }
 
     private class ComplexModel(
         parent: ResolvedComplexType,
-        rawPart: XSGlobalComplexTypeComplex,
+        elemPart: SchemaElement<XSGlobalComplexTypeComplex>,
         schema: ResolvedSchemaLike,
-    ) : ComplexModelBase<XSGlobalComplexTypeComplex>(parent, rawPart, schema),
+    ) : ComplexModelBase<XSGlobalComplexTypeComplex>(parent, elemPart, schema),
         Model {
-        override val mdlAbstract: Boolean = rawPart.abstract ?: false
+        override val mdlAbstract: Boolean = elemPart.elem.abstract ?: false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
-            calcProhibitedSubstitutions(rawPart, schema)
+            calcProhibitedSubstitutions(elemPart.elem, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
-            calcFinalSubstitutions(rawPart, schema)
+            calcFinalSubstitutions(elemPart.elem, schema)
     }
 
 }

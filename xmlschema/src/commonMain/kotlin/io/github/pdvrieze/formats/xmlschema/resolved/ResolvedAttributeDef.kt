@@ -20,14 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchemaLike) :
     ResolvedAttribute(rawPart, schema) {
+
+    internal constructor(elem: SchemaElement<XSAttribute>, unresolvedSchema: ResolvedSchemaLike) :
+            this(elem.elem, elem.effectiveSchema(unresolvedSchema))
 
     abstract override val model: Model
 
