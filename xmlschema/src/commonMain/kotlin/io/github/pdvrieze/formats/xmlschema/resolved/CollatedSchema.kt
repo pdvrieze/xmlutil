@@ -345,6 +345,15 @@ internal class SchemaData(
             resolver: ResolvedSchema.Resolver,
             alreadyProcessed: Map<String, SchemaData?>
         ): SchemaData {
+            for (attrName in sourceSchema.otherAttrs.keys) {
+                require(attrName.namespaceURI.isNotEmpty()) {
+                    "Unknown unqualified attribute on schema: ${attrName.localPart}"
+                }
+                require(attrName.namespaceURI!= XmlSchemaConstants.XS_NAMESPACE) {
+                    "Attributes qualified with the XMLSchema namespace are not allowed in schemas"
+                }
+            }
+
             val b = DataBuilder(alreadyProcessed)
             b.newProcessed.put(schemaLocation, null)
 
