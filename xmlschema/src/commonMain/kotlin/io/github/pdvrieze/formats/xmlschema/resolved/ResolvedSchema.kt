@@ -289,11 +289,20 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
             }
             notations = DelegateMap(targetNamespace.value, source.notations) { v -> ResolvedNotation(v, s, loc) }
 
-            imports = mutableMapOf<String, NestedData?>().apply {
+            imports = mutableMapOf<String, SchemaElementResolver?>().apply {
                 for (ns in source.importedNamespaces) {
-                    val uri = requireNotNull(source.includedNamespaceToUri[ns]) { "No URI found for namespace $ns" }
-                    val schema = source.knownNested[uri.value]
-                    set(ns, schema?.let { NestedData(VAnyURI(ns), it) })
+                    val resolver: SchemaElementResolver? = when (ns) {
+                        BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
+                        BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
+                        BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
+                        else -> {
+                            val uri = requireNotNull(source.includedNamespaceToUri[ns]) { "No URI found for namespace $ns" }
+                            source.knownNested[uri.value]?.let { NestedData(VAnyURI(ns), it) }
+                        }
+                    }
+                    if (resolver != null) nestedData.getOrPut(ns) { resolver }
+
+                    set(ns, resolver)
                 }
             }
         }
@@ -313,7 +322,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
         val notations: Map<String, ResolvedNotation>
 
-        val imports: Map<String, NestedData?> // imports can be unresolved
+        val imports: Map<String, SchemaElementResolver?> // imports can be unresolved, can be built-ins
 
         val identityConstraints: Map<String, ResolvedIdentityConstraint> by lazy {
             val identityConstraintList = mutableSetOf<ResolvedIdentityConstraint>().also { collector ->
