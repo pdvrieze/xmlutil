@@ -350,11 +350,15 @@ internal class SchemaData(
 
             b.addFromSchema(sourceSchema, schemaLocation, targetNamespace)
 
-            for (include in sourceSchema.includes) {
+            includeLoop@for (include in sourceSchema.includes) {
                 val includeLocation = resolver.resolve(include.schemaLocation)
+
                 val includeData: SchemaData = when {
-                    includeLocation.value in alreadyProcessed ->
+                    includeLocation.value in b.newProcessed -> continue@includeLoop
+
+                    includeLocation.value in alreadyProcessed -> {
                         requireNotNull(alreadyProcessed[includeLocation.value]) { "Recursive includes: $includeLocation" }
+                    }
 
                     else -> {
                         val delegateResolver = resolver.delegate(includeLocation)
