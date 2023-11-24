@@ -26,12 +26,12 @@ import nl.adaptivity.xmlutil.SerializableQName
 
 class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkedTypes: MutableSet<ResolvedType> = HashSet()
-    private val checkedElements: MutableSet<QName> = HashSet()
-    private val checkedAttributes: MutableSet<QName> = HashSet()
-    private val checkedAttributeGroups: MutableSet<QName> = HashSet()
-    private val checkedConstraints: MutableSet<QName> = HashSet()
-    private val checkedGroups: MutableSet<QName> = HashSet()
-    private val notations: MutableSet<QName> = HashSet()
+    private val checkedElements: MutableSet<ResolvedGlobalElement> = HashSet()
+    private val checkedAttributes: MutableSet<ResolvedGlobalAttribute> = HashSet()
+    private val checkedAttributeGroups: MutableSet<ResolvedGlobalAttributeGroup> = HashSet()
+    private val checkedConstraints: MutableSet<ResolvedIdentityConstraint> = HashSet()
+    private val checkedGroups: MutableSet<ResolvedGlobalGroup> = HashSet()
+    private val checkedNotations: MutableSet<ResolvedNotation> = HashSet()
 
     val version: ResolvedSchema.Version get() = schema.version
 
@@ -54,37 +54,40 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     }
 
     fun checkElement(name: QName) {
-        if (checkedElements.add(name)) {
-            schema.element(name).checkTerm(this)
+        val element = schema.element(name)
+        if (checkedElements.add(element)) {
+            element.checkTerm(this)
         }
     }
 
     fun checkElement(element: ResolvedElement) {
-        if (element !is ResolvedGlobalElement || checkedElements.add(element.mdlQName)) {
+        if (element !is ResolvedGlobalElement || checkedElements.add(element)) {
             element.checkTerm(this)
         }
     }
 
     fun checkAttribute(name: QName) {
-        if (checkedAttributes.add(name)) {
-            schema.attribute(name).checkAttribute(this)
+        val attribute = schema.attribute(name)
+        if (checkedAttributes.add(attribute)) {
+            attribute.checkAttribute(this)
         }
     }
 
     fun checkAttribute(attribute: ResolvedAttributeDef) {
-        if (attribute !is ResolvedGlobalAttribute || checkedAttributes.add(attribute.mdlQName)) {
+        if (attribute !is ResolvedGlobalAttribute || checkedAttributes.add(attribute)) {
             attribute.checkAttribute(this)
         }
     }
 
     fun checkAttributeGroup(name: QName) {
-        if (checkedAttributeGroups.add(name)) {
-            schema.attributeGroup(name).checkAttributeGroup(this)
+        val attributeGroup = schema.attributeGroup(name)
+        if (checkedAttributeGroups.add(attributeGroup)) {
+            attributeGroup.checkAttributeGroup(this)
         }
     }
 
     fun checkAttributeGroup(attributeGroup: ResolvedGlobalAttributeGroup) {
-        if (checkedAttributeGroups.add(attributeGroup.mdlQName)) {
+        if (checkedAttributeGroups.add(attributeGroup)) {
             attributeGroup.checkAttributeGroup(this)
         } else if (version == ResolvedSchema.Version.V1_0) {
             throw IllegalStateException("Circular attribute group (in 1.0 mode): ${attributeGroup.mdlQName}")
@@ -92,33 +95,29 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     }
 
     fun checkConstraint(name: QName) {
-        if (checkedConstraints.add(name)) {
-            schema.identityConstraint(name).checkConstraint(this)
-        }
+        checkConstraint(schema.identityConstraint(name))
     }
 
     fun checkConstraint(constraint: ResolvedIdentityConstraint) {
-        val name = constraint.mdlQName
-        if (name == null || checkedConstraints.add(name)) {
+        if (checkedConstraints.add(constraint)) {
             constraint.checkConstraint(this)
         }
     }
 
     fun checkGroup(group: ResolvedGlobalGroup) {
-        if (checkedGroups.add(group.mdlQName)) {
+        if (checkedGroups.add(group)) {
             group.checkGroup(this)
         }
     }
 
     fun checkGroup(name: QName) {
-        if (checkedGroups.add(name)) {
-            schema.modelGroup(name).checkGroup(this)
-        }
+        checkGroup(schema.modelGroup(name))
     }
 
     fun checkNotation(name: SerializableQName) {
-        if (notations.add(name)) {
-            schema.notation(name).check()
+        val notation = schema.notation(name)
+        if (checkedNotations.add(notation)) {
+            notation.check()
         }
     }
 }
