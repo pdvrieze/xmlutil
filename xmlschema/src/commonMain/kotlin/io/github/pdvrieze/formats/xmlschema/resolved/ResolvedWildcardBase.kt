@@ -70,9 +70,9 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
         @JvmStatic
         protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, hasUnqualifiedAttrs: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
 
-            val p = toConstraintHelper(schemaLike, hasUnqualifiedAttrs || schemaLike.hasLocalTargetNamespace())
+            val (variety, nsSet) = toConstraintHelper(schemaLike, hasUnqualifiedAttrs || schemaLike.hasLocalTargetNamespace())
 
-            return VNamespaceConstraint(p.first, p.second, notQName ?: VAttrQNameList())
+            return VNamespaceConstraint(variety, nsSet, notQName ?: VAttrQNameList())
         }
 
         private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike, localInOther: Boolean): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
@@ -94,7 +94,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                         // only add local when relevant to the context (there is something in the context
                         // This should handle "other" being special
                         if(localInOther) add(VAnyURI(""))
-                        add(schemaLike.targetNamespace?:VAnyURI(""))
+                        add(schemaLike.targetNamespace ?: VAnyURI(""))
                     }
                 }
 
