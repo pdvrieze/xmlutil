@@ -123,167 +123,177 @@ sealed class ResolvedComplexType(
         mdlContentType.check(this, checkHelper)
 
         if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
-            val baseType = mdlBaseTypeDefinition
-            if (baseType is ResolvedComplexType) {
-                require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
-                for ((baseName, baseUse) in baseType.mdlAttributeUses) {
-                    val derived =
-                        requireNotNull(mdlAttributeUses[baseName]) { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: $baseName not found in $mdlAttributeUses" }
-                    if (baseUse.mdlRequired) {
-                        require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
-                    }
-                    if (derived !is ResolvedProhibitedAttribute && baseUse !is ResolvedProhibitedAttribute) {
-                        require(
-                            baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(
-                                derived.mdlAttributeDeclaration.mdlTypeDefinition,
-                                false
-                            )
-                        ) { "Types must match" }
-                    }
-                }
 
-                // 1.3
-                val baseWc = baseType.mdlAttributeWildcard
-                if (baseWc != null) {
-                    val wc = requireNotNull(mdlAttributeWildcard) { "3.4.6.2(1.3) - extension must have also one" }
-                    require(wc.mdlNamespaceConstraint.isSupersetOf(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
-                }
+            when (mdlBaseTypeDefinition) {
+                is ResolvedComplexType -> checkExtensionOfComplex()
 
-                when (val baseCType = baseType.mdlContentType) {
-                    is ResolvedSimpleContentType ->
-                        when (val ct = mdlContentType) {
-                            is EmptyContentType -> {
-                                require(baseType is ResolvedSimpleType || schema.version == ResolvedSchema.Version.V1_0) {
-                                    "From version 1.1 complexContent can not inherit simpleContent"
-                                }
-                                require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
-                                    "The empty string must be a valid value"
-                                }
-                                // fine for now
-                            }
-
-                            is ResolvedSimpleContentType -> {
-                                require(baseCType.mdlSimpleTypeDefinition == ct.mdlSimpleTypeDefinition) {
-                                    "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
-                                }
-
-                            }
-
-                            else -> {
-                                throw IllegalArgumentException("simple base can only extend from simple content or empty")
-                            }
-                        }
-
-                    is EmptyContentType -> {}//1.4.2 / 1.4.3.2.1 can extend from empty
-
-                    is MixedContentType -> {
-                        require(mdlContentType is MixedContentType) { "3.4.6.2(1.4.3.2.2.1) - mixed must be extended by mixed" }
-                        // Ensure chcking particle extensions
-                        val bot = baseCType.mdlOpenContent
-                        val eot = (mdlContentType as MixedContentType).mdlOpenContent
-                        require(bot == null || eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE || (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX)) {
-                            "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
-                        }
-                        if (bot != null && eot != null) {
-                            require(eot.mdlWildCard!!.mdlNamespaceConstraint.isSupersetOf(bot.mdlWildCard!!.mdlNamespaceConstraint))
-                        }
-                    }
-
-                    is ElementOnlyContentType -> {
-                        require(mdlContentType is ElementOnlyContentType) { "Content type for complex extension must match: ${mdlContentType.mdlVariety}!= ${baseCType.mdlVariety}" }
-                        // Ensure chcking particle extensions
-
-                    }
-                }
-            } else { // extension of simple type
+                else -> {} // extension of simple type
             }
         } else { // restriction
-            val b = mdlBaseTypeDefinition
+            checkRestriction()
+        }
+    }
 
-            require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
+    private fun checkRestriction() {
+        val b = mdlBaseTypeDefinition
 
-            val contentType: ResolvedContentType = mdlContentType
-//            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
-            val baseContentType = (b as? ResolvedComplexType)?.mdlContentType
-            when {
-                b == AnyType -> {} // Derivation is fine
+        require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
 
-                contentType is ResolvedSimpleContentType -> {
-                    when (baseContentType) {
-                        is ResolvedSimpleContentType -> {
-                            val sb = baseContentType.mdlSimpleTypeDefinition
-                            val st = contentType.mdlSimpleTypeDefinition
-                            check(
-                                st.isValidlyDerivedFrom(
-                                    sb,
-                                    true
-                                )
-                            ) { "For derivation, simple content models must validly derive" }
-                        }
+        val contentType: ResolvedContentType = mdlContentType
+        //            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
+        val baseContentType = (b as? ResolvedComplexType)?.mdlContentType
+        when {
+            b == AnyType -> {} // Derivation is fine
 
-                        is MixedContentType ->
-                            check(baseContentType.mdlParticle.mdlIsEmptiable()) { "Simple variety can only restrict emptiable mixed content type" }
-
-                        else -> throw IllegalArgumentException("Invalid derivation of ${baseContentType?.mdlVariety} by simple")
+            contentType is ResolvedSimpleContentType -> {
+                when (baseContentType) {
+                    is ResolvedSimpleContentType -> {
+                        val sb = baseContentType.mdlSimpleTypeDefinition
+                        val st = contentType.mdlSimpleTypeDefinition
+                        check(
+                            st.isValidlyDerivedFrom(
+                                sb,
+                                true
+                            )
+                        ) { "For derivation, simple content models must validly derive" }
                     }
-                }
 
-                contentType is EmptyContentType -> {
-                    when (baseContentType) {
-                        is ElementContentType -> {
-                            check(baseContentType.mdlParticle.mdlIsEmptiable())
-                        }
+                    is MixedContentType ->
+                        check(baseContentType.mdlParticle.mdlIsEmptiable()) { "Simple variety can only restrict emptiable mixed content type" }
 
-                        !is EmptyContentType -> error("Invalid derivation of ${baseContentType?.mdlVariety} by empty")
-                    }
-                }
-
-                contentType is ElementOnlyContentType -> {
-                    check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                    check(contentType.restricts(baseContentType, this, schema)) {
-                        "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
-                    }
-                }
-
-                contentType is MixedContentType -> {
-                    check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
-                    check(contentType.restricts(baseContentType, this, schema) || true) // TODO do check
+                    else -> throw IllegalArgumentException("Invalid derivation of ${baseContentType?.mdlVariety} by simple")
                 }
             }
 
-            val dAttrs = mdlAttributeUses
-            if (dAttrs.isNotEmpty()) {
-                require(b is ResolvedComplexType) { "Restriction introduces attributes on a simple type" }
-                val bAttrs = b.mdlAttributeUses
-                for ((dName, dAttr) in dAttrs) {
-
-                    when (val bAttr = bAttrs[dName]) {
-                        null -> {
-                            val attrWildcard =
-                                requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
-                            require(
-                                attrWildcard.matches(dName, this, schema)
-                            ) { "Attribute wildcard does not match $dName" }
-                        }
-
-                        else -> require(dAttr.isValidRestrictionOf(bAttr)) {
-                            "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
-                        }
+            contentType is EmptyContentType -> {
+                when (baseContentType) {
+                    is ElementContentType -> {
+                        check(baseContentType.mdlParticle.mdlIsEmptiable())
                     }
 
+                    !is EmptyContentType -> error("Invalid derivation of ${baseContentType?.mdlVariety} by empty")
                 }
             }
-            mdlAttributeWildcard?.let { wc ->
-                require(b is ResolvedComplexType) { "Restriction with wilcard attributes must derive complex types" }
-                val baseWC = requireNotNull(b.mdlAttributeWildcard) { "A wildcard must derive from a wildcard" }
-                require(wc.restricts(baseWC)) { "Wildcard $wc does not restrict $baseWC" }
 
+            contentType is ElementOnlyContentType -> {
+                check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
+                check(contentType.restricts(baseContentType, this, schema)) {
+                    "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
+                }
             }
 
+            contentType is MixedContentType -> {
+                check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
+                check(contentType.restricts(baseContentType, this, schema) || true) // TODO do check
+            }
+        }
 
-            // check attributes : 3.4.6.3, item 3
-            // check attributes : 3.4.6.3, item 4
-            // check attributes : 3.4.6.3, item 5 assertions is an extension of b.extensions
+        val dAttrs = mdlAttributeUses
+        if (dAttrs.isNotEmpty()) {
+            require(b is ResolvedComplexType) { "Restriction introduces attributes on a simple type" }
+            val bAttrs = b.mdlAttributeUses
+            for ((dName, dAttr) in dAttrs) {
+
+                when (val bAttr = bAttrs[dName]) {
+                    null -> {
+                        val attrWildcard =
+                            requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
+                        require(
+                            attrWildcard.matches(dName, this, schema)
+                        ) { "Attribute wildcard does not match $dName" }
+                    }
+
+                    else -> require(dAttr.isValidRestrictionOf(bAttr)) {
+                        "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
+                    }
+                }
+
+            }
+        }
+        mdlAttributeWildcard?.let { wc ->
+            require(b is ResolvedComplexType) { "Restriction with wilcard attributes must derive complex types" }
+            val baseWC = requireNotNull(b.mdlAttributeWildcard) { "A wildcard must derive from a wildcard" }
+            require(wc.restricts(baseWC)) { "Wildcard $wc does not restrict $baseWC" }
+
+        }
+
+
+        // check attributes : 3.4.6.3, item 3
+        // check attributes : 3.4.6.3, item 4
+        // check attributes : 3.4.6.3, item 5 assertions is an extension of b.extensions
+    }
+
+    private fun checkExtensionOfComplex() {
+        val baseType = mdlBaseTypeDefinition as ResolvedComplexType
+        require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
+        for ((baseName, baseUse) in baseType.mdlAttributeUses) {
+            val derived =
+                requireNotNull(mdlAttributeUses[baseName]) { "3.4.6.2(1.2) - Base attribute uses must be a subset of the extension: extension: $baseName not found in $mdlAttributeUses" }
+            if (baseUse.mdlRequired) {
+                require(derived.mdlRequired) { "If the base attribute is required the child should also be" }
+            }
+            if (derived !is ResolvedProhibitedAttribute && baseUse !is ResolvedProhibitedAttribute) {
+                require(
+                    baseUse.mdlAttributeDeclaration.mdlTypeDefinition.isValidSubtitutionFor(
+                        derived.mdlAttributeDeclaration.mdlTypeDefinition,
+                        false
+                    )
+                ) { "Types must match" }
+            }
+        }
+
+        // 1.3
+        val baseWc = baseType.mdlAttributeWildcard
+        if (baseWc != null) {
+            val wc = requireNotNull(mdlAttributeWildcard) { "3.4.6.2(1.3) - extension must have also one" }
+            require(wc.mdlNamespaceConstraint.isSupersetOf(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
+        }
+
+        when (val baseCType = baseType.mdlContentType) {
+            is ResolvedSimpleContentType ->
+                when (val ct = mdlContentType) {
+                    is EmptyContentType -> {
+                        require(baseType is ResolvedSimpleType || schema.version == ResolvedSchema.Version.V1_0) {
+                            "From version 1.1 complexContent can not inherit simpleContent"
+                        }
+                        require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
+                            "The empty string must be a valid value"
+                        }
+                        // fine for now
+                    }
+
+                    is ResolvedSimpleContentType -> {
+                        require(baseCType.mdlSimpleTypeDefinition == ct.mdlSimpleTypeDefinition) {
+                            "3.4.6.2(1.4.1) - Simple content types must have the same simple type definition"
+                        }
+
+                    }
+
+                    else -> {
+                        throw IllegalArgumentException("simple base can only extend from simple content or empty")
+                    }
+                }
+
+            is EmptyContentType -> {}//1.4.2 / 1.4.3.2.1 can extend from empty
+
+            is MixedContentType -> {
+                require(mdlContentType is MixedContentType) { "3.4.6.2(1.4.3.2.2.1) - mixed must be extended by mixed" }
+                // Ensure chcking particle extensions
+                val bot = baseCType.mdlOpenContent
+                val eot = (mdlContentType as MixedContentType).mdlOpenContent
+                require(bot == null || eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE || (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX)) {
+                    "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
+                }
+                if (bot != null && eot != null) {
+                    require(eot.mdlWildCard!!.mdlNamespaceConstraint.isSupersetOf(bot.mdlWildCard!!.mdlNamespaceConstraint))
+                }
+            }
+
+            is ElementOnlyContentType -> {
+                require(mdlContentType is ElementOnlyContentType) { "Content type for complex extension must match: ${mdlContentType.mdlVariety}!= ${baseCType.mdlVariety}" }
+                // Ensure chcking particle extensions
+
+            }
         }
     }
 

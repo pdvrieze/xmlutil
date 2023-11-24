@@ -33,11 +33,16 @@ sealed interface IResolvedAttributeUse : ResolvedAnnotated {
     fun checkUse(checkHelper: CheckHelper)
     fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
         if (baseAttr.mdlRequired && !mdlRequired) return false
-        (mdlValueConstraint?:mdlAttributeDeclaration.mdlValueConstraint)?.let { vc ->
-            baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(vc.value)
+
+        val valueConstraint = mdlValueConstraint ?: mdlAttributeDeclaration.mdlValueConstraint
+        if (valueConstraint != null) {
+            baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(valueConstraint.value)
             (baseAttr.mdlValueConstraint ?: baseAttr.mdlAttributeDeclaration.mdlValueConstraint)?.let { bc ->
-                if (!vc.isValidRestrictionOf(baseAttr.mdlAttributeDeclaration.mdlTypeDefinition, bc)) return false
+                if (!valueConstraint.isValidRestrictionOf(baseAttr.mdlAttributeDeclaration.mdlTypeDefinition, bc)) return false
             }
+        } else {
+            val baseConstraint = baseAttr.mdlValueConstraint ?: baseAttr.mdlAttributeDeclaration.mdlValueConstraint
+            if (baseConstraint is ValueConstraint.Fixed) return false
         }
 
         return mdlAttributeDeclaration.mdlTypeDefinition
