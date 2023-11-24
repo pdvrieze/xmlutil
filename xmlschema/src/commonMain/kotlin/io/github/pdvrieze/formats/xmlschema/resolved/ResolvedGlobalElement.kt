@@ -73,7 +73,7 @@ class ResolvedGlobalElement private constructor(
     fun fullSubstitutionGroup(): List<ResolvedGlobalElement> {
         val map = mutableMapOf<QName, ResolvedGlobalElement>()
         fullSubstitutionGroup(map)
-        return map.values.toList()
+        return map.values.filter { ! it.mdlAbstract } //abstract members are not part of the substitution group
     }
 
     override fun checkTerm(checkHelper: CheckHelper) {
