@@ -874,7 +874,7 @@ sealed class ResolvedComplexType(
                 }
                 for (group in groups) {
                     val groupAttributeUses = group.getAttributeUses()
-                    val interSection = groupAttributeUses.intersect(this.keys)
+                    val interSection = groupAttributeUses.map { it.mdlQName }.intersect(this.keys)
                     check(interSection.isEmpty()) { "Duplicate attributes ($interSection) in attribute group" }
                     for (use in groupAttributeUses) {
                         require(put(use.mdlQName, use) == null) { "Duplicate attribute and group '${use.mdlQName}' for group ${group.mdlQName}" }

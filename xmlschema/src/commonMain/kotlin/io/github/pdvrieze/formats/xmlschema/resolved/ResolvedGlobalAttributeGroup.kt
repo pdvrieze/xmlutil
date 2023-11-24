@@ -131,8 +131,8 @@ class ResolvedGlobalAttributeGroup internal constructor(
             ResolvedLocalAttribute(parent, it, schema, localAttributeFormDefault)
         }
 
-        val attributeGroups: List<ResolvedAttributeGroupRef> = element.elem.attributeGroups.map {
-            ResolvedAttributeGroupRef(it, schema)
+        val attributeGroups: List<ResolvedAttributeGroupRef> = element.wrapEach { attributeGroups }.map {
+            ResolvedAttributeGroupRef(it.elem, it.effectiveSchema(schema))
         }
     }
 }

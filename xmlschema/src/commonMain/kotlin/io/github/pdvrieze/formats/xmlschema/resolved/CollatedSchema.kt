@@ -909,8 +909,9 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
             return Chameleon(elem, schemaLocation, rawSchema, chameleon)
         }
 
-        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike {
-            return ChameleonWrapper(
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
+            schema is ChameleonWrapper && schema.targetNamespace?.value == newNS -> schema
+            else -> ChameleonWrapper(
                 attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
                 elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
                 base = schema,
