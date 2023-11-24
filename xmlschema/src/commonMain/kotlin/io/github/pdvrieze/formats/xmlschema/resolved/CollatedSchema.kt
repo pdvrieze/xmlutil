@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 
 internal class SchemaData(
     val namespace: String,
@@ -467,34 +468,41 @@ internal class SchemaData(
                         importLocation.value in alreadyProcessed -> alreadyProcessed[importLocation.value]
 
                         else -> {
-                            val delegateResolver = resolver.delegate(importLocation)
-                            val parsed = resolver.readSchema(importLocation)
-                            val actualNamespace = when (val ins = import.namespace) {
-                                null -> {
-
-//                                    requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
-                                    VAnyURI("")
-                                }
-                                else -> {
-                                    require(parsed.targetNamespace == null || parsed.targetNamespace == ins) {
-                                        "Imports cannot change source namespace from ${parsed.targetNamespace} to $ins"
-                                    }
-                                    ins
-                                }
+                            val parsed = runCatching { resolver.readSchema(importLocation) }.getOrElse {
+                                if (it is IOException) null else throw it
                             }
+                            when (parsed) {
+                                null -> null
+                                else -> {
+                                    val delegateResolver = resolver.delegate(importLocation)
+                                    val actualNamespace = when (val ins = import.namespace) {
+                                        null -> {
+                                            if (targetNamespace.isNullOrEmpty()) requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
+                                            VAnyURI("")
+                                        }
 
-                            require(parsed.targetNamespace.let { it == null || it == import.namespace }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
-                            b.importedNamespaces.add(actualNamespace.value)
-                            b.includedNamespaceToUri[actualNamespace.value] = importLocation
+                                        else -> {
+                                            require(parsed.targetNamespace == null || parsed.targetNamespace == ins) {
+                                                "Imports cannot change source namespace from ${parsed.targetNamespace} to $ins"
+                                            }
+                                            ins
+                                        }
+                                    }
 
-                            SchemaData(
-                                parsed,
-                                importLocation.value,
-                                parsed.targetNamespace?.value,
-                                delegateResolver,
-                                b.newProcessed
-                            ).also {
-                                b.newProcessed[importLocation.value] = it
+                                    require(parsed.targetNamespace.let { it == null || it == import.namespace }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
+                                    b.importedNamespaces.add(actualNamespace.value)
+                                    b.includedNamespaceToUri[actualNamespace.value] = importLocation
+
+                                    SchemaData(
+                                        parsed,
+                                        importLocation.value,
+                                        parsed.targetNamespace?.value,
+                                        delegateResolver,
+                                        b.newProcessed
+                                    ).also {
+                                        b.newProcessed[importLocation.value] = it
+                                    }
+                                }
                             }
                         }
                     }
