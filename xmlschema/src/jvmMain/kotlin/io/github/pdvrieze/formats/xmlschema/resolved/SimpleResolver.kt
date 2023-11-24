@@ -25,8 +25,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.FileNotFoundException
+import java.io.InputStream
 import java.net.URI
 import java.net.URL
 
@@ -56,6 +59,31 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
         }
     }
 
+    override fun tryReadSchema(schemaLocation: VAnyURI): XSSchema? {
+        val schemaUri = URI(schemaLocation.value)
+        if (!isNetworkResolvingAllowed &&
+            schemaUri.isAbsolute &&
+            (schemaUri.scheme != baseURI.scheme ||
+                    schemaUri.host != baseURI.host)
+        ) {
+            throw FileNotFoundException("Absolute uri references are not supported")
+        }
+        val stream = try { baseURI.resolve(schemaUri).toURL().openStream() } catch (e: FileNotFoundException) {
+            return null
+        }
+
+        return stream.withXmlReader { reader ->
+                XML {
+                    defaultPolicy {
+                        autoPolymorphic = true
+                        throwOnRepeatedElement = true
+                        verifyElementOrder = true
+                        isStrictAttributeNames = true
+                    }
+                }.decodeFromReader<XSSchema>(reader)
+            }
+    }
+
     override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
         return SimpleResolver(baseURI.resolve(schemaLocation.value))
     }
@@ -71,8 +99,12 @@ private inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
 }
 
 private inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
-    return openStream().use { inStream ->
-        val reader = XmlStreaming.newReader(inStream, "UTF-8")
+    return openStream().withXmlReader(body)
+}
+
+private inline fun <R> InputStream.withXmlReader(body: (XmlReader) -> R): R {
+    return use { inStream ->
+        val reader = xmlStreaming.newReader(inStream, "UTF-8")
         val r = reader.use(body)
         if (reader.eventType != EventType.END_DOCUMENT) {
             var e: EventType

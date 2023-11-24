@@ -207,6 +207,8 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
         fun readSchema(schemaLocation: VAnyURI): XSSchema
 
+        fun tryReadSchema(schemaLocation: VAnyURI): XSSchema?
+
         /**
          * Create a delegate resolver for the schema
          */
@@ -215,10 +217,14 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         fun resolve(relativeUri: VAnyURI): VAnyURI
     }
 
-    object DummyResolver : Resolver {
+    internal object DummyResolver : Resolver {
         override val baseUri: VAnyURI = VAnyURI("")
 
         override fun readSchema(schemaLocation: VAnyURI): XSSchema {
+            throw UnsupportedOperationException("Dummy resolver")
+        }
+
+        override fun tryReadSchema(schemaLocation: VAnyURI): XSSchema? {
             throw UnsupportedOperationException("Dummy resolver")
         }
 
