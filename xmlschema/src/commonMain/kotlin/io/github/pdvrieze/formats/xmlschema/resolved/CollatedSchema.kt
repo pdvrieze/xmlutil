@@ -244,16 +244,22 @@ internal class SchemaData(
         val finalRefs = refs.asSequence()
             .filter { it.namespaceURI != XmlSchemaConstants.XS_NAMESPACE && it.namespaceURI != XmlSchemaConstants.XSI_NAMESPACE }
             .let {
-                when (val ns = schema.namespace) {
-                    null -> it
-                    else -> it.map { QName(ns, it.localPart) }
+                when {
+                    rawSchema.targetNamespace.isNullOrEmpty() && schema.namespace.isNotEmpty() ->
+                        it.map { n ->
+                            if (n.namespaceURI.isEmpty()) QName(schema.namespace, n.localPart) else n
+                        }
+
+                    else -> it
                 }
-            }.toSet()
+            }
+            .toSet()
 
         for (ref in finalRefs) {
             val typeInfo = when {
-                startType is SchemaElement.Redefined<*> && ref.isEquivalent(startType.elementName)->
+                startType is SchemaElement.Redefined<*> && ref.isEquivalent(startType.elementName) ->
                     requireNotNull(startType.baseSchema.findType(ref)) { "Failure to find redefined type $ref" }
+
                 else -> requireNotNull(findType(ref)) { "Failure to find referenced type $ref" }
             }
 
@@ -262,6 +268,7 @@ internal class SchemaData(
             }
 
         }
+
         for (local in locals) {
             checkRecursiveTypes(SchemaElement(local, schema.schemaLocation?:"", rawSchema), schema, rawSchema, seenTypes, inheritanceChain)
         }
