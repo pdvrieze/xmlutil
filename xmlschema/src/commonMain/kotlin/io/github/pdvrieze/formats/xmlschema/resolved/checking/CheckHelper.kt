@@ -79,18 +79,17 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
         }
     }
 
-    fun checkAttributeGroup(name: QName) {
-        val attributeGroup = schema.attributeGroup(name)
-        if (checkedAttributeGroups.add(attributeGroup)) {
-            attributeGroup.checkAttributeGroup(this)
-        }
-    }
-
-    fun checkAttributeGroup(attributeGroup: ResolvedGlobalAttributeGroup) {
-        if (checkedAttributeGroups.add(attributeGroup)) {
-            attributeGroup.checkAttributeGroup(this)
-        } else if (version == ResolvedSchema.Version.V1_0) {
+    fun checkAttributeGroup(
+        attributeGroup: ResolvedGlobalAttributeGroup,
+        seen: MutableSet<ResolvedGlobalAttributeGroup> = mutableSetOf()
+    ) {
+        if (version == ResolvedSchema.Version.V1_0 && attributeGroup in seen) {
             throw IllegalStateException("Circular attribute group (in 1.0 mode): ${attributeGroup.mdlQName}")
+        } else {
+            seen.add(attributeGroup)
+        }
+        if (checkedAttributeGroups.add(attributeGroup)) {
+            attributeGroup.checkAttributeGroup(this, seen)
         }
     }
 
