@@ -274,13 +274,11 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 when {
                     s2.elementFormDefault != source.rawSchema.elementFormDefault ||
                             s2.attributeFormDefault != source.rawSchema.attributeFormDefault ->
-                        OwnerWrapper(s2, source.rawSchema)
+                        OwnerWrapper(s2, source.rawSchema, source.importedNamespaces)
 
                     else -> s2
                 }
             }
-
-//            val s = this@ResolvedSchema
 
             val loc = source.schemaLocation ?: ""
 
