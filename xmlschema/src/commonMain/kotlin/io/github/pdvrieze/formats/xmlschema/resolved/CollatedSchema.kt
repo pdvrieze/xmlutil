@@ -27,7 +27,9 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.FileNotFoundException
 import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
+import nl.adaptivity.xmlutil.serialization.XmlParsingException
 
 internal class SchemaData(
     val namespace: String,
@@ -368,88 +370,111 @@ internal class SchemaData(
             includeLoop@for (include in sourceSchema.includes) {
                 val includeLocation = resolver.resolve(include.schemaLocation)
 
-                val includeData: SchemaData = when {
+                val includeData: SchemaData? = when {
                     includeLocation.value in b.newProcessed -> continue@includeLoop
 
                     includeLocation.value in alreadyProcessed -> {
                         requireNotNull(alreadyProcessed[includeLocation.value]) { "Recursive includes: $includeLocation" }
                     }
 
-                    else -> {
-                        val delegateResolver = resolver.delegate(includeLocation)
-                        val parsed = resolver.readSchema(includeLocation)
-                        require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
-                        SchemaData(
-                            parsed,
-                            includeLocation.value,
-                            targetNamespace,
-                            delegateResolver,
-                            b.newProcessed
-                        ).also {
-                            b.newProcessed[includeLocation.value] = it
+                    else -> when (val parsed = resolver.tryReadSchema(includeLocation)) {
+                        null -> null
+                        else -> {
+                            val delegateResolver = resolver.delegate(includeLocation)
+                            require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
+                            SchemaData(
+                                parsed,
+                                includeLocation.value,
+                                targetNamespace,
+                                delegateResolver,
+                                b.newProcessed
+                            ).also {
+                                b.newProcessed[includeLocation.value] = it
+                            }
                         }
                     }
                 }
-
-                b.addInclude(includeData, targetNamespace)
+                if (includeData != null) {
+                    b.addInclude(includeData, targetNamespace)
+                } else if (includeLocation.value.isNotEmpty()) {
+                    b.newProcessed[includeLocation.value] = null // add entry for this being processed
+                }
             }
 
             for (redefine in sourceSchema.redefines) {
                 val redefineLocation = resolver.resolve(redefine.schemaLocation)
-                val redefineData: SchemaData = when {
+                val redefineData: SchemaData? = when {
                     redefineLocation.value in alreadyProcessed ->
                         requireNotNull(alreadyProcessed[redefineLocation.value]) { "Recursive redefines: $redefineLocation" }
 
                     else -> {
                         val delegateResolver = resolver.delegate(redefineLocation)
-                        val parsed = resolver.readSchema(redefineLocation)
-                        require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
-                        SchemaData(
-                            parsed,
-                            redefineLocation.value,
-                            targetNamespace,
-                            delegateResolver,
-                            b.newProcessed
-                        ).also {
-                            b.newProcessed[redefineLocation.value] = it
+                        when (val parsed = resolver.tryReadSchema(redefineLocation)) {
+                            null -> {
+                                require(redefine.groups.isEmpty()) { "Groups in unresolvable redefine $redefineLocation" }
+                                require(redefine.attributeGroups.isEmpty()) { "Attribute groups in unresolvable redefine $redefineLocation" }
+                                require(redefine.complexTypes.isEmpty()) { "Complex types in unresolvable redefine $redefineLocation" }
+                                require(redefine.simpleTypes.isEmpty()) { "Simple types in unresolvable redefine $redefineLocation" }
+                                null
+                            }
+                            else -> {
+                                require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
+                                SchemaData(
+                                    parsed,
+                                    redefineLocation.value,
+                                    targetNamespace,
+                                    delegateResolver,
+                                    b.newProcessed
+                                ).also {
+                                    b.newProcessed[redefineLocation.value] = it
+                                }
+                            }
                         }
                     }
                 }
 
+                if (redefineData ==null) {
+                    if (redefineLocation.value.isNotEmpty())
+                        b.newProcessed[redefineLocation.value] = null
+                } else {
+                    b.addInclude(redefineData, targetNamespace)
 
-                b.addInclude(redefineData, targetNamespace)
+                    val redefinedTypeNames = mutableSetOf<String>()
+                    for (st in (redefine.simpleTypes + redefine.complexTypes)) {
+                        val name = st.name.xmlString
+                        require(redefinedTypeNames.add(name)) { "Redefine redefines the same type multiple times" }
+                        val baseType = requireNotNull(b.types[name]) { "Redefine must actually redefine type" }
+                        // TODO add check for base type
+                        val typeName = QName(targetNamespace ?: "", name)
+                        b.types[name] =
+                            SchemaElement.Redefined(st, redefineData, schemaLocation, typeName, Redefinable.TYPE)
+                    }
 
-                val redefinedTypeNames = mutableSetOf<String>()
-                for (st in (redefine.simpleTypes + redefine.complexTypes)) {
-                    val name = st.name.xmlString
-                    require(redefinedTypeNames.add(name)) { "Redefine redefines the same type multiple times" }
-                    val baseType = requireNotNull(b.types[name]) { "Redefine must actually redefine type" }
-                    // TODO add check for base type
-                    val typeName = QName(targetNamespace ?: "", name)
-                    b.types[name] = SchemaElement.Redefined(st, redefineData, schemaLocation, typeName, Redefinable.TYPE)
-                }
+                    val redefinedGroups = mutableSetOf<String>()
+                    for (g in redefine.groups) {
+                        val name = g.name.xmlString
+                        require(redefinedGroups.add(name)) { "Redefine redefines the same group multiple times" }
+                        val oldGroup = requireNotNull(b.groups[name]) { "Redefine must actually redefine group" }
+                        // TODO add checks if needed
+                        val groupName = QName(targetNamespace ?: "", name)
+                        b.groups[name] =
+                            SchemaElement.Redefined(g, redefineData, schemaLocation, groupName, Redefinable.GROUP)
+                    }
 
-                val redefinedGroups = mutableSetOf<String>()
-                for (g in redefine.groups) {
-                    val name = g.name.xmlString
-                    require(redefinedGroups.add(name)) { "Redefine redefines the same group multiple times" }
-                    val oldGroup = requireNotNull(b.groups[name]) { "Redefine must actually redefine group" }
-                    // TODO add checks if needed
-                    val groupName = QName(targetNamespace ?: "", name)
-                    b.groups[name] = SchemaElement.Redefined(g, redefineData, schemaLocation, groupName, Redefinable.GROUP)
-                }
+                    val redefinedAttrGroups = mutableSetOf<String>()
+                    for (ag in redefine.attributeGroups) {
+                        val name = ag.name.xmlString
+                        require(redefinedAttrGroups.add(name)) { "Redefine redefines the same attribute group multiple times" }
+                        val oldGroup =
+                            requireNotNull(b.attributeGroups[name]) { "Redefine must actually redefine attribute group" }
+                        // TODO add checks if needed
+                        val agName = QName(targetNamespace ?: "", name)
 
-                val redefinedAttrGroups = mutableSetOf<String>()
-                for (ag in redefine.attributeGroups) {
-                    val name = ag.name.xmlString
-                    require(redefinedAttrGroups.add(name)) { "Redefine redefines the same attribute group multiple times" }
-                    val oldGroup =
-                        requireNotNull(b.attributeGroups[name]) { "Redefine must actually redefine attribute group" }
-                    // TODO add checks if needed
-                    val agName = QName(targetNamespace ?: "", name)
-
-                    b.attributeGroups[name] = SchemaElement.Redefined(ag, redefineData, schemaLocation,
-                        agName, Redefinable.ATTRIBUTEGROUP)
+                        b.attributeGroups[name] = SchemaElement.Redefined(
+                            ag, redefineData, schemaLocation,
+                            agName, Redefinable.ATTRIBUTEGROUP
+                        )
+                    }
                 }
             }
 
@@ -468,10 +493,7 @@ internal class SchemaData(
                         importLocation.value in alreadyProcessed -> alreadyProcessed[importLocation.value]
 
                         else -> {
-                            val parsed = runCatching { resolver.readSchema(importLocation) }.getOrElse {
-                                if (it is IOException) null else throw it
-                            }
-                            when (parsed) {
+                            when (val parsed = resolver.tryReadSchema(importLocation)) {
                                 null -> null
                                 else -> {
                                     val delegateResolver = resolver.delegate(importLocation)
