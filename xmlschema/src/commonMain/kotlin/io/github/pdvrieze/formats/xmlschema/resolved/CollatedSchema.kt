@@ -27,9 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.FileNotFoundException
-import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
-import nl.adaptivity.xmlutil.serialization.XmlParsingException
 
 internal class SchemaData(
     val namespace: String,
@@ -273,7 +270,7 @@ internal class SchemaData(
         }
 
         for (local in locals) {
-            checkRecursiveTypes(SchemaElement(local, schema.schemaLocation?:"", rawSchema), schema, rawSchema, seenTypes, inheritanceChain)
+            checkRecursiveTypes(SchemaElement(local, schema.schemaLocation ?: "", rawSchema, schema.importedNamespaces), schema, rawSchema, seenTypes, inheritanceChain)
         }
 
     }
@@ -296,12 +293,48 @@ internal class SchemaData(
                 targetNamespace.isNullOrEmpty() -> null //error("Invalid name override to default namespace")
                 else -> targetNamespace
             }
-            sourceSchema.elements.associateToUnique(elements) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
-            sourceSchema.attributes.associateToUnique(attributes) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
-            sourceSchema.simpleTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
-            sourceSchema.complexTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
-            sourceSchema.groups.associateToUnique(groups) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
-            sourceSchema.attributeGroups.associateToUnique(attributeGroups) { it.name.toString() to SchemaElement.auto(it, schemaLocation, sourceSchema, chameleon) }
+            sourceSchema.elements.associateToUnique(elements) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
+            sourceSchema.attributes.associateToUnique(attributes) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
+            sourceSchema.simpleTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
+            sourceSchema.complexTypes.associateToUnique(types) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
+            sourceSchema.groups.associateToUnique(groups) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
+            sourceSchema.attributeGroups.associateToUnique(attributeGroups) { it.name.toString() to SchemaElement.auto(
+                it,
+                schemaLocation,
+                sourceSchema,
+                chameleon,
+                importedNamespaces,
+            ) }
             sourceSchema.notations.associateToUnique(notations) { it.name.toString() to it }
         }
 
@@ -490,7 +523,11 @@ internal class SchemaData(
 
                     val actualImport: SchemaData? = when {
                         // imports can be delayed in parsing
-                        importLocation.value in alreadyProcessed -> alreadyProcessed[importLocation.value]
+                        importLocation.value in alreadyProcessed -> {
+                            alreadyProcessed[importLocation.value]?.also {
+                                b.importedNamespaces.add(it.namespace)
+                            }
+                        }
 
                         else -> {
                             when (val parsed = resolver.tryReadSchema(importLocation)) {
@@ -547,7 +584,7 @@ internal class SchemaData(
     }
 }
 
-class OwnerWrapper internal constructor(base: ResolvedSchemaLike, val owner: XSSchema) : ResolvedSchemaLike() {
+class OwnerWrapper internal constructor(base: ResolvedSchemaLike, val owner: XSSchema, val importedNamespaces: Set<String>) : ResolvedSchemaLike() {
 
     val base: ResolvedSchemaLike = when (base) {
         is OwnerWrapper -> base.base
@@ -570,27 +607,40 @@ class OwnerWrapper internal constructor(base: ResolvedSchemaLike, val owner: XSS
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = base.defaultOpenContent
 
+    private inline fun <R> checkImport(name: QName, action: () -> R): R = when (name.namespaceURI) {
+        XmlSchemaConstants.XS_NAMESPACE,
+        in importedNamespaces,
+        targetNamespace?.value ?: "" -> action()
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = base.maybeSimpleType(typeName)
+        else -> throw IllegalArgumentException("Namespace of ${name} is not imported into this schema")
+    }
 
-    override fun maybeType(typeName: QName): ResolvedGlobalType? = base.maybeType(typeName)
 
-    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
-        base.maybeAttributeGroup(attributeGroupName)
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = checkImport(typeName) {
+        base.maybeSimpleType(typeName)
+    }
 
-    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = base.maybeGroup(groupName)
+    override fun maybeType(typeName: QName): ResolvedGlobalType?  = checkImport(typeName) { base.maybeType(typeName) }
 
-    override fun maybeElement(elementName: QName): ResolvedGlobalElement? = base.maybeElement(elementName)
+    override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? = checkImport(attributeGroupName)
+        { base.maybeAttributeGroup(attributeGroupName) }
 
-    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? = base.maybeAttribute(attributeName)
+    override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? = checkImport(groupName) {base.maybeGroup(groupName) }
+
+    override fun maybeElement(elementName: QName): ResolvedGlobalElement? = checkImport(elementName) { base.maybeElement(elementName) }
+
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? = checkImport(attributeName) { base.maybeAttribute(attributeName) }
 
     override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? =
-        base.maybeIdentityConstraint(constraintName)
+        checkImport(constraintName) { base.maybeIdentityConstraint(constraintName) }
 
-    override fun maybeNotation(notationName: QName): ResolvedNotation? = base.maybeNotation(notationName)
+    override fun maybeNotation(notationName: QName): ResolvedNotation? = checkImport(notationName) {
+        base.maybeNotation(notationName)
+    }
 
-    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> =
+    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> = checkImport(headName) {
         base.substitutionGroupMembers(headName)
+    }
 }
 
 class ChameleonWrapper internal constructor(
@@ -865,14 +915,14 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         return this as SchemaElement<U>
     }
 
-    class Direct<out T>(elem: T, schemaLocation: String, rawSchema: XSSchema) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
+    class Direct<out T>(elem: T, schemaLocation: String, rawSchema: XSSchema, val importedNamespaces: Set<String>) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
         override val targetNamespace: String
             get() = rawSchema.targetNamespace?.xmlString ?: ""
 
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             schema.targetNamespace != rawSchema.targetNamespace ||
                     schema.elementFormDefault != rawSchema.elementFormDefault ||
-                    schema.attributeFormDefault != rawSchema.attributeFormDefault -> OwnerWrapper(schema, rawSchema)
+                    schema.attributeFormDefault != rawSchema.attributeFormDefault -> OwnerWrapper(schema, rawSchema, importedNamespaces)
             else -> schema
         }
 
@@ -886,7 +936,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         }
 
         override fun <U> wrap(value: U): Direct<U> {
-            return Direct(value, schemaLocation, rawSchema)
+            return Direct(value, schemaLocation, rawSchema, importedNamespaces)
         }
 
         override fun toString(): String = "d($elem)"
@@ -951,9 +1001,21 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
     }
 
     companion object {
-        inline operator fun <T> invoke(elem: T, schemaLocation: String, rawSchema: XSSchema): Direct<T> = Direct(elem, schemaLocation, rawSchema)
-        inline fun <T> auto(elem: T, schemaLocation: String, baseSchema: XSSchema, chameleonNs: String?): SchemaElement<T> = when(chameleonNs) {
-            null -> Direct(elem, schemaLocation, baseSchema)
+        inline operator fun <T> invoke(
+            elem: T,
+            schemaLocation: String,
+            rawSchema: XSSchema,
+            importedNamespaces: Set<String>
+        ): Direct<T> = Direct(elem, schemaLocation, rawSchema, importedNamespaces)
+
+        inline fun <T> auto(
+            elem: T,
+            schemaLocation: String,
+            baseSchema: XSSchema,
+            chameleonNs: String?,
+            importedNamespaces: Set<String>
+        ): SchemaElement<T> = when(chameleonNs) {
+            null -> Direct(elem, schemaLocation, baseSchema, importedNamespaces)
             else -> Chameleon(elem, schemaLocation, baseSchema, chameleonNs)
         }
     }
