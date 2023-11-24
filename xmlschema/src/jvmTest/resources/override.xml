@@ -5,6 +5,10 @@
   <test path="MS-Particles2006-07-15/particlesZ033_g/particlesZ033_g">
     <ts:expected validity="valid" annotation="This can be handled correctly as we use long for maxOccurs"/>
   </test>
+  <test path="MS-Element2006-07-15/elemZ026/elemZ026">
+    <ts:expected validity="invalid" version="1.0" annotation="1.0 substitution checks are more strict"/>
+    <ts:expected validity="valid" version="1.1" annotation="XMLSchema is a bit more strict than our algorithm (only 1.1), they are actually compatible"/>
+  </test>
   <test path="suntest/test001/test.2.n" isInstance="true">
     <ts:expected validity="invalid" exception="xx" message="yy"/>
   </test>

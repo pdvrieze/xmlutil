@@ -29,7 +29,6 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
@@ -74,11 +73,10 @@ class TestXSTestSuite {
 //                .filter { it.href.contains("sunMeta/suntest") }
 //                .filter { it.href.contains("msMeta/Additional") }
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-//                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
-//                    "msMeta/ComplexType").any { m -> it.href.contains(m) } }
-                .filter { (it.href.contains("msMeta/AttributeGroup")) }
                 .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
-                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Errata", "msMeta/Regex").any { m -> it.href.contains(m) } }
+                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
+                    "msMeta/Errata", "msMeta/Regex").any { m -> it.href.contains(m) } }
+//                .filter { (it.href.contains("msMeta/Element")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -90,7 +88,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.startsWith("RegexTest_")) {
+                            if (true|| group.name.startsWith("elemZ026")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
@@ -474,9 +472,9 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     schemaDoc: TSSchemaDocument,
     documentation: String
 ) {
-    val defaultVersion = when(schemaTest.version) {
-        "1.0" -> ResolvedSchema.Version.V1_0
-        else -> ResolvedSchema.Version.V1_1
+    val defaultVersions = when(schemaTest.version) {
+        "1.0" -> listOf(ResolvedSchema.Version.V1_0)
+        else -> listOf(ResolvedSchema.Version.V1_1)//ResolvedSchema.Version.entries
     }
     val resolver = SimpleResolver(setBaseUrl)
 
@@ -486,17 +484,20 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         }
     }
 
-    val expecteds = schemaTest.expected
-//        .filter { (it.version ?: schemaTest.version) != "1.0" }
-        .associateBy { it.version?.let { ResolvedSchema.Version(it) } }
+    val expecteds = mutableMapOf<ResolvedSchema.Version, TSExpected>()
+    for (e in schemaTest.expected) {
+        when (e.version) {
+            null -> {
+                for (ver in defaultVersions) {
+                    expecteds.getOrPut(ver) { e }
+                }
+            }
+            else -> expecteds[ResolvedSchema.Version(e.version)] = e
+        }
+    }
 
     for ((version, expected) in expecteds) {
-        val versionLabel = when {
-            version != null -> " for version ${version}"
-            schemaTest.version != null -> " for version ${defaultVersion}"
-            else -> ""
-        }
-        val appliedVersion = version ?: defaultVersion
+        val versionLabel = " for version ${version}"
 
         val expectedValidity = expected.validity
         when (expectedValidity) {
@@ -506,7 +507,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                         val e = assertFails(documentation) {
                             val schemaLocation = VAnyURI(schemaDoc.href)
                             val schema = resolver.readSchema(schemaLocation)
-                            val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), appliedVersion)
+                            val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), version)
                             resolvedSchema.check()
                         }
                         if (e is Error) throw e
@@ -557,7 +558,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 }
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
                     val resolvedSchema =
-                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), appliedVersion)
+                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), version)
                     resolvedSchema.check()
                     assertNotNull(resolvedSchema)
                 }
