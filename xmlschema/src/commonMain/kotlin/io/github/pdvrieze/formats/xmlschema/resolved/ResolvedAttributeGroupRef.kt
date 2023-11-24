@@ -36,8 +36,8 @@ class ResolvedAttributeGroupRef(
     val resolvedGroup: ResolvedGlobalAttributeGroup
         get() = model.resolvedGroup
 
-    fun checkRef(checkHelper: CheckHelper) {
-        checkHelper.checkAttributeGroup(resolvedGroup)
+    fun checkRef(checkHelper: CheckHelper, seen: MutableSet<ResolvedGlobalAttributeGroup>) {
+        checkHelper.checkAttributeGroup(resolvedGroup, seen)
     }
 
     class Model(rawPart: XSAttributeGroupRef, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {

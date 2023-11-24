@@ -116,9 +116,9 @@ class ResolvedGlobalAttributeGroup internal constructor(
         return uses.values
     }
 
-    fun checkAttributeGroup(checkHelper: CheckHelper) {
+    fun checkAttributeGroup(checkHelper: CheckHelper, seen: MutableSet<ResolvedGlobalAttributeGroup>) {
         for (a in attributes) { a.checkUse(checkHelper) }
-        for (ag in attributeGroups) { ag.checkRef(checkHelper) }
+        for (ag in attributeGroups) { ag.checkRef(checkHelper, seen) }
     }
 
     override fun toString(): String {
