@@ -103,10 +103,9 @@ sealed class ResolvedComplexType(
         if (asRestriction && mdlDerivationMethod != VDerivationControl.RESTRICTION) return false
         if (base.mdlFinal.contains(mdlDerivationMethod)) return false
 
-        // check derivation method is not in blocking
-        if (this == base) return true // 2.1
-        if (mdlBaseTypeDefinition == base) return true
         val btd = mdlBaseTypeDefinition
+        // check derivation method is not in blocking
+        if (btd == base) return true
         if (btd == AnyType) return false // 2.3.1
         return when (btd) {
             is ResolvedComplexType -> btd.isValidlyDerivedFrom(base, asRestriction)

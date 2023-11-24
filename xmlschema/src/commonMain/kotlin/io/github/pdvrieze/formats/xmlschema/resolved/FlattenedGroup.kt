@@ -955,15 +955,24 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         internal val SINGLERANGE: AllNNIRange = VAllNNI.ONE..VAllNNI.ONE
         internal val OPTRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.ONE
 
+        /**
+         * Either create an element, or a choice for the substitution group (if it exists)
+         */
         @JvmStatic
-        fun Element(range: AllNNIRange, term: ResolvedElement): FlattenedParticle = when {
+        fun elementOrSubstitution(range: AllNNIRange, term: ResolvedElement): FlattenedParticle = when {
             term !is ResolvedGlobalElement ||
                     term.mdlSubstitutionGroupMembers.isEmpty()
             -> Element(range, term, true)
 
             else -> {
-                val elems = term.fullSubstitutionGroup().map { Element(SINGLERANGE, it, true) }
-                Choice(range, elems, ResolvedSchema.Version.V1_1) // force 1.1 as substitution groups are not ordered
+                val sg = term.fullSubstitutionGroup()
+                when (sg.size) {
+                    0 -> FlattenedGroup.EMPTY
+                    else -> {
+                        val elems = sg.map { Element(SINGLERANGE, it, true) }
+                        Choice(range, elems, ResolvedSchema.Version.V1_1) // force 1.1 to "sort" the elements as substitution groups are not ordered
+                    }
+                }
             }
         }
 

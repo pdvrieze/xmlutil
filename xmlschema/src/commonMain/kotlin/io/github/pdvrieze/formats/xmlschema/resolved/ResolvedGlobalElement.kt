@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.SUBSTITUTION
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
 import nl.adaptivity.xmlutil.QName
 
@@ -80,7 +81,7 @@ class ResolvedGlobalElement private constructor(
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
         checkHelper.checkType(mdlTypeDefinition)
 
-        if (VDerivationControl.SUBSTITUTION in mdlSubstitutionGroupExclusions) {
+        if (SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
         }
 
@@ -131,15 +132,9 @@ class ResolvedGlobalElement private constructor(
         range: AllNNIRange,
         typeContext: ResolvedComplexType,
         schema: ResolvedSchemaLike
-    ): FlattenedParticle = when {
-        mdlSubstitutionGroupMembers.isNotEmpty() -> {
-            val elems = fullSubstitutionGroup().map {
-                FlattenedParticle.Element(FlattenedParticle.SINGLERANGE, it, true)
-            }
-            FlattenedGroup.Choice(range, elems, schema.version)
-        }
-
-        else -> super.flatten(range, typeContext, schema)
+    ): FlattenedParticle {
+        // this factory handles substitution groups
+        return FlattenedParticle.elementOrSubstitution(range, this)
     }
 
     override fun toString(): String {
@@ -159,13 +154,19 @@ class ResolvedGlobalElement private constructor(
 
             val thisName: QName = context.mdlQName
 
-            val group = HashSet<ResolvedGlobalElement>()
-            schema.substitutionGroupMembers(thisName).let { group.addAll(it) }
+            when {
+                SUBSTITUTION in (elemPart.elem.block ?: emptySet()) -> emptyList()
 
-            for (child in group.toList()) {
-                group.addAll(child.mdlSubstitutionGroupMembers)
+                else -> {
+                    val group = HashSet<ResolvedGlobalElement>()
+                    group.addAll(schema.substitutionGroupMembers(thisName))
+
+                    for (child in group.toList()) {
+                        group.addAll(child.mdlSubstitutionGroupMembers)
+                    }
+                    group.toList()
+                }
             }
-            group.toList()
         }
 
         override val mdlTypeTable: ITypeTable? get() = null
