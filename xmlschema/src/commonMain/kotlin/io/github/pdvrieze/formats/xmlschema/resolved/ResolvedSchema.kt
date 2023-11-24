@@ -307,9 +307,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                                     ns == BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
                                     ns == BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
                                     ns == BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
-                                    else -> {
-                                        throw IllegalArgumentException("No URI found for namespace $ns")
-                                    }
+                                    else -> null // missing schemas are allowed as long as not used{
                                 }
                             }
                         }
