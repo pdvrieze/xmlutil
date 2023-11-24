@@ -561,8 +561,11 @@ internal class XPattern(val pattern: String, version: Version) {
                         // A range.
                         lexemes.next()
                         var cur = lexemes.currentChar
-
-                        if (!lexemes.isSpecial
+                        // Special case for a hyphen followed by a subtraction group (MS-Regex/reF56)
+                        if (cur == XRLexer.CHAR_HYPHEN && lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
+                            if (buffer >=0) result.add(buffer)
+                            buffer = '-'.code
+                        } else if (!lexemes.isSpecial
                             && (cur >= 0
                                 || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
                                 || lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET
