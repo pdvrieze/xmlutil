@@ -582,7 +582,7 @@ sealed class FlattenedGroup(
 
                         is Wildcard -> {
                             require(lastAnys.none { it.intersects(startTerm.term) }) {
-                                "Non-deterministic choice group: ${particles.joinToString()}"
+                                "Non-deterministic sequence group: ${particles.joinToString()}"
                             }
                             if (schema.version == ResolvedSchema.Version.V1_0) {
                                 require(lastOptionals.none { startTerm.term.matches(it, context, schema) }) {

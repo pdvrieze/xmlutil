@@ -69,7 +69,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             schema
         )
 
-        Variety.NOT -> VAnyURI(name.namespaceURI) !in namespaces && !disallowedNames.contains(name, context, schema)
+        Variety.NOT -> name.namespaceURI.isNotEmpty() && VAnyURI(name.namespaceURI) !in namespaces && !disallowedNames.contains(name, context, schema)
     }
 
     /**
