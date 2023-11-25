@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
@@ -53,6 +54,6 @@ class XSGroupRef(
     }
 
     override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean {
-        return schema.modelGroup(ref).hasLocalNsInContext()
+        return ref.namespaceURI.isEmpty()
     }
 }
