@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.All
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Choice
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.Sequence
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -61,7 +62,7 @@ sealed class FlattenedGroup(
         context: ResolvedComplexType,
         schema: ResolvedSchemaLike
     ): Boolean = when (schema.version) {
-        ResolvedSchema.Version.V1_0 -> restrictsRecurse10(base, context, schema)
+        Version.V1_0 -> restrictsRecurse10(base, context, schema)
         else -> restrictsRecurse11(base, context, schema)
     }
 
@@ -130,10 +131,10 @@ sealed class FlattenedGroup(
     class All(range: AllNNIRange, override val particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
-        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: ResolvedSchema.Version) : this(
+        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: Version) : this(
             range,
             when (version) {
-                ResolvedSchema.Version.V1_0 -> particles
+                Version.V1_0 -> particles
                 else -> particles.sortedWith(particleComparator)
             }
         )
@@ -241,10 +242,10 @@ sealed class FlattenedGroup(
     class Choice(range: AllNNIRange, override val particles: List<FlattenedParticle>) :
         FlattenedGroup(range) {
 
-        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: ResolvedSchema.Version) : this(
+        constructor(range: AllNNIRange, particles: List<FlattenedParticle>, version: Version) : this(
             range,
             when (version) {
-                ResolvedSchema.Version.V1_0 -> particles
+                Version.V1_0 -> particles
                 else -> particles.sortedWith(particleComparator)
             }
         )
@@ -396,6 +397,15 @@ sealed class FlattenedGroup(
          * MapAndSum
          */
         override fun restrictsChoice(base: Choice, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+            return restrictsChoice_1_0(base, context, schema) ||
+                    (schema.version == Version.V1_1 && Choice(SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema))
+        }
+
+        private fun restrictsChoice_1_0(
+            base: Choice,
+            context: ResolvedComplexType,
+            schema: ResolvedSchemaLike
+        ): Boolean {
             // MapAndSum 2
             val partSize = VAllNNI.Value(particles.size.toUInt())
             if (!base.range.contains((minOccurs * partSize)..(maxOccurs * partSize))) return false
@@ -417,8 +427,9 @@ sealed class FlattenedGroup(
             for (i in base.particles.indices) { // if consumed (and therefore maxValues>0) it must be within the range
                 if (maxValues[i] > VAllNNI.ZERO) {
                     // This is more restrictive than needed, and can cause failures with open ranges
-//                    val collapsedRange = base.particles[i].range * base.range
-                    val collapsedRange = base.particles[i].let { (minOccurs * it.minOccurs)..(maxOccurs * it.maxOccurs) }
+        //                    val collapsedRange = base.particles[i].range * base.range
+                    val collapsedRange =
+                        base.particles[i].let { (minOccurs * it.minOccurs)..(maxOccurs * it.maxOccurs) }
                     if (!collapsedRange.contains(minValues[i]..maxValues[i])) return false
                 }
             }
@@ -577,7 +588,7 @@ sealed class FlattenedGroup(
                             require(startName !in lastOptionals) {
                                 "Non-deterministic sequence: sequence${particles.joinToString()}"
                             }
-                            if (schema.version == ResolvedSchema.Version.V1_0) {
+                            if (schema.version == Version.V1_0) {
                                 // In version 1.1 resolving prioritises explicit elements, wildcards can omit
                                 require(lastAnys.none { it.matches(startName, context, schema) }) {
                                     "Ambiguous sequence $startName - ${lastAnys}"
@@ -589,7 +600,7 @@ sealed class FlattenedGroup(
                             require(lastAnys.none { it.intersects(startTerm.term) }) {
                                 "Non-deterministic sequence group: ${particles.joinToString()}"
                             }
-                            if (schema.version == ResolvedSchema.Version.V1_0) {
+                            if (schema.version == Version.V1_0) {
                                 require(lastOptionals.none { startTerm.term.matches(it, context, schema) }) {
                                     "Non-deterministic choice group: ${particles.joinToString()}"
                                 }
@@ -771,7 +782,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun restrictsChoice(base: Choice, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
             // The option to do it either way is valid for 1.1
             return Choice(SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema) ||
-                    (schema.version == ResolvedSchema.Version.V1_1 &&
+                    (schema.version == Version.V1_1 &&
                             Choice(range, listOf(single())).restricts(base, context, schema))
         }
 
@@ -985,7 +996,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                     0 -> FlattenedGroup.EMPTY
                     else -> {
                         val elems = sg.map { Element(SINGLERANGE, it, true) }
-                        Choice(range, elems, ResolvedSchema.Version.V1_1) // force 1.1 to "sort" the elements as substitution groups are not ordered
+                        Choice(range, elems, Version.V1_1) // force 1.1 to "sort" the elements as substitution groups are not ordered
                     }
                 }
             }

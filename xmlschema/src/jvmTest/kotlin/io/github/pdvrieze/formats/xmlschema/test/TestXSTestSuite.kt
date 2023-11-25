@@ -75,8 +75,8 @@ class TestXSTestSuite {
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
                 .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
                     "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
-                    "msMeta/Errata", "msMeta/Regex").any { m -> it.href.contains(m) } }
-//                .filter { (it.href.contains("msMeta/Element")) }
+                    "msMeta/Errata", "msMeta/Group", "msMeta/Regex").any { m -> it.href.contains(m) } }
+//                .filter { (it.href.contains("msMeta/")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -474,7 +474,9 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 ) {
     val defaultVersions = when(schemaTest.version) {
         "1.0" -> listOf(ResolvedSchema.Version.V1_0)
-        else -> listOf(ResolvedSchema.Version.V1_1)//ResolvedSchema.Version.entries
+        "1.1" -> listOf(ResolvedSchema.Version.V1_1)
+//        else -> listOf(ResolvedSchema.Version.V1_0)//ResolvedSchema.Version.entries
+        else -> ResolvedSchema.Version.entries
     }
     val resolver = SimpleResolver(setBaseUrl)
 
