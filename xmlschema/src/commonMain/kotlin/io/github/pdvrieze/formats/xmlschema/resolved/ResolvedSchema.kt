@@ -157,6 +157,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
             if (data is NestedData) {
+                for (g in data.groups.values) { // check first as this will handle recursive group definitions
+                    checkHelper.checkGroup(g)
+                }
                 for (e in data.elements.values) {
                     checkHelper.checkElement(e)
                 }
@@ -165,9 +168,6 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 }
                 for (t in data.types.values) {
                     checkHelper.checkType(t)
-                }
-                for (g in data.groups.values) {
-                    checkHelper.checkGroup(g)
                 }
                 for (ag in data.attributeGroups.values) {
                     checkHelper.checkAttributeGroup(ag)
