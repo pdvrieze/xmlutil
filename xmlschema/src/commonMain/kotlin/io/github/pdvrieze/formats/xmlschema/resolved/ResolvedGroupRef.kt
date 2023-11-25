@@ -44,6 +44,10 @@ class ResolvedGroupRef(
         // global references should not collect
     }
 
+    override fun flatten(typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
+        return super.flatten(typeContext, schema)
+    }
+
     override fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         checkHelper.checkGroup(model.referenced)

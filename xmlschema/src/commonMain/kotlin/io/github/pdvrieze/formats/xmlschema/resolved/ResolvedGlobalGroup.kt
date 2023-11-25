@@ -54,7 +54,22 @@ class ResolvedGlobalGroup internal constructor(
     }
 
     fun checkGroup(checkHelper: CheckHelper) {
+        checkRecursion(mutableSetOf())
+
         mdlModelGroup.checkTerm(checkHelper)
+    }
+
+    internal fun checkRecursion(seen: MutableSet<ResolvedGlobalGroup>) {
+        check (seen.add(this)) { "Circular group ref to $mdlQName" }
+        val toCheck= ArrayList(mdlModelGroup.mdlParticles)
+
+        while (toCheck.isNotEmpty()) {
+            val p = toCheck.removeLast()
+            when (p) {
+                is ResolvedGroupRef -> p.model.referenced.checkRecursion(seen)
+                is ResolvedModelGroup -> toCheck.addAll(p.mdlParticles)
+            }
+        }
     }
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
