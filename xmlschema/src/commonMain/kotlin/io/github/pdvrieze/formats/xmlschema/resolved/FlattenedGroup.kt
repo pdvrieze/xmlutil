@@ -351,7 +351,12 @@ sealed class FlattenedGroup(
         }
 
         override fun startingTerms(): List<Term> {
-            return particles.firstOrNull()?.startingTerms() ?: emptyList()
+            val result = mutableListOf<Term>()
+            for (particle in particles) {
+                result.addAll(particle.startingTerms())
+                if (!particle.isEmptiable) return result
+            }
+            return result
         }
 
         override fun trailingTerms(): List<Term> {
@@ -599,10 +604,20 @@ sealed class FlattenedGroup(
                 lastAnys = mutableListOf()
 
                 when {
-                    p.isEmptiable && p.isVariable -> for (e in p.trailingTerms()) {
-                        when (e) {
-                            is Wildcard -> lastAnys.add(e.term)
-                            is Element -> lastOptionals.add(e.term.mdlQName)
+                    p.isEmptiable && p.isVariable -> {
+                        for (e in p.trailingTerms()) {
+                            if (e.isVariable) {
+                                when (e) {
+                                    is Wildcard -> lastAnys.add(e.term)
+                                    is Element -> lastOptionals.add(e.term.mdlQName)
+                                }
+                            }
+                        }
+                        for (e in p.startingTerms()) {
+                            when (e) {
+                                is Wildcard -> lastAnys.add(e.term)
+                                is Element -> lastOptionals.add(e.term.mdlQName)
+                            }
                         }
                     }
 
