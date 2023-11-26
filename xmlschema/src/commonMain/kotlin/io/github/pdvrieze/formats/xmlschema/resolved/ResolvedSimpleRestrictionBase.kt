@@ -85,7 +85,7 @@ abstract class ResolvedSimpleRestrictionBase(
         ) : super(rawPart, annotations) {
             this.baseType = baseType
             this.otherContents = rawPart.otherContents
-            this.facets = FacetList(rawPart.facets, schema, baseType.mdlPrimitiveTypeDefinition)
+            this.facets = FacetList.safe(rawPart.facets, schema, baseType)
         }
 
         constructor(
