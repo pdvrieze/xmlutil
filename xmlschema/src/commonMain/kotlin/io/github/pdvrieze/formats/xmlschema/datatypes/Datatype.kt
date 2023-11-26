@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AtomicDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
@@ -39,7 +39,6 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
-import kotlin.coroutines.coroutineContext
 
 abstract class Datatype(
     name: VNCName,
@@ -108,7 +107,7 @@ sealed class ListDatatype(
         cardinality = Cardinality.COUNTABLY_INFINITE,
         numeric = false
     )
-    final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+    final override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
         get() = AnySimpleType.mdlPrimitiveTypeDefinition
 
     abstract override val mdlItemTypeDefinition: ResolvedSimpleType
@@ -192,7 +191,7 @@ object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
 
     override val mdlVariety: ResolvedSimpleType.Variety get() = super<ResolvedBuiltinSimpleType>.mdlVariety
 
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+    override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
         get() = super<ResolvedGlobalSimpleType>.mdlPrimitiveTypeDefinition
 
     override val model: ErrorType get() = this
@@ -272,8 +271,7 @@ object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmls
 
     override val baseType: AnyType get() = AnyType
 
-    override val simpleDerivation: ResolvedSimpleType.Derivation
-        get() = SimpleBuiltinRestriction(baseType, schema = BuiltinSchemaXmlschema)
+    override val simpleDerivation: ResolvedSimpleType.Derivation get() = AnySimpleTypeRestriction
 
     override val mdlBaseTypeDefinition: AnyType get() = AnyType
     override val model: AnySimpleType get() = this
@@ -294,12 +292,18 @@ object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmls
     override fun validate(representation: VString) {
 //        TODO("not implemented")
     }
+
+}
+
+private object AnySimpleTypeRestriction : ResolvedSimpleRestrictionBase(null) {
+    override val model: IModel = Model(AnyType, FacetList())
 }
 
 internal open class SimpleBuiltinRestriction(
-    baseType: ResolvedBuiltinType,
+    baseType: ResolvedBuiltinSimpleType,
     schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(null) {
-    override val model: IModel = Model(baseType, FacetList(facets, schema, (baseType as? ResolvedBuiltinSimpleType)?.mdlPrimitiveTypeDefinition))
+    override val model: IModel = Model(baseType, FacetList.safe(facets, schema, baseType))
 }
+
