@@ -26,20 +26,21 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnu
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedEnumeration(
+class ResolvedEnumeration<out T: VAnySimpleType>(
     rawPart: XSEnumeration,
     schema: ResolvedSchemaLike,
-    primitiveDatatype: PrimitiveDatatype?
+    primitiveDatatype: PrimitiveDatatype<T>?
 ) : ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
+    @Suppress("UNCHECKED_CAST")
+    val value: T = primitiveDatatype?.value(rawPart.value) ?: (rawPart.value as T)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as ResolvedEnumeration
+        other as ResolvedEnumeration<*>
 
         return value == other.value
     }

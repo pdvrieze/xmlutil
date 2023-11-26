@@ -23,9 +23,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 
 sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     ResolvedAnnotated {
@@ -35,14 +37,14 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
 
     open fun checkFacetValid(type: ResolvedSimpleType) {}
 
-    open fun validate(type: PrimitiveDatatype, decimal: VDecimal) {}
+    open fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {}
 
     open fun validate(float: VFloat) {}
 
     open fun validate(float: VDouble) {}
 
     companion object {
-        operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype?): ResolvedFacet = when (rawPart) {
+        operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: AnyPrimitiveDatatype): ResolvedFacet = when (rawPart) {
             is XSAssertionFacet -> ResolvedAssertionFacet(rawPart, schema)
             is XSEnumeration -> ResolvedEnumeration(rawPart, schema, primitiveDatatype)
             is XSExplicitTimezone -> ResolvedExplicitTimezone(rawPart, schema)

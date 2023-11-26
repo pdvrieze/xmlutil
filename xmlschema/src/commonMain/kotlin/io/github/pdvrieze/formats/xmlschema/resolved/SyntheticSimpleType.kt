@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import nl.adaptivity.xmlutil.QName
@@ -33,7 +33,7 @@ class SyntheticSimpleType(
     override val mdlFacets: FacetList,
     override val mdlFundamentalFacets: FundamentalFacets,
     override val mdlVariety: ResolvedSimpleType.Variety,
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?,
+    override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?,
     override val mdlItemTypeDefinition: ResolvedSimpleType?,
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>,
 ) : ResolvedSimpleType, ResolvedSimpleType.Model {

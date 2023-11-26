@@ -20,11 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSISimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Particle
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
@@ -52,7 +48,7 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
     override val mdlItemTypeDefinition: ResolvedSimpleType?
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
 
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+    override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
     override fun checkType(checkHelper: CheckHelper) = Unit
 
 }

@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
@@ -41,7 +41,6 @@ import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
-import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.qname
 
 sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
@@ -60,7 +59,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
     val mdlVariety: Variety get() = model.mdlVariety
 
-    val mdlPrimitiveTypeDefinition: PrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
+    val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
 
     val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition
 
@@ -152,7 +151,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         val normalized = mdlFacets.whiteSpace?.value?.normalize(representation) ?: representation
         return when (mdlVariety) {
             Variety.ATOMIC -> {
-                return mdlPrimitiveTypeDefinition!!.value(normalized)
+                return checkNotNull(mdlPrimitiveTypeDefinition) { "Missing primitive type for $this" }.value(normalized)
             }
             Variety.LIST -> {
                 return normalized.split(' ').map { mdlItemTypeDefinition!!.value(VString(it)) }
@@ -184,7 +183,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         val mdlFacets: FacetList
         val mdlFundamentalFacets: FundamentalFacets
         val mdlVariety: Variety
-        val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+        val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
     }
 
     sealed class ModelBase(
@@ -197,7 +196,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         final override val mdlItemTypeDefinition: ResolvedSimpleType?
         final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
         final override val mdlVariety: Variety
-        final override val mdlPrimitiveTypeDefinition: PrimitiveDatatype?
+        final override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
 
         init {
 
@@ -277,7 +276,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
             mdlPrimitiveTypeDefinition = when (mdlVariety) {
                 Variety.ATOMIC -> when (val b = mdlBaseTypeDefinition) {
-                    is PrimitiveDatatype -> b
+                    is AnyPrimitiveDatatype -> b
                     else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlPrimitiveTypeDefinition }
                         ?: run { null }
                 }
@@ -290,9 +289,8 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
 
         final override val mdlFacets: FacetList = when (val d = rawPart.simpleDerivation) {
-            is XSSimpleRestriction -> {
-                mdlBaseTypeDefinition.mdlFacets.overlay(FacetList(d.facets, schema, mdlPrimitiveTypeDefinition))
-            }
+            is XSSimpleRestriction ->
+                mdlBaseTypeDefinition.mdlFacets.overlay(FacetList.safe(d.facets, schema, mdlBaseTypeDefinition))
 
             is XSSimpleList -> FacetList(
                 whiteSpace =

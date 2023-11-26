@@ -20,17 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType.Variety
 
 class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),
     val minConstraint: ResolvedMinBoundFacet? = null,
     val maxConstraint: ResolvedMaxBoundFacet? = null,
-    val enumeration: List<ResolvedEnumeration> = emptyList(),
+    val enumeration: List<ResolvedEnumeration<VAnySimpleType>> = emptyList(),
     val explicitTimezone: ResolvedExplicitTimezone? = null,
     val fractionDigits: ResolvedFractionDigits? = null,
     val minLength: IResolvedMinLength? = null,
@@ -64,7 +68,7 @@ class FacetList(
     fun overlay(newList: FacetList): FacetList {
         val otherFacets = mutableListOf<ResolvedFacet>().apply { addAll(otherFacets) }
         val assertions = mutableListOf<ResolvedAssertionFacet>().apply { addAll(assertions) }
-        val enumeration = mutableListOf<ResolvedEnumeration>().apply { addAll(enumeration) }
+        val enumeration = mutableListOf<ResolvedEnumeration<VAnySimpleType>>().apply { addAll(enumeration) }
         val patterns = mutableListOf<ResolvedPattern>().apply { addAll(patterns) }
         otherFacets.addAll(newList.otherFacets)
         assertions.addAll(newList.assertions)
@@ -124,7 +128,7 @@ class FacetList(
 
     }
 
-    fun check(primitiveType: PrimitiveDatatype?) {
+    fun check(primitiveType: AnyPrimitiveDatatype?) {
         if (primitiveType!=null) {
             for (p in patterns) p.checkFacetValid(primitiveType)
         }
@@ -203,7 +207,7 @@ class FacetList(
 
     }
 
-    fun validate(primitiveType: PrimitiveDatatype?, representation: VString) {
+    fun validate(primitiveType: AnyPrimitiveDatatype?, representation: VString) {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
         val normalizedStr = normalized.toString()
 
@@ -269,14 +273,22 @@ class FacetList(
         operator fun invoke(
             rawFacets: Iterable<XSFacet>,
             schemaLike: ResolvedSchemaLike,
-            primitiveType: PrimitiveDatatype?
-        ): FacetList =
-            FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) })
+            primitiveType: PrimitiveDatatype<VAnySimpleType>
+        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) })
+
+        fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList = when {
+            baseType == AnySimpleType -> FacetList(facets, schema, StringType) // String has no restrictions
+            baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, TokenType) // Use token as strings have collapsed strings
+            baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, StringType) // Don't bother checking
+            baseType.mdlPrimitiveTypeDefinition == null ->
+                error("No primitive type for base type: $baseType")
+            else -> FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition!!)
+        }
 
         operator fun invoke(facets: Iterable<ResolvedFacet>): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
-            val enumeration: MutableList<ResolvedEnumeration> = mutableListOf()
+            val enumeration: MutableList<ResolvedEnumeration<VAnySimpleType>> = mutableListOf()
             var minConstraint: ResolvedMinBoundFacet? = null
             var maxConstraint: ResolvedMaxBoundFacet? = null
             var explicitTimezone: ResolvedExplicitTimezone? = null
@@ -302,7 +314,7 @@ class FacetList(
                     is ResolvedMinInclusive ->
                         if (minConstraint != null) error("3.4.3(2) - multiple min facets") else minConstraint = facet
 
-                    is ResolvedEnumeration -> enumeration.add(facet)
+                    is ResolvedEnumeration<*> -> enumeration.add(facet)
                     is ResolvedExplicitTimezone ->
                         if (explicitTimezone != null) error("3.4.3(2) - multiple explicitTimezone facets") else explicitTimezone =
                             facet
