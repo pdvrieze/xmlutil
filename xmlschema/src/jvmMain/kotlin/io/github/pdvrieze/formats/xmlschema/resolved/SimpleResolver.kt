@@ -66,7 +66,8 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             (schemaUri.scheme != baseURI.scheme ||
                     schemaUri.host != baseURI.host)
         ) {
-            throw FileNotFoundException("Absolute uri references are not supported")
+            if (schemaUri.scheme == "file") throw FileNotFoundException("Absolute file uri references are not supported")
+            return null
         }
         val stream = try { baseURI.resolve(schemaUri).toURL().openStream() } catch (e: FileNotFoundException) {
             return null
