@@ -273,19 +273,30 @@ class FacetList(
         operator fun invoke(
             rawFacets: Iterable<XSFacet>,
             schemaLike: ResolvedSchemaLike,
-            primitiveType: PrimitiveDatatype<VAnySimpleType>
-        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) })
+            primitiveType: PrimitiveDatatype<VAnySimpleType>,
+            relaxedLength: Boolean
+        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) }, relaxedLength)
 
-        fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList = when {
-            baseType == AnySimpleType -> FacetList(facets, schema, StringType) // String has no restrictions
-            baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, TokenType) // Use token as strings have collapsed strings
-            baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, StringType) // Don't bother checking
-            baseType.mdlPrimitiveTypeDefinition == null ->
-                error("No primitive type for base type: $baseType")
-            else -> FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition!!)
+        fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList {
+            val relaxedLength = baseType is IDRefsType || baseType is NMTokensType
+            return when {
+                // String has no restrictions
+                baseType == AnySimpleType -> FacetList(facets, schema, StringType, relaxedLength)
+
+                // Use token as strings have collapsed strings
+                baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, TokenType, relaxedLength)
+
+                // Don't bother checking
+                baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, StringType, relaxedLength)
+
+                baseType.mdlPrimitiveTypeDefinition == null ->
+                    error("No primitive type for base type: $baseType")
+
+                else -> FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition!!, relaxedLength)
+            }
         }
 
-        operator fun invoke(facets: Iterable<ResolvedFacet>): FacetList {
+        operator fun invoke(facets: Iterable<ResolvedFacet>, relaxedLength: Boolean): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
             val enumeration: MutableList<ResolvedEnumeration<VAnySimpleType>> = mutableListOf()
@@ -322,17 +333,28 @@ class FacetList(
                     is ResolvedFractionDigits ->
                         if (fractionDigits != null) error("3.4.3(2) - multiple fractionDigits facets") else fractionDigits = facet
 
-                    is ResolvedLength ->
-                        if (minLength != null || maxLength != null) error("3.4.3(2) - multiple length facets") else {
-                            minLength = facet
-                            maxLength = facet
+                    // use instances to allow for min/max lengths https://www.w3.org/Bugs/Public/show_bug.cgi?id=6446
+                    is ResolvedLength -> {
+                        when {
+                            relaxedLength && minLength is ResolvedMinLength -> check(minLength.value== 1uL && facet.value>=1uL) { "minLength > length" }
+                            minLength != null || maxLength != null -> error("3.4.3(2) - multiple length facets")
                         }
+                        // outside of when, always override using the length
+                        minLength = facet
+                        maxLength = facet
+                    }
 
-                    is ResolvedMaxLength ->
-                        if (maxLength != null) error("3.4.3(2) - multiple maxLength facets") else maxLength = facet
+                    is ResolvedMaxLength -> when {
+                        maxLength != null -> error("3.4.3(2) - multiple maxLength facets")
+                        else -> maxLength = facet
+                    }
 
-                    is ResolvedMinLength ->
-                        if (minLength != null) error("3.4.3(2) - multiple maxLength facets") else minLength = facet
+                    is ResolvedMinLength -> when {
+                    // use instance check to both length and minimum https://www.w3.org/Bugs/Public/show_bug.cgi?id=6446
+                        relaxedLength && minLength is ResolvedLength -> check(facet.value == 1uL && minLength.value>=1uL) { "MaxLength < length" }
+                        minLength != null -> error("3.4.3(2) - multiple maxLength facets")
+                        else -> minLength = facet
+                    }
 
                     is ResolvedPattern -> pattern?.let {// combine by or
                         ResolvedPattern(XSPattern("(?:${it.value}|${facet.value})"), it.schema)
