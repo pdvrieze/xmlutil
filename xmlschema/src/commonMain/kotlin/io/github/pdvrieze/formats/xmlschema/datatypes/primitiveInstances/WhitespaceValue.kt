@@ -33,24 +33,37 @@ enum class WhitespaceValue {
 
     @SerialName("replace")
     REPLACE {
-        override fun normalize(representation: VString): VString = VString(
-            buildString(
-                representation.length,
-                fun StringBuilder.() {
-                    for (c in representation) {
-                        when (c) {
-                            '\t', '\n', '\r' -> append(' ')
-                            else -> append(c)
-                        }
-                    }
-                })
-        )
+
+        private fun replace(representation: String): String {
+            return buildString(representation.length, fun StringBuilder.() {
+                for (c in representation) when (c) {
+                    '\t', '\n', '\r' -> append(' ')
+                    else -> append(c)
+                }
+            })
+        }
+
+        override fun normalize(representation: VString): VString = when(representation) {
+            is VPrefixString -> VPrefixString(
+                namespace = replace(representation.namespace),
+                prefix = replace(representation.prefix),
+                localname = replace(representation.localname),
+            )
+
+            else -> VString(replace(representation.xmlString))
+        }
     },
 
     @SerialName("collapse")
     COLLAPSE {
-        override fun normalize(representation: VString): VString =
-            VString(xmlCollapseWhitespace(representation.xmlString))
+        override fun normalize(representation: VString): VString = when (representation) {
+            is VPrefixString -> VPrefixString(
+                namespace = xmlCollapseWhitespace(representation.namespace),
+                prefix = xmlCollapseWhitespace(representation.prefix),
+                localname = xmlCollapseWhitespace(representation.localname),
+            )
+            else -> VString(xmlCollapseWhitespace(representation.xmlString))
+        }
     };
 
     abstract fun normalize(representation: VString): VString
