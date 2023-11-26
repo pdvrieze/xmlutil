@@ -153,6 +153,12 @@ class FacetList(
                 } else if (maxConstraint != null) {
                     primitiveType.validateValue(maxConstraint.value)
                 }
+                if (totalDigits != null) {
+                    check(totalDigits.value >0uL) { "Decimals must have at least 1 digit" }
+                    if (fractionDigits!=null) {
+                        check(fractionDigits.value<=totalDigits.value) { "Fraction digits must be less or equal to total digits" }
+                    }
+                }
                 check(primitiveType == DecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
             }
 
