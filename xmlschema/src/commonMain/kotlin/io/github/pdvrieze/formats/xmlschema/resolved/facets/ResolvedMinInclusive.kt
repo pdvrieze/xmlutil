@@ -22,21 +22,21 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinInclusive
+import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
 class ResolvedMinInclusive(
     rawPart: XSMinInclusive,
     schema: ResolvedSchemaLike,
-    primitiveDatatype: PrimitiveDatatype?
-) :
-    ResolvedMinBoundFacet(rawPart, schema) {
+    override val value: VAnySimpleType,
+) : ResolvedMinBoundFacet(rawPart, schema) {
     override val isInclusive: Boolean get() = true
 
-    override val value: VAnySimpleType = primitiveDatatype?.value(rawPart.value) ?: rawPart.value
-
-    override fun validate(type: PrimitiveDatatype, decimal: VDecimal) {
+    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {
         type.validateValue(value)
         val v = (type.value(value) as VDecimal)
         check(decimal >= v)
@@ -56,5 +56,15 @@ class ResolvedMinInclusive(
     }
 
     override fun toString(): String = "[$value-"
+
+    companion object {
+        operator fun invoke(rawPart: XSMinInclusive, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype<*>): ResolvedMinInclusive {
+            return ResolvedMinInclusive(rawPart, schema, primitiveDatatype.value(rawPart.value))
+        }
+
+        internal fun createUnverified(value: VAnySimpleType): ResolvedMinInclusive {
+            return ResolvedMinInclusive(XSMinInclusive(VString(value.xmlString)), BuiltinSchemaXmlschema, value)
+        }
+    }
 
 }

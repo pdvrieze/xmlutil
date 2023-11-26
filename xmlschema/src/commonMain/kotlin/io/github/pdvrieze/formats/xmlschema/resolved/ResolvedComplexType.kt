@@ -679,7 +679,7 @@ sealed class ResolvedComplexType(
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         context,
                         b,
-                        b.mdlFacets.overlay(FacetList(derivation.facets, schema, b.mdlPrimitiveTypeDefinition)),
+                        b.mdlFacets.overlay(FacetList.safe(derivation.facets, schema, b)),
                         b.mdlFundamentalFacets, // TODO may need further specialisation
                         b.mdlVariety.notNil(),
                         b.mdlPrimitiveTypeDefinition,
