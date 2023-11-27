@@ -225,6 +225,7 @@ class FacetList(
 
             is DateType,
             is TimeType,
+            is GYearType,
             is GYearMonthType,
             is GMonthDayType,
             is GDayType,
@@ -232,7 +233,7 @@ class FacetList(
             is DateTimeType -> {
                 val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
-                if (minDateTime!=null && maxDateTime!=null) {
+                if (minDateTime != null && maxDateTime != null) {
                     check(minDateTime <= maxDateTime) { "DateTime values not in range" }
                 }
             }
