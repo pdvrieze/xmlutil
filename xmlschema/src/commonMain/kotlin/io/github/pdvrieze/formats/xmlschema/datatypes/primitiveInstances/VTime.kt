@@ -25,22 +25,29 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class VTime(val msecVal: UInt) : IDateTime {
+value class VTime private constructor(val msecVal: ULong) : IDateTime {
     constructor(hours: UInt, minutes: UInt, millis: UInt) : this(
-        hours.toIBits(5) or
-                minutes.toIBits(6, 5) or
-                millis.toIBits(16, 11)
-    )
+        hours.toLBits(5) or
+                minutes.toLBits(6, 5) or
+                millis.toLBits(16, 11)
+    ) {
+        require(minutes<60u) { "Minutes out of range: $minutes"}
+        require(millis<60000u) { "Millis out of range: $millis" }
+    }
 
     constructor(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int?) : this(
-        hours.toIBits(5) or
-                minutes.toIBits(6, 5) or
-                millis.toIBits(16, 11) or
+        hours.toLBits(5) or
+                minutes.toLBits(6, 5) or
+                millis.toLBits(16, 11) or
                 when (timezoneOffset) {
-                    null -> 0u
-                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                    null -> 0uL
+                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 27)
                 }
-    )
+    ) {
+        require(minutes<60u) { "Minutes out of range: $minutes"}
+        require(millis<60000u) { "Millis out of range: $millis" }
+        require(timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
+    }
 
 
     override val hour: UInt
@@ -51,7 +58,7 @@ value class VTime(val msecVal: UInt) : IDateTime {
 
     override val second: VDecimal
         get() {
-            val millis = msecVal shr 11
+            val millis = (msecVal shr 11).uintFromBits(16)
             return when {
                 millis % 1000u == 0u -> VUnsignedInt(millis / 1000u)
                 else -> VBigDecimalImpl((millis.toDouble() / 1000.0).toString())
@@ -60,8 +67,8 @@ value class VTime(val msecVal: UInt) : IDateTime {
 
     override val timezoneOffset: Int?
         get() = when {
-            msecVal and 0x70000000u == 0u -> null
-            else -> (msecVal shr 18).intFromBits(13)
+            msecVal and 0x70000000_00000000uL == 0uL -> null
+            else -> (msecVal shr 27).intFromBits(13)
         }
 
     override val month: Nothing? get() = null
@@ -69,7 +76,7 @@ value class VTime(val msecVal: UInt) : IDateTime {
     override val year: Nothing? get() = null
 
 
-    override val xmlString: String get() = "--${monthFrag()}-${dayFrag()}"
+    override val xmlString: String get() = "${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
 
     override fun toString(): String = xmlString
 
