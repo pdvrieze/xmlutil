@@ -29,6 +29,7 @@ import kotlin.jvm.JvmInline
 value class VNMToken(override val xmlString: String) : VToken {
 
     init {
+        NMTokenType.mdlFacets.validateRepresentationOnly(NMTokenType, this)
         NMTokenType.validateValue(this)
     }
 

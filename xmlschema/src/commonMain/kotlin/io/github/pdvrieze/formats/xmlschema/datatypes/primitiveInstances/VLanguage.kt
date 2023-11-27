@@ -29,6 +29,7 @@ import kotlin.jvm.JvmInline
 value class VLanguage(override val xmlString: String) : VToken {
 
     init {
+        LanguageType.mdlFacets.validateRepresentationOnly(LanguageType, this)
         LanguageType.validateValue(this)
     }
 
