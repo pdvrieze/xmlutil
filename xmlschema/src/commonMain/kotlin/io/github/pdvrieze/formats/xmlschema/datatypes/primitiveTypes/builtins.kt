@@ -1512,7 +1512,7 @@ object TokenType : PrimitiveDatatype<VToken>("token", XmlSchemaConstants.XS_NAME
     }
 }
 
-object LanguageType : PrimitiveDatatype<VString>("language", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object LanguageType : PrimitiveDatatype<VLanguage>("language", XmlSchemaConstants.XS_NAMESPACE), IStringType {
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1527,16 +1527,20 @@ object LanguageType : PrimitiveDatatype<VString>("language", XmlSchemaConstants.
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VString {
-        return representation
+    override fun valueFromNormalized(representation: VString): VLanguage {
+        return VLanguage(representation.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VString {
-        return maybeValue as? VString ?: VString(maybeValue.xmlString)
+    override fun value(maybeValue: VAnySimpleType): VLanguage {
+        return maybeValue as? VLanguage ?: VLanguage(maybeValue.xmlString)
+    }
+
+    override fun validateValue(representation: Any) {
+        mdlFacets.validate(this, representation as VLanguage)
     }
 
     override fun validate(representation: VString) {
-        mdlFacets.validate(this, representation)
+        value(representation) // triggers validation in constructor
     }
 }
 
