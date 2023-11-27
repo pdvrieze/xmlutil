@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -45,7 +44,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             (schemaUri.scheme != baseURI.scheme ||
                     schemaUri.host != baseURI.host)
         ) {
-            throw FileNotFoundException("Absolute uri references are not supported")
+            throw FileNotFoundException("Absolute uri references are not supported ${schemaLocation}")
         }
         return baseURI.resolve(schemaUri).withXmlReader { reader ->
             XML {
