@@ -122,7 +122,10 @@ class FacetList(
         }
 
         val totalDigits: ResolvedTotalDigits? = newList.totalDigits?.checkNotFixed(this.totalDigits) ?: this.totalDigits
-        val whiteSpace: ResolvedWhiteSpace? = newList.whiteSpace?.checkNotFixed(this.whiteSpace) ?: this.whiteSpace
+        val whiteSpace: ResolvedWhiteSpace? = newList.whiteSpace?.let {
+            if (this.whiteSpace!=null) check(it.value.canOverride(this.whiteSpace.value))
+            it.checkNotFixed(this.whiteSpace)
+        } ?: this.whiteSpace
 
         return FacetList(
             assertions,
