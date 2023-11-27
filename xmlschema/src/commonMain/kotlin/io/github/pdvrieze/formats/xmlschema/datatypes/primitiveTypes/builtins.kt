@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFra
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
+import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
 import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
@@ -208,6 +209,8 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
         return Base64.decode(representation).size
     }
 
+    val regex = XRegex("((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?", ResolvedSchema.Version.V1_0)
+
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -221,8 +224,9 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VByteArray {
-        return VByteArray(Base64.decode(representation))
+    override fun valueFromNormalized(normalized: VString): VByteArray {
+        check(regex.matches(normalized))
+        return VByteArray(Base64.decode(normalized))
     }
 
     override fun value(maybeValue: VAnySimpleType): VByteArray {

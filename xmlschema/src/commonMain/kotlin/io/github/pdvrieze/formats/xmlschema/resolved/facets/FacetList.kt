@@ -142,10 +142,13 @@ class FacetList(
 
     }
 
-    fun check(primitiveType: AnyPrimitiveDatatype?) {
-        if (primitiveType!=null) {
+    fun check(simpleType: ResolvedSimpleType) {
+        val primitiveType = simpleType.mdlPrimitiveTypeDefinition
+        if (primitiveType != null) {
             for (p in patterns) { p.checkFacetValid(primitiveType) }
-            for (e in enumeration) { e.checkFacetValid(primitiveType) }
+        }
+        for (e in enumeration) {
+            e.checkFacetValid(simpleType)
         }
 
         if (minLength != null && maxLength != null) {
