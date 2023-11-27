@@ -26,9 +26,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotati
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
@@ -78,7 +78,8 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 val name = when (val v = enum.value) {
                     is VNotation -> v.value
                     is VPrefixString -> v.toQName()
-                    else -> QName(enum.value.xmlString)
+                    is VString -> QName(v.xmlString)
+                    else -> error("Value $v is not supported as notation")
                 }
                 // TODO (have notations resolved
                 checkHelper.checkNotation(name)
@@ -86,21 +87,53 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         }
 
         if (mdlVariety == Variety.LIST) {
-            mdlFacets.checkList()
             val baseTypeDef = mdlBaseTypeDefinition
             require(baseTypeDef is ResolvedSimpleType) { "Only AnySimpleType can inherit from (complex) AnyType" }
             if (baseTypeDef != AnySimpleType) {
                 check(baseTypeDef.mdlVariety == Variety.LIST)
                 check(VDerivationControl.RESTRICTION !in baseTypeDef.mdlFinal)
             }
+            mdlFacets.checkList(this)
         }
         mdlFacets.check(this.mdlPrimitiveTypeDefinition)
     }
 
+    override fun validateValue(value: Any) {
+        when (mdlVariety) {
+            Variety.ATOMIC -> {
+                val pt = checkNotNull(mdlPrimitiveTypeDefinition)
+                pt.validateValue(value)
+                mdlFacets.validateValue(value)
+            }
+            Variety.LIST -> {
+                val id = checkNotNull(mdlItemTypeDefinition)
+                check(value is List<*>)
+                mdlFacets.validateValue(value)
+                for (i in value.requireNoNulls()) {
+                    id.validateValue(i)
+                }
+            }
+            Variety.UNION -> {
+                check(mdlMemberTypeDefinitions.isNotEmpty())
+                check(mdlMemberTypeDefinitions.any {t ->
+                    runCatching { t.validateValue(value); true }.getOrDefault(false)
+                })
+            }
+            Variety.NIL -> error("Nil variety cannot be validated")
+        }
+        mdlPrimitiveTypeDefinition?.validateValue(value)
+//        mdlFacets.validate(mdlPrimitiveTypeDefinition, value)
+    }
+
     override fun validate(representation: VString) {
         check(this != mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
-        mdlPrimitiveTypeDefinition?.validate(representation)
-        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
+        val v = value(representation)
+        if (v != null) validateValue(v)
+        val pt = mdlPrimitiveTypeDefinition
+        if (pt != null) {
+            pt.validate(representation)
+            mdlFacets.validate(pt, representation)
+        }
     }
 
     override fun isValidSubtitutionFor(other: ResolvedType, asRestriction: Boolean): Boolean {
@@ -151,10 +184,18 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         val normalized = mdlFacets.whiteSpace?.value?.normalize(representation) ?: representation
         return when (mdlVariety) {
             Variety.ATOMIC -> {
-                return checkNotNull(mdlPrimitiveTypeDefinition) { "Missing primitive type for $this" }.value(normalized)
+                val type = checkNotNull(mdlPrimitiveTypeDefinition) { "Missing primitive type for $this" }
+                mdlFacets.validate(type, normalized)
+                return type.value(normalized)
             }
             Variety.LIST -> {
-                return normalized.split(' ').map { mdlItemTypeDefinition!!.value(VString(it)) }
+                return when {
+                    normalized.isEmpty() -> emptyList()
+                    else -> normalized.split(' ').map {
+                        val itemType = checkNotNull(mdlItemTypeDefinition)
+                        itemType.value(VString(it))
+                    }
+                }
             }
             Variety.UNION -> {
                 for (m in mdlMemberTypeDefinitions) {

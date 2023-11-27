@@ -20,21 +20,20 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 
-class ResolvedEnumeration<out T: VAnySimpleType>(
+class ResolvedEnumeration<out T : Any>(
     rawPart: XSEnumeration,
     schema: ResolvedSchemaLike,
-    primitiveDatatype: PrimitiveDatatype<T>?
+    dataType: ResolvedSimpleType
 ) : ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     @Suppress("UNCHECKED_CAST")
-    val value: T = primitiveDatatype?.value(rawPart.value) ?: (rawPart.value as T)
+    val value: T = dataType.value(rawPart.value) as T
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
