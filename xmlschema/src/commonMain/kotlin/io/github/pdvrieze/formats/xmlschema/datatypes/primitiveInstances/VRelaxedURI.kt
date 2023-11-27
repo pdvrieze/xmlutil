@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -29,27 +29,35 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
-@Serializable(VAnyURI.Serializer::class)
-sealed class VAnyURI : VAnyAtomicType, CharSequence {
+@Serializable(VRelaxedURI.Serializer::class)
+class VRelaxedURI(override val xmlString: String) : VAnyURI() {
+    constructor(charSequence: CharSequence) : this(charSequence.toString())
 
-    val value: String get() = xmlString
+    init {
+        // This can not be AnyURIType as it is used in defining AtomicDataType
+        require(value == xmlCollapseWhitespace(value))
+    }
 
-    companion object Serializer : KSerializer<VAnyURI> {
-        operator fun invoke(value: String) = value.toAnyUri()
-        operator fun invoke(value: CharSequence) = value.toString().toAnyUri()
+
+    override val length: Int get() = xmlString.length
+
+    override fun get(index: Int): Char = xmlString.get(index)
+
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
+        xmlString.subSequence(startIndex, endIndex)
+
+    override fun toString(): String = xmlString
+
+    companion object Serializer : KSerializer<VRelaxedURI> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.anyURI", PrimitiveKind.STRING)
 
-        override fun deserialize(decoder: Decoder): VAnyURI {
-            val s = xmlCollapseWhitespace(decoder.decodeString())
-            return kotlin.runCatching { VParsedURI(s) }.getOrElse { VRelaxedURI(s) }
+        override fun deserialize(decoder: Decoder): VRelaxedURI {
+            return VRelaxedURI(xmlCollapseWhitespace(decoder.decodeString()))
         }
 
 
-        override fun serialize(encoder: Encoder, value: VAnyURI) {
+        override fun serialize(encoder: Encoder, value: VRelaxedURI) {
             encoder.encodeString(value.xmlString)
         }
-
     }
 }
-
-internal fun String.toAnyUri(): VAnyURI = kotlin.runCatching { VParsedURI(this) }.getOrElse { VRelaxedURI(this) }
