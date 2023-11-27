@@ -29,6 +29,7 @@ enum class WhitespaceValue {
     @SerialName("preserve")
     PRESERVE {
         override fun normalize(representation: VString): VString = representation
+        override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue == PRESERVE)
     },
 
     @SerialName("replace")
@@ -52,6 +53,8 @@ enum class WhitespaceValue {
 
             else -> VString(replace(representation.xmlString))
         }
+
+        override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue != COLLAPSE)
     },
 
     @SerialName("collapse")
@@ -64,8 +67,13 @@ enum class WhitespaceValue {
             )
             else -> VString(xmlCollapseWhitespace(representation.xmlString))
         }
+
+        override fun canOverride(oldValue: WhitespaceValue): Boolean = true
+
     };
 
     abstract fun normalize(representation: VString): VString
+
+    abstract fun canOverride(oldValue: WhitespaceValue): Boolean
 
 }
