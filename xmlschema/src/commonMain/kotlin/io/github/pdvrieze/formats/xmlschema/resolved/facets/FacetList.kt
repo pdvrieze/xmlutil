@@ -146,7 +146,8 @@ class FacetList(
 
     fun check(primitiveType: AnyPrimitiveDatatype?) {
         if (primitiveType!=null) {
-            for (p in patterns) p.checkFacetValid(primitiveType)
+            for (p in patterns) { p.checkFacetValid(primitiveType) }
+            for (e in enumeration) { e.checkFacetValid(primitiveType) }
         }
 
         if (minLength != null && maxLength != null) {

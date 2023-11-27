@@ -29,7 +29,7 @@ import kotlin.jvm.JvmInline
 value class VLanguage(override val xmlString: String) : VToken {
 
     init {
-        LanguageType.validate(VString(xmlString))
+        LanguageType.validateValue(this)
     }
 
     override fun toString(): String = xmlString
