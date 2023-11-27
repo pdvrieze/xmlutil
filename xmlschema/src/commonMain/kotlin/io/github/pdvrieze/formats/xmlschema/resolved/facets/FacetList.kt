@@ -146,11 +146,12 @@ class FacetList(
             for (p in patterns) p.checkFacetValid(primitiveType)
         }
 
+        if (minLength != null && maxLength != null) {
+            check(minLength.value <= maxLength.value) { "minLength > maxLengh is not valid" }
+        }
+
         when (primitiveType) {
             is IStringType -> {
-                if (minLength != null && maxLength != null) {
-                    check(minLength.value <= maxLength.value) { "minLength > maxLengh is not valid" }
-                }
 
                 check(minConstraint == null) { "Strings can not have numeric facets" }
                 check(maxConstraint == null) { "Strings can not have numeric facets" }
