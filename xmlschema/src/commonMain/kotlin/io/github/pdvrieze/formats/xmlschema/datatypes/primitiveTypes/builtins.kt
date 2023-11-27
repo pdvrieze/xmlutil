@@ -1348,7 +1348,7 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
     }
 
     override fun validateValue(value: Any) {
-        check(value is ByteArray) { "Value for hex binary is not a ByteArray" }
+        check(value is VByteArray) { "Value for hex binary is not a ByteArray" }
     }
 
     override fun validate(representation: VString) {
