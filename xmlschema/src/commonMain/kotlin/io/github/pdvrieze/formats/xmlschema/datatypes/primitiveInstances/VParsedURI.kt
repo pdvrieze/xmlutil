@@ -29,8 +29,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
-@Serializable(VAnyURI.Serializer::class)
-class VParsedURI(str: String): VAnyAtomicType, CharSequence {
+@Serializable(VParsedURI.Serializer::class)
+class VParsedURI(str: String): VAnyURI() {
     constructor(charSequence: CharSequence) : this(charSequence.toString())
 
     private val scheme: String?
@@ -95,8 +95,6 @@ class VParsedURI(str: String): VAnyAtomicType, CharSequence {
         check(str == xmlString) { "'$str' != '$xmlString'"}
     }
 
-    val value: String get() = xmlString
-
     override val xmlString: String get() = buildString {
         if (scheme != null) {
             append(scheme).append(':')
@@ -140,15 +138,15 @@ class VParsedURI(str: String): VAnyAtomicType, CharSequence {
         return result
     }
 
-    companion object Serializer: KSerializer<VAnyURI> {
+    companion object Serializer: KSerializer<VParsedURI> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.anyURI", PrimitiveKind.STRING)
 
-        override fun deserialize(decoder: Decoder): VAnyURI {
-            return VAnyURI(xmlCollapseWhitespace(decoder.decodeString()))
+        override fun deserialize(decoder: Decoder): VParsedURI {
+            return VParsedURI(xmlCollapseWhitespace(decoder.decodeString()))
         }
 
 
-        override fun serialize(encoder: Encoder, value: VAnyURI) {
+        override fun serialize(encoder: Encoder, value: VParsedURI) {
             encoder.encodeString(value.xmlString)
         }
     }

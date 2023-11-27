@@ -731,7 +731,7 @@ internal class RedefineSchema(
 
     override val version: ResolvedSchema.Version get() = base.version
 
-    override val targetNamespace: VAnyURI? get() = data.namespace?.let(::VAnyURI) ?: base.targetNamespace
+    override val targetNamespace: VAnyURI? get() = data.namespace?.let { VAnyURI(it) } ?: base.targetNamespace
     private val originalNS get() = targetNamespace?.value ?: ""
 
     override fun hasLocalTargetNamespace(): Boolean {
